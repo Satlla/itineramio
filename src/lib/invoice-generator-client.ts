@@ -71,6 +71,13 @@ interface ClientInvoiceData {
   // Payment
   iban?: string
   paymentNote?: string
+
+  // VeriFactu
+  verifactu?: {
+    enabled: boolean
+    qrDataUrl?: string    // Base64 PNG data URL for QR tributario
+    hash?: string         // SHA-256 hash of the record
+  }
 }
 
 /**
@@ -513,6 +520,22 @@ export function generateClientInvoiceHTML(data: ClientInvoiceData): string {
     <div class="retention-row">
       <span>Retención IRPF</span>
       <span>-${formatCurrency(data.retentionAmount)}</span>
+    </div>
+    ` : ''}
+
+    ${data.verifactu?.enabled ? `
+    <!-- VeriFactu QR Tributario -->
+    <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #e0e0e0; display: flex; align-items: flex-start; gap: 15px;">
+      ${data.verifactu.qrDataUrl ? `
+      <div style="flex-shrink: 0;">
+        <div style="font-size: 8pt; font-weight: 600; color: #333; margin-bottom: 4px; text-align: center;">QR tributario</div>
+        <img src="${data.verifactu.qrDataUrl}" alt="QR tributario" style="width: 30mm; height: 30mm;" />
+      </div>` : ''}
+      <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 30mm;">
+        <div style="font-size: 14pt; font-weight: 700; color: #000; letter-spacing: 2px;">VERI*FACTU</div>
+        <div style="font-size: 8pt; color: #666; margin-top: 4px;">Sistema de facturación verificable — RD 1007/2023</div>
+        ${data.verifactu.hash ? `<div style="font-size: 7pt; color: #999; margin-top: 4px; font-family: monospace; word-break: break-all;">Hash: ${data.verifactu.hash}</div>` : ''}
+      </div>
     </div>
     ` : ''}
 

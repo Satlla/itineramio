@@ -16,6 +16,7 @@ import {
   Building2
 } from 'lucide-react'
 import Link from 'next/link'
+import { useTranslation } from 'react-i18next'
 import { Button, Card, CardContent, Badge } from '../../../../src/components/ui'
 import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardFooter } from '../../../../src/components/layout/DashboardFooter'
@@ -23,6 +24,7 @@ import { DashboardFooter } from '../../../../src/components/layout/DashboardFoot
 interface Client {
   id: string
   type: 'EMPRESA' | 'PERSONA_FISICA'
+  retentionRate?: number | null
   firstName?: string
   lastName?: string
   companyName?: string
@@ -39,6 +41,7 @@ interface Client {
 }
 
 export default function ClientesPage() {
+  const { t } = useTranslation('gestion')
   const [loading, setLoading] = useState(true)
   const [clients, setClients] = useState<Client[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -50,6 +53,7 @@ export default function ClientesPage() {
   // Form state
   const [newClient, setNewClient] = useState({
     type: 'PERSONA_FISICA' as 'EMPRESA' | 'PERSONA_FISICA',
+    retentionRate: '' as string | number,
     firstName: '',
     lastName: '',
     companyName: '',
@@ -88,9 +92,9 @@ export default function ClientesPage() {
 
   const getClientName = (client: Client): string => {
     if (client.type === 'EMPRESA') {
-      return client.companyName || 'Empresa'
+      return client.companyName || t('owners.card.company')
     }
-    return `${client.firstName || ''} ${client.lastName || ''}`.trim() || 'Propietario'
+    return `${client.firstName || ''} ${client.lastName || ''}`.trim() || t('owners.title')
   }
 
   const validateNIF = (nif: string): boolean => {
@@ -120,40 +124,38 @@ export default function ClientesPage() {
 
     if (newClient.type === 'PERSONA_FISICA') {
       if (!newClient.firstName.trim() || !newClient.lastName.trim()) {
-        errors.firstName = 'Nombre y apellidos son requeridos'
+        errors.firstName = t('owners.validation.nameRequired')
       }
       if (newClient.nif && !validateNIF(newClient.nif)) {
-        errors.nif = 'NIF/NIE no válido'
+        errors.nif = t('owners.validation.nifInvalid')
       }
     } else {
       if (!newClient.companyName.trim()) {
-        errors.companyName = 'La razón social es requerida'
+        errors.companyName = t('owners.validation.companyNameRequired')
       }
       if (newClient.cif && !validateCIF(newClient.cif)) {
-        errors.cif = 'CIF no válido'
+        errors.cif = t('owners.validation.cifInvalid')
       }
     }
 
-    if (!newClient.email.trim()) {
-      errors.email = 'El email es requerido'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newClient.email)) {
-      errors.email = 'Email no válido'
+    if (newClient.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newClient.email)) {
+      errors.email = t('owners.validation.emailInvalid')
     }
 
     if (!newClient.address.trim()) {
-      errors.address = 'La dirección es requerida'
+      errors.address = t('owners.validation.addressRequired')
     }
 
     if (!newClient.city.trim()) {
-      errors.city = 'La ciudad es requerida'
+      errors.city = t('owners.validation.cityRequired')
     }
 
     if (!newClient.postalCode.trim()) {
-      errors.postalCode = 'El código postal es requerido'
+      errors.postalCode = t('owners.validation.postalCodeRequired')
     }
 
     if (newClient.iban && !validateIBAN(newClient.iban)) {
-      errors.iban = 'IBAN no válido (formato: ES00 0000 0000 0000 0000 0000)'
+      errors.iban = t('owners.validation.ibanInvalid')
     }
 
     setFormErrors(errors)
@@ -167,6 +169,7 @@ export default function ClientesPage() {
       setSaving(true)
       const payload = {
         type: newClient.type,
+        retentionRate: newClient.retentionRate !== '' ? Number(newClient.retentionRate) : null,
         email: newClient.email,
         phone: newClient.phone || undefined,
         iban: newClient.iban ? newClient.iban.replace(/\s/g, '').toUpperCase() : undefined,
@@ -202,11 +205,11 @@ export default function ClientesPage() {
         setShowModal(false)
       } else {
         const data = await response.json()
-        setFormErrors({ general: data.error || (editingClient ? 'Error al actualizar propietario' : 'Error al crear propietario') })
+        setFormErrors({ general: data.error || (editingClient ? t('owners.errors.updateError') : t('owners.errors.createError')) })
       }
     } catch (error) {
       console.error('Error saving client:', error)
-      setFormErrors({ general: 'Error de conexión' })
+      setFormErrors({ general: t('owners.errors.connectionError') })
     } finally {
       setSaving(false)
     }
@@ -216,6 +219,7 @@ export default function ClientesPage() {
     setEditingClient(client)
     setNewClient({
       type: client.type,
+      retentionRate: client.retentionRate !== null && client.retentionRate !== undefined ? client.retentionRate : '',
       firstName: client.firstName || '',
       lastName: client.lastName || '',
       companyName: client.companyName || '',
@@ -235,11 +239,11 @@ export default function ClientesPage() {
   const handleDeleteClient = async (clientId: string) => {
     const client = clients.find(c => c.id === clientId)
     if ((client?.propertiesCount || 0) > 0) {
-      alert('No se puede eliminar un propietario con propiedades asignadas')
+      alert(t('owners.errors.cannotDelete'))
       return
     }
 
-    if (!confirm('¿Eliminar este propietario?')) return
+    if (!confirm(t('owners.confirmDelete'))) return
 
     try {
       setDeleting(clientId)
@@ -252,7 +256,7 @@ export default function ClientesPage() {
         setClients(clients.filter(c => c.id !== clientId))
       } else {
         const data = await response.json()
-        alert(data.error || 'Error al eliminar')
+        alert(data.error || t('owners.errors.deleteError'))
       }
     } catch (error) {
       console.error('Error deleting client:', error)
@@ -265,6 +269,7 @@ export default function ClientesPage() {
     setEditingClient(null)
     setNewClient({
       type: 'PERSONA_FISICA',
+      retentionRate: '',
       firstName: '',
       lastName: '',
       companyName: '',
@@ -293,7 +298,7 @@ export default function ClientesPage() {
   })
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando propietarios..." type="general" />
+    return <AnimatedLoadingSpinner text={t('owners.loading')} type="general" />
   }
 
   return (
@@ -311,9 +316,9 @@ export default function ClientesPage() {
               <div className="flex items-center space-x-3">
                 <Users className="h-7 w-7 text-violet-600" />
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Propietarios</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">{t('owners.title')}</h1>
                   <p className="text-sm text-gray-600">
-                    Gestiona los propietarios de tus apartamentos
+                    {t('owners.subtitle')}
                   </p>
                 </div>
               </div>
@@ -323,7 +328,7 @@ export default function ClientesPage() {
                 className="bg-violet-600 hover:bg-violet-700"
               >
                 <Plus className="w-4 h-4 mr-1" />
-                Nuevo propietario
+                {t('owners.actions.new')}
               </Button>
             </div>
           </motion.div>
@@ -341,7 +346,7 @@ export default function ClientesPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Buscar por nombre o email..."
+                    placeholder={t('owners.search')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm"
@@ -354,9 +359,9 @@ export default function ClientesPage() {
                 onChange={(e) => setFilterType(e.target.value)}
                 className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
               >
-                <option value="all">Todos los tipos</option>
-                <option value="PERSONA_FISICA">Persona Física</option>
-                <option value="EMPRESA">Empresa / Autónomo</option>
+                <option value="all">{t('owners.filters.allTypes')}</option>
+                <option value="PERSONA_FISICA">{t('owners.filters.individual')}</option>
+                <option value="EMPRESA">{t('owners.filters.company')}</option>
               </select>
             </div>
           </motion.div>
@@ -373,7 +378,7 @@ export default function ClientesPage() {
                   {searchTerm || filterType !== 'all' ? (
                     <div className="text-center">
                       <Users className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                      <p className="text-gray-500">No se encontraron propietarios</p>
+                      <p className="text-gray-500">{t('owners.emptyState.noResults')}</p>
                     </div>
                   ) : (
                     <div className="max-w-md mx-auto">
@@ -382,33 +387,32 @@ export default function ClientesPage() {
                           <Users className="h-8 w-8 text-violet-600" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                          Crea tu primer propietario
+                          {t('owners.emptyState.title')}
                         </h3>
                         <p className="text-gray-600">
-                          Los propietarios son los dueños de los apartamentos que gestionas.
-                          Necesitas crear al menos uno para poder asignarlo a tus propiedades y generar facturas.
+                          {t('owners.emptyState.description')}
                         </p>
                       </div>
 
                       {/* Steps */}
                       <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                        <p className="text-sm font-medium text-gray-700 mb-3">Flujo de facturación:</p>
+                        <p className="text-sm font-medium text-gray-700 mb-3">{t('owners.emptyState.flow.title')}</p>
                         <div className="space-y-2 text-sm text-gray-600">
                           <div className="flex items-center gap-2">
                             <span className="w-5 h-5 bg-violet-600 text-white rounded-full flex items-center justify-center text-xs font-medium">1</span>
-                            <span>Crear propietario <span className="text-violet-600 font-medium">(estás aquí)</span></span>
+                            <span>{t('owners.emptyState.flow.step1')} <span className="text-violet-600 font-medium">{t('owners.emptyState.flow.step1Current')}</span></span>
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="w-5 h-5 bg-gray-300 text-white rounded-full flex items-center justify-center text-xs font-medium">2</span>
-                            <span>Asignar propietario a propiedades</span>
+                            <span>{t('owners.emptyState.flow.step2')}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="w-5 h-5 bg-gray-300 text-white rounded-full flex items-center justify-center text-xs font-medium">3</span>
-                            <span>Importar reservas</span>
+                            <span>{t('owners.emptyState.flow.step3')}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="w-5 h-5 bg-gray-300 text-white rounded-full flex items-center justify-center text-xs font-medium">4</span>
-                            <span>Generar facturas</span>
+                            <span>{t('owners.emptyState.flow.step4')}</span>
                           </div>
                         </div>
                       </div>
@@ -419,7 +423,7 @@ export default function ClientesPage() {
                           className="bg-violet-600 hover:bg-violet-700"
                         >
                           <Plus className="w-4 h-4 mr-1" />
-                          Crear propietario
+                          {t('owners.actions.create')}
                         </Button>
                       </div>
                     </div>
@@ -448,7 +452,7 @@ export default function ClientesPage() {
                                 {getClientName(client)}
                               </h3>
                               <Badge className="text-xs" variant="secondary">
-                                {client.type === 'EMPRESA' ? 'Empresa' : 'Persona'}
+                                {client.type === 'EMPRESA' ? t('owners.card.company') : t('owners.card.individual')}
                               </Badge>
                             </div>
                             <div className="flex items-center gap-4 mt-1 text-sm text-gray-500 flex-wrap">
@@ -474,13 +478,13 @@ export default function ClientesPage() {
                         <div className="flex items-center gap-3">
                           <div className="text-right text-sm">
                             <div className="text-gray-500">
-                              {client.propertiesCount || 0} propiedades
+                              {client.propertiesCount || 0} {t('owners.card.properties')}
                             </div>
                           </div>
                           <button
                             onClick={() => handleEditClient(client)}
                             className="p-2 text-gray-400 hover:text-violet-600 transition-colors"
-                            title="Editar propietario"
+                            title={t('owners.modal.edit')}
                           >
                             <Edit className="w-4 h-4" />
                           </button>
@@ -488,7 +492,7 @@ export default function ClientesPage() {
                             onClick={() => handleDeleteClient(client.id)}
                             disabled={deleting === client.id}
                             className="p-2 text-gray-400 hover:text-red-500 disabled:opacity-50 transition-colors"
-                            title="Eliminar propietario"
+                            title={t('owners.confirmDelete')}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -512,7 +516,7 @@ export default function ClientesPage() {
             className="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto"
           >
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              {editingClient ? 'Editar Propietario' : 'Nuevo Propietario'}
+              {editingClient ? t('owners.modal.edit') : t('owners.modal.new')}
             </h3>
 
             {formErrors.general && (
@@ -524,7 +528,7 @@ export default function ClientesPage() {
             <div className="space-y-4">
               {/* Type Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('owners.modal.type')}</label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
@@ -536,7 +540,7 @@ export default function ClientesPage() {
                     }`}
                   >
                     <User className="w-5 h-5" />
-                    <span className="text-sm font-medium">Persona Física</span>
+                    <span className="text-sm font-medium">{t('owners.modal.individual')}</span>
                   </button>
                   <button
                     type="button"
@@ -548,7 +552,7 @@ export default function ClientesPage() {
                     }`}
                   >
                     <Briefcase className="w-5 h-5" />
-                    <span className="text-sm font-medium">Empresa / Autónomo</span>
+                    <span className="text-sm font-medium">{t('owners.modal.company')}</span>
                   </button>
                 </div>
               </div>
@@ -557,7 +561,7 @@ export default function ClientesPage() {
               {newClient.type === 'PERSONA_FISICA' ? (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('owners.modal.firstName')} *</label>
                     <input
                       type="text"
                       value={newClient.firstName}
@@ -567,7 +571,7 @@ export default function ClientesPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Apellidos *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('owners.modal.lastName')} *</label>
                     <input
                       type="text"
                       value={newClient.lastName}
@@ -580,7 +584,7 @@ export default function ClientesPage() {
                 </div>
               ) : (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Razón social *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('owners.modal.companyName')} *</label>
                   <input
                     type="text"
                     value={newClient.companyName}
@@ -594,7 +598,7 @@ export default function ClientesPage() {
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('owners.modal.email')}</label>
                 <input
                   type="email"
                   value={newClient.email}
@@ -608,7 +612,7 @@ export default function ClientesPage() {
               {/* NIF/CIF */}
               {newClient.type === 'PERSONA_FISICA' ? (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">NIF/NIE</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('owners.modal.nif')}</label>
                   <input
                     type="text"
                     value={newClient.nif}
@@ -621,7 +625,7 @@ export default function ClientesPage() {
                 </div>
               ) : (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">CIF</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('owners.modal.cif')}</label>
                   <input
                     type="text"
                     value={newClient.cif}
@@ -636,7 +640,7 @@ export default function ClientesPage() {
 
               {/* Phone */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('owners.modal.phone')}</label>
                 <input
                   type="tel"
                   value={newClient.phone}
@@ -646,10 +650,35 @@ export default function ClientesPage() {
                 />
               </div>
 
+              {/* Retention Rate */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('owners.modal.retentionRate')}
+                  <span className="text-gray-400 font-normal ml-1">
+                    ({t('owners.modal.retentionRateHelp', {
+                      defaultRate: newClient.type === 'EMPRESA' ? '15%' : '0%'
+                    })})
+                  </span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={newClient.retentionRate}
+                    onChange={(e) => setNewClient({ ...newClient, retentionRate: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  >
+                    <option value="">{t('owners.modal.retentionDefault')}</option>
+                    <option value="0">0% - {t('owners.modal.retentionNone')}</option>
+                    <option value="7">7% - {t('owners.modal.retentionNew')}</option>
+                    <option value="15">15% - {t('owners.modal.retentionStandard')}</option>
+                    <option value="19">19% - {t('owners.modal.retentionRental')}</option>
+                  </select>
+                </div>
+              </div>
+
               {/* IBAN */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  IBAN <span className="text-gray-400 font-normal">(para transferencias)</span>
+                  {t('owners.modal.iban')} <span className="text-gray-400 font-normal">{t('owners.modal.ibanHelp')}</span>
                 </label>
                 <input
                   type="text"
@@ -669,7 +698,7 @@ export default function ClientesPage() {
 
               {/* Address */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Dirección *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('owners.modal.address')} *</label>
                 <input
                   type="text"
                   value={newClient.address}
@@ -682,7 +711,7 @@ export default function ClientesPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('owners.modal.city')} *</label>
                   <input
                     type="text"
                     value={newClient.city}
@@ -693,7 +722,7 @@ export default function ClientesPage() {
                   {formErrors.city && <p className="mt-1 text-xs text-red-500">{formErrors.city}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">C.P. *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('owners.modal.postalCode')} *</label>
                   <input
                     type="text"
                     value={newClient.postalCode}
@@ -715,14 +744,14 @@ export default function ClientesPage() {
                   resetForm()
                 }}
               >
-                Cancelar
+                {t('common.cancel')}
               </Button>
               <Button
                 onClick={handleSaveClient}
                 disabled={saving}
                 className="bg-violet-600 hover:bg-violet-700"
               >
-                {saving ? 'Guardando...' : editingClient ? 'Guardar cambios' : 'Crear propietario'}
+                {saving ? t('owners.actions.saving') : editingClient ? t('owners.actions.saveChanges') : t('owners.actions.create')}
               </Button>
             </div>
           </motion.div>

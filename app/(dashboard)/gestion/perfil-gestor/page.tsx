@@ -74,6 +74,11 @@ interface InvoiceConfig {
   bic?: string
   bizumPhone?: string
   paypalEmail?: string
+  // VeriFactu
+  verifactuEnabled?: boolean
+  siiExempt?: boolean
+  verifactuApiKey?: string | null
+  verifactuApiKeyConfigured?: boolean
 }
 
 export default function PerfilGestorPage() {
@@ -93,6 +98,10 @@ export default function PerfilGestorPage() {
   const [editingSeriesId, setEditingSeriesId] = useState<string | null>(null)
   const [editingNumber, setEditingNumber] = useState<string>('')
   const [newSeries, setNewSeries] = useState({ name: '', prefix: '', type: 'STANDARD', resetYearly: true, isDefault: false })
+
+  // Separate state for API key (never send masked value back)
+  const [verifactuApiKeyInput, setVerifactuApiKeyInput] = useState('')
+  const [showApiKey, setShowApiKey] = useState(false)
 
   const [config, setConfig] = useState<InvoiceConfig>({
     businessName: '',
@@ -290,7 +299,11 @@ export default function PerfilGestorPage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(config)
+        body: JSON.stringify({
+          ...config,
+          // Only send API key if user typed a new one
+          ...(verifactuApiKeyInput ? { verifactuApiKey: verifactuApiKeyInput } : {}),
+        })
       })
 
       if (response.ok) {
@@ -1230,8 +1243,152 @@ export default function PerfilGestorPage() {
 
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-xs text-gray-500">
-                    <strong>Nota:</strong> {t('companyProfile.invoiceSeries.note')}
+                    {t('companyProfile.invoiceSeries.note')}
                   </p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* VeriFactu Configuration */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Card className="border border-gray-200 shadow-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">VeriFactu</h3>
+                    <p className="text-sm text-gray-500">Sistema de facturación verificable — RD 1007/2023</p>
+                  </div>
+                </div>
+
+                {/* Info banner */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-blue-800">
+                      <p className="font-medium mb-1">Obligatorio desde 2027</p>
+                      <p>Sociedades: 1 enero 2027 · Autónomos: 1 julio 2027. Activar VeriFactu añade hash SHA-256, QR tributario y el texto &quot;VERI*FACTU&quot; a tus facturas emitidas.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* VeriFactu toggle */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-gray-900">Activar VeriFactu</p>
+                      <p className="text-sm text-gray-500">Genera hash SHA-256 encadenado, QR tributario y marca &quot;VERI*FACTU&quot; en cada factura emitida</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setConfig({ ...config, verifactuEnabled: !config.verifactuEnabled })}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
+                        config.verifactuEnabled ? 'bg-emerald-600' : 'bg-gray-200'
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                          config.verifactuEnabled ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* SII Exempt toggle */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-gray-900">Exento por SII</p>
+                      <p className="text-sm text-gray-500">Si estás sujeto al SII (facturación &gt;6M€), quedas exento de VeriFactu</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setConfig({ ...config, siiExempt: !config.siiExempt })}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
+                        config.siiExempt ? 'bg-amber-600' : 'bg-gray-200'
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                          config.siiExempt ? 'translate-x-5' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {config.verifactuEnabled && !config.siiExempt && (
+                    <>
+                      <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                        <div className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                          <div className="text-sm text-emerald-800">
+                            <p className="font-medium mb-1">VeriFactu activo</p>
+                            <p>Las facturas emitidas incluirán:</p>
+                            <ul className="list-disc list-inside mt-1 space-y-0.5">
+                              <li>Hash SHA-256 encadenado con la factura anterior</li>
+                              <li>QR tributario con enlace de validación en AEAT</li>
+                              <li>Marca &quot;VERI*FACTU&quot; visible en el PDF</li>
+                              <li>Tipo de factura AEAT (F1, F2, R1-R5)</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Verifacti API Key */}
+                      <div className="border border-gray-200 rounded-lg p-4 space-y-3">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            API Key de Verifacti
+                          </label>
+                          <p className="text-xs text-gray-500 mb-2">
+                            Necesaria para enviar facturas a la AEAT. Obtén tu API key en verifacti.com
+                          </p>
+                          <div className="flex gap-2">
+                            <div className="relative flex-1">
+                              <input
+                                type={showApiKey ? 'text' : 'password'}
+                                value={verifactuApiKeyInput}
+                                onChange={(e) => setVerifactuApiKeyInput(e.target.value)}
+                                placeholder={config.verifactuApiKeyConfigured ? 'API key configurada (introduce una nueva para cambiarla)' : 'Introduce tu API key de Verifacti'}
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setShowApiKey(!showApiKey)}
+                              className="px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                            >
+                              {showApiKey ? 'Ocultar' : 'Mostrar'}
+                            </button>
+                          </div>
+                          {config.verifactuApiKeyConfigured && !verifactuApiKeyInput && (
+                            <p className="text-xs text-emerald-600 mt-1 flex items-center gap-1">
+                              <CheckCircle className="w-3 h-3" />
+                              API key configurada ({config.verifactuApiKey})
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {config.siiExempt && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                        <div className="text-sm text-amber-800">
+                          <p className="font-medium">Exento de VeriFactu por SII</p>
+                          <p className="mt-1">Los sujetos al Suministro Inmediato de Información (SII) están exentos de VeriFactu.</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

@@ -64,7 +64,12 @@ export async function GET(request: NextRequest) {
         bic: config.bic,
         // Other payment details
         bizumPhone: config.bizumPhone,
-        paypalEmail: config.paypalEmail
+        paypalEmail: config.paypalEmail,
+        // VeriFactu
+        verifactuEnabled: config.verifactuEnabled,
+        siiExempt: config.siiExempt,
+        verifactuApiKey: config.verifactuApiKey ? '••••' + config.verifactuApiKey.slice(-4) : null,
+        verifactuApiKeyConfigured: !!config.verifactuApiKey,
       }
     })
   } catch (error) {
@@ -108,7 +113,11 @@ export async function PUT(request: NextRequest) {
       bic,
       // Other payment details
       bizumPhone,
-      paypalEmail
+      paypalEmail,
+      // VeriFactu
+      verifactuEnabled,
+      siiExempt,
+      verifactuApiKey
     } = body
 
     if (!businessName || !nif || !address || !city || !postalCode) {
@@ -145,7 +154,10 @@ export async function PUT(request: NextRequest) {
         iban: iban?.replace(/\s/g, ''),
         bic,
         bizumPhone,
-        paypalEmail
+        paypalEmail,
+        verifactuEnabled: verifactuEnabled ?? false,
+        siiExempt: siiExempt ?? false,
+        ...(verifactuApiKey !== undefined && { verifactuApiKey }),
       },
       update: {
         businessName,
@@ -163,7 +175,10 @@ export async function PUT(request: NextRequest) {
         ...(iban !== undefined && { iban: iban?.replace(/\s/g, '') }),
         ...(bic !== undefined && { bic }),
         ...(bizumPhone !== undefined && { bizumPhone }),
-        ...(paypalEmail !== undefined && { paypalEmail })
+        ...(paypalEmail !== undefined && { paypalEmail }),
+        ...(verifactuEnabled !== undefined && { verifactuEnabled }),
+        ...(siiExempt !== undefined && { siiExempt }),
+        ...(verifactuApiKey !== undefined && { verifactuApiKey })
       }
     })
 
@@ -196,7 +211,11 @@ export async function PUT(request: NextRequest) {
         iban: config.iban,
         bic: config.bic,
         bizumPhone: config.bizumPhone,
-        paypalEmail: config.paypalEmail
+        paypalEmail: config.paypalEmail,
+        verifactuEnabled: config.verifactuEnabled,
+        siiExempt: config.siiExempt,
+        verifactuApiKey: config.verifactuApiKey ? '••••' + config.verifactuApiKey.slice(-4) : null,
+        verifactuApiKeyConfigured: !!config.verifactuApiKey,
       }
     })
   } catch (error) {

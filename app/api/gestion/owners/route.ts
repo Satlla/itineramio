@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         type: true,
+        retentionRate: true,
         firstName: true,
         lastName: true,
         companyName: true,
@@ -44,6 +45,7 @@ export async function GET(request: NextRequest) {
     const formattedOwners = owners.map(o => ({
       id: o.id,
       type: o.type,
+      retentionRate: o.retentionRate ? Number(o.retentionRate) : null,
       firstName: o.firstName,
       lastName: o.lastName,
       companyName: o.companyName,
@@ -84,6 +86,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const {
       type,
+      retentionRate,
       firstName,
       lastName,
       companyName,
@@ -99,7 +102,7 @@ export async function POST(request: NextRequest) {
     } = body
 
     // Validate required fields
-    if (!type || !email || !address || !city || !postalCode) {
+    if (!type || !address || !city || !postalCode) {
       return NextResponse.json(
         { error: 'Faltan campos obligatorios' },
         { status: 400 }
@@ -124,6 +127,7 @@ export async function POST(request: NextRequest) {
       data: {
         userId,
         type,
+        retentionRate: retentionRate !== undefined && retentionRate !== null ? retentionRate : null,
         firstName: type === 'PERSONA_FISICA' ? firstName : null,
         lastName: type === 'PERSONA_FISICA' ? lastName : null,
         companyName: type === 'EMPRESA' ? companyName : null,

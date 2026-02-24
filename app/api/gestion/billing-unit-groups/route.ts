@@ -31,7 +31,9 @@ export async function GET(request: NextRequest) {
             id: true,
             name: true,
             city: true,
-            imageUrl: true
+            imageUrl: true,
+            cleaningValue: true,
+            cleaningVatIncluded: true
           }
         },
         _count: {
@@ -57,7 +59,10 @@ export async function GET(request: NextRequest) {
             ? group.owner.companyName
             : `${group.owner.firstName} ${group.owner.lastName}`.trim()
         } : null,
-        billingUnits: group.billingUnits,
+        billingUnits: group.billingUnits.map(u => ({
+          ...u,
+          cleaningValue: Number(u.cleaningValue)
+        })),
         unitsCount: group._count.billingUnits,
         invoicesCount: group._count.invoices,
         commissionType: group.commissionType,

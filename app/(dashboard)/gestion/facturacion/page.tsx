@@ -20,6 +20,7 @@ import Link from 'next/link'
 import { Button, Card, CardContent, Badge } from '../../../../src/components/ui'
 import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardFooter } from '../../../../src/components/layout/DashboardFooter'
+import { useTranslation } from 'react-i18next'
 
 interface PropertyStats {
   id: string
@@ -48,6 +49,7 @@ interface PropertyStats {
 }
 
 export default function FacturacionPage() {
+  const { t } = useTranslation('gestion')
   const [loading, setLoading] = useState(true)
   const [properties, setProperties] = useState<PropertyStats[]>([])
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
@@ -97,7 +99,7 @@ export default function FacturacionPage() {
   }), { totalIncome: 0, totalReservations: 0, totalNights: 0 })
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando propiedades..." type="general" />
+    return <AnimatedLoadingSpinner text={t('billing.loading')} type="general" />
   }
 
   return (
@@ -116,10 +118,10 @@ export default function FacturacionPage() {
                 <Building2 className="h-7 w-7 text-violet-600" />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
-                    Facturación
+                    {t('billing.title')}
                   </h1>
                   <p className="text-sm text-gray-600">
-                    Cierre mensual por propiedad
+                    {t('billing.subtitle')}
                   </p>
                 </div>
               </div>
@@ -129,7 +131,7 @@ export default function FacturacionPage() {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Buscar propiedad..."
+                    placeholder={t('billing.search')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 w-48 sm:w-64"
@@ -159,7 +161,7 @@ export default function FacturacionPage() {
               <Card>
                 <CardContent className="p-3 sm:p-4">
                   <div className="text-center">
-                    <p className="text-xs sm:text-sm text-gray-600">Ingresos {selectedYear}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">{t('billing.stats.income', { year: selectedYear })}</p>
                     <p className="text-lg sm:text-2xl font-bold text-green-600">
                       {formatCurrency(totals.totalIncome)}
                     </p>
@@ -169,7 +171,7 @@ export default function FacturacionPage() {
               <Card>
                 <CardContent className="p-3 sm:p-4">
                   <div className="text-center">
-                    <p className="text-xs sm:text-sm text-gray-600">Reservas</p>
+                    <p className="text-xs sm:text-sm text-gray-600">{t('billing.stats.reservations')}</p>
                     <p className="text-lg sm:text-2xl font-bold text-violet-600">
                       {totals.totalReservations}
                     </p>
@@ -179,7 +181,7 @@ export default function FacturacionPage() {
               <Card>
                 <CardContent className="p-3 sm:p-4">
                   <div className="text-center">
-                    <p className="text-xs sm:text-sm text-gray-600">Noches</p>
+                    <p className="text-xs sm:text-sm text-gray-600">{t('billing.stats.nights')}</p>
                     <p className="text-lg sm:text-2xl font-bold text-gray-900">
                       {totals.totalNights}
                     </p>
@@ -199,13 +201,13 @@ export default function FacturacionPage() {
               <Card>
                 <CardContent className="p-8 text-center">
                   <Home className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                  <p className="text-gray-700 font-medium mb-2">No tienes propiedades configuradas</p>
+                  <p className="text-gray-700 font-medium mb-2">{t('billing.emptyState.title')}</p>
                   <p className="text-sm text-gray-500 mb-4">
-                    Primero debes configurar tus propiedades con sus propietarios y comisiones.
+                    {t('billing.emptyState.description')}
                   </p>
                   <Link href="/gestion/apartamentos">
                     <Button className="bg-violet-600 hover:bg-violet-700">
-                      Ir a Apartamentos
+                      {t('billing.emptyState.action')}
                     </Button>
                   </Link>
                 </CardContent>
@@ -214,9 +216,9 @@ export default function FacturacionPage() {
               <Card>
                 <CardContent className="p-8 text-center">
                   <Search className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                  <p className="text-gray-700 font-medium mb-2">No se encontraron resultados</p>
+                  <p className="text-gray-700 font-medium mb-2">{t('billing.noResults.title')}</p>
                   <p className="text-sm text-gray-500">
-                    No hay propiedades que coincidan con &quot;{searchTerm}&quot;
+                    {t('billing.noResults.description', { searchTerm })}
                   </p>
                 </CardContent>
               </Card>
@@ -264,7 +266,7 @@ export default function FacturacionPage() {
                                 </h3>
                                 {isGroup && (
                                   <Badge className="bg-emerald-100 text-emerald-700 text-xs">
-                                    {property.unitCount} apartamentos
+                                    {property.unitCount} {t('billing.card.apartments')}
                                   </Badge>
                                 )}
                               </div>
@@ -286,14 +288,14 @@ export default function FacturacionPage() {
                                 <div className="mt-2 flex items-center gap-2 flex-wrap">
                                   <Badge className="bg-yellow-100 text-yellow-700 text-xs">
                                     <AlertCircle className="w-3 h-3 mr-1" />
-                                    Sin propietario
+                                    {t('billing.card.noOwner')}
                                   </Badge>
                                   <Link
                                     href="/gestion/apartamentos"
                                     onClick={(e) => e.stopPropagation()}
                                     className="text-xs text-violet-600 hover:text-violet-800 font-medium underline"
                                   >
-                                    Asignar propietario
+                                    {t('billing.card.assignOwner')}
                                   </Link>
                                 </div>
                               )}
@@ -303,25 +305,25 @@ export default function FacturacionPage() {
                           {/* Stats */}
                           <div className="grid grid-cols-4 gap-4 sm:gap-6 text-center">
                             <div>
-                              <p className="text-xs text-gray-500 mb-1">Ingresos</p>
+                              <p className="text-xs text-gray-500 mb-1">{t('billing.card.income')}</p>
                               <p className="font-semibold text-green-600">
                                 {formatCurrency(property.stats.totalIncome)}
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-gray-500 mb-1">Ocupación</p>
+                              <p className="text-xs text-gray-500 mb-1">{t('billing.card.occupancy')}</p>
                               <p className="font-semibold text-violet-600">
                                 {property.stats.occupancyRate.toFixed(0)}%
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-gray-500 mb-1">€/noche</p>
+                              <p className="text-xs text-gray-500 mb-1">{t('billing.card.pricePerNight')}</p>
                               <p className="font-semibold text-gray-900">
-                                {property.stats.averageNightPrice.toFixed(0)}€
+                                {Number(property.stats.averageNightPrice).toFixed(2).replace('.', ',')} €
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-gray-500 mb-1">Reservas</p>
+                              <p className="text-xs text-gray-500 mb-1">{t('billing.card.reservations')}</p>
                               <p className="font-semibold text-gray-900">
                                 {property.stats.totalReservations}
                               </p>
@@ -332,7 +334,7 @@ export default function FacturacionPage() {
                           <div className="flex items-center gap-3">
                             {hasOwner && property.stats.pendingLiquidations > 0 && (
                               <Badge className="bg-orange-100 text-orange-700">
-                                {property.stats.pendingLiquidations} pendientes
+                                {property.stats.pendingLiquidations} {t('billing.card.pending')}
                               </Badge>
                             )}
                             {hasOwner ? (

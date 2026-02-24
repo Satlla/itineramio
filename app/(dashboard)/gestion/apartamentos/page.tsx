@@ -22,6 +22,7 @@ import {
   Lightbulb
 } from 'lucide-react'
 import Link from 'next/link'
+import { useTranslation } from 'react-i18next'
 import { Button, Card, CardContent, Badge } from '../../../../src/components/ui'
 import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardFooter } from '../../../../src/components/layout/DashboardFooter'
@@ -61,7 +62,14 @@ interface BillingUnitGroup {
   imageUrl: string | null
   ownerId: string
   owner: Owner | null
-  billingUnits: { id: string; name: string; city: string | null; imageUrl: string | null }[]
+  billingUnits: {
+    id: string
+    name: string
+    city: string | null
+    imageUrl: string | null
+    cleaningValue: number
+    cleaningVatIncluded: boolean
+  }[]
   unitsCount: number
   invoicesCount: number
   commissionType: string
@@ -87,6 +95,7 @@ interface OwnerFull {
 type TabType = 'all' | 'groups' | 'standalone'
 
 export default function ApartamentosPage() {
+  const { t } = useTranslation('gestion')
   const [loading, setLoading] = useState(true)
   const [billingUnits, setBillingUnits] = useState<BillingUnit[]>([])
   const [groups, setGroups] = useState<BillingUnitGroup[]>([])
@@ -137,10 +146,10 @@ export default function ApartamentosPage() {
   }
 
   const getOwnerName = (owner?: OwnerFull | Owner | null) => {
-    if (!owner) return 'Sin asignar'
+    if (!owner) return t('common.unassigned')
     if ('type' in owner) {
-      if (owner.type === 'EMPRESA') return owner.companyName || 'Empresa'
-      return `${owner.firstName || ''} ${owner.lastName || ''}`.trim() || 'Persona física'
+      if (owner.type === 'EMPRESA') return owner.companyName || t('owners.card.company')
+      return `${owner.firstName || ''} ${owner.lastName || ''}`.trim() || t('owners.card.individual')
     }
     return owner.name
   }
@@ -152,7 +161,7 @@ export default function ApartamentosPage() {
   const configuredCount = standaloneUnits.filter(u => u.ownerId).length + groups.length
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando apartamentos..." type="general" />
+    return <AnimatedLoadingSpinner text={t('apartments.loading')} type="general" />
   }
 
   return (
@@ -169,9 +178,9 @@ export default function ApartamentosPage() {
               <div className="flex items-center space-x-3">
                 <Home className="h-7 w-7 text-violet-600" />
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Apartamentos</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">{t('apartments.title')}</h1>
                   <p className="text-sm text-gray-600">
-                    Gestiona apartamentos y conjuntos
+                    {t('apartments.subtitle')}
                   </p>
                 </div>
               </div>
@@ -183,14 +192,14 @@ export default function ApartamentosPage() {
                   className="border-violet-300 text-violet-700 hover:bg-violet-50"
                 >
                   <FolderOpen className="w-4 h-4 mr-2" />
-                  Nuevo conjunto
+                  {t('apartments.actions.newGroup')}
                 </Button>
                 <Button
                   onClick={() => setShowNewUnitModal(true)}
                   className="bg-violet-600 hover:bg-violet-700"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Nuevo apartamento
+                  {t('apartments.actions.newUnit')}
                 </Button>
               </div>
             </div>
@@ -201,19 +210,19 @@ export default function ApartamentosPage() {
             <Card>
               <CardContent className="p-4 text-center">
                 <p className="text-2xl font-bold text-violet-600">{groups.length}</p>
-                <p className="text-sm text-gray-500">Conjuntos</p>
+                <p className="text-sm text-gray-500">{t('apartments.stats.groups')}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
                 <p className="text-2xl font-bold text-blue-600">{standaloneUnits.length}</p>
-                <p className="text-sm text-gray-500">Individuales</p>
+                <p className="text-sm text-gray-500">{t('apartments.stats.standalone')}</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
                 <p className="text-2xl font-bold text-green-600">{groupedUnits.length}</p>
-                <p className="text-sm text-gray-500">En conjuntos</p>
+                <p className="text-sm text-gray-500">{t('apartments.stats.inGroups')}</p>
               </CardContent>
             </Card>
           </div>
@@ -225,14 +234,14 @@ export default function ApartamentosPage() {
                 <div className="flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-medium text-blue-800">Primero crea tus propietarios</p>
+                    <p className="font-medium text-blue-800">{t('apartments.noOwnersWarning.title')}</p>
                     <p className="text-sm text-blue-700 mt-1">
-                      Para crear conjuntos necesitas tener propietarios.
+                      {t('apartments.noOwnersWarning.description')}
                     </p>
                     <Link href="/gestion/clientes">
                       <Button size="sm" className="mt-3 bg-blue-600 hover:bg-blue-700">
                         <Plus className="w-4 h-4 mr-2" />
-                        Crear propietario
+                        {t('apartments.noOwnersWarning.createOwner')}
                       </Button>
                     </Link>
                   </div>
@@ -244,9 +253,9 @@ export default function ApartamentosPage() {
           {/* Tabs */}
           <div className="flex gap-2 mb-6 border-b border-gray-200">
             {[
-              { key: 'all', label: 'Todo', count: groups.length + standaloneUnits.length },
-              { key: 'groups', label: 'Conjuntos', count: groups.length },
-              { key: 'standalone', label: 'Individuales', count: standaloneUnits.length }
+              { key: 'all', label: t('apartments.tabs.all'), count: groups.length + standaloneUnits.length },
+              { key: 'groups', label: t('apartments.tabs.groups'), count: groups.length },
+              { key: 'standalone', label: t('apartments.tabs.standalone'), count: standaloneUnits.length }
             ].map(tab => (
               <button
                 key={tab.key}
@@ -273,7 +282,7 @@ export default function ApartamentosPage() {
                 {activeTab === 'all' && (
                   <h2 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
                     <FolderOpen className="w-5 h-5 text-violet-600" />
-                    Conjuntos
+                    {t('apartments.tabs.groups')}
                   </h2>
                 )}
                 <div className="space-y-3">
@@ -301,7 +310,7 @@ export default function ApartamentosPage() {
                 {activeTab === 'all' && (
                   <h2 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
                     <Building2 className="w-5 h-5 text-blue-600" />
-                    Apartamentos individuales
+                    {t('apartments.standaloneUnits')}
                   </h2>
                 )}
                 <div className="space-y-3">
@@ -325,9 +334,9 @@ export default function ApartamentosPage() {
               <Card>
                 <CardContent className="p-8 text-center">
                   <Home className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                  <p className="text-gray-700 font-medium mb-2">No tienes apartamentos</p>
+                  <p className="text-gray-700 font-medium mb-2">{t('apartments.emptyState.title')}</p>
                   <p className="text-sm text-gray-500 mb-4">
-                    Crea tu primer apartamento o conjunto para empezar.
+                    {t('apartments.emptyState.description')}
                   </p>
                   <div className="flex justify-center gap-3">
                     <Button
@@ -335,14 +344,14 @@ export default function ApartamentosPage() {
                       variant="outline"
                     >
                       <FolderOpen className="w-4 h-4 mr-2" />
-                      Crear conjunto
+                      {t('apartments.emptyState.createGroup')}
                     </Button>
                     <Button
                       onClick={() => setShowNewUnitModal(true)}
                       className="bg-violet-600 hover:bg-violet-700"
                     >
                       <Plus className="w-4 h-4 mr-2" />
-                      Crear apartamento
+                      {t('apartments.emptyState.createUnit')}
                     </Button>
                   </div>
                 </CardContent>
@@ -408,10 +417,11 @@ function GroupCard({
   onEditUnit: (unitId: string) => void
   onRefresh: () => void
 }) {
+  const { t } = useTranslation('gestion')
   const [deleting, setDeleting] = useState(false)
 
   const handleDelete = async () => {
-    if (!confirm('¿Eliminar este conjunto? Los apartamentos quedarán como individuales.')) return
+    if (!confirm(t('apartments.modals.deleteGroupConfirm'))) return
     setDeleting(true)
     try {
       const res = await fetch(`/api/gestion/billing-unit-groups/${group.id}`, {
@@ -419,7 +429,7 @@ function GroupCard({
         credentials: 'include'
       })
       if (res.ok) onRefresh()
-      else alert('Error al eliminar')
+      else alert(t('apartments.errors.deleteError'))
     } catch (e) {
       console.error(e)
     } finally {
@@ -452,7 +462,7 @@ function GroupCard({
               <div className="flex items-center gap-2 mt-1 flex-wrap">
                 <Badge className="bg-violet-100 text-violet-700 text-xs">
                   <FolderOpen className="w-3 h-3 mr-1" />
-                  Conjunto
+                  {t('apartments.group')}
                 </Badge>
                 {group.owner && (
                   <Badge className="bg-gray-100 text-gray-700 text-xs">
@@ -497,15 +507,15 @@ function GroupCard({
               className="border-t border-gray-200 bg-gray-50"
             >
               <div className="p-4">
-                <p className="text-sm text-gray-500 mb-3">Apartamentos en este conjunto:</p>
+                <p className="text-sm text-gray-500 mb-3">{t('apartments.unitsInGroup')}:</p>
                 {group.billingUnits.length === 0 ? (
-                  <p className="text-sm text-gray-400 italic">Sin apartamentos asignados</p>
+                  <p className="text-sm text-gray-400 italic">{t('apartments.noUnitsAssigned')}</p>
                 ) : (
                   <div className="grid sm:grid-cols-2 gap-2">
                     {group.billingUnits.map(unit => (
                       <div
                         key={unit.id}
-                        className="flex items-center justify-between gap-2 bg-white p-2 rounded-lg border hover:border-violet-300 cursor-pointer transition-colors"
+                        className="flex items-center justify-between gap-2 bg-white p-3 rounded-lg border hover:border-violet-300 cursor-pointer transition-colors"
                         onClick={() => onEditUnit(unit.id)}
                       >
                         <div className="flex items-center gap-2">
@@ -521,7 +531,15 @@ function GroupCard({
                             {unit.city && <p className="text-xs text-gray-500">{unit.city}</p>}
                           </div>
                         </div>
-                        <Edit2 className="w-4 h-4 text-gray-400" />
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <p className="text-xs text-gray-500">Limpieza</p>
+                            <p className="text-sm font-medium text-violet-600">
+                              {unit.cleaningValue > 0 ? `${unit.cleaningValue.toFixed(0)}€` : '-'}
+                            </p>
+                          </div>
+                          <Edit2 className="w-4 h-4 text-gray-400" />
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -553,10 +571,11 @@ function UnitCard({
   onRefresh: () => void
   groups: BillingUnitGroup[]
 }) {
+  const { t } = useTranslation('gestion')
   const [deleting, setDeleting] = useState(false)
 
   const handleDelete = async () => {
-    if (!confirm('¿Eliminar este apartamento?')) return
+    if (!confirm(t('apartments.modals.deleteUnitConfirm'))) return
     setDeleting(true)
     try {
       const res = await fetch(`/api/gestion/billing-units/${unit.id}`, {
@@ -566,7 +585,7 @@ function UnitCard({
       if (res.ok) onRefresh()
       else {
         const data = await res.json()
-        alert(data.error || 'Error al eliminar')
+        alert(data.error || t('apartments.errors.deleteError'))
       }
     } catch (e) {
       console.error(e)
@@ -576,8 +595,8 @@ function UnitCard({
   }
 
   const status = unit.ownerId
-    ? { color: 'bg-green-100 text-green-700', label: 'Configurado', icon: Check }
-    : { color: 'bg-yellow-100 text-yellow-700', label: 'Sin propietario', icon: AlertCircle }
+    ? { color: 'bg-green-100 text-green-700', label: t('apartments.status.configured'), icon: Check }
+    : { color: 'bg-yellow-100 text-yellow-700', label: t('apartments.status.noOwner'), icon: AlertCircle }
 
   return (
     <Card className={unit.ownerId ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-yellow-400'}>
@@ -598,7 +617,7 @@ function UnitCard({
             </div>
             <div>
               <h3 className="font-semibold text-gray-900">{unit.name}</h3>
-              <p className="text-sm text-gray-500">{unit.city || 'Sin ciudad'}</p>
+              <p className="text-sm text-gray-500">{unit.city || t('apartments.noCity')}</p>
               <div className="flex items-center gap-2 mt-1 flex-wrap">
                 <Badge className={`${status.color} text-xs`}>
                   <status.icon className="w-3 h-3 mr-1" />
@@ -612,7 +631,7 @@ function UnitCard({
                 )}
                 {unit.reservationsCount > 0 && (
                   <Badge className="bg-blue-100 text-blue-700 text-xs">
-                    {unit.reservationsCount} reservas
+                    {unit.reservationsCount} {t('apartments.reservations')}
                   </Badge>
                 )}
               </div>
@@ -647,19 +666,19 @@ function UnitCard({
             >
               <div className="p-4 grid sm:grid-cols-4 gap-4 text-sm">
                 <div>
-                  <p className="text-gray-500">Comisión</p>
-                  <p className="font-medium">{unit.commissionValue}% + {unit.commissionVat}% IVA</p>
+                  <p className="text-gray-500">{t('apartments.form.commission')}</p>
+                  <p className="font-medium">{unit.commissionValue}% + {unit.commissionVat}% {t('apartments.form.vat')}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Limpieza</p>
-                  <p className="font-medium">{unit.cleaningValue.toFixed(2)}€ {unit.cleaningVatIncluded ? '(IVA incl.)' : '(+ IVA)'}</p>
+                  <p className="text-gray-500">{t('apartments.form.cleaning')}</p>
+                  <p className="font-medium">{unit.cleaningValue.toFixed(2)}€ {unit.cleaningVatIncluded ? t('apartments.form.vatIncluded') : t('apartments.form.plusVat')}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Reservas</p>
+                  <p className="text-gray-500">{t('reservations.title')}</p>
                   <p className="font-medium">{unit.reservationsCount}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Facturas</p>
+                  <p className="text-gray-500">{t('apartments.invoicesCount')}</p>
                   <p className="font-medium">{unit.invoicesCount}</p>
                 </div>
               </div>
@@ -683,6 +702,7 @@ function ImageUpload({
   onUpload: (url: string) => void
   label?: string
 }) {
+  const { t } = useTranslation('gestion')
   const [uploading, setUploading] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -709,15 +729,15 @@ function ImageUpload({
         } else if (data.url) {
           onUpload(data.url)
         } else {
-          alert('Error: No se recibió URL de la imagen')
+          alert(t('apartments.errors.noImageUrl'))
         }
       } else {
         const errorData = await res.json().catch(() => ({}))
-        alert(errorData.error || 'Error al subir la imagen')
+        alert(errorData.error || t('apartments.errors.uploadError'))
       }
     } catch (error) {
       console.error('Upload error:', error)
-      alert('Error al subir la imagen')
+      alert(t('apartments.errors.uploadError'))
     } finally {
       setUploading(false)
     }
@@ -754,7 +774,7 @@ function ImageUpload({
             ) : (
               <>
                 <Upload className="w-4 h-4 mr-1" />
-                {currentUrl ? 'Cambiar' : 'Subir'}
+                {currentUrl ? t('apartments.form.change') : t('apartments.form.upload')}
               </>
             )}
           </Button>
@@ -818,6 +838,7 @@ function NewUnitModal({
   groups: BillingUnitGroup[]
   onSuccess: () => void
 }) {
+  const { t } = useTranslation('gestion')
   const [form, setForm] = useState({
     name: '',
     city: '',
@@ -871,7 +892,7 @@ function NewUnitModal({
         onSuccess()
       } else {
         const data = await res.json()
-        alert(data.error || 'Error al crear')
+        alert(data.error || t('apartments.errors.createError'))
       }
     } catch (error) {
       console.error(error)
@@ -881,51 +902,51 @@ function NewUnitModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Nuevo apartamento">
+    <Modal open={open} onClose={onClose} title={t('apartments.modals.newUnit')}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <ImageUpload
           currentUrl={form.imageUrl || null}
           onUpload={(url) => setForm(f => ({ ...f, imageUrl: url }))}
-          label="Foto del apartamento"
+          label={t('apartments.form.unitPhoto')}
         />
 
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.name')} *</label>
             <input
               type="text"
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              placeholder="Apartamento Centro"
+              placeholder={t('apartments.form.namePlaceholder')}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.city')}</label>
             <input
               type="text"
               value={form.city}
               onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
-              placeholder="Madrid"
+              placeholder={t('apartments.form.cityPlaceholder')}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.address')}</label>
           <input
             type="text"
             value={form.address}
             onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-            placeholder="Calle Gran Vía 45, 3º A"
+            placeholder={t('apartments.form.addressPlaceholder')}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
           />
         </div>
 
         <div className="w-32">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Código postal</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.postalCode')}</label>
           <input
             type="text"
             value={form.postalCode}
@@ -938,7 +959,7 @@ function NewUnitModal({
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             <FolderOpen className="w-4 h-4 inline mr-1" />
-            Añadir a conjunto
+            {t('apartments.form.addToGroup')}
           </label>
           {groups.length > 0 ? (
             <>
@@ -947,22 +968,22 @@ function NewUnitModal({
                 onChange={e => setForm(f => ({ ...f, groupId: e.target.value, ownerId: '' }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
               >
-                <option value="">Individual (sin conjunto)</option>
+                <option value="">{t('apartments.form.individualNoGroup')}</option>
                 {groups.map(g => (
                   <option key={g.id} value={g.id}>{g.name}</option>
                 ))}
               </select>
               {form.groupId && (
                 <p className="text-xs text-gray-500 mt-1">
-                  Hereda propietario y configuración del conjunto
+                  {t('apartments.form.inheritsFromGroup')}
                 </p>
               )}
             </>
           ) : (
             <div className="text-sm text-gray-500 bg-gray-50 rounded-lg p-3 border border-gray-200">
-              <p>No hay conjuntos creados todavía.</p>
+              <p>{t('apartments.form.noGroupsYet')}</p>
               <p className="mt-1 text-xs text-gray-400">
-                Los conjuntos permiten agrupar apartamentos de un mismo propietario para facturar todo junto.
+                {t('apartments.form.groupsExplanation')}
               </p>
             </div>
           )}
@@ -971,13 +992,13 @@ function NewUnitModal({
         {!form.groupId && (
           <>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Propietario</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.owner')}</label>
               <select
                 value={form.ownerId}
                 onChange={e => setForm(f => ({ ...f, ownerId: e.target.value }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
               >
-                <option value="">Sin propietario (propiedad propia)</option>
+                <option value="">{t('apartments.form.noOwnerOwnProperty')}</option>
                 {owners.map(o => (
                   <option key={o.id} value={o.id}>
                     {o.type === 'EMPRESA' ? o.companyName : `${o.firstName} ${o.lastName}`}
@@ -989,7 +1010,7 @@ function NewUnitModal({
             <div className="space-y-4">
               {/* Comisión de gestión */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Comisión de gestión</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('apartments.form.managementCommission')}</label>
                 <div className="flex items-center gap-3">
                   <div className="flex-1">
                     <div className="relative">
@@ -1021,7 +1042,7 @@ function NewUnitModal({
 
               {/* Tasa de limpieza */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tasa de limpieza</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('apartments.form.cleaningFee')}</label>
                 <div className="flex items-center gap-3">
                   <div className="flex-1">
                     <div className="relative">
@@ -1042,9 +1063,10 @@ function NewUnitModal({
                       onChange={e => setForm(f => ({ ...f, cleaningVatIncluded: e.target.checked }))}
                       className="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500"
                     />
-                    <span className="text-sm text-gray-600">IVA incluido</span>
+                    <span className="text-sm text-gray-600">{t('apartments.modal.vatIncluded')}</span>
                   </label>
                 </div>
+                <p className="text-xs text-gray-500 mt-1">{t('apartments.form.cleaningHintUnit')}</p>
               </div>
             </div>
           </>
@@ -1057,13 +1079,13 @@ function NewUnitModal({
             onClick={() => setShowPlatformNames(!showPlatformNames)}
             className="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors"
           >
-            <span className="text-sm font-medium text-gray-700">Nombres en plataformas (para importación)</span>
+            <span className="text-sm font-medium text-gray-700">{t('apartments.form.platformNames')}</span>
             <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showPlatformNames ? 'rotate-180' : ''}`} />
           </button>
           {showPlatformNames && (
             <div className="p-4 space-y-3 border-t border-gray-200">
               <p className="text-xs text-gray-500 mb-3">
-                Si el nombre en la plataforma es diferente al nombre interno, añádelo aquí para que las reservas importadas se asignen automáticamente.
+                {t('apartments.form.platformNamesHint')}
               </p>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Airbnb</label>
@@ -1071,7 +1093,7 @@ function NewUnitModal({
                   type="text"
                   value={form.airbnbNames}
                   onChange={e => setForm(f => ({ ...f, airbnbNames: e.target.value }))}
-                  placeholder="Nombre en Airbnb (separar con comas si hay varios)"
+                  placeholder={t('apartments.form.airbnbPlaceholder')}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
                 />
               </div>
@@ -1081,7 +1103,7 @@ function NewUnitModal({
                   type="text"
                   value={form.bookingNames}
                   onChange={e => setForm(f => ({ ...f, bookingNames: e.target.value }))}
-                  placeholder="Nombre en Booking (separar con comas si hay varios)"
+                  placeholder={t('apartments.form.bookingPlaceholder')}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
                 />
               </div>
@@ -1091,7 +1113,7 @@ function NewUnitModal({
                   type="text"
                   value={form.vrboNames}
                   onChange={e => setForm(f => ({ ...f, vrboNames: e.target.value }))}
-                  placeholder="Nombre en Vrbo (separar con comas si hay varios)"
+                  placeholder={t('apartments.form.vrboPlaceholder')}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
                 />
               </div>
@@ -1100,9 +1122,9 @@ function NewUnitModal({
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t">
-          <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button type="button" variant="outline" onClick={onClose}>{t('common.cancel')}</Button>
           <Button type="submit" disabled={saving || !form.name.trim()} className="bg-violet-600 hover:bg-violet-700">
-            {saving ? 'Creando...' : 'Crear apartamento'}
+            {saving ? t('apartments.actions.creating') : t('apartments.actions.createApartment')}
           </Button>
         </div>
       </form>
@@ -1126,6 +1148,7 @@ function NewGroupModal({
   standaloneUnits: BillingUnit[]
   onSuccess: () => void
 }) {
+  const { t } = useTranslation('gestion')
   const [form, setForm] = useState({
     name: '',
     imageUrl: '',
@@ -1167,7 +1190,7 @@ function NewGroupModal({
         onSuccess()
       } else {
         const data = await res.json()
-        alert(data.error || 'Error al crear')
+        alert(data.error || t('apartments.errors.createError'))
       }
     } catch (error) {
       console.error(error)
@@ -1186,21 +1209,21 @@ function NewGroupModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Nuevo conjunto">
+    <Modal open={open} onClose={onClose} title={t('apartments.modals.newGroup')}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Info box explicativo */}
         <div className="bg-violet-50 border border-violet-200 rounded-lg p-4">
           <div className="flex gap-3">
             <Lightbulb className="w-5 h-5 text-violet-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-violet-800">
-              <p className="font-medium mb-1">¿Qué es un conjunto?</p>
+              <p className="font-medium mb-1">{t('apartments.groupInfo.title')}</p>
               <p className="text-violet-700">
-                Un conjunto agrupa varios apartamentos de un mismo propietario para facturar todo junto en una única liquidación mensual.
+                {t('apartments.groupInfo.description')}
               </p>
               <ul className="mt-2 space-y-1 text-violet-700">
-                <li>• Una sola liquidación para todos los apartamentos</li>
-                <li>• Desglose por apartamento en el PDF</li>
-                <li>• Ahorra tiempo en la gestión mensual</li>
+                <li>• {t('apartments.groupInfo.benefit1')}</li>
+                <li>• {t('apartments.groupInfo.benefit2')}</li>
+                <li>• {t('apartments.groupInfo.benefit3')}</li>
               </ul>
             </div>
           </div>
@@ -1209,30 +1232,30 @@ function NewGroupModal({
         <ImageUpload
           currentUrl={form.imageUrl || null}
           onUpload={(url) => setForm(f => ({ ...f, imageUrl: url }))}
-          label="Foto del conjunto"
+          label={t('apartments.form.groupPhoto')}
         />
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del conjunto *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.groupName')} *</label>
           <input
             type="text"
             value={form.name}
             onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-            placeholder="Apartamentos Juan García"
+            placeholder={t('apartments.form.groupNamePlaceholder')}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Propietario *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.owner')} *</label>
           <select
             value={form.ownerId}
             onChange={e => setForm(f => ({ ...f, ownerId: e.target.value }))}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             required
           >
-            <option value="">Selecciona propietario</option>
+            <option value="">{t('apartments.form.selectOwner')}</option>
             {owners.map(o => (
               <option key={o.id} value={o.id}>
                 {o.type === 'EMPRESA' ? o.companyName : `${o.firstName} ${o.lastName}`}
@@ -1240,13 +1263,13 @@ function NewGroupModal({
             ))}
           </select>
           <p className="text-xs text-gray-500 mt-1">
-            Todos los apartamentos del conjunto facturan a este propietario
+            {t('apartments.form.allUnitsInvoiceToOwner')}
           </p>
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Comisión %</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.commissionPercent')}</label>
             <input
               type="number"
               step="0.1"
@@ -1256,7 +1279,7 @@ function NewGroupModal({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Limpieza €</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.cleaningEuros')}</label>
             <input
               type="number"
               step="0.01"
@@ -1267,29 +1290,32 @@ function NewGroupModal({
           </div>
         </div>
 
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+          {t('apartments.form.cleaningHintGroup')}
+        </div>
+
         {/* Configuración de limpieza */}
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de limpieza</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.cleaningType')}</label>
             <select
               value={form.cleaningType}
               onChange={e => setForm(f => ({ ...f, cleaningType: e.target.value }))}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             >
-              <option value="FIXED_PER_RESERVATION">Fija por reserva</option>
-              <option value="PER_NIGHT">Por noche</option>
+              <option value="FIXED_PER_RESERVATION">{t('apartments.form.cleaningTypeFixed')}</option>
+              <option value="PER_NIGHT">{t('apartments.form.cleaningTypePerNight')}</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">¿Quién cobra la limpieza?</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.cleaningFeeRecipient')}</label>
             <select
               value={form.cleaningFeeRecipient}
               onChange={e => setForm(f => ({ ...f, cleaningFeeRecipient: e.target.value }))}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             >
-              <option value="MANAGER">Gestor</option>
-              <option value="OWNER">Propietario</option>
-              <option value="SPLIT">Dividido</option>
+              <option value="MANAGER">{t('apartments.form.cleaningFeeRecipientManager')}</option>
+              <option value="OWNER">{t('apartments.form.cleaningFeeRecipientOwner')}</option>
             </select>
           </div>
         </div>
@@ -1303,14 +1329,14 @@ function NewGroupModal({
             className="rounded text-violet-600 focus:ring-violet-500"
           />
           <label htmlFor="cleaningVatIncluded" className="text-sm text-gray-700">
-            La limpieza incluye IVA
+            {t('apartments.modal.vatIncluded')}
           </label>
         </div>
 
         {standaloneUnits.length > 0 && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Añadir apartamentos existentes
+              {t('apartments.form.addExistingUnits')}
             </label>
             <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg">
               {standaloneUnits.map(unit => (
@@ -1333,13 +1359,13 @@ function NewGroupModal({
         )}
 
         <div className="flex justify-end gap-3 pt-4 border-t">
-          <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button type="button" variant="outline" onClick={onClose}>{t('common.cancel')}</Button>
           <Button
             type="submit"
             disabled={saving || !form.name.trim() || !form.ownerId}
             className="bg-violet-600 hover:bg-violet-700"
           >
-            {saving ? 'Creando...' : 'Crear conjunto'}
+            {saving ? t('apartments.actions.creating') : t('apartments.actions.createGroup')}
           </Button>
         </div>
       </form>
@@ -1363,6 +1389,7 @@ function EditUnitModal({
   groups: BillingUnitGroup[]
   onSuccess: () => void
 }) {
+  const { t } = useTranslation('gestion')
   const [form, setForm] = useState({
     name: '',
     city: '',
@@ -1440,7 +1467,7 @@ function EditUnitModal({
         onSuccess()
       } else {
         const data = await res.json()
-        alert(data.error || 'Error al guardar')
+        alert(data.error || t('apartments.errors.saveError'))
       }
     } catch (error) {
       console.error(error)
@@ -1450,17 +1477,17 @@ function EditUnitModal({
   }
 
   return (
-    <Modal open={!!unit} onClose={onClose} title="Editar apartamento">
+    <Modal open={!!unit} onClose={onClose} title={t('apartments.modals.editUnit')}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <ImageUpload
           currentUrl={form.imageUrl || null}
           onUpload={(url) => setForm(f => ({ ...f, imageUrl: url }))}
-          label="Foto del apartamento"
+          label={t('apartments.form.unitPhoto')}
         />
 
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.name')} *</label>
             <input
               type="text"
               value={form.name}
@@ -1470,7 +1497,7 @@ function EditUnitModal({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.city')}</label>
             <input
               type="text"
               value={form.city}
@@ -1481,18 +1508,18 @@ function EditUnitModal({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.address')}</label>
           <input
             type="text"
             value={form.address}
             onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-            placeholder="Calle Gran Vía 45, 3º A"
+            placeholder={t('apartments.form.addressPlaceholder')}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
           />
         </div>
 
         <div className="w-32">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Código postal</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.postalCode')}</label>
           <input
             type="text"
             value={form.postalCode}
@@ -1505,7 +1532,7 @@ function EditUnitModal({
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             <FolderOpen className="w-4 h-4 inline mr-1" />
-            Conjunto
+            {t('apartments.group')}
           </label>
           {groups.length > 0 ? (
             <>
@@ -1514,117 +1541,126 @@ function EditUnitModal({
                 onChange={e => setForm(f => ({ ...f, groupId: e.target.value, ownerId: '' }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
               >
-                <option value="">Individual (sin conjunto)</option>
+                <option value="">{t('apartments.form.individualNoGroup')}</option>
                 {groups.map(g => (
                   <option key={g.id} value={g.id}>{g.name}</option>
                 ))}
               </select>
               {form.groupId && (
                 <p className="text-xs text-gray-500 mt-1">
-                  Hereda propietario y configuración del conjunto
+                  {t('apartments.form.inheritsFromGroup')}
                 </p>
               )}
             </>
           ) : (
             <div className="text-sm text-gray-500 bg-gray-50 rounded-lg p-3 border border-gray-200">
-              <p>No hay conjuntos creados todavía.</p>
+              <p>{t('apartments.form.noGroupsYet')}</p>
               <p className="mt-1 text-xs text-gray-400">
-                Los conjuntos permiten agrupar apartamentos de un mismo propietario.
+                {t('apartments.form.groupsAllowGrouping')}
               </p>
             </div>
           )}
         </div>
 
+        {/* Propietario - solo si NO pertenece a un grupo */}
         {!form.groupId && (
-          <>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Propietario</label>
-              <select
-                value={form.ownerId}
-                onChange={e => setForm(f => ({ ...f, ownerId: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-              >
-                <option value="">Sin propietario</option>
-                {owners.map(o => (
-                  <option key={o.id} value={o.id}>
-                    {o.type === 'EMPRESA' ? o.companyName : `${o.firstName} ${o.lastName}`}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-4">
-              {/* Comisión de gestión */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Comisión de gestión</label>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1">
-                    <div className="relative">
-                      <input
-                        type="number"
-                        step="0.1"
-                        value={form.commissionValue}
-                        onChange={e => setForm(f => ({ ...f, commissionValue: e.target.value }))}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-8 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">%</span>
-                    </div>
-                  </div>
-                  <span className="text-gray-400">+</span>
-                  <div className="w-24">
-                    <div className="relative">
-                      <input
-                        type="number"
-                        step="1"
-                        value={form.commissionVat}
-                        onChange={e => setForm(f => ({ ...f, commissionVat: e.target.value }))}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-12 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">% IVA</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Tasa de limpieza */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tasa de limpieza</label>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1">
-                    <div className="relative">
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={form.cleaningValue}
-                        onChange={e => setForm(f => ({ ...f, cleaningValue: e.target.value }))}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-8 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">€</span>
-                    </div>
-                  </div>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.cleaningVatIncluded}
-                      onChange={e => setForm(f => ({ ...f, cleaningVatIncluded: e.target.checked }))}
-                      className="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500"
-                    />
-                    <span className="text-sm text-gray-600">IVA incluido</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.owner')}</label>
+            <select
+              value={form.ownerId}
+              onChange={e => setForm(f => ({ ...f, ownerId: e.target.value }))}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            >
+              <option value="">{t('apartments.form.noOwner')}</option>
+              {owners.map(o => (
+                <option key={o.id} value={o.id}>
+                  {o.type === 'EMPRESA' ? o.companyName : `${o.firstName} ${o.lastName}`}
+                </option>
+              ))}
+            </select>
+          </div>
         )}
+
+        {/* Comisión y limpieza - SIEMPRE visibles */}
+        <div className="space-y-4">
+          {form.groupId && (
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+              {t('apartments.form.overrideGroupHint')}
+            </div>
+          )}
+
+          {/* Comisión de gestión */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('apartments.form.managementCommission')}</label>
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={form.commissionValue}
+                    onChange={e => setForm(f => ({ ...f, commissionValue: e.target.value }))}
+                    placeholder={form.groupId ? t('apartments.form.inheritedFromGroup') : ''}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-8 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">%</span>
+                </div>
+              </div>
+              <span className="text-gray-400">+</span>
+              <div className="w-24">
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="1"
+                    value={form.commissionVat}
+                    onChange={e => setForm(f => ({ ...f, commissionVat: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-12 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">% IVA</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tasa de limpieza */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('apartments.form.cleaningFee')}</label>
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={form.cleaningValue}
+                    onChange={e => setForm(f => ({ ...f, cleaningValue: e.target.value }))}
+                    placeholder={form.groupId ? t('apartments.form.inheritedFromGroup') : ''}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-8 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">€</span>
+                </div>
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.cleaningVatIncluded}
+                  onChange={e => setForm(f => ({ ...f, cleaningVatIncluded: e.target.checked }))}
+                  className="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500"
+                />
+                <span className="text-sm text-gray-600">{t('apartments.modal.vatIncluded')}</span>
+              </label>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">{t('apartments.form.cleaningHintUnit')}</p>
+          </div>
+        </div>
 
         {/* Nombres de plataformas para matching de reservas */}
         <div className="border-t pt-4 mt-4">
-          <h4 className="text-sm font-medium text-gray-900 mb-3">Nombres en plataformas (para importar reservas)</h4>
+          <h4 className="text-sm font-medium text-gray-900 mb-3">{t('apartments.form.platformNamesImport')}</h4>
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombres en Airbnb
-                <span className="text-gray-400 font-normal ml-1">(separados por coma)</span>
+                {t('apartments.form.airbnbNames')}
+                <span className="text-gray-400 font-normal ml-1">({t('apartments.form.commaSeparated')})</span>
               </label>
               <input
                 type="text"
@@ -1636,8 +1672,8 @@ function EditUnitModal({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombres en Booking
-                <span className="text-gray-400 font-normal ml-1">(separados por coma)</span>
+                {t('apartments.form.bookingNames')}
+                <span className="text-gray-400 font-normal ml-1">({t('apartments.form.commaSeparated')})</span>
               </label>
               <input
                 type="text"
@@ -1649,8 +1685,8 @@ function EditUnitModal({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nombres en Vrbo
-                <span className="text-gray-400 font-normal ml-1">(separados por coma)</span>
+                {t('apartments.form.vrboNames')}
+                <span className="text-gray-400 font-normal ml-1">({t('apartments.form.commaSeparated')})</span>
               </label>
               <input
                 type="text"
@@ -1662,14 +1698,14 @@ function EditUnitModal({
             </div>
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            Estos nombres se usan para asignar automáticamente las reservas al importar CSV
+            {t('apartments.form.platformNamesHintShort')}
           </p>
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t">
-          <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button type="button" variant="outline" onClick={onClose}>{t('common.cancel')}</Button>
           <Button type="submit" disabled={saving || !form.name.trim()} className="bg-violet-600 hover:bg-violet-700">
-            {saving ? 'Guardando...' : 'Guardar cambios'}
+            {saving ? t('apartments.actions.saving') : t('apartments.actions.saveChanges')}
           </Button>
         </div>
       </form>
@@ -1693,6 +1729,7 @@ function EditGroupModal({
   availableUnits: BillingUnit[]
   onSuccess: () => void
 }) {
+  const { t } = useTranslation('gestion')
   const [form, setForm] = useState({
     name: '',
     imageUrl: '',
@@ -1748,7 +1785,7 @@ function EditGroupModal({
         onSuccess()
       } else {
         const data = await res.json()
-        alert(data.error || 'Error al guardar')
+        alert(data.error || t('apartments.errors.saveError'))
       }
     } catch (error) {
       console.error(error)
@@ -1758,16 +1795,16 @@ function EditGroupModal({
   }
 
   return (
-    <Modal open={!!group} onClose={onClose} title="Editar conjunto">
+    <Modal open={!!group} onClose={onClose} title={t('apartments.modals.editGroup')}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <ImageUpload
           currentUrl={form.imageUrl || null}
           onUpload={(url) => setForm(f => ({ ...f, imageUrl: url }))}
-          label="Foto del conjunto"
+          label={t('apartments.form.groupPhoto')}
         />
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.name')} *</label>
           <input
             type="text"
             value={form.name}
@@ -1778,14 +1815,14 @@ function EditGroupModal({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Propietario *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.owner')} *</label>
           <select
             value={form.ownerId}
             onChange={e => setForm(f => ({ ...f, ownerId: e.target.value }))}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             required
           >
-            <option value="">Selecciona propietario</option>
+            <option value="">{t('apartments.form.selectOwner')}</option>
             {owners.map(o => (
               <option key={o.id} value={o.id}>
                 {o.type === 'EMPRESA' ? o.companyName : `${o.firstName} ${o.lastName}`}
@@ -1796,7 +1833,7 @@ function EditGroupModal({
 
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Comisión %</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.commissionPercent')}</label>
             <input
               type="number"
               step="0.1"
@@ -1806,7 +1843,7 @@ function EditGroupModal({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Limpieza €</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.cleaningEuros')}</label>
             <input
               type="number"
               step="0.01"
@@ -1817,29 +1854,32 @@ function EditGroupModal({
           </div>
         </div>
 
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+          {t('apartments.form.cleaningHintGroup')}
+        </div>
+
         {/* Configuración de limpieza */}
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de limpieza</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.cleaningType')}</label>
             <select
               value={form.cleaningType}
               onChange={e => setForm(f => ({ ...f, cleaningType: e.target.value }))}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             >
-              <option value="FIXED_PER_RESERVATION">Fija por reserva</option>
-              <option value="PER_NIGHT">Por noche</option>
+              <option value="FIXED_PER_RESERVATION">{t('apartments.form.cleaningTypeFixed')}</option>
+              <option value="PER_NIGHT">{t('apartments.form.cleaningTypePerNight')}</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">¿Quién cobra la limpieza?</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.cleaningFeeRecipient')}</label>
             <select
               value={form.cleaningFeeRecipient}
               onChange={e => setForm(f => ({ ...f, cleaningFeeRecipient: e.target.value }))}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             >
-              <option value="MANAGER">Gestor</option>
-              <option value="OWNER">Propietario</option>
-              <option value="SPLIT">Dividido</option>
+              <option value="MANAGER">{t('apartments.form.cleaningFeeRecipientManager')}</option>
+              <option value="OWNER">{t('apartments.form.cleaningFeeRecipientOwner')}</option>
             </select>
           </div>
         </div>
@@ -1853,14 +1893,14 @@ function EditGroupModal({
             className="rounded text-violet-600 focus:ring-violet-500"
           />
           <label htmlFor="editCleaningVatIncluded" className="text-sm text-gray-700">
-            La limpieza incluye IVA
+            {t('apartments.modal.vatIncluded')}
           </label>
         </div>
 
         {/* Apartamentos actuales */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Apartamentos en el conjunto ({group.billingUnits.length})
+            {t('apartments.modal.apartmentsInGroup')} ({group.billingUnits.length})
           </label>
           {group.billingUnits.length > 0 ? (
             <div className="border border-gray-200 rounded-lg divide-y">
@@ -1871,14 +1911,14 @@ function EditGroupModal({
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-400 italic">Sin apartamentos</p>
+            <p className="text-sm text-gray-400 italic">{t('apartments.noUnits')}</p>
           )}
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t">
-          <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button type="button" variant="outline" onClick={onClose}>{t('common.cancel')}</Button>
           <Button type="submit" disabled={saving || !form.name.trim() || !form.ownerId} className="bg-violet-600 hover:bg-violet-700">
-            {saving ? 'Guardando...' : 'Guardar cambios'}
+            {saving ? t('apartments.actions.saving') : t('apartments.actions.saveChanges')}
           </Button>
         </div>
       </form>

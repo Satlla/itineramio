@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import React, { useState, useEffect } from 'react'
 import {
   ArrowLeft,
@@ -66,6 +67,7 @@ interface InvoiceItem {
 
 export default function NuevaFacturaPage() {
   const router = useRouter()
+  const { t } = useTranslation('gestion')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [owners, setOwners] = useState<Owner[]>([])
@@ -271,7 +273,7 @@ export default function NuevaFacturaPage() {
         setOwnerSearch('')
       } else {
         const data = await response.json()
-        setError(data.error || 'Error al crear contacto')
+        setError(data.error || t('invoices.errors.createError'))
       }
     } catch (err) {
       setError('Error de conexión')
@@ -417,18 +419,18 @@ export default function NuevaFacturaPage() {
     setError(null)
 
     if (!selectedOwner) {
-      setError('Selecciona un contacto')
+      setError(t('invoices.new.selectContact'))
       return
     }
 
     if (!selectedSeriesId) {
-      setError('Selecciona una serie de facturación')
+      setError(t('invoices.new.selectSeries'))
       return
     }
 
     const validItems = items.filter(item => item.concept.trim() && (item.unitPrice > 0 || item.netTotal > 0))
     if (validItems.length === 0) {
-      setError('Añade al menos una línea con concepto e importe')
+      setError(t('invoices.new.addAtLeastOneLine'))
       return
     }
 
@@ -462,10 +464,10 @@ export default function NuevaFacturaPage() {
         router.push(`/gestion/facturas/${data.invoice.id}`)
       } else {
         const data = await response.json()
-        setError(data.error || 'Error al crear la factura')
+        setError(data.error || t('invoices.errors.createError'))
       }
     } catch (error) {
-      setError('Error de conexión')
+      setError(t('invoices.errors.connectionError'))
     } finally {
       setSaving(false)
     }
@@ -489,7 +491,7 @@ export default function NuevaFacturaPage() {
               <Link href="/gestion/facturas" className="text-gray-400 hover:text-gray-600 flex-shrink-0">
                 <ArrowLeft className="w-5 h-5" />
               </Link>
-              <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">Nueva Factura</h1>
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">{t('invoices.new.title')}</h1>
             </div>
             <button
               onClick={handleSubmit}
@@ -497,8 +499,8 @@ export default function NuevaFacturaPage() {
               className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 sm:gap-2 font-medium text-sm sm:text-base flex-shrink-0"
             >
               <Save className="w-4 h-4" />
-              <span className="hidden sm:inline">{saving ? 'Guardando...' : 'Guardar borrador'}</span>
-              <span className="sm:hidden">{saving ? '...' : 'Guardar'}</span>
+              <span className="hidden sm:inline">{saving ? t('invoices.new.saving') : t('invoices.actions.saveDraft')}</span>
+              <span className="sm:hidden">{saving ? '...' : t('invoices.actions.saveDraftShort')}</span>
             </button>
           </div>
         </div>
@@ -548,8 +550,8 @@ export default function NuevaFacturaPage() {
 
               {/* Número de factura */}
               <div className="text-left sm:text-right">
-                <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Factura</p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900">{invoiceNumber || 'BORRADOR'}</p>
+                <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">{t('invoices.new.invoice')}</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{invoiceNumber || t('invoices.new.draft')}</p>
               </div>
             </div>
           </div>
@@ -559,7 +561,7 @@ export default function NuevaFacturaPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {/* Contacto */}
               <div className="relative">
-                <label className="block text-sm font-medium text-gray-600 mb-2">Contacto</label>
+                <label className="block text-sm font-medium text-gray-600 mb-2">{t('invoices.new.contact')}</label>
                 {selectedOwner ? (
                   <div className="border border-gray-200 rounded-lg p-3 bg-white">
                     <div className="flex items-start justify-between">
@@ -585,7 +587,7 @@ export default function NuevaFacturaPage() {
                         setShowOwnerDropdown(true)
                       }}
                       onFocus={() => setShowOwnerDropdown(true)}
-                      placeholder="Buscar contacto..."
+                      placeholder={t('invoices.new.searchContact')}
                       className="w-full border border-gray-200 rounded-lg px-3 py-2.5 pr-10 text-sm bg-white"
                     />
                     <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -599,7 +601,7 @@ export default function NuevaFacturaPage() {
                         >
                           <UserPlus className="w-4 h-4" />
                           <span className="font-medium">
-                            {ownerSearch.trim() ? `Crear "${ownerSearch.trim()}"` : 'Crear nuevo contacto'}
+                            {ownerSearch.trim() ? t('invoices.new.createContact', { name: ownerSearch.trim() }) : t('invoices.new.createNewContact')}
                           </span>
                         </button>
 
@@ -619,7 +621,7 @@ export default function NuevaFacturaPage() {
                             </button>
                           ))
                         ) : ownerSearch.trim() ? (
-                          <p className="px-4 py-3 text-sm text-gray-500">No se encontró "{ownerSearch}"</p>
+                          <p className="px-4 py-3 text-sm text-gray-500">{t('invoices.new.noContactFound')} "{ownerSearch}"</p>
                         ) : null}
                       </div>
                     )}
@@ -629,7 +631,7 @@ export default function NuevaFacturaPage() {
 
               {/* Número de documento */}
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">Número de documento</label>
+                <label className="block text-sm font-medium text-gray-600 mb-2">{t('invoices.new.documentNumber')}</label>
                 <div className="relative">
                   <input
                     type="text"
@@ -653,7 +655,7 @@ export default function NuevaFacturaPage() {
                 </div>
                 {invoiceNumberDuplicate && (
                   <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
-                    <span>⚠</span> Este número ya existe
+                    <span>⚠</span> {t('invoices.new.numberExists')}
                   </p>
                 )}
                 {invoiceNumberManual && !invoiceNumberDuplicate && (
@@ -671,14 +673,14 @@ export default function NuevaFacturaPage() {
                     }}
                     className="mt-1 text-xs text-blue-600 hover:underline"
                   >
-                    Usar numeración automática
+                    {t('invoices.new.useAutoNumber')}
                   </button>
                 )}
               </div>
 
               {/* Fecha */}
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">Fecha</label>
+                <label className="block text-sm font-medium text-gray-600 mb-2">{t('invoices.new.date')}</label>
                 <input
                   type="date"
                   value={issueDate}
@@ -689,7 +691,7 @@ export default function NuevaFacturaPage() {
 
               {/* Vencimiento */}
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">Vencimiento</label>
+                <label className="block text-sm font-medium text-gray-600 mb-2">{t('invoices.new.dueDate')}</label>
                 <input
                   type="date"
                   value={dueDate}
@@ -705,13 +707,13 @@ export default function NuevaFacturaPage() {
             <table className="w-full min-w-[700px]">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase pb-3 min-w-[150px]">Concepto</th>
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase pb-3 min-w-[120px]">Descripción</th>
-                  <th className="text-center text-xs font-medium text-gray-500 uppercase pb-3 w-16">Cant.</th>
-                  <th className="text-right text-xs font-medium text-gray-500 uppercase pb-3 w-24">Base</th>
-                  <th className="text-center text-xs font-medium text-gray-500 uppercase pb-3 w-20">IVA</th>
-                  <th className="text-center text-xs font-medium text-gray-500 uppercase pb-3 w-20">Ret.</th>
-                  <th className="text-right text-xs font-medium text-gray-500 uppercase pb-3 w-28">Importe</th>
+                  <th className="text-left text-xs font-medium text-gray-500 uppercase pb-3 min-w-[150px]">{t('invoices.table.concept')}</th>
+                  <th className="text-left text-xs font-medium text-gray-500 uppercase pb-3 min-w-[120px]">{t('invoices.table.description')}</th>
+                  <th className="text-center text-xs font-medium text-gray-500 uppercase pb-3 w-16">{t('invoices.table.quantity')}</th>
+                  <th className="text-right text-xs font-medium text-gray-500 uppercase pb-3 w-24">{t('invoices.table.base')}</th>
+                  <th className="text-center text-xs font-medium text-gray-500 uppercase pb-3 w-20">{t('invoices.table.vat')}</th>
+                  <th className="text-center text-xs font-medium text-gray-500 uppercase pb-3 w-20">{t('invoices.table.retention')}</th>
+                  <th className="text-right text-xs font-medium text-gray-500 uppercase pb-3 w-28">{t('invoices.table.amount')}</th>
                   <th className="w-10"></th>
                 </tr>
               </thead>
@@ -823,38 +825,38 @@ export default function NuevaFacturaPage() {
               className="mt-4 w-full py-2 border-2 border-dashed border-gray-200 rounded-lg text-gray-400 hover:border-blue-300 hover:text-blue-600 transition-colors flex items-center justify-center gap-2 text-sm"
             >
               <Plus className="w-4 h-4" />
-              Añadir línea
+              {t('invoices.table.addLine')}
             </button>
 
             {/* Totales */}
             <div className="mt-8 flex justify-end">
               <div className="w-full sm:w-80">
                 <div className="flex justify-between py-2 text-sm">
-                  <span className="text-gray-600">Base imponible</span>
+                  <span className="text-gray-600">{t('invoices.table.subtotal')}</span>
                   <span className="text-gray-900 font-medium">{formatCurrency(subtotal)}</span>
                 </div>
                 <div className="flex justify-between py-2 text-sm">
-                  <span className="text-gray-600">IVA</span>
+                  <span className="text-gray-600">{t('invoices.table.totalVat')}</span>
                   <span className="text-gray-900">{formatCurrency(totalVat)}</span>
                 </div>
 
                 {hasRetentions && (
                   <div className="flex justify-between py-2 text-sm border-t border-gray-100 mt-2 pt-2">
                     <span className="text-gray-600">
-                      Retención ({avgRetentionRate % 1 === 0 ? avgRetentionRate.toFixed(0) : avgRetentionRate.toFixed(1)}%)
+                      {t('invoices.table.totalRetention')} ({avgRetentionRate % 1 === 0 ? avgRetentionRate.toFixed(0) : avgRetentionRate.toFixed(1)}%)
                     </span>
                     <span className="text-red-600">-{formatCurrency(totalRetention)}</span>
                   </div>
                 )}
 
                 <div className="flex justify-between py-3 text-lg font-bold border-t-2 border-gray-900 mt-2">
-                  <span>Total a pagar</span>
+                  <span>{t('invoices.table.totalToPay')}</span>
                   <span className="text-blue-600">{formatCurrency(grandTotal)}</span>
                 </div>
 
                 {hasRetentions && (
                   <p className="text-xs text-gray-500 text-right mt-1">
-                    Importe bruto (sin retención): {formatCurrency(subtotal + totalVat)}
+                    {t('invoices.table.grossAmount')} {formatCurrency(subtotal + totalVat)}
                   </p>
                 )}
               </div>
@@ -878,7 +880,7 @@ export default function NuevaFacturaPage() {
             {/* Header fijo */}
             <div className="p-4 border-b border-gray-200">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Nuevo contacto</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('invoices.contactModal.title')}</h3>
                 <button
                   onClick={() => setShowCreateOwner(false)}
                   className="text-gray-400 hover:text-gray-600"
@@ -890,7 +892,7 @@ export default function NuevaFacturaPage() {
               {/* Nombre + NIF + Tipo */}
               <div className="flex gap-3 items-start">
                 <div className="flex-1">
-                  <label className="block text-xs text-gray-500 mb-1">Nombre</label>
+                  <label className="block text-xs text-gray-500 mb-1">{t('invoices.contactModal.name')}</label>
                   {newOwner.type === 'PERSONA_FISICA' ? (
                     <div className="flex gap-2">
                       <input
@@ -898,14 +900,14 @@ export default function NuevaFacturaPage() {
                         value={newOwner.firstName}
                         onChange={(e) => setNewOwner(prev => ({ ...prev, firstName: e.target.value }))}
                         className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Nombre"
+                        placeholder={t('invoices.contactModal.firstName')}
                       />
                       <input
                         type="text"
                         value={newOwner.lastName}
                         onChange={(e) => setNewOwner(prev => ({ ...prev, lastName: e.target.value }))}
                         className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Apellidos"
+                        placeholder={t('invoices.contactModal.lastName')}
                       />
                     </div>
                   ) : (
@@ -914,12 +916,12 @@ export default function NuevaFacturaPage() {
                       value={newOwner.companyName}
                       onChange={(e) => setNewOwner(prev => ({ ...prev, companyName: e.target.value }))}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Razón social"
+                      placeholder={t('invoices.contactModal.companyName')}
                     />
                   )}
                 </div>
                 <div className="w-36">
-                  <label className="block text-xs text-gray-500 mb-1">NIF del contacto</label>
+                  <label className="block text-xs text-gray-500 mb-1">{t('invoices.contactModal.nif')}</label>
                   <input
                     type="text"
                     value={newOwner.type === 'PERSONA_FISICA' ? newOwner.nif : newOwner.cif}
@@ -932,7 +934,7 @@ export default function NuevaFacturaPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Este contacto es...</label>
+                  <label className="block text-xs text-gray-500 mb-1">{t('invoices.contactModal.contactType')}</label>
                   <div className="flex">
                     <button
                       type="button"
@@ -943,7 +945,7 @@ export default function NuevaFacturaPage() {
                           : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                       }`}
                     >
-                      Empresa
+                      {t('invoices.contactModal.company')}
                     </button>
                     <button
                       type="button"
@@ -954,7 +956,7 @@ export default function NuevaFacturaPage() {
                           : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                       }`}
                     >
-                      Persona
+                      {t('invoices.contactModal.individual')}
                     </button>
                   </div>
                 </div>
@@ -970,7 +972,7 @@ export default function NuevaFacturaPage() {
                       : 'text-gray-500 border-transparent hover:text-gray-700'
                   }`}
                 >
-                  Básico
+                  {t('invoices.contactModal.tabs.basic')}
                 </button>
                 <button
                   onClick={() => setOwnerTab('cuentas')}
@@ -980,7 +982,7 @@ export default function NuevaFacturaPage() {
                       : 'text-gray-500 border-transparent hover:text-gray-700'
                   }`}
                 >
-                  Cuentas
+                  {t('invoices.contactModal.tabs.accounts')}
                 </button>
               </div>
             </div>
@@ -992,28 +994,28 @@ export default function NuevaFacturaPage() {
                   {/* Columna izquierda - Dirección */}
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">Dirección</label>
+                      <label className="block text-xs text-gray-500 mb-1">{t('invoices.contactModal.address')}</label>
                       <input
                         type="text"
                         value={newOwner.address}
                         onChange={(e) => setNewOwner(prev => ({ ...prev, address: e.target.value }))}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                        placeholder="Calle, número, piso..."
+                        placeholder={t('invoices.contactModal.addressPlaceholder')}
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs text-gray-500 mb-1">Población</label>
+                        <label className="block text-xs text-gray-500 mb-1">{t('invoices.contactModal.city')}</label>
                         <input
                           type="text"
                           value={newOwner.city}
                           onChange={(e) => setNewOwner(prev => ({ ...prev, city: e.target.value }))}
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                          placeholder="Ciudad"
+                          placeholder={t('invoices.contactModal.cityPlaceholder')}
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-gray-500 mb-1">Código postal</label>
+                        <label className="block text-xs text-gray-500 mb-1">{t('invoices.contactModal.postalCode')}</label>
                         <input
                           type="text"
                           value={newOwner.postalCode}
@@ -1024,7 +1026,7 @@ export default function NuevaFacturaPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">País</label>
+                      <label className="block text-xs text-gray-500 mb-1">{t('invoices.contactModal.country')}</label>
                       <select
                         value={newOwner.country}
                         onChange={(e) => setNewOwner(prev => ({ ...prev, country: e.target.value }))}
@@ -1047,23 +1049,23 @@ export default function NuevaFacturaPage() {
                   {/* Columna derecha - Contacto */}
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">Email</label>
+                      <label className="block text-xs text-gray-500 mb-1">{t('invoices.contactModal.email')}</label>
                       <input
                         type="email"
                         value={newOwner.email}
                         onChange={(e) => setNewOwner(prev => ({ ...prev, email: e.target.value }))}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                        placeholder="email@ejemplo.com"
+                        placeholder={t('invoices.contactModal.emailPlaceholder')}
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-500 mb-1">Teléfono</label>
+                      <label className="block text-xs text-gray-500 mb-1">{t('invoices.contactModal.phone')}</label>
                       <input
                         type="tel"
                         value={newOwner.phone}
                         onChange={(e) => setNewOwner(prev => ({ ...prev, phone: e.target.value }))}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                        placeholder="+34 600 000 000"
+                        placeholder={t('invoices.contactModal.phonePlaceholder')}
                       />
                     </div>
                   </div>
@@ -1073,7 +1075,7 @@ export default function NuevaFacturaPage() {
               {ownerTab === 'cuentas' && (
                 <div className="max-w-md">
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">IBAN</label>
+                    <label className="block text-xs text-gray-500 mb-1">{t('invoices.contactModal.iban')}</label>
                     <input
                       type="text"
                       value={newOwner.iban}
@@ -1081,7 +1083,7 @@ export default function NuevaFacturaPage() {
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono"
                       placeholder="ES00 0000 0000 0000 0000 0000"
                     />
-                    <p className="text-xs text-gray-400 mt-1">Cuenta bancaria para pagos</p>
+                    <p className="text-xs text-gray-400 mt-1">{t('invoices.contactModal.ibanDescription')}</p>
                   </div>
                 </div>
               )}
@@ -1094,7 +1096,7 @@ export default function NuevaFacturaPage() {
                 disabled={creatingOwner || (newOwner.type === 'PERSONA_FISICA' ? !newOwner.firstName : !newOwner.companyName) || !newOwner.email || !newOwner.address || !newOwner.city || !newOwner.postalCode}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {creatingOwner ? 'Creando...' : 'Crear'}
+                {creatingOwner ? t('invoices.new.creating') : t('invoices.new.createContact')}
               </button>
             </div>
           </div>

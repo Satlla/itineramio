@@ -146,6 +146,33 @@ export async function POST(request: NextRequest) {
 
     const emailId = payload.data.email_id
 
+    // PRIORIDAD 0: Trackear GuidebookDelivery opens/clicks
+    if (emailId && (payload.type === 'email.opened' || payload.type === 'email.clicked')) {
+      const guidebookDelivery = await prisma.guidebookDelivery.findFirst({
+        where: { resendEmailId: emailId },
+      })
+
+      if (guidebookDelivery) {
+        const updateData: any = {}
+        if (payload.type === 'email.opened' && !guidebookDelivery.openedAt) {
+          updateData.openedAt = new Date()
+        }
+        if (payload.type === 'email.clicked' && !guidebookDelivery.clickedAt) {
+          updateData.clickedAt = new Date()
+          if (!guidebookDelivery.openedAt) {
+            updateData.openedAt = new Date()
+          }
+        }
+        if (Object.keys(updateData).length > 0) {
+          await prisma.guidebookDelivery.update({
+            where: { id: guidebookDelivery.id },
+            data: updateData,
+          })
+          console.log(`✅ GuidebookDelivery ${guidebookDelivery.id} updated: ${payload.type}`)
+        }
+      }
+    }
+
     // PRIORIDAD 1: Trackear en el sistema de secuencias automatizadas
     if (emailId) {
       const eventType = payload.type.replace('email.', '') as EmailEventType

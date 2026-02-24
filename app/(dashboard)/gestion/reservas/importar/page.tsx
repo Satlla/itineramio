@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { SimpleColumnMapper, type SimpleMapping, ListingMapper, type ListingInfo, type ListingMapping, type BillingUnitOption } from '@/components/gestion/reservas'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { useTranslation } from 'react-i18next'
 
 interface Property {
   id: string
@@ -92,6 +93,7 @@ interface ImportHistory {
 }
 
 export default function ImportarReservasPage() {
+  const { t } = useTranslation('gestion')
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>('')
   const [file, setFile] = useState<File | null>(null)
   const [parsedData, setParsedData] = useState<ParsedRow[]>([])
@@ -275,7 +277,7 @@ export default function ImportarReservasPage() {
     } catch (error) {
       setMessage({
         type: 'error',
-        text: error instanceof Error ? error.message : 'Error al leer el archivo'
+        text: error instanceof Error ? error.message : t('common.errors.loadError')
       })
     } finally {
       setIsParsing(false)
@@ -294,7 +296,7 @@ export default function ImportarReservasPage() {
       if (!ext || !['csv', 'xls', 'xlsx'].includes(ext)) {
         return {
           code: 'file-invalid-type',
-          message: 'Solo se permiten archivos CSV, XLS o XLSX'
+          message: t('importReservations.fileSection.fileTypes')
         }
       }
       return null
@@ -341,14 +343,14 @@ export default function ImportarReservasPage() {
       if (!canConfirmSmartImport && !skipUnmappedListings) {
         setMessage({
           type: 'error',
-          text: 'Asigna todos los alojamientos o activa "Importar solo asignados"'
+          text: t('importReservations.analysis.assignAllListings')
         })
         return
       }
       if (skipUnmappedListings && !hasSomeMappings) {
         setMessage({
           type: 'error',
-          text: 'Asigna al menos un alojamiento para importar'
+          text: t('importReservations.analysis.assignAllListings')
         })
         return
       }
@@ -357,7 +359,7 @@ export default function ImportarReservasPage() {
       if (!file || !selectedPropertyId) {
         setMessage({
           type: 'error',
-          text: 'Selecciona una propiedad y sube un archivo CSV'
+          text: t('importReservations.selectPropertyFirst.description')
         })
         return
       }
@@ -366,7 +368,7 @@ export default function ImportarReservasPage() {
       if (selectedProperty && !selectedProperty.hasBillingConfig) {
         setMessage({
           type: 'error',
-          text: 'La propiedad seleccionada no tiene configuración de facturación'
+          text: t('importReservations.propertySection.noBillingConfig')
         })
         return
       }
@@ -446,14 +448,14 @@ export default function ImportarReservasPage() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Error al importar')
+        throw new Error(errorData.error || t('common.errors.saveError'))
       }
 
       const data = await response.json()
       setImportResult(data.results)
 
       // Build success message
-      let successMsg = `${data.results.importedCount} reservas importadas correctamente`
+      let successMsg = t('importReservations.result.imported') + ': ' + data.results.importedCount
       if (data.results.byBillingUnit && data.results.byBillingUnit.length > 1) {
         const breakdown = data.results.byBillingUnit
           .map((b: { name: string; count: number }) => `${b.name}: ${b.count}`)
@@ -461,7 +463,7 @@ export default function ImportarReservasPage() {
         successMsg += ` (${breakdown})`
       }
       if (data.results.aliasesSaved && data.results.aliasesSaved.length > 0) {
-        successMsg += `. ${data.results.aliasesSaved.length} alias guardados para futuras importaciones.`
+        successMsg += `. ${data.results.aliasesSaved.length} ${t('importReservations.result.aliasesSaved.title')}`
       }
 
       setMessage({
@@ -471,7 +473,7 @@ export default function ImportarReservasPage() {
     } catch (error) {
       setMessage({
         type: 'error',
-        text: error instanceof Error ? error.message : 'Error al importar'
+        text: error instanceof Error ? error.message : t('common.errors.saveError')
       })
     } finally {
       setIsImporting(false)
@@ -502,15 +504,19 @@ export default function ImportarReservasPage() {
     if (!selectedPropertyId) {
       setMessage({
         type: 'error',
-        text: 'Selecciona una propiedad primero'
+        text: t('importReservations.selectPropertyFirst.title')
       })
       return
     }
 
-    const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    const monthNames = [
+      t('common.months.january'), t('common.months.february'), t('common.months.march'),
+      t('common.months.april'), t('common.months.may'), t('common.months.june'),
+      t('common.months.july'), t('common.months.august'), t('common.months.september'),
+      t('common.months.october'), t('common.months.november'), t('common.months.december')
+    ]
 
-    if (!confirm(`¿Seguro que quieres eliminar todas las reservas de ${monthNames[deleteMonth - 1]} ${deleteYear}?`)) {
+    if (!confirm(t('importReservations.bulkDelete.confirm', { month: monthNames[deleteMonth - 1], year: deleteYear }))) {
       return
     }
 
@@ -533,12 +539,12 @@ export default function ImportarReservasPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al eliminar')
+        throw new Error(data.error || t('common.errors.deleteError'))
       }
 
-      let msg = `${data.deleted} reservas eliminadas`
+      let msg = `${data.deleted} ${t('importReservations.result.imported')}`
       if (data.skipped > 0) {
-        msg += ` (${data.skipped} omitidas: ${data.details.invoiced} facturadas, ${data.details.inLiquidation} en liquidación)`
+        msg += ` (${data.skipped} ${t('importReservations.result.skipped')})`
       }
 
       setMessage({
@@ -549,7 +555,7 @@ export default function ImportarReservasPage() {
     } catch (error) {
       setMessage({
         type: 'error',
-        text: error instanceof Error ? error.message : 'Error al eliminar'
+        text: error instanceof Error ? error.message : t('common.errors.deleteError')
       })
     } finally {
       setIsDeleting(false)
@@ -585,9 +591,9 @@ export default function ImportarReservasPage() {
     <ErrorBoundary>
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Importar Reservas</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('importReservations.title')}</h1>
         <p className="text-gray-600 mt-1">
-          Importa reservas desde Airbnb (CSV) o Booking (XLS)
+          {t('importReservations.subtitle')}
         </p>
       </div>
 
@@ -618,14 +624,14 @@ export default function ImportarReservasPage() {
               <div className="flex items-center gap-2 mb-4">
                 <Building2 className="h-5 w-5 text-violet-600" />
                 <h2 className="text-lg font-semibold">
-                  {useSmartImport ? 'Propiedad por Defecto' : 'Seleccionar Propiedad'}
-                  {useSmartImport && <span className="text-sm font-normal text-gray-500 ml-2">(opcional)</span>}
+                  {useSmartImport ? t('importReservations.propertySection.titleSmartImport') : t('importReservations.propertySection.title')}
+                  {useSmartImport && <span className="text-sm font-normal text-gray-500 ml-2">{t('importReservations.propertySection.optional')}</span>}
                 </h2>
               </div>
               <p className="text-sm text-gray-600 mb-4">
                 {useSmartImport
-                  ? 'Se usará para reservas sin asignación específica'
-                  : 'Las reservas se asociarán a esta propiedad'
+                  ? t('importReservations.propertySection.descriptionSmartImport')
+                  : t('importReservations.propertySection.description')
                 }
               </p>
 
@@ -636,14 +642,14 @@ export default function ImportarReservasPage() {
                   disabled={loadingProperties}
                   className="w-full border border-gray-300 rounded-lg px-4 py-2.5 pr-10 appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                 >
-                  <option value="">Selecciona una propiedad</option>
+                  <option value="">{t('importReservations.propertySection.selectProperty')}</option>
                   {properties.map((property) => (
                     <option
                       key={property.id}
                       value={property.id}
                       disabled={!property.hasBillingConfig}
                     >
-                      {property.name} {!property.hasBillingConfig ? '(Sin config. facturación)' : ''}
+                      {property.name} {!property.hasBillingConfig ? t('importReservations.propertySection.noBillingConfig') : ''}
                     </option>
                   ))}
                 </select>
@@ -652,7 +658,7 @@ export default function ImportarReservasPage() {
 
               {properties.length === 0 && !loadingProperties && (
                 <p className="text-sm text-gray-500 mt-2">
-                  No hay propiedades disponibles
+                  {t('importReservations.propertySection.noProperties')}
                 </p>
               )}
 
@@ -665,13 +671,13 @@ export default function ImportarReservasPage() {
                     className="text-sm text-red-600 hover:text-red-700 flex items-center gap-2"
                   >
                     <Trash2 className="h-4 w-4" />
-                    Borrar reservas de un mes
+                    {t('importReservations.bulkDelete.toggle')}
                   </button>
 
                   {showBulkDelete && (
                     <div className="mt-3 p-4 bg-red-50 border border-red-200 rounded-lg">
                       <p className="text-sm text-red-800 mb-3">
-                        Eliminar todas las reservas de esta propiedad en:
+                        {t('importReservations.bulkDelete.description')}
                       </p>
                       <div className="flex items-center gap-3">
                         <select
@@ -679,18 +685,18 @@ export default function ImportarReservasPage() {
                           onChange={(e) => setDeleteMonth(parseInt(e.target.value))}
                           className="border border-gray-300 rounded px-3 py-1.5 text-sm"
                         >
-                          <option value={1}>Enero</option>
-                          <option value={2}>Febrero</option>
-                          <option value={3}>Marzo</option>
-                          <option value={4}>Abril</option>
-                          <option value={5}>Mayo</option>
-                          <option value={6}>Junio</option>
-                          <option value={7}>Julio</option>
-                          <option value={8}>Agosto</option>
-                          <option value={9}>Septiembre</option>
-                          <option value={10}>Octubre</option>
-                          <option value={11}>Noviembre</option>
-                          <option value={12}>Diciembre</option>
+                          <option value={1}>{t('common.months.january')}</option>
+                          <option value={2}>{t('common.months.february')}</option>
+                          <option value={3}>{t('common.months.march')}</option>
+                          <option value={4}>{t('common.months.april')}</option>
+                          <option value={5}>{t('common.months.may')}</option>
+                          <option value={6}>{t('common.months.june')}</option>
+                          <option value={7}>{t('common.months.july')}</option>
+                          <option value={8}>{t('common.months.august')}</option>
+                          <option value={9}>{t('common.months.september')}</option>
+                          <option value={10}>{t('common.months.october')}</option>
+                          <option value={11}>{t('common.months.november')}</option>
+                          <option value={12}>{t('common.months.december')}</option>
                         </select>
                         <select
                           value={deleteYear}
@@ -712,13 +718,13 @@ export default function ImportarReservasPage() {
                           ) : (
                             <>
                               <Trash2 className="h-4 w-4 mr-1" />
-                              Eliminar
+                              {t('common.delete')}
                             </>
                           )}
                         </Button>
                       </div>
                       <p className="text-xs text-red-600 mt-2">
-                        Las reservas facturadas o en liquidación no se eliminarán
+                        {t('importReservations.bulkDelete.warning')}
                       </p>
                     </div>
                   )}
@@ -732,10 +738,10 @@ export default function ImportarReservasPage() {
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-4">
                 <FileSpreadsheet className="h-5 w-5 text-violet-600" />
-                <h2 className="text-lg font-semibold">Archivo de Reservas</h2>
+                <h2 className="text-lg font-semibold">{t('importReservations.fileSection.title')}</h2>
               </div>
               <p className="text-sm text-gray-600 mb-4">
-                Arrastra un archivo XLS (Booking) o CSV (Airbnb) o haz clic para seleccionar
+                {t('importReservations.fileSection.description')}
               </p>
 
               {!file ? (
@@ -753,14 +759,14 @@ export default function ImportarReservasPage() {
                   <input {...getInputProps()} />
                   <Upload className="h-10 w-10 mx-auto mb-4 text-gray-400" />
                   {isDragActive ? (
-                    <p className="text-violet-600 font-medium">Suelta el archivo aquí...</p>
+                    <p className="text-violet-600 font-medium">{t('importReservations.fileSection.dropHere')}</p>
                   ) : (
                     <>
                       <p className="font-medium text-gray-700">
-                        Arrastra tu archivo aquí
+                        {t('importReservations.fileSection.dragHere')}
                       </p>
                       <p className="text-sm text-gray-500 mt-1">
-                        XLS/XLSX (Booking) o CSV (Airbnb)
+                        {t('importReservations.fileSection.fileTypes')}
                       </p>
                     </>
                   )}
@@ -794,13 +800,13 @@ export default function ImportarReservasPage() {
                     }`}>
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="h-4 w-4" />
-                        Detectado: <strong>{detectedPlatform === 'BOOKING' ? 'Booking.com' : 'Airbnb'}</strong>
+                        {t('importReservations.fileSection.detected')}: <strong>{detectedPlatform === 'BOOKING' ? 'Booking.com' : 'Airbnb'}</strong>
                       </div>
                       <button
                         onClick={() => setShowColumnMapper(true)}
                         className="text-xs underline hover:no-underline"
                       >
-                        Mapear manualmente
+                        {t('importReservations.fileSection.mapManually')}
                       </button>
                     </div>
                   )}
@@ -808,14 +814,14 @@ export default function ImportarReservasPage() {
                     <div className="flex items-center justify-between px-3 py-2 rounded-lg text-sm bg-amber-50 text-amber-700">
                       <div className="flex items-center gap-2">
                         <AlertTriangle className="h-4 w-4" />
-                        Formato no reconocido
+                        {t('importReservations.fileSection.unknownFormat')}
                       </div>
                       <button
                         onClick={() => setShowColumnMapper(true)}
                         className="flex items-center gap-1 text-xs font-medium bg-amber-600 text-white px-2 py-1 rounded hover:bg-amber-700"
                       >
                         <Settings2 className="h-3 w-3" />
-                        Configurar mapeo
+                        {t('importReservations.fileSection.configureMapping')}
                       </button>
                     </div>
                   )}
@@ -823,13 +829,13 @@ export default function ImportarReservasPage() {
                     <div className="flex items-center justify-between px-3 py-2 rounded-lg text-sm bg-green-50 text-green-700">
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="h-4 w-4" />
-                        Columnas configuradas
+                        {t('importReservations.fileSection.columnsConfigured')}
                       </div>
                       <button
                         onClick={() => setShowColumnMapper(true)}
                         className="text-xs underline hover:no-underline"
                       >
-                        Modificar
+                        {t('importReservations.fileSection.modify')}
                       </button>
                     </div>
                   )}
@@ -843,7 +849,7 @@ export default function ImportarReservasPage() {
                   className="text-sm"
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  Descargar plantilla
+                  {t('importReservations.fileSection.downloadTemplate')}
                 </Button>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -852,7 +858,7 @@ export default function ImportarReservasPage() {
                     onChange={(e) => setSkipDuplicates(e.target.checked)}
                     className="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
                   />
-                  <span className="text-sm text-gray-700">Omitir duplicados</span>
+                  <span className="text-sm text-gray-700">{t('importReservations.fileSection.skipDuplicates')}</span>
                 </label>
               </div>
             </CardContent>
@@ -878,7 +884,7 @@ export default function ImportarReservasPage() {
               <CardContent className="py-8">
                 <div className="flex items-center justify-center gap-3">
                   <Loader2 className="h-5 w-5 animate-spin text-violet-600" />
-                  <span className="text-gray-600">Analizando archivo...</span>
+                  <span className="text-gray-600">{t('importReservations.analyzing')}</span>
                 </div>
               </CardContent>
             </Card>
@@ -889,7 +895,7 @@ export default function ImportarReservasPage() {
             <Card>
               <CardContent className="p-6">
                 <h2 className="text-lg font-semibold mb-4">
-                  Análisis del archivo
+                  {t('importReservations.analysis.title')}
                 </h2>
 
                 {/* Summary cards */}
@@ -898,22 +904,22 @@ export default function ImportarReservasPage() {
                     <div className="text-3xl font-bold text-green-600">
                       {previewAnalysis.newReservations}
                     </div>
-                    <div className="text-sm text-green-800 font-medium">Nuevas</div>
-                    <div className="text-xs text-green-600 mt-1">Se importarán</div>
+                    <div className="text-sm text-green-800 font-medium">{t('importReservations.analysis.new')}</div>
+                    <div className="text-xs text-green-600 mt-1">{t('importReservations.analysis.willBeImported')}</div>
                   </div>
                   <div className="text-center p-4 bg-amber-50 rounded-lg border border-amber-200">
                     <div className="text-3xl font-bold text-amber-600">
                       {previewAnalysis.duplicates}
                     </div>
-                    <div className="text-sm text-amber-800 font-medium">Duplicadas</div>
-                    <div className="text-xs text-amber-600 mt-1">Ya existen</div>
+                    <div className="text-sm text-amber-800 font-medium">{t('importReservations.analysis.duplicates')}</div>
+                    <div className="text-xs text-amber-600 mt-1">{t('importReservations.analysis.alreadyExist')}</div>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <div className="text-3xl font-bold text-gray-600">
                       {previewAnalysis.validRows}
                     </div>
-                    <div className="text-sm text-gray-800 font-medium">Total válidas</div>
-                    <div className="text-xs text-gray-500 mt-1">de {previewAnalysis.totalRows} filas</div>
+                    <div className="text-sm text-gray-800 font-medium">{t('importReservations.analysis.totalValid')}</div>
+                    <div className="text-xs text-gray-500 mt-1">{t('importReservations.analysis.ofRows', { count: previewAnalysis.totalRows })}</div>
                   </div>
                 </div>
 
@@ -922,7 +928,7 @@ export default function ImportarReservasPage() {
                   <div className="flex items-center gap-2 text-sm text-gray-600 mb-4 p-3 bg-gray-50 rounded-lg">
                     <Calendar className="h-4 w-4" />
                     <span>
-                      Periodo: <strong>{previewAnalysis.dateRange.min}</strong> al <strong>{previewAnalysis.dateRange.max}</strong>
+                      {t('importReservations.analysis.period')}: <strong>{previewAnalysis.dateRange.min}</strong> {t('importReservations.analysis.to')} <strong>{previewAnalysis.dateRange.max}</strong>
                     </span>
                   </div>
                 )}
@@ -933,13 +939,13 @@ export default function ImportarReservasPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="text-sm font-medium text-violet-900">
-                          Importación inteligente
+                          {t('importReservations.analysis.smartImport.title')}
                         </h3>
                         <p className="text-xs text-violet-700 mt-1">
-                          Se detectaron {previewAnalysis.listingsFound.length} alojamientos diferentes.
+                          {t('importReservations.analysis.smartImport.multipleListingsDetected', { count: previewAnalysis.listingsFound.length })}
                           {useSmartImport
-                            ? ' Asigna cada uno a su apartamento.'
-                            : ' Todos irán a la propiedad seleccionada.'}
+                            ? ' ' + t('importReservations.analysis.smartImport.assignEach')
+                            : ' ' + t('importReservations.analysis.smartImport.allToSelected')}
                         </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
@@ -978,11 +984,10 @@ export default function ImportarReservasPage() {
                           />
                           <div>
                             <span className="font-medium text-blue-900">
-                              Importar solo alojamientos asignados
+                              {t('importReservations.analysis.import', { count: mappedReservationsCount })}
                             </span>
                             <p className="text-sm text-blue-700 mt-1">
-                              Se importarán <strong>{mappedReservationsCount}</strong> reservas de los alojamientos asignados.
-                              Las reservas sin asignar se omitirán.
+                              {t('importReservations.analysis.import', { count: mappedReservationsCount })}
                             </p>
                           </div>
                         </label>
@@ -995,7 +1000,7 @@ export default function ImportarReservasPage() {
                 {!useSmartImport && previewAnalysis.listingsFound.length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-sm font-medium text-gray-700 mb-2">
-                      Alojamientos en el CSV ({previewAnalysis.listingsFound.length})
+                      {t('importReservations.analysis.listingsInCsv')} ({previewAnalysis.listingsFound.length})
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {previewAnalysis.listingsFound.map((listing, i) => (
@@ -1005,7 +1010,7 @@ export default function ImportarReservasPage() {
                       ))}
                     </div>
                     <p className="text-xs text-gray-500 mt-2">
-                      Todas se importarán a la propiedad seleccionada
+                      {t('importReservations.analysis.allToSelectedProperty')}
                     </p>
                   </div>
                 )}
@@ -1015,22 +1020,22 @@ export default function ImportarReservasPage() {
                   <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
                     <div className="flex items-center gap-2 text-amber-800 font-medium mb-2">
                       <AlertTriangle className="w-4 h-4" />
-                      {previewAnalysis.duplicates} reservas ya existen
+                      {t('importReservations.analysis.duplicatesWarning.title', { count: previewAnalysis.duplicates })}
                     </div>
                     <p className="text-sm text-amber-700 mb-3">
-                      Estas reservas ya fueron importadas anteriormente y se omitirán:
+                      {t('importReservations.analysis.duplicatesWarning.description')}
                     </p>
                     <div className="space-y-1 text-sm">
                       {previewAnalysis.duplicateDetails.slice(0, 5).map((dup, i) => (
                         <div key={i} className="flex items-center justify-between text-amber-700 bg-amber-100/50 px-2 py-1 rounded">
                           <span className="font-mono text-xs">{dup.code}</span>
                           <span>{dup.guestName}</span>
-                          <span className="text-xs">en {dup.existsIn}</span>
+                          <span className="text-xs">{t('importReservations.analysis.duplicatesWarning.in')} {dup.existsIn}</span>
                         </div>
                       ))}
                       {previewAnalysis.duplicateDetails.length > 5 && (
                         <p className="text-xs text-amber-600">
-                          ... y {previewAnalysis.duplicateDetails.length - 5} más
+                          {t('importReservations.analysis.duplicatesWarning.andMore', { count: previewAnalysis.duplicateDetails.length - 5 })}
                         </p>
                       )}
                     </div>
@@ -1041,18 +1046,18 @@ export default function ImportarReservasPage() {
                 {previewAnalysis.newReservations > 0 && previewAnalysis.newDetails.length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-sm font-medium text-gray-700 mb-2">
-                      Reservas nuevas a importar
+                      {t('importReservations.analysis.newReservations')}
                     </h3>
                     <div className="border rounded-lg overflow-hidden">
                       <div className="overflow-x-auto max-h-[250px]">
                         <table className="w-full text-sm">
                           <thead className="bg-gray-50 sticky top-0">
                             <tr>
-                              <th className="px-3 py-2 text-left font-medium text-gray-600">Código</th>
-                              <th className="px-3 py-2 text-left font-medium text-gray-600">Huésped</th>
-                              <th className="px-3 py-2 text-left font-medium text-gray-600">Check-in</th>
-                              <th className="px-3 py-2 text-right font-medium text-gray-600">Importe</th>
-                              <th className="px-3 py-2 text-left font-medium text-gray-600">Alojamiento</th>
+                              <th className="px-3 py-2 text-left font-medium text-gray-600">{t('settlementDetail.reservations.tableHeaders.code')}</th>
+                              <th className="px-3 py-2 text-left font-medium text-gray-600">{t('settlementDetail.reservations.tableHeaders.guest')}</th>
+                              <th className="px-3 py-2 text-left font-medium text-gray-600">{t('settlementDetail.reservations.tableHeaders.checkIn')}</th>
+                              <th className="px-3 py-2 text-right font-medium text-gray-600">{t('invoices.table.amount')}</th>
+                              <th className="px-3 py-2 text-left font-medium text-gray-600">{t('importReservations.analysis.listingsInCsv')}</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-100">
@@ -1070,7 +1075,7 @@ export default function ImportarReservasPage() {
                       </div>
                       {previewAnalysis.newReservations > 20 && (
                         <div className="p-2 text-center text-xs text-gray-500 bg-gray-50">
-                          Mostrando 20 de {previewAnalysis.newReservations} nuevas
+                          {t('importReservations.analysis.showing', { shown: 20, total: previewAnalysis.newReservations })}
                         </div>
                       )}
                     </div>
@@ -1081,9 +1086,9 @@ export default function ImportarReservasPage() {
                 {previewAnalysis.newReservations === 0 && (
                   <div className="mb-6 p-4 bg-gray-100 border border-gray-300 rounded-lg text-center">
                     <XCircle className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                    <p className="text-gray-700 font-medium">No hay reservas nuevas para importar</p>
+                    <p className="text-gray-700 font-medium">{t('importReservations.analysis.noNewReservations.title')}</p>
                     <p className="text-sm text-gray-500 mt-1">
-                      Todas las reservas del archivo ya existen en la base de datos
+                      {t('importReservations.analysis.noNewReservations.description')}
                     </p>
                   </div>
                 )}
@@ -1093,7 +1098,7 @@ export default function ImportarReservasPage() {
                   <div className="text-sm text-gray-500">
                     {previewAnalysis.invalidRows > 0 && (
                       <span className="text-red-600">
-                        {previewAnalysis.invalidRows} filas inválidas (ignoradas)
+                        {t('importReservations.analysis.invalidRows', { count: previewAnalysis.invalidRows })}
                       </span>
                     )}
                   </div>
@@ -1111,27 +1116,27 @@ export default function ImportarReservasPage() {
                     {isImporting ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Importando...
+                        {t('common.loading')}
                       </>
                     ) : previewAnalysis.newReservations === 0 ? (
                       <>
                         <XCircle className="h-4 w-4 mr-2" />
-                        Nada que importar
+                        {t('importReservations.analysis.nothingToImport')}
                       </>
                     ) : useSmartImport && !canConfirmSmartImport && !skipUnmappedListings ? (
                       <>
                         <AlertTriangle className="h-4 w-4 mr-2" />
-                        Asigna todos los alojamientos
+                        {t('importReservations.analysis.assignAllListings')}
                       </>
                     ) : useSmartImport && skipUnmappedListings && mappedReservationsCount > 0 ? (
                       <>
                         <Upload className="h-4 w-4 mr-2" />
-                        Importar {mappedReservationsCount} reservas
+                        {t('importReservations.analysis.import', { count: mappedReservationsCount })}
                       </>
                     ) : (
                       <>
                         <Upload className="h-4 w-4 mr-2" />
-                        Importar {previewAnalysis.newReservations} reservas
+                        {t('importReservations.analysis.import', { count: previewAnalysis.newReservations })}
                       </>
                     )}
                   </Button>
@@ -1147,7 +1152,7 @@ export default function ImportarReservasPage() {
                       />
                     </div>
                     <p className="text-sm text-center text-gray-500 mt-2">
-                      {importProgress}% completado
+                      {t('importReservations.completing', { percent: importProgress })}
                     </p>
                   </div>
                 )}
@@ -1161,9 +1166,9 @@ export default function ImportarReservasPage() {
               <CardContent className="p-6">
                 <div className="text-center py-8">
                   <Building2 className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                  <p className="text-gray-600 font-medium">Selecciona una propiedad</p>
+                  <p className="text-gray-600 font-medium">{t('importReservations.selectPropertyFirst.title')}</p>
                   <p className="text-sm text-gray-500 mt-1">
-                    Para analizar el archivo, primero selecciona la propiedad destino
+                    {t('importReservations.selectPropertyFirst.description')}
                   </p>
                 </div>
               </CardContent>
@@ -1176,7 +1181,7 @@ export default function ImportarReservasPage() {
               <CardContent className="p-6">
                 <div className="flex items-center gap-2 mb-6">
                   <CheckCircle2 className="h-5 w-5 text-green-600" />
-                  <h2 className="text-lg font-semibold">Importación Completada</h2>
+                  <h2 className="text-lg font-semibold">{t('importReservations.result.title')}</h2>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4 mb-6">
@@ -1184,31 +1189,31 @@ export default function ImportarReservasPage() {
                     <div className="text-2xl font-bold text-green-600">
                       {importResult.importedCount}
                     </div>
-                    <div className="text-sm text-green-800">Importadas</div>
+                    <div className="text-sm text-green-800">{t('importReservations.result.imported')}</div>
                   </div>
                   <div className="text-center p-4 bg-amber-50 rounded-lg border border-amber-200">
                     <div className="text-2xl font-bold text-amber-600">
                       {importResult.skippedCount}
                     </div>
-                    <div className="text-sm text-amber-800">Omitidas</div>
+                    <div className="text-sm text-amber-800">{t('importReservations.result.skipped')}</div>
                   </div>
                   <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
                     <div className="text-2xl font-bold text-red-600">
                       {importResult.errorCount}
                     </div>
-                    <div className="text-sm text-red-800">Errores</div>
+                    <div className="text-sm text-red-800">{t('importReservations.result.errors')}</div>
                   </div>
                 </div>
 
                 {/* Batch ID for rollback */}
                 {importResult.importBatchId && importResult.importedCount > 0 && (
                   <div className="mb-4 p-3 bg-gray-50 rounded-lg text-sm">
-                    <span className="text-gray-600">ID de importación: </span>
+                    <span className="text-gray-600">{t('importReservations.result.importId')}: </span>
                     <code className="text-gray-800 bg-gray-200 px-2 py-0.5 rounded text-xs">
                       {importResult.importBatchId}
                     </code>
                     <p className="text-xs text-gray-500 mt-1">
-                      Guarda este ID si necesitas deshacer la importación más adelante
+                      {t('importReservations.result.saveIdNote')}
                     </p>
                   </div>
                 )}
@@ -1216,13 +1221,13 @@ export default function ImportarReservasPage() {
                 {/* Results by BillingUnit (smart import) */}
                 {importResult.byBillingUnit && importResult.byBillingUnit.length > 0 && (
                   <div className="mb-4">
-                    <p className="text-sm text-gray-600 mb-2">Reservas por apartamento:</p>
+                    <p className="text-sm text-gray-600 mb-2">{t('importReservations.result.byApartment')}:</p>
                     <div className="space-y-1">
                       {importResult.byBillingUnit.map((unit: { id: string; name: string; count: number }, i: number) => (
                         <div key={unit.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                           <span className="text-sm font-medium text-gray-800">{unit.name}</span>
                           <Badge className="bg-green-100 text-green-800 text-xs">
-                            {unit.count} reservas
+                            {unit.count} {t('reservations.title').toLowerCase()}
                           </Badge>
                         </div>
                       ))}
@@ -1234,7 +1239,7 @@ export default function ImportarReservasPage() {
                 {importResult.aliasesSaved && importResult.aliasesSaved.length > 0 && (
                   <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <p className="text-sm text-blue-800 font-medium mb-2">
-                      Alias guardados para futuras importaciones:
+                      {t('importReservations.result.aliasesSaved.title')}:
                     </p>
                     <div className="space-y-1">
                       {importResult.aliasesSaved.map((a: { billingUnitId: string; billingUnitName: string; alias: string }, i: number) => (
@@ -1249,7 +1254,7 @@ export default function ImportarReservasPage() {
                 {/* Listings imported (standard import) */}
                 {importResult.listingsFound && importResult.listingsFound.length > 0 && !importResult.byBillingUnit && (
                   <div className="mb-4">
-                    <p className="text-sm text-gray-600 mb-2">Alojamientos importados:</p>
+                    <p className="text-sm text-gray-600 mb-2">{t('importReservations.result.listingsImported')}:</p>
                     <div className="flex flex-wrap gap-1">
                       {importResult.listingsFound.map((listing: string, i: number) => (
                         <Badge key={i} className="bg-violet-100 text-violet-800 text-xs">
@@ -1264,16 +1269,16 @@ export default function ImportarReservasPage() {
                   <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
                     <div className="flex items-center gap-2 text-red-800 font-medium mb-2">
                       <AlertTriangle className="w-4 h-4" />
-                      Errores durante la importación
+                      {t('importReservations.result.errorsTitle')}
                     </div>
                     <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
                       {importResult.errors.slice(0, 5).map((error, i) => (
                         <li key={i}>
-                          Fila {error.row}: {error.error}
+                          {t('importReservations.result.row')} {error.row}: {error.error}
                         </li>
                       ))}
                       {importResult.errors.length > 5 && (
-                        <li>... y {importResult.errors.length - 5} errores más</li>
+                        <li>{t('importReservations.result.andMoreErrors', { count: importResult.errors.length - 5 })}</li>
                       )}
                     </ul>
                   </div>
@@ -1281,7 +1286,7 @@ export default function ImportarReservasPage() {
 
                 <Button onClick={resetImport} variant="outline" className="w-full">
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  Importar otro archivo
+                  {t('importReservations.result.importAnother')}
                 </Button>
               </CardContent>
             </Card>
@@ -1292,11 +1297,11 @@ export default function ImportarReservasPage() {
         <div className="space-y-6">
           <Card>
             <CardContent className="p-6">
-              <h2 className="text-lg font-semibold mb-4">Historial de Importaciones</h2>
+              <h2 className="text-lg font-semibold mb-4">{t('importReservations.history.title')}</h2>
 
               {importHistory.length === 0 ? (
                 <p className="text-sm text-gray-500 text-center py-4">
-                  No hay importaciones previas
+                  {t('importReservations.history.noImports')}
                 </p>
               ) : (
                 <div className="space-y-3">
@@ -1325,16 +1330,16 @@ export default function ImportarReservasPage() {
                       </div>
                       <div className="flex gap-2 mt-2">
                         <Badge className="text-xs bg-green-100 text-green-800">
-                          {imp.importedCount} importadas
+                          {imp.importedCount} {t('importReservations.history.imported')}
                         </Badge>
                         {imp.skippedCount > 0 && (
                           <Badge className="text-xs bg-gray-100 text-gray-800">
-                            {imp.skippedCount} omitidas
+                            {imp.skippedCount} {t('importReservations.history.skipped')}
                           </Badge>
                         )}
                         {imp.errorCount > 0 && (
                           <Badge className="text-xs bg-red-100 text-red-800">
-                            {imp.errorCount} errores
+                            {imp.errorCount} {t('importReservations.history.errors')}
                           </Badge>
                         )}
                       </div>
@@ -1348,24 +1353,24 @@ export default function ImportarReservasPage() {
           {/* Help */}
           <Card>
             <CardContent className="p-6">
-              <h2 className="text-lg font-semibold mb-4">Cómo exportar</h2>
+              <h2 className="text-lg font-semibold mb-4">{t('importReservations.help.title')}</h2>
 
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-blue-700 mb-2">Booking.com (XLS)</h3>
+                <h3 className="text-sm font-medium text-blue-700 mb-2">{t('importReservations.help.booking.title')}</h3>
                 <ol className="text-sm text-gray-600 space-y-1 list-decimal list-inside">
-                  <li>Ve a Extranet de Booking</li>
-                  <li>Reservas → Exportar</li>
-                  <li>Selecciona el periodo</li>
-                  <li>Descarga el XLS</li>
+                  <li>{t('importReservations.help.booking.step1')}</li>
+                  <li>{t('importReservations.help.booking.step2')}</li>
+                  <li>{t('importReservations.help.booking.step3')}</li>
+                  <li>{t('importReservations.help.booking.step4')}</li>
                 </ol>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-pink-700 mb-2">Airbnb (CSV)</h3>
+                <h3 className="text-sm font-medium text-pink-700 mb-2">{t('importReservations.help.airbnb.title')}</h3>
                 <ol className="text-sm text-gray-600 space-y-1 list-decimal list-inside">
-                  <li>Ve a tu panel de Airbnb</li>
-                  <li>Historial de transacciones</li>
-                  <li>Filtra y exporta CSV</li>
+                  <li>{t('importReservations.help.airbnb.step1')}</li>
+                  <li>{t('importReservations.help.airbnb.step2')}</li>
+                  <li>{t('importReservations.help.airbnb.step3')}</li>
                 </ol>
               </div>
             </CardContent>

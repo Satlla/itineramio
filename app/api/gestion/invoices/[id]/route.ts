@@ -106,6 +106,13 @@ export async function GET(
         notes: invoice.notes,
         createdAt: invoice.createdAt.toISOString(),
         updatedAt: invoice.updatedAt.toISOString(),
+        // VeriFactu fields
+        verifactuHash: invoice.verifactuHash,
+        verifactuPreviousHash: invoice.verifactuPreviousHash,
+        verifactuStatus: invoice.verifactuStatus,
+        verifactuTimestamp: invoice.verifactuTimestamp?.toISOString(),
+        invoiceType: invoice.invoiceType,
+        taxRegimeKey: invoice.taxRegimeKey,
         owner: {
           ...invoice.owner,
           // Convert any Decimal fields

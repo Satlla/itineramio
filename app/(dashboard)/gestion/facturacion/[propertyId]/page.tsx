@@ -27,6 +27,7 @@ import Link from 'next/link'
 import { Button, Card, CardContent, Badge } from '../../../../../src/components/ui'
 import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardFooter } from '../../../../../src/components/layout/DashboardFooter'
+import { useTranslation } from 'react-i18next'
 
 interface PropertyDetail {
   id: string
@@ -80,17 +81,6 @@ interface YearData {
   }
 }
 
-const monthNames = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-]
-
-const statusLabels: Record<string, string> = {
-  DRAFT: 'Borrador',
-  SENT: 'Enviada',
-  PAID: 'Pagada'
-}
-
 const statusColors: Record<string, string> = {
   DRAFT: 'bg-gray-100 text-gray-700',
   SENT: 'bg-yellow-100 text-yellow-700',
@@ -98,6 +88,7 @@ const statusColors: Record<string, string> = {
 }
 
 export default function PropertyFacturacionPage() {
+  const { t } = useTranslation('gestion')
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -146,8 +137,19 @@ export default function PropertyFacturacionPage() {
     )
   }
 
+  // Get month names and status labels
+  const monthNames = Array.from({ length: 12 }, (_, i) =>
+    t(`common.months.${['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'][i]}`)
+  )
+
+  const statusLabels: Record<string, string> = {
+    DRAFT: t('common.status.draft'),
+    SENT: t('common.status.sent'),
+    PAID: t('common.status.paid')
+  }
+
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando propiedad..." type="general" />
+    return <AnimatedLoadingSpinner text={t('billing.property.loading')} type="general" />
   }
 
   if (!property) {
@@ -172,7 +174,7 @@ export default function PropertyFacturacionPage() {
               className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-4"
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
-              Volver a propiedades
+              {t('billing.property.backToProperties')}
             </Link>
 
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -199,7 +201,7 @@ export default function PropertyFacturacionPage() {
                     </h1>
                     {isGroup && property.unitCount && (
                       <Badge className="bg-emerald-100 text-emerald-700">
-                        {property.unitCount} apartamentos
+                        {property.unitCount} {t('billing.card.apartments')}
                       </Badge>
                     )}
                   </div>
@@ -219,7 +221,7 @@ export default function PropertyFacturacionPage() {
                   ) : (
                     <Badge className="bg-yellow-100 text-yellow-700 text-xs mt-2">
                       <AlertCircle className="w-3 h-3 mr-1" />
-                      Sin propietario asignado
+                      {t('billing.property.noOwnerAssigned')}
                     </Badge>
                   )}
                 </div>
@@ -229,19 +231,19 @@ export default function PropertyFacturacionPage() {
                 <div className="bg-violet-50 rounded-lg p-3 text-sm">
                   <div className="flex items-center gap-4">
                     <div>
-                      <span className="text-gray-500">Comisión:</span>
+                      <span className="text-gray-500">{t('billing.property.commission')}:</span>
                       <span className="font-semibold text-violet-700 ml-1">
                         {property.billingConfig.commissionValue}%
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Limpieza:</span>
+                      <span className="text-gray-500">{t('billing.property.cleaning')}:</span>
                       <span className="font-semibold text-violet-700 ml-1">
-                        {property.billingConfig.cleaningValue}€
+                        {Number(property.billingConfig.cleaningValue).toFixed(2).replace('.', ',')} €
                       </span>
                     </div>
                     <Badge className={property.billingConfig.incomeReceiver === 'MANAGER' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}>
-                      {property.billingConfig.incomeReceiver === 'MANAGER' ? 'Gestor cobra' : 'Propietario cobra'}
+                      {property.billingConfig.incomeReceiver === 'MANAGER' ? t('billing.property.managerCollects') : t('billing.property.ownerCollects')}
                     </Badge>
                   </div>
                 </div>
@@ -260,7 +262,7 @@ export default function PropertyFacturacionPage() {
               <Card>
                 <CardContent className="p-3 sm:p-4">
                   <div className="text-center">
-                    <p className="text-xs sm:text-sm text-gray-600">Ingresos {selectedYear}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">{t('billing.stats.income', { year: selectedYear })}</p>
                     <p className="text-lg sm:text-2xl font-bold text-green-600">
                       {formatCurrency(currentYearData.totals.income)}
                     </p>
@@ -270,7 +272,7 @@ export default function PropertyFacturacionPage() {
               <Card>
                 <CardContent className="p-3 sm:p-4">
                   <div className="text-center">
-                    <p className="text-xs sm:text-sm text-gray-600">Ocupación</p>
+                    <p className="text-xs sm:text-sm text-gray-600">{t('billing.card.occupancy')}</p>
                     <p className="text-lg sm:text-2xl font-bold text-violet-600">
                       {currentYearData.totals.occupancyRate.toFixed(0)}%
                     </p>
@@ -280,9 +282,9 @@ export default function PropertyFacturacionPage() {
               <Card>
                 <CardContent className="p-3 sm:p-4">
                   <div className="text-center">
-                    <p className="text-xs sm:text-sm text-gray-600">€/noche</p>
+                    <p className="text-xs sm:text-sm text-gray-600">{t('billing.card.pricePerNight')}</p>
                     <p className="text-lg sm:text-2xl font-bold text-gray-900">
-                      {currentYearData.totals.averageNightPrice.toFixed(0)}€
+                      {Number(currentYearData.totals.averageNightPrice).toFixed(2).replace('.', ',')} €
                     </p>
                   </div>
                 </CardContent>
@@ -290,7 +292,7 @@ export default function PropertyFacturacionPage() {
               <Card>
                 <CardContent className="p-3 sm:p-4">
                   <div className="text-center">
-                    <p className="text-xs sm:text-sm text-gray-600">Reservas</p>
+                    <p className="text-xs sm:text-sm text-gray-600">{t('billing.card.reservations')}</p>
                     <p className="text-lg sm:text-2xl font-bold text-gray-900">
                       {currentYearData.totals.reservations}
                     </p>
@@ -311,7 +313,7 @@ export default function PropertyFacturacionPage() {
               <Card>
                 <CardContent className="p-8 text-center">
                   <Calendar className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                  <p className="text-gray-500">No hay datos de facturación para esta propiedad</p>
+                  <p className="text-gray-500">{t('billing.property.noBillingData')}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -326,7 +328,7 @@ export default function PropertyFacturacionPage() {
                       <div className="flex items-center gap-4">
                         <span className="text-xl font-bold text-gray-900">{year.year}</span>
                         <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span>{year.totals.reservations} reservas</span>
+                          <span>{year.totals.reservations} {t('billing.yearView.reservations')}</span>
                           <span className="text-green-600 font-medium">
                             {formatCurrency(year.totals.income)}
                           </span>
@@ -362,10 +364,10 @@ export default function PropertyFacturacionPage() {
                                 </div>
                                 <div className="flex items-center gap-4 text-sm">
                                   <span className="text-gray-500">
-                                    {month.reservations} res.
+                                    {month.reservations} {t('billing.month.reservations')}
                                   </span>
                                   <span className="text-gray-500">
-                                    {month.nights} noches
+                                    {month.nights} {t('billing.month.nights')}
                                   </span>
                                   <span className="text-green-600 font-medium">
                                     {formatCurrency(month.income)}
@@ -392,10 +394,10 @@ export default function PropertyFacturacionPage() {
                                   </>
                                 ) : (month.reservations > 0 || month.expenses > 0) ? (
                                   <Badge className="bg-violet-100 text-violet-700">
-                                    Pendiente
+                                    {t('billing.month.pending')}
                                   </Badge>
                                 ) : (
-                                  <span className="text-sm text-gray-400">Sin actividad</span>
+                                  <span className="text-sm text-gray-400">{t('billing.month.noActivity')}</span>
                                 )}
                                 <ChevronRight className="w-4 h-4 text-gray-400" />
                               </div>

@@ -29,6 +29,7 @@ import Link from 'next/link'
 import { Button, Card, CardContent, Badge } from '../../../../../../../src/components/ui'
 import { AnimatedLoadingSpinner } from '../../../../../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardFooter } from '../../../../../../../src/components/layout/DashboardFooter'
+import { useTranslation } from 'react-i18next'
 
 interface InvoiceItem {
   id: string
@@ -113,11 +114,6 @@ interface ManagerConfig {
   paypalEmail?: string
 }
 
-const monthNames = [
-  '', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-]
-
 // Deterministic date formatter to avoid hydration mismatches
 // (toLocaleDateString produces different results on server vs client)
 function formatDateES(dateStr: string): string {
@@ -138,24 +134,32 @@ function formatDateTimeES(dateStr: string): string {
   return `${day}/${month}/${year}, ${hours}:${mins}`
 }
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: string; icon: any }> = {
-  DRAFT: { label: 'Borrador', color: 'text-gray-600', bgColor: 'bg-gray-100', icon: Edit3 },
-  PROFORMA: { label: 'Proforma', color: 'text-blue-600', bgColor: 'bg-blue-100', icon: FileText },
-  ISSUED: { label: 'Emitida', color: 'text-violet-600', bgColor: 'bg-violet-100', icon: CheckCircle },
-  SENT: { label: 'Enviada', color: 'text-amber-600', bgColor: 'bg-amber-100', icon: Mail },
-  PAID: { label: 'Pagada', color: 'text-green-600', bgColor: 'bg-green-100', icon: Check },
-  CANCELLED: { label: 'Anulada', color: 'text-red-600', bgColor: 'bg-red-100', icon: XCircle }
-}
-
 export default function MonthInvoicePage() {
+  const { t } = useTranslation('gestion')
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  // Get month names and status config using translations
+  const monthNames = ['', ...Array.from({ length: 12 }, (_, i) =>
+    t(`common.months.${['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'][i]}`)
+  )]
+
+  const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: string; icon: any }> = {
+    DRAFT: { label: t('common.status.draft'), color: 'text-gray-600', bgColor: 'bg-gray-100', icon: Edit3 },
+    PROFORMA: { label: t('invoices.status.proforma'), color: 'text-blue-600', bgColor: 'bg-blue-100', icon: FileText },
+    ISSUED: { label: t('common.status.issued'), color: 'text-violet-600', bgColor: 'bg-violet-100', icon: CheckCircle },
+    SENT: { label: t('common.status.sent'), color: 'text-amber-600', bgColor: 'bg-amber-100', icon: Mail },
+    PAID: { label: t('common.status.paid'), color: 'text-green-600', bgColor: 'bg-green-100', icon: Check },
+    CANCELLED: { label: t('common.status.cancelled'), color: 'text-red-600', bgColor: 'bg-red-100', icon: XCircle }
+  }
   const propertyId = params.propertyId as string
   const year = parseInt(params.year as string)
   const month = parseInt(params.month as string)
-  const isUnit = searchParams.get('type') === 'unit'
-  const typeParam = isUnit ? '&type=unit' : ''
+  const entityType = searchParams.get('type') // 'unit', 'group', or null (legacy property)
+  const isUnit = entityType === 'unit'
+  const isGroup = entityType === 'group'
+  const typeParam = entityType ? `&type=${entityType}` : ''
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -574,13 +578,15 @@ export default function MonthInvoicePage() {
     }
   }
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | string) => {
+    // Ensure we have a number rounded to 2 decimals
+    const num = Math.round(Number(amount || 0) * 100) / 100
     // Manual formatting to avoid hydration mismatches from toLocaleString
-    const fixed = Math.abs(amount).toFixed(2)
+    const fixed = Math.abs(num).toFixed(2)
     const [intPart, decPart] = fixed.split('.')
     // Add thousand separators with dot (ES format)
     const withSeparators = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-    return (amount < 0 ? '-' : '') + withSeparators + ',' + decPart + '\u00A0€'
+    return (num < 0 ? '-' : '') + withSeparators + ',' + decPart + '\u00A0€'
   }
 
   const formatIBAN = (iban: string) => {
@@ -594,7 +600,7 @@ export default function MonthInvoicePage() {
   const enabledPaymentMethods = managerConfig?.paymentMethods?.filter(pm => pm.enabled) || []
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando factura..." type="general" />
+    return <AnimatedLoadingSpinner text={t('billing.month.loadingInvoice')} type="general" />
   }
 
   if (error) {
@@ -607,7 +613,7 @@ export default function MonthInvoicePage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-2">Error</h2>
               <p className="text-gray-600 mb-4">{error}</p>
               <Link href="/gestion/facturacion">
-                <Button variant="outline">Volver a Facturación</Button>
+                <Button variant="outline">{t('billing.month.backToBilling')}</Button>
               </Link>
             </CardContent>
           </Card>
@@ -1023,7 +1029,7 @@ export default function MonthInvoicePage() {
                       className="w-full bg-blue-600 hover:bg-blue-700"
                     >
                       <Mail className="w-4 h-4 mr-2" />
-                      {actionLoading === 'loadingEmail' ? 'Cargando...' : 'Enviar por email'}
+                      {actionLoading === 'loadingEmail' ? t('billing.month.loadingEmail') : t('billing.month.sendByEmail')}
                     </Button>
                     <Button
                       onClick={() => updateStatus('PAID')}
@@ -1461,7 +1467,7 @@ export default function MonthInvoicePage() {
               className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mb-4 transition-colors shadow-sm"
             >
               <ChevronLeft className="w-4 h-4" />
-              <span>Volver a <strong>{invoice.property.name}</strong></span>
+              <span>{t('billing.month.backToPropertyName')} <strong>{invoice.property.name}</strong></span>
             </Link>
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

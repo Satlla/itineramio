@@ -21,6 +21,14 @@ export async function GET(
     const reservation = await prisma.reservation.findFirst({
       where: { id, userId },
       include: {
+        billingUnit: {
+          select: {
+            id: true,
+            name: true,
+            commissionValue: true,
+            cleaningValue: true
+          }
+        },
         billingConfig: {
           select: {
             id: true,
@@ -71,6 +79,7 @@ export async function PUT(
     const existing = await prisma.reservation.findFirst({
       where: { id, userId },
       include: {
+        billingUnit: true,
         billingConfig: true,
         liquidation: {
           select: { status: true }
@@ -127,8 +136,11 @@ export async function PUT(
     const earnings = hostEarnings !== undefined ? Number(hostEarnings) : Number(existing.hostEarnings)
     const cleaning = cleaningFee !== undefined ? Number(cleaningFee) : Number(existing.cleaningFee)
 
-    // Recalculate split
-    const commissionPct = Number(existing.billingConfig.commissionValue) / 100
+    // Get commission value from billingUnit or billingConfig
+    const commissionValue = existing.billingUnit?.commissionValue
+      ?? existing.billingConfig?.commissionValue
+      ?? 0
+    const commissionPct = Number(commissionValue) / 100
     const managerAmount = (earnings - cleaning) * commissionPct
     const ownerAmount = earnings - managerAmount
 
@@ -152,6 +164,9 @@ export async function PUT(
         cleaningAmount: cleaning
       },
       include: {
+        billingUnit: {
+          select: { id: true, name: true }
+        },
         billingConfig: {
           select: {
             property: { select: { id: true, name: true } }

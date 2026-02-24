@@ -88,11 +88,11 @@ export async function GET(
     // Construir items en el nuevo formato
     const items = invoice.items.map((item) => {
       const quantity = Number(item.quantity)
-      const unitPrice = Number(item.unitPrice)
+      const unitPrice = Math.round(Number(item.unitPrice) * 100) / 100
       const vatRate = Number(item.vatRate)
-      const subtotal = quantity * unitPrice
-      const vatAmount = subtotal * (vatRate / 100)
-      const total = subtotal + vatAmount
+      const subtotal = Math.round(quantity * unitPrice * 100) / 100
+      const vatAmount = Math.round(subtotal * (vatRate / 100) * 100) / 100
+      const total = Math.round((subtotal + vatAmount) * 100) / 100
 
       return {
         concept: item.concept,
@@ -159,6 +159,15 @@ export async function GET(
 
       // Pago - IBAN del gestor
       iban: config.iban || undefined,
+
+      // VeriFactu data (if enabled and hash exists)
+      verifactu: config.verifactuEnabled && (invoice as any).verifactuHash
+        ? {
+            enabled: true,
+            qrDataUrl: (invoice as any).qrCode || undefined,
+            hash: (invoice as any).verifactuHash || undefined,
+          }
+        : undefined,
     }
 
     // Generar HTML

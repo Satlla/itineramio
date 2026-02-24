@@ -25,6 +25,7 @@ export async function GET(
           select: {
             id: true,
             type: true,
+            retentionRate: true,
             firstName: true,
             lastName: true,
             companyName: true,
@@ -46,6 +47,18 @@ export async function GET(
                 property: {
                   select: { id: true, name: true },
                 },
+              },
+            },
+            billingUnit: {
+              select: {
+                id: true,
+                name: true,
+                commissionType: true,
+                commissionValue: true,
+                commissionVat: true,
+                cleaningType: true,
+                cleaningValue: true,
+                groupId: true,
               },
             },
           },
@@ -72,6 +85,94 @@ export async function GET(
         { status: 404 }
       )
     }
+
+    // Load BillingUnitGroup configs if any reservation has a billingUnit with groupId
+    const groupIds = [...new Set(
+      liquidation.reservations
+        .filter(r => r.billingUnit?.groupId)
+        .map(r => r.billingUnit!.groupId!)
+    )]
+    const groups = groupIds.length > 0
+      ? await prisma.billingUnitGroup.findMany({ where: { id: { in: groupIds } } })
+      : []
+    const groupMap = new Map(groups.map(g => [g.id, g]))
+
+    // Calculate per-reservation breakdown
+    const enrichedReservations = liquidation.reservations.map((r) => {
+      const hostEarnings = Number(r.hostEarnings)
+      const nights = r.nights || 1
+
+      // Resolve config: Commission from Group > Unit; Cleaning from Unit (if set) > Group
+      const unit = r.billingUnit
+      const group = unit?.groupId ? groupMap.get(unit.groupId) : null
+
+      // Commission: group takes precedence (same management fee for all units)
+      const commissionSource = group || unit
+      const commissionType = commissionSource?.commissionType || 'PERCENTAGE'
+      const commissionValue = Number(commissionSource?.commissionValue || 0)
+      const commissionVatRate = Number(commissionSource?.commissionVat || 21)
+
+      // Cleaning: unit takes precedence if it has a value > 0, otherwise group
+      const unitCleaningValue = Number(unit?.cleaningValue || 0)
+      const cleaningSource = unitCleaningValue > 0 ? unit : (group || unit)
+      const cleaningType = cleaningSource?.cleaningType || 'FIXED_PER_RESERVATION'
+      const cleaningValue = Number(cleaningSource?.cleaningValue || 0)
+
+      // Calculate commission
+      const commissionAmount = commissionType === 'PERCENTAGE'
+        ? hostEarnings * commissionValue / 100
+        : commissionValue
+
+      // Calculate VAT on commission
+      const commissionVatAmount = commissionAmount * commissionVatRate / 100
+
+      // Calculate cleaning
+      const cleaningAmount = cleaningType === 'PER_NIGHT'
+        ? cleaningValue * nights
+        : cleaningValue
+
+      // Net to owner
+      const netToOwner = hostEarnings - commissionAmount - commissionVatAmount - cleaningAmount
+
+      // Property name: prefer billingUnit name, fall back to billingConfig property name
+      const property = r.billingUnit?.name || r.billingConfig?.property?.name || 'N/A'
+
+      return {
+        id: r.id,
+        confirmationCode: r.confirmationCode,
+        guestName: r.guestName,
+        checkIn: r.checkIn.toISOString(),
+        checkOut: r.checkOut.toISOString(),
+        nights: r.nights,
+        platform: r.platform,
+        hostEarnings: Math.round(hostEarnings * 100) / 100,
+        pricePerNight: Math.round((hostEarnings / nights) * 100) / 100,
+        commissionRate: commissionValue,
+        commissionType,
+        commissionAmount: Math.round(commissionAmount * 100) / 100,
+        commissionVatRate,
+        commissionVatAmount: Math.round(commissionVatAmount * 100) / 100,
+        cleaningAmount: Math.round(cleaningAmount * 100) / 100,
+        netToOwner: Math.round(netToOwner * 100) / 100,
+        property,
+      }
+    })
+
+    // Calculate occupancy stats
+    const daysInMonth = new Date(liquidation.year, liquidation.month, 0).getDate()
+    const totalNights = liquidation.reservations.reduce((sum, r) => sum + r.nights, 0)
+    const occupancyRate = Math.min(Math.round((totalNights / daysInMonth) * 1000) / 10, 100)
+
+    // Get first config for summary display (they should all match for same owner)
+    const firstUnit = liquidation.reservations[0]?.billingUnit
+    const firstGroup = firstUnit?.groupId ? groupMap.get(firstUnit.groupId) : null
+    const summaryConfig = firstGroup || firstUnit
+
+    const ownerType = liquidation.owner.type
+    // Use owner's retentionRate if set, otherwise default (15% for EMPRESA, 0% for PERSONA_FISICA)
+    const retentionRate = liquidation.owner.retentionRate !== null
+      ? Number(liquidation.owner.retentionRate)
+      : (ownerType === 'EMPRESA' ? 15 : 0)
 
     // Obtener configuración del gestor para datos de factura
     const managerConfig = await prisma.userInvoiceConfig.findUnique({
@@ -108,27 +209,28 @@ export async function GET(
           totalCleaning: Number(liquidation.totalCleaning),
           totalExpenses: Number(liquidation.totalExpenses),
           totalAmount: Number(liquidation.totalAmount),
+          totalRetention: Number(liquidation.totalRetention),
         },
+        stats: {
+          daysInMonth,
+          totalNights,
+          occupancyRate,
+          commissionType: summaryConfig?.commissionType || 'PERCENTAGE',
+          commissionValue: Number(summaryConfig?.commissionValue || 0),
+          commissionVatRate: Number(summaryConfig?.commissionVat || 21),
+          cleaningType: summaryConfig?.cleaningType || 'FIXED_PER_RESERVATION',
+          cleaningValue: Number(summaryConfig?.cleaningValue || 0),
+          ownerType,
+          retentionRate,
+        },
+        invoiceId: liquidation.invoiceId,
         invoiceNumber: liquidation.invoiceNumber,
         invoiceDate: liquidation.invoiceDate?.toISOString(),
-        paidAt: liquidation.paidAt?.toISOString(),
-        paymentMethod: liquidation.paymentMethod,
-        paymentReference: liquidation.paymentReference,
         notes: liquidation.notes,
         pdfUrl: liquidation.pdfUrl,
         createdAt: liquidation.createdAt.toISOString(),
         updatedAt: liquidation.updatedAt.toISOString(),
-        reservations: liquidation.reservations.map((r) => ({
-          id: r.id,
-          confirmationCode: r.confirmationCode,
-          guestName: r.guestName,
-          checkIn: r.checkIn.toISOString(),
-          checkOut: r.checkOut.toISOString(),
-          nights: r.nights,
-          platform: r.platform,
-          hostEarnings: Number(r.hostEarnings),
-          property: r.billingConfig?.property?.name || 'N/A',
-        })),
+        reservations: enrichedReservations,
         expenses: liquidation.expenses.map((e) => ({
           id: e.id,
           date: e.date.toISOString(),
@@ -191,14 +293,21 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { status, notes, paymentMethod, paymentReference, paidAt } = body
+    const { status, notes } = body
 
-    // Validar transiciones de estado
+    // Check if liquidation is linked to an invoice (locked)
+    if (liquidation.invoiceId && status) {
+      return NextResponse.json(
+        { error: 'No se puede cambiar el estado de una liquidación vinculada a factura' },
+        { status: 400 }
+      )
+    }
+
+    // Validar transiciones de estado (DRAFT -> SENT -> CANCELLED)
+    // Note: Payment is tracked on the invoice, not the liquidation
     const validTransitions: Record<string, string[]> = {
-      DRAFT: ['GENERATED', 'CANCELLED'],
-      GENERATED: ['SENT', 'PAID', 'CANCELLED'],
-      SENT: ['PAID', 'CANCELLED'],
-      PAID: [],
+      DRAFT: ['SENT', 'CANCELLED'],
+      SENT: ['CANCELLED'],
       CANCELLED: [],
     }
 
@@ -215,14 +324,6 @@ export async function PUT(
 
     if (status) updateData.status = status
     if (notes !== undefined) updateData.notes = notes
-    if (paymentMethod !== undefined) updateData.paymentMethod = paymentMethod
-    if (paymentReference !== undefined) updateData.paymentReference = paymentReference
-    if (paidAt !== undefined) updateData.paidAt = paidAt ? new Date(paidAt) : null
-
-    // Si se marca como pagada, registrar fecha
-    if (status === 'PAID' && !liquidation.paidAt) {
-      updateData.paidAt = new Date()
-    }
 
     const updated = await prisma.liquidation.update({
       where: { id },
@@ -235,9 +336,7 @@ export async function PUT(
         id: updated.id,
         status: updated.status,
         notes: updated.notes,
-        paidAt: updated.paidAt?.toISOString(),
-        paymentMethod: updated.paymentMethod,
-        paymentReference: updated.paymentReference,
+        invoiceId: updated.invoiceId,
       },
     })
   } catch (error) {

@@ -1,6 +1,7 @@
 'use client'
 
 import { formatCurrency } from '@/lib/format'
+import { useTranslation } from 'react-i18next'
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
@@ -64,16 +65,9 @@ interface Invoice {
   }>
 }
 
-const STATUS_CONFIG = {
-  DRAFT: { label: 'Borrador', color: 'bg-gray-100 text-gray-700', icon: Clock },
-  ISSUED: { label: 'Emitida', color: 'bg-blue-100 text-blue-700', icon: FileText },
-  SENT: { label: 'Enviada', color: 'bg-violet-100 text-violet-700', icon: Send },
-  PAID: { label: 'Pagada', color: 'bg-green-100 text-green-700', icon: CheckCircle },
-  OVERDUE: { label: 'Vencida', color: 'bg-red-100 text-red-700', icon: AlertCircle }
-}
-
 export default function FacturasPage() {
   const router = useRouter()
+  const { t } = useTranslation('gestion')
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [invoices, setInvoices] = useState<Invoice[]>([])
@@ -124,7 +118,7 @@ export default function FacturasPage() {
         fetchInvoices()
       } else {
         const data = await response.json()
-        alert(data.error || 'Error al cambiar estado')
+        alert(data.error || t('invoices.errors.statusChangeError'))
       }
     } catch (error) {
       console.error('Error updating status:', error)
@@ -146,7 +140,7 @@ export default function FacturasPage() {
         setConfirmIssue({ id: invoiceId, nextNumber: data.nextNumber })
       } else {
         const data = await response.json()
-        alert(data.error || 'Error al previsualizar')
+        alert(data.error || t('invoices.errors.previewError'))
       }
     } catch (error) {
       console.error('Error previewing issue:', error)
@@ -171,7 +165,7 @@ export default function FacturasPage() {
         fetchInvoices()
       } else {
         const data = await response.json()
-        alert(data.error || 'Error al emitir factura')
+        alert(data.error || t('invoices.errors.issueError'))
       }
     } catch (error) {
       console.error('Error issuing invoice:', error)
@@ -181,7 +175,7 @@ export default function FacturasPage() {
   }
 
   const deleteInvoice = async (invoiceId: string) => {
-    if (!confirm('¿Eliminar este borrador? Esta acción no se puede deshacer.')) return
+    if (!confirm(t('invoices.confirmDelete'))) return
 
     setActionLoading(invoiceId)
     try {
@@ -194,7 +188,7 @@ export default function FacturasPage() {
         fetchInvoices()
       } else {
         const data = await response.json()
-        alert(data.error || 'Error al eliminar')
+        alert(data.error || t('invoices.errors.deleteError'))
       }
     } catch (error) {
       console.error('Error deleting invoice:', error)
@@ -205,8 +199,16 @@ export default function FacturasPage() {
   }
 
   const getOwnerName = (owner: Owner) => {
-    if (owner.type === 'EMPRESA') return owner.companyName || 'Empresa'
-    return `${owner.firstName || ''} ${owner.lastName || ''}`.trim() || 'Cliente'
+    if (owner.type === 'EMPRESA') return owner.companyName || t('invoices.detail.company')
+    return `${owner.firstName || ''} ${owner.lastName || ''}`.trim() || t('invoices.detail.clientFallback')
+  }
+
+  const STATUS_CONFIG = {
+    DRAFT: { label: t('invoices.status.draft'), color: 'bg-gray-100 text-gray-700', icon: Clock },
+    ISSUED: { label: t('invoices.status.issued'), color: 'bg-blue-100 text-blue-700', icon: FileText },
+    SENT: { label: t('invoices.status.sent'), color: 'bg-violet-100 text-violet-700', icon: Send },
+    PAID: { label: t('invoices.status.paid'), color: 'bg-green-100 text-green-700', icon: CheckCircle },
+    OVERDUE: { label: t('invoices.status.overdue'), color: 'bg-red-100 text-red-700', icon: AlertCircle }
   }
 
   const currentYear = new Date().getFullYear()
@@ -234,7 +236,7 @@ export default function FacturasPage() {
   }), { total: 0, pending: 0, count: 0, paid: 0 })
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando facturas..." type="general" />
+    return <AnimatedLoadingSpinner text={t('invoices.loading')} type="general" />
   }
 
   return (
@@ -252,9 +254,9 @@ export default function FacturasPage() {
               <div className="flex items-center space-x-3">
                 <FileText className="h-7 w-7 text-violet-600" />
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Facturas</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">{t('invoices.title')}</h1>
                   <p className="text-sm text-gray-600">
-                    Gestiona todas tus facturas emitidas
+                    {t('invoices.subtitle')}
                   </p>
                 </div>
               </div>
@@ -272,7 +274,7 @@ export default function FacturasPage() {
                 <Link href="/gestion/facturas/nueva">
                   <Button className="bg-violet-600 hover:bg-violet-700">
                     <Plus className="w-4 h-4 mr-2" />
-                    Nueva factura
+                    {t('invoices.actions.newInvoice')}
                   </Button>
                 </Link>
               </div>
@@ -289,7 +291,7 @@ export default function FacturasPage() {
             <Card>
               <CardContent className="p-3 sm:p-4">
                 <div className="text-center">
-                  <p className="text-xs sm:text-sm text-gray-600">Total facturado</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{t('invoices.stats.totalInvoiced')}</p>
                   <p className="text-lg sm:text-2xl font-bold text-gray-900">
                     {formatCurrency(totals.total)}
                   </p>
@@ -299,7 +301,7 @@ export default function FacturasPage() {
             <Card>
               <CardContent className="p-3 sm:p-4">
                 <div className="text-center">
-                  <p className="text-xs sm:text-sm text-gray-600">Pendiente cobro</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{t('invoices.stats.pendingCollection')}</p>
                   <p className="text-lg sm:text-2xl font-bold text-orange-600">
                     {formatCurrency(totals.pending)}
                   </p>
@@ -309,7 +311,7 @@ export default function FacturasPage() {
             <Card>
               <CardContent className="p-3 sm:p-4">
                 <div className="text-center">
-                  <p className="text-xs sm:text-sm text-gray-600">Nº facturas</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{t('invoices.stats.invoiceCount')}</p>
                   <p className="text-lg sm:text-2xl font-bold text-violet-600">
                     {totals.count}
                   </p>
@@ -319,7 +321,7 @@ export default function FacturasPage() {
             <Card>
               <CardContent className="p-3 sm:p-4">
                 <div className="text-center">
-                  <p className="text-xs sm:text-sm text-gray-600">Cobradas</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{t('invoices.stats.collected')}</p>
                   <p className="text-lg sm:text-2xl font-bold text-green-600">
                     {totals.paid}
                   </p>
@@ -342,7 +344,7 @@ export default function FacturasPage() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="text"
-                      placeholder="Buscar por número o cliente..."
+                      placeholder={t('invoices.search')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
@@ -353,21 +355,21 @@ export default function FacturasPage() {
                     onChange={(e) => setStatusFilter(e.target.value)}
                     className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                   >
-                    <option value="">Todos los estados</option>
-                    <option value="DRAFT">Borrador</option>
-                    <option value="ISSUED">Emitida</option>
-                    <option value="SENT">Enviada</option>
-                    <option value="PAID">Pagada</option>
-                    <option value="OVERDUE">Vencida</option>
+                    <option value="">{t('invoices.filters.allStatuses')}</option>
+                    <option value="DRAFT">{t('invoices.status.draft')}</option>
+                    <option value="ISSUED">{t('invoices.status.issued')}</option>
+                    <option value="SENT">{t('invoices.status.sent')}</option>
+                    <option value="PAID">{t('invoices.status.paid')}</option>
+                    <option value="OVERDUE">{t('invoices.status.overdue')}</option>
                   </select>
                   <select
                     value={typeFilter}
                     onChange={(e) => setTypeFilter(e.target.value)}
                     className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                   >
-                    <option value="">Todos los tipos</option>
-                    <option value="normal">Facturas normales</option>
-                    <option value="rectifying">Rectificativas</option>
+                    <option value="">{t('invoices.filters.allTypes')}</option>
+                    <option value="normal">{t('invoices.filters.normalInvoices')}</option>
+                    <option value="rectifying">{t('invoices.filters.rectifying')}</option>
                   </select>
                 </div>
               </CardContent>
@@ -387,8 +389,8 @@ export default function FacturasPage() {
                     <FileText className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Emitir Factura</h3>
-                    <p className="text-sm text-gray-500">Se asignará el número</p>
+                    <h3 className="font-semibold text-gray-900">{t('invoices.modal.issueInvoice')}</h3>
+                    <p className="text-sm text-gray-500">{t('invoices.modal.willAssignNumber')}</p>
                   </div>
                 </div>
 
@@ -402,7 +404,7 @@ export default function FacturasPage() {
                   <div className="flex items-start gap-2">
                     <Lock className="w-4 h-4 text-amber-600 mt-0.5" />
                     <p className="text-sm text-amber-800">
-                      Una vez emitida, la factura no podrá ser editada ni eliminada. Solo podrá crear una factura rectificativa.
+                      {t('invoices.modal.issueWarning')}
                     </p>
                   </div>
                 </div>
@@ -414,14 +416,14 @@ export default function FacturasPage() {
                     onClick={() => setConfirmIssue(null)}
                     disabled={actionLoading === confirmIssue.id}
                   >
-                    Cancelar
+                    {t('common.cancel')}
                   </Button>
                   <Button
                     className="flex-1 bg-violet-600 hover:bg-violet-700"
                     onClick={issueInvoice}
                     disabled={actionLoading === confirmIssue.id}
                   >
-                    {actionLoading === confirmIssue.id ? 'Emitiendo...' : 'Emitir Factura'}
+                    {actionLoading === confirmIssue.id ? t('invoices.actions.issuing') : t('invoices.modal.issueInvoice')}
                   </Button>
                 </div>
               </motion.div>
@@ -438,14 +440,14 @@ export default function FacturasPage() {
               <Card>
                 <CardContent className="p-8 text-center">
                   <FileText className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                  <p className="text-gray-700 font-medium mb-2">No hay facturas</p>
+                  <p className="text-gray-700 font-medium mb-2">{t('invoices.emptyState.title')}</p>
                   <p className="text-sm text-gray-500 mb-4">
-                    Crea tu primera factura libre o genera desde Facturación
+                    {t('invoices.emptyState.description')}
                   </p>
                   <Link href="/gestion/facturas/nueva">
                     <Button className="bg-violet-600 hover:bg-violet-700">
                       <Plus className="w-4 h-4 mr-2" />
-                      Crear factura
+                      {t('invoices.emptyState.action')}
                     </Button>
                   </Link>
                 </CardContent>
@@ -537,12 +539,12 @@ export default function FacturasPage() {
                                 )}
                                 {invoice.isRectifying && (
                                   <Badge className="bg-orange-100 text-orange-700 text-xs">
-                                    {invoice.rectifyingType === 'SUBSTITUTION' ? 'Rectif. Sust.' : 'Rectif. Dif.'}
+                                    {invoice.rectifyingType === 'SUBSTITUTION' ? t('invoices.card.rectSubstitution') : t('invoices.card.rectDifference')}
                                   </Badge>
                                 )}
                                 {(invoice.rectifiedBy?.length ?? 0) > 0 && (
                                   <Badge className="bg-gray-100 text-gray-600 text-xs">
-                                    Rectificada
+                                    {t('invoices.card.rectified')}
                                   </Badge>
                                 )}
                                 <Badge className={`${statusConfig.color} text-xs`}>
@@ -561,13 +563,13 @@ export default function FacturasPage() {
                                 </span>
                                 {invoice.dueDate && (
                                   <span className="text-gray-400">
-                                    Vence: {new Date(invoice.dueDate).toLocaleDateString('es-ES')}
+                                    {t('invoices.card.dueDate')} {new Date(invoice.dueDate).toLocaleDateString('es-ES')}
                                   </span>
                                 )}
                                 {invoice.rectifies && (
                                   <span className="flex items-center gap-1 text-orange-600">
                                     <ArrowRight className="w-3 h-3" />
-                                    Rectifica: {invoice.rectifies.fullNumber}
+                                    {t('invoices.card.rectifies')} {invoice.rectifies.fullNumber}
                                   </span>
                                 )}
                               </div>
@@ -579,7 +581,7 @@ export default function FacturasPage() {
                                   {formatCurrency(invoice.total)}
                                 </p>
                                 <p className="text-xs text-gray-500">
-                                  Base: {formatCurrency(invoice.subtotal)}
+                                  {t('invoices.card.base')}: {formatCurrency(invoice.subtotal)}
                                 </p>
                               </div>
 
@@ -621,12 +623,12 @@ export default function FacturasPage() {
                                       className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
                                     >
                                       <FileText className="w-4 h-4 text-blue-500" />
-                                      Emitir factura
+                                      {t('invoices.actions.issue')}
                                     </button>
                                     <Link href={`/gestion/facturas/${invoice.id}`}>
                                       <button className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2">
                                         <Unlock className="w-4 h-4 text-gray-500" />
-                                        Editar borrador
+                                        {t('invoices.actions.editDraft')}
                                       </button>
                                     </Link>
                                     <button
@@ -634,7 +636,7 @@ export default function FacturasPage() {
                                       className="w-full px-4 py-2 text-left text-sm hover:bg-red-50 flex items-center gap-2 text-red-600"
                                     >
                                       <XCircle className="w-4 h-4" />
-                                      Eliminar borrador
+                                      {t('invoices.actions.deleteDraft')}
                                     </button>
                                   </>
                                 )}
@@ -647,19 +649,19 @@ export default function FacturasPage() {
                                       className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
                                     >
                                       <Send className="w-4 h-4 text-violet-500" />
-                                      Marcar como enviada
+                                      {t('invoices.actions.markAsSent')}
                                     </button>
                                     <button
                                       onClick={() => updateStatus(invoice.id, 'PAID')}
                                       className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
                                     >
                                       <CheckCircle className="w-4 h-4 text-green-500" />
-                                      Marcar como pagada
+                                      {t('invoices.actions.markAsPaid')}
                                     </button>
                                     <Link href={`/gestion/facturas/${invoice.id}?rectify=true`}>
                                       <button className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2">
                                         <RefreshCw className="w-4 h-4 text-orange-500" />
-                                        Crear rectificativa
+                                        {t('invoices.actions.createRectifying')}
                                       </button>
                                     </Link>
                                   </>
@@ -673,12 +675,12 @@ export default function FacturasPage() {
                                       className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
                                     >
                                       <CheckCircle className="w-4 h-4 text-green-500" />
-                                      Marcar como pagada
+                                      {t('invoices.actions.markAsPaid')}
                                     </button>
                                     <Link href={`/gestion/facturas/${invoice.id}?rectify=true`}>
                                       <button className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2">
                                         <RefreshCw className="w-4 h-4 text-orange-500" />
-                                        Crear rectificativa
+                                        {t('invoices.actions.createRectifying')}
                                       </button>
                                     </Link>
                                   </>
@@ -692,12 +694,12 @@ export default function FacturasPage() {
                                       className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
                                     >
                                       <CheckCircle className="w-4 h-4 text-green-500" />
-                                      Marcar como pagada
+                                      {t('invoices.actions.markAsPaid')}
                                     </button>
                                     <Link href={`/gestion/facturas/${invoice.id}?rectify=true`}>
                                       <button className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2">
                                         <RefreshCw className="w-4 h-4 text-orange-500" />
-                                        Crear rectificativa
+                                        {t('invoices.actions.createRectifying')}
                                       </button>
                                     </Link>
                                   </>
@@ -708,7 +710,7 @@ export default function FacturasPage() {
                                   <Link href={`/gestion/facturas/${invoice.id}?rectify=true`}>
                                     <button className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2">
                                       <RefreshCw className="w-4 h-4 text-orange-500" />
-                                      Crear rectificativa
+                                      {t('invoices.actions.createRectifying')}
                                     </button>
                                   </Link>
                                 )}

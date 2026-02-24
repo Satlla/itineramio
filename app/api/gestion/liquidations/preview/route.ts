@@ -109,7 +109,15 @@ export async function GET(request: NextRequest) {
       },
       include: {
         billingUnit: {
-          select: { id: true, name: true }
+          select: {
+            id: true,
+            name: true,
+            cleaningValue: true,
+            cleaningVatIncluded: true,
+            commissionType: true,
+            commissionValue: true,
+            commissionVat: true
+          }
         }
       },
       orderBy: { checkIn: 'asc' }
@@ -148,8 +156,14 @@ export async function GET(request: NextRequest) {
         nights: r.nights,
         platform: r.platform,
         hostEarnings: Number(r.hostEarnings),
+        cleaningFee: r.cleaningFee ? Number(r.cleaningFee) : null,
         property: r.billingUnit?.name || 'N/A',
-        billingUnitId: r.billingUnitId
+        billingUnitId: r.billingUnitId,
+        billingUnitCleaningValue: r.billingUnit?.cleaningValue ? Number(r.billingUnit.cleaningValue) : null,
+        // Comisión del apartamento
+        billingUnitCommissionType: r.billingUnit?.commissionType || null,
+        billingUnitCommissionValue: r.billingUnit?.commissionValue ? Number(r.billingUnit.commissionValue) : null,
+        billingUnitCommissionVat: r.billingUnit?.commissionVat ? Number(r.billingUnit.commissionVat) : null
       })),
       ...configReservations.map(r => ({
         id: r.id,
@@ -160,8 +174,14 @@ export async function GET(request: NextRequest) {
         nights: r.nights,
         platform: r.platform,
         hostEarnings: Number(r.hostEarnings),
+        cleaningFee: r.cleaningFee ? Number(r.cleaningFee) : null,
         property: r.billingConfig?.property?.name || 'N/A',
-        billingUnitId: null
+        billingUnitId: null,
+        billingUnitCleaningValue: null,
+        // Comisión del config legacy
+        billingUnitCommissionType: r.billingConfig?.commissionType || null,
+        billingUnitCommissionValue: r.billingConfig?.commissionValue ? Number(r.billingConfig.commissionValue) : null,
+        billingUnitCommissionVat: r.billingConfig?.commissionVat ? Number(r.billingConfig.commissionVat) : null
       }))
     ]
 
@@ -239,6 +259,7 @@ export async function GET(request: NextRequest) {
     let cleaningValue = new Decimal(0)
     let monthlyFee = new Decimal(0)
     let monthlyFeeVat = new Decimal(21)
+    let incomeReceiver = 'MANAGER' // Default: manager receives income
 
     if (mode === 'GROUP' && billingUnitGroupId) {
       const group = await prisma.billingUnitGroup.findFirst({
@@ -252,6 +273,7 @@ export async function GET(request: NextRequest) {
         cleaningValue = group.cleaningValue
         monthlyFee = group.monthlyFee
         monthlyFeeVat = group.monthlyFeeVat
+        incomeReceiver = group.incomeReceiver || 'MANAGER'
       }
     } else if (billingUnitIds.length > 0) {
       // Use first billing unit's config
@@ -266,6 +288,7 @@ export async function GET(request: NextRequest) {
         cleaningValue = unit.cleaningValue
         monthlyFee = unit.monthlyFee
         monthlyFeeVat = unit.monthlyFeeVat
+        incomeReceiver = unit.incomeReceiver || 'MANAGER'
       }
     } else if (billingConfigIds.length > 0) {
       const config = await prisma.propertyBillingConfig.findFirst({
@@ -279,6 +302,7 @@ export async function GET(request: NextRequest) {
         cleaningValue = config.cleaningValue
         monthlyFee = config.monthlyFee
         monthlyFeeVat = config.monthlyFeeVat
+        incomeReceiver = config.incomeReceiver || 'MANAGER'
       }
     }
 
@@ -291,27 +315,58 @@ export async function GET(request: NextRequest) {
       const hostEarnings = new Decimal(res.hostEarnings)
       totalIncome = totalIncome.plus(hostEarnings)
 
-      // Calculate commission
+      // JERARQUÍA DE LIMPIEZA:
+      // 1. Reserva (cleaningFee) - máxima prioridad si está rellena
+      // 2. Apartamento (billingUnitCleaningValue) - prevalece sobre grupo
+      // 3. Grupo/Config (cleaningValue) - valor por defecto
+      let finalCleaningValue = cleaningValue // Default: grupo/config
+
+      // Si el apartamento tiene limpieza definida, prevalece sobre el grupo
+      if (res.billingUnitCleaningValue !== null && res.billingUnitCleaningValue !== undefined) {
+        finalCleaningValue = new Decimal(res.billingUnitCleaningValue)
+      }
+
+      // Si la reserva tiene limpieza específica, tiene máxima prioridad
+      if (res.cleaningFee !== null && res.cleaningFee !== undefined && res.cleaningFee > 0) {
+        finalCleaningValue = new Decimal(res.cleaningFee)
+      }
+
+      // Calculate cleaning first (it's subtracted before commission)
+      let cleaning = new Decimal(0)
+      if (cleaningType === 'FIXED_PER_RESERVATION') {
+        cleaning = finalCleaningValue
+      } else if (cleaningType === 'PER_NIGHT') {
+        cleaning = finalCleaningValue.times(res.nights)
+      }
+      totalCleaning = totalCleaning.plus(cleaning)
+
+      // JERARQUÍA DE COMISIÓN:
+      // 1. Apartamento (billingUnitCommissionValue) - prevalece sobre grupo
+      // 2. Grupo/Config (commissionValue) - valor por defecto
+      let finalCommissionType = commissionType
+      let finalCommissionValue = commissionValue
+      let finalCommissionVat = commissionVat
+
+      if (res.billingUnitCommissionValue !== null && res.billingUnitCommissionValue !== undefined) {
+        finalCommissionType = res.billingUnitCommissionType || commissionType
+        finalCommissionValue = new Decimal(res.billingUnitCommissionValue)
+        finalCommissionVat = res.billingUnitCommissionVat !== null ? new Decimal(res.billingUnitCommissionVat) : commissionVat
+      }
+
+      // Calculate commission on (hostEarnings - cleaning)
+      // La comisión se calcula sobre el importe NETO (después de restar limpieza)
+      const netForCommission = hostEarnings.minus(cleaning)
       let commission = new Decimal(0)
-      if (commissionType === 'PERCENTAGE') {
-        commission = hostEarnings.times(commissionValue).dividedBy(100)
-      } else if (commissionType === 'FIXED_PER_RESERVATION') {
-        commission = commissionValue
+      if (finalCommissionType === 'PERCENTAGE') {
+        commission = netForCommission.times(finalCommissionValue).dividedBy(100)
+      } else if (finalCommissionType === 'FIXED_PER_RESERVATION') {
+        commission = finalCommissionValue
       }
 
       totalCommission = totalCommission.plus(commission)
       totalCommissionVat = totalCommissionVat.plus(
-        commission.times(commissionVat).dividedBy(100)
+        commission.times(finalCommissionVat).dividedBy(100)
       )
-
-      // Calculate cleaning
-      let cleaning = new Decimal(0)
-      if (cleaningType === 'FIXED_PER_RESERVATION') {
-        cleaning = cleaningValue
-      } else if (cleaningType === 'PER_NIGHT') {
-        cleaning = cleaningValue.times(res.nights)
-      }
-      totalCleaning = totalCleaning.plus(cleaning)
     }
 
     // Add monthly fee
@@ -354,6 +409,17 @@ export async function GET(request: NextRequest) {
     }
     const byUnit = Array.from(byUnitMap.values())
 
+    // Calculate what owner pays to manager (if owner receives income)
+    const ownerPaysManager = totalCommission.plus(totalCommissionVat).plus(totalCleaning)
+
+    // Calculate retention (use owner's retentionRate, or default: 15% for EMPRESA, 0% for PERSONA_FISICA)
+    const retentionRate = owner.retentionRate !== null
+      ? Number(owner.retentionRate)
+      : (owner.type === 'EMPRESA' ? 15 : 0)
+    const totalRetention = retentionRate > 0
+      ? totalCommission.times(retentionRate).dividedBy(100)
+      : new Decimal(0)
+
     return NextResponse.json({
       reservations: allReservations,
       expenses: allExpenses,
@@ -363,8 +429,20 @@ export async function GET(request: NextRequest) {
         totalCommissionVat: Number(totalCommissionVat),
         totalCleaning: Number(totalCleaning),
         totalExpenses: Number(totalExpenses),
-        totalAmount: Number(totalAmount)
+        totalRetention: Number(totalRetention),
+        totalAmount: Number(totalAmount), // Net to owner (if manager receives income)
+        ownerPaysManager: Number(ownerPaysManager) // What owner pays (if owner receives income)
       },
+      commission: {
+        type: commissionType,
+        value: Number(commissionValue),
+        vatRate: Number(commissionVat)
+      },
+      retention: {
+        rate: retentionRate,
+        ownerType: owner.type
+      },
+      incomeReceiver,
       byUnit
     })
   } catch (error) {

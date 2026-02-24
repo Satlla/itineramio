@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
@@ -21,6 +21,7 @@ import {
 import { Button, Card, CardContent, Badge } from '@/components/ui'
 import { AnimatedLoadingSpinner } from '@/components/ui/AnimatedLoadingSpinner'
 import { formatCurrency } from '@/lib/format'
+import { useTranslation } from 'react-i18next'
 
 interface Owner {
   id: string
@@ -57,6 +58,7 @@ interface PreviewData {
     checkIn: string
     checkOut: string
     nights: number
+    platform: string
     hostEarnings: number
     property: string
     billingUnitId?: string
@@ -77,8 +79,20 @@ interface PreviewData {
     totalCommissionVat: number
     totalCleaning: number
     totalExpenses: number
+    totalRetention?: number
     totalAmount: number
+    ownerPaysManager?: number
   }
+  commission?: {
+    type: string
+    value: number
+    vatRate: number
+  }
+  retention?: {
+    rate: number
+    ownerType: string
+  }
+  incomeReceiver?: 'OWNER' | 'MANAGER'
   byUnit?: {
     unitId: string
     unitName: string
@@ -87,18 +101,23 @@ interface PreviewData {
   }[]
 }
 
-const MONTHS = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-]
-
 type Step = 'select-owner' | 'select-period' | 'preview' | 'generating'
 
 export default function NuevaLiquidacionPage() {
+  const { t } = useTranslation('gestion')
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
   const [step, setStep] = useState<Step>('select-owner')
+  const [initialParamsApplied, setInitialParamsApplied] = useState(false)
+
+  const MONTHS = [
+    t('common.months.january'), t('common.months.february'), t('common.months.march'),
+    t('common.months.april'), t('common.months.may'), t('common.months.june'),
+    t('common.months.july'), t('common.months.august'), t('common.months.september'),
+    t('common.months.october'), t('common.months.november'), t('common.months.december')
+  ]
 
   // Data
   const [owners, setOwners] = useState<Owner[]>([])
@@ -124,6 +143,66 @@ export default function NuevaLiquidacionPage() {
   useEffect(() => {
     fetchData()
   }, [])
+
+  // Fast-track: Load preview directly if URL params are present (skip waiting for all data)
+  useEffect(() => {
+    if (initialParamsApplied) return
+
+    const ownerIdParam = searchParams.get('ownerId')
+    const yearParam = searchParams.get('year')
+    const monthParam = searchParams.get('month')
+
+    if (ownerIdParam && yearParam && monthParam) {
+      setInitialParamsApplied(true)
+      setLoadingPreview(true)
+      setStep('preview') // Show preview step immediately with loading state
+
+      const year = parseInt(yearParam)
+      const month = parseInt(monthParam)
+      setSelectedYear(year)
+      setSelectedMonth(month)
+
+      // Load preview directly without waiting for owners/groups/units
+      const params = new URLSearchParams()
+      params.set('ownerId', ownerIdParam)
+      params.set('year', yearParam)
+      params.set('month', monthParam)
+
+      fetch(`/api/gestion/liquidations/preview?${params}`, { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            setError(data.error)
+            setStep('select-owner')
+          } else {
+            setPreview(data)
+            // Find owner from loaded data (or load it separately)
+            const owner = owners.find(o => o.id === ownerIdParam)
+            if (owner) {
+              setSelectedOwner(owner)
+            }
+          }
+        })
+        .catch(() => {
+          setError('Error al cargar preview')
+          setStep('select-owner')
+        })
+        .finally(() => setLoadingPreview(false))
+    } else {
+      setInitialParamsApplied(true)
+    }
+  }, [searchParams, initialParamsApplied, owners])
+
+  // Set selected owner once owners are loaded (for display purposes)
+  useEffect(() => {
+    if (!selectedOwner && owners.length > 0 && preview) {
+      const ownerIdParam = searchParams.get('ownerId')
+      if (ownerIdParam) {
+        const owner = owners.find(o => o.id === ownerIdParam)
+        if (owner) setSelectedOwner(owner)
+      }
+    }
+  }, [owners, selectedOwner, preview, searchParams])
 
   const fetchData = async () => {
     try {
@@ -257,7 +336,8 @@ export default function NuevaLiquidacionPage() {
   }
 
   const handleGenerate = async () => {
-    if (!selectedOwner || !preview) return
+    const ownerId = selectedOwner?.id || searchParams.get('ownerId')
+    if (!ownerId || !preview) return
 
     setGenerating(true)
     setStep('generating')
@@ -265,7 +345,7 @@ export default function NuevaLiquidacionPage() {
 
     try {
       const body: any = {
-        ownerId: selectedOwner.id,
+        ownerId,
         year: selectedYear,
         month: selectedMonth,
         mode: selectedMode
@@ -302,7 +382,7 @@ export default function NuevaLiquidacionPage() {
   }
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando datos..." type="general" />
+    return <AnimatedLoadingSpinner text={t('newSettlement.loading')} type="general" />
   }
 
   const selectedGroup = selectedGroupId ? groups.find(g => g.id === selectedGroupId) : null
@@ -317,17 +397,17 @@ export default function NuevaLiquidacionPage() {
             className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
-            Volver a liquidaciones
+            {t('newSettlement.backToSettlements')}
           </Link>
           <div className="flex items-center space-x-3">
             <Receipt className="h-7 w-7 text-violet-600" />
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Nueva Liquidación</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{t('newSettlement.title')}</h1>
               <p className="text-sm text-gray-600">
-                {step === 'select-owner' && 'Selecciona el propietario'}
-                {step === 'select-period' && 'Configura el período y apartamentos'}
-                {step === 'preview' && 'Revisa y confirma'}
-                {step === 'generating' && 'Generando liquidación...'}
+                {step === 'select-owner' && t('newSettlement.steps.selectOwner')}
+                {step === 'select-period' && t('newSettlement.steps.configurePeriod')}
+                {step === 'preview' && t('newSettlement.steps.reviewAndConfirm')}
+                {step === 'generating' && t('newSettlement.steps.generating')}
               </p>
             </div>
           </div>
@@ -354,9 +434,9 @@ export default function NuevaLiquidacionPage() {
                   )}
                 </div>
                 <span className="text-sm font-medium hidden sm:inline">
-                  {s === 'select-owner' && 'Propietario'}
-                  {s === 'select-period' && 'Período'}
-                  {s === 'preview' && 'Preview'}
+                  {s === 'select-owner' && t('newSettlement.stepLabels.owner')}
+                  {s === 'select-period' && t('newSettlement.stepLabels.period')}
+                  {s === 'preview' && t('newSettlement.stepLabels.preview')}
                 </span>
               </div>
               {index < 2 && <ChevronRight className="w-4 h-4 text-gray-300" />}
@@ -386,13 +466,13 @@ export default function NuevaLiquidacionPage() {
               <Card>
                 <CardContent className="p-8 text-center">
                   <User className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                  <p className="text-gray-700 font-medium mb-2">No hay propietarios</p>
+                  <p className="text-gray-700 font-medium mb-2">{t('newSettlement.noOwners.title')}</p>
                   <p className="text-sm text-gray-500 mb-4">
-                    Primero debes crear propietarios para poder generar liquidaciones.
+                    {t('newSettlement.noOwners.description')}
                   </p>
                   <Link href="/gestion/clientes">
                     <Button className="bg-violet-600 hover:bg-violet-700">
-                      Ir a Propietarios
+                      {t('newSettlement.noOwners.action')}
                     </Button>
                   </Link>
                 </CardContent>
@@ -423,13 +503,13 @@ export default function NuevaLiquidacionPage() {
                                 {ownerGrps.length > 0 && (
                                   <span className="flex items-center gap-1">
                                     <Layers className="w-3 h-3" />
-                                    {ownerGrps.length} {ownerGrps.length === 1 ? 'conjunto' : 'conjuntos'}
+                                    {ownerGrps.length} {ownerGrps.length === 1 ? t('newSettlement.ownerCard.groups') : t('newSettlement.ownerCard.groupsPlural')}
                                   </span>
                                 )}
                                 {ownerUnits.length > 0 && (
                                   <span className="flex items-center gap-1">
                                     <Home className="w-3 h-3" />
-                                    {ownerUnits.length} {ownerUnits.length === 1 ? 'apartamento' : 'apartamentos'}
+                                    {ownerUnits.length} {ownerUnits.length === 1 ? t('newSettlement.ownerCard.apartments') : t('newSettlement.ownerCard.apartmentsPlural')}
                                   </span>
                                 )}
                               </div>
@@ -470,7 +550,7 @@ export default function NuevaLiquidacionPage() {
                     onClick={() => setStep('select-owner')}
                     className="text-sm text-violet-600 hover:text-violet-800"
                   >
-                    Cambiar
+                    {t('newSettlement.periodSection.change')}
                   </button>
                 </div>
               </CardContent>
@@ -481,11 +561,11 @@ export default function NuevaLiquidacionPage() {
               <CardContent className="p-4">
                 <h3 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-violet-600" />
-                  Período
+                  {t('newSettlement.periodSection.title')}
                 </h3>
                 <div className="flex gap-4">
                   <div className="flex-1">
-                    <label className="block text-sm text-gray-600 mb-2">Mes</label>
+                    <label className="block text-sm text-gray-600 mb-2">{t('newSettlement.periodSection.month')}</label>
                     <select
                       value={selectedMonth}
                       onChange={(e) => {
@@ -500,7 +580,7 @@ export default function NuevaLiquidacionPage() {
                     </select>
                   </div>
                   <div className="flex-1">
-                    <label className="block text-sm text-gray-600 mb-2">Año</label>
+                    <label className="block text-sm text-gray-600 mb-2">{t('newSettlement.periodSection.year')}</label>
                     <select
                       value={selectedYear}
                       onChange={(e) => {
@@ -524,13 +604,13 @@ export default function NuevaLiquidacionPage() {
                 <CardContent className="p-4">
                   <h3 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
                     <Building2 className="w-5 h-5 text-violet-600" />
-                    Apartamentos a liquidar
+                    {t('newSettlement.apartmentsSection.title')}
                   </h3>
 
                   {/* Groups */}
                   {ownerGroups.length > 0 && (
                     <div className="space-y-3 mb-4">
-                      <p className="text-sm text-gray-600 font-medium">Conjuntos</p>
+                      <p className="text-sm text-gray-600 font-medium">{t('newSettlement.apartmentsSection.groups')}</p>
                       {ownerGroups.map(group => (
                         <div
                           key={group.id}
@@ -557,7 +637,7 @@ export default function NuevaLiquidacionPage() {
                               <div>
                                 <p className="font-medium text-gray-900">{group.name}</p>
                                 <p className="text-sm text-gray-500">
-                                  {group.unitsCount} {group.unitsCount === 1 ? 'apartamento' : 'apartamentos'}
+                                  {group.unitsCount} {group.unitsCount === 1 ? t('newSettlement.apartmentsSection.apartment') : t('newSettlement.apartmentsSection.apartmentsPlural')}
                                 </p>
                               </div>
                             </div>
@@ -584,13 +664,13 @@ export default function NuevaLiquidacionPage() {
                   {ownerIndividualUnits.length > 0 && (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm text-gray-600 font-medium">Apartamentos individuales</p>
+                        <p className="text-sm text-gray-600 font-medium">{t('newSettlement.apartmentsSection.individualApartments')}</p>
                         {ownerIndividualUnits.length > 1 && (
                           <button
                             onClick={handleSelectIndividual}
                             className="text-sm text-violet-600 hover:text-violet-800"
                           >
-                            Seleccionar todos
+                            {t('newSettlement.apartmentsSection.selectAll')}
                           </button>
                         )}
                       </div>
@@ -647,7 +727,7 @@ export default function NuevaLiquidacionPage() {
                 onClick={() => setStep('select-owner')}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Atrás
+                {t('newSettlement.actions.back')}
               </Button>
               <Button
                 onClick={handlePreview}
@@ -657,11 +737,11 @@ export default function NuevaLiquidacionPage() {
                 {loadingPreview ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Cargando...
+                    {t('newSettlement.actions.loading')}
                   </>
                 ) : (
                   <>
-                    Ver preview
+                    {t('newSettlement.actions.viewPreview')}
                     <ChevronRight className="w-4 h-4 ml-2" />
                   </>
                 )}
@@ -670,8 +750,38 @@ export default function NuevaLiquidacionPage() {
           </motion.div>
         )}
 
-        {/* Step 3: Preview */}
-        {step === 'preview' && preview && selectedOwner && (
+        {/* Step 3: Preview - Loading State */}
+        {step === 'preview' && loadingPreview && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-4"
+          >
+            <Card className="bg-violet-50 border-violet-200 animate-pulse">
+              <CardContent className="p-4">
+                <div className="h-6 bg-violet-200 rounded w-1/3 mb-2"></div>
+                <div className="h-4 bg-violet-100 rounded w-1/4"></div>
+              </CardContent>
+            </Card>
+            <Card className="animate-pulse">
+              <CardContent className="p-4">
+                <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+                <div className="space-y-2">
+                  <div className="h-8 bg-gray-100 rounded"></div>
+                  <div className="h-8 bg-gray-50 rounded"></div>
+                  <div className="h-8 bg-gray-100 rounded"></div>
+                </div>
+              </CardContent>
+            </Card>
+            <div className="text-center text-gray-500">
+              <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
+              Cargando liquidación...
+            </div>
+          </motion.div>
+        )}
+
+        {/* Step 3: Preview - Content */}
+        {step === 'preview' && preview && !loadingPreview && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -682,11 +792,13 @@ export default function NuevaLiquidacionPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <p className="text-sm text-violet-600">Liquidación para</p>
-                    <p className="font-semibold text-gray-900">{getOwnerName(selectedOwner)}</p>
+                    <p className="text-sm text-violet-600">{t('newSettlement.preview.settlementFor')}</p>
+                    <p className="font-semibold text-gray-900">
+                      {selectedOwner ? getOwnerName(selectedOwner) : 'Cargando...'}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-violet-600">Período</p>
+                    <p className="text-sm text-violet-600">{t('newSettlement.preview.period')}</p>
                     <p className="font-semibold text-gray-900">
                       {MONTHS[selectedMonth - 1]} {selectedYear}
                     </p>
@@ -695,16 +807,16 @@ export default function NuevaLiquidacionPage() {
                 {selectedMode === 'GROUP' && selectedGroup && (
                   <div className="flex items-center gap-2 text-sm text-violet-700">
                     <Layers className="w-4 h-4" />
-                    <span>Conjunto: {selectedGroup.name}</span>
+                    <span>{t('newSettlement.preview.group')}: {selectedGroup.name}</span>
                     <Badge className="bg-violet-200 text-violet-800">
-                      {selectedGroup.unitsCount} apartamentos
+                      {selectedGroup.unitsCount} {t('newSettlement.apartmentsSection.apartmentsPlural')}
                     </Badge>
                   </div>
                 )}
                 {selectedMode === 'INDIVIDUAL' && selectedUnitIds.length > 0 && (
                   <div className="flex items-center gap-2 text-sm text-violet-700">
                     <Home className="w-4 h-4" />
-                    <span>{selectedUnitIds.length} {selectedUnitIds.length === 1 ? 'apartamento' : 'apartamentos'} individuales</span>
+                    <span>{selectedUnitIds.length} {t('newSettlement.preview.individualApartments')}</span>
                   </div>
                 )}
               </CardContent>
@@ -714,7 +826,7 @@ export default function NuevaLiquidacionPage() {
             {preview.byUnit && preview.byUnit.length > 1 && (
               <Card>
                 <CardContent className="p-4">
-                  <h3 className="font-medium text-gray-900 mb-4">Desglose por apartamento</h3>
+                  <h3 className="font-medium text-gray-900 mb-4">{t('newSettlement.preview.breakdownByApartment')}</h3>
                   <div className="space-y-3">
                     {preview.byUnit.map(unit => (
                       <div key={unit.unitId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -722,7 +834,7 @@ export default function NuevaLiquidacionPage() {
                           <Home className="w-5 h-5 text-gray-400" />
                           <div>
                             <p className="font-medium text-gray-900">{unit.unitName}</p>
-                            <p className="text-sm text-gray-500">{unit.reservationsCount} reservas</p>
+                            <p className="text-sm text-gray-500">{unit.reservationsCount} {t('newSettlement.preview.reservationsCount')}</p>
                           </div>
                         </div>
                         <p className="font-semibold text-gray-900">{formatCurrency(unit.totalIncome)}</p>
@@ -733,85 +845,226 @@ export default function NuevaLiquidacionPage() {
               </Card>
             )}
 
-            {/* Reservations */}
+            {/* Reservations - Excel Style */}
             {preview.reservations.length > 0 && (
               <Card>
-                <CardContent className="p-4">
-                  <h3 className="font-medium text-gray-900 mb-4">
-                    Reservas ({preview.reservations.length})
-                  </h3>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-2 font-medium text-gray-600">Propiedad</th>
-                          <th className="text-left py-2 font-medium text-gray-600">Código</th>
-                          <th className="text-left py-2 font-medium text-gray-600">Huésped</th>
-                          <th className="text-left py-2 font-medium text-gray-600">Fechas</th>
-                          <th className="text-right py-2 font-medium text-gray-600">Importe</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {preview.reservations.slice(0, 10).map(res => (
-                          <tr key={res.id} className="border-b border-gray-100">
-                            <td className="py-2 text-gray-900">{res.property}</td>
-                            <td className="py-2 text-gray-500">{res.confirmationCode}</td>
-                            <td className="py-2 text-gray-900">{res.guestName}</td>
-                            <td className="py-2 text-gray-500">
-                              {new Date(res.checkIn).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })} - {new Date(res.checkOut).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })}
-                            </td>
-                            <td className="py-2 text-right font-medium">{formatCurrency(res.hostEarnings)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    {preview.reservations.length > 10 && (
-                      <p className="text-sm text-gray-500 mt-2 text-center">
-                        ... y {preview.reservations.length - 10} reservas más
-                      </p>
-                    )}
+                <CardContent className="p-0">
+                  {/* Group reservations by property */}
+                  {Object.entries(
+                    preview.reservations.reduce((acc, res) => {
+                      const prop = res.property || 'Sin propiedad'
+                      if (!acc[prop]) acc[prop] = []
+                      acc[prop].push(res)
+                      return acc
+                    }, {} as Record<string, typeof preview.reservations>)
+                  ).map(([propertyName, propertyReservations]) => (
+                    <div key={propertyName}>
+                      {/* Property Header */}
+                      <div className="bg-violet-100 px-4 py-2 border-b border-violet-200">
+                        <div className="flex items-center gap-2">
+                          <Home className="w-4 h-4 text-violet-600" />
+                          <span className="font-semibold text-violet-900">{propertyName}</span>
+                          <Badge className="bg-violet-200 text-violet-800 text-xs">
+                            {propertyReservations.length} reservas
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {/* Reservations Table */}
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-gray-50 border-b">
+                              <th className="text-left px-4 py-2 font-medium text-gray-600">Plataforma</th>
+                              <th className="text-left px-4 py-2 font-medium text-gray-600">Código</th>
+                              <th className="text-left px-4 py-2 font-medium text-gray-600">Huésped</th>
+                              <th className="text-center px-4 py-2 font-medium text-gray-600">Check-in</th>
+                              <th className="text-center px-4 py-2 font-medium text-gray-600">Check-out</th>
+                              <th className="text-center px-4 py-2 font-medium text-gray-600">Noches</th>
+                              <th className="text-right px-4 py-2 font-medium text-gray-600">Importe</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {propertyReservations.map((res, idx) => (
+                              <tr key={res.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                <td className="px-4 py-2">
+                                  <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded ${
+                                    res.platform === 'AIRBNB' ? 'bg-pink-100 text-pink-700' :
+                                    res.platform === 'BOOKING' ? 'bg-blue-100 text-blue-700' :
+                                    res.platform === 'VRBO' ? 'bg-green-100 text-green-700' :
+                                    'bg-gray-100 text-gray-700'
+                                  }`}>
+                                    {res.platform}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-2 text-gray-500 font-mono text-xs">{res.confirmationCode}</td>
+                                <td className="px-4 py-2 text-gray-900">{res.guestName}</td>
+                                <td className="px-4 py-2 text-center text-gray-600">
+                                  {new Date(res.checkIn).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })}
+                                </td>
+                                <td className="px-4 py-2 text-center text-gray-600">
+                                  {new Date(res.checkOut).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })}
+                                </td>
+                                <td className="px-4 py-2 text-center text-gray-600">{res.nights}</td>
+                                <td className="px-4 py-2 text-right font-medium text-gray-900">{formatCurrency(res.hostEarnings)}</td>
+                              </tr>
+                            ))}
+                            {/* Subtotal row */}
+                            <tr className="bg-violet-50 border-t border-violet-200">
+                              <td colSpan={6} className="px-4 py-2 text-right font-medium text-violet-700">
+                                Subtotal {propertyName}:
+                              </td>
+                              <td className="px-4 py-2 text-right font-bold text-violet-900">
+                                {formatCurrency(propertyReservations.reduce((sum, r) => sum + r.hostEarnings, 0))}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Grand Total */}
+                  <div className="bg-violet-600 px-4 py-3 flex justify-between items-center">
+                    <span className="font-semibold text-white">
+                      Total Ingresos ({preview.reservations.length} reservas)
+                    </span>
+                    <span className="font-bold text-xl text-white">
+                      {formatCurrency(preview.totals.totalIncome)}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {/* Totals */}
-            <Card className="border-2 border-violet-200">
-              <CardContent className="p-4">
-                <h3 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
-                  <Euro className="w-5 h-5 text-violet-600" />
-                  Resumen
-                </h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between py-2">
-                    <span className="text-gray-600">Total ingresos</span>
-                    <span className="font-medium">{formatCurrency(preview.totals.totalIncome)}</span>
-                  </div>
-                  <div className="flex justify-between py-2">
-                    <span className="text-gray-600">Comisión de gestión</span>
-                    <span className="font-medium text-red-600">- {formatCurrency(preview.totals.totalCommission)}</span>
-                  </div>
-                  <div className="flex justify-between py-2">
-                    <span className="text-gray-600">IVA comisión</span>
-                    <span className="font-medium text-red-600">- {formatCurrency(preview.totals.totalCommissionVat)}</span>
-                  </div>
-                  {preview.totals.totalCleaning > 0 && (
-                    <div className="flex justify-between py-2">
-                      <span className="text-gray-600">Limpiezas</span>
-                      <span className="font-medium text-red-600">- {formatCurrency(preview.totals.totalCleaning)}</span>
-                    </div>
-                  )}
-                  {preview.totals.totalExpenses > 0 && (
-                    <div className="flex justify-between py-2">
-                      <span className="text-gray-600">Gastos repercutidos</span>
-                      <span className="font-medium text-red-600">- {formatCurrency(preview.totals.totalExpenses)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between py-3 border-t-2 border-violet-200 mt-2">
-                    <span className="font-semibold text-gray-900">Neto a transferir</span>
-                    <span className="font-bold text-xl text-green-600">{formatCurrency(preview.totals.totalAmount)}</span>
-                  </div>
+            {/* Totals - Excel Style */}
+            <Card className="border-2 border-gray-300">
+              <CardContent className="p-0">
+                {/* Header indicating income flow */}
+                <div className={`px-4 py-2 text-sm font-medium ${
+                  preview.incomeReceiver === 'OWNER'
+                    ? 'bg-amber-100 text-amber-800'
+                    : 'bg-blue-100 text-blue-800'
+                }`}>
+                  {preview.incomeReceiver === 'OWNER'
+                    ? '📥 El propietario recibe los ingresos de las plataformas'
+                    : '📥 El gestor recibe los ingresos de las plataformas'
+                  }
                 </div>
+
+                <table className="w-full text-sm">
+                  <tbody>
+                    {/* Total Income */}
+                    <tr className="border-b bg-gray-50">
+                      <td className="px-4 py-3 font-medium text-gray-700">Total Ingresos</td>
+                      <td className="px-4 py-3 text-right font-semibold text-gray-900">
+                        {formatCurrency(preview.totals.totalIncome)}
+                      </td>
+                    </tr>
+
+                    {/* Commission */}
+                    <tr className="border-b">
+                      <td className="px-4 py-3 text-gray-600">
+                        Comisión de gestión
+                        {preview.commission?.type === 'PERCENTAGE' && (
+                          <span className="ml-2 text-xs bg-violet-100 text-violet-700 px-2 py-0.5 rounded">
+                            {preview.commission.value}%
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium text-red-600">
+                        {formatCurrency(preview.totals.totalCommission)}
+                      </td>
+                    </tr>
+
+                    {/* VAT on Commission - only show if > 0 */}
+                    {preview.totals.totalCommissionVat > 0 && (
+                      <tr className="border-b">
+                        <td className="px-4 py-3 text-gray-600">
+                          IVA sobre comisión
+                          {preview.commission?.vatRate && (
+                            <span className="ml-2 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+                              {preview.commission.vatRate}%
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-right font-medium text-red-600">
+                          {formatCurrency(preview.totals.totalCommissionVat)}
+                        </td>
+                      </tr>
+                    )}
+
+                    {/* Retention IRPF - only for companies */}
+                    {preview.retention && preview.retention.rate > 0 && (
+                      <tr className="border-b bg-orange-50">
+                        <td className="px-4 py-3 text-gray-600">
+                          Retención IRPF
+                          <span className="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">
+                            {preview.retention.rate}%
+                          </span>
+                          <span className="ml-2 text-xs text-gray-500">
+                            (Empresa)
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-right font-medium text-orange-600">
+                          -{formatCurrency(preview.totals.totalRetention || 0)}
+                        </td>
+                      </tr>
+                    )}
+
+                    {/* Info for individuals - no retention */}
+                    {preview.retention && preview.retention.rate === 0 && preview.retention.ownerType === 'PERSONA_FISICA' && (
+                      <tr className="border-b bg-blue-50">
+                        <td colSpan={2} className="px-4 py-2 text-xs text-blue-700">
+                          ℹ️ Sin retención IRPF (Persona física)
+                        </td>
+                      </tr>
+                    )}
+
+                    {/* Cleaning */}
+                    {preview.totals.totalCleaning > 0 && (
+                      <tr className="border-b">
+                        <td className="px-4 py-3 text-gray-600">Limpieza</td>
+                        <td className="px-4 py-3 text-right font-medium text-red-600">
+                          {formatCurrency(preview.totals.totalCleaning)}
+                        </td>
+                      </tr>
+                    )}
+
+                    {/* Expenses */}
+                    {preview.totals.totalExpenses > 0 && (
+                      <tr className="border-b">
+                        <td className="px-4 py-3 text-gray-600">Gastos repercutidos</td>
+                        <td className="px-4 py-3 text-right font-medium text-red-600">
+                          {formatCurrency(preview.totals.totalExpenses)}
+                        </td>
+                      </tr>
+                    )}
+
+                    {/* Final Result - depends on incomeReceiver */}
+                    {preview.incomeReceiver === 'OWNER' ? (
+                      // Owner receives income -> shows what owner pays to manager
+                      <tr className="bg-amber-50">
+                        <td className="px-4 py-4 font-bold text-gray-900 text-base">
+                          💰 PROPIETARIO PAGA AL GESTOR
+                        </td>
+                        <td className="px-4 py-4 text-right font-bold text-xl text-amber-600">
+                          {formatCurrency(preview.totals.ownerPaysManager || 0)}
+                        </td>
+                      </tr>
+                    ) : (
+                      // Manager receives income -> shows what manager transfers to owner
+                      <tr className="bg-green-50">
+                        <td className="px-4 py-4 font-bold text-gray-900 text-base">
+                          💰 GESTOR TRANSFIERE AL PROPIETARIO
+                        </td>
+                        <td className="px-4 py-4 text-right font-bold text-xl text-green-600">
+                          {formatCurrency(preview.totals.totalAmount)}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </CardContent>
             </Card>
 
@@ -820,9 +1073,9 @@ export default function NuevaLiquidacionPage() {
               <Card className="border-yellow-200 bg-yellow-50">
                 <CardContent className="p-4 text-center">
                   <AlertCircle className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
-                  <p className="font-medium text-yellow-800">Sin reservas en este período</p>
+                  <p className="font-medium text-yellow-800">{t('newSettlement.preview.noReservations.title')}</p>
                   <p className="text-sm text-yellow-700 mt-1">
-                    No hay reservas sin liquidar para los apartamentos y período seleccionados.
+                    {t('newSettlement.preview.noReservations.description')}
                   </p>
                 </CardContent>
               </Card>
@@ -835,22 +1088,22 @@ export default function NuevaLiquidacionPage() {
                 onClick={() => setStep('select-period')}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Atrás
+                {t('newSettlement.actions.back')}
               </Button>
               <Button
                 onClick={handleGenerate}
-                disabled={generating || preview.reservations.length === 0}
+                disabled={generating || preview.reservations.length === 0 || (!selectedOwner && !searchParams.get('ownerId'))}
                 className="bg-violet-600 hover:bg-violet-700"
               >
                 {generating ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Generando...
+                    {t('newSettlement.actions.generating')}
                   </>
                 ) : (
                   <>
                     <Check className="w-4 h-4 mr-2" />
-                    Generar liquidación
+                    {t('newSettlement.actions.generateSettlement')}
                   </>
                 )}
               </Button>
@@ -866,8 +1119,8 @@ export default function NuevaLiquidacionPage() {
             className="text-center py-12"
           >
             <Loader2 className="w-12 h-12 text-violet-600 mx-auto mb-4 animate-spin" />
-            <p className="text-lg font-medium text-gray-900">Generando liquidación...</p>
-            <p className="text-sm text-gray-500 mt-2">Esto puede tardar unos segundos</p>
+            <p className="text-lg font-medium text-gray-900">{t('newSettlement.generatingState.title')}</p>
+            <p className="text-sm text-gray-500 mt-2">{t('newSettlement.generatingState.description')}</p>
           </motion.div>
         )}
       </div>

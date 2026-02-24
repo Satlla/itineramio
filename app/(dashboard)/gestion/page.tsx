@@ -24,8 +24,10 @@ import { AnimatedLoadingSpinner } from '../../../src/components/ui/AnimatedLoadi
 import { DashboardFooter } from '../../../src/components/layout/DashboardFooter'
 import { OnboardingGuide } from '../../../src/components/gestion/OnboardingGuide'
 import { useGestionDashboard } from '@/contexts/GestionDashboardContext'
+import { useTranslation } from 'react-i18next'
 
 export default function GestionDashboardPage() {
+  const { t } = useTranslation('gestion')
   const { stats, onboarding, pendingActions, loading, refresh } = useGestionDashboard()
   const [showWizard, setShowWizard] = useState(false)
   const currentYear = new Date().getFullYear()
@@ -69,35 +71,35 @@ export default function GestionDashboardPage() {
   }
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando..." type="general" />
+    return <AnimatedLoadingSpinner text={t('common.loading')} type="general" />
   }
 
   const onboardingSteps = [
     {
       id: 1,
-      title: 'Configura tu empresa',
-      description: 'Añade tus datos fiscales para poder facturar',
+      title: t('dashboard.onboarding.steps.company.title'),
+      description: t('dashboard.onboarding.steps.company.description'),
       completed: onboarding?.companyConfigured ?? false,
       href: '/gestion/perfil-gestor'
     },
     {
       id: 2,
-      title: 'Crea propietarios',
-      description: 'Añade los propietarios de los apartamentos',
+      title: t('dashboard.onboarding.steps.owners.title'),
+      description: t('dashboard.onboarding.steps.owners.description'),
       completed: onboarding?.hasClients ?? false,
       href: '/gestion/clientes'
     },
     {
       id: 3,
-      title: 'Añade apartamentos',
-      description: 'Crea tus apartamentos con propietario, comisión y limpieza',
+      title: t('dashboard.onboarding.steps.apartments.title'),
+      description: t('dashboard.onboarding.steps.apartments.description'),
       completed: onboarding?.hasConfiguredProperties ?? false,
       href: '/gestion/apartamentos'
     },
     {
       id: 4,
-      title: 'Primera factura',
-      description: 'Cierra el mes y emite tu primera factura',
+      title: t('dashboard.onboarding.steps.firstInvoice.title'),
+      description: t('dashboard.onboarding.steps.firstInvoice.description'),
       completed: onboarding?.hasLiquidations ?? false,
       href: '/gestion/facturacion'
     }
@@ -116,29 +118,29 @@ export default function GestionDashboardPage() {
     {
       href: '/gestion/facturacion',
       icon: <Building2 className="w-6 h-6" />,
-      title: 'Facturación',
-      description: 'Cierre mensual por propiedad',
+      title: t('dashboard.quickAccess.billing.title'),
+      description: t('dashboard.quickAccess.billing.description'),
       color: 'bg-violet-100 text-violet-600'
     },
     {
       href: '/gestion/facturas',
       icon: <FileText className="w-6 h-6" />,
-      title: 'Todas las Facturas',
-      description: 'Crear y gestionar facturas',
+      title: t('dashboard.quickAccess.allInvoices.title'),
+      description: t('dashboard.quickAccess.allInvoices.description'),
       color: 'bg-blue-100 text-blue-600'
     },
     {
       href: '/gestion/clientes',
       icon: <Users className="w-6 h-6" />,
-      title: 'Propietarios',
-      description: 'Gestiona los dueños de los apartamentos',
+      title: t('dashboard.quickAccess.owners.title'),
+      description: t('dashboard.quickAccess.owners.description'),
       color: 'bg-green-100 text-green-600'
     },
     {
       href: '/gestion/apartamentos',
       icon: <Building2 className="w-6 h-6" />,
-      title: 'Apartamentos',
-      description: 'Gestiona tus propiedades',
+      title: t('dashboard.quickAccess.apartments.title'),
+      description: t('dashboard.quickAccess.apartments.description'),
       color: 'bg-orange-100 text-orange-600'
     }
   ]
@@ -175,10 +177,10 @@ export default function GestionDashboardPage() {
               <LayoutDashboard className="h-7 w-7 text-violet-600" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Panel de Gestión
+                  {t('dashboard.title')}
                 </h1>
                 <p className="text-sm text-gray-600">
-                  Resumen de facturación y contabilidad
+                  {t('dashboard.subtitle')}
                 </p>
               </div>
             </div>
@@ -195,14 +197,14 @@ export default function GestionDashboardPage() {
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-500">Ingresos {currentYear}</span>
+                    <span className="text-sm text-gray-500">{t('dashboard.stats.income', { year: currentYear })}</span>
                     <TrendingUp className="w-4 h-4 text-green-500" />
                   </div>
                   <p className="text-2xl font-bold text-gray-900">
                     {formatCurrency(stats.yearlyIncome)}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    Comisión: {formatCurrency(stats.yearlyCommission)}
+                    {t('dashboard.stats.commission')}: {formatCurrency(stats.yearlyCommission)}
                   </p>
                 </CardContent>
               </Card>
@@ -217,7 +219,7 @@ export default function GestionDashboardPage() {
                     {formatCurrency(stats.monthlyIncome)}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    Comisión: {formatCurrency(stats.monthlyCommission)}
+                    {t('dashboard.stats.commission')}: {formatCurrency(stats.monthlyCommission)}
                   </p>
                 </CardContent>
               </Card>
@@ -225,14 +227,14 @@ export default function GestionDashboardPage() {
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-500">Propiedades</span>
+                    <span className="text-sm text-gray-500">{t('dashboard.stats.properties')}</span>
                     <Building2 className="w-4 h-4 text-blue-500" />
                   </div>
                   <p className="text-2xl font-bold text-gray-900">
                     {stats.totalProperties}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {stats.totalOwners} propietarios
+                    {stats.totalOwners} {t('dashboard.stats.owners')}
                   </p>
                 </CardContent>
               </Card>
@@ -240,7 +242,7 @@ export default function GestionDashboardPage() {
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-500">Facturas</span>
+                    <span className="text-sm text-gray-500">{t('dashboard.stats.invoices')}</span>
                     <FileText className="w-4 h-4 text-orange-500" />
                   </div>
                   <p className="text-2xl font-bold text-gray-900">
@@ -248,7 +250,7 @@ export default function GestionDashboardPage() {
                   </p>
                   {stats.pendingInvoices > 0 && (
                     <p className="text-xs text-orange-600 mt-1">
-                      {stats.pendingInvoices} pendientes
+                      {stats.pendingInvoices} {t('dashboard.stats.pending')}
                     </p>
                   )}
                 </CardContent>
@@ -264,7 +266,7 @@ export default function GestionDashboardPage() {
               transition={{ duration: 0.5, delay: 0.15 }}
               className="mb-6"
             >
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Acciones pendientes</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.pendingActions.title')}</h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {pendingActions.unliquidatedReservations > 0 && (
                   <Link href="/gestion/reservas">
@@ -279,10 +281,10 @@ export default function GestionDashboardPage() {
                               {pendingActions.unliquidatedReservations}
                             </p>
                             <p className="text-sm font-medium text-amber-800">
-                              Reservas sin facturar
+                              {t('dashboard.pendingActions.unbilledReservations')}
                             </p>
                             <p className="text-xs text-amber-600 mt-1">
-                              Pendientes de cierre mensual
+                              {t('dashboard.pendingActions.pendingMonthlyClose')}
                             </p>
                           </div>
                           <ChevronRight className="w-5 h-5 text-amber-400" />
@@ -305,10 +307,10 @@ export default function GestionDashboardPage() {
                               {pendingActions.draftInvoices}
                             </p>
                             <p className="text-sm font-medium text-blue-800">
-                              Facturas en borrador
+                              {t('dashboard.pendingActions.draftInvoices')}
                             </p>
                             <p className="text-xs text-blue-600 mt-1">
-                              Pendientes de emitir
+                              {t('dashboard.pendingActions.pendingIssue')}
                             </p>
                           </div>
                           <ChevronRight className="w-5 h-5 text-blue-400" />
@@ -331,10 +333,10 @@ export default function GestionDashboardPage() {
                               {pendingActions.unpaidInvoices}
                             </p>
                             <p className="text-sm font-medium text-violet-800">
-                              Facturas por cobrar
+                              {t('dashboard.pendingActions.unpaidInvoices')}
                             </p>
                             <p className="text-xs text-violet-600 mt-1">
-                              Enviadas, pendientes de pago
+                              {t('dashboard.pendingActions.pendingPayment')}
                             </p>
                           </div>
                           <ChevronRight className="w-5 h-5 text-violet-400" />
@@ -353,7 +355,7 @@ export default function GestionDashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Acceso rápido</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.quickAccess.title')}</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {quickLinks.map((link, index) => (
                 <Link key={link.href} href={link.href}>
@@ -382,9 +384,12 @@ export default function GestionDashboardPage() {
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-gray-900">Cómo empezar</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">{t('dashboard.onboarding.title')}</h2>
                     <span className="text-sm text-gray-500">
-                      {onboardingSteps.filter(s => s.completed).length} de {onboardingSteps.length} completados
+                      {t('dashboard.onboarding.progress', {
+                        completed: onboardingSteps.filter(s => s.completed).length,
+                        total: onboardingSteps.length
+                      })}
                     </span>
                   </div>
                   {/* Progress bar */}
@@ -430,7 +435,7 @@ export default function GestionDashboardPage() {
                           </div>
                           {isNext && (
                             <div className="flex items-center gap-1 text-violet-600 text-sm font-medium">
-                              <span>Siguiente</span>
+                              <span>{t('dashboard.onboarding.next')}</span>
                               <ChevronRight className="w-4 h-4" />
                             </div>
                           )}

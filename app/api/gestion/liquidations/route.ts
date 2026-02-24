@@ -325,7 +325,17 @@ export async function POST(request: NextRequest) {
           },
         },
         include: {
-          billingUnit: { select: { id: true, name: true } }
+          billingUnit: {
+            select: {
+              id: true,
+              name: true,
+              cleaningValue: true,
+              cleaningVatIncluded: true,
+              commissionType: true,
+              commissionValue: true,
+              commissionVat: true
+            }
+          }
         }
       })
 
@@ -442,10 +452,43 @@ export async function POST(request: NextRequest) {
         resCleaningValue = reservation.billingConfig.cleaningValue
       }
 
-      // Calcular comisión según tipo
+      // Si el apartamento tiene comisión definida, prevalece sobre el grupo/config
+      if (reservation.billingUnit?.commissionValue !== undefined && reservation.billingUnit?.commissionValue !== null) {
+        resCommissionType = reservation.billingUnit.commissionType || resCommissionType
+        resCommissionValue = new Decimal(reservation.billingUnit.commissionValue)
+        resCommissionVat = reservation.billingUnit.commissionVat !== undefined ? new Decimal(reservation.billingUnit.commissionVat) : resCommissionVat
+      }
+
+      // JERARQUÍA DE LIMPIEZA:
+      // 1. Reserva (cleaningFee/cleaningAmount) - máxima prioridad si está rellena
+      // 2. Apartamento (billingUnit.cleaningValue) - prevalece sobre grupo
+      // 3. Grupo/Config (resCleaningValue) - valor por defecto
+      let finalCleaningValue = resCleaningValue // Default: grupo/config
+
+      // Si el apartamento tiene limpieza definida, prevalece sobre el grupo
+      if (reservation.billingUnit?.cleaningValue !== undefined && reservation.billingUnit?.cleaningValue !== null) {
+        finalCleaningValue = new Decimal(reservation.billingUnit.cleaningValue)
+      }
+
+      // Si la reserva tiene limpieza específica, tiene máxima prioridad
+      if (reservation.cleaningFee !== undefined && reservation.cleaningFee !== null && Number(reservation.cleaningFee) > 0) {
+        finalCleaningValue = new Decimal(reservation.cleaningFee)
+      }
+
+      // Calcular limpieza PRIMERO (se resta antes de calcular comisión)
+      let cleaning = new Decimal(0)
+      if (resCleaningType === 'FIXED_PER_RESERVATION') {
+        cleaning = new Decimal(finalCleaningValue || 0)
+      } else if (resCleaningType === 'PER_NIGHT') {
+        cleaning = new Decimal(finalCleaningValue || 0).times(reservation.nights || 1)
+      }
+      totalCleaning = totalCleaning.plus(cleaning)
+
+      // Calcular comisión sobre el importe NETO (después de restar limpieza)
+      const netForCommission = hostEarnings.minus(cleaning)
       let commission = new Decimal(0)
       if (resCommissionType === 'PERCENTAGE') {
-        commission = hostEarnings.times(new Decimal(resCommissionValue || 0)).dividedBy(100)
+        commission = netForCommission.times(new Decimal(resCommissionValue || 0)).dividedBy(100)
       } else if (resCommissionType === 'FIXED_PER_RESERVATION') {
         commission = new Decimal(resCommissionValue || 0)
       }
@@ -455,15 +498,6 @@ export async function POST(request: NextRequest) {
       // Calcular IVA de comisión
       const commVat = commission.times(new Decimal(resCommissionVat || 21)).dividedBy(100)
       totalCommissionVat = totalCommissionVat.plus(commVat)
-
-      // Calcular limpieza
-      let cleaning = new Decimal(0)
-      if (resCleaningType === 'FIXED_PER_RESERVATION') {
-        cleaning = new Decimal(resCleaningValue || 0)
-      } else if (resCleaningType === 'PER_NIGHT') {
-        cleaning = new Decimal(resCleaningValue || 0).times(reservation.nights || 1)
-      }
-      totalCleaning = totalCleaning.plus(cleaning)
     }
 
     // Añadir cuota mensual (for GROUP or unit-based)
@@ -482,10 +516,14 @@ export async function POST(request: NextRequest) {
       totalExpenses = totalExpenses.plus(new Decimal(expense.vatAmount || 0))
     }
 
-    // Calcular retención IRPF (15% sobre comisión si el propietario es persona física)
+    // Calcular retención IRPF (usar retentionRate del propietario, o default según tipo)
+    // Default: 15% para EMPRESA, 0% para PERSONA_FISICA
+    const retentionRate = owner.retentionRate !== null
+      ? new Decimal(owner.retentionRate)
+      : (owner.type === 'EMPRESA' ? new Decimal(15) : new Decimal(0))
     let totalRetention = new Decimal(0)
-    if (owner.type === 'PERSONA_FISICA') {
-      totalRetention = totalCommission.times(new Decimal(15)).dividedBy(100)
+    if (retentionRate.greaterThan(0)) {
+      totalRetention = totalCommission.times(retentionRate).dividedBy(100)
     }
 
     // Calcular total a pagar al propietario

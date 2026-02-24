@@ -19,6 +19,7 @@ import Link from 'next/link'
 import { Button, Card, CardContent, Badge } from '../../../../src/components/ui'
 import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardFooter } from '../../../../src/components/layout/DashboardFooter'
+import { useTranslation } from 'react-i18next'
 
 interface DashboardStats {
   totalProperties: number
@@ -67,12 +68,8 @@ interface ProfitabilityData {
   }
 }
 
-const monthNames = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-]
-
 export default function RentabilidadPage() {
+  const { t } = useTranslation('gestion')
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [profitability, setProfitability] = useState<ProfitabilityData | null>(null)
@@ -137,10 +134,24 @@ export default function RentabilidadPage() {
   }
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando datos..." type="general" />
+    return <AnimatedLoadingSpinner text={t('profitability.loading')} type="general" />
   }
 
   const currentMonth = new Date().getMonth()
+  const monthNames = [
+    t('common.months.january'),
+    t('common.months.february'),
+    t('common.months.march'),
+    t('common.months.april'),
+    t('common.months.may'),
+    t('common.months.june'),
+    t('common.months.july'),
+    t('common.months.august'),
+    t('common.months.september'),
+    t('common.months.october'),
+    t('common.months.november'),
+    t('common.months.december')
+  ]
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -154,8 +165,8 @@ export default function RentabilidadPage() {
             className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6"
           >
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard de Rentabilidad</h1>
-              <p className="text-sm text-gray-500">Análisis financiero de tus propiedades</p>
+              <h1 className="text-2xl font-bold text-gray-900">{t('profitability.title')}</h1>
+              <p className="text-sm text-gray-500">{t('profitability.subtitle')}</p>
             </div>
 
             <div className="flex items-center gap-3">
@@ -176,7 +187,7 @@ export default function RentabilidadPage() {
                 disabled={exporting}
               >
                 <Download className="w-4 h-4 mr-2" />
-                {exporting ? 'Exportando...' : 'Exportar CSV'}
+                {exporting ? t('profitability.exporting') : t('profitability.export')}
               </Button>
             </div>
           </motion.div>
@@ -196,7 +207,7 @@ export default function RentabilidadPage() {
                       <Euro className="w-4 h-4 text-green-600" />
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500">Ingresos {year}</p>
+                  <p className="text-xs text-gray-500">{t('profitability.stats.income', { year })}</p>
                   <p className="text-xl font-bold text-gray-900">
                     {formatCurrency(stats.yearlyIncome)}
                   </p>
@@ -210,7 +221,7 @@ export default function RentabilidadPage() {
                       <TrendingUp className="w-4 h-4 text-violet-600" />
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500">Tu comisión {year}</p>
+                  <p className="text-xs text-gray-500">{t('profitability.stats.yourCommission', { year })}</p>
                   <p className="text-xl font-bold text-violet-600">
                     {formatCurrency(stats.yearlyCommission)}
                   </p>
@@ -224,7 +235,7 @@ export default function RentabilidadPage() {
                       <Users className="w-4 h-4 text-blue-600" />
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500">Propietarios {year}</p>
+                  <p className="text-xs text-gray-500">{t('profitability.stats.owners', { year })}</p>
                   <p className="text-xl font-bold text-blue-600">
                     {formatCurrency(stats.yearlyOwnerAmount)}
                   </p>
@@ -238,7 +249,7 @@ export default function RentabilidadPage() {
                       <Calendar className="w-4 h-4 text-gray-600" />
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500">Reservas {year}</p>
+                  <p className="text-xs text-gray-500">{t('profitability.stats.reservations', { year })}</p>
                   <p className="text-xl font-bold text-gray-900">
                     {stats.yearlyReservations}
                   </p>
@@ -252,7 +263,7 @@ export default function RentabilidadPage() {
                       <FileText className="w-4 h-4 text-yellow-600" />
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500">Pendiente facturar</p>
+                  <p className="text-xs text-gray-500">{t('profitability.stats.pendingToInvoice')}</p>
                   <p className="text-xl font-bold text-yellow-600">
                     {stats.pendingToInvoice}
                   </p>
@@ -266,7 +277,7 @@ export default function RentabilidadPage() {
                       <Home className="w-4 h-4 text-orange-600" />
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500">Propiedades</p>
+                  <p className="text-xs text-gray-500">{t('profitability.stats.properties')}</p>
                   <p className="text-xl font-bold text-gray-900">
                     {stats.totalProperties}
                   </p>
@@ -290,31 +301,31 @@ export default function RentabilidadPage() {
                       {monthNames[currentMonth]} {year}
                     </h3>
                     <Badge className="bg-violet-100 text-violet-700">
-                      Comisión media: {stats.avgCommission}%
+                      {t('profitability.thisMonth.avgCommission')}: {stats.avgCommission}%
                     </Badge>
                   </div>
 
                   <div className="grid sm:grid-cols-4 gap-6">
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">Ingresos netos</p>
+                      <p className="text-sm text-gray-500 mb-1">{t('profitability.thisMonth.netIncome')}</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {formatCurrency(stats.monthlyIncome)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">Tu comisión</p>
+                      <p className="text-sm text-gray-500 mb-1">{t('profitability.thisMonth.yourCommission')}</p>
                       <p className="text-2xl font-bold text-violet-600">
                         {formatCurrency(stats.monthlyCommission)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">Propietarios</p>
+                      <p className="text-sm text-gray-500 mb-1">{t('profitability.thisMonth.owners')}</p>
                       <p className="text-2xl font-bold text-blue-600">
                         {formatCurrency(stats.monthlyOwnerAmount)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">Reservas</p>
+                      <p className="text-sm text-gray-500 mb-1">{t('profitability.thisMonth.reservations')}</p>
                       <p className="text-2xl font-bold text-gray-900">
                         {stats.monthlyReservations}
                       </p>
@@ -336,10 +347,10 @@ export default function RentabilidadPage() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-gray-900">
-                      Rentabilidad por Propiedad
+                      {t('profitability.table.title')}
                     </h3>
                     <div className="text-sm text-gray-500">
-                      {profitability.totals.reservations} reservas totales
+                      {profitability.totals.reservations} {t('profitability.table.totalReservations')}
                     </div>
                   </div>
 
@@ -347,13 +358,13 @@ export default function RentabilidadPage() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-gray-200">
-                          <th className="text-left py-3 px-2 font-medium text-gray-500">Propiedad</th>
-                          <th className="text-right py-3 px-2 font-medium text-gray-500">Reservas</th>
-                          <th className="text-right py-3 px-2 font-medium text-gray-500">Noches</th>
-                          <th className="text-right py-3 px-2 font-medium text-gray-500">Ingresos</th>
-                          <th className="text-right py-3 px-2 font-medium text-gray-500">Tu comisión</th>
-                          <th className="text-right py-3 px-2 font-medium text-gray-500">Propietario</th>
-                          <th className="text-right py-3 px-2 font-medium text-gray-500">Facturado</th>
+                          <th className="text-left py-3 px-2 font-medium text-gray-500">{t('profitability.table.property')}</th>
+                          <th className="text-right py-3 px-2 font-medium text-gray-500">{t('profitability.table.reservations')}</th>
+                          <th className="text-right py-3 px-2 font-medium text-gray-500">{t('profitability.table.nights')}</th>
+                          <th className="text-right py-3 px-2 font-medium text-gray-500">{t('profitability.table.income')}</th>
+                          <th className="text-right py-3 px-2 font-medium text-gray-500">{t('profitability.table.yourCommission')}</th>
+                          <th className="text-right py-3 px-2 font-medium text-gray-500">{t('profitability.table.owner')}</th>
+                          <th className="text-right py-3 px-2 font-medium text-gray-500">{t('profitability.table.invoiced')}</th>
                           <th className="w-8"></th>
                         </tr>
                       </thead>
@@ -401,7 +412,7 @@ export default function RentabilidadPage() {
                       </tbody>
                       <tfoot>
                         <tr className="bg-gray-50 font-semibold">
-                          <td className="py-3 px-2">TOTAL</td>
+                          <td className="py-3 px-2">{t('profitability.table.total')}</td>
                           <td className="text-right py-3 px-2">{profitability.totals.reservations}</td>
                           <td className="text-right py-3 px-2">{profitability.totals.nights}</td>
                           <td className="text-right py-3 px-2">
@@ -437,14 +448,14 @@ export default function RentabilidadPage() {
                 <CardContent className="p-12 text-center">
                   <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Sin datos de rentabilidad
+                    {t('profitability.emptyState.title')}
                   </h3>
                   <p className="text-gray-500 mb-4">
-                    Importa reservas desde Airbnb o Booking para ver el análisis de rentabilidad
+                    {t('profitability.emptyState.description')}
                   </p>
                   <Link href="/gestion/integraciones">
                     <Button variant="default" size="sm">
-                      Configurar integraciones
+                      {t('profitability.emptyState.action')}
                     </Button>
                   </Link>
                 </CardContent>

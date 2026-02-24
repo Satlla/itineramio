@@ -122,7 +122,19 @@ export async function POST(
           liquidationId: null,
           checkIn: { gte: startDate, lte: endDate },
         },
-        include: { billingUnit: { select: { id: true, name: true } } },
+        include: {
+          billingUnit: {
+            select: {
+              id: true,
+              name: true,
+              cleaningValue: true,
+              cleaningVatIncluded: true,
+              commissionType: true,
+              commissionValue: true,
+              commissionVat: true
+            }
+          }
+        },
       })
       expenses = await prisma.propertyExpense.findMany({
         where: {
@@ -196,9 +208,43 @@ export async function POST(
         resCleaningValue = reservation.billingConfig.cleaningValue
       }
 
+      // Si el apartamento tiene comisión definida, prevalece sobre el grupo/config
+      if (reservation.billingUnit?.commissionValue !== undefined && reservation.billingUnit?.commissionValue !== null) {
+        resCommissionType = reservation.billingUnit.commissionType || resCommissionType
+        resCommissionValue = new Decimal(reservation.billingUnit.commissionValue)
+        resCommissionVat = reservation.billingUnit.commissionVat !== undefined ? new Decimal(reservation.billingUnit.commissionVat) : resCommissionVat
+      }
+
+      // JERARQUÍA DE LIMPIEZA:
+      // 1. Reserva (cleaningFee) - máxima prioridad si está rellena
+      // 2. Apartamento (billingUnit.cleaningValue) - prevalece sobre grupo
+      // 3. Grupo/Config (resCleaningValue) - valor por defecto
+      let finalCleaningValue = resCleaningValue // Default: grupo/config
+
+      // Si el apartamento tiene limpieza definida, prevalece sobre el grupo
+      if (reservation.billingUnit?.cleaningValue !== undefined && reservation.billingUnit?.cleaningValue !== null) {
+        finalCleaningValue = new Decimal(reservation.billingUnit.cleaningValue)
+      }
+
+      // Si la reserva tiene limpieza específica, tiene máxima prioridad
+      if (reservation.cleaningFee !== undefined && reservation.cleaningFee !== null && Number(reservation.cleaningFee) > 0) {
+        finalCleaningValue = new Decimal(reservation.cleaningFee)
+      }
+
+      // Calcular limpieza PRIMERO (se resta antes de calcular comisión)
+      let cleaning = new Decimal(0)
+      if (resCleaningType === 'FIXED_PER_RESERVATION') {
+        cleaning = new Decimal(finalCleaningValue || 0)
+      } else if (resCleaningType === 'PER_NIGHT') {
+        cleaning = new Decimal(finalCleaningValue || 0).times(reservation.nights || 1)
+      }
+      totalCleaning = totalCleaning.plus(cleaning)
+
+      // Calcular comisión sobre el importe NETO (después de restar limpieza)
+      const netForCommission = hostEarnings.minus(cleaning)
       let commission = new Decimal(0)
       if (resCommissionType === 'PERCENTAGE') {
-        commission = hostEarnings.times(new Decimal(resCommissionValue || 0)).dividedBy(100)
+        commission = netForCommission.times(new Decimal(resCommissionValue || 0)).dividedBy(100)
       } else if (resCommissionType === 'FIXED_PER_RESERVATION') {
         commission = new Decimal(resCommissionValue || 0)
       }
@@ -206,14 +252,6 @@ export async function POST(
 
       const commVat = commission.times(new Decimal(resCommissionVat || 21)).dividedBy(100)
       totalCommissionVat = totalCommissionVat.plus(commVat)
-
-      let cleaning = new Decimal(0)
-      if (resCleaningType === 'FIXED_PER_RESERVATION') {
-        cleaning = new Decimal(resCleaningValue || 0)
-      } else if (resCleaningType === 'PER_NIGHT') {
-        cleaning = new Decimal(resCleaningValue || 0).times(reservation.nights || 1)
-      }
-      totalCleaning = totalCleaning.plus(cleaning)
     }
 
     // Monthly fee

@@ -36,6 +36,7 @@ export async function POST(
           select: {
             id: true,
             type: true,
+            retentionRate: true,
             firstName: true,
             lastName: true,
             companyName: true,
@@ -180,7 +181,10 @@ export async function POST(
 
     // Línea de comisión de gestión (negativa)
     if (Number(liquidation.totalCommission) > 0) {
-      const retentionRate = liquidation.owner.type === 'PERSONA_FISICA' ? 15 : 0
+      // Use owner's retentionRate if set, otherwise default (15% for EMPRESA, 0% for PERSONA_FISICA)
+      const retentionRate = liquidation.owner.retentionRate !== null
+        ? Number(liquidation.owner.retentionRate)
+        : (liquidation.owner.type === 'EMPRESA' ? 15 : 0)
       items.push({
         concept: 'Comisión de gestión',
         description: periodLabel,
@@ -264,7 +268,9 @@ export async function POST(
         dueDate: dueDate ? new Date(dueDate) : null,
         subtotal: Number(subtotal),
         totalVat: Number(totalVat),
-        retentionRate: liquidation.owner.type === 'PERSONA_FISICA' ? 15 : 0,
+        retentionRate: liquidation.owner.retentionRate !== null
+          ? Number(liquidation.owner.retentionRate)
+          : (liquidation.owner.type === 'EMPRESA' ? 15 : 0),
         retentionAmount: Number(totalRetention),
         total: Number(total),
         status: 'DRAFT',
@@ -295,17 +301,16 @@ export async function POST(
       }
     })
 
-    // Actualizar estado de la liquidación a GENERATED si estaba en DRAFT
-    if (liquidation.status === 'DRAFT') {
-      await prisma.liquidation.update({
-        where: { id: liquidation.id },
-        data: {
-          status: 'GENERATED',
-          invoiceNumber: invoice.fullNumber,
-          invoiceDate: invoice.issueDate
-        }
-      })
-    }
+    // Link the invoice to the liquidation (liquidation stays in DRAFT until explicitly sent)
+    // The liquidation becomes "locked" (cannot edit) based on invoiceId presence
+    await prisma.liquidation.update({
+      where: { id: liquidation.id },
+      data: {
+        invoiceId: invoice.id,
+        invoiceNumber: invoice.fullNumber,
+        invoiceDate: invoice.issueDate
+      }
+    })
 
     return NextResponse.json({
       success: true,

@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import {
@@ -54,6 +55,7 @@ interface BillingConfig {
 function GenerarFacturaContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const { t } = useTranslation('gestion')
 
   const propertyId = searchParams.get('propertyId')
   const reservationIdsParam = searchParams.get('reservations')
@@ -80,7 +82,7 @@ function GenerarFacturaContent() {
     if (propertyId && reservationIds.length > 0) {
       fetchData()
     } else {
-      setError('Parámetros inválidos')
+      setError(t('invoices.generate.invalidParams'))
       setLoading(false)
     }
   }, [propertyId, reservationIdsParam])
@@ -95,7 +97,7 @@ function GenerarFacturaContent() {
       })
 
       if (!response.ok) {
-        throw new Error('Error al cargar datos')
+        throw new Error(t('invoices.generate.loadError'))
       }
 
       const data = await response.json()
@@ -114,10 +116,10 @@ function GenerarFacturaContent() {
       setReservations(selectedReservations)
 
       if (selectedReservations.length === 0) {
-        setError('No se encontraron las reservas seleccionadas')
+        setError(t('invoices.generate.noReservationsFound'))
       }
     } catch (err) {
-      setError('Error al cargar los datos')
+      setError(t('invoices.generate.loadError'))
     } finally {
       setLoading(false)
     }
@@ -125,7 +127,7 @@ function GenerarFacturaContent() {
 
   const handleSubmit = async () => {
     if (!billingConfig?.owner) {
-      setError('No hay propietario asignado a esta propiedad')
+      setError(t('invoices.generate.noOwnerAssigned'))
       return
     }
 
@@ -151,10 +153,10 @@ function GenerarFacturaContent() {
         router.push(`/gestion/facturas/${data.invoice.id}`)
       } else {
         const data = await response.json()
-        setError(data.error || 'Error al crear la factura')
+        setError(data.error || t('invoices.generate.createError'))
       }
     } catch (err) {
-      setError('Error de conexión')
+      setError(t('invoices.errors.connectionError'))
     } finally {
       setCreating(false)
     }
@@ -176,9 +178,9 @@ function GenerarFacturaContent() {
   }
 
   const getOwnerName = () => {
-    if (!billingConfig?.owner) return 'Sin propietario'
-    if (billingConfig.owner.type === 'EMPRESA') return billingConfig.owner.companyName || 'Empresa'
-    return `${billingConfig.owner.firstName || ''} ${billingConfig.owner.lastName || ''}`.trim() || 'Propietario'
+    if (!billingConfig?.owner) return t('invoices.generate.noOwner')
+    if (billingConfig.owner.type === 'EMPRESA') return billingConfig.owner.companyName || t('invoices.detail.company')
+    return `${billingConfig.owner.firstName || ''} ${billingConfig.owner.lastName || ''}`.trim() || t('owners.owner')
   }
 
   // Calculate totals
@@ -220,8 +222,8 @@ function GenerarFacturaContent() {
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">Generar factura</h1>
-                <p className="text-sm text-gray-500">{reservations.length} reservas seleccionadas</p>
+                <h1 className="text-xl font-semibold text-gray-900">{t('invoices.generate.title')}</h1>
+                <p className="text-sm text-gray-500">{t('invoices.generate.selectedReservations', { count: reservations.length })}</p>
               </div>
             </div>
           </div>
@@ -246,7 +248,7 @@ function GenerarFacturaContent() {
                     <Building2 className="w-5 h-5 text-gray-500" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Propiedad</p>
+                    <p className="text-sm text-gray-500">{t('invoices.generate.property')}</p>
                     <p className="font-medium text-gray-900">{property.name}</p>
                     <p className="text-sm text-gray-500">{property.address}</p>
                   </div>
@@ -256,7 +258,7 @@ function GenerarFacturaContent() {
                     <User className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Facturar a</p>
+                    <p className="text-sm text-gray-500">{t('invoices.generate.billTo')}</p>
                     <p className="font-medium text-gray-900">{getOwnerName()}</p>
                     {billingConfig.owner?.email && (
                       <p className="text-sm text-gray-500">{billingConfig.owner.email}</p>
@@ -269,17 +271,17 @@ function GenerarFacturaContent() {
             {/* Reservations Summary */}
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100">
-                <h2 className="font-semibold text-gray-900">Reservas a facturar</h2>
+                <h2 className="font-semibold text-gray-900">{t('invoices.generate.reservationsToInvoice')}</h2>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">Reserva</th>
-                      <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">Huésped</th>
-                      <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">Fechas</th>
-                      <th className="text-center text-xs font-medium text-gray-500 uppercase px-6 py-3">Noches</th>
-                      <th className="text-right text-xs font-medium text-gray-500 uppercase px-6 py-3">Comisión</th>
+                      <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">{t('invoices.generate.reservation')}</th>
+                      <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">{t('invoices.generate.guest')}</th>
+                      <th className="text-left text-xs font-medium text-gray-500 uppercase px-6 py-3">{t('invoices.generate.dates')}</th>
+                      <th className="text-center text-xs font-medium text-gray-500 uppercase px-6 py-3">{t('invoices.generate.nights')}</th>
+                      <th className="text-right text-xs font-medium text-gray-500 uppercase px-6 py-3">{t('invoices.generate.commission')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
@@ -308,7 +310,7 @@ function GenerarFacturaContent() {
                   <tfoot className="bg-gray-50">
                     <tr>
                       <td colSpan={3} className="px-6 py-3 text-right font-medium text-gray-700">
-                        Totales:
+                        {t('invoices.generate.totals')}
                       </td>
                       <td className="px-6 py-3 text-center font-bold text-gray-900">
                         {totals.nights}
@@ -324,13 +326,13 @@ function GenerarFacturaContent() {
 
             {/* Invoice Options */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="font-semibold text-gray-900 mb-4">Opciones de factura</h2>
+              <h2 className="font-semibold text-gray-900 mb-4">{t('invoices.generate.invoiceOptions')}</h2>
 
               <div className="space-y-4">
                 {/* Detail Level */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Formato de líneas
+                    {t('invoices.generate.lineFormat')}
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <button
@@ -342,9 +344,9 @@ function GenerarFacturaContent() {
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
-                      <p className="font-medium text-gray-900">Detallado</p>
+                      <p className="font-medium text-gray-900">{t('invoices.generate.detailed')}</p>
                       <p className="text-sm text-gray-500 mt-1">
-                        Una línea por cada reserva con fechas y huésped
+                        {t('invoices.generate.detailedDesc')}
                       </p>
                     </button>
                     <button
@@ -356,9 +358,9 @@ function GenerarFacturaContent() {
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
-                      <p className="font-medium text-gray-900">Resumido</p>
+                      <p className="font-medium text-gray-900">{t('invoices.generate.summary')}</p>
                       <p className="text-sm text-gray-500 mt-1">
-                        Una línea con el total del periodo
+                        {t('invoices.generate.summaryDesc')}
                       </p>
                     </button>
                   </div>
@@ -368,7 +370,7 @@ function GenerarFacturaContent() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Fecha de factura
+                      {t('invoices.generate.invoiceDate')}
                     </label>
                     <input
                       type="date"
@@ -379,7 +381,7 @@ function GenerarFacturaContent() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Fecha de vencimiento
+                      {t('invoices.new.dueDate')}
                     </label>
                     <input
                       type="date"
@@ -393,13 +395,13 @@ function GenerarFacturaContent() {
                 {/* Notes */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Notas (opcional)
+                    {t('invoices.generate.notesOptional')}
                   </label>
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     rows={2}
-                    placeholder="Notas adicionales para la factura..."
+                    placeholder={t('invoices.generate.notesPlaceholder')}
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
                   />
                 </div>
@@ -408,25 +410,25 @@ function GenerarFacturaContent() {
 
             {/* Invoice Preview */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="font-semibold text-gray-900 mb-4">Vista previa de totales</h2>
+              <h2 className="font-semibold text-gray-900 mb-4">{t('invoices.generate.totalsPreview')}</h2>
 
               <div className="space-y-2 max-w-xs ml-auto">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Base imponible</span>
+                  <span className="text-gray-600">{t('invoices.table.subtotal')}</span>
                   <span className="font-medium">{formatCurrency(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">IVA ({vatRate}%)</span>
+                  <span className="text-gray-600">{t('invoices.generate.vatRate', { rate: vatRate })}</span>
                   <span>{formatCurrency(vatAmount)}</span>
                 </div>
                 {retentionRate > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Retención ({retentionRate}%)</span>
+                    <span className="text-gray-600">{t('invoices.generate.retentionRate', { rate: retentionRate })}</span>
                     <span className="text-red-600">-{formatCurrency(retentionAmount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
-                  <span>Total</span>
+                  <span>{t('invoices.table.total')}</span>
                   <span className="text-blue-600">{formatCurrency(totalInvoice)}</span>
                 </div>
               </div>
@@ -438,7 +440,7 @@ function GenerarFacturaContent() {
                 href={propertyId ? `/gestion/propiedades/${propertyId}` : '/gestion/facturas'}
                 className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
-                Cancelar
+                {t('common.cancel')}
               </Link>
               <button
                 onClick={handleSubmit}
@@ -446,7 +448,7 @@ function GenerarFacturaContent() {
                 className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
               >
                 <FileText className="w-4 h-4" />
-                {creating ? 'Creando...' : 'Crear borrador'}
+                {creating ? t('invoices.generate.creating') : t('invoices.generate.createDraft')}
               </button>
             </div>
           </div>

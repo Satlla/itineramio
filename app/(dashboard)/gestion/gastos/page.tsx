@@ -24,6 +24,7 @@ import { formatCurrency } from '@/lib/format'
 import { Button, Card, CardContent, Badge } from '../../../../src/components/ui'
 import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardFooter } from '../../../../src/components/layout/DashboardFooter'
+import { useTranslation } from 'react-i18next'
 
 interface Property {
   id: string
@@ -60,17 +61,18 @@ interface Expense {
 }
 
 const EXPENSE_CATEGORIES = [
-  { value: 'MAINTENANCE', label: 'Mantenimiento' },
-  { value: 'SUPPLIES', label: 'Suministros' },
-  { value: 'REPAIR', label: 'Reparaciones' },
-  { value: 'CLEANING', label: 'Limpieza' },
-  { value: 'FURNITURE', label: 'Mobiliario' },
-  { value: 'TAXES', label: 'Impuestos' },
-  { value: 'INSURANCE', label: 'Seguros' },
-  { value: 'OTHER', label: 'Otros' }
+  { value: 'MAINTENANCE', key: 'MAINTENANCE' },
+  { value: 'SUPPLIES', key: 'SUPPLIES' },
+  { value: 'REPAIR', key: 'REPAIR' },
+  { value: 'CLEANING', key: 'CLEANING' },
+  { value: 'FURNITURE', key: 'FURNITURE' },
+  { value: 'TAXES', key: 'TAXES' },
+  { value: 'INSURANCE', key: 'INSURANCE' },
+  { value: 'OTHER', key: 'OTHER' }
 ]
 
 export default function GastosPage() {
+  const { t } = useTranslation('gestion')
   const [loading, setLoading] = useState(true)
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [properties, setProperties] = useState<Property[]>([])
@@ -149,22 +151,22 @@ export default function GastosPage() {
 
     // Validación frontend - requiere billingUnitId O propertyId
     if (!formData.propertyId && !formData.billingUnitId) {
-      setFormError('Debes seleccionar un apartamento')
+      setFormError(t('expenses.validation.apartmentRequired'))
       return
     }
 
     if (!formData.date) {
-      setFormError('La fecha es obligatoria')
+      setFormError(t('expenses.validation.dateRequired'))
       return
     }
 
     if (!formData.concept.trim()) {
-      setFormError('El concepto es obligatorio')
+      setFormError(t('expenses.validation.conceptRequired'))
       return
     }
 
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
-      setFormError('El importe debe ser mayor que 0')
+      setFormError(t('expenses.validation.amountRequired'))
       return
     }
 
@@ -172,7 +174,7 @@ export default function GastosPage() {
     if (formData.propertyId && !formData.billingUnitId) {
       const selectedProp = properties.find(p => p.id === formData.propertyId)
       if (selectedProp && !selectedProp.billingConfigId) {
-        setFormError('Esta propiedad no tiene configuración de facturación. Configúrala primero.')
+        setFormError(t('expenses.validation.noBillingConfig'))
         return
       }
     }
@@ -216,11 +218,11 @@ export default function GastosPage() {
         fetchData()
       } else {
         const data = await response.json()
-        setFormError(data.error || 'Error al guardar el gasto')
+        setFormError(data.error || t('expenses.errors.saveError'))
       }
     } catch (error) {
       console.error('Error saving expense:', error)
-      setFormError('Error de conexión')
+      setFormError(t('expenses.errors.connectionError'))
     } finally {
       setSaving(false)
     }
@@ -288,7 +290,8 @@ export default function GastosPage() {
   }
 
   const getCategoryLabel = (category: string) => {
-    return EXPENSE_CATEGORIES.find(c => c.value === category)?.label || category
+    const cat = EXPENSE_CATEGORIES.find(c => c.value === category)
+    return cat ? t(`expenses.categories.${cat.key}`) : category
   }
 
   // Filter expenses
@@ -320,7 +323,7 @@ export default function GastosPage() {
   })
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando gastos..." type="general" />
+    return <AnimatedLoadingSpinner text={t('expenses.loading')} type="general" />
   }
 
   return (
@@ -338,9 +341,9 @@ export default function GastosPage() {
               <div className="flex items-center space-x-3">
                 <Receipt className="h-7 w-7 text-violet-600" />
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Gastos</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">{t('expenses.title')}</h1>
                   <p className="text-sm text-gray-600">
-                    Gestiona los gastos de tus propiedades
+                    {t('expenses.subtitle')}
                   </p>
                 </div>
               </div>
@@ -350,7 +353,7 @@ export default function GastosPage() {
                 className="bg-violet-600 hover:bg-violet-700"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Nuevo gasto
+                {t('expenses.actions.newExpense')}
               </Button>
             </div>
           </motion.div>
@@ -365,7 +368,7 @@ export default function GastosPage() {
             <Card>
               <CardContent className="p-3 sm:p-4">
                 <div className="text-center">
-                  <p className="text-xs sm:text-sm text-gray-600">Total gastos</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{t('expenses.stats.totalExpenses')}</p>
                   <p className="text-lg sm:text-2xl font-bold text-red-600">
                     {formatCurrency(totals.total)}
                   </p>
@@ -375,7 +378,7 @@ export default function GastosPage() {
             <Card>
               <CardContent className="p-3 sm:p-4">
                 <div className="text-center">
-                  <p className="text-xs sm:text-sm text-gray-600">IVA soportado</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{t('expenses.stats.vatBorne')}</p>
                   <p className="text-lg sm:text-2xl font-bold text-gray-600">
                     {formatCurrency(totals.vat)}
                   </p>
@@ -385,7 +388,7 @@ export default function GastosPage() {
             <Card>
               <CardContent className="p-3 sm:p-4">
                 <div className="text-center">
-                  <p className="text-xs sm:text-sm text-gray-600">Nº gastos</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{t('expenses.stats.expenseCount')}</p>
                   <p className="text-lg sm:text-2xl font-bold text-violet-600">
                     {totals.count}
                   </p>
@@ -408,7 +411,7 @@ export default function GastosPage() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="text"
-                      placeholder="Buscar por concepto o proveedor..."
+                      placeholder={t('expenses.search')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
@@ -419,10 +422,10 @@ export default function GastosPage() {
                     onChange={(e) => setSelectedProperty(e.target.value)}
                     className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                   >
-                    <option value="">Todas las propiedades</option>
+                    <option value="">{t('expenses.filters.allProperties')}</option>
                     {properties.map(p => (
                       <option key={p.id} value={p.id}>
-                        {p.name}{!p.billingConfigId ? ' (sin config.)' : ''}
+                        {p.name}{!p.billingConfigId ? ` ${t('expenses.filters.noConfig')}` : ''}
                       </option>
                     ))}
                   </select>
@@ -431,9 +434,9 @@ export default function GastosPage() {
                     onChange={(e) => setSelectedCategory(e.target.value)}
                     className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                   >
-                    <option value="">Todas las categorías</option>
+                    <option value="">{t('expenses.filters.allCategories')}</option>
                     {EXPENSE_CATEGORIES.map(c => (
-                      <option key={c.value} value={c.value}>{c.label}</option>
+                      <option key={c.value} value={c.value}>{t(`expenses.categories.${c.key}`)}</option>
                     ))}
                   </select>
                   <select
@@ -441,7 +444,7 @@ export default function GastosPage() {
                     onChange={(e) => setSelectedMonth(e.target.value)}
                     className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                   >
-                    <option value="">Todo el año</option>
+                    <option value="">{t('expenses.filters.allYear')}</option>
                     {monthOptions.map(m => (
                       <option key={m.value} value={m.value}>{m.label}</option>
                     ))}
@@ -461,9 +464,9 @@ export default function GastosPage() {
               <Card>
                 <CardContent className="p-8 text-center">
                   <Receipt className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                  <p className="text-gray-700 font-medium mb-2">No hay gastos registrados</p>
+                  <p className="text-gray-700 font-medium mb-2">{t('expenses.emptyState.title')}</p>
                   <p className="text-sm text-gray-500">
-                    Añade gastos para incluirlos en la facturación mensual
+                    {t('expenses.emptyState.description')}
                   </p>
                 </CardContent>
               </Card>
@@ -516,14 +519,14 @@ export default function GastosPage() {
                               </p>
                               {expense.vatAmount > 0 && (
                                 <p className="text-xs text-gray-500">
-                                  IVA: {formatCurrency(expense.vatAmount)}
+                                  {t('expenses.card.vat')}: {formatCurrency(expense.vatAmount)}
                                 </p>
                               )}
                             </div>
 
                             {expense.liquidation ? (
                               <Badge className="bg-green-100 text-green-700 text-xs">
-                                Facturado
+                                {t('expenses.card.invoiced')}
                               </Badge>
                             ) : (
                               <div className="flex items-center gap-1">
@@ -567,7 +570,7 @@ export default function GastosPage() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-gray-900">
-                  {editingExpense ? 'Editar gasto' : 'Nuevo gasto'}
+                  {editingExpense ? t('expenses.modal.edit') : t('expenses.modal.new')}
                 </h2>
                 <button
                   onClick={() => { setShowModal(false); resetForm() }}
@@ -586,7 +589,7 @@ export default function GastosPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Apartamento *
+                    {t('expenses.modal.apartment')} *
                   </label>
                   <select
                     required
@@ -605,10 +608,10 @@ export default function GastosPage() {
                       !formData.propertyId && !formData.billingUnitId && formError ? 'border-red-300' : 'border-gray-300'
                     }`}
                   >
-                    <option value="">Selecciona un apartamento</option>
+                    <option value="">{t('expenses.modal.selectApartment')}</option>
                     {/* BillingUnits (módulo Gestión) */}
                     {billingUnits.length > 0 && (
-                      <optgroup label="Apartamentos de Gestión">
+                      <optgroup label={t('expenses.modal.gestionApartments')}>
                         {billingUnits.map(u => (
                           <option key={u.id} value={`unit:${u.id}`}>
                             {u.name} {u.city && `(${u.city})`}
@@ -618,7 +621,7 @@ export default function GastosPage() {
                     )}
                     {/* Properties (módulo Manuales - legacy) */}
                     {properties.filter(p => p.billingConfigId).length > 0 && (
-                      <optgroup label="Propiedades de Manuales">
+                      <optgroup label={t('expenses.modal.manualProperties')}>
                         {properties.filter(p => p.billingConfigId).map(p => (
                           <option key={p.id} value={p.id}>
                             {p.name}
@@ -629,7 +632,7 @@ export default function GastosPage() {
                   </select>
                   {billingUnits.length === 0 && properties.filter(p => p.billingConfigId).length === 0 && (
                     <p className="text-xs text-amber-600 mt-1">
-                      No tienes apartamentos configurados
+                      {t('expenses.modal.noConfiguredApartments')}
                     </p>
                   )}
                 </div>
@@ -637,7 +640,7 @@ export default function GastosPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Fecha *
+                      {t('expenses.modal.date')} *
                     </label>
                     <input
                       type="date"
@@ -649,7 +652,7 @@ export default function GastosPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Categoría *
+                      {t('expenses.modal.category')} *
                     </label>
                     <select
                       required
@@ -658,7 +661,7 @@ export default function GastosPage() {
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                     >
                       {EXPENSE_CATEGORIES.map(c => (
-                        <option key={c.value} value={c.value}>{c.label}</option>
+                        <option key={c.value} value={c.value}>{t(`expenses.categories.${c.key}`)}</option>
                       ))}
                     </select>
                   </div>
@@ -666,14 +669,14 @@ export default function GastosPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Concepto *
+                    {t('expenses.modal.concept')} *
                   </label>
                   <input
                     type="text"
                     required
                     value={formData.concept}
                     onChange={(e) => setFormData(prev => ({ ...prev, concept: e.target.value }))}
-                    placeholder="Ej: Reparación calentador"
+                    placeholder={t('expenses.modal.conceptPlaceholder')}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                   />
                 </div>
@@ -681,7 +684,7 @@ export default function GastosPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Importe (€) *
+                      {t('expenses.modal.amount')} *
                     </label>
                     <input
                       type="number"
@@ -696,7 +699,7 @@ export default function GastosPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      IVA (€)
+                      {t('expenses.modal.vat')}
                     </label>
                     <input
                       type="number"
@@ -713,25 +716,25 @@ export default function GastosPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Proveedor
+                      {t('expenses.modal.supplier')}
                     </label>
                     <input
                       type="text"
                       value={formData.supplierName}
                       onChange={(e) => setFormData(prev => ({ ...prev, supplierName: e.target.value }))}
-                      placeholder="Nombre del proveedor"
+                      placeholder={t('expenses.modal.supplierPlaceholder')}
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Nº Factura
+                      {t('expenses.modal.invoiceNumber')}
                     </label>
                     <input
                       type="text"
                       value={formData.invoiceNumber}
                       onChange={(e) => setFormData(prev => ({ ...prev, invoiceNumber: e.target.value }))}
-                      placeholder="Nº de factura"
+                      placeholder={t('expenses.modal.invoiceNumberPlaceholder')}
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                     />
                   </div>
@@ -746,7 +749,7 @@ export default function GastosPage() {
                     className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
                   />
                   <label htmlFor="chargeToOwner" className="text-sm text-gray-700">
-                    Descontar al propietario en la factura
+                    {t('expenses.modal.chargeToOwner')}
                   </label>
                 </div>
 
@@ -757,14 +760,14 @@ export default function GastosPage() {
                     onClick={() => { setShowModal(false); resetForm() }}
                     className="flex-1"
                   >
-                    Cancelar
+                    {t('common.cancel')}
                   </Button>
                   <Button
                     type="submit"
                     disabled={saving}
                     className="flex-1 bg-violet-600 hover:bg-violet-700"
                   >
-                    {saving ? 'Guardando...' : editingExpense ? 'Actualizar' : 'Crear gasto'}
+                    {saving ? t('expenses.actions.saving') : editingExpense ? t('expenses.actions.update') : t('expenses.actions.createExpense')}
                   </Button>
                 </div>
               </form>
@@ -796,17 +799,15 @@ export default function GastosPage() {
                 </div>
 
                 <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
-                  Eliminar gasto
+                  {t('expenses.deleteModal.title')}
                 </h3>
 
                 <p className="text-gray-600 text-center mb-4">
-                  ¿Estás seguro de eliminar <span className="font-medium">{expenseToDelete.concept}</span>?
+                  {t('expenses.deleteModal.confirm')} <span className="font-medium">{expenseToDelete.concept}</span>?
                 </p>
 
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
-                  <p className="text-amber-800 text-sm">
-                    <strong>Aviso:</strong> Si este gasto está incluido en un borrador de factura, también se eliminará de la factura.
-                  </p>
+                  <p className="text-amber-800 text-sm" dangerouslySetInnerHTML={{ __html: t('expenses.deleteModal.warning') }} />
                 </div>
 
                 <div className="flex gap-3">
@@ -818,14 +819,14 @@ export default function GastosPage() {
                     }}
                     className="flex-1"
                   >
-                    Cancelar
+                    {t('common.cancel')}
                   </Button>
                   <Button
                     onClick={handleDelete}
                     disabled={deleting === expenseToDelete.id}
                     className="flex-1 bg-red-600 hover:bg-red-700 text-white"
                   >
-                    {deleting === expenseToDelete.id ? 'Eliminando...' : 'Eliminar'}
+                    {deleting === expenseToDelete.id ? t('expenses.deleteModal.deleting') : t('common.delete')}
                   </Button>
                 </div>
               </div>
@@ -857,17 +858,23 @@ export default function GastosPage() {
                   <CheckCircle className="w-8 h-8 text-green-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Gasto registrado
+                  {t('expenses.successModal.title')}
                 </h3>
-                <p className="text-gray-600">
-                  Se ha registrado <strong>{successInfo.concept}</strong> en <strong>{successInfo.propertyName}</strong>
-                </p>
+                <p className="text-gray-600" dangerouslySetInnerHTML={{
+                  __html: t('expenses.successModal.description', {
+                    concept: successInfo.concept,
+                    propertyName: successInfo.propertyName
+                  })
+                }} />
               </div>
 
               <div className="bg-violet-50 rounded-xl p-4 mb-6">
-                <p className="text-sm text-violet-800">
-                  <span className="font-medium">Siguiente paso:</span> Para revisar todos los gastos y facturar al propietario, ve a <strong>Facturación → {successInfo.propertyName}</strong> y revisa el mes de {new Date(successInfo.date).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}.
-                </p>
+                <p className="text-sm text-violet-800" dangerouslySetInnerHTML={{
+                  __html: t('expenses.successModal.nextStep', {
+                    propertyName: successInfo.propertyName,
+                    month: new Date(successInfo.date).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
+                  })
+                }} />
               </div>
 
               <div className="flex gap-3">
@@ -876,11 +883,11 @@ export default function GastosPage() {
                   onClick={() => setShowSuccessModal(false)}
                   className="flex-1"
                 >
-                  Añadir otro
+                  {t('expenses.successModal.addAnother')}
                 </Button>
                 <Link href="/gestion/facturacion" className="flex-1">
                   <Button className="w-full bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800">
-                    Ir a Facturación
+                    {t('expenses.successModal.goToBilling')}
                   </Button>
                 </Link>
               </div>

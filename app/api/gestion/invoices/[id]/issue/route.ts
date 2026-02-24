@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import { getNextInvoiceNumber, previewNextNumber, formatInvoiceNumber } from '@/lib/invoice-numbering'
+import {
+  computeRegistroAltaHash,
+  formatDateVF,
+  formatAmountVF,
+  generateTimestamp,
+  generateVerifactuQR,
+  resolveAEATInvoiceType,
+  verifactiCreateInvoice,
+  buildVerifactiRequest,
+} from '@/lib/verifactu'
 
 /**
  * GET /api/gestion/invoices/[id]/issue
@@ -187,7 +197,9 @@ export async function POST(
             type: true,
             firstName: true,
             lastName: true,
-            companyName: true
+            companyName: true,
+            nif: true,
+            cif: true,
           }
         }
       }
@@ -327,7 +339,85 @@ export async function POST(
       fullNumber = result.fullNumber
     }
 
-    // Update invoice to ISSUED
+    // Check if VeriFactu is enabled for this user
+    const invoiceConfig = await prisma.userInvoiceConfig.findUnique({
+      where: { userId },
+      select: { verifactuEnabled: true, siiExempt: true, nif: true, businessName: true, verifactuApiKey: true }
+    })
+
+    const verifactuEnabled = invoiceConfig?.verifactuEnabled && !invoiceConfig?.siiExempt
+
+    // VeriFactu: compute hash and QR if enabled
+    let verifactuData: {
+      verifactuHash?: string
+      verifactuPreviousHash?: string
+      verifactuTimestamp?: Date
+      invoiceType?: 'F1' | 'F2' | 'F3' | 'R1' | 'R2' | 'R3' | 'R4' | 'R5'
+      qrCode?: string
+      verifactuStatus?: 'PENDING'
+    } = {}
+
+    if (verifactuEnabled && invoiceConfig) {
+      // Resolve AEAT invoice type
+      const invoiceType = resolveAEATInvoiceType({
+        isRectifying: invoice.isRectifying,
+        rectifyingType: invoice.rectifyingType,
+        total: Number(invoice.total),
+      })
+
+      // Get previous hash from the last issued invoice in the same series
+      const previousInvoice = await prisma.clientInvoice.findFirst({
+        where: {
+          userId,
+          seriesId: invoice.seriesId,
+          status: { in: ['ISSUED', 'SENT', 'PAID'] },
+          verifactuHash: { not: null },
+          id: { not: id },
+        },
+        orderBy: { issuedAt: 'desc' },
+        select: { verifactuHash: true },
+      })
+      const previousHash = previousInvoice?.verifactuHash || ''
+
+      const timestamp = generateTimestamp()
+      const fechaExpedicion = formatDateVF(invoice.issueDate)
+
+      // Compute hash
+      const hash = computeRegistroAltaHash({
+        nifEmisor: invoiceConfig.nif,
+        numSerieFactura: fullNumber,
+        fechaExpedicion,
+        tipoFactura: invoiceType,
+        cuotaTotal: formatAmountVF(Number(invoice.totalVat)),
+        importeTotal: formatAmountVF(Number(invoice.total)),
+        huellaAnterior: previousHash,
+        fechaHoraHusoGenRegistro: timestamp,
+      })
+
+      // Generate QR code
+      let qrDataUrl: string | undefined
+      try {
+        qrDataUrl = await generateVerifactuQR({
+          nif: invoiceConfig.nif,
+          numSerie: fullNumber,
+          fecha: fechaExpedicion,
+          importe: formatAmountVF(Number(invoice.total)),
+        })
+      } catch (qrError) {
+        console.error('Error generating VeriFactu QR:', qrError)
+      }
+
+      verifactuData = {
+        verifactuHash: hash,
+        verifactuPreviousHash: previousHash || null as any,
+        verifactuTimestamp: new Date(),
+        invoiceType,
+        qrCode: qrDataUrl,
+        verifactuStatus: 'PENDING',
+      }
+    }
+
+    // Update invoice to ISSUED (with VeriFactu data if enabled)
     const updatedInvoice = await prisma.clientInvoice.update({
       where: { id },
       data: {
@@ -335,7 +425,8 @@ export async function POST(
         fullNumber,
         status: 'ISSUED',
         isLocked: true,
-        issuedAt: new Date()
+        issuedAt: new Date(),
+        ...verifactuData,
       },
       include: {
         owner: {
@@ -360,6 +451,84 @@ export async function POST(
       }
     })
 
+    // Create audit log entry
+    if (verifactuEnabled) {
+      await prisma.invoiceAuditLog.create({
+        data: {
+          invoiceId: id,
+          action: 'ISSUED_WITH_VERIFACTU',
+          newData: {
+            fullNumber,
+            verifactuHash: verifactuData.verifactuHash,
+            invoiceType: verifactuData.invoiceType,
+          },
+          userId,
+        }
+      }).catch(err => console.error('Error creating audit log:', err))
+    }
+
+    // Submit to Verifacti if enabled and API key configured
+    // This is non-blocking — the invoice is already issued regardless of Verifacti result
+    let verifactiResult: { uuid?: string; qrUrl?: string; error?: string } | null = null
+    if (verifactuEnabled && invoiceConfig?.verifactuApiKey && invoice.owner) {
+      try {
+        const verifactiRequest = buildVerifactiRequest({
+          fullNumber,
+          issueDate: invoice.issueDate,
+          isRectifying: invoice.isRectifying,
+          total: Number(invoice.total),
+          totalVat: Number(invoice.totalVat),
+          items: invoice.items.map(i => ({
+            concept: i.concept,
+            quantity: Number(i.quantity),
+            unitPrice: Number(i.unitPrice),
+            vatRate: Number(i.vatRate),
+          })),
+          owner: {
+            type: invoice.owner.type,
+            firstName: invoice.owner.firstName,
+            lastName: invoice.owner.lastName,
+            companyName: invoice.owner.companyName,
+            nif: invoice.owner.nif,
+            cif: invoice.owner.cif,
+          },
+          series: {
+            prefix: invoice.series.prefix,
+          },
+        })
+
+        const result = await verifactiCreateInvoice(invoiceConfig.verifactuApiKey, verifactiRequest)
+
+        if (result.success) {
+          verifactiResult = { uuid: result.data.uuid, qrUrl: result.data.qr_url }
+
+          // Update invoice with Verifacti UUID and status
+          await prisma.clientInvoice.update({
+            where: { id },
+            data: {
+              verifactuStatus: 'SUBMITTED',
+            },
+          })
+
+          // Save submission record with response containing UUID
+          await prisma.verifactuSubmission.create({
+            data: {
+              invoiceId: id,
+              xmlPayload: JSON.stringify(verifactiRequest),
+              response: JSON.stringify(result.data),
+              status: 'SUBMITTED',
+            },
+          }).catch(err => console.error('Error saving Verifacti submission:', err))
+        } else {
+          verifactiResult = { error: result.error }
+          console.error('Verifacti submission failed:', result.error)
+        }
+      } catch (verifactiError) {
+        console.error('Error submitting to Verifacti:', verifactiError)
+        verifactiResult = { error: 'Error de conexión con Verifacti' }
+      }
+    }
+
     return NextResponse.json({
       success: true,
       invoice: {
@@ -374,6 +543,9 @@ export async function POST(
         total: Number(updatedInvoice.total),
         status: updatedInvoice.status,
         isLocked: updatedInvoice.isLocked,
+        verifactuHash: updatedInvoice.verifactuHash,
+        verifactuStatus: updatedInvoice.verifactuStatus,
+        invoiceType: updatedInvoice.invoiceType,
         owner: updatedInvoice.owner,
         series: updatedInvoice.series,
         items: updatedInvoice.items.map(i => ({
@@ -384,7 +556,8 @@ export async function POST(
           vatRate: Number(i.vatRate),
           total: Number(i.total)
         }))
-      }
+      },
+      ...(verifactiResult ? { verifacti: verifactiResult } : {}),
     })
   } catch (error) {
     console.error('Error issuing invoice:', error)

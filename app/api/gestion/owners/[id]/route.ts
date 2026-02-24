@@ -75,6 +75,7 @@ export async function PUT(
     const body = await request.json()
     const {
       type,
+      retentionRate,
       firstName,
       lastName,
       companyName,
@@ -93,6 +94,7 @@ export async function PUT(
       where: { id },
       data: {
         type,
+        retentionRate: retentionRate !== undefined ? (retentionRate !== null ? retentionRate : null) : undefined,
         firstName: type === 'PERSONA_FISICA' ? firstName : null,
         lastName: type === 'PERSONA_FISICA' ? lastName : null,
         companyName: type === 'EMPRESA' ? companyName : null,

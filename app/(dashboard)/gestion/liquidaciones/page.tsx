@@ -25,6 +25,8 @@ import { Button, Card, CardContent, Badge } from '@/components/ui'
 import { AnimatedLoadingSpinner } from '@/components/ui/AnimatedLoadingSpinner'
 import { DashboardFooter } from '@/components/layout/DashboardFooter'
 import { formatCurrency } from '@/lib/format'
+import { useTranslation } from 'react-i18next'
+import { PendingSettlementsSection } from './components/PendingSettlementsSection'
 
 interface Owner {
   id: string
@@ -66,20 +68,16 @@ interface Totals {
   totalAmount: number
 }
 
-const MONTHS = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-]
-
 const STATUS_CONFIG = {
-  DRAFT: { label: 'Borrador', color: 'bg-gray-100 text-gray-700', icon: Clock },
-  GENERATED: { label: 'Generada', color: 'bg-blue-100 text-blue-700', icon: FileText },
-  SENT: { label: 'Enviada', color: 'bg-violet-100 text-violet-700', icon: Send },
-  PAID: { label: 'Pagada', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
-  CANCELLED: { label: 'Cancelada', color: 'bg-red-100 text-red-700', icon: XCircle }
+  DRAFT: { key: 'status.draft', color: 'bg-gray-100 text-gray-700', icon: Clock },
+  GENERATED: { key: 'status.generated', color: 'bg-blue-100 text-blue-700', icon: FileText },
+  SENT: { key: 'status.sent', color: 'bg-violet-100 text-violet-700', icon: Send },
+  PAID: { key: 'status.paid', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
+  CANCELLED: { key: 'status.cancelled', color: 'bg-red-100 text-red-700', icon: XCircle }
 }
 
 export default function LiquidacionesPage() {
+  const { t } = useTranslation('gestion')
   const [loading, setLoading] = useState(true)
   const [liquidations, setLiquidations] = useState<Liquidation[]>([])
   const [pagination, setPagination] = useState<Pagination | null>(null)
@@ -95,6 +93,13 @@ export default function LiquidacionesPage() {
 
   const currentYear = new Date().getFullYear()
   const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - i)
+
+  const MONTHS = [
+    t('common.months.january'), t('common.months.february'), t('common.months.march'),
+    t('common.months.april'), t('common.months.may'), t('common.months.june'),
+    t('common.months.july'), t('common.months.august'), t('common.months.september'),
+    t('common.months.october'), t('common.months.november'), t('common.months.december')
+  ]
 
   useEffect(() => {
     fetchOwners()
@@ -177,7 +182,7 @@ export default function LiquidacionesPage() {
   })
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando liquidaciones..." type="general" />
+    return <AnimatedLoadingSpinner text={t('settlements.loading')} type="general" />
   }
 
   return (
@@ -196,10 +201,10 @@ export default function LiquidacionesPage() {
                 <Receipt className="h-7 w-7 text-violet-600" />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
-                    Liquidaciones
+                    {t('settlements.title')}
                   </h1>
                   <p className="text-sm text-gray-600">
-                    Gestiona las liquidaciones a propietarios
+                    {t('settlements.subtitle')}
                   </p>
                 </div>
               </div>
@@ -207,11 +212,14 @@ export default function LiquidacionesPage() {
               <Link href="/gestion/liquidaciones/nueva">
                 <Button className="bg-violet-600 hover:bg-violet-700">
                   <Plus className="w-4 h-4 mr-2" />
-                  Nueva liquidación
+                  {t('settlements.actions.newSettlement')}
                 </Button>
               </Link>
             </div>
           </motion.div>
+
+          {/* Pending Settlements Section */}
+          <PendingSettlementsSection />
 
           {/* Filters */}
           <motion.div
@@ -228,7 +236,7 @@ export default function LiquidacionesPage() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="text"
-                      placeholder="Buscar por propietario..."
+                      placeholder={t('settlements.search')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
@@ -252,7 +260,7 @@ export default function LiquidacionesPage() {
                     onChange={(e) => setSelectedMonth(e.target.value ? parseInt(e.target.value) : null)}
                     className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                   >
-                    <option value="">Todos los meses</option>
+                    <option value="">{t('settlements.filters.allMonths')}</option>
                     {MONTHS.map((month, index) => (
                       <option key={index} value={index + 1}>{month}</option>
                     ))}
@@ -264,7 +272,7 @@ export default function LiquidacionesPage() {
                     onChange={(e) => setSelectedOwner(e.target.value)}
                     className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500 max-w-48"
                   >
-                    <option value="">Todos los propietarios</option>
+                    <option value="">{t('settlements.filters.allOwners')}</option>
                     {owners.map(owner => (
                       <option key={owner.id} value={owner.id}>{owner.name}</option>
                     ))}
@@ -276,12 +284,12 @@ export default function LiquidacionesPage() {
                     onChange={(e) => setSelectedStatus(e.target.value)}
                     className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
                   >
-                    <option value="">Todos los estados</option>
-                    <option value="DRAFT">Borrador</option>
-                    <option value="GENERATED">Generada</option>
-                    <option value="SENT">Enviada</option>
-                    <option value="PAID">Pagada</option>
-                    <option value="CANCELLED">Cancelada</option>
+                    <option value="">{t('settlements.filters.allStatuses')}</option>
+                    <option value="DRAFT">{t('settlements.status.draft')}</option>
+                    <option value="GENERATED">{t('settlements.status.generated')}</option>
+                    <option value="SENT">{t('settlements.status.sent')}</option>
+                    <option value="PAID">{t('settlements.status.paid')}</option>
+                    <option value="CANCELLED">{t('settlements.status.cancelled')}</option>
                   </select>
                 </div>
               </CardContent>
@@ -298,25 +306,25 @@ export default function LiquidacionesPage() {
             >
               <Card>
                 <CardContent className="p-3 sm:p-4 text-center">
-                  <p className="text-xs text-gray-500 mb-1">Ingresos totales</p>
+                  <p className="text-xs text-gray-500 mb-1">{t('settlements.stats.totalIncome')}</p>
                   <p className="text-lg font-bold text-gray-900">{formatCurrency(totals.totalIncome)}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-3 sm:p-4 text-center">
-                  <p className="text-xs text-gray-500 mb-1">Comisiones</p>
+                  <p className="text-xs text-gray-500 mb-1">{t('settlements.stats.commissions')}</p>
                   <p className="text-lg font-bold text-violet-600">{formatCurrency(totals.totalCommission)}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-3 sm:p-4 text-center">
-                  <p className="text-xs text-gray-500 mb-1">Retenciones</p>
+                  <p className="text-xs text-gray-500 mb-1">{t('settlements.stats.retentions')}</p>
                   <p className="text-lg font-bold text-orange-600">{formatCurrency(totals.totalRetention)}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-3 sm:p-4 text-center">
-                  <p className="text-xs text-gray-500 mb-1">Neto propietarios</p>
+                  <p className="text-xs text-gray-500 mb-1">{t('settlements.stats.netOwners')}</p>
                   <p className="text-lg font-bold text-green-600">{formatCurrency(totals.totalAmount)}</p>
                 </CardContent>
               </Card>
@@ -333,16 +341,16 @@ export default function LiquidacionesPage() {
               <Card>
                 <CardContent className="p-8 text-center">
                   <Receipt className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                  <p className="text-gray-700 font-medium mb-2">No hay liquidaciones</p>
+                  <p className="text-gray-700 font-medium mb-2">{t('settlements.emptyState.title')}</p>
                   <p className="text-sm text-gray-500 mb-4">
                     {searchTerm || selectedOwner || selectedStatus
-                      ? 'No se encontraron liquidaciones con los filtros aplicados'
-                      : 'Crea tu primera liquidación para este período'}
+                      ? t('settlements.emptyState.descriptionFiltered')
+                      : t('settlements.emptyState.descriptionEmpty')}
                   </p>
                   <Link href="/gestion/liquidaciones/nueva">
                     <Button className="bg-violet-600 hover:bg-violet-700">
                       <Plus className="w-4 h-4 mr-2" />
-                      Nueva liquidación
+                      {t('settlements.actions.newSettlement')}
                     </Button>
                   </Link>
                 </CardContent>
@@ -371,7 +379,7 @@ export default function LiquidacionesPage() {
                                   </span>
                                   <Badge className={STATUS_CONFIG[liquidation.status].color}>
                                     <StatusIcon className="w-3 h-3 mr-1" />
-                                    {STATUS_CONFIG[liquidation.status].label}
+                                    {t(`settlements.${STATUS_CONFIG[liquidation.status].key}`)}
                                   </Badge>
                                 </div>
                                 <div className="flex items-center gap-1 text-sm text-gray-600">
@@ -379,9 +387,9 @@ export default function LiquidacionesPage() {
                                   <span className="truncate">{liquidation.owner.name}</span>
                                 </div>
                                 <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                                  <span>{liquidation.reservationsCount} reservas</span>
+                                  <span>{liquidation.reservationsCount} {t('settlements.card.reservations')}</span>
                                   {liquidation.expensesCount > 0 && (
-                                    <span>{liquidation.expensesCount} gastos</span>
+                                    <span>{liquidation.expensesCount} {t('settlements.card.expenses')}</span>
                                   )}
                                 </div>
                               </div>
@@ -389,19 +397,19 @@ export default function LiquidacionesPage() {
                               {/* Amounts */}
                               <div className="grid grid-cols-3 gap-4 text-center sm:text-right">
                                 <div>
-                                  <p className="text-xs text-gray-500">Ingresos</p>
+                                  <p className="text-xs text-gray-500">{t('settlements.card.income')}</p>
                                   <p className="font-semibold text-gray-900">
                                     {formatCurrency(liquidation.totalIncome)}
                                   </p>
                                 </div>
                                 <div>
-                                  <p className="text-xs text-gray-500">Comisión</p>
+                                  <p className="text-xs text-gray-500">{t('settlements.card.commission')}</p>
                                   <p className="font-semibold text-violet-600">
                                     {formatCurrency(liquidation.totalCommission)}
                                   </p>
                                 </div>
                                 <div>
-                                  <p className="text-xs text-gray-500">Neto</p>
+                                  <p className="text-xs text-gray-500">{t('settlements.card.net')}</p>
                                   <p className="font-semibold text-green-600">
                                     {formatCurrency(liquidation.totalAmount)}
                                   </p>
@@ -417,7 +425,7 @@ export default function LiquidacionesPage() {
                                     handleDownloadPdf(liquidation.id)
                                   }}
                                   className="p-2 text-gray-500 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
-                                  title="Descargar PDF"
+                                  title={t('settlements.actions.downloadPdf')}
                                 >
                                   <Download className="w-4 h-4" />
                                 </button>
@@ -429,7 +437,7 @@ export default function LiquidacionesPage() {
                                       handleMarkPaid(liquidation.id)
                                     }}
                                     className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                                    title="Marcar como pagada"
+                                    title={t('settlements.actions.markAsPaid')}
                                   >
                                     <CheckCircle2 className="w-4 h-4" />
                                   </button>

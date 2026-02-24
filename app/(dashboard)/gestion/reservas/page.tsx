@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { formatCurrency, round2 } from '@/lib/format'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import {
   CalendarDays,
   Plus,
@@ -108,33 +109,34 @@ interface Reservation {
   guest?: Guest
 }
 
-const PLATFORM_CONFIG: Record<string, { label: string; color: string; bgColor: string }> = {
-  AIRBNB: { label: 'Airbnb', color: 'text-[#FF5A5F]', bgColor: 'bg-red-50' },
-  BOOKING: { label: 'Booking', color: 'text-blue-600', bgColor: 'bg-blue-50' },
-  VRBO: { label: 'VRBO', color: 'text-indigo-600', bgColor: 'bg-indigo-50' },
-  DIRECT: { label: 'Directo', color: 'text-green-600', bgColor: 'bg-green-50' },
-  OTHER: { label: 'Otro', color: 'text-gray-600', bgColor: 'bg-gray-50' }
-}
+const getPlatformConfig = (t: any): Record<string, { label: string; color: string; bgColor: string }> => ({
+  AIRBNB: { label: t('reservations.platforms.AIRBNB'), color: 'text-[#FF5A5F]', bgColor: 'bg-red-50' },
+  BOOKING: { label: t('reservations.platforms.BOOKING'), color: 'text-blue-600', bgColor: 'bg-blue-50' },
+  VRBO: { label: t('reservations.platforms.VRBO'), color: 'text-indigo-600', bgColor: 'bg-indigo-50' },
+  DIRECT: { label: t('reservations.platforms.DIRECT'), color: 'text-green-600', bgColor: 'bg-green-50' },
+  OTHER: { label: t('reservations.platforms.OTHER'), color: 'text-gray-600', bgColor: 'bg-gray-50' }
+})
 
-const STATUS_CONFIG = {
-  CONFIRMED: { label: 'Confirmada', color: 'bg-green-100 text-green-700', icon: CheckCircle },
-  PENDING: { label: 'Pendiente', color: 'bg-amber-100 text-amber-700', icon: Clock },
-  CANCELLED: { label: 'Cancelada', color: 'bg-red-100 text-red-700', icon: XCircle },
-  COMPLETED: { label: 'Completada', color: 'bg-violet-100 text-violet-700', icon: CheckCircle }
-}
+const getStatusConfig = (t: any) => ({
+  CONFIRMED: { label: t('reservations.status.confirmed'), color: 'bg-green-100 text-green-700', icon: CheckCircle },
+  PENDING: { label: t('reservations.status.pending'), color: 'bg-amber-100 text-amber-700', icon: Clock },
+  CANCELLED: { label: t('reservations.status.cancelled'), color: 'bg-red-100 text-red-700', icon: XCircle },
+  COMPLETED: { label: t('reservations.status.completed'), color: 'bg-violet-100 text-violet-700', icon: CheckCircle }
+})
 
 // Helper para obtener nombre e imagen de la propiedad/unidad
-function getPropertyInfo(r: Reservation) {
+function getPropertyInfo(r: Reservation, unassignedText: string = 'Sin asignar') {
   if (r.billingUnit) {
     return { name: r.billingUnit.name, image: r.billingUnit.imageUrl }
   }
   if (r.billingConfig?.property) {
     return { name: r.billingConfig.property.name, image: r.billingConfig.property.profileImage }
   }
-  return { name: 'Sin asignar', image: null }
+  return { name: unassignedText, image: null }
 }
 
 export default function ReservasPage() {
+  const { t } = useTranslation('gestion')
   const [loading, setLoading] = useState(true)
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [properties, setProperties] = useState<Property[]>([])
@@ -211,20 +213,23 @@ export default function ReservasPage() {
   const currentYear = new Date().getFullYear()
   const yearOptions = Array.from({ length: 3 }, (_, i) => currentYear - i)
   const monthOptions = [
-    { value: '', label: 'Todo el año' },
-    { value: '1', label: 'Enero' },
-    { value: '2', label: 'Febrero' },
-    { value: '3', label: 'Marzo' },
-    { value: '4', label: 'Abril' },
-    { value: '5', label: 'Mayo' },
-    { value: '6', label: 'Junio' },
-    { value: '7', label: 'Julio' },
-    { value: '8', label: 'Agosto' },
-    { value: '9', label: 'Septiembre' },
-    { value: '10', label: 'Octubre' },
-    { value: '11', label: 'Noviembre' },
-    { value: '12', label: 'Diciembre' }
+    { value: '', label: t('reservations.filters.allYear') },
+    { value: '1', label: t('reservations.months.january') },
+    { value: '2', label: t('reservations.months.february') },
+    { value: '3', label: t('reservations.months.march') },
+    { value: '4', label: t('reservations.months.april') },
+    { value: '5', label: t('reservations.months.may') },
+    { value: '6', label: t('reservations.months.june') },
+    { value: '7', label: t('reservations.months.july') },
+    { value: '8', label: t('reservations.months.august') },
+    { value: '9', label: t('reservations.months.september') },
+    { value: '10', label: t('reservations.months.october') },
+    { value: '11', label: t('reservations.months.november') },
+    { value: '12', label: t('reservations.months.december') }
   ]
+
+  const PLATFORM_CONFIG = getPlatformConfig(t)
+  const STATUS_CONFIG = getStatusConfig(t)
 
   useEffect(() => {
     fetchProperties()
@@ -296,7 +301,7 @@ export default function ReservasPage() {
     e.preventDefault()
     // Requiere billingUnitId O billingConfigId
     if ((!formData.billingConfigId && !formData.billingUnitId) || !formData.guestName || !formData.checkIn || !formData.checkOut || !formData.hostEarnings) {
-      alert('Por favor completa todos los campos obligatorios')
+      alert(t('common.validation.requiredFields') || 'Por favor completa todos los campos obligatorios')
       return
     }
 
@@ -317,7 +322,7 @@ export default function ReservasPage() {
         // Obtener nombre del apartamento
         const selectedUnit = billingUnits.find(u => u.id === formData.billingUnitId)
         const selectedProp = properties.find(p => p.billingConfigId === formData.billingConfigId)
-        const propertyName = selectedUnit?.name || selectedProp?.name || 'el apartamento'
+        const propertyName = selectedUnit?.name || selectedProp?.name || t('common.theApartment') || 'el apartamento'
 
         setSuccessInfo({
           guestName: formData.guestName,
@@ -331,11 +336,11 @@ export default function ReservasPage() {
         setShowSuccessModal(true)
       } else {
         const data = await response.json()
-        alert(data.error || 'Error al crear la reserva')
+        alert(data.error || t('common.errors.createReservation') || 'Error al crear la reserva')
       }
     } catch (error) {
       console.error('Error creating reservation:', error)
-      alert('Error al crear la reserva')
+      alert(t('common.errors.createReservation') || 'Error al crear la reserva')
     } finally {
       setSaving(false)
     }
@@ -387,11 +392,11 @@ export default function ReservasPage() {
         fetchReservations()
       } else {
         const data = await response.json()
-        alert(data.error || 'Error al actualizar la reserva')
+        alert(data.error || t('common.errors.updateReservation') || 'Error al actualizar la reserva')
       }
     } catch (error) {
       console.error('Error updating reservation:', error)
-      alert('Error al actualizar la reserva')
+      alert(t('common.errors.updateReservation') || 'Error al actualizar la reserva')
     } finally {
       setSaving(false)
     }
@@ -482,11 +487,11 @@ export default function ReservasPage() {
         fetchReservations()
       } else {
         const data = await response.json()
-        alert(data.error || 'Error al eliminar la reserva')
+        alert(data.error || t('common.errors.deleteReservation') || 'Error al eliminar la reserva')
       }
     } catch (error) {
       console.error('Error deleting reservation:', error)
-      alert('Error al eliminar la reserva')
+      alert(t('common.errors.deleteReservation') || 'Error al eliminar la reserva')
     } finally {
       setDeleting(false)
     }
@@ -527,11 +532,11 @@ export default function ReservasPage() {
         setSelectedIds(new Set())
         fetchReservations()
       } else {
-        alert(data.error || 'Error al eliminar las reservas')
+        alert(data.error || t('common.errors.deleteReservations') || 'Error al eliminar las reservas')
       }
     } catch (error) {
       console.error('Error bulk deleting:', error)
-      alert('Error al eliminar las reservas')
+      alert(t('common.errors.deleteReservations') || 'Error al eliminar las reservas')
     } finally {
       setBulkDeleting(false)
     }
@@ -544,7 +549,7 @@ export default function ReservasPage() {
 
     const fileName = file.name.toLowerCase()
     if (!fileName.endsWith('.csv') && !fileName.endsWith('.xls') && !fileName.endsWith('.xlsx')) {
-      alert('Por favor selecciona un archivo CSV o Excel')
+      alert(t('common.validation.selectCsvOrExcel') || 'Por favor selecciona un archivo CSV o Excel')
       return
     }
 
@@ -585,7 +590,7 @@ export default function ReservasPage() {
       }
     } catch (error) {
       console.error('Error parsing file:', error)
-      alert('Error al leer el archivo')
+      alert(t('common.errors.readFile') || 'Error al leer el archivo')
     }
   }
 
@@ -600,7 +605,7 @@ export default function ReservasPage() {
 
     // If using simple mapping, require property selection
     if (simpleMapping && !importPropertyId) {
-      alert('Selecciona una propiedad para importar')
+      alert(t('common.validation.selectProperty') || 'Selecciona una propiedad para importar')
       return
     }
 
@@ -712,7 +717,7 @@ export default function ReservasPage() {
         const skippedCount = data.results?.skippedCount ?? data.results?.skipped ?? 0
         const errors = data.results?.errors?.map((e: { row: number; error?: string; reason?: string }) => ({
           row: e.row,
-          reason: e.error || e.reason || 'Error desconocido'
+          reason: e.error || e.reason || t('common.unknownError') || 'Error desconocido'
         })) || []
 
         console.log('Parsed results:', { importedCount, skippedCount, errors: errors.length })
@@ -727,11 +732,11 @@ export default function ReservasPage() {
         }
       } else {
         console.error('Import error:', data)
-        alert(data.error || 'Error al importar el archivo')
+        alert(data.error || t('common.errors.importFile') || 'Error al importar el archivo')
       }
     } catch (error) {
       console.error('Error importing CSV:', error)
-      alert('Error al importar el archivo')
+      alert(t('common.errors.importFile') || 'Error al importar el archivo')
     } finally {
       setImporting(false)
     }
@@ -757,7 +762,7 @@ export default function ReservasPage() {
   const filteredReservations = reservations.filter(r => {
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
-      const propInfo = getPropertyInfo(r)
+      const propInfo = getPropertyInfo(r, t('reservations.unassigned'))
       return r.guestName.toLowerCase().includes(term) ||
         r.confirmationCode.toLowerCase().includes(term) ||
         propInfo.name.toLowerCase().includes(term)
@@ -777,7 +782,7 @@ export default function ReservasPage() {
   }
 
   if (loading && reservations.length === 0) {
-    return <AnimatedLoadingSpinner text="Cargando reservas..." type="general" />
+    return <AnimatedLoadingSpinner text={t('reservations.loading')} type="general" />
   }
 
   return (
@@ -797,9 +802,9 @@ export default function ReservasPage() {
                   <CalendarDays className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Reservas</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">{t('reservations.title')}</h1>
                   <p className="text-sm text-gray-600">
-                    Gestiona todas las reservas de tus propiedades
+                    {t('reservations.subtitle')}
                   </p>
                 </div>
               </div>
@@ -812,7 +817,7 @@ export default function ReservasPage() {
                     className="border-red-200 text-red-600 hover:bg-red-50"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Eliminar ({selectedIds.size})
+                    {t('common.delete')} ({selectedIds.size})
                   </Button>
                 )}
                 <Link href="/gestion/reservas/importar">
@@ -821,7 +826,7 @@ export default function ReservasPage() {
                     className="border-violet-200 text-violet-700 hover:bg-violet-50"
                   >
                     <Upload className="w-4 h-4 mr-2" />
-                    Importar CSV
+                    {t('reservations.actions.importCsv')}
                   </Button>
                 </Link>
                 <Button
@@ -829,7 +834,7 @@ export default function ReservasPage() {
                   className="bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800 shadow-lg shadow-violet-200"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Nueva reserva
+                  {t('reservations.actions.newReservation')}
                 </Button>
               </div>
             </div>
@@ -846,7 +851,7 @@ export default function ReservasPage() {
               <CardContent className="p-4 sm:p-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">Total reservas</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">{t('reservations.stats.totalReservations')}</p>
                     <p className="text-2xl sm:text-3xl font-bold text-gray-900">{totals.count}</p>
                   </div>
                   <div className="w-10 h-10 bg-violet-100 rounded-full flex items-center justify-center">
@@ -860,7 +865,7 @@ export default function ReservasPage() {
               <CardContent className="p-4 sm:p-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">Ingresos</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">{t('reservations.stats.income')}</p>
                     <p className="text-2xl sm:text-3xl font-bold text-gray-900">
                       {formatCurrency(totals.earnings)}
                     </p>
@@ -876,7 +881,7 @@ export default function ReservasPage() {
               <CardContent className="p-4 sm:p-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">Noches</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">{t('reservations.stats.nights')}</p>
                     <p className="text-2xl sm:text-3xl font-bold text-gray-900">{totals.nights}</p>
                   </div>
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -890,7 +895,7 @@ export default function ReservasPage() {
               <CardContent className="p-4 sm:p-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">Confirmadas</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">{t('reservations.stats.confirmed')}</p>
                     <p className="text-2xl sm:text-3xl font-bold text-gray-900">{totals.confirmed}</p>
                   </div>
                   <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
@@ -916,7 +921,7 @@ export default function ReservasPage() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="text"
-                      placeholder="Buscar por huésped, código o propiedad..."
+                      placeholder={t('reservations.search')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
@@ -952,21 +957,21 @@ export default function ReservasPage() {
                       onChange={(e) => setStatusFilter(e.target.value)}
                       className="text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white"
                     >
-                      <option value="">Todos los estados</option>
-                      <option value="CONFIRMED">Confirmada</option>
-                      <option value="PENDING">Pendiente</option>
-                      <option value="CANCELLED">Cancelada</option>
+                      <option value="">{t('reservations.filters.allStatuses')}</option>
+                      <option value="CONFIRMED">{t('reservations.status.confirmed')}</option>
+                      <option value="PENDING">{t('reservations.status.pending')}</option>
+                      <option value="CANCELLED">{t('reservations.status.cancelled')}</option>
                     </select>
                     <select
                       value={platformFilter}
                       onChange={(e) => setPlatformFilter(e.target.value)}
                       className="text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white"
                     >
-                      <option value="">Todas las plataformas</option>
-                      <option value="AIRBNB">Airbnb</option>
-                      <option value="BOOKING">Booking</option>
-                      <option value="VRBO">VRBO</option>
-                      <option value="DIRECT">Directo</option>
+                      <option value="">{t('reservations.filters.allPlatforms')}</option>
+                      <option value="AIRBNB">{t('reservations.platforms.AIRBNB')}</option>
+                      <option value="BOOKING">{t('reservations.platforms.BOOKING')}</option>
+                      <option value="VRBO">{t('reservations.platforms.VRBO')}</option>
+                      <option value="DIRECT">{t('reservations.platforms.DIRECT')}</option>
                     </select>
                   </div>
                 </div>
@@ -990,11 +995,11 @@ export default function ReservasPage() {
                     onChange={toggleSelectAll}
                     className="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
                   />
-                  Seleccionar todas ({selectableReservations.length} sin liquidar)
+                  {t('common.selectAll')} ({selectableReservations.length} {t('common.notSettled')})
                 </label>
                 {selectedIds.size > 0 && (
                   <span className="text-xs text-violet-600 font-medium">
-                    {selectedIds.size} seleccionadas
+                    {selectedIds.size} {t('common.selected')}
                   </span>
                 )}
               </div>
@@ -1006,16 +1011,16 @@ export default function ReservasPage() {
                   <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <CalendarDays className="h-8 w-8 text-violet-600" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay reservas</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('common.noReservations')}</h3>
                   <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">
-                    Crea tu primera reserva manualmente o importa desde un CSV de Airbnb
+                    {t('common.noReservationsDescription')}
                   </p>
                   <Button
                     onClick={() => setShowNewModal(true)}
                     className="bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800"
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Nueva reserva
+                    {t('reservations.actions.newReservation')}
                   </Button>
                 </CardContent>
               </Card>
@@ -1112,7 +1117,7 @@ export default function ReservasPage() {
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <Moon className="w-3.5 h-3.5" />
-                                  {reservation.nights} {reservation.nights === 1 ? 'noche' : 'noches'}
+                                  {reservation.nights} {reservation.nights === 1 ? t('common.night') : t('common.nights')}
                                 </span>
                                 <span className="text-gray-400 text-xs font-mono">
                                   #{reservation.confirmationCode}
@@ -1126,7 +1131,7 @@ export default function ReservasPage() {
                                 {formatCurrency(reservation.hostEarnings)}
                               </p>
                               <p className="text-xs text-gray-500">
-                                {round2(Number(reservation.hostEarnings) / reservation.nights)}€/noche
+                                {round2(Number(reservation.hostEarnings) / reservation.nights)}€/{t('common.perNight')}
                               </p>
                             </div>
                           </div>
@@ -1168,7 +1173,7 @@ export default function ReservasPage() {
                     <Sparkles className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900">Nueva Reserva</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">{t('reservations.actions.newReservation')}</h2>
                     <p className="text-sm text-gray-500">Añade una reserva manualmente</p>
                   </div>
                 </div>
@@ -1204,10 +1209,10 @@ export default function ReservasPage() {
                         className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent appearance-none bg-white"
                         required
                       >
-                        <option value="">Selecciona un apartamento</option>
+                        <option value="">{t('common.selectApartment')}</option>
                         {/* BillingUnits (módulo Gestión) */}
                         {billingUnits.length > 0 && (
-                          <optgroup label="Apartamentos de Gestión">
+                          <optgroup label={t('common.gestionApartments')}>
                             {billingUnits.map(u => (
                               <option key={u.id} value={`unit:${u.id}`}>
                                 {u.name} {u.city && `(${u.city})`}
@@ -1217,7 +1222,7 @@ export default function ReservasPage() {
                         )}
                         {/* Properties (módulo Manuales - legacy) */}
                         {properties.length > 0 && (
-                          <optgroup label="Propiedades de Manuales">
+                          <optgroup label={t('common.manualProperties')}>
                             {properties.map(p => (
                               <option
                                 key={p.id}
@@ -1233,7 +1238,7 @@ export default function ReservasPage() {
                     </div>
                     {billingUnits.length === 0 && properties.length === 0 && (
                       <p className="mt-2 text-xs text-amber-600">
-                        No tienes apartamentos. <Link href="/gestion/apartamentos" className="underline">Crea uno primero</Link>.
+                        {t('common.noApartments')}. <Link href="/gestion/apartamentos" className="underline">{t('common.createOneFirst')}</Link>.
                       </p>
                     )}
                   </div>
@@ -1241,7 +1246,7 @@ export default function ReservasPage() {
                   {/* Platform */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Plataforma
+                      {t('common.platform')}
                     </label>
                     <div className="grid grid-cols-4 gap-2">
                       {Object.entries(PLATFORM_CONFIG).map(([key, config]) => (
@@ -1264,7 +1269,7 @@ export default function ReservasPage() {
                   {/* Guest Name with Autocomplete */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nombre del huésped *
+                      {t('common.guestName')} *
                     </label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -1272,7 +1277,7 @@ export default function ReservasPage() {
                         type="text"
                         value={formData.guestName}
                         onChange={(e) => handleGuestNameChange(e.target.value)}
-                        placeholder="Nombre completo del huésped"
+                        placeholder={t('common.guestFullNamePlaceholder')}
                         className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                         required
                       />
@@ -1288,7 +1293,7 @@ export default function ReservasPage() {
                         </div>
                         <div className="flex-1">
                           <p className="font-semibold text-amber-800">
-                            Huésped recurrente
+                            {t('common.recurringGuest')}
                           </p>
                           <p className="text-sm text-amber-700 mt-1">
                             {selectedGuest.name} ya se ha alojado <strong>{selectedGuest.totalStays} {selectedGuest.totalStays === 1 ? 'vez' : 'veces'}</strong>
@@ -1310,7 +1315,7 @@ export default function ReservasPage() {
                   {/* Guest Email */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email del huésped
+                      {t('common.guestEmail')}
                     </label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -1328,7 +1333,7 @@ export default function ReservasPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Check-in *
+                        {t('common.checkIn')} *
                       </label>
                       <div className="relative">
                         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -1343,7 +1348,7 @@ export default function ReservasPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Check-out *
+                        {t('common.checkOut')} *
                       </label>
                       <div className="relative">
                         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -1364,11 +1369,11 @@ export default function ReservasPage() {
                     <div className="bg-violet-50 rounded-xl p-3 flex items-center justify-between">
                       <span className="text-sm text-violet-700 font-medium flex items-center gap-2">
                         <Moon className="w-4 h-4" />
-                        {calculatedNights} {calculatedNights === 1 ? 'noche' : 'noches'}
+                        {calculatedNights} {calculatedNights === 1 ? t('common.night') : t('common.nights')}
                       </span>
                       {pricePerNight && formData.hostEarnings && (
                         <span className="text-sm text-violet-600">
-                          {pricePerNight}€/noche
+                          {pricePerNight}€/{t('common.perNight')}
                         </span>
                       )}
                     </div>
@@ -1396,7 +1401,7 @@ export default function ReservasPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Limpieza
+                        {t('common.cleaning')}
                       </label>
                       <div className="relative">
                         <Euro className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -1405,23 +1410,23 @@ export default function ReservasPage() {
                           step="0.01"
                           value={formData.cleaningFee}
                           onChange={(e) => setFormData({ ...formData, cleaningFee: e.target.value })}
-                          placeholder="Automático"
+                          placeholder={t('common.automatic')}
                           className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                         />
                       </div>
-                      <p className="mt-1 text-xs text-gray-500">Déjalo vacío para usar el valor configurado</p>
+                      <p className="mt-1 text-xs text-gray-500">{t('common.leaveEmptyForConfigured')}</p>
                     </div>
                   </div>
 
                   {/* Notes */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Notas internas
+                      {t('common.internalNotes')}
                     </label>
                     <textarea
                       value={formData.internalNotes}
                       onChange={(e) => setFormData({ ...formData, internalNotes: e.target.value })}
-                      placeholder="Notas privadas sobre esta reserva..."
+                      placeholder={t('common.internalNotesPlaceholder')}
                       rows={2}
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
                     />
@@ -1438,7 +1443,7 @@ export default function ReservasPage() {
                       className="flex-1"
                       disabled={saving}
                     >
-                      Cancelar
+                      {t('common.cancel')}
                     </Button>
                     <Button
                       type="submit"
@@ -1448,12 +1453,12 @@ export default function ReservasPage() {
                       {saving ? (
                         <>
                           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                          Guardando...
+                          {t('common.saving')}
                         </>
                       ) : (
                         <>
                           <CheckCircle className="w-4 h-4 mr-2" />
-                          Crear reserva
+                          {t('common.createReservation')}
                         </>
                       )}
                     </Button>
@@ -1504,7 +1509,7 @@ export default function ReservasPage() {
                       )}
                       <div>
                         <h2 className="text-lg font-semibold text-gray-900">
-                          {editMode ? 'Editar reserva' : selectedReservation.guestName}
+                          {editMode ? t('common.editReservation') : selectedReservation.guestName}
                         </h2>
                         <p className="text-sm text-gray-500">{propInfo.name}</p>
                       </div>
@@ -1540,14 +1545,14 @@ export default function ReservasPage() {
 
                   {/* Confirmation Code */}
                   <div className="bg-gray-50 rounded-xl p-4">
-                    <p className="text-xs text-gray-500 mb-1">Código de confirmación</p>
+                    <p className="text-xs text-gray-500 mb-1">{t('common.confirmationCode')}</p>
                     <p className="font-mono text-lg font-semibold text-gray-900">#{selectedReservation.confirmationCode}</p>
                   </div>
 
                   {/* Dates */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-violet-50 rounded-xl p-4">
-                      <p className="text-xs text-violet-600 mb-1">Check-in</p>
+                      <p className="text-xs text-violet-600 mb-1">{t('common.checkIn')}</p>
                       <p className="font-semibold text-gray-900">
                         {new Date(selectedReservation.checkIn).toLocaleDateString('es-ES', {
                           weekday: 'short',
@@ -1558,7 +1563,7 @@ export default function ReservasPage() {
                       </p>
                     </div>
                     <div className="bg-violet-50 rounded-xl p-4">
-                      <p className="text-xs text-violet-600 mb-1">Check-out</p>
+                      <p className="text-xs text-violet-600 mb-1">{t('common.checkOut')}</p>
                       <p className="font-semibold text-gray-900">
                         {new Date(selectedReservation.checkOut).toLocaleDateString('es-ES', {
                           weekday: 'short',
@@ -1573,14 +1578,14 @@ export default function ReservasPage() {
                   {/* Nights & Amount */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-blue-50 rounded-xl p-4">
-                      <p className="text-xs text-blue-600 mb-1">Noches</p>
+                      <p className="text-xs text-blue-600 mb-1">{t('common.nights')}</p>
                       <p className="text-2xl font-bold text-gray-900">{selectedReservation.nights}</p>
                     </div>
                     <div className="bg-green-50 rounded-xl p-4">
-                      <p className="text-xs text-green-600 mb-1">Ingresos netos</p>
+                      <p className="text-xs text-green-600 mb-1">{t('common.netIncome')}</p>
                       <p className="text-2xl font-bold text-gray-900">{formatCurrency(selectedReservation.hostEarnings)}</p>
                       <p className="text-xs text-gray-500">
-                        {round2(Number(selectedReservation.hostEarnings) / selectedReservation.nights)}€/noche
+                        {round2(Number(selectedReservation.hostEarnings) / selectedReservation.nights)}€/{t('common.perNight')}
                       </p>
                     </div>
                   </div>
@@ -1588,7 +1593,7 @@ export default function ReservasPage() {
                   {/* Guest Contact */}
                   {(selectedReservation.guestEmail || selectedReservation.guestPhone) && (
                     <div className="space-y-2">
-                      <p className="text-sm font-medium text-gray-700">Contacto del huésped</p>
+                      <p className="text-sm font-medium text-gray-700">{t('common.guestContact')}</p>
                       {selectedReservation.guestEmail && (
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Mail className="w-4 h-4" />
@@ -1611,7 +1616,7 @@ export default function ReservasPage() {
                   {/* Internal Notes */}
                   {selectedReservation.internalNotes && (
                     <div>
-                      <p className="text-sm font-medium text-gray-700 mb-2">Notas internas</p>
+                      <p className="text-sm font-medium text-gray-700 mb-2">{t('common.internalNotes')}</p>
                       <p className="text-sm text-gray-600 bg-gray-50 rounded-xl p-3">
                         {selectedReservation.internalNotes}
                       </p>
@@ -1624,7 +1629,7 @@ export default function ReservasPage() {
                       <div className="flex items-center gap-2 mb-2">
                         <Star className="w-4 h-4 text-amber-600" />
                         <p className="text-sm font-semibold text-amber-800">
-                          Huésped recurrente ({selectedReservation.guest.totalStays} estancias)
+                          {t('common.recurringGuest')} ({selectedReservation.guest.totalStays} {t('common.stays')})
                         </p>
                       </div>
                       {selectedReservation.guest.notes && (
@@ -1650,7 +1655,7 @@ export default function ReservasPage() {
                     {/* Guest Name */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Nombre del huésped *
+                        {t('common.guestName')} *
                       </label>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -1689,7 +1694,7 @@ export default function ReservasPage() {
                     {/* Dates */}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Check-in *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.checkIn')} *</label>
                         <input
                           type="date"
                           value={formData.checkIn}
@@ -1699,7 +1704,7 @@ export default function ReservasPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Check-out *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.checkOut')} *</label>
                         <input
                           type="date"
                           value={formData.checkOut}
@@ -1716,7 +1721,7 @@ export default function ReservasPage() {
                       <div className="bg-violet-50 rounded-xl p-3 flex items-center justify-between">
                         <span className="text-sm text-violet-700 font-medium flex items-center gap-2">
                           <Moon className="w-4 h-4" />
-                          {calculatedNights} {calculatedNights === 1 ? 'noche' : 'noches'}
+                          {calculatedNights} {calculatedNights === 1 ? t('common.night') : t('common.nights')}
                         </span>
                       </div>
                     )}
@@ -1736,7 +1741,7 @@ export default function ReservasPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Limpieza (€)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.cleaning')} (€)</label>
                         <input
                           type="number"
                           step="0.01"
@@ -1749,7 +1754,7 @@ export default function ReservasPage() {
 
                     {/* Notes */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Notas internas</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.internalNotes')}</label>
                       <textarea
                         value={formData.internalNotes}
                         onChange={(e) => setFormData({ ...formData, internalNotes: e.target.value })}
@@ -1769,7 +1774,7 @@ export default function ReservasPage() {
                         className="flex-1"
                         disabled={saving}
                       >
-                        Cancelar
+                        {t('common.cancel')}
                       </Button>
                       <Button
                         type="submit"
@@ -1779,12 +1784,12 @@ export default function ReservasPage() {
                         {saving ? (
                           <>
                             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                            Guardando...
+                            {t('common.saving')}
                           </>
                         ) : (
                           <>
                             <CheckCircle className="w-4 h-4 mr-2" />
-                            Guardar cambios
+                            {t('common.saveChanges')}
                           </>
                         )}
                       </Button>
@@ -1804,7 +1809,7 @@ export default function ReservasPage() {
                       disabled={selectedReservation.liquidation?.status === 'PAID'}
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
-                      Eliminar
+                      {t('common.delete')}
                     </Button>
                     <Button
                       variant="outline"
@@ -1813,7 +1818,7 @@ export default function ReservasPage() {
                       disabled={selectedReservation.liquidation?.status === 'PAID'}
                     >
                       <Edit2 className="w-4 h-4 mr-2" />
-                      Editar
+                      {t('common.edit')}
                     </Button>
                   </div>
                   {selectedReservation.liquidation?.status === 'PAID' && (
@@ -1850,7 +1855,7 @@ export default function ReservasPage() {
                 <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Trash2 className="w-6 h-6 text-red-600" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">¿Eliminar reserva?</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('common.deleteReservationConfirm')}</h3>
                 <p className="text-sm text-gray-500">
                   Esta acción no se puede deshacer. Se eliminará la reserva de <strong>{selectedReservation.guestName}</strong>.
                 </p>
@@ -1862,7 +1867,7 @@ export default function ReservasPage() {
                   className="flex-1"
                   disabled={deleting}
                 >
-                  Cancelar
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   onClick={handleDeleteReservation}
@@ -1872,7 +1877,7 @@ export default function ReservasPage() {
                   {deleting ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                      Eliminando...
+                      {t('common.deleting')}
                     </>
                   ) : (
                     'Eliminar'
@@ -1907,7 +1912,7 @@ export default function ReservasPage() {
                   <Trash2 className="w-6 h-6 text-red-600" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  ¿Eliminar {selectedIds.size} reservas?
+                  {t('common.deleteMultipleReservations', { count: selectedIds.size })}
                 </h3>
                 <p className="text-sm text-gray-500">
                   Esta acción no se puede deshacer. Se eliminarán todas las reservas seleccionadas.
@@ -1920,7 +1925,7 @@ export default function ReservasPage() {
                   className="flex-1"
                   disabled={bulkDeleting}
                 >
-                  Cancelar
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   onClick={handleBulkDelete}
@@ -1930,10 +1935,10 @@ export default function ReservasPage() {
                   {bulkDeleting ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                      Eliminando...
+                      {t('common.deleting')}
                     </>
                   ) : (
-                    'Eliminar todas'
+                    t('common.deleteAll')
                   )}
                 </Button>
               </div>
@@ -1978,7 +1983,7 @@ export default function ReservasPage() {
                   </div>
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900">
-                      {showColumnMapper ? 'Configurar mapeo' : 'Importar desde CSV'}
+                      {showColumnMapper ? t('common.configureMapping') : t('common.importFromCSV')}
                     </h2>
                     <p className="text-sm text-gray-500">
                       {showColumnMapper
@@ -2013,9 +2018,9 @@ export default function ReservasPage() {
                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
                   <h4 className="text-sm font-medium text-blue-800 mb-2">Formatos soportados</h4>
                   <div className="text-sm text-blue-700 space-y-2">
-                    <p><strong>Airbnb:</strong> CSV desde Ingresos → Historial de transacciones</p>
-                    <p><strong>Booking:</strong> XLS desde Extranet → Reservas → Exportar</p>
-                    <p><strong>Otros:</strong> CSV/XLS con columnas de huésped, fechas e importe</p>
+                    <p><strong>{t('reservations.platforms.AIRBNB')}:</strong> {t('common.csvFromEarnings')}</p>
+                    <p><strong>{t('reservations.platforms.BOOKING')}:</strong> {t('common.xlsFromExtranet')}</p>
+                    <p><strong>{t('reservations.platforms.OTHER')}:</strong> {t('common.csvWithColumns')}</p>
                   </div>
                 </div>
 
@@ -2064,7 +2069,7 @@ export default function ReservasPage() {
                       <>
                         <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
                         <p className="text-sm text-gray-600 font-medium">
-                          Haz clic para seleccionar un archivo
+                          {t('common.clickToSelectFile')}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
                           CSV, XLS o XLSX
@@ -2101,7 +2106,7 @@ export default function ReservasPage() {
                         className="flex items-center gap-1 text-xs font-medium bg-amber-600 text-white px-2 py-1 rounded hover:bg-amber-700"
                       >
                         <Settings2 className="w-3 h-3" />
-                        Configurar mapeo
+                        {t('common.configureMapping')}
                       </button>
                     </div>
                   )}
@@ -2134,7 +2139,7 @@ export default function ReservasPage() {
                 {/* Property Selection */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Asignar a propiedad (opcional)
+                    {t('common.assignToProperty')} ({t('common.optional')})
                   </label>
                   <div className="relative">
                     <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -2151,7 +2156,7 @@ export default function ReservasPage() {
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   </div>
                   <p className="mt-1 text-xs text-gray-500">
-                    Si no seleccionas una propiedad, intentaremos detectarla por el nombre del anuncio
+                    {t('common.autoDetectProperty')}
                   </p>
                 </div>
 
@@ -2166,7 +2171,7 @@ export default function ReservasPage() {
                     />
                     <div>
                       <span className="text-sm font-medium text-amber-800">Reemplazar reservas existentes</span>
-                      <p className="text-xs text-amber-600">Borra las reservas actuales de esta propiedad antes de importar</p>
+                      <p className="text-xs text-amber-600">{t('common.deleteCurrentReservations')}</p>
                     </div>
                   </label>
                 )}
@@ -2189,14 +2194,14 @@ export default function ReservasPage() {
                             ¡Perfecto!
                           </p>
                           <p className="text-green-700 mt-1">
-                            <span className="font-bold">{importResults.imported} reservas</span> importadas
+                            <span className="font-bold">{importResults.imported} {t('common.reservations')}</span> {t('common.imported')}
                             {importPropertyId && properties.find(p => p.id === importPropertyId) && (
                               <> a <span className="font-bold">{properties.find(p => p.id === importPropertyId)?.name}</span></>
                             )}
                           </p>
                           {importResults.skipped > 0 && (
                             <p className="text-gray-500 text-sm mt-1">
-                              ({importResults.skipped} duplicadas omitidas)
+                              ({importResults.skipped} {t('common.duplicatesSkipped')})
                             </p>
                           )}
                         </>
@@ -2218,11 +2223,11 @@ export default function ReservasPage() {
                             <AlertTriangle className="w-6 h-6 text-red-600" />
                           </div>
                           <p className="text-lg font-semibold text-gray-900">
-                            Error en importación
+                            {t('common.importError')}
                           </p>
                           <p className="text-red-600 text-sm mt-1">
                             {importResults.errors.length > 0
-                              ? `${importResults.errors.length} errores encontrados`
+                              ? t('common.errorsFound', { count: importResults.errors.length })
                               : 'No se encontraron reservas válidas en el archivo'}
                           </p>
                         </>
@@ -2233,11 +2238,11 @@ export default function ReservasPage() {
                     {importResults.errors.length > 0 && importResults.imported > 0 && (
                       <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
                         <p className="text-amber-700 text-sm font-medium mb-1">
-                          {importResults.errors.length} filas con errores:
+                          {t('common.rowsWithErrors', { count: importResults.errors.length })}:
                         </p>
                         <ul className="text-amber-600 text-xs space-y-0.5 max-h-24 overflow-y-auto">
                           {importResults.errors.slice(0, 5).map((err, i) => (
-                            <li key={i}>Fila {err.row}: {err.reason}</li>
+                            <li key={i}>{t('common.row')} {err.row}: {err.reason}</li>
                           ))}
                           {importResults.errors.length > 5 && (
                             <li>...y {importResults.errors.length - 5} más</li>
@@ -2256,13 +2261,13 @@ export default function ReservasPage() {
                           }}
                           className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium"
                         >
-                          Importar más
+                          {t('common.importMore')}
                         </button>
                         <a
                           href={`/gestion/facturacion/${importPropertyId}`}
                           className="flex-1 px-4 py-2.5 bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-colors text-sm font-medium text-center"
                         >
-                          Ver en facturación →
+                          {t('common.viewInBilling')} →
                         </a>
                       </div>
                     )}
@@ -2282,7 +2287,7 @@ export default function ReservasPage() {
                       className="flex-1"
                       disabled={importing}
                     >
-                      {importResults ? 'Cerrar' : 'Cancelar'}
+                      {importResults ? t('common.close') : t('common.cancel')}
                     </Button>
                     {!importResults && (
                       <Button
@@ -2298,7 +2303,7 @@ export default function ReservasPage() {
                         ) : (
                           <>
                             <Upload className="w-4 h-4 mr-2" />
-                            Importar
+                            {t('common.import')}
                           </>
                         )}
                       </Button>
@@ -2334,10 +2339,10 @@ export default function ReservasPage() {
                   <CheckCircle className="w-8 h-8 text-green-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Reserva creada
+                  {t('common.reservationCreated')}
                 </h3>
                 <p className="text-gray-600">
-                  Se ha creado la reserva de <strong>{successInfo.guestName}</strong> en <strong>{successInfo.propertyName}</strong>
+                  {t('common.reservationCreatedFor', { guest: successInfo.guestName })}
                 </p>
               </div>
 
@@ -2347,8 +2352,8 @@ export default function ReservasPage() {
                     <FileText className="w-4 h-4 text-blue-600" />
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium text-blue-900">Añadida a Liquidaciones</p>
-                    <p className="text-blue-700">Puedes exportar el Excel con el desglose de reservas</p>
+                    <p className="font-medium text-blue-900">{t('common.addedToSettlements')}</p>
+                    <p className="text-blue-700">{t('common.canExportExcel')}</p>
                   </div>
                 </div>
                 <div className="bg-violet-50 rounded-xl p-3 flex items-start gap-3">
@@ -2356,9 +2361,9 @@ export default function ReservasPage() {
                     <FileText className="w-4 h-4 text-violet-600" />
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium text-violet-900">Disponible en Facturación</p>
+                    <p className="font-medium text-violet-900">{t('common.availableInBilling')}</p>
                     <p className="text-violet-700">
-                      La reserva aparece en <strong>{new Date(successInfo.checkIn).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}</strong>
+                      {t('common.reservationAppearsIn')} <strong>{new Date(successInfo.checkIn).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}</strong>
                     </p>
                   </div>
                 </div>
@@ -2367,8 +2372,8 @@ export default function ReservasPage() {
                     <AlertCircle className="w-4 h-4 text-amber-600" />
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium text-amber-900">Importante</p>
-                    <p className="text-amber-700">Una vez emitas la factura, la reserva no se podrá eliminar</p>
+                    <p className="font-medium text-amber-900">{t('common.important')}</p>
+                    <p className="text-amber-700">{t('common.reservationCannotBeDeleted')}</p>
                   </div>
                 </div>
               </div>
@@ -2379,7 +2384,7 @@ export default function ReservasPage() {
                   onClick={() => setShowSuccessModal(false)}
                   className="flex-1"
                 >
-                  Añadir otra
+                  {t('common.addAnother')}
                 </Button>
                 <Link href="/gestion/facturacion" className="flex-1">
                   <Button className="w-full bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800">

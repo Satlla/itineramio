@@ -4,6 +4,7 @@ import { formatCurrency } from '@/lib/format'
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import { Button, Card, CardContent, Badge } from '@/components/ui'
 import {
   Mail,
@@ -139,6 +140,7 @@ type FlowStep = 'connect' | 'summary' | 'review' | 'wizard' | 'confirmation'
 
 export default function IntegracionesPage() {
   const searchParams = useSearchParams()
+  const { t } = useTranslation('gestion')
 
   // Connection state
   const [loading, setLoading] = useState(true)
@@ -187,19 +189,19 @@ export default function IntegracionesPage() {
     const error = searchParams.get('error')
 
     if (success === 'gmail_connected') {
-      setMessage({ type: 'success', text: 'Gmail conectado correctamente' })
+      setMessage({ type: 'success', text: t('integrations.messages.gmailConnected') })
     } else if (error) {
       const errorMessages: Record<string, string> = {
-        gmail_auth_denied: 'Autenticación denegada',
-        gmail_no_code: 'No se recibió código de autorización',
-        gmail_missing_tokens: 'Error al obtener tokens',
-        gmail_callback_failed: 'Error en el callback',
+        gmail_auth_denied: t('integrations.messages.authDenied'),
+        gmail_no_code: t('integrations.messages.noCode'),
+        gmail_missing_tokens: t('integrations.messages.missingTokens'),
+        gmail_callback_failed: t('integrations.messages.callbackFailed'),
       }
-      setMessage({ type: 'error', text: errorMessages[error] || 'Error de conexión' })
+      setMessage({ type: 'error', text: errorMessages[error] || t('integrations.messages.connectionError') })
     }
 
     fetchIntegration()
-  }, [searchParams])
+  }, [searchParams, t])
 
   // ============ API CALLS ============
 
@@ -258,7 +260,7 @@ export default function IntegracionesPage() {
           const firstEmail = d.emails?.[0]
           return {
             emailPropertyName: d.name,
-            displayName: cleanName || firstEmail?.guestName || 'Propiedad sin nombre',
+            displayName: cleanName || firstEmail?.guestName || t('integrations.unnamedProperty'),
             propertyName: cleanName,
             city: '',
             ownerId: '',
@@ -287,15 +289,15 @@ export default function IntegracionesPage() {
         const data = await res.json()
         window.location.href = data.authUrl
       } else {
-        setMessage({ type: 'error', text: 'Error al iniciar conexión' })
+        setMessage({ type: 'error', text: t('integrations.messages.connectionError') })
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Error de conexión' })
+      setMessage({ type: 'error', text: t('integrations.messages.connectionError') })
     }
   }
 
   const handleDisconnect = async () => {
-    if (!confirm('¿Desconectar Gmail?')) return
+    if (!confirm(t('integrations.disconnect'))) return
 
     try {
       const res = await fetch('/api/integrations/gmail', { method: 'DELETE' })
@@ -305,10 +307,10 @@ export default function IntegracionesPage() {
         setStats(null)
         setDetectedProperties([])
         setFlowStep('connect')
-        setMessage({ type: 'success', text: 'Gmail desconectado' })
+        setMessage({ type: 'success', text: t('integrations.messages.gmailDisconnected') })
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Error al desconectar' })
+      setMessage({ type: 'error', text: t('integrations.messages.disconnectError') })
     }
   }
 
@@ -323,14 +325,14 @@ export default function IntegracionesPage() {
       if (res.ok) {
         setMessage({
           type: 'success',
-          text: `Sincronización completada: ${data.results.newEmails} emails nuevos`
+          text: t('integrations.messages.syncSuccess', { count: data.results.newEmails })
         })
         await fetchIntegration()
       } else {
-        setMessage({ type: 'error', text: data.error || 'Error al sincronizar' })
+        setMessage({ type: 'error', text: data.error || t('integrations.messages.syncError') })
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Error de conexión' })
+      setMessage({ type: 'error', text: t('integrations.messages.connectionError') })
     } finally {
       setSyncing(false)
     }
@@ -342,10 +344,10 @@ export default function IntegracionesPage() {
       const res = await fetch('/api/integrations/gmail/reparse', { method: 'POST' })
       if (res.ok) {
         await detectProperties()
-        setMessage({ type: 'success', text: 'Emails re-analizados' })
+        setMessage({ type: 'success', text: t('integrations.messages.reparseSuccess') })
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Error al re-analizar' })
+      setMessage({ type: 'error', text: t('integrations.messages.reparseError') })
     }
   }
 
@@ -463,15 +465,15 @@ export default function IntegracionesPage() {
         const { results } = data
         setMessage({
           type: 'success',
-          text: `✅ Importado: ${results.created} reservas creadas, ${results.updated} actualizadas`
+          text: t('integrations.messages.importSuccess', { created: results.created, updated: results.updated })
         })
         setFlowStep('summary')
         await fetchIntegration()
       } else {
-        setMessage({ type: 'error', text: data.error || 'Error al procesar' })
+        setMessage({ type: 'error', text: data.error || t('integrations.messages.importError') })
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Error de conexión' })
+      setMessage({ type: 'error', text: t('integrations.messages.connectionError') })
     } finally {
       setProcessing(false)
     }
@@ -494,7 +496,7 @@ export default function IntegracionesPage() {
 
     if (wizardStep === 'name') {
       if (!current.propertyName.trim()) {
-        setMessage({ type: 'error', text: 'Introduce un nombre para la propiedad' })
+        setMessage({ type: 'error', text: t('integrations.messages.propertyNameRequired') })
         return
       }
       setWizardStep('owner')
@@ -605,8 +607,8 @@ export default function IntegracionesPage() {
     <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Importar reservas</h1>
-        <p className="text-gray-600">Conecta Gmail para importar reservas de Airbnb automáticamente</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('integrations.title')}</h1>
+        <p className="text-gray-600">{t('integrations.subtitle')}</p>
       </div>
 
       {/* Message */}
@@ -637,13 +639,13 @@ export default function IntegracionesPage() {
             <div className="p-4 bg-red-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
               <Mail className="w-10 h-10 text-red-600" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Conecta tu Gmail</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('integrations.connect.title')}</h2>
             <p className="text-gray-600 mb-6 max-w-md mx-auto">
-              Conecta la cuenta de Gmail donde recibes los emails de Airbnb para importar tus reservas automáticamente.
+              {t('integrations.connect.description')}
             </p>
             <Button onClick={handleConnect} className="bg-red-600 hover:bg-red-700 text-white">
               <Link2 className="w-4 h-4 mr-2" />
-              Conectar Gmail
+              {t('integrations.connect.button')}
             </Button>
           </CardContent>
         </Card>
@@ -663,7 +665,7 @@ export default function IntegracionesPage() {
                   <div>
                     <p className="font-medium text-gray-900">{integration?.email}</p>
                     <p className="text-sm text-gray-500">
-                      {integration?.lastSyncAt && `Última sync: ${formatDate(integration.lastSyncAt)}`}
+                      {integration?.lastSyncAt && t('integrations.status.lastSync', { date: formatDate(integration.lastSyncAt) })}
                     </p>
                   </div>
                 </div>
@@ -689,10 +691,13 @@ export default function IntegracionesPage() {
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-gray-900">
-                      {detectionSummary.totalEmails} reservas listas
+                      {t('integrations.summary.title', { count: detectionSummary.totalEmails })}
                     </h2>
                     <p className="text-gray-600">
-                      De {detectedProperties.length} {detectedProperties.length === 1 ? 'apartamento' : 'apartamentos'}
+                      {t('integrations.summary.from', {
+                        count: detectedProperties.length,
+                        property: detectedProperties.length === 1 ? t('integrations.summary.apartment') : t('integrations.summary.apartments')
+                      })}
                     </p>
                   </div>
                 </div>
@@ -702,30 +707,30 @@ export default function IntegracionesPage() {
                   <div className="bg-white rounded-lg p-4 border">
                     <div className="flex items-center gap-2 mb-1">
                       <Check className="w-4 h-4 text-green-600" />
-                      <span className="text-sm text-gray-600">Auto-detectados</span>
+                      <span className="text-sm text-gray-600">{t('integrations.summary.autoDetected')}</span>
                     </div>
                     <p className="text-2xl font-bold text-green-600">
-                      {autoMatchedProperties.length} <span className="text-base font-normal text-gray-500">apartamentos</span>
+                      {t('integrations.summary.autoDetectedCount', { count: autoMatchedProperties.length })}
                     </p>
-                    <p className="text-sm text-gray-500">{detectionSummary.autoMatchedEmails} reservas</p>
+                    <p className="text-sm text-gray-500">{t('integrations.summary.autoDetectedReservations', { count: detectionSummary.autoMatchedEmails })}</p>
                   </div>
 
                   <div className="bg-white rounded-lg p-4 border">
                     <div className="flex items-center gap-2 mb-1">
                       <AlertCircle className="w-4 h-4 text-orange-500" />
-                      <span className="text-sm text-gray-600">Necesitan configurar</span>
+                      <span className="text-sm text-gray-600">{t('integrations.summary.needsConfig')}</span>
                     </div>
                     <p className="text-2xl font-bold text-orange-600">
-                      {needsReviewProperties.length} <span className="text-base font-normal text-gray-500">apartamentos</span>
+                      {t('integrations.summary.needsConfigCount', { count: needsReviewProperties.length })}
                     </p>
-                    <p className="text-sm text-gray-500">{detectionSummary.needsReviewEmails} reservas</p>
+                    <p className="text-sm text-gray-500">{t('integrations.summary.needsConfigReservations', { count: detectionSummary.needsReviewEmails })}</p>
                   </div>
                 </div>
 
                 {/* Income preview */}
                 {totalIncome > 0 && (
                   <div className="bg-green-50 rounded-lg p-3 mb-6 text-center">
-                    <p className="text-sm text-green-700">Ingresos totales a importar</p>
+                    <p className="text-sm text-green-700">{t('integrations.summary.totalIncome')}</p>
                     <p className="text-2xl font-bold text-green-600">{formatCurrency(totalIncome)}</p>
                   </div>
                 )}
@@ -736,9 +741,9 @@ export default function IntegracionesPage() {
                   className="w-full bg-violet-600 hover:bg-violet-700 text-white py-3 text-lg"
                 >
                   {needsReviewProperties.length > 0 ? (
-                    <>Configurar e importar</>
+                    <>{t('integrations.summary.buttonReview')}</>
                   ) : (
-                    <>Importar todo</>
+                    <>{t('integrations.summary.buttonImport')}</>
                   )}
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
@@ -748,7 +753,7 @@ export default function IntegracionesPage() {
                   onClick={handleReparse}
                   className="w-full mt-3 text-sm text-gray-500 hover:text-violet-600"
                 >
-                  ¿No se detectan bien las propiedades? Re-analizar emails
+                  {t('integrations.summary.reparse')}
                 </button>
               </CardContent>
             </Card>
@@ -756,10 +761,10 @@ export default function IntegracionesPage() {
             <Card>
               <CardContent className="p-8 text-center">
                 <Inbox className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 mb-4">No hay reservas pendientes de importar</p>
+                <p className="text-gray-500 mb-4">{t('integrations.empty.noPending')}</p>
                 <Button variant="outline" onClick={handleSync} disabled={syncing}>
                   <RefreshCw className={`w-4 h-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
-                  Sincronizar emails
+                  {t('integrations.empty.syncEmails')}
                 </Button>
               </CardContent>
             </Card>
@@ -784,14 +789,14 @@ export default function IntegracionesPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500">
-                    Configurando {currentWizardIndex + 1} de {newProperties.length}
+                    {t('integrations.wizard.configuring', { current: currentWizardIndex + 1, total: newProperties.length })}
                   </p>
                   <h2 className="font-semibold text-gray-900">
                     {newProperties[currentWizardIndex].displayName}
                   </h2>
                 </div>
                 <Badge className="bg-violet-100 text-violet-700">
-                  {detectedProperties.find(d => d.name === newProperties[currentWizardIndex].emailPropertyName)?.emailCount || 0} reservas
+                  {detectedProperties.find(d => d.name === newProperties[currentWizardIndex].emailPropertyName)?.emailCount || 0} {t('integrations.wizard.reservations')}
                 </Badge>
               </div>
             </div>
@@ -802,14 +807,14 @@ export default function IntegracionesPage() {
               {wizardStep === 'name' && (
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-1">¿Cómo se llama esta propiedad?</h3>
-                    <p className="text-sm text-gray-500 mb-4">Puedes usar el nombre detectado o escribir otro</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">{t('integrations.wizard.stepName')}</h3>
+                    <p className="text-sm text-gray-500 mb-4">{t('integrations.wizard.stepNameDescription')}</p>
 
                     <input
                       type="text"
                       value={newProperties[currentWizardIndex].propertyName}
                       onChange={(e) => updateCurrentProperty({ propertyName: e.target.value })}
-                      placeholder="Nombre de la propiedad"
+                      placeholder={t('integrations.wizard.propertyNamePlaceholder')}
                       className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-lg focus:border-violet-500 focus:ring-0"
                       autoFocus
                     />
@@ -818,7 +823,7 @@ export default function IntegracionesPage() {
                       type="text"
                       value={newProperties[currentWizardIndex].city}
                       onChange={(e) => updateCurrentProperty({ city: e.target.value })}
-                      placeholder="Ciudad (opcional)"
+                      placeholder={t('integrations.wizard.cityPlaceholder')}
                       className="w-full border border-gray-200 rounded-lg px-4 py-2 mt-3 focus:border-violet-500 focus:ring-0"
                     />
                   </div>
@@ -826,7 +831,7 @@ export default function IntegracionesPage() {
                   {/* Quick assign to existing */}
                   {availableProperties.filter(p => p.configId).length > 0 && (
                     <div className="border-t pt-4">
-                      <p className="text-sm font-medium text-gray-700 mb-2">¿O es una propiedad que ya tienes?</p>
+                      <p className="text-sm font-medium text-gray-700 mb-2">{t('integrations.wizard.existingProperty')}</p>
                       <div className="space-y-2">
                         {availableProperties.filter(p => p.configId).slice(0, 5).map(p => (
                           <button
@@ -851,8 +856,8 @@ export default function IntegracionesPage() {
               {wizardStep === 'owner' && (
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-1">¿De quién es esta propiedad?</h3>
-                    <p className="text-sm text-gray-500 mb-4">Selecciona el propietario o déjalo vacío si es tuya</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">{t('integrations.wizard.stepOwner')}</h3>
+                    <p className="text-sm text-gray-500 mb-4">{t('integrations.wizard.stepOwnerDescription')}</p>
                   </div>
 
                   {/* Owner options */}
@@ -869,8 +874,8 @@ export default function IntegracionesPage() {
                         <User className="w-5 h-5 text-gray-600" />
                       </div>
                       <div>
-                        <p className="font-medium">Es mía (gestión propia)</p>
-                        <p className="text-sm text-gray-500">No hay propietario externo</p>
+                        <p className="font-medium">{t('integrations.wizard.ownProperty')}</p>
+                        <p className="text-sm text-gray-500">{t('integrations.wizard.ownPropertyDescription')}</p>
                       </div>
                       {!newProperties[currentWizardIndex].ownerId && (
                         <Check className="w-5 h-5 text-violet-600 ml-auto" />
@@ -915,12 +920,12 @@ export default function IntegracionesPage() {
                         <div className="p-2 bg-gray-50 rounded-lg">
                           <Plus className="w-5 h-5 text-gray-400" />
                         </div>
-                        <span className="text-gray-600">Crear nuevo propietario</span>
+                        <span className="text-gray-600">{t('integrations.wizard.createOwner')}</span>
                       </button>
                     ) : (
                       <div className="border-2 border-violet-200 rounded-xl p-4 bg-violet-50 space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="font-medium text-violet-700">Nuevo propietario</span>
+                          <span className="font-medium text-violet-700">{t('integrations.wizard.newOwner')}</span>
                           <button onClick={() => setShowOwnerForm(false)} className="text-gray-400 hover:text-gray-600">
                             <X className="w-4 h-4" />
                           </button>
@@ -933,7 +938,7 @@ export default function IntegracionesPage() {
                               newOwner.type === 'PERSONA_FISICA' ? 'bg-violet-600 text-white' : 'bg-white border'
                             }`}
                           >
-                            Persona
+                            {t('integrations.wizard.ownerTypePerson')}
                           </button>
                           <button
                             onClick={() => setNewOwner(prev => ({ ...prev, type: 'EMPRESA' }))}
@@ -941,7 +946,7 @@ export default function IntegracionesPage() {
                               newOwner.type === 'EMPRESA' ? 'bg-violet-600 text-white' : 'bg-white border'
                             }`}
                           >
-                            Empresa
+                            {t('integrations.wizard.ownerTypeCompany')}
                           </button>
                         </div>
 
@@ -951,14 +956,14 @@ export default function IntegracionesPage() {
                               type="text"
                               value={newOwner.firstName}
                               onChange={(e) => setNewOwner(prev => ({ ...prev, firstName: e.target.value }))}
-                              placeholder="Nombre"
+                              placeholder={t('integrations.wizard.firstNamePlaceholder')}
                               className="border rounded-lg px-3 py-2 text-sm"
                             />
                             <input
                               type="text"
                               value={newOwner.lastName}
                               onChange={(e) => setNewOwner(prev => ({ ...prev, lastName: e.target.value }))}
-                              placeholder="Apellidos"
+                              placeholder={t('integrations.wizard.lastNamePlaceholder')}
                               className="border rounded-lg px-3 py-2 text-sm"
                             />
                           </div>
@@ -967,7 +972,7 @@ export default function IntegracionesPage() {
                             type="text"
                             value={newOwner.companyName}
                             onChange={(e) => setNewOwner(prev => ({ ...prev, companyName: e.target.value }))}
-                            placeholder="Razón social"
+                            placeholder={t('integrations.wizard.companyNamePlaceholder')}
                             className="w-full border rounded-lg px-3 py-2 text-sm"
                           />
                         )}
@@ -980,7 +985,7 @@ export default function IntegracionesPage() {
                           className="w-full bg-violet-600 hover:bg-violet-700 text-white"
                           size="sm"
                         >
-                          Crear propietario
+                          {t('integrations.wizard.createOwnerButton')}
                         </Button>
                       </div>
                     )}
@@ -992,8 +997,8 @@ export default function IntegracionesPage() {
               {wizardStep === 'commission' && (
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-1">¿Cuánto cobras por gestionar?</h3>
-                    <p className="text-sm text-gray-500 mb-4">Selecciona tu comisión de gestión</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">{t('integrations.wizard.stepCommission')}</h3>
+                    <p className="text-sm text-gray-500 mb-4">{t('integrations.wizard.stepCommissionDescription')}</p>
                   </div>
 
                   {/* Quick options */}
@@ -1020,12 +1025,12 @@ export default function IntegracionesPage() {
                         {preset === 'custom' ? (
                           <>
                             <Settings className="w-6 h-6 mx-auto mb-1 text-gray-400" />
-                            <p className="text-sm text-gray-600">Personalizar</p>
+                            <p className="text-sm text-gray-600">{t('integrations.wizard.commissionCustom')}</p>
                           </>
                         ) : (
                           <>
                             <p className="text-2xl font-bold text-gray-900">{preset}%</p>
-                            <p className="text-xs text-gray-500">comisión</p>
+                            <p className="text-xs text-gray-500">{t('integrations.wizard.commissionPercent')}</p>
                           </>
                         )}
                       </button>
@@ -1045,7 +1050,7 @@ export default function IntegracionesPage() {
                         className="w-24 border-2 rounded-lg px-3 py-2 text-center text-lg font-medium"
                         placeholder="0"
                       />
-                      <span className="text-lg text-gray-500">% de comisión</span>
+                      <span className="text-lg text-gray-500">{t('integrations.wizard.commissionPercent')}</span>
                     </div>
                   )}
 
@@ -1055,14 +1060,14 @@ export default function IntegracionesPage() {
                     className="flex items-center gap-2 text-sm text-gray-500 hover:text-violet-600 mt-4"
                   >
                     <ChevronDown className={`w-4 h-4 transition-transform ${newProperties[currentWizardIndex].showAdvanced ? 'rotate-180' : ''}`} />
-                    Opciones avanzadas
+                    {t('integrations.wizard.advancedOptions')}
                   </button>
 
                   {newProperties[currentWizardIndex].showAdvanced && (
                     <div className="border rounded-lg p-4 space-y-4 bg-gray-50">
                       {/* Income receiver */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">¿Quién cobra las reservas?</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('integrations.wizard.whoReceives')}</label>
                         <div className="flex gap-3">
                           <label className="flex items-center gap-2">
                             <input
@@ -1070,7 +1075,7 @@ export default function IntegracionesPage() {
                               checked={newProperties[currentWizardIndex].incomeReceiver === 'OWNER'}
                               onChange={() => updateCurrentProperty({ incomeReceiver: 'OWNER' })}
                             />
-                            <span className="text-sm">Propietario</span>
+                            <span className="text-sm">{t('integrations.wizard.receiverOwner')}</span>
                           </label>
                           <label className="flex items-center gap-2">
                             <input
@@ -1078,7 +1083,7 @@ export default function IntegracionesPage() {
                               checked={newProperties[currentWizardIndex].incomeReceiver === 'MANAGER'}
                               onChange={() => updateCurrentProperty({ incomeReceiver: 'MANAGER' })}
                             />
-                            <span className="text-sm">Gestor</span>
+                            <span className="text-sm">{t('integrations.wizard.receiverManager')}</span>
                           </label>
                         </div>
                       </div>
@@ -1086,7 +1091,7 @@ export default function IntegracionesPage() {
                       {/* Cleaning */}
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Limpieza (€)</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">{t('integrations.wizard.cleaningAmount')}</label>
                           <input
                             type="number"
                             value={newProperties[currentWizardIndex].cleaningValue || ''}
@@ -1099,14 +1104,14 @@ export default function IntegracionesPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">¿Quién recibe?</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">{t('integrations.wizard.cleaningRecipient')}</label>
                           <select
                             value={newProperties[currentWizardIndex].cleaningFeeRecipient}
                             onChange={(e) => updateCurrentProperty({ cleaningFeeRecipient: e.target.value as 'OWNER' | 'MANAGER' })}
                             className="w-full border rounded-lg px-3 py-2 text-sm"
                           >
-                            <option value="MANAGER">Gestor</option>
-                            <option value="OWNER">Propietario</option>
+                            <option value="MANAGER">{t('integrations.wizard.cleaningRecipientManager')}</option>
+                            <option value="OWNER">{t('integrations.wizard.cleaningRecipientOwner')}</option>
                           </select>
                         </div>
                       </div>
@@ -1120,13 +1125,13 @@ export default function IntegracionesPage() {
             <div className="p-4 border-t bg-gray-50 flex justify-between">
               <Button variant="outline" onClick={handleWizardBack}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Atrás
+                {t('integrations.wizard.back')}
               </Button>
               <Button onClick={handleWizardNext} className="bg-violet-600 hover:bg-violet-700 text-white">
                 {wizardStep === 'commission' && currentWizardIndex === newProperties.length - 1 ? (
-                  'Finalizar'
+                  t('integrations.wizard.finish')
                 ) : (
-                  <>Siguiente</>
+                  <>{t('integrations.wizard.next')}</>
                 )}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
@@ -1143,8 +1148,8 @@ export default function IntegracionesPage() {
               <div className="p-3 bg-green-100 rounded-full w-16 h-16 mx-auto mb-3 flex items-center justify-center">
                 <Check className="w-8 h-8 text-green-600" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">Todo listo para importar</h2>
-              <p className="text-gray-600">Revisa el resumen y confirma</p>
+              <h2 className="text-xl font-bold text-gray-900">{t('integrations.confirmation.title')}</h2>
+              <p className="text-gray-600">{t('integrations.confirmation.description')}</p>
             </div>
 
             {/* Summary list */}
@@ -1155,7 +1160,7 @@ export default function IntegracionesPage() {
                     <Check className="w-5 h-5 text-green-600" />
                     <div>
                       <p className="font-medium text-gray-900">{prop.autoMatch?.propertyName}</p>
-                      <p className="text-sm text-gray-500">{prop.emailCount} reservas (auto-detectado)</p>
+                      <p className="text-sm text-gray-500">{prop.emailCount} {t('integrations.confirmation.reservationsCount')} ({t('integrations.confirmation.autoDetected')})</p>
                     </div>
                   </div>
                   <span className="text-green-600 font-medium">
@@ -1171,21 +1176,21 @@ export default function IntegracionesPage() {
                     <div>
                       <p className="font-medium text-gray-900">{prop.propertyName || prop.displayName}</p>
                       <p className="text-sm text-gray-500">
-                        {detectedProperties.find(d => d.name === prop.emailPropertyName)?.emailCount || 0} reservas
-                        {prop.ownerId && ` · ${getOwnerName(prop.ownerId)}`}
-                        {` · ${prop.commissionValue}% comisión`}
+                        {detectedProperties.find(d => d.name === prop.emailPropertyName)?.emailCount || 0} {t('integrations.confirmation.reservationsCount')}
+                        {prop.ownerId && t('integrations.confirmation.owner', { owner: getOwnerName(prop.ownerId) })}
+                        {t('integrations.confirmation.commission', { percent: prop.commissionValue })}
                       </p>
                     </div>
                   </div>
-                  <Badge className="bg-violet-100 text-violet-700">Nueva</Badge>
+                  <Badge className="bg-violet-100 text-violet-700">{t('integrations.confirmation.new')}</Badge>
                 </div>
               ))}
             </div>
 
             {/* Total */}
             <div className="bg-gray-100 rounded-lg p-4 mb-6 text-center">
-              <p className="text-sm text-gray-600">Total a importar</p>
-              <p className="text-3xl font-bold text-gray-900">{detectionSummary?.totalEmails} reservas</p>
+              <p className="text-sm text-gray-600">{t('integrations.confirmation.totalTitle')}</p>
+              <p className="text-3xl font-bold text-gray-900">{t('integrations.confirmation.totalReservations', { count: detectionSummary?.totalEmails })}</p>
               <p className="text-lg text-green-600 font-medium">{formatCurrency(totalIncome)}</p>
             </div>
 
@@ -1196,7 +1201,7 @@ export default function IntegracionesPage() {
                 onClick={() => setFlowStep('summary')}
                 className="flex-1"
               >
-                Cancelar
+                {t('integrations.confirmation.cancel')}
               </Button>
               <Button
                 onClick={handleImportAll}
@@ -1208,7 +1213,7 @@ export default function IntegracionesPage() {
                 ) : (
                   <Check className="w-4 h-4 mr-2" />
                 )}
-                Importar todo
+                {processing ? t('integrations.confirmation.importing') : t('integrations.confirmation.import')}
               </Button>
             </div>
           </CardContent>
@@ -1219,23 +1224,23 @@ export default function IntegracionesPage() {
       {flowStep === 'connect' && (
         <Card>
           <CardContent className="p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Cómo funciona</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('integrations.help.title')}</h2>
             <ol className="space-y-3 text-sm text-gray-600">
               <li className="flex items-start gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center text-xs font-medium">1</span>
-                <span>Conecta tu cuenta de Gmail donde recibes los emails de Airbnb</span>
+                <span>{t('integrations.help.step1')}</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center text-xs font-medium">2</span>
-                <span>El sistema detecta automáticamente las propiedades de cada email</span>
+                <span>{t('integrations.help.step2')}</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center text-xs font-medium">3</span>
-                <span>Configura las propiedades nuevas (solo la primera vez)</span>
+                <span>{t('integrations.help.step3')}</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center text-xs font-medium">4</span>
-                <span>Las próximas veces se importarán automáticamente</span>
+                <span>{t('integrations.help.step4')}</span>
               </li>
             </ol>
           </CardContent>

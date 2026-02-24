@@ -37,14 +37,59 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const isUnit = searchParams.get('type') === 'unit'
+    const entityType = searchParams.get('type') // 'unit', 'group', or null (legacy property)
+    const isUnit = entityType === 'unit'
+    const isGroup = entityType === 'group'
     let ownerId: string | null = null
     let propertyName = ''
     let propertyCity = ''
     let billingConfig: any = null
     let billingUnitId: string | null = null
+    let billingUnitGroupId: string | null = null
+    let groupUnitIds: string[] = []
 
-    if (isUnit) {
+    if (isGroup) {
+      // Handle BillingUnitGroup
+      const group = await prisma.billingUnitGroup.findFirst({
+        where: { id: propertyId, userId },
+        include: {
+          owner: true,
+          billingUnits: {
+            select: { id: true, name: true, city: true }
+          }
+        }
+      })
+
+      if (!group) {
+        return NextResponse.json(
+          { error: 'Conjunto no encontrado' },
+          { status: 404 }
+        )
+      }
+
+      if (!group.ownerId) {
+        return NextResponse.json(
+          { error: 'Este conjunto no tiene un propietario asignado. Configúralo primero.' },
+          { status: 400 }
+        )
+      }
+
+      ownerId = group.ownerId
+      propertyName = group.name
+      propertyCity = group.billingUnits[0]?.city || '' // Get city from first unit
+      billingUnitGroupId = group.id
+      groupUnitIds = group.billingUnits.map(u => u.id)
+      billingConfig = {
+        id: group.id,
+        commissionValue: group.commissionValue,
+        commissionVat: Number(group.commissionVat) || 21,
+        cleaningValue: group.cleaningValue,
+        cleaningVatIncluded: group.cleaningVatIncluded ?? true,
+        invoiceDetailLevel: group.invoiceDetailLevel || 'DETAILED',
+        singleConceptText: group.singleConceptText || 'Gestión apartamento turístico',
+        owner: group.owner
+      }
+    } else if (isUnit) {
       // Handle BillingUnit
       const billingUnit = await prisma.billingUnit.findFirst({
         where: { id: propertyId, userId },
@@ -235,9 +280,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Try to find existing draft invoice for this property/month
-    const invoiceWhereClause = isUnit
-      ? { userId, billingUnitId: propertyId, periodYear: year, periodMonth: month, status: 'DRAFT' as const }
-      : { userId, propertyId, periodYear: year, periodMonth: month, status: 'DRAFT' as const }
+    let invoiceWhereClause: any = { userId, periodYear: year, periodMonth: month, status: 'DRAFT' as const }
+    if (isGroup) {
+      invoiceWhereClause.billingUnitGroupId = propertyId
+    } else if (isUnit) {
+      invoiceWhereClause.billingUnitId = propertyId
+    } else {
+      invoiceWhereClause.propertyId = propertyId
+    }
 
     let invoice = await prisma.clientInvoice.findFirst({
       where: invoiceWhereClause,
@@ -266,7 +316,14 @@ export async function GET(request: NextRequest) {
             city: true
           }
         } : false,
-        property: !isUnit ? {
+        billingUnitGroup: isGroup ? {
+          select: {
+            id: true,
+            name: true,
+            billingUnits: { select: { id: true, name: true, city: true } }
+          }
+        } : false,
+        property: !isUnit && !isGroup ? {
           select: {
             id: true,
             name: true,
@@ -306,7 +363,7 @@ export async function GET(request: NextRequest) {
       const startDate = new Date(year, month - 1, 1)
       const endDate = new Date(year, month, 1)
 
-      // Query reservations based on whether it's a BillingUnit or Property
+      // Query reservations based on whether it's a BillingUnit, Group, or Property
       const reservationWhere: any = {
         userId,
         checkIn: {
@@ -316,7 +373,10 @@ export async function GET(request: NextRequest) {
         status: { in: ['CONFIRMED', 'COMPLETED'] }
       }
 
-      if (billingUnitId) {
+      if (billingUnitGroupId && groupUnitIds.length > 0) {
+        // Group: get reservations for all units in the group
+        reservationWhere.billingUnitId = { in: groupUnitIds }
+      } else if (billingUnitId) {
         reservationWhere.billingUnitId = billingUnitId
       } else {
         reservationWhere.billingConfig = { propertyId }
@@ -449,7 +509,7 @@ export async function GET(request: NextRequest) {
       // Get expenses for this property/month (chargeToOwner = true, not yet invoiced)
       const lastDayOfMonth = new Date(year, month, 0) // Last day of the month
 
-      // Query expenses based on whether it's a BillingUnit or Property
+      // Query expenses based on whether it's a BillingUnit, Group, or Property
       const expenseWhere: any = {
         date: {
           gte: startDate,
@@ -458,7 +518,10 @@ export async function GET(request: NextRequest) {
         chargeToOwner: true
       }
 
-      if (billingUnitId) {
+      if (billingUnitGroupId && groupUnitIds.length > 0) {
+        // Group: get expenses for all units in the group
+        expenseWhere.billingUnitId = { in: groupUnitIds }
+      } else if (billingUnitId) {
         expenseWhere.billingUnitId = billingUnitId
       } else {
         expenseWhere.billingConfigId = billingConfig.id
@@ -542,7 +605,14 @@ export async function GET(request: NextRequest) {
             city: true
           }
         } : false,
-        property: !isUnit ? {
+        billingUnitGroup: isGroup ? {
+          select: {
+            id: true,
+            name: true,
+            billingUnits: { select: { id: true, name: true, city: true } }
+          }
+        } : false,
+        property: !isUnit && !isGroup ? {
           select: {
             id: true,
             name: true,
@@ -611,7 +681,7 @@ export async function GET(request: NextRequest) {
           total,
           status: 'DRAFT' as const,
           isLocked: false,
-          ...(isUnit ? { billingUnitId: propertyId } : { propertyId }),
+          ...(isGroup ? { billingUnitGroupId: propertyId } : isUnit ? { billingUnitId: propertyId } : { propertyId }),
           items: {
             create: items.map(item => ({
               concept: item.concept,
@@ -642,17 +712,25 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Build property info for response (works for both Property and BillingUnit)
-    const propertyInfo = isUnit
-      ? (invoice.billingUnit || { id: propertyId, name: propertyName, city: propertyCity })
-      : invoice.property
+    // Build property info for response (works for Property, BillingUnit, and BillingUnitGroup)
+    // Cast to any to access included relations
+    const invoiceWithRelations = invoice as any
+
+    let propertyInfo: any
+    if (isGroup) {
+      propertyInfo = invoiceWithRelations.billingUnitGroup || { id: propertyId, name: propertyName, city: propertyCity }
+    } else if (isUnit) {
+      propertyInfo = invoiceWithRelations.billingUnit || { id: propertyId, name: propertyName, city: propertyCity }
+    } else {
+      propertyInfo = invoiceWithRelations.property || { id: propertyId, name: propertyName, city: propertyCity }
+    }
 
     return NextResponse.json({
       invoice: {
         id: invoice.id,
         number: invoice.number,
         fullNumber: invoice.fullNumber,
-        propertyId: isUnit ? (invoice.billingUnitId || propertyId) : (invoice.propertyId || propertyId),
+        propertyId: isGroup ? (invoice.billingUnitGroupId || propertyId) : isUnit ? (invoice.billingUnitId || propertyId) : (invoice.propertyId || propertyId),
         periodYear: invoice.periodYear,
         periodMonth: invoice.periodMonth,
         issueDate: invoice.issueDate.toISOString(),
@@ -666,10 +744,10 @@ export async function GET(request: NextRequest) {
         status: invoice.status,
         isLocked: invoice.isLocked,
         notes: invoice.notes,
-        owner: invoice.owner,
+        owner: invoiceWithRelations.owner,
         property: propertyInfo,
-        series: invoice.series,
-        items: invoice.items.map(i => ({
+        series: invoiceWithRelations.series,
+        items: (invoiceWithRelations.items || []).map((i: any) => ({
           id: i.id,
           concept: i.concept,
           description: i.description,
@@ -706,12 +784,14 @@ export async function GET(request: NextRequest) {
         detailLevel: billingConfig?.invoiceDetailLevel || 'DETAILED',
         singleConceptText: billingConfig?.singleConceptText || 'Gestión apartamento turístico'
       },
-      isUnit // Pass this so frontend knows it's a BillingUnit
+      isUnit, // Pass this so frontend knows it's a BillingUnit
+      isGroup // Pass this so frontend knows it's a BillingUnitGroup
     })
   } catch (error: any) {
-    console.error('Error getting/creating property-month invoice:', error)
+    console.error('Error getting/creating property-month invoice:', error?.message || error)
+    console.error('Stack:', error?.stack)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: 'Error interno del servidor', details: error?.message },
       { status: 500 }
     )
   }

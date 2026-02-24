@@ -124,14 +124,17 @@ export async function POST(request: NextRequest) {
         const checkIn = new Date(r.checkIn)
         const checkOut = new Date(r.checkOut)
 
+        const roundedBase = Math.round(lineBase * 100) / 100
+        const roundedVat = Math.round(lineVat * 100) / 100
+
         return {
           concept: `Comisión gestión ${r.billingConfig.property.name}`,
           description: `${r.guestName} - ${checkIn.toLocaleDateString('es-ES')} al ${checkOut.toLocaleDateString('es-ES')} (${r.nights} noches)`,
           quantity: 1,
-          unitPrice: lineBase,
+          unitPrice: roundedBase,
           vatRate: defaultVatRate,
           retentionRate: defaultRetentionRate,
-          total: lineBase + lineVat,
+          total: Math.round((roundedBase + roundedVat) * 100) / 100,
           reservationId: r.id,
           periodStart: checkIn,
           periodEnd: checkOut,
@@ -151,14 +154,16 @@ export async function POST(request: NextRequest) {
           totalVat += cleaningVat
           totalRetention += cleaningRetention
 
+          const roundedCleaning = Math.round(totalCleaning * 100) / 100
+          const roundedCleaningVat = Math.round(cleaningVat * 100) / 100
           items.push({
             concept: 'Servicios de limpieza',
             description: `${cleaningReservations.length} reservas`,
             quantity: 1,
-            unitPrice: totalCleaning,
+            unitPrice: roundedCleaning,
             vatRate: defaultVatRate,
             retentionRate: defaultRetentionRate,
-            total: totalCleaning + cleaningVat,
+            total: Math.round((roundedCleaning + roundedCleaningVat) * 100) / 100,
             order: items.length
           })
         }
@@ -188,14 +193,16 @@ export async function POST(request: NextRequest) {
 
       const propertyName = billingConfig.property.name
 
+      const roundedLineBase = Math.round(lineBase * 100) / 100
+      const roundedLineVat = Math.round(lineVat * 100) / 100
       items.push({
         concept: `Comisión gestión ${propertyName}`,
         description: `${reservations.length} reservas, ${totalNights} noches (${periodStart.toLocaleDateString('es-ES')} - ${periodEnd.toLocaleDateString('es-ES')})`,
         quantity: 1,
-        unitPrice: lineBase,
+        unitPrice: roundedLineBase,
         vatRate: defaultVatRate,
         retentionRate: defaultRetentionRate,
-        total: lineBase + lineVat,
+        total: Math.round((roundedLineBase + roundedLineVat) * 100) / 100,
         periodStart,
         periodEnd,
         order: 0

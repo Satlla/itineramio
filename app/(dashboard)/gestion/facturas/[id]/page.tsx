@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslation } from 'react-i18next'
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -82,6 +83,12 @@ interface Invoice {
   rectifies?: { id: string; fullNumber: string; total: number }
   rectifiedBy?: Array<{ id: string; fullNumber: string; total: number; status: string }>
   items: InvoiceItem[]
+  // VeriFactu
+  verifactuHash?: string
+  verifactuStatus?: 'PENDING' | 'SUBMITTED' | 'ACCEPTED' | 'REJECTED' | 'ERROR'
+  invoiceType?: string
+  taxRegimeKey?: string
+  verifactuTimestamp?: string
 }
 
 interface ManagerConfig {
@@ -103,19 +110,11 @@ interface ManagerConfig {
   paypalEmail?: string
 }
 
-const STATUS_CONFIG: Record<string, { label: string; bgColor: string; color: string; icon: any }> = {
-  DRAFT: { label: 'Borrador', bgColor: 'bg-gray-100', color: 'text-gray-700', icon: Clock },
-  PROFORMA: { label: 'Proforma', bgColor: 'bg-blue-100', color: 'text-blue-700', icon: FileText },
-  ISSUED: { label: 'Emitida', bgColor: 'bg-violet-100', color: 'text-violet-700', icon: FileText },
-  SENT: { label: 'Enviada', bgColor: 'bg-amber-100', color: 'text-amber-700', icon: Send },
-  PAID: { label: 'Pagada', bgColor: 'bg-green-100', color: 'text-green-700', icon: CheckCircle },
-  OVERDUE: { label: 'Vencida', bgColor: 'bg-red-100', color: 'text-red-700', icon: AlertCircle }
-}
-
 export default function InvoiceDetailPage() {
   const router = useRouter()
   const params = useParams()
   const searchParams = useSearchParams()
+  const { t } = useTranslation('gestion')
   const invoiceId = params.id as string
   const showRectifyModal = searchParams.get('rectify') === 'true'
 
@@ -125,6 +124,9 @@ export default function InvoiceDetailPage() {
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [managerConfig, setManagerConfig] = useState<ManagerConfig | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  // VeriFactu polling
+  const [pollingVerifactu, setPollingVerifactu] = useState(false)
 
   // Modals
   const [showPreview, setShowPreview] = useState(false)
@@ -152,6 +154,15 @@ export default function InvoiceDetailPage() {
   const [rectifyReason, setRectifyReason] = useState('')
   const [rectifyItems, setRectifyItems] = useState<InvoiceItem[]>([])
 
+  const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: string; icon: any }> = {
+    DRAFT: { label: t('invoices.status.draft'), color: 'text-gray-700', bgColor: 'bg-gray-100', icon: Clock },
+    PROFORMA: { label: t('invoices.status.proforma'), color: 'text-gray-700', bgColor: 'bg-gray-100', icon: Clock },
+    ISSUED: { label: t('invoices.status.issued'), color: 'text-blue-700', bgColor: 'bg-blue-100', icon: FileText },
+    SENT: { label: t('invoices.status.sent'), color: 'text-violet-700', bgColor: 'bg-violet-100', icon: Send },
+    PAID: { label: t('invoices.status.paid'), color: 'text-green-700', bgColor: 'bg-green-100', icon: CheckCircle },
+    OVERDUE: { label: t('invoices.status.overdue'), color: 'text-red-700', bgColor: 'bg-red-100', icon: AlertCircle },
+  }
+
   useEffect(() => {
     fetchInvoice()
   }, [invoiceId])
@@ -175,17 +186,18 @@ export default function InvoiceDetailPage() {
         }
       } else {
         const data = await response.json()
-        setError(data.error || 'Error al cargar la factura')
+        setError(data.error || t('invoices.errors.loadError'))
       }
     } catch (err) {
-      setError('Error de conexión')
+      setError(t('invoices.errors.connectionError'))
     } finally {
       setLoading(false)
     }
   }
 
-  const formatCurrency = (amount: number) => {
-    return amount.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '€'
+  const formatCurrency = (amount: number | string) => {
+    const num = Math.round(Number(amount || 0) * 100) / 100
+    return num.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '\u00A0€'
   }
 
   const formatDate = (dateStr: string) => {
@@ -219,7 +231,7 @@ export default function InvoiceDetailPage() {
         setError(data.error || 'Error al guardar')
       }
     } catch (err) {
-      setError('Error de conexión')
+      setError(t('invoices.errors.connectionError'))
     } finally {
       setSaving(false)
     }
@@ -272,7 +284,7 @@ export default function InvoiceDetailPage() {
         setError(data.error || 'Error al previsualizar')
       }
     } catch (err) {
-      setError('Error de conexión')
+      setError(t('invoices.errors.connectionError'))
     } finally {
       setActionLoading(null)
     }
@@ -298,7 +310,7 @@ export default function InvoiceDetailPage() {
         setError(data.error || 'Error al emitir')
       }
     } catch (err) {
-      setError('Error de conexión')
+      setError(t('invoices.errors.connectionError'))
     } finally {
       setActionLoading(null)
     }
@@ -321,7 +333,7 @@ export default function InvoiceDetailPage() {
         setError(data.error || 'Error al cambiar estado')
       }
     } catch (err) {
-      setError('Error de conexión')
+      setError(t('invoices.errors.connectionError'))
     } finally {
       setActionLoading(null)
     }
@@ -342,7 +354,7 @@ export default function InvoiceDetailPage() {
         setError(data.error || 'Error al eliminar')
       }
     } catch (err) {
-      setError('Error de conexión')
+      setError(t('invoices.errors.connectionError'))
     } finally {
       setActionLoading(null)
       setShowDeleteConfirm(false)
@@ -370,7 +382,7 @@ export default function InvoiceDetailPage() {
         setError('Error al generar PDF')
       }
     } catch (err) {
-      setError('Error de conexión')
+      setError(t('invoices.errors.connectionError'))
     } finally {
       setActionLoading(null)
     }
@@ -414,7 +426,7 @@ export default function InvoiceDetailPage() {
         setError(data.error || 'Error al enviar')
       }
     } catch (err) {
-      setError('Error de conexión')
+      setError(t('invoices.errors.connectionError'))
     } finally {
       setActionLoading(null)
     }
@@ -453,7 +465,7 @@ export default function InvoiceDetailPage() {
         setError(data.error || 'Error al crear rectificativa')
       }
     } catch (err) {
-      setError('Error de conexión')
+      setError(t('invoices.errors.connectionError'))
     } finally {
       setActionLoading(null)
     }
@@ -563,15 +575,15 @@ export default function InvoiceDetailPage() {
                     <FileText className="w-5 h-5 text-violet-600" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-violet-900">Emitir Factura</h3>
-                    <p className="text-sm text-violet-700">Se asignará el número definitivo</p>
+                    <h3 className="text-lg font-semibold text-violet-900">{t('invoices.modal.issueInvoice')}</h3>
+                    <p className="text-sm text-violet-700">{t('invoices.modal.willAssignFinalNumber')}</p>
                   </div>
                 </div>
               </div>
 
               <div className="p-6">
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Número de factura</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('invoices.issueModal.invoiceNumber')}</label>
                   <div className="flex items-center gap-2">
                     <span className="text-lg font-medium text-gray-500">{seriesPrefix}{String(seriesYear).slice(-2)}</span>
                     <input
@@ -583,7 +595,7 @@ export default function InvoiceDetailPage() {
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Número completo: <span className="font-medium">{seriesPrefix}{String(seriesYear).slice(-2)}{String(customNumber).padStart(4, '0')}</span>
+                    {t('invoices.issueModal.fullNumber')} <span className="font-medium">{seriesPrefix}{String(seriesYear).slice(-2)}{String(customNumber).padStart(4, '0')}</span>
                   </p>
                 </div>
 
@@ -597,7 +609,7 @@ export default function InvoiceDetailPage() {
                   <div className="flex items-start gap-2">
                     <Lock className="w-4 h-4 text-amber-600 mt-0.5" />
                     <p className="text-sm text-amber-800">
-                      Una vez emitida, la factura no podrá ser editada ni eliminada.
+                      {t('invoices.modal.issueWarningShort')}
                     </p>
                   </div>
                 </div>
@@ -605,14 +617,14 @@ export default function InvoiceDetailPage() {
 
               <div className="p-6 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
                 <Button variant="outline" onClick={() => setShowIssueModal(false)}>
-                  Cancelar
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   onClick={handleIssue}
                   disabled={actionLoading === 'issue' || !!numberError}
                   className="bg-violet-600 hover:bg-violet-700"
                 >
-                  {actionLoading === 'issue' ? 'Emitiendo...' : 'Emitir Factura'}
+                  {actionLoading === 'issue' ? t('invoices.actions.issuing') : t('invoices.modal.issueInvoice')}
                 </Button>
               </div>
             </motion.div>
@@ -641,15 +653,15 @@ export default function InvoiceDetailPage() {
                     <Mail className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-blue-900">Enviar Factura</h3>
-                    <p className="text-sm text-blue-700">Enviar por correo electrónico</p>
+                    <h3 className="text-lg font-semibold text-blue-900">{t('invoices.sendModal.title')}</h3>
+                    <p className="text-sm text-blue-700">{t('invoices.sendModal.subtitle')}</p>
                   </div>
                 </div>
               </div>
 
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email destinatario</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('invoices.sendModal.recipientEmail')}</label>
                   <input
                     type="email"
                     value={sendEmail}
@@ -659,7 +671,7 @@ export default function InvoiceDetailPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Asunto</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('invoices.sendModal.subject')}</label>
                   <input
                     type="text"
                     value={sendSubject}
@@ -668,7 +680,7 @@ export default function InvoiceDetailPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Mensaje</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('invoices.sendModal.message')}</label>
                   <textarea
                     value={sendMessage}
                     onChange={(e) => setSendMessage(e.target.value)}
@@ -680,7 +692,7 @@ export default function InvoiceDetailPage() {
 
               <div className="p-6 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
                 <Button variant="outline" onClick={() => setShowSendModal(false)}>
-                  Cancelar
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   onClick={handleSend}
@@ -688,7 +700,7 @@ export default function InvoiceDetailPage() {
                   className="bg-blue-600 hover:bg-blue-700"
                 >
                   <Send className="w-4 h-4 mr-2" />
-                  {actionLoading === 'send' ? 'Enviando...' : 'Enviar'}
+                  {actionLoading === 'send' ? t('invoices.sendModal.sending') : t('invoices.actions.send')}
                 </Button>
               </div>
             </motion.div>
@@ -709,7 +721,7 @@ export default function InvoiceDetailPage() {
               className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-4"
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
-              Volver a facturas
+              {t('invoices.detail.backToInvoices')}
             </Link>
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -730,7 +742,7 @@ export default function InvoiceDetailPage() {
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => setShowPreview(true)}>
                   <Eye className="w-4 h-4 mr-1" />
-                  Vista previa
+                  {t('invoices.actions.preview')}
                 </Button>
                 {!isDraft && (
                   <Button variant="outline" size="sm" onClick={handleDownloadPDF} disabled={actionLoading === 'pdf'}>
@@ -746,13 +758,13 @@ export default function InvoiceDetailPage() {
                     className="bg-violet-600 hover:bg-violet-700"
                   >
                     <FileText className="w-4 h-4 mr-1" />
-                    Emitir
+                    {t('invoices.actions.issueShort')}
                   </Button>
                 )}
                 {canSend && (
                   <Button size="sm" onClick={openSendModal} className="bg-blue-600 hover:bg-blue-700">
                     <Send className="w-4 h-4 mr-1" />
-                    Enviar
+                    {t('invoices.actions.send')}
                   </Button>
                 )}
                 {canMarkPaid && (
@@ -763,7 +775,7 @@ export default function InvoiceDetailPage() {
                     className="bg-green-600 hover:bg-green-700"
                   >
                     <CheckCircle className="w-4 h-4 mr-1" />
-                    Cobrada
+                    {t('invoices.actions.collected')}
                   </Button>
                 )}
               </div>
@@ -791,12 +803,76 @@ export default function InvoiceDetailPage() {
               <Card className="border-orange-200 bg-orange-50">
                 <CardContent className="p-4">
                   <p className="text-sm text-orange-800">
-                    <strong>Factura rectificativa</strong> de{' '}
+                    <strong>{t('invoices.detail.rectifyingInvoice')}</strong> {t('common.of')}{' '}
                     <Link href={`/gestion/facturas/${invoice.rectifies.id}`} className="underline">
                       {invoice.rectifies.fullNumber}
                     </Link>
                     {invoice.rectifyingReason && <> — {invoice.rectifyingReason}</>}
                   </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {/* VeriFactu Status */}
+          {invoice.verifactuHash && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+              <Card className="border-emerald-200 bg-emerald-50">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+                        <Lock className="w-4 h-4 text-emerald-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-emerald-900">VERI*FACTU</p>
+                        <p className="text-xs text-emerald-700">
+                          {invoice.invoiceType && `Tipo ${invoice.invoiceType} · `}
+                          Hash: {invoice.verifactuHash.substring(0, 16)}...
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {invoice.verifactuStatus !== 'ACCEPTED' && (
+                        <button
+                          onClick={async () => {
+                            setPollingVerifactu(true)
+                            try {
+                              const res = await fetch(`/api/gestion/invoices/${invoice.id}/verifactu-status`, {
+                                credentials: 'include',
+                              })
+                              if (res.ok) {
+                                const data = await res.json()
+                                setInvoice(prev => prev ? { ...prev, verifactuStatus: data.verifactuStatus } : prev)
+                              }
+                            } catch {
+                              // Silently fail
+                            } finally {
+                              setPollingVerifactu(false)
+                            }
+                          }}
+                          disabled={pollingVerifactu}
+                          className="text-xs text-emerald-700 hover:text-emerald-900 flex items-center gap-1 disabled:opacity-50"
+                        >
+                          <RefreshCw className={`w-3 h-3 ${pollingVerifactu ? 'animate-spin' : ''}`} />
+                          {pollingVerifactu ? 'Consultando...' : 'Consultar estado'}
+                        </button>
+                      )}
+                      <Badge className={
+                        invoice.verifactuStatus === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
+                        invoice.verifactuStatus === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                        invoice.verifactuStatus === 'SUBMITTED' ? 'bg-blue-100 text-blue-700' :
+                        invoice.verifactuStatus === 'ERROR' ? 'bg-red-100 text-red-700' :
+                        'bg-amber-100 text-amber-700'
+                      }>
+                        {invoice.verifactuStatus === 'ACCEPTED' ? 'Aceptada AEAT' :
+                         invoice.verifactuStatus === 'REJECTED' ? 'Rechazada' :
+                         invoice.verifactuStatus === 'SUBMITTED' ? 'Enviada' :
+                         invoice.verifactuStatus === 'ERROR' ? 'Error' :
+                         'Pendiente envío'}
+                      </Badge>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
@@ -825,12 +901,12 @@ export default function InvoiceDetailPage() {
 
                     <div className="flex items-center gap-6 text-sm">
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-500">Fecha:</span>
+                        <span className="text-gray-500">{t('common.date')}:</span>
                         <span className="font-medium">{formatDate(invoice.issueDate)}</span>
                       </div>
                       {invoice.dueDate && (
                         <div className="flex items-center gap-2">
-                          <span className="text-gray-500">Vencimiento:</span>
+                          <span className="text-gray-500">{t('common.dueDate')}:</span>
                           <span className="font-medium">{formatDate(invoice.dueDate)}</span>
                         </div>
                       )}
@@ -843,7 +919,7 @@ export default function InvoiceDetailPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Issuer */}
                     <div>
-                      <span className="text-xs uppercase tracking-wider text-gray-500">Emisor</span>
+                      <span className="text-xs uppercase tracking-wider text-gray-500">{t('invoices.detail.issuer')}</span>
                       <div className="mt-2 text-sm">
                         <p className="font-semibold text-gray-900">{managerConfig?.businessName}</p>
                         {managerConfig?.nif && <p className="text-gray-600">NIF: {managerConfig.nif}</p>}
@@ -856,7 +932,7 @@ export default function InvoiceDetailPage() {
 
                     {/* Invoice Number */}
                     <div className="text-right">
-                      <span className="text-xs uppercase tracking-wider text-gray-500">Factura Nº</span>
+                      <span className="text-xs uppercase tracking-wider text-gray-500">{t('invoices.detail.invoiceNumber')}</span>
                       {isDraft ? (
                         <div className="mt-1">
                           <input
@@ -864,14 +940,14 @@ export default function InvoiceDetailPage() {
                             value={invoice.fullNumber || ''}
                             onChange={(e) => setInvoice({ ...invoice, fullNumber: e.target.value || undefined })}
                             onBlur={(e) => saveInvoiceNumber(e.target.value)}
-                            placeholder="Ej: F260001"
+                            placeholder={t('invoices.detail.numberPlaceholder')}
                             className="text-xl font-bold text-gray-900 text-right border-b border-gray-300 focus:border-violet-500 outline-none w-32 bg-transparent"
                           />
-                          <p className="text-xs text-gray-500 mt-1">Vacío = automático</p>
+                          <p className="text-xs text-gray-500 mt-1">{t('invoices.detail.autoNumber')}</p>
                         </div>
                       ) : (
                         <p className="text-2xl font-bold text-gray-900 mt-1">
-                          {invoice.fullNumber || <span className="text-gray-400">Pendiente de asignar</span>}
+                          {invoice.fullNumber || <span className="text-gray-400">{t('invoices.detail.pendingAssignment')}</span>}
                         </p>
                       )}
                     </div>
@@ -879,7 +955,7 @@ export default function InvoiceDetailPage() {
 
                   {/* Recipient */}
                   <div className="mt-6 pt-6 border-t border-gray-100">
-                    <span className="text-xs uppercase tracking-wider text-gray-500">Cliente</span>
+                    <span className="text-xs uppercase tracking-wider text-gray-500">{t('invoices.detail.client')}</span>
                     <div className="mt-2 text-sm">
                       <p className="font-semibold text-gray-900">{getOwnerName(invoice.owner)}</p>
                       {getOwnerNif(invoice.owner) && (
@@ -901,12 +977,12 @@ export default function InvoiceDetailPage() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="text-xs uppercase tracking-wider text-gray-500 border-b border-gray-200">
-                          <th className="text-left py-3 font-medium">Concepto</th>
-                          <th className="text-right py-3 font-medium w-24">Precio</th>
-                          <th className="text-center py-3 font-medium w-16">Uds.</th>
-                          <th className="text-center py-3 font-medium w-16">IVA</th>
-                          <th className="text-center py-3 font-medium w-16">Ret.</th>
-                          <th className="text-right py-3 font-medium w-24">Total</th>
+                          <th className="text-left py-3 font-medium">{t('invoices.table.concept')}</th>
+                          <th className="text-right py-3 font-medium w-24">{t('invoices.table.price')}</th>
+                          <th className="text-center py-3 font-medium w-16">{t('invoices.table.quantityFull')}</th>
+                          <th className="text-center py-3 font-medium w-16">{t('invoices.table.vat')}</th>
+                          <th className="text-center py-3 font-medium w-16">{t('invoices.table.retention')}</th>
+                          <th className="text-right py-3 font-medium w-24">{t('invoices.table.total')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -941,21 +1017,21 @@ export default function InvoiceDetailPage() {
                     <div className="flex justify-end">
                       <div className="w-64 space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Base imponible</span>
+                          <span className="text-gray-600">{t('invoices.table.subtotal')}</span>
                           <span>{formatCurrency(totals.subtotal)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">IVA</span>
+                          <span className="text-gray-600">{t('invoices.table.totalVat')}</span>
                           <span>{formatCurrency(totals.totalVat)}</span>
                         </div>
                         {totals.totalRetention > 0 && (
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">Retención</span>
+                            <span className="text-gray-600">{t('invoices.table.totalRetention')}</span>
                             <span className="text-red-600">-{formatCurrency(totals.totalRetention)}</span>
                           </div>
                         )}
                         <div className="flex justify-between text-lg pt-2 border-t border-gray-300">
-                          <span className="font-semibold">Total</span>
+                          <span className="font-semibold">{t('invoices.table.total')}</span>
                           <span className="font-bold text-violet-600">{formatCurrency(totals.total)}</span>
                         </div>
                       </div>
@@ -966,13 +1042,13 @@ export default function InvoiceDetailPage() {
                 {/* Payment Methods */}
                 {hasPaymentMethods && !isDraft && (
                   <div className="p-6 bg-gray-50 border-t border-gray-200">
-                    <h4 className="text-sm font-medium text-gray-700 mb-3">Formas de pago</h4>
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">{t('invoices.detail.paymentMethods')}</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {paymentMethods.includes('TRANSFERENCIA') && managerConfig?.iban && (
                         <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-200">
                           <Building2 className="w-5 h-5 text-gray-400 mt-0.5" />
                           <div>
-                            <p className="text-sm font-medium text-gray-900">Transferencia bancaria</p>
+                            <p className="text-sm font-medium text-gray-900">{t('invoices.detail.bankTransfer')}</p>
                             <p className="text-xs text-gray-500 font-mono mt-1">
                               {managerConfig.iban.replace(/(.{4})/g, '$1 ').trim()}
                             </p>
@@ -986,7 +1062,7 @@ export default function InvoiceDetailPage() {
                         <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-200">
                           <Smartphone className="w-5 h-5 text-gray-400 mt-0.5" />
                           <div>
-                            <p className="text-sm font-medium text-gray-900">Bizum</p>
+                            <p className="text-sm font-medium text-gray-900">{t('invoices.detail.bizum')}</p>
                             <p className="text-xs text-gray-500 mt-1">{managerConfig.bizumPhone}</p>
                           </div>
                         </div>
@@ -995,7 +1071,7 @@ export default function InvoiceDetailPage() {
                         <div className="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-200">
                           <Banknote className="w-5 h-5 text-gray-400 mt-0.5" />
                           <div>
-                            <p className="text-sm font-medium text-gray-900">Efectivo</p>
+                            <p className="text-sm font-medium text-gray-900">{t('invoices.detail.cash')}</p>
                           </div>
                         </div>
                       )}
@@ -1006,7 +1082,7 @@ export default function InvoiceDetailPage() {
                 {/* Notes */}
                 {invoice.notes && (
                   <div className="p-6 border-t border-gray-200">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Notas</h4>
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">{t('invoices.detail.notes')}</h4>
                     <p className="text-sm text-gray-600 whitespace-pre-wrap">{invoice.notes}</p>
                   </div>
                 )}
@@ -1025,8 +1101,8 @@ export default function InvoiceDetailPage() {
               <Card className="border-red-200">
                 <CardContent className="p-4 flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Zona peligrosa</p>
-                    <p className="text-xs text-gray-500">Eliminar este borrador permanentemente</p>
+                    <p className="text-sm font-medium text-gray-900">{t('invoices.detail.dangerZone')}</p>
+                    <p className="text-xs text-gray-500">{t('invoices.detail.deletePermanently')}</p>
                   </div>
                   <Button
                     variant="outline"
@@ -1034,7 +1110,7 @@ export default function InvoiceDetailPage() {
                     className="text-red-600 border-red-300 hover:bg-red-50"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Eliminar
+                    {t('common.delete')}
                   </Button>
                 </CardContent>
               </Card>
@@ -1052,12 +1128,12 @@ export default function InvoiceDetailPage() {
               <Card>
                 <CardContent className="p-4 flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Factura rectificativa</p>
-                    <p className="text-xs text-gray-500">Crear una factura que rectifique esta</p>
+                    <p className="text-sm font-medium text-gray-900">{t('invoices.detail.rectifyingInvoice')}</p>
+                    <p className="text-xs text-gray-500">{t('invoices.detail.createRectifyingDescription')}</p>
                   </div>
                   <Button variant="outline" onClick={() => setShowRectify(true)}>
                     <RefreshCw className="w-4 h-4 mr-2" />
-                    Crear rectificativa
+                    {t('invoices.actions.createRectifying')}
                   </Button>
                 </CardContent>
               </Card>
@@ -1086,11 +1162,11 @@ export default function InvoiceDetailPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 className="font-semibold text-gray-900">Vista previa de factura</h3>
+                <h3 className="font-semibold text-gray-900">{t('invoices.previewModal.title')}</h3>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={handleDownloadPDF} disabled={actionLoading === 'pdf'}>
                     <Download className="w-4 h-4 mr-1" />
-                    Descargar PDF
+                    {t('invoices.actions.downloadPdf')}
                   </Button>
                   <button onClick={() => setShowPreview(false)} className="p-2 text-gray-500 hover:text-gray-700">
                     <X className="w-5 h-5" />
@@ -1117,12 +1193,12 @@ export default function InvoiceDetailPage() {
 
                   <div className="grid grid-cols-2 gap-8 mb-8">
                     <div>
-                      <h4 className="text-xs uppercase text-gray-500 mb-2">De</h4>
+                      <h4 className="text-xs uppercase text-gray-500 mb-2">{t('invoices.previewModal.from')}</h4>
                       <p className="font-semibold">{managerConfig?.businessName}</p>
                       <p className="text-sm text-gray-600">NIF: {managerConfig?.nif}</p>
                     </div>
                     <div>
-                      <h4 className="text-xs uppercase text-gray-500 mb-2">Para</h4>
+                      <h4 className="text-xs uppercase text-gray-500 mb-2">{t('invoices.previewModal.to')}</h4>
                       <p className="font-semibold">{getOwnerName(invoice.owner)}</p>
                       <p className="text-sm text-gray-600">{invoice.owner.type === 'EMPRESA' ? 'CIF' : 'NIF'}: {getOwnerNif(invoice.owner)}</p>
                     </div>
@@ -1181,8 +1257,8 @@ export default function InvoiceDetailPage() {
                     <RefreshCw className="w-5 h-5 text-orange-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Crear Factura Rectificativa</h3>
-                    <p className="text-sm text-gray-500">De la factura {invoice.fullNumber}</p>
+                    <h3 className="font-semibold text-gray-900">{t('invoices.rectifyModal.title')}</h3>
+                    <p className="text-sm text-gray-500">{t('invoices.rectifyModal.subtitle', { number: invoice.fullNumber })}</p>
                   </div>
                 </div>
                 <button onClick={() => setShowRectify(false)} className="text-gray-400 hover:text-gray-600">
@@ -1193,7 +1269,7 @@ export default function InvoiceDetailPage() {
               <div className="p-6 space-y-6">
                 {/* Type selection */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de rectificativa</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('invoices.rectifyModal.type')}</label>
                   <div className="grid grid-cols-2 gap-4">
                     <button
                       type="button"
@@ -1202,8 +1278,8 @@ export default function InvoiceDetailPage() {
                         rectifyType === 'SUBSTITUTION' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
-                      <p className="font-medium text-gray-900">Por sustitución</p>
-                      <p className="text-xs text-gray-500 mt-1">Reemplaza completamente la factura original</p>
+                      <p className="font-medium text-gray-900">{t('invoices.rectifyModal.substitution')}</p>
+                      <p className="text-xs text-gray-500 mt-1">{t('invoices.rectifyModal.substitutionDesc')}</p>
                     </button>
                     <button
                       type="button"
@@ -1212,28 +1288,28 @@ export default function InvoiceDetailPage() {
                         rectifyType === 'DIFFERENCE' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
-                      <p className="font-medium text-gray-900">Por diferencias</p>
-                      <p className="text-xs text-gray-500 mt-1">Solo refleja la diferencia de importes</p>
+                      <p className="font-medium text-gray-900">{t('invoices.rectifyModal.difference')}</p>
+                      <p className="text-xs text-gray-500 mt-1">{t('invoices.rectifyModal.differenceDesc')}</p>
                     </button>
                   </div>
                 </div>
 
                 {/* Reason */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Motivo de rectificación *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('invoices.rectifyModal.reason')}</label>
                   <textarea
                     value={rectifyReason}
                     onChange={(e) => setRectifyReason(e.target.value)}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                     rows={2}
-                    placeholder="Ej: Error en el importe de la comisión"
+                    placeholder={t('invoices.rectifyModal.reasonPlaceholder')}
                   />
                 </div>
 
                 {/* Items */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {rectifyType === 'SUBSTITUTION' ? 'Nuevas líneas' : 'Líneas de diferencia'}
+                    {rectifyType === 'SUBSTITUTION' ? t('invoices.rectifyModal.newLines') : t('invoices.rectifyModal.differenceLines')}
                   </label>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
                     {rectifyItems.map((item, index) => (
@@ -1248,7 +1324,7 @@ export default function InvoiceDetailPage() {
                               setRectifyItems(updated)
                             }}
                             className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                            placeholder="Concepto"
+                            placeholder={t('invoices.table.concept')}
                           />
                         </div>
                         <div className="col-span-2">
@@ -1290,7 +1366,7 @@ export default function InvoiceDetailPage() {
                               setRectifyItems(updated)
                             }}
                             className="w-full border border-gray-300 rounded px-2 py-1 text-sm text-center"
-                            placeholder="Ret."
+                            placeholder={t('invoices.rectifyModal.retentionPlaceholder')}
                           />
                         </div>
                         <div className="col-span-1">
@@ -1317,21 +1393,21 @@ export default function InvoiceDetailPage() {
                     onClick={() => setRectifyItems([...rectifyItems, { concept: '', quantity: 1, unitPrice: 0, vatRate: 21, retentionRate: 0, total: 0 }])}
                   >
                     <Plus className="w-4 h-4 mr-1" />
-                    Añadir línea
+                    {t('invoices.rectifyModal.addLine')}
                   </Button>
                 </div>
               </div>
 
               <div className="p-6 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
                 <Button variant="outline" onClick={() => setShowRectify(false)}>
-                  Cancelar
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   onClick={handleCreateRectify}
                   disabled={actionLoading === 'rectify' || !rectifyReason.trim()}
                   className="bg-orange-600 hover:bg-orange-700"
                 >
-                  {actionLoading === 'rectify' ? 'Creando...' : 'Crear Rectificativa'}
+                  {actionLoading === 'rectify' ? t('invoices.rectifyModal.creating') : t('invoices.actions.createRectifying')}
                 </Button>
               </div>
             </motion.div>
