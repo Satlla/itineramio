@@ -50,7 +50,9 @@ export async function POST(
       )
     }
 
-    const result = await generateRecommendations(id, lat, lng, categories)
+    // Use city from request body or fall back to property's stored city
+    const city = body.city || property.city || ''
+    const result = await generateRecommendations(id, lat, lng, categories, city)
 
     return NextResponse.json({
       success: true,

@@ -3,9 +3,18 @@
  * Fetches nearby POIs, directions, and place details for auto-generated manuals.
  */
 
+import { prisma } from '../prisma'
+
 // Server-side key (no referer restriction) for Places/Directions API calls.
 // Falls back to the public key for backward compatibility.
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_SERVER_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''
+
+/** Round lat/lng to 2 decimals (~1km grid) for cache key */
+function toTileKey(lat: number, lng: number): string {
+  return `${lat.toFixed(2)},${lng.toFixed(2)}`
+}
+
+const CACHE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
 
 export interface NearbyPlace {
   name: string
@@ -140,6 +149,50 @@ export async function getDirections(
 }
 
 /**
+ * Get directions with caching. Properties in the same ~1km area share cached results.
+ */
+async function getCachedDirections(
+  origin: string,
+  destLat: number,
+  destLng: number,
+  mode: 'transit' | 'driving' = 'driving'
+): Promise<DirectionsResult | null> {
+  const destTileKey = toTileKey(destLat, destLng)
+
+  try {
+    // Check cache
+    const cached = await prisma.directionsCache.findUnique({
+      where: { originQuery_destTileKey_mode: { originQuery: origin, destTileKey, mode } },
+    })
+
+    if (cached && Date.now() - cached.lastFetchedAt.getTime() < CACHE_MAX_AGE_MS) {
+      console.log(`[places] Cache hit for directions: ${origin} → ${destTileKey} (${mode})`)
+      const r = cached.result as any
+      // Empty object = null was cached (no route found)
+      return r && r.duration ? (r as DirectionsResult) : null
+    }
+  } catch {
+    // Cache read failed — continue to fresh fetch
+  }
+
+  // Fresh fetch
+  const result = await getDirections(origin, destLat, destLng, mode)
+
+  // Save to cache
+  try {
+    await prisma.directionsCache.upsert({
+      where: { originQuery_destTileKey_mode: { originQuery: origin, destTileKey, mode } },
+      create: { originQuery: origin, destTileKey, mode, result: result as any ?? {}, lastFetchedAt: new Date() },
+      update: { result: result as any ?? {}, lastFetchedAt: new Date() },
+    })
+  } catch (err) {
+    console.warn('[places] Failed to cache directions:', err)
+  }
+
+  return result
+}
+
+/**
  * Calculate distance between two points (haversine formula).
  */
 export function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): string {
@@ -160,31 +213,17 @@ export function calculateDistance(lat1: number, lng1: number, lat2: number, lng2
 
 function emptyLocationData() {
   return {
-    supermarkets: [] as any[],
-    restaurants: [] as any[],
-    cafes: [] as any[],
-    pharmacies: [] as any[],
-    attractions: [] as any[],
-    parks: [] as any[],
-    beaches: [] as any[],
-    transitStations: [] as any[],
-    parking: [] as any[],
-    hospitals: [] as any[],
-    atms: [] as any[],
-    gasStations: [] as any[],
-    gyms: [] as any[],
-    laundry: [] as any[],
-    shoppingMalls: [] as any[],
     directions: { fromAirport: null, fromTrainStation: null, fromBusStation: null, drivingFromAirport: null, drivingFromTrainStation: null, drivingFromBusStation: null },
   }
 }
 
 /**
- * Fetch all location-based data for a property address.
- * Returns categorized nearby places for zone generation.
+ * Fetch directions data for a property.
+ * Nearby places (parking, supermarkets, restaurants, etc.) are handled
+ * by the Recommendations system — this only fetches transport directions.
  */
 export async function fetchAllLocationData(lat: number, lng: number, city: string) {
-  console.log('[places] Fetching location data for:', { lat, lng, city })
+  console.log('[places] Fetching directions for:', { lat, lng, city })
 
   if (!GOOGLE_MAPS_API_KEY) {
     console.error('[places] GOOGLE_MAPS_API_KEY is empty — skipping location data')
@@ -196,99 +235,20 @@ export async function fetchAllLocationData(lat: number, lng: number, city: strin
     return emptyLocationData()
   }
 
-  const [
-    supermarkets,
-    restaurants,
-    cafes,
-    pharmacies,
-    attractions,
-    parks,
-    beaches,
-    transitStations,
-    parking,
-    hospitals,
-    atms,
-    gasStations,
-    gyms,
-    laundry,
-    shoppingMalls,
-  ] = await Promise.all([
-    searchNearbyPlaces(lat, lng, 'supermarket', 1500, 5),
-    searchNearbyPlaces(lat, lng, 'restaurant', 1000, 5),
-    searchNearbyPlaces(lat, lng, 'cafe', 1000, 5),
-    searchNearbyPlaces(lat, lng, 'pharmacy', 2000, 3),
-    searchNearbyPlaces(lat, lng, 'tourist_attraction', 5000, 8),
-    searchNearbyPlaces(lat, lng, 'park', 3000, 5),
-    searchNearbyPlaces(lat, lng, 'natural_feature', 10000, 5),
-    searchNearbyPlaces(lat, lng, 'transit_station', 1500, 3),
-    searchNearbyPlaces(lat, lng, 'parking', 1000, 3),
-    searchNearbyPlaces(lat, lng, 'hospital', 5000, 3),
-    searchNearbyPlaces(lat, lng, 'atm', 1500, 3),
-    searchNearbyPlaces(lat, lng, 'gas_station', 3000, 3),
-    searchNearbyPlaces(lat, lng, 'gym', 2000, 3),
-    searchNearbyPlaces(lat, lng, 'laundry', 2000, 3),
-    searchNearbyPlaces(lat, lng, 'shopping_mall', 5000, 3),
-  ])
-
-  console.log('[places] Results:', {
-    supermarkets: supermarkets.length,
-    restaurants: restaurants.length,
-    cafes: cafes.length,
-    pharmacies: pharmacies.length,
-    attractions: attractions.length,
-    parks: parks.length,
-    beaches: beaches.length,
-    transitStations: transitStations.length,
-    parking: parking.length,
-    hospitals: hospitals.length,
-    atms: atms.length,
-    gasStations: gasStations.length,
-    gyms: gyms.length,
-    laundry: laundry.length,
-    shoppingMalls: shoppingMalls.length,
-  })
-
-  // Add distance to each place
-  const addDistance = (places: NearbyPlace[]) =>
-    places.map(p => ({
-      ...p,
-      distance: calculateDistance(lat, lng, p.lat, p.lng),
-    }))
-
-  // Fetch directions from main transport hubs
+  // Only fetch directions from main transport hubs
+  // All nearby places (parking, supermarkets, etc.) are handled by the Recommendations system
   const airportQuery = `aeropuerto ${city}`
   const trainQuery = `estación de tren ${city}`
   const busQuery = `estación de autobuses ${city}`
 
-  const [airportTransit, trainTransit, busTransit, airportDriving, trainDriving, busDriving] = await Promise.all([
-    getDirections(airportQuery, lat, lng, 'transit').catch(() => null),
-    getDirections(trainQuery, lat, lng, 'transit').catch(() => null),
-    getDirections(busQuery, lat, lng, 'transit').catch(() => null),
-    getDirections(airportQuery, lat, lng, 'driving').catch(() => null),
-    getDirections(trainQuery, lat, lng, 'driving').catch(() => null),
-    getDirections(busQuery, lat, lng, 'driving').catch(() => null),
+  const [airportDriving, trainDriving, busDriving] = await Promise.all([
+    getCachedDirections(airportQuery, lat, lng, 'driving').catch(() => null),
+    getCachedDirections(trainQuery, lat, lng, 'driving').catch(() => null),
+    getCachedDirections(busQuery, lat, lng, 'driving').catch(() => null),
   ])
 
   return {
-    supermarkets: addDistance(supermarkets),
-    restaurants: addDistance(restaurants),
-    cafes: addDistance(cafes),
-    pharmacies: addDistance(pharmacies),
-    attractions: addDistance(attractions),
-    parks: addDistance(parks),
-    beaches: addDistance(beaches),
-    transitStations: addDistance(transitStations),
-    parking: addDistance(parking),
-    hospitals: addDistance(hospitals),
-    atms: addDistance(atms),
-    gasStations: addDistance(gasStations),
-    gyms: addDistance(gyms),
-    laundry: addDistance(laundry),
-    shoppingMalls: addDistance(shoppingMalls),
     directions: {
-      fromAirport: airportTransit,
-      fromTrainStation: trainTransit,
-      fromBusStation: busTransit,
       drivingFromAirport: airportDriving,
       drivingFromTrainStation: trainDriving,
       drivingFromBusStation: busDriving,

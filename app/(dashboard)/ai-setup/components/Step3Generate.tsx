@@ -13,8 +13,10 @@ import {
   AlertCircle,
   ArrowRight,
   Loader2,
+  Crown,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 
 interface ZoneEvent {
   name: string
@@ -70,11 +72,13 @@ const iconMap: Record<string, string> = {
 
 export default function Step3Generate({ propertyData, mediaAnalysis, onComplete }: Step3GenerateProps) {
   const router = useRouter()
-  const [status, setStatus] = useState('Preparando...')
+  const { t } = useTranslation('ai-setup')
+  const [status, setStatus] = useState(() => t('step5.preparing'))
   const [zones, setZones] = useState<ZoneEvent[]>([])
   const [translations, setTranslations] = useState<Record<string, number>>({})
   const [stats, setStats] = useState<GenerationStats | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [upgradeRequired, setUpgradeRequired] = useState(false)
   const [propertyId, setPropertyId] = useState<string | null>(null)
   const [elapsed, setElapsed] = useState(0)
   const [retryCount, setRetryCount] = useState(0)
@@ -105,18 +109,19 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
     const TIMEOUT_MS = 5 * 60 * 1000 // 5 minutes max
 
     // Reset state on retry
-    setStatus('Preparando...')
+    setStatus(t('step5.preparing'))
     setZones([])
     setTranslations({})
     setStats(null)
     setError(null)
+    setUpgradeRequired(false)
     setPropertyId(null)
     setElapsed(0)
     startTimeRef.current = Date.now()
 
     const timeoutId = setTimeout(() => {
       controller.abort()
-      setError('La generación ha tardado demasiado. Por favor, inténtalo de nuevo.')
+      setError(t('step5.timeoutError'))
     }, TIMEOUT_MS)
 
     const generate = async () => {
@@ -140,6 +145,11 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}))
+          if (response.status === 403 && errorData.upgradeRequired) {
+            setUpgradeRequired(true)
+            setError(errorData.error || t('step5.upgrade.title'))
+            return
+          }
           throw new Error(errorData.error || `Error ${response.status}`)
         }
 
@@ -198,7 +208,7 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
       } catch (err) {
         if ((err as Error).name === 'AbortError') return // Timeout already handled
         console.error('[Step3] Generation error:', err)
-        setError(err instanceof Error ? err.message : 'Error desconocido')
+        setError(err instanceof Error ? err.message : t('step5.unknownError'))
       } finally {
         clearTimeout(timeoutId)
       }
@@ -247,14 +257,14 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-white">
             {isComplete
-              ? 'Tu manual está listo'
+              ? t('step5.complete')
               : error
-              ? 'Ha ocurrido un error'
-              : 'Creando tu manual...'}
+              ? t('step5.error')
+              : t('step5.creating')}
           </h2>
           <p className="text-gray-400 mt-2 text-sm sm:text-base">
             {isComplete
-              ? `${stats.zones} zonas, ${stats.steps} pasos, ${stats.languages} idiomas en ${stats.time}s`
+              ? t('step5.statsFormat', { zones: stats.zones, steps: stats.steps, languages: stats.languages, time: stats.time })
               : error
               ? error
               : status}
@@ -277,7 +287,7 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
         {/* Zones */}
         <div className="flex items-center gap-2 text-gray-400">
           <Layers className="w-4 h-4" />
-          <span>{zones.length} zonas</span>
+          <span>{zones.length} {t('step5.zones')}</span>
         </div>
 
         <div className="w-px h-4 bg-gray-700 hidden sm:block" />
@@ -285,7 +295,7 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
         {/* Steps */}
         <div className="flex items-center gap-2 text-gray-400">
           <ListChecks className="w-4 h-4" />
-          <span>{totalSteps} pasos</span>
+          <span>{totalSteps} {t('step5.steps')}</span>
         </div>
 
         <div className="w-px h-4 bg-gray-700 hidden sm:block" />
@@ -339,7 +349,7 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
             className="flex items-center justify-center py-4 gap-3"
           >
             <Loader2 className="w-5 h-5 text-violet-400 animate-spin" />
-            <span className="text-sm text-gray-500">Generando siguiente zona...</span>
+            <span className="text-sm text-gray-500">{t('step5.generatingNext')}</span>
           </motion.div>
         )}
       </div>
@@ -359,7 +369,7 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
                 onClick={() => router.push(`/properties/${propertyId}/zones`)}
                 className="w-full h-14 rounded-xl text-lg font-semibold bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25 transition-all duration-300 flex items-center justify-center gap-2"
               >
-                Ver mi manual
+                {t('step5.viewManual')}
                 <ArrowRight className="w-5 h-5" />
               </button>
             ) : (
@@ -368,7 +378,7 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
                 onClick={() => router.push('/properties')}
                 className="w-full h-14 rounded-xl text-lg font-semibold bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25 transition-all duration-300 flex items-center justify-center gap-2"
               >
-                Ir a mis propiedades
+                {t('step5.goToProperties')}
                 <ArrowRight className="w-5 h-5" />
               </button>
             )}
@@ -376,27 +386,46 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
         )}
       </AnimatePresence>
 
-      {/* Error retry */}
+      {/* Error retry / Upgrade prompt */}
       {error && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="pt-4 flex gap-4"
+          className="pt-4 space-y-4"
         >
-          <button
-            type="button"
-            onClick={() => setRetryCount(c => c + 1)}
-            className="flex-1 h-14 rounded-xl text-lg font-semibold border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
-          >
-            Reintentar
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push('/properties')}
-            className="flex-1 h-14 rounded-xl text-lg font-semibold bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
-          >
-            Volver a propiedades
-          </button>
+          {upgradeRequired && (
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-5 text-center space-y-3">
+              <Crown className="w-8 h-8 text-amber-400 mx-auto" />
+              <p className="text-amber-200 font-medium">{t('step5.upgrade.title')}</p>
+              <p className="text-sm text-gray-400">{t('step5.upgrade.subtitle')}</p>
+              <button
+                type="button"
+                onClick={() => router.push('/account/plans')}
+                className="w-full h-12 rounded-xl text-base font-semibold bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-400 hover:to-orange-400 shadow-lg shadow-amber-500/25 transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                <Crown className="w-5 h-5" />
+                {t('step5.upgrade.button')}
+              </button>
+            </div>
+          )}
+          <div className="flex gap-4">
+            {!upgradeRequired && (
+              <button
+                type="button"
+                onClick={() => setRetryCount(c => c + 1)}
+                className="flex-1 h-14 rounded-xl text-lg font-semibold border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+              >
+                {t('step5.retry')}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => router.push('/properties')}
+              className={`${upgradeRequired ? 'w-full' : 'flex-1'} h-14 rounded-xl text-lg font-semibold bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors flex items-center justify-center gap-2`}
+            >
+              {t('step5.backToProperties')}
+            </button>
+          </div>
         </motion.div>
       )}
     </motion.div>

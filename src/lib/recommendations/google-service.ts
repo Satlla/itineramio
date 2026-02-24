@@ -1,12 +1,12 @@
 /**
  * Google Places API wrapper for curated categories.
- * Supports both Nearby Search and Text Search, plus Place Details
- * for opening hours, photos, phone, and website.
+ * Supports Nearby Search, Text Search, AI-curated search, plus Place Details.
  */
 
 import { CategoryConfig, WALK_SPEED_MPM } from './categories'
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_SERVER_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || ''
 
 export interface GooglePlace {
   placeId: string
@@ -57,20 +57,27 @@ function buildPhotoUrl(photoReference: string, maxWidth: number = 400): string {
 }
 
 /**
- * Search using Google Places Nearby Search (proximity-based).
+ * Main search entry point. Routes to the appropriate search mode.
  */
 export async function searchGoogle(
   lat: number,
   lng: number,
-  category: CategoryConfig
+  category: CategoryConfig,
+  city?: string
 ): Promise<GooglePlace[]> {
   if (!GOOGLE_MAPS_API_KEY) return []
 
-  // Use Text Search or Nearby Search based on category config
+  // AI-curated: Claude picks the best places, then Google Find Place fetches data
+  if (category.searchMode === 'ai_curated' && category.aiPrompt && city) {
+    return searchAICurated(lat, lng, category, city)
+  }
+
+  // Text Search: curated query
   if (category.searchMode === 'text' && category.textQuery) {
     return searchGoogleText(category.textQuery, lat, lng, category)
   }
 
+  // Nearby Search: proximity-based
   if (!category.googleType) return []
 
   const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${category.radius}&type=${category.googleType}&key=${GOOGLE_MAPS_API_KEY}&language=es`
@@ -96,8 +103,131 @@ export async function searchGoogle(
 }
 
 /**
- * Search using Google Places Text Search (query-based, better curation).
- * Used for beaches, attractions, restaurants where quality > proximity.
+ * AI-curated search: Claude Haiku generates the best places for a category,
+ * then Google Find Place fetches real data (place_id, photos, location) for each.
+ */
+async function searchAICurated(
+  lat: number,
+  lng: number,
+  category: CategoryConfig,
+  city: string
+): Promise<GooglePlace[]> {
+  if (!ANTHROPIC_API_KEY) {
+    console.log(`[google] No ANTHROPIC_API_KEY — falling back to text search for ${category.id}`)
+    return searchGoogleText(category.label, lat, lng, category)
+  }
+
+  const prompt = (category.aiPrompt || '').replace(/\{city\}/g, city)
+
+  console.log(`[google] AI-curated search for ${category.id} in ${city}`)
+
+  try {
+    // Step 1: Ask Claude for the best places
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `${prompt}\n\nResponde SOLO con un JSON array de nombres exactos de los lugares. Ejemplo: ["Nombre 1", "Nombre 2", "Nombre 3"]\nUsa los nombres oficiales/completos como aparecen en Google Maps.`,
+        }],
+      }),
+    })
+
+    if (!response.ok) {
+      console.error(`[google] Claude API failed for ${category.id}:`, response.status)
+      return searchGoogleText(category.label, lat, lng, category)
+    }
+
+    const data = await response.json()
+    const text = data.content?.[0]?.text || ''
+
+    // Extract JSON array from response
+    const jsonMatch = text.match(/\[[\s\S]*\]/)
+    if (!jsonMatch) {
+      console.error(`[google] Could not parse Claude response for ${category.id}:`, text)
+      return searchGoogleText(category.label, lat, lng, category)
+    }
+
+    const placeNames: string[] = JSON.parse(jsonMatch[0])
+    console.log(`[google] Claude suggested ${placeNames.length} places for ${category.id}:`, placeNames)
+
+    // Step 2: For each name, use Google Find Place to get real data
+    const places: GooglePlace[] = []
+    for (const name of placeNames.slice(0, category.maxResults)) {
+      try {
+        const place = await findPlaceByName(name, city, lat, lng)
+        if (place) {
+          places.push(place)
+        }
+      } catch (err) {
+        console.error(`[google] Find place failed for "${name}":`, err)
+      }
+    }
+
+    // Sort by distance
+    places.sort((a, b) => a.distanceMeters - b.distanceMeters)
+
+    console.log(`[google] AI-curated found ${places.length}/${placeNames.length} places for ${category.id}`)
+    return places
+  } catch (err) {
+    console.error(`[google] AI-curated search failed for ${category.id}:`, err)
+    return searchGoogleText(category.label, lat, lng, category)
+  }
+}
+
+/**
+ * Find a specific place by name using Google Find Place from Text.
+ * Returns full GooglePlace data with distance from origin.
+ */
+async function findPlaceByName(
+  name: string,
+  city: string,
+  originLat: number,
+  originLng: number
+): Promise<GooglePlace | null> {
+  const query = `${name} ${city}`
+  const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(query)}&inputtype=textquery&locationbias=circle:50000@${originLat},${originLng}&fields=place_id,name,formatted_address,geometry,rating,price_level,types,business_status,photos&key=${GOOGLE_MAPS_API_KEY}&language=es`
+
+  const response = await fetch(url)
+  if (!response.ok) return null
+
+  const data = await response.json()
+  const candidate = data.candidates?.[0]
+  if (!candidate) return null
+
+  const placeLat = candidate.geometry?.location?.lat
+  const placeLng = candidate.geometry?.location?.lng
+  if (!placeLat || !placeLng) return null
+
+  const distanceMeters = haversineMeters(originLat, originLng, placeLat, placeLng)
+  const photoRef = candidate.photos?.[0]?.photo_reference
+  const photoUrl = photoRef ? buildPhotoUrl(photoRef) : undefined
+
+  return {
+    placeId: candidate.place_id,
+    name: candidate.name,
+    address: candidate.formatted_address || '',
+    latitude: placeLat,
+    longitude: placeLng,
+    rating: candidate.rating,
+    priceLevel: candidate.price_level,
+    types: candidate.types || [],
+    businessStatus: candidate.business_status,
+    photoUrl,
+    distanceMeters,
+    walkMinutes: Math.ceil(distanceMeters / WALK_SPEED_MPM),
+  }
+}
+
+/**
+ * Search using Google Places Text Search (query-based).
  */
 async function searchGoogleText(
   query: string,
@@ -138,12 +268,11 @@ function parseGoogleResults(
   lng: number,
   maxResults: number
 ): GooglePlace[] {
-  return results.slice(0, maxResults).map((place: any) => {
+  const parsed = results.map((place: any) => {
     const placeLat = place.geometry?.location?.lat
     const placeLng = place.geometry?.location?.lng
     const distanceMeters = haversineMeters(lat, lng, placeLat, placeLng)
 
-    // Get first photo reference if available
     const photoRef = place.photos?.[0]?.photo_reference
     const photoUrl = photoRef ? buildPhotoUrl(photoRef) : undefined
 
@@ -162,11 +291,13 @@ function parseGoogleResults(
       walkMinutes: Math.ceil(distanceMeters / WALK_SPEED_MPM),
     }
   })
+
+  parsed.sort((a, b) => a.distanceMeters - b.distanceMeters)
+  return parsed.slice(0, maxResults)
 }
 
 /**
- * Fetch detailed info for a specific place: opening hours, phone, website, photo.
- * Called for categories where details matter (supermarkets, pharmacies, restaurants).
+ * Fetch detailed info for a specific place.
  */
 export async function fetchPlaceDetails(placeId: string): Promise<GooglePlaceDetails | null> {
   if (!GOOGLE_MAPS_API_KEY || !placeId) return null

@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import {
   MapPin,
@@ -76,36 +77,38 @@ interface Step1AddressProps {
   onNext: () => void
 }
 
-const propertyTypes = [
-  { value: 'APARTMENT', label: 'Apartamento', icon: Building2 },
-  { value: 'HOUSE', label: 'Casa', icon: Home },
-  { value: 'VILLA', label: 'Villa', icon: Sparkles },
-  { value: 'ROOM', label: 'Habitación', icon: BedDouble },
-] as const
-
-const checkInMethods = [
-  { value: 'key', label: 'Llave en mano' },
-  { value: 'lockbox', label: 'Lockbox / Cajetín' },
-  { value: 'code', label: 'Código de acceso' },
-  { value: 'in-person', label: 'En persona' },
-] as const
-
-const parkingOptions = [
-  { value: 'yes', label: 'Sí, privado' },
-  { value: 'nearby', label: 'Cercano' },
-  { value: 'no', label: 'No' },
-] as const
-
-const languages = [
-  { value: 'es', label: 'Español' },
-  { value: 'en', label: 'English' },
-  { value: 'fr', label: 'Français' },
-] as const
-
 export default function Step1Address({ data, onChange, onNext }: Step1AddressProps) {
+  const { t } = useTranslation('ai-setup')
+
   const update = (partial: Partial<Step1Data>) => {
     onChange({ ...data, ...partial })
   }
+
+  const propertyTypes = [
+    { value: 'APARTMENT' as const, label: t('step1.types.apartment'), icon: Building2 },
+    { value: 'HOUSE' as const, label: t('step1.types.house'), icon: Home },
+    { value: 'VILLA' as const, label: t('step1.types.villa'), icon: Sparkles },
+    { value: 'ROOM' as const, label: t('step1.types.room'), icon: BedDouble },
+  ]
+
+  const checkInMethods = [
+    { value: 'key' as const, label: t('step1.methods.key') },
+    { value: 'lockbox' as const, label: t('step1.methods.lockbox') },
+    { value: 'code' as const, label: t('step1.methods.code') },
+    { value: 'in-person' as const, label: t('step1.methods.inPerson') },
+  ]
+
+  const parkingOptions = [
+    { value: 'yes' as const, label: t('step1.parkingYes') },
+    { value: 'nearby' as const, label: t('step1.parkingNearby') },
+    { value: 'no' as const, label: t('step1.parkingNo') },
+  ]
+
+  const languages = [
+    { value: 'es', label: 'Español' },
+    { value: 'en', label: 'English' },
+    { value: 'fr', label: 'Français' },
+  ]
 
   const isValid =
     data.propertyName &&
@@ -134,9 +137,9 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
           transition={{ delay: 0.2 }}
           className="text-2xl sm:text-3xl font-bold text-white mb-2"
         >
-          Tu propiedad
+          {t('step1.title')}
         </motion.h2>
-        <p className="text-gray-400 text-sm sm:text-base">Cuéntanos lo básico. El resto lo hacemos nosotros.</p>
+        <p className="text-gray-400 text-sm sm:text-base">{t('step1.subtitle')}</p>
       </div>
 
       {/* Property Name + Profile Image */}
@@ -145,13 +148,13 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
         <div className="flex-shrink-0 space-y-2">
           <label className="flex items-center text-sm font-medium text-gray-300">
             <Camera className="w-4 h-4 mr-2 text-violet-400" />
-            Foto principal
+            {t('step1.mainPhoto')}
           </label>
           <ImageUpload
             value={data.profileImage}
             onChange={(url) => update({ profileImage: url || '' })}
             variant="square"
-            placeholder="Foto"
+            placeholder={t('step1.photo')}
             maxSize={10}
           />
         </div>
@@ -161,26 +164,26 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
           <div className="space-y-3">
             <label className="flex items-center text-sm font-medium text-gray-300">
               <PenLine className="w-4 h-4 mr-2 text-violet-400" />
-              Nombre de la propiedad
+              {t('step1.propertyName')}
             </label>
             <input
               type="text"
               value={data.propertyName}
               onChange={(e) => update({ propertyName: e.target.value })}
-              placeholder="Ej: Apartamento Sol, Casa del Mar..."
+              placeholder={t('step1.propertyNamePlaceholder')}
               className="h-10 w-full rounded-lg border border-gray-700 bg-gray-900 px-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
             />
           </div>
           <div className="space-y-3">
             <label className="flex items-center text-sm font-medium text-gray-300">
               <FileText className="w-4 h-4 mr-2 text-violet-400" />
-              Descripción
-              <span className="text-gray-600 ml-2 font-normal">(opcional)</span>
+              {t('step1.description')}
+              <span className="text-gray-600 ml-2 font-normal">{t('step1.optional')}</span>
             </label>
             <textarea
               value={data.propertyDescription}
               onChange={(e) => update({ propertyDescription: e.target.value })}
-              placeholder="Breve descripción del alojamiento. Si lo dejas vacío se generará automáticamente."
+              placeholder={t('step1.descriptionPlaceholder')}
               rows={2}
               className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm resize-none"
             />
@@ -192,7 +195,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
       <div className="space-y-3">
         <label className="flex items-center text-sm font-medium text-gray-300">
           <MapPin className="w-4 h-4 mr-2 text-violet-400" />
-          Dirección
+          {t('step1.address')}
         </label>
         <AddressAutocomplete
           value={data.formattedAddress}
@@ -206,13 +209,13 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
             lng: addr.lng,
             formattedAddress: addr.formattedAddress,
           })}
-          placeholder="Escribe la dirección de tu alojamiento..."
+          placeholder={t('step1.addressPlaceholder')}
           dark
         />
         {data.formattedAddress && (!data.lat || !data.lng) && (
           <div className="flex items-center gap-2 text-amber-400 text-xs mt-1">
             <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
-            <span>No se detectaron coordenadas. Selecciona una opción del desplegable para obtener recomendaciones locales.</span>
+            <span>{t('step1.noCoordinates')}</span>
           </div>
         )}
       </div>
@@ -221,7 +224,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
       <div className="space-y-3">
         <label className="flex items-center text-sm font-medium text-gray-300">
           <Home className="w-4 h-4 mr-2 text-violet-400" />
-          Tipo de propiedad
+          {t('step1.propertyType')}
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {propertyTypes.map(({ value, label, icon: Icon }) => (
@@ -247,7 +250,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
         <div className="space-y-3">
           <label className="flex items-center text-sm font-medium text-gray-300">
             <BedDouble className="w-4 h-4 mr-2 text-violet-400" />
-            Dormitorios
+            {t('step1.bedrooms')}
           </label>
           <div className="flex items-center gap-2">
             <button
@@ -270,7 +273,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
         <div className="space-y-3">
           <label className="flex items-center text-sm font-medium text-gray-300">
             <Bath className="w-4 h-4 mr-2 text-violet-400" />
-            Baños
+            {t('step1.bathrooms')}
           </label>
           <div className="flex items-center gap-2">
             <button
@@ -293,7 +296,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
         <div className="space-y-3">
           <label className="flex items-center text-sm font-medium text-gray-300">
             <Users className="w-4 h-4 mr-2 text-violet-400" />
-            Huéspedes
+            {t('step1.guests')}
           </label>
           <div className="flex items-center gap-2">
             <button
@@ -316,7 +319,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
         <div className="space-y-3">
           <label className="flex items-center text-sm font-medium text-gray-300">
             <Ruler className="w-4 h-4 mr-2 text-violet-400" />
-            m²
+            {t('step1.sqm')}
           </label>
           <input
             type="number"
@@ -334,21 +337,21 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
       <div className="space-y-3">
         <label className="flex items-center text-sm font-medium text-gray-300">
           <Wifi className="w-4 h-4 mr-2 text-violet-400" />
-          WiFi
+          {t('step1.wifi')}
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <input
             type="text"
             value={data.wifiName}
             onChange={(e) => update({ wifiName: e.target.value })}
-            placeholder="Nombre de la red"
+            placeholder={t('step1.networkName')}
             className="h-10 w-full rounded-lg border border-gray-700 bg-gray-900 px-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
           />
           <input
             type="text"
             value={data.wifiPassword}
             onChange={(e) => update({ wifiPassword: e.target.value })}
-            placeholder="Contraseña"
+            placeholder={t('step1.password')}
             className="h-10 w-full rounded-lg border border-gray-700 bg-gray-900 px-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
           />
         </div>
@@ -359,7 +362,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
         <div className="space-y-3">
           <label className="flex items-center text-sm font-medium text-gray-300">
             <Clock className="w-4 h-4 mr-2 text-violet-400" />
-            Hora check-in
+            {t('step1.checkInTime')}
           </label>
           <input
             type="time"
@@ -371,7 +374,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
         <div className="space-y-3">
           <label className="flex items-center text-sm font-medium text-gray-300">
             <Clock className="w-4 h-4 mr-2 text-violet-400" />
-            Hora check-out
+            {t('step1.checkOutTime')}
           </label>
           <input
             type="time"
@@ -386,7 +389,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
       <div className="space-y-3">
         <label className="flex items-center text-sm font-medium text-gray-300">
           <Key className="w-4 h-4 mr-2 text-violet-400" />
-          Método de entrada
+          {t('step1.entryMethod')}
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {checkInMethods.map(({ value, label }) => (
@@ -410,17 +413,17 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
       <div className="space-y-3">
         <label className="flex items-center text-sm font-medium text-gray-300">
           <PenLine className="w-4 h-4 mr-2 text-violet-400" />
-          Instrucciones de check-in
+          {t('step1.checkInInstructions')}
         </label>
         <textarea
           value={data.checkInInstructions}
           onChange={(e) => update({ checkInInstructions: e.target.value })}
-          placeholder="Describe paso a paso cómo entra el huésped. Ej: Al llegar al portal, pulsa el botón 3B. Sube por el ascensor al 3º. La puerta del apartamento es la primera a la izquierda..."
+          placeholder={t('step1.checkInInstructionsPlaceholder')}
           rows={4}
           className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm resize-none"
         />
         <p className="text-xs text-gray-500">
-          Cuanto más detallado, mejor. La IA usará exactamente lo que escribas aquí para la zona de check-in.
+          {t('step1.checkInInstructionsHint')}
         </p>
       </div>
 
@@ -430,7 +433,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
         <div className="space-y-3">
           <label className="flex items-center text-sm font-medium text-gray-300">
             <Car className="w-4 h-4 mr-2 text-violet-400" />
-            Parking
+            {t('step1.parking')}
           </label>
           <div className="flex flex-row sm:flex-col gap-2">
             {parkingOptions.map(({ value, label }) => (
@@ -454,7 +457,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
         <div className="space-y-3">
           <label className="flex items-center text-sm font-medium text-gray-300">
             <Waves className="w-4 h-4 mr-2 text-violet-400" />
-            Piscina
+            {t('step1.pool')}
           </label>
           <button
             type="button"
@@ -465,7 +468,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
                 : 'bg-gray-900/60 border-gray-700 text-gray-400 hover:border-gray-600'
             }`}
           >
-            {data.hasPool ? 'Sí' : 'No'}
+            {data.hasPool ? t('step1.yes') : t('step1.no')}
           </button>
         </div>
 
@@ -473,7 +476,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
         <div className="space-y-3">
           <label className="flex items-center text-sm font-medium text-gray-300">
             <Snowflake className="w-4 h-4 mr-2 text-violet-400" />
-            Aire acondicionado
+            {t('step1.ac')}
           </label>
           <button
             type="button"
@@ -484,7 +487,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
                 : 'bg-gray-900/60 border-gray-700 text-gray-400 hover:border-gray-600'
             }`}
           >
-            {data.hasAC ? 'Sí' : 'No'}
+            {data.hasAC ? t('step1.yes') : t('step1.no')}
           </button>
         </div>
       </div>
@@ -497,9 +500,9 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
         <div>
           <h3 className="text-lg font-semibold text-white flex items-center gap-2">
             <User className="w-5 h-5 text-violet-400" />
-            Responsable / Anfitrión
+            {t('step1.host.title')}
           </h3>
-          <p className="text-sm text-gray-500 mt-1">Estos datos aparecerán en el manual para que los huéspedes puedan contactarte.</p>
+          <p className="text-sm text-gray-500 mt-1">{t('step1.host.subtitle')}</p>
         </div>
 
         {/* Photo */}
@@ -509,12 +512,12 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
               value={data.hostContactPhoto}
               onChange={(url) => update({ hostContactPhoto: url || '' })}
               variant="profile"
-              placeholder="Tu foto"
+              placeholder={t('step1.host.yourPhoto')}
               maxSize={5}
             />
           </div>
           <p className="text-sm text-gray-500 text-center sm:text-left">
-            Sube una foto tuya o del responsable. Los huéspedes verán esta foto en el manual y se sentirán más seguros.
+            {t('step1.host.photoHint')}
           </p>
         </div>
 
@@ -522,13 +525,13 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
         <div className="space-y-3">
           <label className="flex items-center text-sm font-medium text-gray-300">
             <User className="w-4 h-4 mr-2 text-violet-400" />
-            Nombre completo
+            {t('step1.host.fullName')}
           </label>
           <input
             type="text"
             value={data.hostContactName}
             onChange={(e) => update({ hostContactName: e.target.value })}
-            placeholder="Tu nombre o el del responsable"
+            placeholder={t('step1.host.fullNamePlaceholder')}
             className="h-10 w-full rounded-lg border border-gray-700 bg-gray-900 px-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
           />
         </div>
@@ -538,7 +541,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
           <div className="space-y-3">
             <label className="flex items-center text-sm font-medium text-gray-300">
               <Phone className="w-4 h-4 mr-2 text-violet-400" />
-              Teléfono / WhatsApp
+              {t('step1.host.phone')}
             </label>
             <input
               type="tel"
@@ -551,7 +554,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
           <div className="space-y-3">
             <label className="flex items-center text-sm font-medium text-gray-300">
               <Mail className="w-4 h-4 mr-2 text-violet-400" />
-              Email de contacto
+              {t('step1.host.email')}
             </label>
             <input
               type="email"
@@ -567,7 +570,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
         <div className="space-y-3">
           <label className="flex items-center text-sm font-medium text-gray-300">
             <Globe className="w-4 h-4 mr-2 text-violet-400" />
-            Idioma preferido de comunicación
+            {t('step1.host.language')}
           </label>
           <div className="flex flex-wrap gap-3">
             {languages.map(({ value, label }) => (
@@ -605,7 +608,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
               : 'bg-gray-800 text-gray-500 cursor-not-allowed'
           }`}
         >
-          Siguiente: Detalles
+          {t('step1.nextDetails')}
           <ChevronRight className="w-5 h-5" />
         </button>
       </motion.div>

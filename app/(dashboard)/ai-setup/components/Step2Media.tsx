@@ -1,6 +1,8 @@
 'use client'
 
-import React, { useState, useRef, useCallback } from 'react'
+import React, { useState, useRef, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { compressVideoFFmpeg, isFFmpegSupported } from '../../../../src/utils/ffmpegCompression'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Upload,
@@ -27,6 +29,7 @@ export interface MediaItem {
   analyzing: boolean
   category?: string // user-selected or AI-detected category
   caption?: string
+  customZoneName?: string // Nombre libre para zonas personalizadas
   fileSize?: number // bytes
   analysis?: {
     room_type: string
@@ -49,28 +52,31 @@ interface Step2MediaProps {
   onMediaChange: (media: MediaItem[]) => void
   onNext: () => void
   onBack: () => void
+  uploadEndpoint?: string   // default: '/api/upload'
+  analyzeEndpoint?: string  // default: '/api/ai-setup/analyze-media'
 }
 
-// Categories with their IDs, labels, and emojis
-const CATEGORIES = [
-  { id: 'entrance', emoji: '🔑', label: 'Check-in / entrada' },
-  { id: 'check_out', emoji: '🚪', label: 'Check-out / salida' },
-  { id: 'wifi', emoji: '📶', label: 'WiFi / router' },
-  { id: 'kitchen', emoji: '🍳', label: 'Cocina' },
-  { id: 'tv', emoji: '📺', label: 'TV / mando' },
-  { id: 'ac', emoji: '🌡️', label: 'Termostato / AC' },
-  { id: 'washing_machine', emoji: '🧺', label: 'Lavadora' },
-  { id: 'dishwasher', emoji: '🍽️', label: 'Lavavajillas' },
-  { id: 'microwave', emoji: '📡', label: 'Microondas' },
-  { id: 'bathroom', emoji: '🚿', label: 'Baño' },
-  { id: 'parking', emoji: '🚗', label: 'Parking' },
-  { id: 'pool', emoji: '🏊', label: 'Piscina' },
-  { id: 'coffee', emoji: '☕', label: 'Cafetera' },
-  { id: 'bedroom', emoji: '🛏️', label: 'Dormitorios' },
-  { id: 'living_room', emoji: '🛋️', label: 'Salón' },
-  { id: 'terrace', emoji: '🌳', label: 'Terraza / jardín' },
-  { id: 'other', emoji: '📋', label: 'Otro' },
-]
+// Category definitions (emojis only — labels come from i18n)
+const CATEGORY_DEFS = [
+  { id: 'entrance', emoji: '🔑', key: 'entrance' },
+  { id: 'check_out', emoji: '🚪', key: 'checkOut' },
+  { id: 'wifi', emoji: '📶', key: 'wifi' },
+  { id: 'kitchen', emoji: '🍳', key: 'kitchen' },
+  { id: 'tv', emoji: '📺', key: 'tv' },
+  { id: 'ac', emoji: '🌡️', key: 'ac' },
+  { id: 'washing_machine', emoji: '🧺', key: 'washingMachine' },
+  { id: 'dishwasher', emoji: '🍽️', key: 'dishwasher' },
+  { id: 'microwave', emoji: '📡', key: 'microwave' },
+  { id: 'bathroom', emoji: '🚿', key: 'bathroom' },
+  { id: 'parking', emoji: '🚗', key: 'parking' },
+  { id: 'pool', emoji: '🏊', key: 'pool' },
+  { id: 'coffee', emoji: '☕', key: 'coffee' },
+  { id: 'bedroom', emoji: '🛏️', key: 'bedrooms' },
+  { id: 'living_room', emoji: '🛋️', key: 'livingRoom' },
+  { id: 'terrace', emoji: '🌳', key: 'terrace' },
+  { id: 'other', emoji: '📋', key: 'other' },
+  { id: 'custom', emoji: '✏️', key: 'custom' },
+] as const
 
 // Map AI room_type/appliance to our category IDs
 const ROOM_TYPE_TO_CATEGORY: Record<string, string> = {
@@ -128,10 +134,7 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function getCategoryLabel(catId: string): { emoji: string; label: string } {
-  const cat = CATEGORIES.find(c => c.id === catId)
-  return cat || { emoji: '📋', label: catId }
-}
+// getCategoryLabel is now defined inside the component (needs t())
 
 /** Derive a category from AI analysis result */
 function detectCategory(analysis: MediaItem['analysis']): string | undefined {
@@ -161,9 +164,25 @@ function detectCategory(analysis: MediaItem['analysis']): string | undefined {
   return 'other'
 }
 
-export default function Step2Media({ media, onMediaChange, onNext, onBack }: Step2MediaProps) {
+export default function Step2Media({ media, onMediaChange, onNext, onBack, uploadEndpoint = '/api/upload', analyzeEndpoint = '/api/ai-setup/analyze-media' }: Step2MediaProps) {
+  const { t } = useTranslation('ai-setup')
+
+  const CATEGORIES = useMemo(() =>
+    CATEGORY_DEFS.map(def => ({
+      id: def.id,
+      emoji: def.emoji,
+      label: t(`step3.categories.${def.key}`),
+    })),
+  [t])
+
+  const getCategoryLabel = useCallback((catId: string): { emoji: string; label: string } => {
+    const cat = CATEGORIES.find(c => c.id === catId)
+    return cat || { emoji: '📋', label: catId }
+  }, [CATEGORIES])
+
   const [isDragging, setIsDragging] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [compressStatus, setCompressStatus] = useState<string | null>(null)
   const [uploadErrors, setUploadErrors] = useState<string[]>([])
   const [pendingCategory, setPendingCategory] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -197,7 +216,13 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
 
   const updateCategory = useCallback((id: string, category: string) => {
     updateMedia(current =>
-      current.map(m => m.id === id ? { ...m, category } : m)
+      current.map(m => m.id === id ? { ...m, category, ...(category !== 'custom' ? { customZoneName: undefined } : {}) } : m)
+    )
+  }, [updateMedia])
+
+  const updateCustomZoneName = useCallback((id: string, customZoneName: string) => {
+    updateMedia(current =>
+      current.map(m => m.id === id ? { ...m, customZoneName } : m)
     )
   }, [updateMedia])
 
@@ -208,18 +233,18 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
         ? { frames: videoFrames }
         : { mediaUrl: item.url, type: item.type }
 
-      const res = await fetch('/api/ai-setup/analyze-media', {
+      const res = await fetch(analyzeEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       })
 
       if (!res.ok) {
-        const errorText = await res.text().catch(() => 'Error del servidor')
+        const errorText = await res.text().catch(() => '')
         updateMedia(current =>
           current.map(m =>
             m.id === item.id
-              ? { ...m, analyzing: false, error: `Error ${res.status}: ${errorText.slice(0, 100)}` }
+              ? { ...m, analyzing: false, error: t('step3.errors.serverError', { status: res.status, text: errorText.slice(0, 100) }) }
               : m
           )
         )
@@ -247,7 +272,7 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
         updateMedia(current =>
           current.map(m =>
             m.id === item.id
-              ? { ...m, analyzing: false, error: data.error || 'Análisis fallido' }
+              ? { ...m, analyzing: false, error: data.error || t('step3.errors.analysisFailed') }
               : m
           )
         )
@@ -257,12 +282,12 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
       updateMedia(current =>
         current.map(m =>
           m.id === item.id
-            ? { ...m, analyzing: false, error: 'Error de conexión' }
+            ? { ...m, analyzing: false, error: t('step3.errors.connectionError') }
             : m
         )
       )
     }
-  }, [updateMedia])
+  }, [updateMedia, t, analyzeEndpoint])
 
   const handleFiles = useCallback(async (files: FileList, forCategory?: string | null) => {
     setUploading(true)
@@ -280,8 +305,8 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
         const sizeMB = (file.size / (1024 * 1024)).toFixed(1)
         errors.push(
           isVideo
-            ? `"${file.name}" (${sizeMB}MB) supera el límite de ${MAX_VIDEO_SIZE_MB}MB. Recorta o comprime el vídeo antes de subirlo.`
-            : `"${file.name}" (${sizeMB}MB) supera el límite de ${MAX_IMAGE_SIZE_MB}MB.`
+            ? t('step3.errors.videoTooLarge', { name: file.name, size: sizeMB, max: MAX_VIDEO_SIZE_MB })
+            : t('step3.errors.imageTooLarge', { name: file.name, size: sizeMB, max: MAX_IMAGE_SIZE_MB })
         )
         continue
       }
@@ -289,17 +314,36 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
       const id = `media-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 
       try {
-        const formData = new FormData()
-        formData.append('file', file)
+        // Compress video before upload if > 4MB and FFmpeg is available
+        let fileToUpload: File = file
+        if (isVideo && file.size > 4 * 1024 * 1024 && isFFmpegSupported()) {
+          try {
+            const quality: 'low' | 'medium' | 'high' = file.size > 30 * 1024 * 1024 ? 'low' : file.size > 15 * 1024 * 1024 ? 'medium' : 'high'
+            setCompressStatus(t('step3.compressingVideo', { name: file.name }))
+            fileToUpload = await compressVideoFFmpeg(file, {
+              maxSizeMB: 4,
+              quality,
+              onProgress: (msg) => setCompressStatus(msg),
+            })
+            setCompressStatus(null)
+          } catch (compressErr) {
+            console.warn('[Step2] Video compression failed, uploading original:', compressErr)
+            setCompressStatus(null)
+            fileToUpload = file
+          }
+        }
 
-        const uploadRes = await fetch('/api/upload', {
+        const formData = new FormData()
+        formData.append('file', fileToUpload)
+
+        const uploadRes = await fetch(uploadEndpoint, {
           method: 'POST',
           body: formData,
         })
 
         if (!uploadRes.ok) {
           console.error('Upload failed:', uploadRes.status)
-          errors.push(`Error subiendo "${file.name}"`)
+          errors.push(t('step3.errors.uploadError', { name: file.name }))
           continue
         }
 
@@ -320,7 +364,7 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
           url: mediaUrl,
           type: isVideo ? 'video' : 'image',
           analyzing: true,
-          fileSize: file.size,
+          fileSize: fileToUpload.size,
           // Pre-assign category if user clicked a specific category chip
           category: forCategory || undefined,
         }
@@ -345,7 +389,7 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
         }
       } catch (err) {
         console.error('Upload error:', err)
-        errors.push(`Error subiendo "${file.name}"`)
+        errors.push(t('step3.errors.uploadError', { name: file.name }))
       }
     }
 
@@ -354,7 +398,7 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
     setPendingCategory(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
     if (categoryInputRef.current) categoryInputRef.current.value = ''
-  }, [analyzeMedia, updateMedia])
+  }, [analyzeMedia, updateMedia, t, uploadEndpoint])
 
   const removeMedia = useCallback((id: string) => {
     updateMedia(current => current.filter(m => m.id !== id))
@@ -402,11 +446,12 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
           transition={{ delay: 0.2 }}
           className="text-2xl sm:text-3xl font-bold text-white"
         >
-          Sube fotos y vídeos de tu propiedad
+          {t('step3.title')}
         </motion.h2>
         <p className="text-gray-400 max-w-xl mx-auto text-sm sm:text-base">
-          Graba cómo funciona cada electrodoméstico, las zonas de la casa, el parking...
-          La IA <span className="text-violet-400 font-medium">detectará automáticamente</span> qué hay en cada archivo y creará instrucciones para tus huéspedes.
+          {t('step3.subtitleBefore')}
+          <span className="text-violet-400 font-medium">{t('step3.subtitleHighlight')}</span>
+          {t('step3.subtitleAfter')}
         </p>
       </div>
 
@@ -418,10 +463,10 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
         className="space-y-3"
       >
         <p className="text-xs text-gray-500 uppercase tracking-wider text-center">
-          Selecciona una zona para subir o arrastra abajo
+          {t('step3.selectZone')}
         </p>
         <div className="flex flex-wrap justify-center gap-2">
-          {CATEGORIES.filter(c => c.id !== 'other').map((cat) => {
+          {CATEGORIES.filter(c => c.id !== 'other' && c.id !== 'custom').map((cat) => {
             const count = categoryCounts[cat.id] || 0
             return (
               <button
@@ -493,10 +538,10 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
           )}
           <div>
             <p className="text-base font-medium text-white">
-              {uploading ? 'Subiendo y analizando...' : 'O arrastra fotos y vídeos aquí'}
+              {compressStatus ? compressStatus : uploading ? t('step3.uploading') : t('step3.dragHere')}
             </p>
             <p className="text-sm text-gray-500 mt-1">
-              La IA detectará la zona automáticamente
+              {compressStatus ? t('step3.compressing') : t('step3.autoDetect')}
             </p>
           </div>
           <div className="flex items-center gap-4 text-xs text-gray-500">
@@ -549,10 +594,10 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
           >
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-400">
-                {analyzedCount} de {media.length} analizados
+                {analyzedCount} {t('step3.analyzedOf')} {media.length} {t('step3.analyzed')}
                 {analyzingCount > 0 && (
                   <span className="ml-2 text-violet-400">
-                    ({analyzingCount} analizando...)
+                    ({analyzingCount} {t('step3.analyzing')})
                   </span>
                 )}
               </p>
@@ -615,7 +660,7 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
                       <div className="absolute top-2 left-2 flex items-center gap-1.5">
                         <div className="px-2 py-1 rounded-md bg-black/60 text-xs text-white flex items-center gap-1">
                           {item.type === 'video' ? <Video className="w-3 h-3" /> : <Camera className="w-3 h-3" />}
-                          {item.type === 'video' ? 'Vídeo' : 'Foto'}
+                          {item.type === 'video' ? t('step3.video') : t('step3.photo')}
                         </div>
                         {item.fileSize && (
                           <div className="px-2 py-1 rounded-md bg-black/60 text-xs text-gray-300">
@@ -631,8 +676,8 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
                         <div className="flex items-center gap-3">
                           <Loader2 className="w-5 h-5 text-violet-400 animate-spin flex-shrink-0" />
                           <div>
-                            <p className="text-sm text-gray-300">Analizando con IA...</p>
-                            <p className="text-xs text-gray-500">Detectando zona y equipamiento</p>
+                            <p className="text-sm text-gray-300">{t('step3.analyzingAI')}</p>
+                            <p className="text-xs text-gray-500">{t('step3.detectingZone')}</p>
                           </div>
                         </div>
                       ) : item.error ? (
@@ -646,7 +691,7 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
                           <div className="flex items-center gap-2">
                             <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
                             <span className="text-xs text-gray-400">
-                              Detectado: <span className="text-gray-200">{item.analysis.description || (item.analysis.room_type || '').replace(/_/g, ' ')}</span>
+                              {t('step3.detected')} <span className="text-gray-200">{item.analysis.description || (item.analysis.room_type || '').replace(/_/g, ' ')}</span>
                             </span>
                           </div>
                           {/* Detected appliances as chips */}
@@ -694,6 +739,18 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
                         </div>
                       )}
 
+                      {/* Custom zone name input — shown when "Personalizado" is selected */}
+                      {!item.analyzing && item.category === 'custom' && (
+                        <input
+                          type="text"
+                          value={item.customZoneName || ''}
+                          onChange={(e) => updateCustomZoneName(item.id, e.target.value)}
+                          placeholder={t('step3.customZonePlaceholder')}
+                          maxLength={100}
+                          className="w-full px-3 py-2 text-sm bg-violet-500/10 border border-violet-500/30 rounded-lg text-violet-200 placeholder-violet-400/50 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-colors"
+                        />
+                      )}
+
                       {/* Caption field */}
                       {!item.analyzing && (
                         <div className="relative">
@@ -704,8 +761,8 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
                             onChange={(e) => updateCaption(item.id, e.target.value)}
                             placeholder={
                               item.type === 'image'
-                                ? 'Describe esta imagen (opcional)...'
-                                : 'Describe este vídeo (opcional)...'
+                                ? t('step3.describeImage')
+                                : t('step3.describeVideo')
                             }
                             maxLength={200}
                             className="w-full pl-8 pr-3 py-2 text-sm bg-gray-800/80 border border-gray-700/50 rounded-lg text-gray-200 placeholder-gray-600 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-colors"
@@ -731,12 +788,10 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
         >
           <div className="flex items-center gap-2 text-violet-300">
             <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">Consejo</span>
+            <span className="text-sm font-medium">{t('step3.tip')}</span>
           </div>
           <p className="text-sm text-gray-400 leading-relaxed">
-            Graba vídeos cortos (10-30 seg) mostrando cómo funciona cada electrodoméstico:
-            microondas, lavadora, lavavajillas, TV, aire acondicionado...
-            Puedes seleccionar una zona arriba para subir directamente, o arrastra archivos y la IA detectará la zona automáticamente.
+            {t('step3.tipText')}
           </p>
         </motion.div>
       )}
@@ -749,7 +804,7 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
           className="h-12 sm:h-14 px-4 sm:px-6 rounded-xl border border-gray-700 text-gray-300 font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
         >
           <ChevronLeft className="w-5 h-5" />
-          <span className="hidden sm:inline">Atrás</span>
+          <span className="hidden sm:inline">{t('step3.back')}</span>
         </button>
         <button
           type="button"
@@ -762,10 +817,10 @@ export default function Step2Media({ media, onMediaChange, onNext, onBack }: Ste
           }`}
         >
           {analyzingCount > 0
-            ? `Analizando ${analyzingCount} archivo${analyzingCount > 1 ? 's' : ''}...`
+            ? t('step3.analyzingFiles', { count: analyzingCount })
             : media.length === 0
-              ? 'Continuar sin media'
-              : `Continuar (${media.length} archivo${media.length > 1 ? 's' : ''})`
+              ? t('step3.continueNoMedia')
+              : t('step3.continueWith', { count: media.length })
           }
           {analyzingCount === 0 && <ChevronRight className="w-5 h-5" />}
           {analyzingCount > 0 && <Loader2 className="w-5 h-5 animate-spin" />}

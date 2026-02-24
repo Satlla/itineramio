@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useMemo, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Check,
@@ -63,30 +64,34 @@ export interface LocationDataDirections {
   steps: string[]
 }
 
+export interface NearbyPlaceResult {
+  name: string
+  address: string
+  rating?: number
+  priceLevel?: number
+  photoUrl?: string
+  distanceMeters: number
+  walkMinutes: number
+}
+
+export interface NearbyCategory {
+  categoryId: string
+  label: string
+  icon: string
+  places: NearbyPlaceResult[]
+}
+
 export interface LocationData {
-  supermarkets: LocationDataPlace[]
-  restaurants: LocationDataPlace[]
-  cafes: LocationDataPlace[]
-  pharmacies: LocationDataPlace[]
-  attractions: LocationDataPlace[]
-  parks: LocationDataPlace[]
-  beaches: LocationDataPlace[]
-  transitStations: LocationDataPlace[]
-  parking: LocationDataPlace[]
-  hospitals: LocationDataPlace[]
-  atms: LocationDataPlace[]
-  gasStations: LocationDataPlace[]
-  gyms: LocationDataPlace[]
-  laundry: LocationDataPlace[]
-  shoppingMalls: LocationDataPlace[]
   directions: {
-    fromAirport: LocationDataDirections | null
-    fromTrainStation: LocationDataDirections | null
-    fromBusStation: LocationDataDirections | null
-    drivingFromAirport: LocationDataDirections | null
-    drivingFromTrainStation: LocationDataDirections | null
-    drivingFromBusStation: LocationDataDirections | null
+    drivingFromAirport?: LocationDataDirections | null
+    drivingFromTrainStation?: LocationDataDirections | null
+    drivingFromBusStation?: LocationDataDirections | null
+    // Legacy fields (backward compat with cached drafts)
+    fromAirport?: LocationDataDirections | null
+    fromTrainStation?: LocationDataDirections | null
+    fromBusStation?: LocationDataDirections | null
   }
+  nearbyPlaces?: NearbyCategory[]
 }
 
 export interface ReviewZone {
@@ -110,6 +115,10 @@ interface Step4ReviewProps {
   onDisabledZonesChange: (zones: Set<string>) => void
   reviewedContent: Record<string, string>
   onReviewedContentChange: (content: Record<string, string>) => void
+  customTitles: Record<string, string>
+  onCustomTitlesChange: (titles: Record<string, string>) => void
+  customIcons: Record<string, string>
+  onCustomIconsChange: (icons: Record<string, string>) => void
   onNext: () => void
   onBack: () => void
 }
@@ -426,11 +435,9 @@ ${step2.recyclingContainerLocation ? `\n📍 **Contenedores más cercanos:** ${s
     })
   }
 
-  // ── LOCATION ZONES (Google Places) ──
+  // ── LOCATION ZONES (directions only — nearby places handled by Recommendations system) ──
   if (locationData) {
-    // Safe access for backward-compat with old cached data
     const dirs = locationData.directions || {} as LocationData['directions']
-    const parkingList = locationData.parking || []
 
     // Directions — professional format matching zone-content-templates
     const dirSections: string[] = []
@@ -503,223 +510,31 @@ ${step2.recyclingContainerLocation ? `\n📍 **Contenedores más cercanos:** ${s
       source: 'user',
     })
 
-    // Public transport
-    if ((locationData.transitStations || []).length > 0) {
-      const lines = locationData.transitStations.map(t =>
-        `🚇 **${t.name}** — ${t.distance || '?'}`
-      )
+    // Nearby places from recommendations system (interactive cards with photos, hours, etc.)
+    const nearbyPlaces = locationData.nearbyPlaces || []
+    if (nearbyPlaces.length > 0) {
+      for (const category of nearbyPlaces) {
+        if (category.places.length === 0) continue
+        const formatDist = (m: number) => m < 1000 ? `${m} m` : `${(m / 1000).toFixed(1)} km`
+        const lines = category.places.map(p => {
+          const rating = p.rating ? `⭐ ${p.rating} ` : ''
+          const price = p.priceLevel ? ` · ${'€'.repeat(p.priceLevel)}` : ''
+          return `${rating}**${p.name}** — ${formatDist(p.distanceMeters)}${price}\n📍 ${p.address}`
+        })
+        zones.push({
+          id: `rec-${category.categoryId}`,
+          title: category.label,
+          iconName: category.icon.toLowerCase().replace(/([A-Z])/g, '-$1').replace(/^-/, ''),
+          content: lines.join('\n\n'),
+          source: 'user',
+        })
+      }
+    } else if (locationDataLoading) {
       zones.push({
-        id: 'public-transport',
-        title: 'Transporte público',
-        iconName: 'bus',
-        content: `🚌 **Paradas cercanas:**\n\n${lines.join('\n')}`,
-        source: 'user',
-      })
-    }
-
-    // Restaurants (skip if host provided own recommendations)
-    if (locationData.restaurants.length > 0 && !hasRecommendations) {
-      const lines = locationData.restaurants.map(r => {
-        const rating = r.rating ? `⭐ ${r.rating} ` : ''
-        const price = r.priceLevel ? ` · ${'€'.repeat(r.priceLevel)}` : ''
-        return `${rating}**${r.name}** — ${r.distance || '?'}${price}`
-      })
-      zones.push({
-        id: 'restaurants',
-        title: 'Restaurantes',
-        iconName: 'utensils',
-        content: `🍽️ **Restaurantes cercanos:**\n\n${lines.join('\n')}`,
-        source: 'user',
-      })
-    }
-
-    // Supermarkets
-    if (locationData.supermarkets.length > 0) {
-      const lines = locationData.supermarkets.map(s => {
-        const open = s.openNow !== undefined ? (s.openNow ? ' · 🟢 Abierto' : ' · 🔴 Cerrado') : ''
-        return `**${s.name}** — ${s.distance || '?'}${open}`
-      })
-      zones.push({
-        id: 'supermarkets',
-        title: 'Supermercados y tiendas',
-        iconName: 'shopping-bag',
-        content: `🛒 **Supermercados cercanos:**\n\n${lines.join('\n')}`,
-        source: 'user',
-      })
-    }
-
-    // Pharmacies
-    if (locationData.pharmacies.length > 0) {
-      const lines = locationData.pharmacies.map(p =>
-        `**${p.name}** — ${p.distance || '?'}`
-      )
-      zones.push({
-        id: 'pharmacies',
-        title: 'Farmacias',
-        iconName: 'heart',
-        content: `💊 **Farmacias cercanas:**\n\n${lines.join('\n')}`,
-        source: 'user',
-      })
-    }
-
-    // Attractions
-    if ((locationData.attractions || []).length > 0 && !hasRecommendations) {
-      const lines = locationData.attractions.map(a => {
-        const rating = a.rating ? `⭐ ${a.rating} ` : ''
-        return `${rating}**${a.name}** — ${a.distance || '?'}`
-      })
-      zones.push({
-        id: 'things-to-do',
-        title: 'Qué ver y hacer',
-        iconName: 'star',
-        content: `🏛️ **Monumentos y lugares de interés:**\n\n${lines.join('\n')}`,
-        source: 'user',
-      })
-    }
-
-    // Parks
-    if ((locationData.parks || []).length > 0) {
-      const lines = locationData.parks.map(p => {
-        const rating = p.rating ? `⭐ ${p.rating} ` : ''
-        return `${rating}**${p.name}** — ${p.distance || '?'}`
-      })
-      zones.push({
-        id: 'parks',
-        title: 'Parques y jardines',
-        iconName: 'tree-pine',
-        content: `🌳 **Parques cercanos:**\n\n${lines.join('\n')}`,
-        source: 'user',
-      })
-    }
-
-    // Beaches
-    if ((locationData.beaches || []).length > 0) {
-      const lines = locationData.beaches.map(b => {
-        const rating = b.rating ? `⭐ ${b.rating} ` : ''
-        return `${rating}**${b.name}** — ${b.distance || '?'}`
-      })
-      zones.push({
-        id: 'beaches',
-        title: 'Playas',
-        iconName: 'waves',
-        content: `🏖️ **Playas cercanas:**\n\n${lines.join('\n')}`,
-        source: 'user',
-      })
-    }
-
-    // Cafes
-    if ((locationData.cafes || []).length > 0) {
-      const lines = locationData.cafes.map(c => {
-        const rating = c.rating ? `⭐ ${c.rating} ` : ''
-        return `${rating}**${c.name}** — ${c.distance || '?'}`
-      })
-      zones.push({
-        id: 'cafes',
-        title: 'Cafeterías',
-        iconName: 'coffee',
-        content: `☕ **Cafeterías cercanas:**\n\n${lines.join('\n')}`,
-        source: 'user',
-      })
-    }
-
-    // Hospitals / Health centers
-    if ((locationData.hospitals || []).length > 0) {
-      const lines = locationData.hospitals.map(h =>
-        `**${h.name}** — ${h.distance || '?'}\n📍 ${h.address}`
-      )
-      zones.push({
-        id: 'hospitals',
-        title: 'Centros de salud',
-        iconName: 'building-2',
-        content: `🏥 **Hospitales y centros de salud cercanos:**\n\n${lines.join('\n\n')}`,
-        source: 'user',
-      })
-    }
-
-    // ATMs
-    if ((locationData.atms || []).length > 0) {
-      const lines = locationData.atms.map(a =>
-        `**${a.name}** — ${a.distance || '?'}`
-      )
-      zones.push({
-        id: 'atms',
-        title: 'Cajeros automáticos',
-        iconName: 'banknote',
-        content: `🏧 **Cajeros cercanos:**\n\n${lines.join('\n')}`,
-        source: 'user',
-      })
-    }
-
-    // Gas stations
-    if ((locationData.gasStations || []).length > 0) {
-      const lines = locationData.gasStations.map(g =>
-        `**${g.name}** — ${g.distance || '?'}`
-      )
-      zones.push({
-        id: 'gas-stations',
-        title: 'Gasolineras',
-        iconName: 'fuel',
-        content: `⛽ **Gasolineras cercanas:**\n\n${lines.join('\n')}`,
-        source: 'user',
-      })
-    }
-
-    // Gyms
-    if ((locationData.gyms || []).length > 0) {
-      const lines = locationData.gyms.map(g => {
-        const rating = g.rating ? `⭐ ${g.rating} ` : ''
-        return `${rating}**${g.name}** — ${g.distance || '?'}`
-      })
-      zones.push({
-        id: 'gyms',
-        title: 'Gimnasios',
-        iconName: 'dumbbell',
-        content: `💪 **Gimnasios cercanos:**\n\n${lines.join('\n')}`,
-        source: 'user',
-      })
-    }
-
-    // Laundry
-    if ((locationData.laundry || []).length > 0) {
-      const lines = locationData.laundry.map(l =>
-        `**${l.name}** — ${l.distance || '?'}\n📍 ${l.address}`
-      )
-      zones.push({
-        id: 'laundry',
-        title: 'Lavanderías',
-        iconName: 'washing-machine',
-        content: `👕 **Lavanderías autoservicio:**\n\n${lines.join('\n\n')}`,
-        source: 'user',
-      })
-    }
-
-    // Shopping malls
-    if ((locationData.shoppingMalls || []).length > 0) {
-      const lines = locationData.shoppingMalls.map(s => {
-        const rating = s.rating ? `⭐ ${s.rating} ` : ''
-        return `${rating}**${s.name}** — ${s.distance || '?'}`
-      })
-      zones.push({
-        id: 'shopping-malls',
-        title: 'Centros comerciales',
-        iconName: 'shopping-cart',
-        content: `🛍️ **Centros comerciales cercanos:**\n\n${lines.join('\n')}`,
-        source: 'user',
-      })
-    }
-
-    // Public parking
-    if (parkingList.length > 0) {
-      const lines = parkingList.map(p => {
-        const rating = p.rating ? `⭐ ${p.rating} ` : ''
-        return `${rating}**${p.name}** — ${p.distance || '?'}\n📍 ${p.address}`
-      })
-      zones.push({
-        id: 'public-parking',
-        title: 'Parking público cercano',
-        iconName: 'car',
-        content: `🅿️ **Parkings públicos cercanos:**\n\n${lines.join('\n\n')}` +
-          '\n\n---\n\n💡 **Zona azul (ORA):** Consulta las tarifas y horarios de zona regulada en la app oficial de tu ciudad (ej: SMASSA, ApparkB, EasyPark).',
+        id: 'recommendations-loading',
+        title: 'Lugares cercanos',
+        iconName: 'map-pin',
+        content: 'Cargando lugares cercanos...',
         source: 'user',
       })
     }
@@ -870,6 +685,9 @@ function matchMediaToZone(zoneId: string, media: MediaItem[]): MediaItem[] {
 // MAIN COMPONENT
 // ============================================
 
+// Available icon names for the icon picker
+const ICON_OPTIONS = Object.keys(iconComponents)
+
 export default function Step4Review({
   step1Data,
   step2Data,
@@ -880,13 +698,20 @@ export default function Step4Review({
   onDisabledZonesChange,
   reviewedContent,
   onReviewedContentChange,
+  customTitles,
+  onCustomTitlesChange,
+  customIcons,
+  onCustomIconsChange,
   onNext,
   onBack,
 }: Step4ReviewProps) {
+  const { t } = useTranslation('ai-setup')
   const [editingZone, setEditingZone] = useState<string | null>(null)
   const [editBuffer, setEditBuffer] = useState('')
   const [expandedZone, setExpandedZone] = useState<string | null>(null)
   const [justSaved, setJustSaved] = useState<string | null>(null)
+  const [iconPickerZone, setIconPickerZone] = useState<string | null>(null)
+  const [editingTitle, setEditingTitle] = useState<string | null>(null)
 
   // Build all zone content
   const zoneData = useMemo(
@@ -903,8 +728,9 @@ export default function Step4Review({
 
     for (const m of media) {
       if (!m.analysis) continue
-      // Skip media explicitly assigned to built-in zones
+      // Skip media explicitly assigned to built-in zones or custom zones (handled separately)
       if (m.category && BUILTIN_CATEGORIES.has(m.category)) continue
+      if (m.category === 'custom') continue
 
       const primaryItem = m.analysis.primary_item
       const firstAppliance = m.analysis.appliances?.[0]?.canonical_type
@@ -927,9 +753,8 @@ export default function Step4Review({
         )
         entry.items.push(...appliances)
       } else {
-        // No specific appliance focus — group by room_type
-        const room = m.analysis.room_type || 'unknown'
-        if (room === 'unknown') continue
+        // No specific appliance focus — group by room_type (or 'other' as fallback)
+        const room = m.analysis.room_type || 'other'
         if (!roomMap.has(room)) roomMap.set(room, { items: [], mediaItems: [] })
         const entry = roomMap.get(room)!
         entry.mediaItems.push(m)
@@ -941,9 +766,10 @@ export default function Step4Review({
     }
 
     const roomLabels: Record<string, string> = {
-      kitchen: 'Cocina', bathroom: 'Baño', bedroom: 'Dormitorio',
-      living_room: 'Salón', terrace: 'Terraza', laundry: 'Lavandería',
-      balcony: 'Balcón', dining_room: 'Comedor', pool: 'Piscina',
+      kitchen: t('step4.roomLabels.kitchen'), bathroom: t('step4.roomLabels.bathroom'), bedroom: t('step4.roomLabels.bedroom'),
+      living_room: t('step4.roomLabels.livingRoom'), terrace: t('step4.roomLabels.terrace'), laundry: t('step4.roomLabels.laundry'),
+      balcony: t('step4.roomLabels.balcony'), dining_room: t('step4.roomLabels.diningRoom'), pool: t('step4.roomLabels.pool'),
+      other: t('step4.roomLabels.other'), unknown: t('step4.roomLabels.unknown'),
     }
 
     const zones: { id: string; title: string; iconName: string; content: string; source: 'media'; mediaItems: MediaItem[] }[] = []
@@ -955,9 +781,23 @@ export default function Step4Review({
         id: `appliance-${applianceType}`,
         title: display?.nameEs || applianceType,
         iconName: display?.icon || 'zap',
-        content: `Detectado por IA:\n• ${data.label}\n\nSe generará contenido con instrucciones de uso.`,
+        content: `${t('step4.mediaDetected')}\n• ${data.label}\n\n${t('step4.mediaInstructions')}`,
         source: 'media',
         mediaItems: data.mediaItems,
+      })
+    }
+
+    // Custom zones (media with category='custom')
+    const customMedia = media.filter(m => m.category === 'custom')
+    for (const m of customMedia) {
+      const title = m.customZoneName || t('step4.customZone').replace(':', '')
+      zones.push({
+        id: `custom-${m.id}`,
+        title,
+        iconName: 'zap',
+        content: `${t('step4.customZone')} ${title}\n\n${t('step4.customZoneContent')}`,
+        source: 'media',
+        mediaItems: [m],
       })
     }
 
@@ -970,15 +810,15 @@ export default function Step4Review({
         title: roomLabels[room] || room,
         iconName: 'zap',
         content: uniqueItems.length > 0
-          ? `Detectado por IA:\n${uniqueItems.map(i => `• ${i}`).join('\n')}\n\nSe generará contenido con instrucciones de uso para cada elemento.`
-          : `Zona detectada en las fotos/vídeos subidos. Se generará contenido automáticamente.`,
+          ? `${t('step4.mediaDetected')}\n${uniqueItems.map(i => `• ${i}`).join('\n')}\n\n${t('step4.mediaInstructionsEach')}`
+          : t('step4.zoneDetected'),
         source: 'media',
         mediaItems: data.mediaItems,
       })
     }
 
     return zones
-  }, [media])
+  }, [media, t])
 
   // Get content for a zone (edited version or original)
   const getContent = useCallback((zoneId: string, originalContent: string) => {
@@ -1042,20 +882,28 @@ export default function Step4Review({
           transition={{ delay: 0.2 }}
           className="text-2xl sm:text-3xl font-bold text-white mb-2"
         >
-          Revisa tu manual
+          {t('step4.title')}
         </motion.h2>
         <p className="text-gray-400 text-xs sm:text-sm">
-          Este es el contenido que tendrá tu manual. Revisa cada sección, edita lo que necesites y aprueba.
+          {t('step4.subtitle')}
           <br />
-          <span className="text-violet-400">Se traducirá automáticamente a inglés y francés.</span>
+          <span className="text-violet-400">{t('step4.autoTranslate')}</span>
         </p>
       </div>
 
       {/* Stats */}
       <div className="flex items-center justify-center gap-4 text-sm">
-        <span className="text-violet-400 font-medium">{enabledCount} secciones</span>
+        <span className="text-violet-400 font-medium">{enabledCount} {t('step4.sections')}</span>
         <div className="w-px h-4 bg-gray-700" />
-        <span className="text-gray-400">ES + EN + FR</span>
+        <span className="text-gray-400">{t('step4.languages')}</span>
+      </div>
+
+      {/* Info banner */}
+      <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 flex items-start gap-3">
+        <Sparkles className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+        <p className="text-sm text-gray-400 leading-relaxed">
+          {t('step4.infoBanner')}
+        </p>
       </div>
 
       {/* Zone cards */}
@@ -1100,31 +948,91 @@ export default function Step4Review({
                   {!isDisabled && <Check className="w-3.5 h-3.5" />}
                 </button>
 
-                {/* Icon */}
-                <div className={isDisabled ? 'text-gray-600' : 'text-violet-400'}>
-                  {iconComponents[zone.iconName] || <Zap className="w-5 h-5" />}
+                {/* Icon — clickable to change icon */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (!isDisabled) {
+                        setIconPickerZone(iconPickerZone === zone.id ? null : zone.id)
+                      }
+                    }}
+                    className={`${isDisabled ? 'text-gray-600' : 'text-violet-400 hover:text-violet-300 cursor-pointer'}`}
+                    title={!isDisabled ? t('step4.changeIcon') : undefined}
+                  >
+                    {iconComponents[customIcons[zone.id] || zone.iconName] || <Zap className="w-5 h-5" />}
+                  </button>
+                  {/* Icon picker dropdown */}
+                  {iconPickerZone === zone.id && (
+                    <div
+                      className="absolute top-8 left-0 z-50 bg-gray-900 border border-gray-700 rounded-xl p-2 shadow-xl grid grid-cols-5 gap-1 w-[200px]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {ICON_OPTIONS.map((iconName) => (
+                        <button
+                          key={iconName}
+                          type="button"
+                          onClick={() => {
+                            onCustomIconsChange({ ...customIcons, [zone.id]: iconName })
+                            setIconPickerZone(null)
+                          }}
+                          className={`p-1.5 rounded-lg transition-colors ${
+                            (customIcons[zone.id] || zone.iconName) === iconName
+                              ? 'bg-violet-600/30 text-violet-300'
+                              : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                          }`}
+                          title={iconName}
+                        >
+                          {iconComponents[iconName]}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Title */}
-                <span className={`font-medium flex-1 ${isDisabled ? 'text-gray-600' : 'text-white'}`}>
-                  {zone.title}
-                </span>
+                {/* Title — editable for all zones */}
+                {editingTitle === zone.id ? (
+                  <input
+                    type="text"
+                    value={customTitles[zone.id] ?? zone.title}
+                    onChange={(e) => onCustomTitlesChange({ ...customTitles, [zone.id]: e.target.value })}
+                    onBlur={() => setEditingTitle(null)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') setEditingTitle(null) }}
+                    onClick={(e) => e.stopPropagation()}
+                    autoFocus
+                    className="flex-1 font-medium text-white bg-gray-800 border border-violet-500/50 rounded px-2 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-violet-500/30"
+                  />
+                ) : (
+                  <span
+                    className={`font-medium flex-1 ${isDisabled ? 'text-gray-600' : 'text-white'} ${!isDisabled ? 'cursor-text hover:text-violet-200' : ''}`}
+                    onClick={(e) => {
+                      if (!isDisabled) {
+                        e.stopPropagation()
+                        setEditingTitle(zone.id)
+                      }
+                    }}
+                    title={!isDisabled ? t('step4.editTitle') : undefined}
+                  >
+                    {customTitles[zone.id] ?? zone.title}
+                  </span>
+                )}
 
                 {/* Badges */}
                 {zone.source === 'auto' && locationDataLoading && (
                   <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin" />
                 )}
                 {zone.source === 'auto' && !locationDataLoading && (
-                  <span className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full font-medium">AUTO</span>
+                  <span className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full font-medium">{t('step4.badges.auto')}</span>
                 )}
                 {zone.source === 'media' && (
-                  <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-medium">IA</span>
+                  <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-medium">{t('step4.badges.ai')}</span>
                 )}
                 {justSaved === zone.id && (
-                  <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-medium animate-pulse">GUARDADO</span>
+                  <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-medium animate-pulse">{t('step4.badges.saved')}</span>
                 )}
                 {isEdited && !isDisabled && justSaved !== zone.id && (
-                  <span className="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full font-medium">EDITADO</span>
+                  <span className="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full font-medium">{t('step4.badges.edited')}</span>
                 )}
 
                 {/* Media indicator */}
@@ -1201,7 +1109,7 @@ export default function Step4Review({
                               className="px-4 py-2 rounded-lg border border-gray-700 text-gray-400 text-sm hover:bg-gray-800 transition-colors flex items-center gap-1.5"
                             >
                               <X className="w-3.5 h-3.5" />
-                              Cancelar
+                              {t('step4.cancel')}
                             </button>
                             <button
                               type="button"
@@ -1209,7 +1117,7 @@ export default function Step4Review({
                               className="px-4 py-2 rounded-lg bg-violet-600 text-white text-sm hover:bg-violet-500 transition-colors flex items-center gap-1.5"
                             >
                               <Save className="w-3.5 h-3.5" />
-                              Guardar
+                              {t('step4.save')}
                             </button>
                           </div>
                         </div>
@@ -1258,7 +1166,7 @@ export default function Step4Review({
           className="flex-1 h-12 sm:h-14 rounded-xl text-base sm:text-lg font-semibold border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span className="hidden sm:inline">Anterior</span>
+          <span className="hidden sm:inline">{t('step4.previous')}</span>
         </button>
         <button
           type="button"
@@ -1266,7 +1174,7 @@ export default function Step4Review({
           className="flex-[2] h-12 sm:h-14 rounded-xl text-base sm:text-lg font-semibold bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25 transition-all duration-300 flex items-center justify-center gap-2"
         >
           <Sparkles className="w-5 h-5" />
-          Generar manual
+          {t('step4.generateManual')}
         </button>
       </div>
     </motion.div>

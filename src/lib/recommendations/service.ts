@@ -277,37 +277,59 @@ ${placesInfo}`
   return descriptions
 }
 
+// ─── Haversine distance ───
+
+function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371000
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) ** 2
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return Math.round(R * c)
+}
+
+const WALK_SPEED_MPM = 80
+
 // ─── Load from DB (for cache hits) ───
 
-async function loadPlacesFromDb(placeDbIds: string[]): Promise<PlaceResult[]> {
+async function loadPlacesFromDb(placeDbIds: string[], lat: number, lng: number): Promise<PlaceResult[]> {
   if (placeDbIds.length === 0) return []
   const places = await prisma.place.findMany({
     where: { id: { in: placeDbIds } },
   })
   const placeMap = new Map(places.map(p => [p.id, p]))
 
-  return placeDbIds
+  const results = placeDbIds
     .map(id => placeMap.get(id))
     .filter(Boolean)
-    .map(p => ({
-      placeDbId: p!.id,
-      placeId: p!.placeId ?? undefined,
-      name: p!.name,
-      address: p!.address,
-      latitude: p!.latitude,
-      longitude: p!.longitude,
-      source: p!.source as 'OSM' | 'GOOGLE',
-      rating: p!.rating ?? undefined,
-      priceLevel: p!.priceLevel ?? undefined,
-      types: (p!.types as string[]) ?? undefined,
-      phone: p!.phone ?? undefined,
-      website: p!.website ?? undefined,
-      photoUrl: p!.photoUrl ?? undefined,
-      openingHours: p!.openingHours,
-      businessStatus: p!.businessStatus ?? undefined,
-      distanceMeters: 0,
-      walkMinutes: 0,
-    }))
+    .map(p => {
+      const distanceMeters = haversineMeters(lat, lng, p!.latitude, p!.longitude)
+      return {
+        placeDbId: p!.id,
+        placeId: p!.placeId ?? undefined,
+        name: p!.name,
+        address: p!.address,
+        latitude: p!.latitude,
+        longitude: p!.longitude,
+        source: p!.source as 'OSM' | 'GOOGLE',
+        rating: p!.rating ?? undefined,
+        priceLevel: p!.priceLevel ?? undefined,
+        types: (p!.types as string[]) ?? undefined,
+        phone: p!.phone ?? undefined,
+        website: p!.website ?? undefined,
+        photoUrl: p!.photoUrl ?? undefined,
+        openingHours: p!.openingHours,
+        businessStatus: p!.businessStatus ?? undefined,
+        distanceMeters,
+        walkMinutes: Math.ceil(distanceMeters / WALK_SPEED_MPM),
+      }
+    })
+
+  // Sort by distance (closest first)
+  results.sort((a, b) => a.distanceMeters - b.distanceMeters)
+  return results
 }
 
 // ─── Search a single category ───
@@ -316,13 +338,14 @@ async function searchCategory(
   lat: number,
   lng: number,
   category: CategoryConfig,
-  tileKey: string
+  tileKey: string,
+  city?: string
 ): Promise<PlaceResult[]> {
   // 1. Check cache
   const cachedIds = await getCachedResults(tileKey, category.id)
   if (cachedIds) {
     console.log(`[places] Cache HIT for ${category.id} tile=${tileKey}`)
-    return loadPlacesFromDb(cachedIds)
+    return loadPlacesFromDb(cachedIds, lat, lng)
   }
 
   console.log(`[places] Cache MISS for ${category.id} tile=${tileKey} — fetching`)
@@ -349,7 +372,7 @@ async function searchCategory(
     )
     results = entries
   } else {
-    const googlePlaces = await searchGoogle(lat, lng, category)
+    const googlePlaces = await searchGoogle(lat, lng, category, city)
     const entries = await Promise.all(
       googlePlaces.map(async (p) => {
         const dbId = await upsertGooglePlace(p)
@@ -392,7 +415,8 @@ async function searchCategory(
 export async function fetchNearbyPlaces(
   lat: number,
   lng: number,
-  categoryIds?: string[]
+  categoryIds?: string[],
+  city?: string
 ): Promise<CategoryResults[]> {
   if (!lat || !lng || (lat === 0 && lng === 0)) {
     console.error('[places] Invalid coordinates — skipping')
@@ -408,7 +432,7 @@ export async function fetchNearbyPlaces(
   const googleCategories = categories.filter(c => c.source === 'GOOGLE')
 
   const osmPromises = osmCategories.map(cat =>
-    searchCategory(lat, lng, cat, tileKey).then(places => ({
+    searchCategory(lat, lng, cat, tileKey, city).then(places => ({
       categoryId: cat.id,
       label: cat.label,
       icon: cat.icon,
@@ -417,7 +441,7 @@ export async function fetchNearbyPlaces(
   )
 
   const googlePromises = googleCategories.map(cat =>
-    searchCategory(lat, lng, cat, tileKey).then(places => ({
+    searchCategory(lat, lng, cat, tileKey, city).then(places => ({
       categoryId: cat.id,
       label: cat.label,
       icon: cat.icon,
@@ -438,9 +462,10 @@ export async function generateRecommendations(
   propertyId: string,
   lat: number,
   lng: number,
-  categoryIds?: string[]
+  categoryIds?: string[],
+  city?: string
 ): Promise<{ zonesCreated: number; totalPlaces: number }> {
-  const results = await fetchNearbyPlaces(lat, lng, categoryIds)
+  const results = await fetchNearbyPlaces(lat, lng, categoryIds, city)
 
   if (results.length === 0) {
     return { zonesCreated: 0, totalPlaces: 0 }

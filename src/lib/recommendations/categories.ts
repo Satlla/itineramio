@@ -22,18 +22,26 @@ export interface CategoryConfig {
   googleType?: string
   /** Overpass query tags (only for source=OSM) */
   osmTags?: Record<string, string | string[]>
-  /** Search mode: 'nearby' (proximity) or 'text' (curated query) */
-  searchMode?: 'nearby' | 'text'
-  /** Text query for searchMode=text. Use {city} placeholder for city name. */
+  /**
+   * Search mode:
+   * - 'nearby': Google Nearby Search (proximity-based)
+   * - 'text': Google Text Search (curated query)
+   * - 'ai_curated': Claude generates best places, then Google fetches data
+   */
+  searchMode?: 'nearby' | 'text' | 'ai_curated'
+  /** Text query for searchMode=text. */
   textQuery?: string
+  /** AI prompt for searchMode=ai_curated. Use {city} placeholder. */
+  aiPrompt?: string
   /** Whether to fetch Google Place Details (opening hours, phone, photos). Costs ~$0.017/place. */
   fetchDetails?: boolean
 }
 
 /**
  * All supported recommendation categories.
- * OSM = free via Overpass API
- * GOOGLE = paid via Google Places API (used for curated/subjective categories)
+ * OSM = free via Overpass API (essential services, proximity matters most)
+ * GOOGLE = paid via Google Places API
+ * ai_curated = Claude picks the best places, Google fetches details
  */
 export const CATEGORIES: CategoryConfig[] = [
   // --- FREE (OSM/Overpass) — essential services, proximity matters most ---
@@ -45,7 +53,7 @@ export const CATEGORIES: CategoryConfig[] = [
     radius: 2000,
     maxResults: 5,
     osmTags: { amenity: 'pharmacy' },
-    fetchDetails: true, // Need opening hours (guest asks "farmacia abierta domingo")
+    fetchDetails: true,
   },
   {
     id: 'supermarket',
@@ -55,7 +63,7 @@ export const CATEGORIES: CategoryConfig[] = [
     radius: 1500,
     maxResults: 5,
     osmTags: { shop: 'supermarket' },
-    fetchDetails: true, // Need opening hours (guest asks "super abierto domingo")
+    fetchDetails: true,
   },
   {
     id: 'hospital',
@@ -106,10 +114,12 @@ export const CATEGORIES: CategoryConfig[] = [
     id: 'parking',
     label: 'Aparcamientos',
     icon: 'ParkingCircle',
-    source: 'OSM',
-    radius: 1000,
-    maxResults: 3,
-    osmTags: { amenity: 'parking' },
+    source: 'GOOGLE',
+    radius: 2000,
+    maxResults: 5,
+    searchMode: 'text',
+    textQuery: 'parking público coches subterráneo',
+    fetchDetails: true,
   },
   {
     id: 'transit_station',
@@ -121,16 +131,16 @@ export const CATEGORIES: CategoryConfig[] = [
     osmTags: { public_transport: 'station' },
   },
 
-  // --- PAID (Google Places) — curated/subjective categories ---
+  // --- AI-CURATED — Claude picks the best, Google fetches the data ---
   {
     id: 'restaurant',
-    label: 'Restaurantes',
+    label: 'Restaurantes destacados',
     icon: 'UtensilsCrossed',
     source: 'GOOGLE',
-    radius: 1000,
+    radius: 5000,
     maxResults: 8,
-    searchMode: 'text',
-    textQuery: 'mejores restaurantes',
+    searchMode: 'ai_curated',
+    aiPrompt: 'Los 8 mejores restaurantes de {city} que un turista debe conocer. Incluye restaurantes famosos, con encanto y buena relación calidad-precio. Mezcla alta cocina con locales populares auténticos.',
     fetchDetails: true,
   },
   {
@@ -138,10 +148,10 @@ export const CATEGORIES: CategoryConfig[] = [
     label: 'Cafeterías',
     icon: 'Coffee',
     source: 'GOOGLE',
-    radius: 1000,
+    radius: 3000,
     maxResults: 5,
-    googleType: 'cafe',
-    searchMode: 'nearby',
+    searchMode: 'ai_curated',
+    aiPrompt: 'Las 5 mejores cafeterías y brunch spots de {city}. Incluye cafeterías de especialidad, con buen ambiente y bien valoradas.',
     fetchDetails: true,
   },
   {
@@ -149,10 +159,10 @@ export const CATEGORIES: CategoryConfig[] = [
     label: 'Qué ver',
     icon: 'Landmark',
     source: 'GOOGLE',
-    radius: 5000,
+    radius: 10000,
     maxResults: 8,
-    searchMode: 'text',
-    textQuery: 'monumentos y lugares de interés turístico',
+    searchMode: 'ai_curated',
+    aiPrompt: 'Los 8 lugares imprescindibles que ver en {city}: monumentos, miradores, plazas, barrios históricos, museos principales. Solo los más emblemáticos y visitados.',
     fetchDetails: true,
   },
   {
@@ -160,30 +170,33 @@ export const CATEGORIES: CategoryConfig[] = [
     label: 'Parques y jardines',
     icon: 'TreePine',
     source: 'GOOGLE',
-    radius: 3000,
+    radius: 5000,
     maxResults: 5,
-    googleType: 'park',
-    searchMode: 'nearby',
+    searchMode: 'ai_curated',
+    aiPrompt: 'Los 5 mejores parques y jardines de {city} para pasear, hacer deporte o descansar. Incluye parques urbanos, jardines históricos y espacios naturales cercanos.',
+    fetchDetails: true,
   },
   {
     id: 'beach',
     label: 'Playas',
     icon: 'Waves',
     source: 'GOOGLE',
-    radius: 15000,
-    maxResults: 5,
-    searchMode: 'text',
-    textQuery: 'mejores playas',
+    radius: 50000,
+    maxResults: 6,
+    searchMode: 'ai_curated',
+    aiPrompt: 'Las 6 mejores playas cerca de {city} (hasta 1h en coche). Incluye playas paradisíacas, calas escondidas y playas familiares. Prioriza las más bonitas y recomendadas, no solo las más cercanas.',
+    fetchDetails: true,
   },
   {
     id: 'shopping_mall',
     label: 'Centros comerciales',
     icon: 'Store',
     source: 'GOOGLE',
-    radius: 5000,
-    maxResults: 3,
-    googleType: 'shopping_mall',
-    searchMode: 'nearby',
+    radius: 15000,
+    maxResults: 6,
+    searchMode: 'ai_curated',
+    aiPrompt: 'Los 6 mejores centros comerciales y zonas de compras de {city} y alrededores. Incluye grandes centros comerciales, outlets, galerías comerciales y centros con más tiendas y mejor valorados. Prioriza los más grandes y visitados.',
+    fetchDetails: true,
   },
 ]
 

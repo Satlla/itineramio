@@ -4,7 +4,7 @@ import { planLimitsService } from '../../../../src/lib/plan-limits'
 import { generateManual, type PropertyInput, type GenerationEvent } from '../../../../src/lib/ai-setup/generator'
 import { type MediaAnalysisResult } from '../../../../src/lib/ai-setup/vision'
 
-export const maxDuration = 120
+export const maxDuration = 300
 export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
