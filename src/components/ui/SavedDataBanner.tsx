@@ -3,6 +3,7 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Save, X, Clock, RefreshCw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from './Button'
 
 interface SavedDataBannerProps {
@@ -20,20 +21,22 @@ export function SavedDataBanner({
   onClose,
   onStartFresh
 }: SavedDataBannerProps) {
+  const { t } = useTranslation('common')
+
   const formatTimestamp = (date: Date) => {
     const now = new Date()
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
     
     if (diffInMinutes < 1) {
-      return 'hace un momento'
+      return t('savedData.timeAgo.justNow')
     } else if (diffInMinutes < 60) {
-      return `hace ${diffInMinutes} minuto${diffInMinutes > 1 ? 's' : ''}`
+      return t('savedData.timeAgo.minutes', { count: diffInMinutes })
     } else if (diffInMinutes < 1440) {
       const hours = Math.floor(diffInMinutes / 60)
-      return `hace ${hours} hora${hours > 1 ? 's' : ''}`
+      return t('savedData.timeAgo.hours', { count: hours })
     } else {
       const days = Math.floor(diffInMinutes / 1440)
-      return `hace ${days} día${days > 1 ? 's' : ''}`
+      return t('savedData.timeAgo.days', { count: days })
     }
   }
 
@@ -56,14 +59,14 @@ export function SavedDataBanner({
                 
                 <div className="flex-1">
                   <h3 className="text-sm font-semibold text-gray-900 mb-1">
-                    📝 Datos guardados encontrados
+                    {t('savedData.title')}
                   </h3>
                   <p className="text-sm text-gray-600 mb-3">
-                    Encontramos información de una propiedad que estabas creando anteriormente.
+                    {t('savedData.description')}
                     {timestamp && (
                       <span className="flex items-center mt-1 text-xs text-gray-500">
                         <Clock className="w-3 h-3 mr-1" />
-                        Guardado {formatTimestamp(timestamp)}
+                        {t('savedData.savedAgo', { time: formatTimestamp(timestamp) })}
                       </span>
                     )}
                   </p>
@@ -75,7 +78,7 @@ export function SavedDataBanner({
                       className="bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       <RefreshCw className="w-4 h-4 mr-2" />
-                      Continuar donde lo dejé
+                      {t('savedData.continue')}
                     </Button>
                     {onStartFresh && (
                       <Button
@@ -84,7 +87,7 @@ export function SavedDataBanner({
                         size="sm"
                         className="border-gray-300 text-gray-700 hover:bg-gray-100"
                       >
-                        Empezar de nuevo
+                        {t('savedData.startOver')}
                       </Button>
                     )}
                   </div>

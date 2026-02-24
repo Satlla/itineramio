@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Sparkles,
@@ -22,76 +23,41 @@ interface UnifiedWelcomeModalProps {
   trialDaysRemaining?: number
 }
 
-const slides = [
+const slideConfig = [
   {
     id: 'welcome',
     icon: Sparkles,
-    title: '¡Bienvenido a Itineramio!',
-    subtitle: 'Deja de repetir lo mismo a cada huésped',
-    description: 'Crea un manual digital con toda la información que tus huéspedes necesitan. WiFi, check-in, electrodomésticos... todo en un solo lugar.',
     gradient: 'from-violet-600 via-purple-600 to-fuchsia-600',
     iconColor: 'text-violet-500',
-    features: [
-      { icon: '🔁', text: 'Olvídate de repetir las mismas respuestas' },
-      { icon: '📱', text: 'Accesible desde cualquier móvil' },
-      { icon: '⚡', text: 'Configúralo en minutos' }
-    ]
+    featureIcons: ['🔁', '📱', '⚡']
   },
   {
     id: 'zones',
     icon: Home,
-    title: 'Zonas ilimitadas',
-    subtitle: 'WiFi, Check-in, Lavadora, Cocina...',
-    description: 'Crea todas las zonas que necesites con vídeos, imágenes o texto. Tus huéspedes tendrán toda la información organizada.',
     gradient: 'from-blue-600 via-cyan-600 to-teal-600',
     iconColor: 'text-blue-500',
-    features: [
-      { icon: '🎬', text: 'Añade vídeos explicativos' },
-      { icon: '📸', text: 'Sube imágenes paso a paso' },
-      { icon: '📝', text: 'Instrucciones detalladas' }
-    ]
+    featureIcons: ['🎬', '📸', '📝']
   },
   {
     id: 'multilang',
     icon: Globe,
-    title: 'Manual en varios idiomas',
-    subtitle: 'Español, Inglés, Francés',
-    description: 'Tu manual se muestra automáticamente en el idioma del huésped. Llega a visitantes de todo el mundo.',
     gradient: 'from-emerald-600 via-green-600 to-lime-600',
     iconColor: 'text-emerald-500',
-    features: [
-      { icon: '🇪🇸', text: 'Español' },
-      { icon: '🇬🇧', text: 'Inglés' },
-      { icon: '🇫🇷', text: 'Francés' }
-    ]
+    featureIcons: ['🇪🇸', '🇬🇧', '🇫🇷']
   },
   {
     id: 'whatsapp',
     icon: MessageCircle,
-    title: 'WhatsApp a un click',
-    subtitle: 'Conexión directa con tus huéspedes',
-    description: 'Si tienen un problema, pueden contactarte por WhatsApp con un solo toque. Sin buscar números ni copiar enlaces.',
     gradient: 'from-green-600 via-emerald-600 to-teal-600',
     iconColor: 'text-green-500',
-    features: [
-      { icon: '💬', text: 'Botón directo a WhatsApp' },
-      { icon: '🚀', text: 'Respuesta inmediata' },
-      { icon: '✅', text: 'Menos llamadas, más soluciones' }
-    ]
+    featureIcons: ['💬', '🚀', '✅']
   },
   {
     id: 'announcements',
     icon: Bell,
-    title: 'Avisos importantes',
-    subtitle: 'Lo primero que ven al entrar',
-    description: 'Añade avisos destacados para que tus huéspedes sepan lo esencial nada más aterrizar en tu manual.',
     gradient: 'from-amber-600 via-orange-600 to-red-600',
     iconColor: 'text-amber-500',
-    features: [
-      { icon: '🔔', text: 'Avisos visibles al entrar' },
-      { icon: '⚠️', text: 'Información importante primero' },
-      { icon: '📌', text: 'Normas, horarios, contactos' }
-    ]
+    featureIcons: ['🔔', '⚠️', '📌']
   }
 ]
 
@@ -101,9 +67,22 @@ export function UnifiedWelcomeModal({
   userName,
   trialDaysRemaining
 }: UnifiedWelcomeModalProps) {
+  const { t } = useTranslation('dashboard')
   const router = useRouter()
   const [currentSlide, setCurrentSlide] = useState(0)
   const [direction, setDirection] = useState(0)
+
+  const slides = slideConfig.map((cfg) => ({
+    ...cfg,
+    title: t(`unifiedWelcome.slides.${cfg.id}.title`),
+    subtitle: t(`unifiedWelcome.slides.${cfg.id}.subtitle`),
+    description: t(`unifiedWelcome.slides.${cfg.id}.description`),
+    features: cfg.featureIcons.map((icon, i) => ({
+      icon,
+      text: t(`unifiedWelcome.slides.${cfg.id}.features.${i}`)
+    }))
+  }))
+
   const isLastSlide = currentSlide === slides.length - 1
   const isFirstSlide = currentSlide === 0
   const slide = slides[currentSlide]
@@ -277,7 +256,7 @@ export function UnifiedWelcomeModal({
                   className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-white/20 backdrop-blur-sm rounded-full px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2"
                 >
                   <p className="text-xs sm:text-sm font-semibold text-white">
-                    ✨ {trialDaysRemaining} días de prueba
+                    {t('unifiedWelcome.trialDays', { count: trialDaysRemaining })}
                   </p>
                 </motion.div>
               )}
@@ -297,7 +276,7 @@ export function UnifiedWelcomeModal({
                   className="text-center"
                 >
                   <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2">
-                    {currentSlide === 0 && userName ? `¡Hola, ${userName}!` : slide.title}
+                    {currentSlide === 0 && userName ? t('unifiedWelcome.greeting', { name: userName }) : slide.title}
                   </h1>
                   <p className="text-sm sm:text-base md:text-lg opacity-90">{slide.subtitle}</p>
                 </motion.div>
@@ -348,7 +327,7 @@ export function UnifiedWelcomeModal({
                   variant="ghost"
                   className="text-gray-500 hover:text-gray-700 text-sm px-3 py-2"
                 >
-                  Saltar
+                  {t('unifiedWelcome.skip')}
                 </Button>
 
                 <div className="flex gap-3">
@@ -358,7 +337,7 @@ export function UnifiedWelcomeModal({
                       variant="outline"
                       className="border-gray-300 text-sm px-4 py-2"
                     >
-                      Anterior
+                      {t('unifiedWelcome.previous')}
                     </Button>
                   )}
 
@@ -367,7 +346,7 @@ export function UnifiedWelcomeModal({
                       onClick={handleNext}
                       className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all text-sm px-5 py-2"
                     >
-                      Siguiente
+                      {t('unifiedWelcome.next')}
                       <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
                   ) : (
@@ -376,7 +355,7 @@ export function UnifiedWelcomeModal({
                       className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all text-sm px-5 py-2"
                     >
                       <Check className="w-4 h-4 mr-1" />
-                      ¡Empezar!
+                      {t('unifiedWelcome.start')}
                     </Button>
                   )}
                 </div>

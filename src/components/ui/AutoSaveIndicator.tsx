@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Save, Check } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface AutoSaveIndicatorProps {
   isVisible: boolean
@@ -11,6 +12,7 @@ interface AutoSaveIndicatorProps {
 }
 
 export function AutoSaveIndicator({ isVisible, lastSaved, isSaving = false }: AutoSaveIndicatorProps) {
+  const { t } = useTranslation('common')
   const [showSaved, setShowSaved] = useState(false)
   const [showIndicator, setShowIndicator] = useState(false)
 
@@ -62,8 +64,8 @@ export function AutoSaveIndicator({ isVisible, lastSaved, isSaving = false }: Au
             {showSaved ? (
               <>
                 <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Guardado {lastSaved && formatTime(lastSaved)}</span>
-                <span className="inline sm:hidden">Guardado</span>
+                <span className="hidden sm:inline">{t('autosave.savedAt', { time: lastSaved ? formatTime(lastSaved) : '' })}</span>
+                <span className="inline sm:hidden">{t('autosave.saved')}</span>
               </>
             ) : (
               <>
@@ -73,8 +75,8 @@ export function AutoSaveIndicator({ isVisible, lastSaved, isSaving = false }: Au
                 >
                   <Save className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </motion.div>
-                <span className="hidden sm:inline">Guardando borrador...</span>
-                <span className="inline sm:hidden">Guardando...</span>
+                <span className="hidden sm:inline">{t('autosave.savingDraft')}</span>
+                <span className="inline sm:hidden">{t('autosave.saving')}</span>
               </>
             )}
           </div>

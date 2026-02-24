@@ -3,6 +3,7 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Bell, X, ArrowLeft, AlertTriangle, AlertCircle, Info, ExternalLink, CheckCircle, Star, MessageCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Notification } from '../../types/notifications'
 import { Button } from './Button'
 
@@ -36,6 +37,8 @@ export function NotificationCenter({
   onMarkAsRead,
   onMarkAllAsRead
 }: NotificationCenterProps) {
+  const { t } = useTranslation('common')
+
   const getNotificationIcon = (type: Notification['type']) => {
     switch (type) {
       case 'warning':
@@ -68,11 +71,11 @@ export function NotificationCenter({
     const days = Math.floor(diff / (1000 * 60 * 60 * 24))
 
     if (minutes < 60) {
-      return `hace ${minutes}m`
+      return t('notifications.timeAgo.minutes', { count: minutes })
     } else if (hours < 24) {
-      return `hace ${hours}h`
+      return t('notifications.timeAgo.hours', { count: hours })
     } else {
-      return `hace ${days}d`
+      return t('notifications.timeAgo.days', { count: days })
     }
   }
 
@@ -97,9 +100,9 @@ export function NotificationCenter({
                   <ArrowLeft className="w-5 h-5 text-gray-500" />
                 </button>
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Notificaciones</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">{t('notifications.title')}</h2>
                   {unreadCount > 0 && (
-                    <p className="text-sm text-gray-500">{unreadCount} sin leer</p>
+                    <p className="text-sm text-gray-500">{t('notifications.unread', { count: unreadCount })}</p>
                   )}
                 </div>
               </div>
@@ -121,7 +124,7 @@ export function NotificationCenter({
                   className="text-sm"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  Marcar todas como leídas
+                  {t('notifications.markAllRead')}
                 </Button>
               </div>
             )}
@@ -132,10 +135,10 @@ export function NotificationCenter({
                 <div className="text-center py-12">
                   <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    No tienes notificaciones
+                    {t('notifications.empty')}
                   </h3>
                   <p className="text-gray-500">
-                    Te avisaremos cuando haya algo importante
+                    {t('notifications.emptyDescription')}
                   </p>
                 </div>
               ) : (
@@ -207,13 +210,13 @@ export function NotificationCenter({
                                         ? 'bg-green-100 text-green-700'
                                         : 'bg-gray-100 text-gray-600'
                                     }`}>
-                                      {notification.metadata?.isPublic ? 'Pública' : 'Privada'}
+                                      {notification.metadata?.isPublic ? t('notifications.evaluation.public') : t('notifications.evaluation.private')}
                                     </span>
                                     {notification.metadata?.hasComment && (
                                       <>
                                         <span>•</span>
                                         <MessageCircle className="w-3 h-3" />
-                                        <span>Con comentario</span>
+                                        <span>{t('notifications.evaluation.withComment')}</span>
                                       </>
                                     )}
                                   </div>
@@ -225,7 +228,7 @@ export function NotificationCenter({
                                 </span>
                                 {notification.actionUrl && (
                                   <span className="text-xs text-violet-600 hover:text-violet-700 font-medium">
-                                    Ver detalles →
+                                    {t('notifications.viewDetails')}
                                   </span>
                                 )}
                               </div>

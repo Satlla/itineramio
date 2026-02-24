@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Clock, X, Sparkles } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface TrialStatus {
   isActive: boolean
@@ -33,6 +34,7 @@ export const TrialTopBar: React.FC<TrialTopBarProps> = ({
   onClose
 }) => {
   const router = useRouter()
+  const { t } = useTranslation('dashboard')
   const [isVisible, setIsVisible] = useState(true)
   const [timeRemaining, setTimeRemaining] = useState<TimeRemaining>({
     days: 0,
@@ -118,13 +120,11 @@ export const TrialTopBar: React.FC<TrialTopBarProps> = ({
 
   const getMessage = () => {
     if (!isTrialActive) {
-      return 'Activa tu suscripción'
+      return t('trial.topBar.activateSubscription')
     } else if (daysRemaining === 0) {
-      return 'Último día de prueba'
-    } else if (daysRemaining === 1) {
-      return '1 día de prueba'
+      return t('trial.topBar.lastDay')
     } else {
-      return `${daysRemaining} días de prueba`
+      return t('trial.topBar.daysLeft', { count: daysRemaining })
     }
   }
 
@@ -141,7 +141,7 @@ export const TrialTopBar: React.FC<TrialTopBarProps> = ({
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 flex-shrink-0" />
                   <span className="text-sm font-medium">
-                    Período de evaluación
+                    {t('trial.topBar.evaluationPeriod')}
                   </span>
                 </div>
 
@@ -160,7 +160,7 @@ export const TrialTopBar: React.FC<TrialTopBarProps> = ({
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 flex-shrink-0" />
                 <span className="text-sm font-medium">
-                  Activa tu plan para continuar
+                  {t('trial.topBar.activatePlan')}
                 </span>
               </div>
             )}
@@ -172,14 +172,14 @@ export const TrialTopBar: React.FC<TrialTopBarProps> = ({
               href="/funcionalidades"
               className="text-xs sm:text-sm font-medium px-3 py-1 text-gray-300 hover:text-white transition-colors whitespace-nowrap hidden sm:block"
             >
-              Ver funcionalidades
+              {t('trial.topBar.viewFeatures')}
             </Link>
 
             <button
               onClick={handleViewPlans}
               className="text-xs sm:text-sm font-medium px-3 py-1 bg-white text-gray-900 rounded-md hover:bg-gray-200 transition-colors whitespace-nowrap"
             >
-              Ver planes →
+              {t('trial.topBar.viewPlans')}
             </button>
 
             <button
@@ -188,7 +188,7 @@ export const TrialTopBar: React.FC<TrialTopBarProps> = ({
                 onClose?.()
               }}
               className="text-gray-400 hover:text-white transition-colors hidden sm:block"
-              aria-label="Cerrar barra"
+              aria-label={t('trial.topBar.closeBar')}
             >
               <X className="w-4 h-4" />
             </button>

@@ -27,7 +27,7 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
   const [audioEnabled, setAudioEnabled] = useState(false)
   const notificationsRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
-  const { t } = useTranslation('common')
+  const { t } = useTranslation('dashboard')
   const { unreadCount } = useRealNotifications()
 
   // Initialize audio context on first user interaction
@@ -146,28 +146,28 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
                 href="/main"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
-                Inicio
+                {t('navbar.home')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
               <Link
                 href="/properties"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
-                Propiedades
+                {t('navbar.properties')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
               <Link
                 href="/properties/groups"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
-                Conjuntos
+                {t('navbar.sets')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
               <Link
                 href="/gestion"
                 className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
               >
-                Gestión
+                {t('navbar.gestion')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
             </div>
@@ -211,13 +211,13 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
                       className="fixed left-3 right-3 top-14 sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80 sm:max-w-sm bg-white rounded-lg shadow-2xl border border-gray-200 z-50"
                     >
                       <div className="p-4 border-b border-gray-200">
-                        <h3 className="font-semibold text-gray-900">Notificaciones</h3>
+                        <h3 className="font-semibold text-gray-900">{t('navbar.notifications')}</h3>
                       </div>
                       <div className="max-h-96 overflow-y-auto">
                         {unreadCount === 0 ? (
                           <div className="p-8 text-center">
                             <Bell className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                            <p className="text-gray-500 text-sm">No tienes notificaciones</p>
+                            <p className="text-gray-500 text-sm">{t('navbar.noNotifications')}</p>
                           </div>
                         ) : (
                           <div className="p-2">
@@ -232,10 +232,10 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
                                 <div className="w-2 h-2 bg-red-500 rounded-full mt-1.5 flex-shrink-0"></div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm text-gray-900 font-medium">
-                                    Tienes {unreadCount} notificación{unreadCount !== 1 ? 'es' : ''} sin leer
+                                    {t('navbar.unreadNotifications', { count: unreadCount })}
                                   </p>
                                   <p className="text-xs text-gray-500 mt-1">
-                                    Haz clic para ver todas las notificaciones
+                                    {t('navbar.clickToViewAll')}
                                   </p>
                                 </div>
                               </div>
@@ -251,7 +251,7 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
                           }}
                           className="w-full text-center text-sm text-violet-600 hover:text-violet-700 font-medium"
                         >
-                          Ver todas las notificaciones
+                          {t('navbar.viewAllNotifications')}
                         </button>
                       </div>
                     </motion.div>

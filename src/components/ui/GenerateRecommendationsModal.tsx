@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, MapPin, Sparkles, CheckCircle, Loader2, AlertCircle } from 'lucide-react'
 import { Button } from './Button'
@@ -35,6 +36,7 @@ export function GenerateRecommendationsModal({
   propertyLocation,
   onSuccess,
 }: GenerateRecommendationsModalProps) {
+  const { t } = useTranslation('property')
   const [step, setStep] = useState<'address' | 'categories' | 'generating' | 'done' | 'error'>('address')
   const [address, setAddress] = useState<AddressData | null>(null)
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
@@ -85,6 +87,7 @@ export function GenerateRecommendationsModal({
         body: JSON.stringify({
           lat: address.lat,
           lng: address.lng,
+          city: address.city || '',
           categories: Array.from(selectedCategories),
         }),
       })
@@ -92,13 +95,13 @@ export function GenerateRecommendationsModal({
       const data = await response.json()
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Error al generar recomendaciones')
+        throw new Error(data.error || t('recommendations.modal.errorGenerating'))
       }
 
       setResult({ zonesCreated: data.zonesCreated, totalPlaces: data.totalPlaces })
       setStep('done')
     } catch (err: any) {
-      setError(err.message || 'Error inesperado')
+      setError(err.message || t('recommendations.modal.unexpectedError'))
       setStep('error')
     }
   }
@@ -138,7 +141,7 @@ export function GenerateRecommendationsModal({
                 <Sparkles className="w-5 h-5 text-violet-600" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Recomendaciones locales</h2>
+                <h2 className="text-lg font-semibold text-gray-900">{t('recommendations.modal.title')}</h2>
                 <p className="text-sm text-gray-500">{propertyName}</p>
               </div>
             </div>
@@ -156,17 +159,17 @@ export function GenerateRecommendationsModal({
               <div className="space-y-4">
                 <div>
                   <p className="text-sm text-gray-600 mb-3">
-                    Confirma la dirección de la propiedad para buscar lugares cercanos automáticamente.
+                    {t('recommendations.modal.confirmAddress')}
                   </p>
                   <AddressAutocomplete
                     value={propertyLocation}
                     onChange={handleAddressChange}
-                    placeholder="Escribe la dirección de la propiedad..."
+                    placeholder={t('recommendations.modal.addressPlaceholder')}
                   />
                   {address?.lat && address?.lng && (
                     <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
                       <CheckCircle className="w-3 h-3" />
-                      Coordenadas detectadas: {address.lat.toFixed(4)}, {address.lng.toFixed(4)}
+                      {t('recommendations.modal.coordinatesDetected', { lat: address.lat.toFixed(4), lng: address.lng.toFixed(4) })}
                     </p>
                   )}
                 </div>
@@ -176,7 +179,7 @@ export function GenerateRecommendationsModal({
                   disabled={!address?.lat || !address?.lng}
                   className="w-full bg-violet-600 hover:bg-violet-700 text-white"
                 >
-                  Siguiente
+                  {t('recommendations.modal.next')}
                 </Button>
               </div>
             )}
@@ -186,15 +189,15 @@ export function GenerateRecommendationsModal({
               <div className="space-y-4">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">
-                    Selecciona las categorías que quieres generar:
+                    {t('recommendations.modal.selectCategories')}
                   </p>
                   <div className="flex items-center gap-2 mb-3">
                     <button onClick={selectAll} className="text-xs text-violet-600 hover:underline">
-                      Seleccionar todas
+                      {t('recommendations.modal.selectAll')}
                     </button>
                     <span className="text-gray-300">|</span>
                     <button onClick={selectNone} className="text-xs text-gray-500 hover:underline">
-                      Ninguna
+                      {t('recommendations.modal.selectNone')}
                     </button>
                   </div>
                 </div>
@@ -202,7 +205,7 @@ export function GenerateRecommendationsModal({
                 {/* OSM categories (free) */}
                 <div>
                   <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
-                    Servicios esenciales (gratis)
+                    {t('recommendations.modal.essentialServices')}
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     {osmCategories.map(cat => (
@@ -224,7 +227,7 @@ export function GenerateRecommendationsModal({
                             <CheckCircle className="w-3 h-3 text-white" />
                           )}
                         </div>
-                        <span className="truncate">{cat.label}</span>
+                        <span className="truncate">{t(`recommendations.modal.categories.${cat.id}`)}</span>
                       </button>
                     ))}
                   </div>
@@ -233,7 +236,7 @@ export function GenerateRecommendationsModal({
                 {/* Google categories (paid) */}
                 <div>
                   <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
-                    Ocio y turismo (curadas)
+                    {t('recommendations.modal.leisureTourism')}
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     {googleCategories.map(cat => (
@@ -255,7 +258,7 @@ export function GenerateRecommendationsModal({
                             <CheckCircle className="w-3 h-3 text-white" />
                           )}
                         </div>
-                        <span className="truncate">{cat.label}</span>
+                        <span className="truncate">{t(`recommendations.modal.categories.${cat.id}`)}</span>
                       </button>
                     ))}
                   </div>
@@ -267,7 +270,7 @@ export function GenerateRecommendationsModal({
                     onClick={() => setStep('address')}
                     className="flex-1"
                   >
-                    Atrás
+                    {t('recommendations.modal.back')}
                   </Button>
                   <Button
                     onClick={handleGenerate}
@@ -275,7 +278,7 @@ export function GenerateRecommendationsModal({
                     className="flex-1 bg-violet-600 hover:bg-violet-700 text-white"
                   >
                     <Sparkles className="w-4 h-4 mr-2" />
-                    Generar ({selectedCategories.size})
+                    {t('recommendations.modal.generate', { count: selectedCategories.size })}
                   </Button>
                 </div>
               </div>
@@ -286,10 +289,10 @@ export function GenerateRecommendationsModal({
               <div className="text-center py-8">
                 <Loader2 className="w-10 h-10 text-violet-600 animate-spin mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Buscando lugares cercanos...
+                  {t('recommendations.modal.searching')}
                 </h3>
                 <p className="text-sm text-gray-500">
-                  Esto puede tardar unos segundos. Estamos consultando farmacias, restaurantes, supermercados y más cerca de tu propiedad.
+                  {t('recommendations.modal.searchingDescription')}
                 </p>
               </div>
             )}
@@ -301,20 +304,20 @@ export function GenerateRecommendationsModal({
                   <CheckCircle className="w-8 h-8 text-green-600" />
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Recomendaciones generadas
+                  {t('recommendations.modal.generated')}
                 </h3>
                 <p className="text-sm text-gray-600 mb-6">
-                  Se han creado <strong>{result.zonesCreated} zonas</strong> con{' '}
-                  <strong>{result.totalPlaces} recomendaciones</strong> para tus huéspedes.
+                  {t('recommendations.modal.generatedZones', { count: result.zonesCreated })}{' '}
+                  {t('recommendations.modal.generatedPlaces', { count: result.totalPlaces })}
                 </p>
                 <p className="text-xs text-gray-400 mb-6">
-                  Las zonas ya están publicadas y visibles para tus huéspedes.
+                  {t('recommendations.modal.zonesPublished')}
                 </p>
                 <Button
                   onClick={handleDone}
                   className="w-full bg-violet-600 hover:bg-violet-700 text-white"
                 >
-                  Ver zonas de recomendaciones
+                  {t('recommendations.modal.viewZones')}
                 </Button>
               </div>
             )}
@@ -329,13 +332,13 @@ export function GenerateRecommendationsModal({
                 <p className="text-sm text-red-600 mb-6">{error}</p>
                 <div className="flex gap-3">
                   <Button variant="outline" onClick={onClose} className="flex-1">
-                    Cerrar
+                    {t('recommendations.modal.close')}
                   </Button>
                   <Button
                     onClick={() => setStep('categories')}
                     className="flex-1 bg-violet-600 hover:bg-violet-700 text-white"
                   >
-                    Reintentar
+                    {t('recommendations.modal.retry')}
                   </Button>
                 </div>
               </div>

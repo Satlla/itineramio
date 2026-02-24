@@ -48,78 +48,78 @@ interface SideMenuProps {
 }
 
 export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideMenuProps) {
-  const { t } = useTranslation('common')
+  const { t } = useTranslation('dashboard')
   const { unreadCount } = useRealNotifications()
 
   const menuItems: MenuItem[] = [
     {
       icon: <Home className="w-5 h-5" />,
-      label: "Propiedades",
+      label: t('sidebar.properties'),
       href: "/properties",
-      description: "Gestionar tus propiedades",
+      description: t('sidebar.propertiesDesc'),
       mobileOnly: true
     },
     {
       icon: <Layers className="w-5 h-5" />,
-      label: "Conjuntos",
+      label: t('sidebar.sets'),
       href: "/properties?tab=sets",
-      description: "Agrupar propiedades similares",
+      description: t('sidebar.setsDesc'),
       mobileOnly: true
     },
     {
       icon: <Briefcase className="w-5 h-5" />,
-      label: "Gestión",
+      label: t('sidebar.gestion'),
       href: "/gestion",
-      description: "Gestión económica de propiedades",
+      description: t('sidebar.gestionDesc'),
       mobileOnly: true
     },
     {
       icon: <Image className="w-5 h-5" />,
-      label: "Biblioteca de Medios",
+      label: t('sidebar.mediaLibrary'),
       href: "/media-library",
-      description: "Gestionar imágenes y archivos"
+      description: t('sidebar.mediaLibraryDesc')
     },
     {
       icon: <User className="w-5 h-5" />,
-      label: "Cuenta",
+      label: t('sidebar.account'),
       href: "/account",
-      description: "Información personal y configuración"
+      description: t('sidebar.accountDesc')
     },
     {
       icon: <Settings className="w-5 h-5" />,
-      label: "Configuración",
+      label: t('sidebar.settings'),
       href: "/account/notifications",
-      description: "Editar tu perfil y preferencias"
+      description: t('sidebar.settingsDesc')
     },
     {
       icon: <CreditCard className="w-5 h-5" />,
-      label: "Suscripciones",
+      label: t('sidebar.subscriptions'),
       href: "/subscriptions",
-      description: "Gestiona tus suscripciones y facturas"
+      description: t('sidebar.subscriptionsDesc')
     },
     {
       icon: <Receipt className="w-5 h-5" />,
-      label: "Facturación",
+      label: t('sidebar.billing'),
       href: "/account/billing",
-      description: "Datos de facturación y documentación"
+      description: t('sidebar.billingDesc')
     },
     {
       icon: <BookOpen className="w-5 h-5" />,
-      label: "Recursos del Host",
+      label: t('sidebar.hostResources'),
       href: "/recursos",
-      description: "Guías y mejores prácticas"
+      description: t('sidebar.hostResourcesDesc')
     },
     {
       icon: <HelpCircle className="w-5 h-5" />,
-      label: "Ayuda",
+      label: t('sidebar.help'),
       href: "/help",
-      description: "Centro de ayuda y soporte"
+      description: t('sidebar.helpDesc')
     },
     {
       icon: <Shield className="w-5 h-5" />,
-      label: "Privacidad",
+      label: t('sidebar.privacy'),
       href: "/privacy",
-      description: "Configuración de privacidad"
+      description: t('sidebar.privacyDesc')
     }
   ]
 
@@ -155,7 +155,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
             <div className="px-4 sm:px-6 pb-4 sm:pb-6 pt-4">
               {/* Header */}
               <div className="flex items-center justify-between mb-6 sm:mb-8">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Menú</h2>
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">{t('sidebar.menu')}</h2>
                 <button
                   onClick={onClose}
                   className="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -179,7 +179,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium text-gray-900 truncate text-sm sm:text-base">
-                    {user?.name || 'Usuario'}
+                    {user?.name || t('sidebar.defaultUser')}
                   </h3>
                   <p className="text-xs sm:text-sm text-gray-500 truncate">
                     {user?.email || 'usuario@email.com'}
@@ -249,7 +249,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
               <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200">
                 <div className="flex items-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
                   <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
-                  <span className="font-medium text-gray-900 text-sm sm:text-base">Idioma</span>
+                  <span className="font-medium text-gray-900 text-sm sm:text-base">{t('sidebar.language')}</span>
                 </div>
                 <div className="pl-6 sm:pl-8">
                   <LanguageSwitcher />
@@ -277,7 +277,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
                 >
                   <LogOut className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 group-hover:text-red-600 transition-colors flex-shrink-0" />
                   <span className="font-medium text-gray-900 group-hover:text-red-600 transition-colors text-sm sm:text-base">
-                    Cerrar sesión
+                    {t('sidebar.logout')}
                   </span>
                 </motion.button>
               </div>

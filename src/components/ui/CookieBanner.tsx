@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { X, Settings, ChevronDown, ChevronUp } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export interface CookiePreferences {
   essential: boolean // Always true, cannot be disabled
@@ -48,6 +49,7 @@ export function isCookieCategoryAllowed(category: keyof CookiePreferences): bool
 }
 
 export const CookieBanner: React.FC = () => {
+  const { t } = useTranslation('common')
   const [isVisible, setIsVisible] = useState(false)
   const [showPreferences, setShowPreferences] = useState(false)
   const [preferences, setPreferences] = useState<CookiePreferences>(DEFAULT_PREFERENCES)
@@ -129,12 +131,12 @@ export const CookieBanner: React.FC = () => {
           {/* Message */}
           <div className="flex-1 pr-0 sm:pr-4">
             <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-              Utilizamos cookies para mejorar tu experiencia.{' '}
+              {t('cookies.banner.message')}{' '}
               <Link
                 href="/legal/cookies"
                 className="text-white underline hover:text-gray-200 transition-colors whitespace-nowrap"
               >
-                Más información
+                {t('cookies.banner.moreInfo')}
               </Link>
             </p>
           </div>
@@ -147,25 +149,25 @@ export const CookieBanner: React.FC = () => {
               aria-expanded={showPreferences}
             >
               <Settings className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Personalizar</span>
+              <span className="hidden sm:inline">{t('cookies.banner.customize')}</span>
               {showPreferences ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
             <button
               onClick={handleRejectAll}
               className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-300 hover:text-white transition-colors whitespace-nowrap flex-1 sm:flex-none"
             >
-              Solo esenciales
+              {t('cookies.banner.essentialOnly')}
             </button>
             <button
               onClick={handleAcceptAll}
               className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium bg-white text-gray-900 rounded-md hover:bg-gray-200 transition-colors whitespace-nowrap flex-1 sm:flex-none"
             >
-              Aceptar todo
+              {t('cookies.banner.acceptAll')}
             </button>
             <button
               onClick={handleRejectAll}
               className="text-gray-400 hover:text-white transition-colors p-1"
-              aria-label="Cerrar banner"
+              aria-label={t('cookies.banner.closeBanner')}
             >
               <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
@@ -179,18 +181,18 @@ export const CookieBanner: React.FC = () => {
               {/* Essential Cookies */}
               <div className="bg-gray-800 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-white">Esenciales</h3>
-                  <span className="text-xs text-gray-400 bg-gray-700 px-2 py-0.5 rounded">Siempre activas</span>
+                  <h3 className="text-sm font-medium text-white">{t('cookies.categories.essential.title')}</h3>
+                  <span className="text-xs text-gray-400 bg-gray-700 px-2 py-0.5 rounded">{t('cookies.categories.essential.alwaysActive')}</span>
                 </div>
                 <p className="text-xs text-gray-400">
-                  Necesarias para el funcionamiento del sitio. Incluyen autenticación, seguridad y preferencias básicas.
+                  {t('cookies.categories.essential.description')}
                 </p>
               </div>
 
               {/* Analytics Cookies */}
               <div className="bg-gray-800 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-white">Analíticas</h3>
+                  <h3 className="text-sm font-medium text-white">{t('cookies.categories.analytics.title')}</h3>
                   <button
                     onClick={() => togglePreference('analytics')}
                     className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
@@ -208,14 +210,14 @@ export const CookieBanner: React.FC = () => {
                   </button>
                 </div>
                 <p className="text-xs text-gray-400">
-                  Nos ayudan a entender cómo usas el sitio para mejorarlo. Datos agregados y anónimos.
+                  {t('cookies.categories.analytics.description')}
                 </p>
               </div>
 
               {/* Marketing Cookies */}
               <div className="bg-gray-800 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-white">Marketing</h3>
+                  <h3 className="text-sm font-medium text-white">{t('cookies.categories.marketing.title')}</h3>
                   <button
                     onClick={() => togglePreference('marketing')}
                     className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
@@ -231,7 +233,7 @@ export const CookieBanner: React.FC = () => {
                   </button>
                 </div>
                 <p className="text-xs text-gray-400">
-                  Permiten mostrarte contenido y publicidad relevante basada en tus intereses.
+                  {t('cookies.categories.marketing.description')}
                 </p>
               </div>
             </div>
@@ -241,7 +243,7 @@ export const CookieBanner: React.FC = () => {
                 onClick={handleSavePreferences}
                 className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               >
-                Guardar preferencias
+                {t('cookies.banner.savePreferences')}
               </button>
             </div>
           </div>
@@ -256,6 +258,7 @@ export const CookieBanner: React.FC = () => {
  * Add this component to your layout/footer to allow users to change preferences later
  */
 export const CookiePreferencesButton: React.FC = () => {
+  const { t } = useTranslation('common')
   const [showModal, setShowModal] = useState(false)
   const [preferences, setPreferences] = useState<CookiePreferences>(DEFAULT_PREFERENCES)
 
@@ -300,7 +303,7 @@ export const CookiePreferencesButton: React.FC = () => {
         className="text-gray-500 hover:text-gray-700 text-sm flex items-center gap-1 transition-colors"
       >
         <Settings className="w-4 h-4" />
-        Preferencias de cookies
+        {t('cookies.preferences.buttonLabel')}
       </button>
 
       {showModal && (
@@ -308,7 +311,7 @@ export const CookiePreferencesButton: React.FC = () => {
           <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900">Preferencias de Cookies</h2>
+                <h2 className="text-xl font-bold text-gray-900">{t('cookies.preferences.title')}</h2>
                 <button
                   onClick={() => setShowModal(false)}
                   className="text-gray-400 hover:text-gray-600"
@@ -318,26 +321,25 @@ export const CookiePreferencesButton: React.FC = () => {
               </div>
 
               <p className="text-sm text-gray-600 mb-6">
-                Puedes cambiar tus preferencias de cookies en cualquier momento.
-                Algunos cambios pueden requerir recargar la página.
+                {t('cookies.preferences.description')}
               </p>
 
               <div className="space-y-4">
                 {/* Essential */}
                 <div className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-gray-900">Cookies Esenciales</h3>
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Siempre activas</span>
+                    <h3 className="font-medium text-gray-900">{t('cookies.preferences.essential.title')}</h3>
+                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">{t('cookies.categories.essential.alwaysActive')}</span>
                   </div>
                   <p className="text-sm text-gray-600">
-                    Necesarias para el funcionamiento básico del sitio. No pueden desactivarse.
+                    {t('cookies.preferences.essential.description')}
                   </p>
                 </div>
 
                 {/* Analytics */}
                 <div className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-gray-900">Cookies Analíticas</h3>
+                    <h3 className="font-medium text-gray-900">{t('cookies.preferences.analytics.title')}</h3>
                     <button
                       onClick={() => togglePreference('analytics')}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
@@ -351,14 +353,14 @@ export const CookiePreferencesButton: React.FC = () => {
                     </button>
                   </div>
                   <p className="text-sm text-gray-600">
-                    Nos permiten analizar el uso del sitio de forma agregada para mejorar la experiencia.
+                    {t('cookies.preferences.analytics.description')}
                   </p>
                 </div>
 
                 {/* Marketing */}
                 <div className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-gray-900">Cookies de Marketing</h3>
+                    <h3 className="font-medium text-gray-900">{t('cookies.preferences.marketing.title')}</h3>
                     <button
                       onClick={() => togglePreference('marketing')}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
@@ -372,7 +374,7 @@ export const CookiePreferencesButton: React.FC = () => {
                     </button>
                   </div>
                   <p className="text-sm text-gray-600">
-                    Utilizadas para mostrarte publicidad y contenido personalizado según tus intereses.
+                    {t('cookies.preferences.marketing.description')}
                   </p>
                 </div>
               </div>
@@ -382,13 +384,13 @@ export const CookiePreferencesButton: React.FC = () => {
                   onClick={() => setShowModal(false)}
                   className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
                 >
-                  Cancelar
+                  {t('cookies.preferences.cancel')}
                 </button>
                 <button
                   onClick={() => savePreferences(preferences)}
                   className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
-                  Guardar cambios
+                  {t('cookies.preferences.saveChanges')}
                 </button>
               </div>
             </div>

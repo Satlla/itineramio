@@ -44,7 +44,7 @@ export function DashboardFooter() {
             </div>
             <span className="text-gray-400 text-sm">•</span>
             <p className="text-sm text-gray-500">
-              © {currentYear} Itineramio. Todos los derechos reservados.
+              © {currentYear} Itineramio. {t('footer.copyright')}
             </p>
           </motion.div>
 
@@ -75,7 +75,7 @@ export function DashboardFooter() {
           >
             <div className="flex items-center space-x-2 text-sm text-gray-500">
               <Globe className="w-4 h-4" />
-              <span>Idioma:</span>
+              <span>{t('footer.language')}:</span>
             </div>
             <LanguageSwitcher />
           </motion.div>
@@ -89,9 +89,9 @@ export function DashboardFooter() {
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           <p className="text-xs text-gray-400 flex items-center justify-center space-x-1">
-            <span>Hecho con</span>
+            <span>{t('footer.madeWith')}</span>
             <Heart className="w-3 h-3 text-red-400" />
-            <span>para anfitriones de todo el mundo</span>
+            <span>{t('footer.forHosts')}</span>
           </p>
         </motion.div>
       </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Home,
@@ -42,6 +43,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
   userName,
   trialStatus
 }) => {
+  const { t } = useTranslation('dashboard')
   const router = useRouter()
   const [currentSlide, setCurrentSlide] = useState(0)
   const [showConfetti, setShowConfetti] = useState(false)
@@ -87,33 +89,33 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
   const features = [
     {
       icon: Home,
-      title: "Crea zonas interactivas",
-      description: "Divide tu propiedad en zonas con instrucciones detalladas"
+      title: t('welcomeModal.features.0.title'),
+      description: t('welcomeModal.features.0.description')
     },
     {
       icon: QrCode,
-      title: "Códigos QR imprimibles",
-      description: "Acceso directo a las instrucciones desde cualquier dispositivo"
+      title: t('welcomeModal.features.1.title'),
+      description: t('welcomeModal.features.1.description')
     },
     {
       icon: Mail,
-      title: "Envío automático",
-      description: "Tu manual se envía automáticamente antes del check-in"
+      title: t('welcomeModal.features.2.title'),
+      description: t('welcomeModal.features.2.description')
     },
     {
       icon: MessageCircle,
-      title: "Zonas individuales",
-      description: "Envía solo la zona que necesiten tus huéspedes"
+      title: t('welcomeModal.features.3.title'),
+      description: t('welcomeModal.features.3.description')
     },
     {
       icon: Clock,
-      title: "Ahorra tiempo",
-      description: "Hasta 8 horas/semana en gestión"
+      title: t('welcomeModal.features.4.title'),
+      description: t('welcomeModal.features.4.description')
     },
     {
       icon: Sparkles,
-      title: "Profesional y fácil",
-      description: "Guías digitales en minutos, sin complicaciones"
+      title: t('welcomeModal.features.5.title'),
+      description: t('welcomeModal.features.5.description')
     }
   ]
 
@@ -178,10 +180,10 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                 </motion.div>
 
                 <h1 className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl sm:text-4xl font-bold mb-1 sm:mb-2">
-                  ¡Bienvenido{userName ? `, ${userName}` : ''}!
+                  {userName ? t('welcomeModal.greetingWithName', { name: userName }) : t('welcomeModal.greeting')}
                 </h1>
                 <p className="text-sm sm:text-base sm:text-lg md:text-xl opacity-90">
-                  Tu herramienta para crear manuales digitales
+                  {t('welcomeModal.subtitle')}
                 </p>
               </motion.div>
 
@@ -218,11 +220,11 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                         {trialStatus.daysRemaining}
                       </span>
                       <span className="text-sm sm:text-lg font-semibold text-amber-700">
-                        {trialStatus.daysRemaining === 1 ? 'día' : 'días'}
+                        {t('welcomeModal.trialDays', { count: trialStatus.daysRemaining })}
                       </span>
                     </div>
                     <p className="text-xs sm:text-sm font-medium text-amber-700">
-                      de período de prueba
+                      {t('welcomeModal.trialPeriod')}
                     </p>
                   </div>
                   <div className="bg-amber-100 rounded-full p-2 sm:p-3 hidden sm:block">
@@ -263,7 +265,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                         transition={{ delay: 0.3 }}
                         className="text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl sm:text-4xl font-bold text-gray-900"
                       >
-                        Descubre todo lo que puedes hacer con Itineramio
+                        {t('welcomeModal.discoverTitle')}
                       </motion.h2>
 
                       <motion.p
@@ -272,8 +274,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                         transition={{ delay: 0.4 }}
                         className="text-base sm:text-base sm:text-lg md:text-xl text-gray-600 max-w-[95vw] sm:max-w-[95vw] sm:max-w-[90vw] sm:max-w-[90vw] sm:max-w-sm md:max-w-md md:max-w-lg md:max-w-xl md:max-w-2xl mx-auto px-2"
                       >
-                        Crea manuales digitales interactivos para tus propiedades en minutos.
-                        Tus huéspedes accederán a toda la información desde su móvil.
+                        {t('welcomeModal.discoverDescription')}
                       </motion.p>
 
                       <motion.div
@@ -285,11 +286,11 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                         <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
                           <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
                           <h3 className="text-lg sm:text-base sm:text-lg md:text-xl font-bold text-green-900">
-                            ¡Comienza hoy!
+                            {t('welcomeModal.startToday')}
                           </h3>
                         </div>
                         <p className="text-sm sm:text-base text-center text-green-700">
-                          Crea tu primera propiedad y descubre todas las funcionalidades
+                          {t('welcomeModal.createFirstDescription')}
                         </p>
                       </motion.div>
                     </div>
@@ -312,7 +313,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                       transition={{ delay: 0.2 }}
                       className="text-base sm:text-lg md:text-xl sm:text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 text-center"
                     >
-                      Características principales
+                      {t('welcomeModal.mainFeatures')}
                     </motion.h2>
 
                     {/* Features Grid */}
@@ -358,7 +359,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                       className="px-4 py-2 text-sm sm:text-base"
                     >
                       <ArrowLeft className="w-4 h-4 mr-1" />
-                      Anterior
+                      {t('welcomeModal.previous')}
                     </Button>
                   )}
                   {currentSlide < 1 && (
@@ -366,7 +367,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                       onClick={nextSlide}
                       className="bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 text-sm sm:text-base"
                     >
-                      Siguiente
+                      {t('welcomeModal.next')}
                       <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>
                   )}
@@ -381,7 +382,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                         className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-4 sm:px-3 sm:px-4 md:px-6 py-2 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105 w-full sm:w-auto"
                       >
                         <Home className="w-4 h-4 mr-2" />
-                        Crear propiedad
+                        {t('welcomeModal.createProperty')}
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
 
@@ -390,7 +391,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                         variant="outline"
                         className="border-violet-200 text-violet-600 hover:bg-violet-50 px-4 sm:px-3 sm:px-4 md:px-6 py-2 text-sm sm:text-base font-semibold w-full sm:w-auto"
                       >
-                        Explorar
+                        {t('welcomeModal.explore')}
                       </Button>
                     </>
                   )}

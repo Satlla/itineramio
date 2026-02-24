@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Lightbulb, ArrowRight, Home } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface FirstPropertyNotificationProps {
   isOpen: boolean
@@ -15,6 +16,7 @@ export default function FirstPropertyNotification({
   onClose,
   onStartTour
 }: FirstPropertyNotificationProps) {
+  const { t } = useTranslation('dashboard')
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
@@ -90,10 +92,10 @@ export default function FirstPropertyNotification({
                 {/* Text content */}
                 <div className="flex-1 pt-0 sm:pt-1 pr-6 sm:pr-0">
                   <h3 className="text-base sm:text-xl font-bold text-amber-900 mb-1.5 sm:mb-2">
-                    ¡Crea tu primera propiedad!
+                    {t('firstProperty.title')}
                   </h3>
                   <p className="text-xs sm:text-base text-amber-800 mb-3 sm:mb-4 leading-relaxed">
-                    Te guiaremos paso a paso para que puedas crear tu primera propiedad y comenzar a usar Itineramio.
+                    {t('firstProperty.description')}
                   </p>
 
                   {/* Action buttons */}
@@ -103,7 +105,7 @@ export default function FirstPropertyNotification({
                       className="flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105 text-xs sm:text-base"
                     >
                       <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      Comenzar guía
+                      {t('firstProperty.startGuide')}
                       <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
 
@@ -111,7 +113,7 @@ export default function FirstPropertyNotification({
                       onClick={handleClose}
                       className="px-4 sm:px-5 py-2 sm:py-2.5 bg-white/80 hover:bg-white text-amber-800 rounded-lg font-medium border border-amber-200 hover:border-amber-300 transition-colors text-xs sm:text-base"
                     >
-                      Más tarde
+                      {t('firstProperty.later')}
                     </button>
                   </div>
                 </div>
@@ -121,7 +123,7 @@ export default function FirstPropertyNotification({
               <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-amber-200 flex items-start gap-2">
                 <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse flex-shrink-0 mt-0.5 sm:mt-1" />
                 <p className="text-[10px] sm:text-xs text-amber-700 leading-relaxed">
-                  También verás un icono de bombilla en el botón de crear propiedad
+                  {t('firstProperty.tip')}
                 </p>
               </div>
             </div>

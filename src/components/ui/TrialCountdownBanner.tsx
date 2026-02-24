@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Clock, Sparkles, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface TrialStatus {
   isActive: boolean
@@ -31,6 +32,7 @@ export const TrialCountdownBanner: React.FC<TrialCountdownBannerProps> = ({
   hasActiveSubscription = false
 }) => {
   const router = useRouter()
+  const { t } = useTranslation('dashboard')
   const [isVisible, setIsVisible] = useState(true)
   const [timeRemaining, setTimeRemaining] = useState<TimeRemaining>({
     days: 0,
@@ -116,23 +118,21 @@ export const TrialCountdownBanner: React.FC<TrialCountdownBannerProps> = ({
 
   const getMessage = () => {
     if (!isTrialActive) {
-      return 'Activa tu suscripción'
+      return t('trial.countdown.activateSubscription')
     } else if (daysRemaining === 0) {
-      return 'Último día de período de prueba'
-    } else if (daysRemaining === 1) {
-      return 'Queda 1 día de período de prueba'
+      return t('trial.countdown.lastDay')
     } else {
-      return `${daysRemaining} días de período de prueba`
+      return t('trial.countdown.daysLeft', { count: daysRemaining })
     }
   }
 
   const getDescription = () => {
     if (!isTrialActive) {
-      return 'Elige un plan para continuar gestionando tus propiedades'
+      return t('trial.countdown.choosePlan')
     } else if (daysRemaining <= 3) {
-      return 'Tu período de prueba está por finalizar'
+      return t('trial.countdown.aboutToEnd')
     } else {
-      return 'Explora todas las funciones antes de que finalice'
+      return t('trial.countdown.exploreFeatures')
     }
   }
 
@@ -144,7 +144,7 @@ export const TrialCountdownBanner: React.FC<TrialCountdownBannerProps> = ({
         <button
           onClick={() => setIsVisible(false)}
           className="absolute top-3 right-3 text-violet-400 hover:text-violet-600 transition-colors"
-          aria-label="Cerrar banner"
+          aria-label={t('trial.countdown.closeBanner')}
         >
           <X className="w-4 h-4" />
         </button>
@@ -162,11 +162,11 @@ export const TrialCountdownBanner: React.FC<TrialCountdownBannerProps> = ({
 
             <div>
               <h3 className="text-sm font-semibold text-gray-900">
-                {isTrialActive ? 'Período de evaluación' : 'Activa tu plan'}
+                {isTrialActive ? t('trial.countdown.evaluationPeriod') : t('trial.countdown.activatePlan')}
               </h3>
               {!isTrialActive && (
                 <p className="text-xs text-gray-600 mt-0.5">
-                  Elige un plan para continuar
+                  {t('trial.countdown.choosePlanShort')}
                 </p>
               )}
             </div>
@@ -182,7 +182,7 @@ export const TrialCountdownBanner: React.FC<TrialCountdownBannerProps> = ({
                   <div className="text-2xl font-bold text-violet-600 leading-none tabular-nums">
                     {timeRemaining.days}
                   </div>
-                  <div className="text-[10px] font-medium text-gray-500 mt-1 uppercase">días</div>
+                  <div className="text-[10px] font-medium text-gray-500 mt-1 uppercase">{t('trial.countdown.days')}</div>
                 </div>
 
                 <span className="text-xl text-violet-300 font-light">:</span>
@@ -191,7 +191,7 @@ export const TrialCountdownBanner: React.FC<TrialCountdownBannerProps> = ({
                   <div className="text-2xl font-bold text-violet-600 leading-none tabular-nums">
                     {String(timeRemaining.hours).padStart(2, '0')}
                   </div>
-                  <div className="text-[10px] font-medium text-gray-500 mt-1 uppercase">horas</div>
+                  <div className="text-[10px] font-medium text-gray-500 mt-1 uppercase">{t('trial.countdown.hours')}</div>
                 </div>
 
                 <span className="text-xl text-violet-300 font-light">:</span>
@@ -200,7 +200,7 @@ export const TrialCountdownBanner: React.FC<TrialCountdownBannerProps> = ({
                   <div className="text-2xl font-bold text-violet-600 leading-none tabular-nums">
                     {String(timeRemaining.minutes).padStart(2, '0')}
                   </div>
-                  <div className="text-[10px] font-medium text-gray-500 mt-1 uppercase">min</div>
+                  <div className="text-[10px] font-medium text-gray-500 mt-1 uppercase">{t('trial.countdown.min')}</div>
                 </div>
 
                 <span className="text-xl text-violet-300 font-light">:</span>
@@ -209,7 +209,7 @@ export const TrialCountdownBanner: React.FC<TrialCountdownBannerProps> = ({
                   <div className="text-2xl font-bold text-violet-600 leading-none tabular-nums">
                     {String(timeRemaining.seconds).padStart(2, '0')}
                   </div>
-                  <div className="text-[10px] font-medium text-gray-500 mt-1 uppercase">seg</div>
+                  <div className="text-[10px] font-medium text-gray-500 mt-1 uppercase">{t('trial.countdown.sec')}</div>
                 </div>
               </div>
             </>
@@ -222,15 +222,15 @@ export const TrialCountdownBanner: React.FC<TrialCountdownBannerProps> = ({
           <div className="hidden lg:flex items-center gap-6 flex-1">
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-violet-400"></div>
-              <span className="text-xs text-gray-600">Propiedades ilimitadas</span>
+              <span className="text-xs text-gray-600">{t('trial.countdown.unlimitedProperties')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-violet-400"></div>
-              <span className="text-xs text-gray-600">Soporte prioritario</span>
+              <span className="text-xs text-gray-600">{t('trial.countdown.prioritySupport')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-violet-400"></div>
-              <span className="text-xs text-gray-600">Sin permanencia</span>
+              <span className="text-xs text-gray-600">{t('trial.countdown.noCommitment')}</span>
             </div>
           </div>
 
@@ -240,14 +240,14 @@ export const TrialCountdownBanner: React.FC<TrialCountdownBannerProps> = ({
               onClick={handleViewPlans}
               className="inline-flex items-center justify-center px-5 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 transition-all shadow-sm whitespace-nowrap"
             >
-              Ver Planes
+              {t('trial.countdown.viewPlans')}
             </button>
 
             <Link
               href="/funcionalidades"
               className="hidden sm:inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-violet-700 hover:bg-white/50 transition-colors whitespace-nowrap"
             >
-              Más info
+              {t('trial.countdown.moreInfo')}
             </Link>
           </div>
         </div>

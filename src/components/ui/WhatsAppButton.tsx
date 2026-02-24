@@ -11,7 +11,7 @@ export function WhatsAppButton() {
 
   const phoneNumber = "+34652656440"
   const message = encodeURIComponent(
-    `¡Hola! Me interesa Itineramio y me gustaría obtener más información. ¿Podrían ayudarme?`
+    t('whatsapp.greeting')
   )
 
   const handleWhatsAppClick = () => {
@@ -53,7 +53,7 @@ export function WhatsAppButton() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">Itineramio</h3>
-                      <p className="text-sm text-green-600">En línea</p>
+                      <p className="text-sm text-green-600">{t('whatsapp.online')}</p>
                     </div>
                   </div>
                   <button
@@ -66,8 +66,7 @@ export function WhatsAppButton() {
                 
                 <div className="bg-gray-50 rounded-lg p-3 mb-4">
                   <p className="text-sm text-gray-700">
-                    👋 ¡Hola! ¿Necesitas ayuda con Itineramio? 
-                    Estamos aquí para resolver todas tus dudas.
+                    {t('whatsapp.helpMessage')}
                   </p>
                 </div>
 
@@ -76,11 +75,11 @@ export function WhatsAppButton() {
                   className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>Iniciar conversación</span>
+                  <span>{t('whatsapp.startChat')}</span>
                 </button>
                 
                 <p className="text-xs text-gray-500 text-center mt-2">
-                  Respuesta típica en pocos minutos
+                  {t('whatsapp.typicalResponse')}
                 </p>
               </div>
               

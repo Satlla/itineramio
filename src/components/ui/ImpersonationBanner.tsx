@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { Shield, X, LogOut } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useRouter } from 'next/navigation'
 import { Button } from './Button'
 
@@ -16,6 +17,7 @@ interface ImpersonationData {
 }
 
 export function ImpersonationBanner() {
+  const { t } = useTranslation('common')
   const [impersonationData, setImpersonationData] = useState<ImpersonationData | null>(null)
   const [isEnding, setIsEnding] = useState(false)
   const router = useRouter()
@@ -105,12 +107,12 @@ export function ImpersonationBanner() {
         window.location.href = '/admin/users'
       } else {
         console.error('Error deteniendo impersonation')
-        alert('Error al terminar la suplantación')
+        alert(t('admin.impersonation.error'))
         setIsEnding(false)
       }
     } catch (error) {
       console.error('Error:', error)
-      alert('Error al terminar la suplantación')
+      alert(t('admin.impersonation.error'))
       setIsEnding(false)
     }
   }
@@ -127,10 +129,10 @@ export function ImpersonationBanner() {
           <div className="flex items-center space-x-3">
             <Shield className="w-5 h-5 flex-shrink-0 animate-pulse" />
             <div className="flex items-center space-x-2 text-sm">
-              <span className="font-semibold">MODO ADMIN</span>
+              <span className="font-semibold">{t('admin.impersonation.label')}</span>
               <span className="hidden sm:inline">|</span>
               <span className="hidden sm:inline">
-                Viendo como: <strong>{impersonationData.targetUserName || impersonationData.targetUserEmail}</strong>
+                {t('admin.impersonation.viewing')} <strong>{impersonationData.targetUserName || impersonationData.targetUserEmail}</strong>
               </span>
             </div>
           </div>
@@ -138,7 +140,7 @@ export function ImpersonationBanner() {
           {/* Right side - Actions */}
           <div className="flex items-center space-x-2">
             <span className="text-xs hidden md:inline opacity-90">
-              Admin: {impersonationData.adminName}
+              {t('admin.impersonation.admin')}: {impersonationData.adminName}
             </span>
             <Button
               onClick={handleStopImpersonation}
@@ -150,12 +152,12 @@ export function ImpersonationBanner() {
               {isEnding ? (
                 <>
                   <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Saliendo...
+                  {t('admin.impersonation.exiting')}
                 </>
               ) : (
                 <>
                   <LogOut className="w-3 h-3 mr-1" />
-                  Volver a Admin
+                  {t('admin.impersonation.backToAdmin')}
                 </>
               )}
             </Button>
