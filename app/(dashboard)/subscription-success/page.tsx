@@ -1,11 +1,13 @@
 'use client'
 
 import React, { useEffect, useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { CheckCircle, Clock, CreditCard, Building2, Smartphone, ArrowRight, Loader2, XCircle } from 'lucide-react'
 import { trackPurchase, trackBeginCheckout } from '../../../src/lib/analytics'
 
 export default function SubscriptionSuccessPage() {
+  const { t } = useTranslation('dashboard')
   const router = useRouter()
   const searchParams = useSearchParams()
   const [paymentMethod, setPaymentMethod] = useState<string>('')
@@ -70,11 +72,11 @@ export default function SubscriptionSuccessPage() {
         setVerified(true)
         setSubscriptionInfo(data.subscription)
       } else {
-        setVerificationError(data.error || data.message || 'Error al verificar el pago')
+        setVerificationError(data.error || data.message || t('subscriptionSuccess.stripe.verifyError'))
       }
     } catch (error) {
       console.error('Error verifying Stripe payment:', error)
-      setVerificationError('Error al conectar con el servidor')
+      setVerificationError(t('subscriptionSuccess.stripe.connectionError'))
     } finally {
       setVerifying(false)
     }
@@ -85,26 +87,26 @@ export default function SubscriptionSuccessPage() {
       case 'bizum':
         return {
           icon: <Smartphone className="w-16 h-16 text-violet-600" />,
-          name: 'Bizum',
-          description: 'Pago instantáneo'
+          name: t('subscriptionSuccess.paymentMethod.bizum.name'),
+          description: t('subscriptionSuccess.paymentMethod.bizum.description')
         }
       case 'transfer':
         return {
           icon: <Building2 className="w-16 h-16 text-violet-600" />,
-          name: 'Transferencia Bancaria',
-          description: 'Pago mediante SEPA'
+          name: t('subscriptionSuccess.paymentMethod.transfer.name'),
+          description: t('subscriptionSuccess.paymentMethod.transfer.description')
         }
       case 'stripe':
         return {
           icon: <CreditCard className="w-16 h-16 text-violet-600" />,
-          name: 'Tarjeta',
-          description: 'Pago con tarjeta'
+          name: t('subscriptionSuccess.paymentMethod.stripe.name'),
+          description: t('subscriptionSuccess.paymentMethod.stripe.description')
         }
       default:
         return {
           icon: <CreditCard className="w-16 h-16 text-violet-600" />,
-          name: 'Pago',
-          description: 'Método de pago'
+          name: t('subscriptionSuccess.paymentMethod.default.name'),
+          description: t('subscriptionSuccess.paymentMethod.default.description')
         }
     }
   }
@@ -128,10 +130,10 @@ export default function SubscriptionSuccessPage() {
                 <>
                   <Loader2 className="w-20 h-20 text-white mx-auto mb-4 animate-spin" />
                   <h1 className="text-3xl font-bold text-white mb-2">
-                    Verificando pago...
+                    {t('subscriptionSuccess.stripe.verifying')}
                   </h1>
                   <p className="text-blue-100 text-lg">
-                    Estamos confirmando tu pago con Stripe
+                    {t('subscriptionSuccess.stripe.confirmingPayment')}
                   </p>
                 </>
               ) : verified ? (
@@ -140,17 +142,17 @@ export default function SubscriptionSuccessPage() {
                     <CheckCircle className="w-20 h-20 text-white" strokeWidth={2} />
                   </div>
                   <h1 className="text-3xl font-bold text-white mb-2">
-                    ¡Pago Confirmado!
+                    {t('subscriptionSuccess.stripe.confirmed')}
                   </h1>
                   <p className="text-green-100 text-lg">
-                    Tu suscripción está activa
+                    {t('subscriptionSuccess.stripe.subscriptionActive')}
                   </p>
                 </>
               ) : verificationError ? (
                 <>
                   <XCircle className="w-20 h-20 text-white mx-auto mb-4" />
                   <h1 className="text-3xl font-bold text-white mb-2">
-                    Error en la verificación
+                    {t('subscriptionSuccess.stripe.errorTitle')}
                   </h1>
                   <p className="text-red-100 text-lg">
                     {verificationError}
@@ -163,13 +165,13 @@ export default function SubscriptionSuccessPage() {
             <div className="p-8">
               {verified && subscriptionInfo && (
                 <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6 mb-8">
-                  <h3 className="font-semibold text-green-900 mb-4">Detalles de tu suscripción</h3>
+                  <h3 className="font-semibold text-green-900 mb-4">{t('subscriptionSuccess.stripe.subscriptionDetails')}</h3>
                   <div className="space-y-2 text-sm">
                     <p className="text-green-800">
-                      <strong>Plan:</strong> {subscriptionInfo.planName}
+                      <strong>{t('subscriptionSuccess.stripe.plan')}:</strong> {subscriptionInfo.planName}
                     </p>
                     <p className="text-green-800">
-                      <strong>Válido hasta:</strong> {new Date(subscriptionInfo.endDate).toLocaleDateString('es-ES', {
+                      <strong>{t('subscriptionSuccess.stripe.validUntil')}:</strong> {new Date(subscriptionInfo.endDate).toLocaleDateString(undefined, {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric'
@@ -185,14 +187,14 @@ export default function SubscriptionSuccessPage() {
                   onClick={() => router.push('/main')}
                   className="flex-1 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                 >
-                  Ir al Dashboard
+                  {t('subscriptionSuccess.goToDashboard')}
                   <ArrowRight className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => router.push('/account/billing')}
                   className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
                 >
-                  Ver Facturación
+                  {t('subscriptionSuccess.viewBilling')}
                 </button>
               </div>
             </div>
@@ -214,10 +216,10 @@ export default function SubscriptionSuccessPage() {
               <CheckCircle className="w-20 h-20 text-white" strokeWidth={2} />
             </div>
             <h1 className="text-3xl font-bold text-white mb-2">
-              ¡Solicitud Enviada Correctamente!
+              {t('subscriptionSuccess.manual.requestSent')}
             </h1>
             <p className="text-violet-100 text-lg">
-              Hemos recibido tu comprobante de pago
+              {t('subscriptionSuccess.manual.proofReceived')}
             </p>
           </div>
 
@@ -239,9 +241,9 @@ export default function SubscriptionSuccessPage() {
                   <CheckCircle className="w-6 h-6 text-green-600" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 mb-1">Comprobante recibido</h3>
+                  <h3 className="font-semibold text-gray-900 mb-1">{t('subscriptionSuccess.timeline.proofReceived')}</h3>
                   <p className="text-sm text-gray-600">
-                    Tu comprobante de pago ha sido enviado correctamente a nuestro equipo.
+                    {t('subscriptionSuccess.timeline.proofReceivedDesc')}
                   </p>
                 </div>
               </div>
@@ -251,9 +253,9 @@ export default function SubscriptionSuccessPage() {
                   <Clock className="w-6 h-6 text-violet-600" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 mb-1">Verificación en proceso</h3>
+                  <h3 className="font-semibold text-gray-900 mb-1">{t('subscriptionSuccess.timeline.verificationInProgress')}</h3>
                   <p className="text-sm text-gray-600">
-                    Nuestro equipo verificará tu pago en las próximas 24-48 horas laborables.
+                    {t('subscriptionSuccess.timeline.verificationInProgressDesc')}
                   </p>
                 </div>
               </div>
@@ -263,9 +265,9 @@ export default function SubscriptionSuccessPage() {
                   <CheckCircle className="w-6 h-6 text-gray-400" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 mb-1">Activación de suscripción</h3>
+                  <h3 className="font-semibold text-gray-900 mb-1">{t('subscriptionSuccess.timeline.subscriptionActivation')}</h3>
                   <p className="text-sm text-gray-600">
-                    Recibirás un email de confirmación cuando tu suscripción esté activa.
+                    {t('subscriptionSuccess.timeline.subscriptionActivationDesc')}
                   </p>
                 </div>
               </div>
@@ -280,19 +282,19 @@ export default function SubscriptionSuccessPage() {
                   </div>
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-blue-900 mb-2">¿Qué sucede ahora?</h4>
+                  <h4 className="font-semibold text-blue-900 mb-2">{t('subscriptionSuccess.whatNow.title')}</h4>
                   <ul className="space-y-2 text-sm text-blue-800">
                     <li className="flex items-start gap-2">
                       <span className="text-blue-600 mt-0.5">•</span>
-                      <span>Recibirás un email de confirmación cuando verifiquemos tu pago</span>
+                      <span>{t('subscriptionSuccess.whatNow.emailConfirmation')}</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-blue-600 mt-0.5">•</span>
-                      <span>Tu suscripción se activará automáticamente tras la verificación</span>
+                      <span>{t('subscriptionSuccess.whatNow.autoActivation')}</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-blue-600 mt-0.5">•</span>
-                      <span>Puedes consultar el estado en tu panel de control</span>
+                      <span>{t('subscriptionSuccess.whatNow.checkStatus')}</span>
                     </li>
                   </ul>
                 </div>
@@ -305,23 +307,23 @@ export default function SubscriptionSuccessPage() {
                 onClick={() => router.push('/subscriptions')}
                 className="flex-1 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
               >
-                Ver Estado de Suscripción
+                {t('subscriptionSuccess.viewSubscriptionStatus')}
                 <ArrowRight className="w-5 h-5" />
               </button>
               <button
                 onClick={() => router.push('/main')}
                 className="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
               >
-                Ir al Dashboard
+                {t('subscriptionSuccess.goToDashboard')}
               </button>
             </div>
 
             {/* Support */}
             <div className="mt-8 text-center">
               <p className="text-sm text-gray-600">
-                ¿Tienes alguna pregunta?{' '}
+                {t('subscriptionSuccess.support.question')}{' '}
                 <a href="mailto:hola@itineramio.com" className="text-violet-600 hover:text-violet-700 font-medium">
-                  Contáctanos
+                  {t('subscriptionSuccess.support.contactUs')}
                 </a>
               </p>
             </div>
@@ -331,7 +333,7 @@ export default function SubscriptionSuccessPage() {
         {/* Footer Note */}
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            Gracias por confiar en Itineramio 🎉
+            {t('subscriptionSuccess.thankYou')}
           </p>
         </div>
       </div>

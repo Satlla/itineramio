@@ -34,11 +34,27 @@ export default function RegisterPage() {
   const [marketingConsent, setMarketingConsent] = useState(false)
   const [referralCode, setReferralCode] = useState<string | null>(null)
 
-  // Capture referral code from URL
+  const [demoCoupon, setDemoCoupon] = useState<string | null>(null)
+
+  // Capture referral code and demo params from URL
   useEffect(() => {
     const ref = searchParams.get('ref')
     if (ref) {
       setReferralCode(ref)
+    }
+    // Pre-fill from demo
+    const name = searchParams.get('name')
+    const email = searchParams.get('email')
+    const coupon = searchParams.get('coupon')
+    if (name || email) {
+      setFormData(prev => ({
+        ...prev,
+        ...(name && { name }),
+        ...(email && { email }),
+      }))
+    }
+    if (coupon) {
+      setDemoCoupon(coupon)
     }
   }, [searchParams])
 
@@ -248,6 +264,20 @@ export default function RegisterPage() {
                 {t('register.subtitle')}
               </p>
             </div>
+
+            {/* Demo coupon banner */}
+            {demoCoupon && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <Gift className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <div className="text-xs sm:text-sm text-green-800">
+                    <span className="font-semibold">20% de descuento aplicado</span>
+                    <br />
+                    <span className="font-mono text-green-700">{demoCoupon}</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Benefits */}
             <div className="bg-violet-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">

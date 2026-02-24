@@ -17,24 +17,41 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
 
-    const where: any = {}
+    const conditions: any[] = []
 
     if (search) {
-      where.OR = [
-        { email: { contains: search, mode: 'insensitive' } },
-        { name: { contains: search, mode: 'insensitive' } },
-        { companyName: { contains: search, mode: 'insensitive' } }
-      ]
+      conditions.push({
+        OR: [
+          { email: { contains: search, mode: 'insensitive' } },
+          { name: { contains: search, mode: 'insensitive' } },
+          { companyName: { contains: search, mode: 'insensitive' } }
+        ]
+      })
     }
 
     if (moduleFilter) {
-      where.modules = {
-        some: {
-          moduleType: moduleFilter,
-          isActive: true
-        }
+      if (moduleFilter === 'MANUALES') {
+        // For MANUALES, include users with UserModule OR active subscription OR active trial
+        conditions.push({
+          OR: [
+            { modules: { some: { moduleType: 'MANUALES', isActive: true } } },
+            { subscriptions: { some: { status: 'ACTIVE' } } },
+            { trialEndsAt: { gt: new Date() } }
+          ]
+        })
+      } else {
+        conditions.push({
+          modules: {
+            some: {
+              moduleType: moduleFilter,
+              isActive: true
+            }
+          }
+        })
       }
     }
+
+    const where: any = conditions.length > 0 ? { AND: conditions } : {}
 
     const [users, total] = await Promise.all([
       prisma.user.findMany({
@@ -63,6 +80,23 @@ export async function GET(request: NextRequest) {
               }
             }
           },
+          subscriptions: {
+            where: { status: 'ACTIVE' },
+            select: {
+              id: true,
+              status: true,
+              startDate: true,
+              endDate: true,
+              plan: {
+                select: {
+                  name: true,
+                  code: true
+                }
+              }
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 1
+          },
           _count: {
             select: {
               properties: true
@@ -76,12 +110,65 @@ export async function GET(request: NextRequest) {
       prisma.user.count({ where })
     ])
 
-    // Formatear datos para el frontend
-    const formattedUsers = users.map(user => ({
-      ...user,
-      manualesModule: user.modules.find(m => m.moduleType === 'MANUALES') || null,
-      gestionModule: user.modules.find(m => m.moduleType === 'GESTION') || null
-    }))
+    // Formatear datos para el frontend con estado REAL de acceso
+    const now = new Date()
+    const formattedUsers = users.map(user => {
+      const manualesUserModule = user.modules.find(m => m.moduleType === 'MANUALES') || null
+      const gestionUserModule = user.modules.find(m => m.moduleType === 'GESTION') || null
+      const activeSubscription = user.subscriptions?.[0] || null
+
+      // Compute real Manuales access (same logic as ModuleLimitsService)
+      let manualesModule = manualesUserModule
+      if (!manualesModule?.isActive) {
+        // Check legacy UserSubscription
+        if (activeSubscription && activeSubscription.plan) {
+          manualesModule = {
+            id: activeSubscription.id,
+            moduleType: 'MANUALES' as const,
+            status: 'ACTIVE',
+            isActive: true,
+            activatedAt: activeSubscription.startDate,
+            expiresAt: activeSubscription.endDate,
+            trialEndsAt: null,
+            subscriptionPlan: activeSubscription.plan,
+            _source: 'subscription' as any
+          } as any
+        } else if (user.trialEndsAt && new Date(user.trialEndsAt) > now) {
+          // Check user-level trial
+          manualesModule = {
+            id: 'trial-' + user.id,
+            moduleType: 'MANUALES' as const,
+            status: 'TRIAL',
+            isActive: true,
+            activatedAt: null,
+            expiresAt: user.trialEndsAt,
+            trialEndsAt: user.trialEndsAt,
+            subscriptionPlan: null,
+            _source: 'user_trial' as any
+          } as any
+        } else if (user.trialEndsAt && new Date(user.trialEndsAt) <= now) {
+          // Expired user-level trial
+          manualesModule = {
+            id: 'trial-expired-' + user.id,
+            moduleType: 'MANUALES' as const,
+            status: 'EXPIRED',
+            isActive: false,
+            activatedAt: null,
+            expiresAt: user.trialEndsAt,
+            trialEndsAt: user.trialEndsAt,
+            subscriptionPlan: null,
+            _source: 'user_trial' as any
+          } as any
+        }
+      }
+
+      return {
+        ...user,
+        manualesModule,
+        gestionModule: gestionUserModule,
+        activeSubscription
+      }
+    })
 
     return NextResponse.json({
       success: true,
@@ -204,6 +291,7 @@ export async function POST(request: NextRequest) {
 /**
  * DELETE /api/admin/modules
  * Desactivar módulo para un usuario
+ * Handles: UserModule records, legacy UserSubscription, and user-level trials
  */
 export async function DELETE(request: NextRequest) {
   try {
@@ -222,38 +310,73 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    let userModule
+    const actions: string[] = []
+    let targetUserId = userId
+    let targetModuleType = moduleType
 
+    // 1. Try to cancel UserModule record
     if (moduleId) {
-      userModule = await prisma.userModule.update({
-        where: { id: moduleId },
-        data: {
-          status: 'CANCELED',
-          isActive: false,
-          canceledAt: new Date()
-        },
-        include: {
-          user: { select: { email: true, name: true } }
-        }
-      })
-    } else {
-      userModule = await prisma.userModule.update({
-        where: {
-          userId_moduleType: {
-            userId: userId!,
-            moduleType: moduleType as 'MANUALES' | 'GESTION'
-          }
-        },
-        data: {
-          status: 'CANCELED',
-          isActive: false,
-          canceledAt: new Date()
-        },
-        include: {
-          user: { select: { email: true, name: true } }
-        }
-      })
+      try {
+        const userModule = await prisma.userModule.update({
+          where: { id: moduleId },
+          data: { status: 'CANCELED', isActive: false, canceledAt: new Date() },
+          include: { user: { select: { id: true, email: true, name: true } } }
+        })
+        targetUserId = userModule.user.id
+        targetModuleType = userModule.moduleType
+        actions.push(`UserModule ${userModule.moduleType} cancelado`)
+      } catch {
+        // Module not found, continue
+      }
+    } else if (userId && moduleType) {
+      try {
+        await prisma.userModule.update({
+          where: { userId_moduleType: { userId, moduleType: moduleType as any } },
+          data: { status: 'CANCELED', isActive: false, canceledAt: new Date() }
+        })
+        actions.push(`UserModule ${moduleType} cancelado`)
+      } catch {
+        // No UserModule record exists, continue
+      }
     }
+
+    // 2. For MANUALES, also cancel legacy subscriptions and user trial
+    if (targetUserId && targetModuleType === 'MANUALES') {
+      // Cancel active subscriptions
+      const canceledSubs = await prisma.userSubscription.updateMany({
+        where: { userId: targetUserId, status: 'ACTIVE' },
+        data: { status: 'CANCELED', canceledAt: new Date() }
+      })
+      if (canceledSubs.count > 0) {
+        actions.push(`${canceledSubs.count} suscripción(es) cancelada(s)`)
+      }
+
+      // Clear user-level trial
+      const user = await prisma.user.findUnique({
+        where: { id: targetUserId },
+        select: { trialEndsAt: true }
+      })
+      if (user?.trialEndsAt) {
+        await prisma.user.update({
+          where: { id: targetUserId },
+          data: { trialEndsAt: new Date(0) } // Set to epoch (expired)
+        })
+        actions.push('Trial de usuario expirado')
+      }
+    }
+
+    if (actions.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'No se encontró módulo activo para desactivar' },
+        { status: 404 }
+      )
+    }
+
+    // Get user info for response
+    const user = await prisma.user.findUnique({
+      where: { id: targetUserId! },
+      select: { email: true, name: true }
+    })
 
     // Log de auditoría
     await prisma.adminActivityLog.create({
@@ -261,14 +384,16 @@ export async function DELETE(request: NextRequest) {
         adminId: adminAuth.adminId,
         action: 'DEACTIVATE_MODULE',
         targetType: 'UserModule',
-        targetId: userModule.id,
-        description: `Desactivado módulo ${userModule.moduleType} para ${userModule.user.email}`
+        targetId: targetUserId || moduleId || 'unknown',
+        description: `Desactivado ${targetModuleType} para ${user?.email}: ${actions.join(', ')}`,
+        metadata: { userId: targetUserId, moduleType: targetModuleType, actions }
       }
     })
 
     return NextResponse.json({
       success: true,
-      message: `Módulo ${userModule.moduleType} desactivado para ${userModule.user.name}`
+      message: `${targetModuleType} desactivado para ${user?.name}`,
+      actions
     })
   } catch (error) {
     console.error('Error deactivating module:', error)

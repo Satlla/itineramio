@@ -171,6 +171,22 @@ export const translationRateLimiter = createRateLimiter({
   windowMs: 60 * 60 * 1000 // 1 hour
 })
 
+// ============================================
+// Public API v1 rate limiters
+// ============================================
+
+/** Rate limiter for public API endpoints: 60 requests per minute per API key */
+export const publicApiRateLimiter = createRateLimiter({
+  maxRequests: 60,
+  windowMs: 60 * 1000 // 1 minute
+})
+
+/** Rate limiter for webhook ingestion: 30 requests per minute per API key */
+export const webhookRateLimiter = createRateLimiter({
+  maxRequests: 30,
+  windowMs: 60 * 1000 // 1 minute
+})
+
 /**
  * Get client identifier from request for rate limiting
  * Uses user ID if authenticated, falls back to IP address

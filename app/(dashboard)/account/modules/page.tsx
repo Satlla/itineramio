@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import {
   BookOpen,
   Receipt,
@@ -16,6 +17,7 @@ import { MODULES } from '@/config/modules'
 
 export default function ModulesPage() {
   const router = useRouter()
+  const { t } = useTranslation('account')
   const { manuales, gestion, isLoading } = useAllModulesAccess()
 
   const getStatusBadge = (access: typeof manuales | typeof gestion, moduleCode: 'MANUALES' | 'GESTION') => {
@@ -27,7 +29,7 @@ export default function ModulesPage() {
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
           <Clock className="w-3 h-3" />
-          Trial - {daysLeft} días
+          {t('modules.trialDays', { count: daysLeft })}
         </span>
       )
     }
@@ -36,7 +38,7 @@ export default function ModulesPage() {
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
           <Check className="w-3 h-3" />
-          Activo
+          {t('modules.active')}
         </span>
       )
     }
@@ -45,7 +47,7 @@ export default function ModulesPage() {
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
           <AlertTriangle className="w-3 h-3" />
-          Expirado
+          {t('modules.expired')}
         </span>
       )
     }
@@ -62,7 +64,7 @@ export default function ModulesPage() {
             className="group flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            <span className="text-sm font-medium">Volver</span>
+            <span className="text-sm font-medium">{t('modules.back')}</span>
           </button>
         </div>
       </div>
@@ -70,10 +72,10 @@ export default function ModulesPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 md:py-12">
         <div className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Módulos de Itineramio
+            {t('modules.title')}
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Elige los módulos que necesitas para gestionar tus alojamientos turísticos.
+            {t('modules.subtitle')}
           </p>
         </div>
 
@@ -114,7 +116,7 @@ export default function ModulesPage() {
                   onClick={() => router.push(manuales?.hasAccess ? '/main' : '/account/plans')}
                   className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition-colors"
                 >
-                  {manuales?.hasAccess ? 'Ir a Manuales' : 'Ver Planes'}
+                  {manuales?.hasAccess ? t('modules.goToManuales') : t('modules.viewPlans')}
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -151,14 +153,14 @@ export default function ModulesPage() {
                   <span className="text-3xl font-bold text-gray-900">
                     {MODULES.GESTION.basePriceMonthly}€
                   </span>
-                  <span className="text-gray-500">/mes</span>
+                  <span className="text-gray-500">{t('modules.perMonth')}</span>
                 </div>
 
                 <button
                   onClick={() => router.push(gestion?.hasAccess ? '/gestion' : '/account/modules/gestion')}
                   className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors"
                 >
-                  {gestion?.hasAccess ? 'Ir a Gestión' : 'Activar Gestión'}
+                  {gestion?.hasAccess ? t('modules.goToGestion') : t('modules.activateGestion')}
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>

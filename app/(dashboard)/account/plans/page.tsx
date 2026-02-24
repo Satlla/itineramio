@@ -8,6 +8,7 @@ import PropertyPlanSelectorV3 from '../../../../src/components/billing/PropertyP
 import PaymentMethodModal from '../../../../src/components/billing/PaymentMethodModal'
 import BillingDataModal from '../../../../src/components/billing/BillingDataModal'
 import { toast } from 'react-hot-toast'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeft, AlertTriangle, X, CheckCircle } from 'lucide-react'
 
 const BILLING_PERIODS = {
@@ -21,6 +22,7 @@ type BillingPeriod = keyof typeof BILLING_PERIODS
 function PlansPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { t } = useTranslation('account')
   const [loading, setLoading] = useState(false)
   const [currentProperties, setCurrentProperties] = useState(0)
   const [currentPlan, setCurrentPlan] = useState<any>(null)
@@ -91,7 +93,7 @@ function PlansPageContent() {
 
   const handleCancelSubscription = async () => {
     if (!subscriptionDetails?.id) {
-      toast.error('No se encontró la suscripción activa')
+      toast.error(t('plans.noActiveSubscriptionFound'))
       return
     }
 
@@ -102,7 +104,7 @@ function PlansPageContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           subscriptionId: subscriptionDetails.id,
-          reason: cancelReason || 'No especificado'
+          reason: cancelReason || t('plans.notSpecified')
         })
       })
 
@@ -116,11 +118,11 @@ function PlansPageContent() {
         fetchBillingOverview()
         fetchSubscriptionDetails()
       } else {
-        toast.error(data.error || 'Error al cancelar la suscripción')
+        toast.error(data.error || t('plans.cancelError'))
       }
     } catch (error) {
       console.error('Error cancelling subscription:', error)
-      toast.error('Error al cancelar la suscripción')
+      toast.error(t('plans.cancelError'))
     } finally {
       setCancelling(false)
     }
@@ -128,7 +130,7 @@ function PlansPageContent() {
 
   const handleReactivateSubscription = async () => {
     if (!subscriptionDetails?.id) {
-      toast.error('No se encontró la suscripción')
+      toast.error(t('plans.noSubscriptionFound'))
       return
     }
 
@@ -145,11 +147,11 @@ function PlansPageContent() {
         fetchBillingOverview()
         fetchSubscriptionDetails()
       } else {
-        toast.error(data.error || 'Error al reactivar la suscripción')
+        toast.error(data.error || t('plans.reactivateError'))
       }
     } catch (error) {
       console.error('Error reactivating subscription:', error)
-      toast.error('Error al reactivar la suscripción')
+      toast.error(t('plans.reactivateError'))
     }
   }
 
@@ -193,7 +195,7 @@ function PlansPageContent() {
 
       if (!billingResponse.ok) {
         console.error('❌ BILLING-CHECK-FAILED: Cannot verify billing data')
-        toast.error('Error al verificar los datos de facturación. Por favor, intenta nuevamente.')
+        toast.error(t('plans.billingVerifyError'))
         setLoading(false)
         return
       }
@@ -307,7 +309,7 @@ function PlansPageContent() {
       setShowPaymentModal(true)
     } catch (error) {
       console.error('Error processing plan selection:', error)
-      toast.error(error instanceof Error ? error.message : 'Error al procesar la selección del plan')
+      toast.error(error instanceof Error ? error.message : t('plans.planSelectionError'))
     } finally {
       setLoading(false)
     }
@@ -323,7 +325,7 @@ function PlansPageContent() {
             className="group flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            <span className="text-sm font-medium">Volver</span>
+            <span className="text-sm font-medium">{t('plans.back')}</span>
           </button>
         </div>
       </div>
@@ -337,24 +339,23 @@ function PlansPageContent() {
                 <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
                 <div>
                   <h3 className="text-sm font-semibold text-yellow-900">
-                    Suscripción Cancelada
+                    {t('plans.subscriptionCancelled')}
                   </h3>
                   <p className="text-sm text-yellow-800 mt-1">
-                    Tu plan {subscriptionDetails.plan?.name} se cancelará automáticamente el{' '}
-                    <strong>
-                      {new Date(subscriptionDetails.endDate).toLocaleDateString('es-ES', {
+                    {t('plans.cancelledBannerText', {
+                      planName: subscriptionDetails.plan?.name,
+                      date: new Date(subscriptionDetails.endDate).toLocaleDateString('es-ES', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric'
-                      })}
-                    </strong>
-                    . Seguirás teniendo acceso hasta esa fecha.
+                      })
+                    })}
                   </p>
                   <button
                     onClick={handleReactivateSubscription}
                     className="mt-3 text-sm font-medium text-yellow-900 hover:text-yellow-700 underline"
                   >
-                    Reactivar suscripción
+                    {t('plans.reactivateSubscription')}
                   </button>
                 </div>
               </div>
@@ -370,17 +371,17 @@ function PlansPageContent() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-semibold text-gray-900">
-                  ¿Deseas cancelar tu suscripción?
+                  {t('plans.cancelQuestion')}
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
-                  Puedes cancelar en cualquier momento. Seguirás teniendo acceso hasta el final de tu período de facturación.
+                  {t('plans.cancelDescription')}
                 </p>
               </div>
               <button
                 onClick={() => setShowCancelModal(true)}
                 className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 border border-red-200 hover:border-red-300 rounded-lg transition-colors"
               >
-                Cancelar Plan
+                {t('plans.cancelPlan')}
               </button>
             </div>
           </div>
@@ -403,7 +404,7 @@ function PlansPageContent() {
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
-                Cancelar Suscripción
+                {t('plans.cancelSubscription')}
               </h3>
               <button
                 onClick={() => setShowCancelModal(false)}
@@ -415,12 +416,12 @@ function PlansPageContent() {
 
             <div className="mb-4">
               <p className="text-sm text-gray-600 mb-4">
-                Lamentamos que te vayas. ¿Podrías decirnos por qué cancelas tu suscripción?
+                {t('plans.cancelReasonPrompt')}
               </p>
               <textarea
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
-                placeholder="Motivo de cancelación (opcional)"
+                placeholder={t('plans.cancelReasonPlaceholder')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none"
                 rows={4}
               />
@@ -428,17 +429,15 @@ function PlansPageContent() {
 
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
               <p className="text-sm text-yellow-800">
-                <strong>Importante:</strong> Tu suscripción se cancelará al final del período actual.
-                Seguirás teniendo acceso completo hasta el{' '}
-                {subscriptionDetails?.endDate && (
-                  <strong>
-                    {new Date(subscriptionDetails.endDate).toLocaleDateString('es-ES', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric'
-                    })}
-                  </strong>
-                )}
+                <strong>{t('plans.important')}:</strong> {t('plans.cancelNotice', {
+                  date: subscriptionDetails?.endDate
+                    ? new Date(subscriptionDetails.endDate).toLocaleDateString('es-ES', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                      })
+                    : ''
+                })}
               </p>
             </div>
 
@@ -448,14 +447,14 @@ function PlansPageContent() {
                 className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                 disabled={cancelling}
               >
-                Volver
+                {t('plans.back')}
               </button>
               <button
                 onClick={handleCancelSubscription}
                 className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50"
                 disabled={cancelling}
               >
-                {cancelling ? 'Cancelando...' : 'Confirmar Cancelación'}
+                {cancelling ? t('plans.cancelling') : t('plans.confirmCancellation')}
               </button>
             </div>
           </div>
@@ -469,12 +468,12 @@ function PlansPageContent() {
             <div className="flex items-start gap-3">
               <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-bold text-gray-900 mb-1">¡Datos de facturación guardados!</h3>
+                <h3 className="font-bold text-gray-900 mb-1">{t('plans.billingSaved')}</h3>
                 <p className="text-sm text-gray-700 mb-2">
-                  Revisa que todo esté correcto. <strong>Una vez emitida la factura, no podrás modificarlos.</strong>
+                  {t('plans.billingSavedWarning')}
                 </p>
                 <p className="text-sm text-gray-600">
-                  Ahora puedes seleccionar tu plan y proceder al pago.
+                  {t('plans.billingSavedContinue')}
                 </p>
               </div>
             </div>
@@ -490,13 +489,13 @@ function PlansPageContent() {
               onClick={() => router.push('/account/billing')}
               className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors text-sm"
             >
-              Revisar datos
+              {t('plans.reviewData')}
             </button>
             <button
               onClick={() => setShowBillingConfirmation(false)}
               className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors text-sm"
             >
-              Continuar
+              {t('plans.continue')}
             </button>
           </div>
         </div>

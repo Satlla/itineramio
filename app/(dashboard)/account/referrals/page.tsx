@@ -16,6 +16,7 @@ import {
   Calendar,
   Crown
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface ReferralData {
   referralCode: string
@@ -38,6 +39,7 @@ interface ReferralData {
 }
 
 export default function ReferralsPage() {
+  const { t } = useTranslation('account')
   const [data, setData] = useState<ReferralData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [copied, setCopied] = useState(false)
@@ -55,7 +57,7 @@ export default function ReferralsPage() {
       setData(result)
     } catch (err) {
       console.error('Error:', err)
-      setError('No se pudo cargar la información de referidos')
+      setError(t('referrals.page.loadError'))
     } finally {
       setIsLoading(false)
     }
@@ -77,8 +79,8 @@ export default function ReferralsPage() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Únete a Itineramio',
-          text: 'Gestiona tus alojamientos turísticos de forma profesional. Usa mi enlace para registrarte:',
+          title: t('referrals.page.shareTitle'),
+          text: t('referrals.page.shareText'),
           url: data.referralLink
         })
       } catch (err) {
@@ -110,7 +112,7 @@ export default function ReferralsPage() {
   if (error || !data) {
     return (
       <div className="p-6 text-center">
-        <p className="text-red-600">{error || 'Error al cargar'}</p>
+        <p className="text-red-600">{error || t('referrals.page.genericError')}</p>
       </div>
     )
   }
@@ -121,10 +123,10 @@ export default function ReferralsPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
           <Gift className="w-7 h-7 text-violet-600" />
-          Programa de Referidos
+          {t('referrals.page.title')}
         </h1>
         <p className="text-gray-600 mt-2">
-          Invita a otros anfitriones y gana recompensas por cada referido que se suscriba
+          {t('referrals.page.description')}
         </p>
       </div>
 
@@ -138,9 +140,9 @@ export default function ReferralsPage() {
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
 
         <div className="relative">
-          <h2 className="text-lg font-semibold mb-1">Tu enlace de referido</h2>
+          <h2 className="text-lg font-semibold mb-1">{t('referrals.page.yourLink')}</h2>
           <p className="text-violet-200 text-sm mb-4">
-            Comparte este enlace y gana el 20% de la primera suscripción de cada referido
+            {t('referrals.page.yourLinkDesc')}
           </p>
 
           <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm rounded-lg p-3">
@@ -148,21 +150,21 @@ export default function ReferralsPage() {
             <button
               onClick={copyLink}
               className="p-2 bg-white text-violet-600 rounded-lg hover:bg-violet-50 transition-colors"
-              title="Copiar enlace"
+              title={t('referrals.page.copyLink')}
             >
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
             </button>
             <button
               onClick={shareLink}
               className="p-2 bg-white text-violet-600 rounded-lg hover:bg-violet-50 transition-colors"
-              title="Compartir"
+              title={t('referrals.page.share')}
             >
               <Share2 className="w-5 h-5" />
             </button>
           </div>
 
           <p className="text-violet-200 text-xs mt-3">
-            Código: <span className="font-mono font-bold text-white">{data.referralCode}</span>
+            {t('referrals.page.code')}: <span className="font-mono font-bold text-white">{data.referralCode}</span>
           </p>
         </div>
       </motion.div>
@@ -179,7 +181,7 @@ export default function ReferralsPage() {
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <Users className="w-5 h-5 text-blue-600" />
             </div>
-            <span className="text-sm text-gray-600">Total Referidos</span>
+            <span className="text-sm text-gray-600">{t('referrals.page.totalReferrals')}</span>
           </div>
           <p className="text-3xl font-bold text-gray-900">{data.stats.totalReferrals}</p>
         </motion.div>
@@ -194,7 +196,7 @@ export default function ReferralsPage() {
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-green-600" />
             </div>
-            <span className="text-sm text-gray-600">Activos</span>
+            <span className="text-sm text-gray-600">{t('referrals.page.active')}</span>
           </div>
           <p className="text-3xl font-bold text-gray-900">{data.stats.activeReferrals}</p>
         </motion.div>
@@ -209,7 +211,7 @@ export default function ReferralsPage() {
             <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
               <Clock className="w-5 h-5 text-yellow-600" />
             </div>
-            <span className="text-sm text-gray-600">Pendiente</span>
+            <span className="text-sm text-gray-600">{t('referrals.page.pending')}</span>
           </div>
           <p className="text-3xl font-bold text-gray-900">{data.stats.pendingCommission.toFixed(2)}€</p>
         </motion.div>
@@ -224,7 +226,7 @@ export default function ReferralsPage() {
             <div className="w-10 h-10 bg-violet-100 rounded-lg flex items-center justify-center">
               <Gift className="w-5 h-5 text-violet-600" />
             </div>
-            <span className="text-sm text-gray-600">Ganado</span>
+            <span className="text-sm text-gray-600">{t('referrals.page.earned')}</span>
           </div>
           <p className="text-3xl font-bold text-gray-900">{data.stats.paidCommission.toFixed(2)}€</p>
         </motion.div>
@@ -237,16 +239,16 @@ export default function ReferralsPage() {
         transition={{ delay: 0.3 }}
         className="bg-gray-50 rounded-xl p-6"
       >
-        <h3 className="font-semibold text-gray-900 mb-4">Cómo funciona</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">{t('referrals.page.howItWorks')}</h3>
         <div className="grid sm:grid-cols-3 gap-6">
           <div className="flex gap-4">
             <div className="w-8 h-8 bg-violet-600 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
               1
             </div>
             <div>
-              <h4 className="font-medium text-gray-900">Comparte tu enlace</h4>
+              <h4 className="font-medium text-gray-900">{t('referrals.page.step1Title')}</h4>
               <p className="text-sm text-gray-600 mt-1">
-                Envía tu enlace único a otros anfitriones
+                {t('referrals.page.step1Desc')}
               </p>
             </div>
           </div>
@@ -255,9 +257,9 @@ export default function ReferralsPage() {
               2
             </div>
             <div>
-              <h4 className="font-medium text-gray-900">Se registran</h4>
+              <h4 className="font-medium text-gray-900">{t('referrals.page.step2Title')}</h4>
               <p className="text-sm text-gray-600 mt-1">
-                Tus referidos se registran y prueban Itineramio
+                {t('referrals.page.step2Desc')}
               </p>
             </div>
           </div>
@@ -266,9 +268,9 @@ export default function ReferralsPage() {
               3
             </div>
             <div>
-              <h4 className="font-medium text-gray-900">Ganas comisión</h4>
+              <h4 className="font-medium text-gray-900">{t('referrals.page.step3Title')}</h4>
               <p className="text-sm text-gray-600 mt-1">
-                Recibe el 20% de su primera suscripción
+                {t('referrals.page.step3Desc')}
               </p>
             </div>
           </div>
@@ -281,21 +283,21 @@ export default function ReferralsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.35 }}
       >
-        <h3 className="font-semibold text-gray-900 mb-4">Tus referidos</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">{t('referrals.page.yourReferrals')}</h3>
 
         {data.referrals.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
             <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h4 className="font-medium text-gray-900 mb-2">Sin referidos aún</h4>
+            <h4 className="font-medium text-gray-900 mb-2">{t('referrals.page.noReferrals')}</h4>
             <p className="text-gray-600 text-sm mb-4">
-              Comparte tu enlace para empezar a ganar comisiones
+              {t('referrals.page.noReferralsDesc')}
             </p>
             <button
               onClick={copyLink}
               className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors"
             >
               <Copy className="w-4 h-4" />
-              Copiar enlace
+              {t('referrals.page.copyLink')}
             </button>
           </div>
         ) : (
@@ -305,19 +307,19 @@ export default function ReferralsPage() {
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Usuario
+                      {t('referrals.page.tableUser')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Fecha
+                      {t('referrals.page.tableDate')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Plan
+                      {t('referrals.page.tablePlan')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Comisión
+                      {t('referrals.page.tableCommission')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Estado
+                      {t('referrals.page.tableStatus')}
                     </th>
                   </tr>
                 </thead>
@@ -345,7 +347,7 @@ export default function ReferralsPage() {
                             {referral.subscription}
                           </span>
                         ) : (
-                          <span className="text-sm text-gray-500">Trial</span>
+                          <span className="text-sm text-gray-500">{t('referrals.page.statusTrial')}</span>
                         )}
                       </td>
                       <td className="px-6 py-4 font-medium text-gray-900">
@@ -355,12 +357,12 @@ export default function ReferralsPage() {
                         {referral.status === 'PAID' ? (
                           <span className="inline-flex items-center gap-1 text-green-600 text-sm">
                             <CheckCircle className="w-4 h-4" />
-                            Pagado
+                            {t('referrals.page.statusPaid')}
                           </span>
                         ) : referral.status === 'PENDING' ? (
                           <span className="inline-flex items-center gap-1 text-yellow-600 text-sm">
                             <Clock className="w-4 h-4" />
-                            Pendiente
+                            {t('referrals.page.statusPending')}
                           </span>
                         ) : (
                           <span className="text-gray-500 text-sm">{referral.status}</span>
@@ -382,13 +384,13 @@ export default function ReferralsPage() {
         transition={{ delay: 0.4 }}
         className="bg-gray-50 rounded-xl p-6 text-sm text-gray-600"
       >
-        <h4 className="font-medium text-gray-900 mb-2">Términos del programa</h4>
+        <h4 className="font-medium text-gray-900 mb-2">{t('referrals.page.termsTitle')}</h4>
         <ul className="space-y-1 list-disc list-inside">
-          <li>Recibes el 20% de la primera suscripción mensual de cada referido</li>
-          <li>Las comisiones se acumulan y se pagan mensualmente</li>
-          <li>El referido debe completar su primera suscripción de pago</li>
-          <li>No hay límite en el número de referidos que puedes invitar</li>
-          <li>Las auto-referencias no son válidas</li>
+          <li>{t('referrals.page.term1')}</li>
+          <li>{t('referrals.page.term2')}</li>
+          <li>{t('referrals.page.term3')}</li>
+          <li>{t('referrals.page.term4')}</li>
+          <li>{t('referrals.page.term5')}</li>
         </ul>
       </motion.div>
     </div>

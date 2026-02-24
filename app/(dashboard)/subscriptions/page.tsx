@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import {
   Crown,
   Calendar,
@@ -79,6 +80,7 @@ interface InvoicesData {
 
 export default function SubscriptionsPage() {
   const router = useRouter()
+  const { t, i18n } = useTranslation('account')
   const { user } = useAuth()
 
   const [loading, setLoading] = useState(true)
@@ -152,21 +154,19 @@ export default function SubscriptionsPage() {
   const calculateBillingPeriod = (startDate: string, endDate: string) => {
     const start = new Date(startDate)
     const end = new Date(endDate)
-    // Calcular días exactos en lugar de meses aproximados
     const totalDays = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
 
-    // Determinar período basado en días
-    if (totalDays <= 35) return { period: 'Mensual', months: 1 }
-    if (totalDays >= 150 && totalDays <= 210) return { period: 'Semestral', months: 6 }
-    if (totalDays >= 300) return { period: 'Anual', months: 12 }
+    if (totalDays <= 35) return { period: t('subscriptions.billingPeriod.monthly'), months: 1 }
+    if (totalDays >= 150 && totalDays <= 210) return { period: t('subscriptions.billingPeriod.semestral'), months: 6 }
+    if (totalDays >= 300) return { period: t('subscriptions.billingPeriod.yearly'), months: 12 }
 
-    // Para períodos personalizados, aproximar meses
     const approxMonths = Math.round(totalDays / 30)
-    return { period: 'Personalizado', months: approxMonths }
+    return { period: t('subscriptions.billingPeriod.custom'), months: approxMonths }
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    const localeMap: Record<string, string> = { es: 'es-ES', en: 'en-US', fr: 'fr-FR' }
+    return new Date(dateString).toLocaleDateString(localeMap[i18n.language] || 'es-ES', {
       day: 'numeric',
       month: 'long',
       year: 'numeric'
@@ -216,8 +216,8 @@ export default function SubscriptionsPage() {
       {/* Header */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-semibold text-gray-900">Suscripciones</h1>
-          <p className="mt-2 text-gray-600">Gestiona tu plan y facturas</p>
+          <h1 className="text-3xl font-semibold text-gray-900">{t('subscriptions.title')}</h1>
+          <p className="mt-2 text-gray-600">{t('subscriptions.subtitle')}</p>
         </div>
       </div>
 
@@ -245,12 +245,12 @@ export default function SubscriptionsPage() {
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold">⚠️ Suscripción Programada para Cancelarse</h3>
+                      <h3 className="text-lg font-bold">{t('subscriptions.cancelScheduled')}</h3>
                       <p className="text-sm text-red-100 mt-1">
-                        Este plan se cancelará el {formatDate(activeSub.endDate)} ({activeSub.daysUntilExpiration} días restantes)
+                        {t('subscriptions.cancelScheduledDescription', { date: formatDate(activeSub.endDate), days: activeSub.daysUntilExpiration })}
                       </p>
                       {activeSub.cancelReason && (
-                        <p className="text-xs text-red-200 mt-1">Motivo: {activeSub.cancelReason}</p>
+                        <p className="text-xs text-red-200 mt-1">{t('subscriptions.cancelReason', { reason: activeSub.cancelReason })}</p>
                       )}
                     </div>
                   </div>
@@ -258,7 +258,7 @@ export default function SubscriptionsPage() {
               ) : (
                 <div className="flex items-center space-x-2 mb-4">
                   <Sparkles className="h-5 w-5" />
-                  <span className="text-blue-100 text-sm font-medium">Plan Activo</span>
+                  <span className="text-blue-100 text-sm font-medium">{t('subscriptions.activePlan')}</span>
                 </div>
               )}
 
@@ -266,7 +266,7 @@ export default function SubscriptionsPage() {
                 <div>
                   <h2 className="text-4xl font-bold mb-2">{activeSub.plan?.name}</h2>
                   <p className="text-blue-100 text-lg mb-6">
-                    {propertiesData?.usage.totalProperties || 0} de {activeSub.plan?.maxProperties} propiedades activas
+                    {t('subscriptions.propertiesActive', { used: propertiesData?.usage.totalProperties || 0, max: activeSub.plan?.maxProperties })}
                   </p>
 
                   <div className="flex items-baseline space-x-2 mb-2">
@@ -275,8 +275,8 @@ export default function SubscriptionsPage() {
                   </div>
                   <p className="text-blue-100 text-sm mb-6">
                     {paidPrice > 0 && paidPrice !== renewalPrice
-                      ? `Precio pagado (con prorrateo) · Renovación: €${renewalPrice.toFixed(2)}`
-                      : 'Precio del período actual'
+                      ? t('subscriptions.pricePaidProrated', { renewalPrice: renewalPrice.toFixed(2) })
+                      : t('subscriptions.priceCurrentPeriod')
                     }
                   </p>
 
@@ -284,7 +284,7 @@ export default function SubscriptionsPage() {
                     onClick={() => router.push('/account/plans')}
                     className="inline-flex items-center px-6 py-3 bg-white text-blue-600 rounded-full font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl"
                   >
-                    Cambiar plan
+                    {t('subscriptions.changePlan')}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </button>
                 </div>
@@ -292,16 +292,16 @@ export default function SubscriptionsPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
                     <Calendar className="h-6 w-6 mb-3 text-blue-200" />
-                    <div className="text-sm text-blue-100 mb-1">Vencimiento</div>
+                    <div className="text-sm text-blue-100 mb-1">{t('subscriptions.expiration')}</div>
                     <div className="text-lg font-semibold">{formatDate(activeSub.endDate)}</div>
-                    <div className="text-sm text-blue-200 mt-2">{activeSub.daysUntilExpiration} días restantes</div>
+                    <div className="text-sm text-blue-200 mt-2">{t('subscriptions.daysRemaining', { days: activeSub.daysUntilExpiration })}</div>
                   </div>
 
                   <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
                     <Building2 className="h-6 w-6 mb-3 text-blue-200" />
-                    <div className="text-sm text-blue-100 mb-1">Propiedades</div>
+                    <div className="text-sm text-blue-100 mb-1">{t('subscriptions.properties')}</div>
                     <div className="text-lg font-semibold">{activeSub.plan?.maxProperties}</div>
-                    <div className="text-sm text-blue-200 mt-2">Incluidas</div>
+                    <div className="text-sm text-blue-200 mt-2">{t('subscriptions.included')}</div>
                   </div>
                 </div>
               </div>
@@ -317,16 +317,16 @@ export default function SubscriptionsPage() {
                 <Crown className="h-8 w-8 text-blue-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Comienza con un plan
+                {t('subscriptions.startWithPlan')}
               </h2>
               <p className="text-gray-600 mb-8">
-                Desbloquea todas las funciones y gestiona múltiples propiedades sin límites
+                {t('subscriptions.startWithPlanDescription')}
               </p>
               <button
                 onClick={() => router.push('/account/plans')}
                 className="inline-flex items-center px-8 py-4 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl"
               >
-                Ver planes disponibles
+                {t('subscriptions.viewAvailablePlans')}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </button>
             </div>
@@ -338,16 +338,16 @@ export default function SubscriptionsPage() {
           <section>
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-semibold text-gray-900">Tus propiedades</h2>
+                <h2 className="text-2xl font-semibold text-gray-900">{t('subscriptions.yourProperties')}</h2>
                 <p className="text-gray-600 mt-1">
-                  {propertiesData.usage.totalProperties} {propertiesData.usage.totalProperties === 1 ? 'propiedad' : 'propiedades'}
+                  {t('subscriptions.propertyCount', { count: propertiesData.usage.totalProperties })}
                 </p>
               </div>
               <button
                 onClick={() => router.push('/properties')}
                 className="text-blue-600 hover:text-blue-700 font-medium flex items-center"
               >
-                Ver todas
+                {t('subscriptions.viewAll')}
                 <ChevronRight className="ml-1 h-4 w-4" />
               </button>
             </div>
@@ -364,14 +364,14 @@ export default function SubscriptionsPage() {
                     {property.isCovered && (
                       <span className="flex items-center text-xs text-green-600 bg-green-50 px-3 py-1 rounded-full font-medium">
                         <Check className="h-3 w-3 mr-1" />
-                        Cubierta
+                        {t('subscriptions.covered')}
                       </span>
                     )}
                   </div>
                   <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">{property.name}</h3>
                   {property.coveringSubscription && (
                     <p className="text-sm text-gray-500">
-                      Plan {property.coveringSubscription.planName}
+                      {t('subscriptions.planLabel', { name: property.coveringSubscription.planName })}
                     </p>
                   )}
                 </div>
@@ -385,9 +385,9 @@ export default function SubscriptionsPage() {
           <section>
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-semibold text-gray-900">Historial de pagos</h2>
+                <h2 className="text-2xl font-semibold text-gray-900">{t('subscriptions.paymentHistory')}</h2>
                 <p className="text-gray-600 mt-1">
-                  Total pagado: €{invoicesData.summary.totalPaid.toFixed(2)}
+                  {t('subscriptions.totalPaid', { amount: invoicesData.summary.totalPaid.toFixed(2) })}
                 </p>
               </div>
             </div>
@@ -415,21 +415,21 @@ export default function SubscriptionsPage() {
                       <div className="text-right">
                         <div className="font-semibold text-gray-900">€{invoice.finalAmount.toFixed(2)}</div>
                         <div className="text-sm text-green-600 mt-1">
-                          {invoice.status === 'PAID' ? 'Pagada' : invoice.status}
+                          {invoice.status === 'PAID' ? t('subscriptions.invoicePaid') : invoice.status}
                         </div>
                       </div>
                       <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => window.open(`/api/user/invoices/${invoice.id}/preview`, '_blank')}
                           className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
-                          title="Ver factura"
+                          title={t('subscriptions.viewInvoice')}
                         >
                           <Eye className="h-5 w-5 text-blue-600" />
                         </button>
                         <button
                           onClick={() => window.open(`/api/user/invoices/${invoice.id}/download`, '_blank')}
                           className="p-2 hover:bg-green-100 rounded-lg transition-colors"
-                          title="Descargar PDF"
+                          title={t('subscriptions.downloadPdf')}
                         >
                           <Download className="h-5 w-5 text-green-600" />
                         </button>
@@ -445,9 +445,9 @@ export default function SubscriptionsPage() {
         {/* Ayuda */}
         <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-8 md:p-12 text-white">
           <div className="max-w-2xl">
-            <h2 className="text-2xl font-bold mb-4">¿Necesitas ayuda?</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('subscriptions.needHelp')}</h2>
             <p className="text-gray-300 mb-6">
-              Nuestro equipo está disponible para ayudarte con cualquier pregunta sobre tu suscripción o facturación.
+              {t('subscriptions.needHelpDescription')}
             </p>
             <a
               href="https://wa.me/34652656440"
@@ -455,7 +455,7 @@ export default function SubscriptionsPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-full font-semibold hover:bg-green-700 transition-all shadow-lg hover:shadow-xl"
             >
-              Contactar por WhatsApp
+              {t('subscriptions.contactWhatsApp')}
               <ArrowRight className="ml-2 h-4 w-4" />
             </a>
           </div>

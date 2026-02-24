@@ -1,11 +1,12 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { 
-  Bell, 
-  CheckCircle2, 
-  AlertCircle, 
-  Info, 
+import { useTranslation } from 'react-i18next'
+import {
+  Bell,
+  CheckCircle2,
+  AlertCircle,
+  Info,
   Trash2,
   Check,
   MailOpen,
@@ -29,6 +30,7 @@ interface Notification {
 }
 
 export default function NotificationsPage() {
+  const { t } = useTranslation('dashboard')
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useRealNotifications()
   const [filter, setFilter] = useState<'ALL' | 'UNREAD' | 'READ'>('ALL')
   const [selectedNotifications, setSelectedNotifications] = useState<string[]>([])
@@ -82,12 +84,12 @@ export default function NotificationsPage() {
     const diffInHours = Math.floor(diffInMinutes / 60)
     const diffInDays = Math.floor(diffInHours / 24)
 
-    if (diffInMinutes < 1) return 'Hace un momento'
-    if (diffInMinutes < 60) return `Hace ${diffInMinutes} min`
-    if (diffInHours < 24) return `Hace ${diffInHours}h`
-    if (diffInDays < 7) return `Hace ${diffInDays}d`
-    
-    return date.toLocaleDateString('es-ES', {
+    if (diffInMinutes < 1) return t('notifications.timeAgo.justNow')
+    if (diffInMinutes < 60) return t('notifications.timeAgo.minutes', { count: diffInMinutes })
+    if (diffInHours < 24) return t('notifications.timeAgo.hours', { count: diffInHours })
+    if (diffInDays < 7) return t('notifications.timeAgo.days', { count: diffInDays })
+
+    return date.toLocaleDateString(undefined, {
       day: 'numeric',
       month: 'short',
       year: diffInDays > 365 ? 'numeric' : undefined
@@ -151,15 +153,15 @@ export default function NotificationsPage() {
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Notificaciones</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t('notifications.title')}</h1>
           <p className="text-gray-600 mt-2">
-            Mantente al día con las actualizaciones de tu cuenta y propiedades
+            {t('notifications.subtitle')}
           </p>
         </div>
         <div className="flex items-center space-x-2">
           {unreadCount > 0 && (
             <div className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
-              {unreadCount} sin leer
+              {t('notifications.unreadCount', { count: unreadCount })}
             </div>
           )}
         </div>
@@ -174,7 +176,7 @@ export default function NotificationsPage() {
                 <Bell className="w-6 h-6 text-blue-600" />
               </div>
               <div className="ml-4">
-                <div className="text-sm text-gray-600">Total</div>
+                <div className="text-sm text-gray-600">{t('notifications.stats.total')}</div>
                 <div className="text-2xl font-bold text-blue-600">
                   {notifications.length}
                 </div>
@@ -190,7 +192,7 @@ export default function NotificationsPage() {
                 <MailOpen className="w-6 h-6 text-red-600" />
               </div>
               <div className="ml-4">
-                <div className="text-sm text-gray-600">Sin Leer</div>
+                <div className="text-sm text-gray-600">{t('notifications.stats.unread')}</div>
                 <div className="text-2xl font-bold text-red-600">
                   {unreadCount}
                 </div>
@@ -206,7 +208,7 @@ export default function NotificationsPage() {
                 <CheckCircle2 className="w-6 h-6 text-green-600" />
               </div>
               <div className="ml-4">
-                <div className="text-sm text-gray-600">Leídas</div>
+                <div className="text-sm text-gray-600">{t('notifications.stats.read')}</div>
                 <div className="text-2xl font-bold text-green-600">
                   {notifications.length - unreadCount}
                 </div>
@@ -232,8 +234,8 @@ export default function NotificationsPage() {
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {filterType === 'ALL' ? 'Todas' : 
-                   filterType === 'UNREAD' ? 'Sin Leer' : 'Leídas'}
+                  {filterType === 'ALL' ? t('notifications.tabs.all') :
+                   filterType === 'UNREAD' ? t('notifications.tabs.unread') : t('notifications.tabs.read')}
                 </button>
               ))}
             </div>
@@ -248,7 +250,7 @@ export default function NotificationsPage() {
                   className="bg-green-600 hover:bg-green-700"
                 >
                   <Check className="w-4 h-4 mr-1" />
-                  Marcar como leídas ({selectedNotifications.length})
+                  {t('notifications.actions.markSelectedAsRead', { count: selectedNotifications.length })}
                 </Button>
               )}
               
@@ -260,7 +262,7 @@ export default function NotificationsPage() {
                   variant="outline"
                 >
                   <CheckCircle2 className="w-4 h-4 mr-1" />
-                  Marcar todas como leídas
+                  {t('notifications.actions.markAllAsRead')}
                 </Button>
               )}
             </div>
@@ -275,14 +277,14 @@ export default function NotificationsPage() {
             <CardContent className="p-12 text-center">
               <Bell className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {filter === 'UNREAD' ? 'No hay notificaciones sin leer' :
-                 filter === 'READ' ? 'No hay notificaciones leídas' :
-                 'No tienes notificaciones'}
+                {filter === 'UNREAD' ? t('notifications.empty.noUnread') :
+                 filter === 'READ' ? t('notifications.empty.noRead') :
+                 t('notifications.empty.noNotifications')}
               </h3>
               <p className="text-gray-600">
-                {filter === 'ALL' 
-                  ? 'Las notificaciones aparecerán aquí cuando haya actividad en tu cuenta'
-                  : 'Cambia el filtro para ver otras notificaciones'
+                {filter === 'ALL'
+                  ? t('notifications.empty.description')
+                  : t('notifications.empty.changeFilter')
                 }
               </p>
             </CardContent>
@@ -299,7 +301,7 @@ export default function NotificationsPage() {
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-sm text-gray-600">
-                  {selectedNotifications.length === filteredNotifications.length ? 'Deseleccionar todas' : 'Seleccionar todas'}
+                  {selectedNotifications.length === filteredNotifications.length ? t('notifications.actions.deselectAll') : t('notifications.actions.selectAll')}
                 </span>
               </div>
             )}
@@ -353,7 +355,7 @@ export default function NotificationsPage() {
                             {!notification.read && (
                               <div className="flex items-center">
                                 <div className="w-2 h-2 bg-blue-600 rounded-full mr-1" />
-                                <span>Nueva</span>
+                                <span>{t('notifications.new')}</span>
                               </div>
                             )}
                           </div>
@@ -398,24 +400,4 @@ export default function NotificationsPage() {
       </div>
     </div>
   )
-}
-
-function formatTimeAgo(dateString: string): string {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffInMs = now.getTime() - date.getTime()
-  const diffInMinutes = Math.floor(diffInMs / (1000 * 60))
-  const diffInHours = Math.floor(diffInMinutes / 60)
-  const diffInDays = Math.floor(diffInHours / 24)
-
-  if (diffInMinutes < 1) return 'Hace un momento'
-  if (diffInMinutes < 60) return `Hace ${diffInMinutes} min`
-  if (diffInHours < 24) return `Hace ${diffInHours}h`
-  if (diffInDays < 7) return `Hace ${diffInDays}d`
-  
-  return date.toLocaleDateString('es-ES', {
-    day: 'numeric',
-    month: 'short',
-    year: diffInDays > 365 ? 'numeric' : undefined
-  })
 }

@@ -22,7 +22,7 @@ import { toast } from 'react-hot-toast'
 
 interface UserModule {
   id: string
-  moduleType: 'MANUALES' | 'GESTION' | 'FACTURAMIO'
+  moduleType: 'MANUALES' | 'GESTION'
   status: string
   isActive: boolean
   activatedAt: string
@@ -32,6 +32,7 @@ interface UserModule {
     name: string
     code: string
   } | null
+  _source?: 'module' | 'subscription' | 'user_trial'
 }
 
 interface UserWithModules {
@@ -42,7 +43,12 @@ interface UserWithModules {
   createdAt: string
   trialEndsAt: string | null
   manualesModule: UserModule | null
-  gestionModule: UserModule | null // Includes both GESTION and FACTURAMIO
+  gestionModule: UserModule | null
+  activeSubscription?: {
+    id: string
+    status: string
+    plan: { name: string; code: string } | null
+  } | null
   _count: {
     properties: number
   }
@@ -52,14 +58,14 @@ interface ActivateModalData {
   userId: string
   userName: string
   userEmail: string
-  moduleType: 'MANUALES' | 'FACTURAMIO'
+  moduleType: 'MANUALES' | 'GESTION'
 }
 
 export default function AdminModulesPage() {
   const [users, setUsers] = useState<UserWithModules[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [moduleFilter, setModuleFilter] = useState<'ALL' | 'MANUALES' | 'FACTURAMIO'>('ALL')
+  const [moduleFilter, setModuleFilter] = useState<'ALL' | 'MANUALES' | 'GESTION'>('ALL')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [activateModal, setActivateModal] = useState<ActivateModalData | null>(null)
@@ -164,7 +170,16 @@ export default function AdminModulesPage() {
   }
 
   const getModuleStatusBadge = (module: UserModule | null, moduleType: 'MANUALES' | 'GESTION') => {
-    if (!module || !module.isActive) {
+    if (!module || module.status === 'EXPIRED') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
+          <X className="w-3 h-3" />
+          {module?.status === 'EXPIRED' ? 'Expirado' : 'Sin activar'}
+        </span>
+      )
+    }
+
+    if (!module.isActive) {
       return (
         <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
           <X className="w-3 h-3" />
@@ -176,8 +191,11 @@ export default function AdminModulesPage() {
     if (module.status === 'TRIAL') {
       const trialEnd = module.trialEndsAt ? new Date(module.trialEndsAt) : null
       const daysLeft = trialEnd ? Math.ceil((trialEnd.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0
+      const isExpired = daysLeft < 0
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-700">
+        <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${
+          isExpired ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+        }`}>
           <Clock className="w-3 h-3" />
           Trial ({daysLeft}d)
         </span>
@@ -243,7 +261,7 @@ export default function AdminModulesPage() {
           >
             <option value="ALL">Todos</option>
             <option value="MANUALES">Con Manuales</option>
-            <option value="FACTURAMIO">Con Gestión</option>
+            <option value="GESTION">Con Gestión</option>
           </select>
         </div>
       </div>
@@ -360,7 +378,12 @@ export default function AdminModulesPage() {
                       {user.manualesModule?.subscriptionPlan && (
                         <p className="text-xs text-gray-400 mt-1">
                           {user.manualesModule.subscriptionPlan.name}
+                          {user.manualesModule._source === 'subscription' && ' (suscripción)'}
+                          {user.manualesModule._source === 'user_trial' && ' (trial usuario)'}
                         </p>
+                      )}
+                      {user.manualesModule?._source === 'user_trial' && !user.manualesModule?.subscriptionPlan && (
+                        <p className="text-xs text-gray-400 mt-1">Trial usuario</p>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -401,7 +424,7 @@ export default function AdminModulesPage() {
                               userId: user.id,
                               userName: user.name,
                               userEmail: user.email,
-                              moduleType: 'FACTURAMIO'
+                              moduleType: 'GESTION'
                             })}
                             className="px-2 py-1 text-xs font-medium text-emerald-600 hover:bg-emerald-50 rounded transition-colors"
                           >
@@ -410,7 +433,7 @@ export default function AdminModulesPage() {
                         )}
                         {user.gestionModule?.isActive && (
                           <button
-                            onClick={() => handleDeactivateModule(user.id, user.gestionModule?.moduleType || 'FACTURAMIO', user.name)}
+                            onClick={() => handleDeactivateModule(user.id, user.gestionModule?.moduleType || 'GESTION', user.name)}
                             className="px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 rounded transition-colors"
                           >
                             -Gestión

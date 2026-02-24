@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../../../src/providers/AuthProvider'
 import { ArrowLeft, Check, Upload, Phone, Building2, Image, Loader2, Copy, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -13,6 +14,7 @@ export const dynamic = 'force-dynamic'
 function ManualCheckoutContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { t } = useTranslation('dashboard')
   const { user } = useAuth()
 
   const [loading, setLoading] = useState(false)
@@ -174,7 +176,7 @@ function ManualCheckoutContent() {
 
   const validateCoupon = async () => {
     if (!couponCode.trim()) {
-      setCouponError('Ingresa un código de cupón')
+      setCouponError(t('checkout.coupon.enterCode'))
       return
     }
 
@@ -199,15 +201,15 @@ function ManualCheckoutContent() {
         setCouponApplied(true)
         setAppliedCoupon(data.coupon)
         setCouponDiscount(data.discount.discountAmount)
-        toast.success(`¡Cupón aplicado! Descuento: €${data.discount.discountAmount.toFixed(2)}`)
+        toast.success(t('checkout.coupon.applied', { amount: data.discount.discountAmount.toFixed(2) }))
       } else {
-        setCouponError(data.error || 'Cupón no válido')
-        toast.error(data.error || 'Cupón no válido')
+        setCouponError(data.error || t('checkout.coupon.invalid'))
+        toast.error(data.error || t('checkout.coupon.invalid'))
       }
     } catch (error) {
       console.error('Error validating coupon:', error)
-      setCouponError('Error al validar el cupón')
-      toast.error('Error al validar el cupón')
+      setCouponError(t('checkout.coupon.validationError'))
+      toast.error(t('checkout.coupon.validationError'))
     } finally {
       setValidatingCoupon(false)
     }
@@ -219,18 +221,18 @@ function ManualCheckoutContent() {
     setAppliedCoupon(null)
     setCouponDiscount(0)
     setCouponError('')
-    toast.success('Cupón eliminado')
+    toast.success(t('checkout.coupon.removed'))
   }
   
   const handleFileUpload = (file: File) => {
     if (file && file.type.startsWith('image/')) {
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast.error('La imagen debe ser menor a 5MB')
+        toast.error(t('checkout.upload.imageTooLarge'))
         return
       }
       setPaymentProofFile(file)
     } else {
-      toast.error('Por favor selecciona una imagen válida')
+      toast.error(t('checkout.upload.invalidImage'))
     }
   }
   
@@ -255,12 +257,12 @@ function ManualCheckoutContent() {
   
   const handleSubmit = async () => {
     if (!paymentProofFile) {
-      toast.error('Por favor adjunta el justificante de pago')
+      toast.error(t('checkout.upload.attachProof'))
       return
     }
     
     if (!paymentReference) {
-      toast.error('Error generando referencia de pago')
+      toast.error(t('checkout.errors.referenceGeneration'))
       return
     }
     
@@ -277,7 +279,7 @@ function ManualCheckoutContent() {
       })
 
       if (!uploadResponse.ok) {
-        throw new Error('Error al subir el justificante')
+        throw new Error(t('checkout.errors.uploadFailed'))
       }
 
       const uploadResult = await uploadResponse.json()
@@ -313,7 +315,7 @@ function ManualCheckoutContent() {
         const error = await response.json()
         console.error('❌ API Error Response:', error)
         console.error('❌ Status:', response.status)
-        throw new Error(error.error || error.details || 'Error al procesar la solicitud')
+        throw new Error(error.error || error.details || t('checkout.errors.processingRequest'))
       }
 
       // Limpiar compra pendiente del localStorage
@@ -322,7 +324,7 @@ function ManualCheckoutContent() {
       }
 
       setShowSuccess(true)
-      toast.success('Solicitud enviada correctamente')
+      toast.success(t('checkout.success.requestSent'))
 
       // Redirect after 3 seconds
       setTimeout(() => {
@@ -331,7 +333,7 @@ function ManualCheckoutContent() {
       
     } catch (error) {
       console.error('Error:', error)
-      toast.error(error instanceof Error ? error.message : 'Error al procesar el pago')
+      toast.error(error instanceof Error ? error.message : t('checkout.errors.processingPayment'))
     } finally {
       setLoading(false)
     }
@@ -353,7 +355,7 @@ function ManualCheckoutContent() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Verificando datos de facturación...</p>
+          <p className="text-gray-600">{t('checkout.loading.verifyingBilling')}</p>
         </div>
       </div>
     )
@@ -383,22 +385,21 @@ function ManualCheckoutContent() {
                 <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-600" />
               </div>
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                Datos de facturación requeridos
+                {t('checkout.billing.required')}
               </h1>
               <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 px-2">
-                Antes de continuar con tu compra, necesitas completar tus datos de facturación.
-                Esto es necesario para emitir facturas legalmente válidas según la normativa española.
+                {t('checkout.billing.requiredDescription')}
               </p>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
                 <p className="text-xs sm:text-sm text-blue-800">
-                  <strong>Información de tu compra:</strong><br />
-                  Plan {getPlanName(planCode)} - €{basePrice.toFixed(2)}{billingPeriod === 'annual' ? '/año' : billingPeriod === 'biannual' ? '/semestre' : '/mes'}
+                  <strong>{t('checkout.billing.purchaseInfo')}:</strong><br />
+                  Plan {getPlanName(planCode)} - €{basePrice.toFixed(2)}{billingPeriod === 'annual' ? t('checkout.period.annual') : billingPeriod === 'biannual' ? t('checkout.period.biannual') : t('checkout.period.monthly')}
                 </p>
               </div>
               <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
                 <p className="text-xs sm:text-sm text-green-800">
-                  ✓ Tu selección de plan se guardará automáticamente<br />
-                  ✓ Volverás aquí después de completar tus datos
+                  ✓ {t('checkout.billing.planSaved')}<br />
+                  ✓ {t('checkout.billing.returnAfter')}
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
@@ -407,7 +408,7 @@ function ManualCheckoutContent() {
                   className="bg-blue-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
                   <Building2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                  Completar datos de facturación
+                  {t('checkout.billing.completeBilling')}
                 </button>
                 <button
                   onClick={() => {
@@ -418,7 +419,7 @@ function ManualCheckoutContent() {
                   }}
                   className="bg-gray-100 text-gray-700 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm sm:text-base"
                 >
-                  Cancelar compra
+                  {t('checkout.billing.cancelPurchase')}
                 </button>
               </div>
             </div>
@@ -438,13 +439,13 @@ function ManualCheckoutContent() {
                 <Check className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
               </div>
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                ¡Solicitud Enviada!
+                {t('checkout.success.title')}
               </h1>
               <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 px-2">
-                Hemos recibido tu justificante de pago. Lo revisaremos en las próximas 24 horas.
+                {t('checkout.success.description')}
               </p>
               <p className="text-xs sm:text-sm text-gray-500">
-                Recibirás una confirmación por email cuando tu plan esté activado.
+                {t('checkout.success.emailConfirmation')}
               </p>
             </div>
           </div>
@@ -461,12 +462,12 @@ function ManualCheckoutContent() {
           className="flex items-center text-gray-600 hover:text-gray-900 mb-4 sm:mb-6 text-sm sm:text-base"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Volver a planes
+          {t('checkout.backToPlans')}
         </button>
 
         <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
-            Completar Pago Manual
+            {t('checkout.title')}
           </h1>
           
           {/* Plan Summary */}
@@ -474,25 +475,25 @@ function ManualCheckoutContent() {
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
               <div>
                 <h2 className="font-semibold text-base sm:text-lg">Plan {getPlanName(planCode)}</h2>
-                <p className="text-xs sm:text-sm text-gray-600">Hasta {propertyCount} propiedades</p>
+                <p className="text-xs sm:text-sm text-gray-600">{t('checkout.upToProperties', { count: propertyCount })}</p>
               </div>
               <div className="text-left sm:text-right">
                 {prorationData?.hasProration || couponApplied ? (
                   <>
                     <p className="text-xs sm:text-sm text-gray-500 line-through">€{basePrice.toFixed(2)}</p>
                     <p className="text-xl sm:text-2xl font-bold text-green-600">
-                      €{finalPrice.toFixed(2)}{billingPeriod === 'annual' ? '/año' : billingPeriod === 'biannual' ? '/semestre' : '/mes'}
+                      €{finalPrice.toFixed(2)}{billingPeriod === 'annual' ? t('checkout.period.annual') : billingPeriod === 'biannual' ? t('checkout.period.biannual') : t('checkout.period.monthly')}
                     </p>
                     {prorationCredit > 0 && (
-                      <p className="text-xs text-green-600">Crédito prorrateo: -€{prorationCredit.toFixed(2)}</p>
+                      <p className="text-xs text-green-600">{t('checkout.proration.credit')}: -€{prorationCredit.toFixed(2)}</p>
                     )}
                     {couponDiscount > 0 && (
-                      <p className="text-xs text-green-600">Descuento cupón: -€{couponDiscount.toFixed(2)}</p>
+                      <p className="text-xs text-green-600">{t('checkout.coupon.discountLabel')}: -€{couponDiscount.toFixed(2)}</p>
                     )}
                   </>
                 ) : (
                   <p className="text-xl sm:text-2xl font-bold text-blue-600">
-                    €{basePrice.toFixed(2)}{billingPeriod === 'annual' ? '/año' : billingPeriod === 'biannual' ? '/semestre' : '/mes'}
+                    €{basePrice.toFixed(2)}{billingPeriod === 'annual' ? t('checkout.period.annual') : billingPeriod === 'biannual' ? t('checkout.period.biannual') : t('checkout.period.monthly')}
                   </p>
                 )}
               </div>
@@ -506,14 +507,14 @@ function ManualCheckoutContent() {
                 <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <h3 className="font-semibold text-green-900 text-sm sm:text-base mb-1">
-                    Crédito por plan anterior aplicado
+                    {t('checkout.proration.title')}
                   </h3>
                   <p className="text-xs sm:text-sm text-green-700">
-                    Has recibido un crédito de <strong>€{prorationData.creditAmount.toFixed(2)}</strong> por los días no utilizados de tu plan anterior.
+                    {t('checkout.proration.description', { amount: prorationData.creditAmount.toFixed(2) })}
                   </p>
                   {prorationData.currentPlan?.daysRemaining && (
                     <p className="text-xs text-green-600 mt-1">
-                      ({prorationData.currentPlan.daysRemaining} días restantes de tu plan {prorationData.currentPlan.name})
+                      ({t('checkout.proration.daysRemaining', { days: prorationData.currentPlan.daysRemaining, plan: prorationData.currentPlan.name })})
                     </p>
                   )}
                 </div>
@@ -527,7 +528,7 @@ function ManualCheckoutContent() {
               <svg className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
               </svg>
-              Código de cupón
+              {t('checkout.coupon.title')}
             </h3>
 
             {!couponApplied ? (
@@ -537,7 +538,7 @@ function ManualCheckoutContent() {
                     type="text"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    placeholder="Ingresa tu código de cupón"
+                    placeholder={t('checkout.coupon.placeholder')}
                     className="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase text-sm sm:text-base"
                     disabled={validatingCoupon}
                   />
@@ -549,10 +550,10 @@ function ManualCheckoutContent() {
                     {validatingCoupon ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        Validando...
+                        {t('checkout.coupon.validating')}
                       </>
                     ) : (
-                      'Aplicar'
+                      t('checkout.coupon.apply')
                     )}
                   </button>
                 </div>
@@ -571,23 +572,23 @@ function ManualCheckoutContent() {
                     <div className="flex items-center gap-2 mb-2">
                       <Check className="w-5 h-5 text-green-600" />
                       <p className="font-semibold text-green-900">
-                        Cupón aplicado: {appliedCoupon.code}
+                        {t('checkout.coupon.appliedLabel')}: {appliedCoupon.code}
                       </p>
                     </div>
                     <p className="text-sm text-green-700 mb-1">
                       {appliedCoupon.discountType === 'PERCENTAGE'
-                        ? `${appliedCoupon.discountValue}% de descuento`
-                        : `€${appliedCoupon.discountValue} de descuento`}
+                        ? t('checkout.coupon.percentOff', { value: appliedCoupon.discountValue })
+                        : t('checkout.coupon.amountOff', { value: appliedCoupon.discountValue })}
                     </p>
                     <p className="text-xs text-green-600">
-                      Total con descuento: €{finalPrice.toFixed(2)}
+                      {t('checkout.coupon.totalWithDiscount')}: €{finalPrice.toFixed(2)}
                     </p>
                   </div>
                   <button
                     onClick={removeCoupon}
                     className="px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
                   >
-                    Eliminar
+                    {t('checkout.coupon.remove')}
                   </button>
                 </div>
               </div>
@@ -596,19 +597,19 @@ function ManualCheckoutContent() {
 
           {/* Payment Instructions */}
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
-            <h3 className="font-semibold mb-3 text-sm sm:text-base">Instrucciones de Pago:</h3>
+            <h3 className="font-semibold mb-3 text-sm sm:text-base">{t('checkout.instructions.title')}:</h3>
             <div className="space-y-3 text-xs sm:text-sm">
-              <div className="font-medium">Para Bizum:</div>
+              <div className="font-medium">{t('checkout.instructions.forBizum')}:</div>
               <div className="pl-2 sm:pl-4 space-y-1">
-                <p>Teléfono: <span className="font-mono font-bold">+34 652 656 440</span></p>
-                <p className="break-all">Concepto: <span className="font-mono font-bold">Pago Suscripción {paymentReference}</span></p>
+                <p>{t('checkout.instructions.phone')}: <span className="font-mono font-bold">+34 652 656 440</span></p>
+                <p className="break-all">{t('checkout.instructions.concept')}: <span className="font-mono font-bold">{t('checkout.instructions.subscriptionPayment')} {paymentReference}</span></p>
               </div>
 
-              <div className="font-medium mt-3">Para Transferencia:</div>
+              <div className="font-medium mt-3">{t('checkout.instructions.forTransfer')}:</div>
               <div className="pl-2 sm:pl-4 space-y-1">
                 <p className="break-all">IBAN: <span className="font-mono text-[10px] sm:text-xs">ES82 0182 0304 8102 0158 7248</span></p>
-                <p>Beneficiario: Itineramio S.L.</p>
-                <p className="break-all">Concepto: <span className="font-mono font-bold">Pago Suscripción {paymentReference}</span></p>
+                <p>{t('checkout.instructions.beneficiary')}: Itineramio S.L.</p>
+                <p className="break-all">{t('checkout.instructions.concept')}: <span className="font-mono font-bold">{t('checkout.instructions.subscriptionPayment')} {paymentReference}</span></p>
               </div>
             </div>
           </div>
@@ -616,7 +617,7 @@ function ManualCheckoutContent() {
           {/* Payment Method Selection */}
           <div className="mb-4 sm:mb-6">
             <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-3">
-              Método de pago utilizado
+              {t('checkout.paymentMethod.label')}
             </label>
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <button
@@ -640,7 +641,7 @@ function ManualCheckoutContent() {
                 }`}
               >
                 <Building2 className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1 sm:mb-2 text-blue-600" />
-                <p className="font-semibold text-sm sm:text-base">Transferencia</p>
+                <p className="font-semibold text-sm sm:text-base">{t('checkout.paymentMethod.transfer')}</p>
               </button>
             </div>
           </div>
@@ -648,22 +649,22 @@ function ManualCheckoutContent() {
           {/* Payment Reference Display */}
           <div className="mb-4 sm:mb-6">
             <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-              Tu referencia de pago
+              {t('checkout.reference.label')}
             </label>
             <div className="bg-gray-50 border border-gray-300 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="font-mono text-base sm:text-lg font-bold text-gray-900 break-all">{paymentReference}</p>
-                <p className="text-xs sm:text-sm text-gray-600">Usa esta referencia como concepto en tu pago</p>
+                <p className="text-xs sm:text-sm text-gray-600">{t('checkout.reference.description')}</p>
               </div>
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(`Pago Suscripción ${paymentReference}`)
-                  toast.success('Concepto copiado al portapapeles')
+                  navigator.clipboard.writeText(`${t('checkout.instructions.subscriptionPayment')} ${paymentReference}`)
+                  toast.success(t('checkout.reference.copied'))
                 }}
                 className="flex items-center justify-center gap-2 px-3 py-1.5 sm:py-1 text-xs sm:text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors flex-shrink-0 w-full sm:w-auto"
               >
                 <Copy className="w-4 h-4" />
-                Copiar
+                {t('checkout.reference.copy')}
               </button>
             </div>
           </div>
@@ -671,7 +672,7 @@ function ManualCheckoutContent() {
           {/* File Upload */}
           <div className="mb-4 sm:mb-6">
             <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-              Justificante de pago *
+              {t('checkout.upload.label')} *
             </label>
             <div
               onDragEnter={handleDrag}
@@ -693,14 +694,14 @@ function ManualCheckoutContent() {
                     onClick={() => setPaymentProofFile(null)}
                     className="text-red-500 hover:text-red-700 text-xs sm:text-sm"
                   >
-                    Eliminar archivo
+                    {t('checkout.upload.removeFile')}
                   </button>
                 </div>
               ) : (
                 <div>
                   <Upload className="w-10 h-10 sm:w-12 sm:h-12 mx-auto text-gray-400 mb-2 sm:mb-3" />
                   <p className="text-gray-600 mb-2 text-xs sm:text-sm px-2">
-                    Arrastra tu justificante aquí o haz clic para seleccionar
+                    {t('checkout.upload.dragOrClick')}
                   </p>
                   <input
                     type="file"
@@ -717,10 +718,10 @@ function ManualCheckoutContent() {
                     htmlFor="file-upload"
                     className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer text-xs sm:text-sm"
                   >
-                    Seleccionar archivo
+                    {t('checkout.upload.selectFile')}
                   </label>
                   <p className="text-[10px] sm:text-xs text-gray-500 mt-2">
-                    Solo imágenes (JPG, PNG) - Máximo 5MB
+                    {t('checkout.upload.fileRestrictions')}
                   </p>
                 </div>
               )}
@@ -736,18 +737,18 @@ function ManualCheckoutContent() {
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
-                Enviando...
+                {t('checkout.submit.sending')}
               </>
             ) : (
               <>
                 <Check className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                Enviar Justificante
+                {t('checkout.submit.sendProof')}
               </>
             )}
           </button>
 
           <p className="text-[10px] sm:text-xs text-gray-500 text-center mt-3 sm:mt-4">
-            Tu solicitud será revisada en menos de 24 horas
+            {t('checkout.submit.reviewTime')}
           </p>
         </div>
       </div>
@@ -761,7 +762,7 @@ export default function ManualCheckoutPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando...</p>
+          <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
     }>

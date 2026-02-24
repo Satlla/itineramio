@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
@@ -29,6 +29,7 @@ import {
 } from 'lucide-react'
 import { MODULES } from '@/config/modules'
 import { toast } from 'react-hot-toast'
+import { useTranslation } from 'react-i18next'
 import { useGestionAccess } from '@/hooks/useModuleAccess'
 import { useAuth } from '@/providers/AuthProvider'
 import { generatePaymentReference } from '@/lib/property-number-generator'
@@ -46,48 +47,25 @@ interface ValidatedCoupon {
   freeMonths: number | null
 }
 
-const BILLING_OPTIONS: Record<BillingPeriod, { label: string; months: number; discount: number; badge?: string }> = {
-  MONTHLY: { label: 'Mensual', months: 1, discount: 0 },
-  SEMESTRAL: { label: 'Semestral', months: 6, discount: 10, badge: '-10%' },
-  YEARLY: { label: 'Anual', months: 12, discount: 20, badge: '-20%' }
+const BILLING_OPTIONS_CONFIG: Record<BillingPeriod, { labelKey: string; months: number; discount: number; badge?: string }> = {
+  MONTHLY: { labelKey: 'modules.gestion.billingOptions.monthly', months: 1, discount: 0 },
+  SEMESTRAL: { labelKey: 'modules.gestion.billingOptions.semestral', months: 6, discount: 10, badge: '-10%' },
+  YEARLY: { labelKey: 'modules.gestion.billingOptions.yearly', months: 12, discount: 20, badge: '-20%' }
 }
 
-const FEATURES = [
-  {
-    icon: Users,
-    title: 'Gestión de Propietarios',
-    description: 'Centraliza la información de tus clientes propietarios'
-  },
-  {
-    icon: CalendarDays,
-    title: 'Importación de Reservas',
-    description: 'Importa automáticamente desde Airbnb, Booking y otros'
-  },
-  {
-    icon: FileText,
-    title: 'Facturas Automáticas',
-    description: 'Genera facturas conformes a normativa española'
-  },
-  {
-    icon: Receipt,
-    title: 'Liquidaciones Mensuales',
-    description: 'Crea liquidaciones detalladas para propietarios'
-  },
-  {
-    icon: Building2,
-    title: 'Control de Gastos',
-    description: 'Registra y categoriza gastos por propiedad'
-  },
-  {
-    icon: BarChart3,
-    title: 'Informes de Rentabilidad',
-    description: 'Analiza el rendimiento de cada propiedad'
-  }
+const FEATURES_CONFIG = [
+  { icon: Users, titleKey: 'modules.gestion.features.ownerManagement.title', descriptionKey: 'modules.gestion.features.ownerManagement.description' },
+  { icon: CalendarDays, titleKey: 'modules.gestion.features.reservationImport.title', descriptionKey: 'modules.gestion.features.reservationImport.description' },
+  { icon: FileText, titleKey: 'modules.gestion.features.autoInvoices.title', descriptionKey: 'modules.gestion.features.autoInvoices.description' },
+  { icon: Receipt, titleKey: 'modules.gestion.features.monthlySettlements.title', descriptionKey: 'modules.gestion.features.monthlySettlements.description' },
+  { icon: Building2, titleKey: 'modules.gestion.features.expenseControl.title', descriptionKey: 'modules.gestion.features.expenseControl.description' },
+  { icon: BarChart3, titleKey: 'modules.gestion.features.profitabilityReports.title', descriptionKey: 'modules.gestion.features.profitabilityReports.description' }
 ]
 
 export default function GestionModulePage() {
   const router = useRouter()
   const { user } = useAuth()
+  const { t } = useTranslation('account')
   const [selectedPeriod, setSelectedPeriod] = useState<BillingPeriod>('YEARLY')
   const [loading, setLoading] = useState(false)
   const [trialLoading, setTrialLoading] = useState(false)
@@ -138,7 +116,7 @@ export default function GestionModulePage() {
   const trialDays = module.trialDays || 14
 
   const calculatePrice = (period: BillingPeriod): number => {
-    const { months, discount } = BILLING_OPTIONS[period]
+    const { months, discount } = BILLING_OPTIONS_CONFIG[period]
     const total = basePrice * months
     return total * (1 - discount / 100)
   }
@@ -157,7 +135,7 @@ export default function GestionModulePage() {
     } else if (validatedCoupon.type === 'FIXED_AMOUNT' && validatedCoupon.discountAmount) {
       final = Math.max(0, original - validatedCoupon.discountAmount)
     } else if (validatedCoupon.type === 'FREE_MONTHS' && validatedCoupon.freeMonths) {
-      const monthlyPrice = original / BILLING_OPTIONS[period].months
+      const monthlyPrice = original / BILLING_OPTIONS_CONFIG[period].months
       final = Math.max(0, original - (monthlyPrice * validatedCoupon.freeMonths))
     }
 
@@ -166,7 +144,7 @@ export default function GestionModulePage() {
 
   const getPricePerMonth = (period: BillingPeriod): number => {
     const total = calculatePrice(period)
-    return total / BILLING_OPTIONS[period].months
+    return total / BILLING_OPTIONS_CONFIG[period].months
   }
 
   const checkPendingRequest = async () => {
@@ -207,7 +185,7 @@ export default function GestionModulePage() {
 
   const validateCoupon = async () => {
     if (!couponCode.trim()) {
-      setCouponError('Introduce un código de cupón')
+      setCouponError(t('modules.gestion.toasts.enterCouponCode'))
       return
     }
 
@@ -230,14 +208,14 @@ export default function GestionModulePage() {
       if (result.success) {
         setValidatedCoupon(result.coupon)
         setCouponError(null)
-        toast.success(`Cupón "${result.coupon.name}" aplicado`)
+        toast.success(t('modules.gestion.toasts.couponApplied', { name: result.coupon.name }))
       } else {
-        setCouponError(result.error || 'Cupón no válido')
+        setCouponError(result.error || t('modules.gestion.toasts.couponInvalid'))
         setValidatedCoupon(null)
       }
     } catch (error) {
       console.error('Error validating coupon:', error)
-      setCouponError('Error al validar el cupón')
+      setCouponError(t('modules.gestion.toasts.couponValidationError'))
       setValidatedCoupon(null)
     } finally {
       setCouponLoading(false)
@@ -267,14 +245,14 @@ export default function GestionModulePage() {
       const result = await response.json()
 
       if (result.success) {
-        toast.success(`¡Trial de ${trialDays} días activado!`)
+        toast.success(t('modules.gestion.toasts.trialActivated', { days: trialDays }))
         router.push('/gestion')
       } else {
-        toast.error(result.error || 'Error al activar el trial')
+        toast.error(result.error || t('modules.gestion.toasts.trialActivationError'))
       }
     } catch (error) {
       console.error('Error:', error)
-      toast.error('Error al activar el trial')
+      toast.error(t('modules.gestion.toasts.trialActivationError'))
     } finally {
       setTrialLoading(false)
     }
@@ -303,11 +281,11 @@ export default function GestionModulePage() {
       if (result.success && result.url) {
         window.location.href = result.url
       } else {
-        toast.error(result.error || 'Error al crear sesión de pago')
+        toast.error(result.error || t('modules.gestion.toasts.checkoutError'))
       }
     } catch (error) {
       console.error('Error:', error)
-      toast.error('Error al procesar el pago')
+      toast.error(t('modules.gestion.toasts.paymentProcessingError'))
     } finally {
       setLoading(false)
     }
@@ -317,12 +295,12 @@ export default function GestionModulePage() {
   const handleFileUpload = (file: File) => {
     if (file && file.type.startsWith('image/')) {
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('La imagen debe ser menor a 5MB')
+        toast.error(t('modules.gestion.toasts.imageTooLarge'))
         return
       }
       setPaymentProofFile(file)
     } else {
-      toast.error('Por favor selecciona una imagen válida')
+      toast.error(t('modules.gestion.toasts.invalidImage'))
     }
   }
 
@@ -347,12 +325,12 @@ export default function GestionModulePage() {
 
   const handleManualPayment = async () => {
     if (!paymentProofFile) {
-      toast.error('Por favor adjunta el justificante de pago')
+      toast.error(t('modules.gestion.toasts.attachProof'))
       return
     }
 
     if (billingDataMissing) {
-      toast.error('Completa tus datos de facturación antes de continuar')
+      toast.error(t('modules.gestion.toasts.completeBillingFirst'))
       router.push('/account/billing')
       return
     }
@@ -370,7 +348,7 @@ export default function GestionModulePage() {
       })
 
       if (!uploadResponse.ok) {
-        throw new Error('Error al subir el justificante')
+        throw new Error(t('modules.gestion.toasts.uploadError'))
       }
 
       const uploadResult = await uploadResponse.json()
@@ -400,14 +378,14 @@ export default function GestionModulePage() {
       if (response.ok && result.success) {
         setShowSuccess(true)
       } else if (response.status === 409) {
-        toast.error(result.error || 'Ya tienes una solicitud pendiente')
+        toast.error(result.error || t('modules.gestion.toasts.pendingRequestExists'))
         setHasPendingRequest(true)
       } else {
-        toast.error(result.error || 'Error al enviar la solicitud')
+        toast.error(result.error || t('modules.gestion.toasts.requestSubmitError'))
       }
     } catch (error) {
       console.error('Error:', error)
-      toast.error('Error al procesar la solicitud')
+      toast.error(t('modules.gestion.toasts.requestProcessingError'))
     } finally {
       setLoading(false)
     }
@@ -415,7 +393,7 @@ export default function GestionModulePage() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
-    toast.success('Copiado al portapapeles')
+    toast.success(t('modules.gestion.toasts.copiedToClipboard'))
   }
 
   // Success screen
@@ -427,19 +405,19 @@ export default function GestionModulePage() {
             <CheckCircle2 className="w-10 h-10 text-emerald-600" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-3">
-            ¡Solicitud enviada!
+            {t('modules.gestion.successTitle')}
           </h1>
           <p className="text-gray-600 mb-2">
-            Hemos recibido tu justificante de pago. Revisaremos tu solicitud en las próximas 24 horas.
+            {t('modules.gestion.successDescription')}
           </p>
           <p className="text-sm text-gray-500 mb-6">
-            Referencia: <span className="font-mono font-bold">{paymentReference}</span>
+            {t('modules.gestion.reference')} <span className="font-mono font-bold">{paymentReference}</span>
           </p>
           <button
             onClick={() => router.push('/gestion')}
             className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors"
           >
-            Ir a Gestión
+            {t('modules.gestion.goToGestion')}
           </button>
         </div>
       </div>
@@ -456,7 +434,7 @@ export default function GestionModulePage() {
             className="group flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            <span className="text-sm font-medium">Volver</span>
+            <span className="text-sm font-medium">{t('modules.gestion.back')}</span>
           </button>
         </div>
       </div>
@@ -482,7 +460,7 @@ export default function GestionModulePage() {
         {accessLoading && (
           <div className="bg-gray-100 rounded-2xl p-8 text-center mb-8">
             <Loader2 className="w-8 h-8 animate-spin mx-auto text-gray-400" />
-            <p className="text-gray-500 mt-2">Cargando...</p>
+            <p className="text-gray-500 mt-2">{t('modules.gestion.loading')}</p>
           </div>
         )}
 
@@ -491,11 +469,10 @@ export default function GestionModulePage() {
           <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-6 md:p-8 text-white text-center mb-8 shadow-lg">
             <div className="flex items-center justify-center gap-2 mb-3">
               <AlertTriangle className="w-6 h-6" />
-              <span className="text-lg font-semibold">Tu prueba gratuita ha expirado</span>
+              <span className="text-lg font-semibold">{t('modules.gestion.trialExpired')}</span>
             </div>
             <p className="text-amber-100 mb-4">
-              Tu período de prueba terminó el {new Date(trialEndsAt!).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}.
-              Suscríbete para seguir usando Gestión.
+              {t('modules.gestion.trialExpiredDescription', { date: new Date(trialEndsAt!).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) })}
             </p>
           </div>
         )}
@@ -505,10 +482,10 @@ export default function GestionModulePage() {
           <div className="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl p-6 md:p-8 text-white text-center mb-8 shadow-lg">
             <div className="flex items-center justify-center gap-2 mb-3">
               <Gift className="w-6 h-6" />
-              <span className="text-lg font-semibold">Prueba gratis {trialDays} días</span>
+              <span className="text-lg font-semibold">{t('modules.gestion.trialFree', { days: trialDays })}</span>
             </div>
             <p className="text-emerald-100 mb-6">
-              Sin tarjeta de crédito. Cancela cuando quieras.
+              {t('modules.gestion.trialNoCreditCard')}
             </p>
             <button
               onClick={handleStartTrial}
@@ -518,10 +495,10 @@ export default function GestionModulePage() {
               {trialLoading ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Activando...
+                  {t('modules.gestion.activating')}
                 </span>
               ) : (
-                `Empezar prueba gratuita`
+                t('modules.gestion.startFreeTrial')
               )}
             </button>
           </div>
@@ -531,7 +508,7 @@ export default function GestionModulePage() {
         {!accessLoading && canStartTrial && (
           <div className="flex items-center gap-4 mb-8">
             <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-gray-500 text-sm">o suscríbete directamente</span>
+            <span className="text-gray-500 text-sm">{t('modules.gestion.orSubscribeDirectly')}</span>
             <div className="flex-1 h-px bg-gray-200" />
           </div>
         )}
@@ -541,10 +518,10 @@ export default function GestionModulePage() {
           <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-6 mb-8 text-center">
             <Clock className="w-8 h-8 text-amber-500 mx-auto mb-3" />
             <h3 className="text-lg font-semibold text-amber-900 mb-2">
-              Solicitud pendiente de revisión
+              {t('modules.gestion.pendingRequestTitle')}
             </h3>
             <p className="text-amber-700 text-sm">
-              Ya tienes una solicitud de pago pendiente. Te notificaremos cuando sea revisada.
+              {t('modules.gestion.pendingRequestDescription')}
             </p>
           </div>
         )}
@@ -554,8 +531,8 @@ export default function GestionModulePage() {
           {/* Period Selector */}
           <div className="bg-gray-50 p-4 border-b border-gray-100">
             <div className="flex justify-center gap-2">
-              {(Object.keys(BILLING_OPTIONS) as BillingPeriod[]).map((period) => {
-                const option = BILLING_OPTIONS[period]
+              {(Object.keys(BILLING_OPTIONS_CONFIG) as BillingPeriod[]).map((period) => {
+                const option = BILLING_OPTIONS_CONFIG[period]
                 const isSelected = selectedPeriod === period
                 return (
                   <button
@@ -567,7 +544,7 @@ export default function GestionModulePage() {
                         : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
                     }`}
                   >
-                    {option.label}
+                    {t(option.labelKey)}
                     {option.badge && (
                       <span className={`absolute -top-2 -right-2 px-1.5 py-0.5 text-xs font-bold rounded-full ${
                         isSelected ? 'bg-yellow-400 text-yellow-900' : 'bg-emerald-100 text-emerald-700'
@@ -599,19 +576,19 @@ export default function GestionModulePage() {
                       {final.toFixed(2).replace('.', ',')}€
                     </span>
                     <span className="text-gray-500">
-                      / {BILLING_OPTIONS[selectedPeriod].months === 1 ? 'mes' : `${BILLING_OPTIONS[selectedPeriod].months} meses`}
+                      / {BILLING_OPTIONS_CONFIG[selectedPeriod].months === 1 ? t('modules.gestion.pricePerMonth') : t('modules.gestion.priceMonths', { count: BILLING_OPTIONS_CONFIG[selectedPeriod].months })}
                     </span>
                   </div>
 
                   {hasCoupon && (
                     <p className="text-emerald-600 font-semibold mb-2">
-                      ¡Ahorras {savings.toFixed(2).replace('.', ',')}€!
+                      {t('modules.gestion.youSave', { amount: savings.toFixed(2).replace('.', ',') })}
                     </p>
                   )}
 
                   {selectedPeriod !== 'MONTHLY' && !hasCoupon && (
                     <p className="text-emerald-600 font-medium">
-                      Solo {getPricePerMonth(selectedPeriod).toFixed(2).replace('.', ',')}€/mes
+                      {t('modules.gestion.onlyPerMonth', { amount: getPricePerMonth(selectedPeriod).toFixed(2).replace('.', ',') })}
                     </p>
                   )}
                 </>
@@ -622,15 +599,15 @@ export default function GestionModulePage() {
             <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm text-gray-600">
               <div className="flex items-center gap-1.5">
                 <Zap className="w-4 h-4 text-emerald-500" />
-                Sin límite de propiedades
+                {t('modules.gestion.unlimitedProperties')}
               </div>
               <div className="flex items-center gap-1.5">
                 <Shield className="w-4 h-4 text-emerald-500" />
-                Cancela cuando quieras
+                {t('modules.gestion.cancelAnytime')}
               </div>
               <div className="flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4 text-emerald-500" />
-                Soporte prioritario
+                {t('modules.gestion.prioritySupport')}
               </div>
             </div>
 
@@ -640,15 +617,15 @@ export default function GestionModulePage() {
                 <div className="flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-lg">
                   <Tag className="w-4 h-4" />
                   <span className="font-medium">
-                    Cupón aplicado: {validatedCoupon.name}
+                    {t('modules.gestion.couponApplied', { name: validatedCoupon.name })}
                     {validatedCoupon.type === 'PERCENTAGE' && ` (-${validatedCoupon.discountPercent}%)`}
                     {validatedCoupon.type === 'FIXED_AMOUNT' && ` (-${validatedCoupon.discountAmount}€)`}
-                    {validatedCoupon.type === 'FREE_MONTHS' && ` (${validatedCoupon.freeMonths} mes${validatedCoupon.freeMonths === 1 ? '' : 'es'} gratis)`}
+                    {validatedCoupon.type === 'FREE_MONTHS' && ` (${t('modules.gestion.freeMonths', { count: validatedCoupon.freeMonths || 0 })})`}
                   </span>
                   <button
                     onClick={removeCoupon}
                     className="ml-2 p-1 hover:bg-emerald-100 rounded-full transition-colors"
-                    title="Quitar cupón"
+                    title={t('modules.gestion.removeCouponTitle')}
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -660,7 +637,7 @@ export default function GestionModulePage() {
                       <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <input
                         type="text"
-                        placeholder="Código de cupón"
+                        placeholder={t('modules.gestion.couponPlaceholder')}
                         value={couponCode}
                         onChange={(e) => {
                           setCouponCode(e.target.value.toUpperCase())
@@ -683,7 +660,7 @@ export default function GestionModulePage() {
                       {couponLoading ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
-                        'Aplicar'
+                        t('modules.gestion.apply')
                       )}
                     </button>
                   </div>
@@ -696,13 +673,13 @@ export default function GestionModulePage() {
 
             {/* Payment Method Selector */}
             <div className="mt-8 pt-6 border-t border-gray-100">
-              <p className="text-sm font-medium text-gray-700 mb-3">Método de pago</p>
+              <p className="text-sm font-medium text-gray-700 mb-3">{t('modules.gestion.paymentMethod')}</p>
               <div className="flex justify-center gap-2">
                 {([
-                  { key: 'CARD' as PaymentMethodType, label: 'Tarjeta', icon: CreditCard },
-                  { key: 'BIZUM' as PaymentMethodType, label: 'Bizum', icon: Phone },
-                  { key: 'TRANSFER' as PaymentMethodType, label: 'Transferencia', icon: Building2 }
-                ]).map(({ key, label, icon: Icon }) => (
+                  { key: 'CARD' as PaymentMethodType, labelKey: 'modules.gestion.paymentCard', icon: CreditCard },
+                  { key: 'BIZUM' as PaymentMethodType, labelKey: 'modules.gestion.paymentBizum', icon: Phone },
+                  { key: 'TRANSFER' as PaymentMethodType, labelKey: 'modules.gestion.paymentTransfer', icon: Building2 }
+                ]).map(({ key, labelKey, icon: Icon }) => (
                   <button
                     key={key}
                     onClick={() => setPaymentMethod(key)}
@@ -713,7 +690,7 @@ export default function GestionModulePage() {
                     }`}
                   >
                     <Icon className="w-4 h-4" />
-                    {label}
+                    {t(labelKey)}
                   </button>
                 ))}
               </div>
@@ -726,7 +703,7 @@ export default function GestionModulePage() {
                 disabled={loading || hasPendingRequest}
                 className="mt-8 w-full sm:w-auto px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Procesando...' : 'Suscribirme ahora'}
+                {loading ? t('modules.gestion.processing') : t('modules.gestion.subscribeNow')}
               </button>
             )}
 
@@ -739,15 +716,15 @@ export default function GestionModulePage() {
                     <div className="flex items-start gap-3">
                       <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-sm font-semibold text-amber-900">Datos de facturación incompletos</p>
+                        <p className="text-sm font-semibold text-amber-900">{t('modules.gestion.billingDataIncomplete')}</p>
                         <p className="text-xs text-amber-700 mt-1">
-                          Necesitamos tus datos de facturación para generar la factura.
+                          {t('modules.gestion.billingDataNeeded')}
                         </p>
                         <button
                           onClick={() => router.push('/account/billing')}
                           className="mt-2 text-xs font-medium text-amber-800 underline hover:text-amber-900"
                         >
-                          Completar datos de facturación
+                          {t('modules.gestion.completeBillingData')}
                         </button>
                       </div>
                     </div>
@@ -757,13 +734,13 @@ export default function GestionModulePage() {
                 {/* Payment instructions */}
                 <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
                   <h4 className="font-semibold text-gray-900 mb-3">
-                    {paymentMethod === 'BIZUM' ? 'Instrucciones Bizum' : 'Instrucciones Transferencia'}
+                    {paymentMethod === 'BIZUM' ? t('modules.gestion.bizumInstructions') : t('modules.gestion.transferInstructions')}
                   </h4>
 
                   {paymentMethod === 'BIZUM' ? (
                     <div className="space-y-3">
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Envía el Bizum a:</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('modules.gestion.sendBizumTo')}</p>
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-bold text-gray-900">+34 652 656 440</span>
                           <button
@@ -775,7 +752,7 @@ export default function GestionModulePage() {
                         </div>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Concepto (importante):</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('modules.gestion.conceptImportant')}</p>
                         <div className="flex items-center gap-2">
                           <span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded">
                             {paymentReference}
@@ -789,7 +766,7 @@ export default function GestionModulePage() {
                         </div>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Importe:</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('modules.gestion.amount')}</p>
                         <span className="text-lg font-bold text-emerald-600">
                           {calculatePriceWithCoupon(selectedPeriod).final.toFixed(2).replace('.', ',')}€
                         </span>
@@ -798,7 +775,7 @@ export default function GestionModulePage() {
                   ) : (
                     <div className="space-y-3">
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">IBAN:</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('modules.gestion.iban')}</p>
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-sm font-bold text-gray-900">ES82 0182 0304 8102 0158 7248</span>
                           <button
@@ -810,7 +787,7 @@ export default function GestionModulePage() {
                         </div>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Concepto (importante):</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('modules.gestion.conceptImportant')}</p>
                         <div className="flex items-center gap-2">
                           <span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded">
                             {paymentReference}
@@ -824,13 +801,13 @@ export default function GestionModulePage() {
                         </div>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Importe:</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('modules.gestion.amount')}</p>
                         <span className="text-lg font-bold text-emerald-600">
                           {calculatePriceWithCoupon(selectedPeriod).final.toFixed(2).replace('.', ',')}€
                         </span>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Beneficiario:</p>
+                        <p className="text-xs text-gray-500 mb-1">{t('modules.gestion.beneficiary')}</p>
                         <span className="text-sm text-gray-900">Itineramio S.L.</span>
                       </div>
                     </div>
@@ -839,7 +816,7 @@ export default function GestionModulePage() {
 
                 {/* Payment proof upload */}
                 <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">Justificante de pago</p>
+                  <p className="text-sm font-medium text-gray-700 mb-2">{t('modules.gestion.paymentProof')}</p>
                   <div
                     className={`relative border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer ${
                       dragActive
@@ -886,9 +863,9 @@ export default function GestionModulePage() {
                       <>
                         <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                         <p className="text-sm text-gray-600">
-                          Arrastra tu justificante aquí o <span className="text-emerald-600 font-medium">haz clic</span>
+                          {t('modules.gestion.dragProofHerePlain')} <span className="text-emerald-600 font-medium">{t('modules.gestion.clickHere')}</span>
                         </p>
-                        <p className="text-xs text-gray-400 mt-1">PNG, JPG hasta 5MB</p>
+                        <p className="text-xs text-gray-400 mt-1">{t('modules.gestion.fileLimit')}</p>
                       </>
                     )}
                   </div>
@@ -903,10 +880,10 @@ export default function GestionModulePage() {
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Enviando solicitud...
+                      {t('modules.gestion.sendingRequest')}
                     </span>
                   ) : (
-                    'Enviar solicitud de pago'
+                    t('modules.gestion.sendPaymentRequest')
                   )}
                 </button>
               </div>
@@ -917,10 +894,10 @@ export default function GestionModulePage() {
         {/* Features Grid */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">
-            Todo lo que incluye
+            {t('modules.gestion.allIncluded')}
           </h2>
           <div className="grid md:grid-cols-2 gap-4">
-            {FEATURES.map((feature, index) => (
+            {FEATURES_CONFIG.map((feature, index) => (
               <div
                 key={index}
                 className="bg-white rounded-xl p-5 border border-gray-100 hover:border-emerald-200 hover:shadow-md transition-all"
@@ -933,8 +910,8 @@ export default function GestionModulePage() {
                     <feature.icon className="w-5 h-5" style={{ color: module.color }} />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">{feature.title}</h3>
-                    <p className="text-sm text-gray-600">{feature.description}</p>
+                    <h3 className="font-semibold text-gray-900 mb-1">{t(feature.titleKey)}</h3>
+                    <p className="text-sm text-gray-600">{t(feature.descriptionKey)}</p>
                   </div>
                 </div>
               </div>
@@ -945,10 +922,10 @@ export default function GestionModulePage() {
         {/* FAQ or Trust Section */}
         <div className="bg-emerald-50 rounded-2xl p-6 md:p-8 text-center">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            ¿Tienes dudas?
+            {t('modules.gestion.questionsTitle')}
           </h3>
           <p className="text-gray-600 mb-4">
-            Escríbenos y te ayudamos a decidir si Gestión es para ti.
+            {t('modules.gestion.questionsDescription')}
           </p>
           <a
             href="mailto:hola@itineramio.com?subject=Consulta sobre Gestión"

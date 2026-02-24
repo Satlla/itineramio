@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
 import {
   LogOut,
@@ -35,91 +36,87 @@ import {
 } from 'lucide-react'
 
 // Navigation structure organized by function with permissions
-const navigationSections = [
+// Built as a function so it can use t() for i18n
+const buildNavigationSections = (t: (key: string) => string) => [
   {
     id: 'inicio',
     title: null, // No title for first section
     color: 'red',
     items: [
-      { name: 'Dashboard', href: '/admin', icon: Home, permissions: ['dashboard.view'] },
+      { name: t('admin.nav.dashboard'), href: '/admin', icon: Home, permissions: ['dashboard.view'] },
     ]
   },
   {
     id: 'clientes',
-    title: 'Clientes',
+    title: t('admin.nav.clients'),
     color: 'blue',
     items: [
-      { name: 'Usuarios', href: '/admin/users', icon: Users, permissions: ['users.view'] },
-      { name: 'Suscripciones', href: '/admin/subscription-requests', icon: Bell, badge: true, permissions: ['subscriptions.view'] },
-      { name: 'Propiedades', href: '/admin/properties', icon: Building2, permissions: ['properties.view'] },
+      { name: t('admin.nav.users'), href: '/admin/users', icon: Users, permissions: ['users.view'] },
+      { name: t('admin.nav.subscriptions'), href: '/admin/subscription-requests', icon: Bell, badge: true, permissions: ['subscriptions.view'] },
+      { name: t('admin.nav.properties'), href: '/admin/properties', icon: Building2, permissions: ['properties.view'] },
     ]
   },
   {
     id: 'facturacion',
-    title: 'Facturación',
+    title: t('admin.nav.billing'),
     color: 'green',
     items: [
-      { name: 'Pagos', href: '/admin/payments', icon: DollarSign, permissions: ['payments.view'] },
-      { name: 'Facturas', href: '/admin/billing', icon: CreditCard, permissions: ['billing.view'] },
-      { name: 'Reportes', href: '/admin/reports', icon: FileText, permissions: ['billing.view'] },
+      { name: t('admin.nav.payments'), href: '/admin/payments', icon: DollarSign, permissions: ['payments.view'] },
+      { name: t('admin.nav.invoices'), href: '/admin/billing', icon: CreditCard, permissions: ['billing.view'] },
+      { name: t('admin.nav.reports'), href: '/admin/reports', icon: FileText, permissions: ['billing.view'] },
     ]
   },
   {
     id: 'config',
-    title: 'Configuración',
+    title: t('admin.nav.settings'),
     color: 'gray',
     items: [
-      { name: 'Módulos', href: '/admin/modules', icon: Layers, permissions: ['plans.view'] },
-      { name: 'Planes', href: '/admin/plans', icon: Settings, permissions: ['plans.view'] },
-      { name: 'Precios', href: '/admin/pricing', icon: TrendingUp, permissions: ['pricing.view'] },
-      { name: 'Cupones', href: '/admin/coupons', icon: Tag, permissions: ['coupons.view'] },
-      { name: 'Custom Plans', href: '/admin/custom-plans', icon: Star, permissions: ['plans.view'] },
+      { name: t('admin.nav.modules'), href: '/admin/modules', icon: Layers, permissions: ['plans.view'] },
+      { name: t('admin.nav.plans'), href: '/admin/plans', icon: Settings, permissions: ['plans.view'] },
+      { name: t('admin.nav.pricing'), href: '/admin/pricing', icon: TrendingUp, permissions: ['pricing.view'] },
+      { name: t('admin.nav.coupons'), href: '/admin/coupons', icon: Tag, permissions: ['coupons.view'] },
+      { name: t('admin.nav.customPlans'), href: '/admin/custom-plans', icon: Star, permissions: ['plans.view'] },
     ]
   },
   {
     id: 'marketing',
-    title: 'Marketing',
+    title: t('admin.nav.marketing'),
     color: 'violet',
     collapsible: true,
     items: [
-      { name: 'Leads Cualificados', href: '/admin/leads', icon: UsersRound, hot: true, permissions: ['marketing.view'] },
-      { name: 'Consultas', href: '/admin/consultas', icon: Video, permissions: ['calendar.view'] },
-      { name: 'Suscriptores', href: '/admin/marketing/leads', icon: Mail, permissions: ['marketing.view'] },
-      { name: 'Embudos', href: '/admin/funnels', icon: Megaphone, permissions: ['marketing.view'] },
-      { name: 'Blog', href: '/admin/blog', icon: FileText, permissions: ['marketing.view'] },
-      { name: 'FAQ', href: '/admin/faq', icon: HelpCircle, permissions: ['marketing.view'] },
-      { name: 'Host Profiles', href: '/admin/host-profiles', icon: UsersRound, permissions: ['marketing.view'] },
+      { name: t('admin.nav.leads'), href: '/admin/leads', icon: UsersRound, hot: true, permissions: ['marketing.view'] },
+      { name: t('admin.nav.queries'), href: '/admin/consultas', icon: Video, permissions: ['calendar.view'] },
+      { name: t('admin.nav.subscribers'), href: '/admin/marketing/leads', icon: Mail, permissions: ['marketing.view'] },
+      { name: t('admin.nav.funnels'), href: '/admin/funnels', icon: Megaphone, permissions: ['marketing.view'] },
+      { name: t('admin.nav.blog'), href: '/admin/blog', icon: FileText, permissions: ['marketing.view'] },
+      { name: t('admin.nav.faq'), href: '/admin/faq', icon: HelpCircle, permissions: ['marketing.view'] },
+      { name: t('admin.nav.hostProfiles'), href: '/admin/host-profiles', icon: UsersRound, permissions: ['marketing.view'] },
     ]
   },
   {
     id: 'sistema',
-    title: 'Sistema',
+    title: t('admin.nav.system'),
     color: 'slate',
     collapsible: true,
     items: [
-      { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, permissions: ['analytics.view'] },
-      { name: 'Usuarios Sistema', href: '/admin/administrators', icon: UserCog, permissions: ['admins.view'] },
-      { name: 'Logs', href: '/admin/logs', icon: FileText, permissions: ['logs.view'] },
-      { name: 'Configuración', href: '/admin/settings', icon: Settings, permissions: ['settings.view'] },
+      { name: t('admin.nav.analytics'), href: '/admin/analytics', icon: BarChart3, permissions: ['analytics.view'] },
+      { name: t('admin.nav.systemUsers'), href: '/admin/administrators', icon: UserCog, permissions: ['admins.view'] },
+      { name: t('admin.nav.logs'), href: '/admin/logs', icon: FileText, permissions: ['logs.view'] },
+      { name: t('admin.nav.configuration'), href: '/admin/settings', icon: Settings, permissions: ['settings.view'] },
     ]
   },
   {
     id: 'academia',
-    title: 'Academia',
+    title: t('admin.nav.academy'),
     color: 'purple',
     collapsible: true,
     items: [
-      { name: 'Leads', href: '/admin/academia/leads', icon: UsersRound, permissions: ['academia.view'] },
-      { name: 'Quiz Leads', href: '/admin/academia/quiz-leads', icon: Mail, permissions: ['academia.view'] },
-      { name: 'Usuarios', href: '/admin/academia/users', icon: Users, permissions: ['academia.view'] },
+      { name: t('admin.nav.academyLeads'), href: '/admin/academia/leads', icon: UsersRound, permissions: ['academia.view'] },
+      { name: t('admin.nav.quizLeads'), href: '/admin/academia/quiz-leads', icon: Mail, permissions: ['academia.view'] },
+      { name: t('admin.nav.academyUsers'), href: '/admin/academia/users', icon: Users, permissions: ['academia.view'] },
     ]
   },
 ]
-
-// Keep these for backwards compatibility (used in mobile menú)
-const adminNavigation = navigationSections.flatMap(s => s.items)
-const marketingNavigation = navigationSections.find(s => s.id === 'marketing')?.items || []
-const academyNavigation = navigationSections.find(s => s.id === 'academia')?.items || []
 
 export default function AdminLayout({
   children
@@ -128,6 +125,7 @@ export default function AdminLayout({
 }) {
   const router = useRouter()
   const pathname = usePathname()
+  const { t } = useTranslation('common')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [adminName, setAdminName] = useState('')
   const [adminRole, setAdminRole] = useState('')
@@ -142,6 +140,9 @@ export default function AdminLayout({
   const [pendingRequests, setPendingRequests] = useState(0)
   const [previousPendingCount, setPreviousPendingCount] = useState(-1) // -1 = not initialized
   const [audioEnabled, setAudioEnabled] = useState(false)
+
+  // Build navigation sections with i18n support
+  const navigationSections = useMemo(() => buildNavigationSections(t), [t])
 
   // Initialize audio context on first user interaction
   useEffect(() => {
@@ -320,7 +321,7 @@ export default function AdminLayout({
 
               <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-red-500 mr-2 sm:mr-3 flex-shrink-0" />
               <div className="min-w-0">
-                <h1 className="text-sm sm:text-lg lg:text-xl font-semibold truncate">Panel Admin</h1>
+                <h1 className="text-sm sm:text-lg lg:text-xl font-semibold truncate">{t('admin.header.title')}</h1>
                 <p className="text-xs sm:text-sm text-gray-400 hidden sm:block">Itineramio</p>
               </div>
             </div>
@@ -345,10 +346,10 @@ export default function AdminLayout({
               <button
                 onClick={handleLogout}
                 className="flex items-center space-x-1 sm:space-x-2 bg-gray-800 hover:bg-gray-700 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-colors"
-                title="Cerrar Sesión"
+                title={t('admin.header.logout')}
               >
                 <LogOut className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <span className="text-xs sm:text-sm hidden sm:inline">Salir</span>
+                <span className="text-xs sm:text-sm hidden sm:inline">{t('admin.header.exit')}</span>
               </button>
             </div>
           </div>

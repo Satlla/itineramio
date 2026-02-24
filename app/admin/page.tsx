@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
 import {
   Users,
@@ -60,6 +61,7 @@ const StatCard = ({
 )
 
 export default function AdminDashboard() {
+  const { t } = useTranslation('common')
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -109,12 +111,12 @@ export default function AdminDashboard() {
     return (
       <div className="text-center py-12">
         <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Error al cargar datos</h3>
-        <button 
+        <h3 className="text-lg font-medium text-gray-900 mb-2">{t('admin.dashboard.errorLoading')}</h3>
+        <button
           onClick={fetchStats}
           className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
         >
-          Reintentar
+          {t('admin.dashboard.retry')}
         </button>
       </div>
     )
@@ -126,37 +128,37 @@ export default function AdminDashboard() {
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-600 mt-2 text-sm sm:text-base">
-          Resumen general de la plataforma Itineramio
+          {t('admin.dashboard.subtitle')}
         </p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <StatCard
-          title="Usuarios Totales"
+          title={t('admin.dashboard.totalUsers')}
           value={stats.totalUsers}
           icon={Users}
           color="bg-blue-500"
-          change={`${stats.activeUsers} activos`}
+          change={`${stats.activeUsers} ${t('admin.dashboard.active')}`}
         />
-        
+
         <StatCard
-          title="Propiedades"
+          title={t('admin.dashboard.properties')}
           value={stats.totalProperties}
           icon={Building2}
           color="bg-green-500"
         />
-        
+
         <StatCard
-          title="Revenue Mensual"
+          title={t('admin.dashboard.monthlyRevenue')}
           value={`€${stats.monthlyRevenue}`}
           icon={DollarSign}
           color="bg-purple-500"
-          change="+12% vs mes anterior"
+          change={t('admin.dashboard.revenueChange')}
         />
-        
+
         <StatCard
-          title="Facturas Pendientes"
+          title={t('admin.dashboard.pendingInvoices')}
           value={stats.pendingInvoices}
           icon={CreditCard}
           color="bg-red-500"
@@ -173,7 +175,7 @@ export default function AdminDashboard() {
         {/* Recent Activity */}
         <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
-            Actividad Reciente
+            {t('admin.dashboard.recentActivity')}
           </h3>
           
           <div className="space-y-4">
@@ -200,7 +202,7 @@ export default function AdminDashboard() {
                         href={activityLink}
                         className="text-sm font-bold text-red-600 hover:text-red-700 underline decoration-2 underline-offset-4 whitespace-nowrap flex-shrink-0"
                       >
-                        Ver más
+                        {t('admin.dashboard.viewMore')}
                       </Link>
                     )}
                   </div>
@@ -208,7 +210,7 @@ export default function AdminDashboard() {
               })
             ) : (
               <p className="text-sm text-gray-500 text-center py-4">
-                No hay actividad reciente
+                {t('admin.dashboard.noRecentActivity')}
               </p>
             )}
           </div>
@@ -217,7 +219,7 @@ export default function AdminDashboard() {
         {/* Quick Actions */}
         <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
-            Acciones Rápidas
+            {t('admin.dashboard.quickActions')}
           </h3>
           
           <div className="space-y-3">
@@ -225,8 +227,8 @@ export default function AdminDashboard() {
               <div className="flex items-center">
                 <Users className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 mr-2 sm:mr-3 flex-shrink-0" />
                 <div className="min-w-0">
-                  <p className="font-medium text-gray-900 text-sm sm:text-base">Crear Usuario</p>
-                  <p className="text-xs sm:text-sm text-gray-600">Añadir nuevo usuario al sistema</p>
+                  <p className="font-medium text-gray-900 text-sm sm:text-base">{t('admin.dashboard.createUser')}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{t('admin.dashboard.createUserDesc')}</p>
                 </div>
               </div>
             </button>
@@ -235,8 +237,8 @@ export default function AdminDashboard() {
               <div className="flex items-center">
                 <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 mr-2 sm:mr-3 flex-shrink-0" />
                 <div className="min-w-0">
-                  <p className="font-medium text-gray-900 text-sm sm:text-base">Generar Factura</p>
-                  <p className="text-xs sm:text-sm text-gray-600">Crear factura manual</p>
+                  <p className="font-medium text-gray-900 text-sm sm:text-base">{t('admin.dashboard.generateInvoice')}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{t('admin.dashboard.generateInvoiceDesc')}</p>
                 </div>
               </div>
             </button>
@@ -245,8 +247,8 @@ export default function AdminDashboard() {
               <div className="flex items-center">
                 <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500 mr-2 sm:mr-3 flex-shrink-0" />
                 <div className="min-w-0">
-                  <p className="font-medium text-gray-900 text-sm sm:text-base">Buscar Propiedad</p>
-                  <p className="text-xs sm:text-sm text-gray-600">Acceso rápido por ID</p>
+                  <p className="font-medium text-gray-900 text-sm sm:text-base">{t('admin.dashboard.searchProperty')}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{t('admin.dashboard.searchPropertyDesc')}</p>
                 </div>
               </div>
             </button>

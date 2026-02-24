@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  Bell, 
-  Mail, 
-  MessageCircle, 
+import {
+  Bell,
+  Mail,
+  MessageCircle,
   Star,
   AlertCircle,
   Settings,
@@ -18,6 +18,7 @@ import { Button } from '../../../../src/components/ui/Button'
 import { Card, CardHeader, CardTitle, CardContent } from '../../../../src/components/ui/Card'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../../../../src/providers/AuthProvider'
+import { useTranslation } from 'react-i18next'
 
 interface NotificationSettings {
   emailNotifications: {
@@ -36,6 +37,7 @@ interface NotificationSettings {
 export default function NotificationsPage() {
   const router = useRouter()
   const { user } = useAuth()
+  const { t } = useTranslation('account')
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [showSuccessToast, setShowSuccessToast] = useState(false)
@@ -122,7 +124,7 @@ export default function NotificationsPage() {
       }
     } catch (error) {
       console.error('Error saving notification settings:', error)
-      alert('Error al guardar la configuración. Por favor, intenta de nuevo.')
+      alert(t('notifications.page.saveError'))
     } finally {
       setSaving(false)
     }
@@ -168,15 +170,15 @@ export default function NotificationsPage() {
           className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Volver a cuenta
+          {t('notifications.page.backToAccount')}
         </button>
         
         <h1 className="text-3xl font-bold text-gray-900 flex items-center">
           <Bell className="w-8 h-8 mr-3 text-violet-600" />
-          Configuración de Notificaciones
+          {t('notifications.page.title')}
         </h1>
         <p className="text-gray-600 mt-2">
-          Gestiona cómo y cuándo quieres recibir notificaciones
+          {t('notifications.page.description')}
         </p>
       </div>
 
@@ -191,15 +193,15 @@ export default function NotificationsPage() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Mail className="w-5 h-5 mr-2 text-violet-600" />
-                Notificaciones por Email
+                {t('notifications.page.emailSection')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between py-3 border-b">
                 <div>
-                  <h3 className="font-medium">Evaluaciones y Reseñas</h3>
+                  <h3 className="font-medium">{t('notifications.page.evaluations')}</h3>
                   <p className="text-sm text-gray-600">
-                    Recibe un email cuando alguien evalúe tus propiedades o zonas
+                    {t('notifications.page.evaluationsDesc')}
                   </p>
                 </div>
                 <NotificationToggle
@@ -210,9 +212,9 @@ export default function NotificationsPage() {
 
               <div className="flex items-center justify-between py-3 border-b">
                 <div>
-                  <h3 className="font-medium">Actualizaciones de Propiedades</h3>
+                  <h3 className="font-medium">{t('notifications.page.propertyUpdates')}</h3>
                   <p className="text-sm text-gray-600">
-                    Notificaciones sobre cambios importantes en tus propiedades
+                    {t('notifications.page.propertyUpdatesDesc')}
                   </p>
                 </div>
                 <NotificationToggle
@@ -223,9 +225,9 @@ export default function NotificationsPage() {
 
               <div className="flex items-center justify-between py-3 border-b">
                 <div>
-                  <h3 className="font-medium">Reportes Semanales</h3>
+                  <h3 className="font-medium">{t('notifications.page.weeklyReports')}</h3>
                   <p className="text-sm text-gray-600">
-                    Resumen semanal de estadísticas y actividad
+                    {t('notifications.page.weeklyReportsDesc')}
                   </p>
                 </div>
                 <NotificationToggle
@@ -236,9 +238,9 @@ export default function NotificationsPage() {
 
               <div className="flex items-center justify-between py-3">
                 <div>
-                  <h3 className="font-medium">Novedades y Consejos</h3>
+                  <h3 className="font-medium">{t('notifications.page.marketing')}</h3>
                   <p className="text-sm text-gray-600">
-                    Actualizaciones sobre nuevas funcionalidades y mejores prácticas
+                    {t('notifications.page.marketingDesc')}
                   </p>
                 </div>
                 <NotificationToggle
@@ -254,7 +256,7 @@ export default function NotificationsPage() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <MessageCircle className="w-5 h-5 mr-2 text-violet-600" />
-                Notificaciones Push
+                {t('notifications.page.pushSection')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -263,8 +265,7 @@ export default function NotificationsPage() {
                   <AlertCircle className="w-5 h-5 text-amber-600 mr-2 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm text-amber-800">
-                      Las notificaciones push estarán disponibles próximamente.
-                      Por ahora, asegúrate de tener las notificaciones por email activadas.
+                      {t('notifications.page.pushComingSoon')}
                     </p>
                   </div>
                 </div>
@@ -272,9 +273,9 @@ export default function NotificationsPage() {
 
               <div className="flex items-center justify-between py-3 opacity-50">
                 <div>
-                  <h3 className="font-medium">Activar Notificaciones Push</h3>
+                  <h3 className="font-medium">{t('notifications.page.enablePush')}</h3>
                   <p className="text-sm text-gray-600">
-                    Recibe notificaciones instantáneas en tu navegador
+                    {t('notifications.page.enablePushDesc')}
                   </p>
                 </div>
                 <NotificationToggle
@@ -295,12 +296,12 @@ export default function NotificationsPage() {
               {saving ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                  Guardando...
+                  {t('notifications.page.saving')}
                 </>
               ) : (
                 <>
                   <Save className="w-4 h-4 mr-2" />
-                  Guardar Cambios
+                  {t('notifications.page.saveButton')}
                 </>
               )}
             </Button>
@@ -317,7 +318,7 @@ export default function NotificationsPage() {
           className="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center"
         >
           <AlertCircle className="w-5 h-5 mr-2" />
-          Configuración guardada correctamente
+          {t('notifications.page.savedSuccess')}
         </motion.div>
       )}
     </div>
