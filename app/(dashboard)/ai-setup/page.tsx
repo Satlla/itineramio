@@ -1,8 +1,9 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Sparkles } from 'lucide-react'
+import { ArrowLeft, Sparkles, Crown } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../../../src/providers/AuthProvider'
 import Step1Address, { type Step1Data } from './components/Step1Address'
@@ -10,14 +11,6 @@ import Step2Details, { type Step2Data } from './components/Step2Details'
 import Step3Media, { type MediaItem } from './components/Step2Media'
 import Step4Review, { type LocationData } from './components/Step4Review'
 import Step5Generate from './components/Step3Generate'
-
-const STEPS = [
-  { label: 'Propiedad', number: 1 },
-  { label: 'Detalles', number: 2 },
-  { label: 'Media', number: 3 },
-  { label: 'Revisar', number: 4 },
-  { label: 'Generar', number: 5 },
-]
 
 const STORAGE_KEY = 'itineramio-ai-setup-draft'
 
@@ -39,7 +32,15 @@ function loadDraft() {
 export default function AISetupPage() {
   const router = useRouter()
   const { user } = useAuth()
+  const { t } = useTranslation('ai-setup')
 
+  const STEPS = [
+    { label: t('steps.property'), number: 1 },
+    { label: t('steps.details'), number: 2 },
+    { label: t('steps.media'), number: 3 },
+    { label: t('steps.review'), number: 4 },
+    { label: t('steps.generate'), number: 5 },
+  ]
 
   const [currentStep, setCurrentStepRaw] = useState(1)
   const setCurrentStep = (stepOrFn: number | ((prev: number) => number)) => {
@@ -125,24 +126,106 @@ export default function AISetupPage() {
   // Step 3 data — media items (URLs only, not blobs)
   const [media, setMedia] = useState<MediaItem[]>([])
 
-  // Step 4: disabled zones and reviewed content from review
+  // Step 4: disabled zones, reviewed content, custom titles/icons from review
   const [disabledZones, setDisabledZones] = useState<Set<string>>(new Set())
   const [reviewedContent, setReviewedContent] = useState<Record<string, string>>({})
+  const [customTitles, setCustomTitles] = useState<Record<string, string>>({})
+  const [customIcons, setCustomIcons] = useState<Record<string, string>>({})
 
   // Location data (fetched when entering Step 4)
   const [locationData, setLocationData] = useState<LocationData | null>(null)
   const [locationDataLoading, setLocationDataLoading] = useState(false)
 
+  // Plan limit pre-check
+  const [planLimitWarning, setPlanLimitWarning] = useState<string | null>(null)
+
+  // Check plan limits on mount
+  useEffect(() => {
+    fetch('/api/account/plan-limits')
+      .then(res => res.json())
+      .then(data => {
+        if (data.canCreateProperty === false) {
+          setPlanLimitWarning(data.creationBlockedReason || t('planLimit.warning'))
+        }
+      })
+      .catch(() => {}) // Non-blocking
+  }, [])
+
   // Restore draft from localStorage on mount (avoids hydration mismatch)
   useEffect(() => {
+    // Check for demo data first (from /demo page)
+    try {
+      const demoRaw = typeof window !== 'undefined' ? localStorage.getItem('itineramio-demo-data') : null
+      if (demoRaw) {
+        const demo = JSON.parse(demoRaw)
+        localStorage.removeItem('itineramio-demo-data')
+        setStep1Data(prev => ({
+          ...prev,
+          propertyName: demo.propertyName || prev.propertyName,
+          street: demo.street || prev.street,
+          city: demo.city || prev.city,
+          state: demo.state || prev.state,
+          country: demo.country || prev.country,
+          postalCode: demo.postalCode || prev.postalCode,
+          formattedAddress: demo.formattedAddress || prev.formattedAddress,
+          propertyType: demo.propertyType || prev.propertyType,
+          bedrooms: demo.bedrooms || prev.bedrooms,
+          bathrooms: demo.bathrooms || prev.bathrooms,
+          maxGuests: demo.maxGuests || prev.maxGuests,
+          wifiName: demo.wifiName || prev.wifiName,
+          wifiPassword: demo.wifiPassword || prev.wifiPassword,
+          checkInTime: demo.checkInTime || prev.checkInTime,
+          checkInMethod: demo.checkInMethod || prev.checkInMethod,
+          checkOutTime: demo.checkOutTime || prev.checkOutTime,
+          hasParking: demo.hasParking || prev.hasParking,
+          hasAC: demo.hasAC ?? prev.hasAC,
+          hostContactName: demo.hostContactName || user?.name || prev.hostContactName,
+          hostContactPhone: demo.hostContactPhone || user?.phone || prev.hostContactPhone,
+          hostContactEmail: demo.hostContactEmail || user?.email || prev.hostContactEmail,
+        }))
+        // Skip to step 2 if demo data is complete
+        if (demo.propertyName && demo.street && demo.city) {
+          setCurrentStepRaw(2)
+        }
+        return // Skip regular draft restoration when demo data is present
+      }
+    } catch {}
+
     const draft = loadDraft()
     if (!draft) return
     if (draft.currentStep > 1) setCurrentStepRaw(draft.currentStep)
     if (draft.step1Data) setStep1Data(draft.step1Data)
     if (draft.step2Data) setStep2Data(draft.step2Data)
-    if (draft.media) setMedia(draft.media)
+    if (draft.media) {
+      // Validate media URLs: check local /uploads/ paths are still accessible
+      const mediaToRestore = draft.media.filter((m: MediaItem) => m.url)
+      if (mediaToRestore.some((m: MediaItem) => m.url.startsWith('/uploads/'))) {
+        // Verify local files still exist (dev server restart cleans them)
+        Promise.all(
+          mediaToRestore.map(async (m: MediaItem) => {
+            if (!m.url.startsWith('/uploads/')) return m
+            try {
+              const res = await fetch(m.url, { method: 'HEAD' })
+              return res.ok ? m : null
+            } catch {
+              return null
+            }
+          })
+        ).then(results => {
+          const valid = results.filter(Boolean) as MediaItem[]
+          if (valid.length !== mediaToRestore.length) {
+            console.warn(`[AI Setup] Filtered ${mediaToRestore.length - valid.length} stale media from draft`)
+          }
+          setMedia(valid)
+        })
+      } else {
+        setMedia(mediaToRestore)
+      }
+    }
     if (draft.disabledZones) setDisabledZones(new Set(draft.disabledZones))
     if (draft.reviewedContent) setReviewedContent(draft.reviewedContent)
+    if (draft.customTitles) setCustomTitles(draft.customTitles)
+    if (draft.customIcons) setCustomIcons(draft.customIcons)
     // Only restore locationData if it has the new driving fields, otherwise re-fetch
     if (draft.locationData && draft.locationData.directions?.drivingFromAirport !== undefined) {
       setLocationData(draft.locationData)
@@ -160,10 +243,12 @@ export default function AISetupPage() {
         media,
         disabledZones: [...disabledZones],
         reviewedContent,
+        customTitles,
+        customIcons,
         locationData,
       }))
     } catch {} // Ignore quota errors
-  }, [currentStep, step1Data, step2Data, media, disabledZones, reviewedContent, locationData])
+  }, [currentStep, step1Data, step2Data, media, disabledZones, reviewedContent, customTitles, customIcons, locationData])
 
   // Clear draft when generation completes (user navigates away from step 5)
   const clearDraft = useCallback(() => {
@@ -244,9 +329,11 @@ export default function AISetupPage() {
       hostContactPhoto: step1Data.hostContactPhoto,
       // Step 2
       details: step2Data,
-      // Step 4: disabled zones + reviewed content
+      // Step 4: disabled zones + reviewed content + custom titles/icons
       disabledZones: [...disabledZones],
       reviewedContent,
+      customTitles,
+      customIcons,
     }
   }
 
@@ -267,14 +354,14 @@ export default function AISetupPage() {
             >
               <ArrowLeft className="w-5 h-5" />
               <span className="hidden sm:inline">
-                {currentStep > 1 ? 'Paso anterior' : 'Mis propiedades'}
+                {currentStep > 1 ? t('topBar.previousStep') : t('topBar.myProperties')}
               </span>
             </button>
 
             {/* Logo / title */}
             <div className="flex items-center gap-1.5 sm:gap-2">
               <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-violet-400" />
-              <span className="text-white font-semibold text-sm sm:text-base">Creación con IA</span>
+              <span className="text-white font-semibold text-sm sm:text-base">{t('topBar.aiCreation')}</span>
             </div>
 
             {/* Step indicator */}
@@ -310,6 +397,26 @@ export default function AISetupPage() {
             </div>
           </div>
         </div>
+
+        {/* Plan limit warning */}
+        {planLimitWarning && (
+          <div className="max-w-4xl mx-auto px-3 sm:px-4 pt-4">
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex items-center gap-4">
+              <Crown className="w-6 h-6 text-amber-400 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-amber-200 font-medium text-sm">{planLimitWarning}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{t('planLimit.exploreNote')}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => router.push('/account/plans')}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition-colors flex-shrink-0"
+              >
+                {t('planLimit.upgradePlan')}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Step content */}
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-12">
@@ -357,6 +464,10 @@ export default function AISetupPage() {
                 onDisabledZonesChange={setDisabledZones}
                 reviewedContent={reviewedContent}
                 onReviewedContentChange={setReviewedContent}
+                customTitles={customTitles}
+                onCustomTitlesChange={setCustomTitles}
+                customIcons={customIcons}
+                onCustomIconsChange={setCustomIcons}
                 onNext={() => setCurrentStep(5)}
                 onBack={() => setCurrentStep(3)}
               />
