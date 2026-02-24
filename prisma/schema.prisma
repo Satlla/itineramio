@@ -226,6 +226,9 @@ model Property {
   descriptionTranslations Json?
   nameTranslations        Json?
   trialNotified3d         Boolean                @default(false)
+  isDemoPreview           Boolean                @default(false)
+  demoExpiresAt           DateTime?
+  demoLeadId              String?
   announcements           Announcement[]
   chatbotConversations    ChatbotConversation[]
   clientInvoices          ClientInvoice[]
@@ -2120,6 +2123,7 @@ model PropertyOwner {
   firstName            String?
   lastName             String?
   type                 OwnerType               @default(PERSONA_FISICA)
+  retentionRate        Decimal?                @db.Decimal(5, 2) // IRPF retention %, null = use default (15% empresa, 0% persona física)
   documentType         DocumentType            @default(INVOICE)
   magicLinkLastAccess  DateTime?
   magicLinkToken       String?                 @unique
@@ -2456,18 +2460,17 @@ model Liquidation {
   totalAmount        Decimal
   status             LiquidationStatus @default(DRAFT)
   pdfUrl             String?
-  invoiceNumber      String?
+  invoiceId          String?           // Link to the generated invoice
+  invoiceNumber      String?           // Cached for quick reference
   invoiceDate        DateTime?
   invoiceSeries      String?
-  paidAt             DateTime?
-  paymentMethod      String?
-  paymentReference   String?
   notes              String?
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
   totalRetention     Decimal           @default(0)
   owner              PropertyOwner     @relation(fields: [ownerId], references: [id])
   user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invoice            ClientInvoice?    @relation(fields: [invoiceId], references: [id])
   expenses           PropertyExpense[]
   reservations       Reservation[]
 
@@ -2475,6 +2478,7 @@ model Liquidation {
   @@index([userId])
   @@index([ownerId])
   @@index([status])
+  @@index([invoiceId])
   @@map("liquidations")
 }
 
@@ -2504,6 +2508,10 @@ model UserInvoiceConfig {
   onboardingCompletedAt    DateTime?
   onboardingReminderSentAt DateTime?
   onboardingSkippedAt      DateTime?
+  // VeriFactu configuration
+  verifactuEnabled         Boolean         @default(false)
+  siiExempt                Boolean         @default(false)
+  verifactuApiKey          String?
   invoiceSeries            InvoiceSeries[]
   user                     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -2568,7 +2576,17 @@ model ClientInvoice {
   sentTo             String?
   billingUnitId      String?
   billingUnitGroupId String?
+  // VeriFactu fields
+  verifactuHash          String?
+  verifactuPreviousHash  String?
+  verifactuStatus        VerifactuStatus?
+  verifactuTimestamp     DateTime?
+  invoiceType            AEATInvoiceType?
+  taxRegimeKey           String?              @default("01")
+  qrCode                 String?
   items              ClientInvoiceItem[]
+  auditLogs          InvoiceAuditLog[]
+  verifactuSubmissions VerifactuSubmission[]
   billingUnitGroup   BillingUnitGroup?    @relation(fields: [billingUnitGroupId], references: [id])
   billingUnit        BillingUnit?         @relation(fields: [billingUnitId], references: [id])
   owner              PropertyOwner        @relation(fields: [ownerId], references: [id])
@@ -2578,6 +2596,7 @@ model ClientInvoice {
   series             InvoiceSeries        @relation(fields: [seriesId], references: [id])
   user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   payments           ReservationPayment[]
+  liquidations       Liquidation[]
 
   @@unique([seriesId, number])
   @@index([userId])
@@ -2588,6 +2607,7 @@ model ClientInvoice {
   @@index([status])
   @@index([issueDate])
   @@index([ownerId, issueDate])
+  @@index([verifactuStatus])
   @@map("client_invoices")
 }
 
@@ -2880,10 +2900,10 @@ enum ExpenseCategory {
 }
 
 enum LiquidationStatus {
-  DRAFT
-  PENDING
-  PAID
-  CANCELLED
+  DRAFT      // Can edit, recalculate
+  SENT       // Sent to owner for review
+  CANCELLED  // Cancelled
+  // Note: Liquidation locks automatically when linked invoice is ISSUED
 }
 
 enum ClientInvoiceStatus {
@@ -2940,6 +2960,18 @@ model NearbyCache {
   @@map("nearby_cache")
 }
 
+model DirectionsCache {
+  id            String   @id @default(cuid())
+  originQuery   String
+  destTileKey   String
+  mode          String
+  result        Json
+  lastFetchedAt DateTime
+
+  @@unique([originQuery, destTileKey, mode])
+  @@map("directions_cache")
+}
+
 model Recommendation {
   id                      String    @id @default(cuid())
   zoneId                  String
@@ -2963,6 +2995,61 @@ model Recommendation {
 enum SeriesType {
   STANDARD
   RECTIFYING
+}
+
+// ============================================
+// VeriFactu (RD 1007/2023)
+// ============================================
+
+enum VerifactuStatus {
+  PENDING
+  SUBMITTED
+  ACCEPTED
+  REJECTED
+  ERROR
+}
+
+enum AEATInvoiceType {
+  F1  // Factura completa
+  F2  // Factura simplificada
+  F3  // Factura emitida en sustitución de facturas simplificadas
+  R1  // Rectificativa por art. 80.1, 80.2 y 80.6 LIVA
+  R2  // Rectificativa por art. 80.3 LIVA
+  R3  // Rectificativa por art. 80.4 LIVA
+  R4  // Rectificativa otros
+  R5  // Rectificativa en facturas simplificadas
+}
+
+model InvoiceAuditLog {
+  id           String        @id @default(cuid())
+  invoiceId    String
+  action       String        // CREATED, ISSUED, HASH_GENERATED, QR_GENERATED, VERIFACTU_SUBMITTED, STATUS_CHANGED, etc.
+  previousData Json?
+  newData      Json?
+  userId       String
+  createdAt    DateTime      @default(now())
+  invoice      ClientInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([createdAt])
+  @@map("invoice_audit_logs")
+}
+
+model VerifactuSubmission {
+  id          String        @id @default(cuid())
+  invoiceId   String
+  xmlPayload  String
+  response    String?
+  status      VerifactuStatus @default(PENDING)
+  errorCode   String?
+  errorMessage String?
+  submittedAt DateTime      @default(now())
+  respondedAt DateTime?
+  invoice     ClientInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([status])
+  @@map("verifactu_submissions")
 }
 
 enum PaymentMethodType {
