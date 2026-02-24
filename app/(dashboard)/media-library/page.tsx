@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Image as ImageIcon, 
@@ -59,6 +60,7 @@ interface MediaItem {
 }
 
 export default function MediaLibraryPage() {
+  const { t } = useTranslation('dashboard')
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
   const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
@@ -85,8 +87,8 @@ export default function MediaLibraryPage() {
     } catch (error) {
       console.error('Error fetching media:', error)
       toast({
-        title: 'Error',
-        description: 'No se pudieron cargar los archivos multimedia',
+        title: t('mediaLibrary.error'),
+        description: t('mediaLibrary.errorLoadingFiles'),
         variant: 'destructive'
       })
     } finally {
@@ -110,15 +112,15 @@ export default function MediaLibraryPage() {
         await fetchMediaItems()
         setShowUploadModal(false)
         toast({
-          title: 'Éxito',
-          description: 'Archivo subido correctamente'
+          title: t('mediaLibrary.success'),
+          description: t('mediaLibrary.uploadSuccess')
         })
       }
     } catch (error) {
       console.error('Error saving to library:', error)
       toast({
-        title: 'Error',
-        description: 'No se pudo guardar en la biblioteca',
+        title: t('mediaLibrary.error'),
+        description: t('mediaLibrary.errorSavingToLibrary'),
         variant: 'destructive'
       })
     }
@@ -146,15 +148,15 @@ export default function MediaLibraryPage() {
         setShowDeleteModal(false)
         setItemsToDelete([])
         toast({
-          title: 'Éxito',
-          description: `${ids.length} archivo(s) eliminado(s)`
+          title: t('mediaLibrary.success'),
+          description: t('mediaLibrary.filesDeleted', { count: ids.length })
         })
       }
     } catch (error) {
       console.error('Error deleting media:', error)
       toast({
-        title: 'Error',
-        description: 'No se pudieron eliminar los archivos',
+        title: t('mediaLibrary.error'),
+        description: t('mediaLibrary.errorDeletingFiles'),
         variant: 'destructive'
       })
     }
@@ -165,8 +167,8 @@ export default function MediaLibraryPage() {
   const copyToClipboard = (url: string) => {
     navigator.clipboard.writeText(url)
     toast({
-      title: 'Copiado',
-      description: 'URL copiada al portapapeles'
+      title: t('mediaLibrary.copied'),
+      description: t('mediaLibrary.urlCopied')
     })
   }
 
@@ -261,7 +263,7 @@ export default function MediaLibraryPage() {
         {/* Usage count badge */}
         {item.usageCount > 0 && (
           <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-            {item.usageCount} usos
+            {t('mediaLibrary.usageCount', { count: item.usageCount })}
           </div>
         )}
       </div>
@@ -281,7 +283,7 @@ export default function MediaLibraryPage() {
         {/* Usage info */}
         {item.usage && item.usage.length > 0 && (
           <div className="mt-2 space-y-1">
-            <p className="text-xs font-medium text-gray-600">Usado en:</p>
+            <p className="text-xs font-medium text-gray-600">{t('mediaLibrary.usedIn')}</p>
             {item.usage.slice(0, 2).map((usage, index) => (
               <div key={index} className="text-xs text-gray-500 bg-gray-50 rounded px-2 py-1">
                 <span className="font-medium">{usage.propertyName}</span>
@@ -291,7 +293,7 @@ export default function MediaLibraryPage() {
             ))}
             {item.usage.length > 2 && (
               <p className="text-xs text-gray-400">
-                +{item.usage.length - 2} más
+                {t('mediaLibrary.andMore', { count: item.usage.length - 2 })}
               </p>
             )}
           </div>
@@ -339,8 +341,8 @@ export default function MediaLibraryPage() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Biblioteca de Medios</h1>
-        <p className="text-gray-600">Gestiona tus imágenes y videos reutilizables</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('mediaLibrary.title')}</h1>
+        <p className="text-gray-600">{t('mediaLibrary.subtitle')}</p>
       </div>
 
       {/* Stats */}
@@ -351,7 +353,7 @@ export default function MediaLibraryPage() {
               <FileImage className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Imágenes</p>
+              <p className="text-sm text-gray-600">{t('mediaLibrary.images')}</p>
               <p className="text-xl font-semibold">{mediaItems.filter(i => i.type === 'image').length}</p>
             </div>
           </div>
@@ -363,7 +365,7 @@ export default function MediaLibraryPage() {
               <FileVideo className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Videos</p>
+              <p className="text-sm text-gray-600">{t('mediaLibrary.videos')}</p>
               <p className="text-xl font-semibold">{mediaItems.filter(i => i.type === 'video').length}</p>
             </div>
           </div>
@@ -375,7 +377,7 @@ export default function MediaLibraryPage() {
               <HardDrive className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Espacio usado</p>
+              <p className="text-sm text-gray-600">{t('mediaLibrary.spaceUsed')}</p>
               <p className="text-xl font-semibold">
                 {formatFileSize(mediaItems.reduce((acc, item) => acc + item.size, 0))}
               </p>
@@ -389,7 +391,7 @@ export default function MediaLibraryPage() {
               <Hash className="w-5 h-5 text-purple-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Duplicados evitados</p>
+              <p className="text-sm text-gray-600">{t('mediaLibrary.duplicatesAvoided')}</p>
               <p className="text-xl font-semibold">
                 {mediaItems.filter(i => i.usageCount > 1).length}
               </p>
@@ -406,7 +408,7 @@ export default function MediaLibraryPage() {
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar archivos..."
+              placeholder={t('mediaLibrary.searchPlaceholder')}
               className="pl-10"
             />
           </div>
@@ -416,9 +418,9 @@ export default function MediaLibraryPage() {
             onChange={(e) => setFilterType(e.target.value as any)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500"
           >
-            <option value="all">Todos</option>
-            <option value="image">Imágenes</option>
-            <option value="video">Videos</option>
+            <option value="all">{t('mediaLibrary.filterAll')}</option>
+            <option value="image">{t('mediaLibrary.images')}</option>
+            <option value="video">{t('mediaLibrary.videos')}</option>
           </select>
         </div>
 
@@ -439,13 +441,13 @@ export default function MediaLibraryPage() {
               className="text-red-600 hover:text-red-700"
             >
               <Trash2 className="w-4 h-4 mr-2" />
-              Eliminar ({selectedItems.size})
+              {t('mediaLibrary.deleteSelected', { count: selectedItems.size })}
             </Button>
           )}
           
           <Button onClick={() => setShowUploadModal(true)}>
             <Upload className="w-4 h-4 mr-2" />
-            Subir archivo
+            {t('mediaLibrary.uploadFile')}
           </Button>
         </div>
       </div>
@@ -459,19 +461,19 @@ export default function MediaLibraryPage() {
         <div className="bg-gray-50 rounded-lg p-12 text-center">
           <ImageIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {searchQuery || filterType !== 'all' 
-              ? 'No se encontraron archivos' 
-              : 'Tu biblioteca está vacía'}
+            {searchQuery || filterType !== 'all'
+              ? t('mediaLibrary.noFilesFound')
+              : t('mediaLibrary.emptyLibrary')}
           </h3>
           <p className="text-gray-600 mb-4">
             {searchQuery || filterType !== 'all'
-              ? 'Intenta con otros filtros'
-              : 'Sube tu primer archivo para empezar'}
+              ? t('mediaLibrary.tryOtherFilters')
+              : t('mediaLibrary.uploadFirstFile')}
           </p>
           {!searchQuery && filterType === 'all' && (
             <Button onClick={() => setShowUploadModal(true)}>
               <Upload className="w-4 h-4 mr-2" />
-              Subir archivo
+              {t('mediaLibrary.uploadFile')}
             </Button>
           )}
         </div>
@@ -506,7 +508,7 @@ export default function MediaLibraryPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Subir archivo</h2>
+                <h2 className="text-xl font-semibold">{t('mediaLibrary.uploadFile')}</h2>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -518,7 +520,7 @@ export default function MediaLibraryPage() {
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tipo de archivo
+                  {t('mediaLibrary.fileType')}
                 </label>
                 <div className="flex gap-2">
                   <Button
@@ -527,7 +529,7 @@ export default function MediaLibraryPage() {
                     className="flex-1"
                   >
                     <ImageIcon className="w-4 h-4 mr-2" />
-                    Imagen
+                    {t('mediaLibrary.image')}
                   </Button>
                   <Button
                     variant={uploadType === 'video' ? 'default' : 'outline'}
@@ -535,7 +537,7 @@ export default function MediaLibraryPage() {
                     className="flex-1"
                   >
                     <Video className="w-4 h-4 mr-2" />
-                    Video
+                    {t('mediaLibrary.video')}
                   </Button>
                 </div>
               </div>
@@ -556,8 +558,8 @@ export default function MediaLibraryPage() {
                 <div className="flex gap-2">
                   <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-blue-800">
-                    <p className="font-medium mb-1">Detección de duplicados</p>
-                    <p>Si subes un archivo idéntico a uno existente, se reutilizará automáticamente para ahorrar espacio.</p>
+                    <p className="font-medium mb-1">{t('mediaLibrary.duplicateDetection')}</p>
+                    <p>{t('mediaLibrary.duplicateDetectionDesc')}</p>
                   </div>
                 </div>
               </div>
@@ -585,7 +587,7 @@ export default function MediaLibraryPage() {
             >
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold text-red-600">
-                  ⚠️ Confirmar eliminación
+                  {t('mediaLibrary.confirmDeletion')}
                 </h2>
                 <Button
                   variant="ghost"
@@ -598,9 +600,9 @@ export default function MediaLibraryPage() {
 
               <div className="mb-4">
                 <p className="text-gray-700 mb-4">
-                  {itemsToDelete.length === 1 
-                    ? `¿Estás seguro de que quieres eliminar "${itemsToDelete[0]?.originalName}"?`
-                    : `¿Estás seguro de que quieres eliminar ${itemsToDelete.length} archivos?`
+                  {itemsToDelete.length === 1
+                    ? t('mediaLibrary.confirmDeleteSingle', { name: itemsToDelete[0]?.originalName })
+                    : t('mediaLibrary.confirmDeleteMultiple', { count: itemsToDelete.length })
                   }
                 </p>
 
@@ -613,12 +615,13 @@ export default function MediaLibraryPage() {
                       </div>
                       <div>
                         <h4 className="font-medium text-red-800 mb-1">
-                          ¡Archivos en uso detectados!
+                          {t('mediaLibrary.filesInUseDetected')}
                         </h4>
                         <p className="text-sm text-red-700">
-                          {itemsToDelete.filter(item => item.usage && item.usage.length > 0).length} 
-                          {' '}archivo{itemsToDelete.filter(item => item.usage && item.usage.length > 0).length === 1 ? '' : 's'} 
-                          {' '}de {itemsToDelete.length} están siendo usados en propiedades activas.
+                          {t('mediaLibrary.filesInUseDescription', {
+                            inUse: itemsToDelete.filter(item => item.usage && item.usage.length > 0).length,
+                            total: itemsToDelete.length
+                          })}
                         </p>
                       </div>
                     </div>
@@ -635,12 +638,12 @@ export default function MediaLibraryPage() {
                                   {item.originalName}
                                 </p>
                                 <Badge variant="destructive" className="text-xs">
-                                  {item.usage!.length} uso{item.usage!.length === 1 ? '' : 's'}
+                                  {t('mediaLibrary.usageCount', { count: item.usage!.length })}
                                 </Badge>
                               </div>
                               
                               <div className="text-xs text-red-600 mb-2">
-                                <strong>Usado en {uniqueProperties.size} propiedad{uniqueProperties.size === 1 ? '' : 'es'}:</strong>
+                                <strong>{t('mediaLibrary.usedInProperties', { count: uniqueProperties.size })}</strong>
                               </div>
                               
                               <div className="space-y-1 max-h-20 overflow-y-auto">
@@ -664,12 +667,12 @@ export default function MediaLibraryPage() {
                         <Info className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
                         <div>
                           <p className="text-red-800 text-sm font-medium mb-1">
-                            ⚠️ Impacto de la eliminación:
+                            {t('mediaLibrary.deletionImpact')}
                           </p>
                           <ul className="text-red-700 text-xs space-y-1">
-                            <li>• Las zonas mencionadas pueden dejar de mostrar estos medios</li>
-                            <li>• Los pasos afectados quedarán sin contenido multimedia</li>
-                            <li>• Los huéspedes no podrán ver las imágenes/videos en las guías</li>
+                            <li>{t('mediaLibrary.impactZones')}</li>
+                            <li>{t('mediaLibrary.impactSteps')}</li>
+                            <li>{t('mediaLibrary.impactGuests')}</li>
                           </ul>
                         </div>
                       </div>
@@ -683,7 +686,7 @@ export default function MediaLibraryPage() {
                   variant="outline"
                   onClick={() => setShowDeleteModal(false)}
                 >
-                  Cancelar
+                  {t('mediaLibrary.cancel')}
                 </Button>
                 <Button
                   variant="destructive"
@@ -692,8 +695,8 @@ export default function MediaLibraryPage() {
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
                   {itemsToDelete.some(item => item.usage && item.usage.length > 0)
-                    ? 'Eliminar de todas formas'
-                    : 'Eliminar'
+                    ? t('mediaLibrary.deleteAnyway')
+                    : t('mediaLibrary.delete')
                   }
                 </Button>
               </div>

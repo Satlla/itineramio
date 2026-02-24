@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 // Helper function to get text from multilingual objects
 const getText = (value: any, fallback: string = '') => {
@@ -73,6 +74,7 @@ const mockZones: Zone[] = [
 export default async function PropertyStepsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const router = useRouter()
+  const { t } = useTranslation('property')
   const [zones] = useState<Zone[]>(mockZones)
 
   const getStatusInfo = (zone: Zone) => {
@@ -82,24 +84,24 @@ export default async function PropertyStepsPage({ params }: { params: Promise<{ 
           icon: CheckCircle,
           color: 'text-green-600',
           bgColor: 'bg-green-100',
-          label: 'Completo',
-          description: 'Todos los steps configurados'
+          label: t('steps.status.complete'),
+          description: t('steps.status.completeDescription')
         }
       case 'incomplete':
         return {
           icon: AlertCircle,
           color: 'text-yellow-600',
           bgColor: 'bg-yellow-100',
-          label: 'En progreso',
-          description: 'Algunos steps sin publicar'
+          label: t('steps.status.incomplete'),
+          description: t('steps.status.incompleteDescription')
         }
       case 'empty':
         return {
           icon: Plus,
           color: 'text-gray-400',
           bgColor: 'bg-gray-100',
-          label: 'Sin configurar',
-          description: 'No hay steps creados'
+          label: t('steps.status.empty'),
+          description: t('steps.status.emptyDescription')
         }
     }
   }
@@ -112,9 +114,9 @@ export default async function PropertyStepsPage({ params }: { params: Promise<{ 
     <div className="max-w-7xl mx-auto p-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Editor de Steps</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('steps.title')}</h1>
         <p className="text-gray-600 mt-2">
-          Gestiona los pasos de instrucciones para cada zona de tu propiedad
+          {t('steps.subtitle')}
         </p>
       </div>
 
@@ -127,7 +129,7 @@ export default async function PropertyStepsPage({ params }: { params: Promise<{ 
                 <Edit className="h-6 w-6 text-violet-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Steps</p>
+                <p className="text-sm font-medium text-gray-600">{t('steps.stats.totalSteps')}</p>
                 <p className="text-2xl font-bold text-gray-900">{totalSteps}</p>
               </div>
             </div>
@@ -141,7 +143,7 @@ export default async function PropertyStepsPage({ params }: { params: Promise<{ 
                 <CheckCircle className="h-6 w-6 text-green-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Publicados</p>
+                <p className="text-sm font-medium text-gray-600">{t('steps.stats.published')}</p>
                 <p className="text-2xl font-bold text-gray-900">{totalPublished}</p>
               </div>
             </div>
@@ -157,7 +159,7 @@ export default async function PropertyStepsPage({ params }: { params: Promise<{ 
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Zonas Completas</p>
+                <p className="text-sm font-medium text-gray-600">{t('steps.stats.completedZones')}</p>
                 <p className="text-2xl font-bold text-gray-900">{completedZones}/{zones.length}</p>
               </div>
             </div>
@@ -171,7 +173,7 @@ export default async function PropertyStepsPage({ params }: { params: Promise<{ 
                 <div className="h-6 w-6 bg-orange-600 rounded-full"></div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Progreso</p>
+                <p className="text-sm font-medium text-gray-600">{t('steps.stats.progress')}</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {Math.round((totalPublished / Math.max(totalSteps, 1)) * 100)}%
                 </p>
@@ -184,7 +186,7 @@ export default async function PropertyStepsPage({ params }: { params: Promise<{ 
       {/* Zones List */}
       <Card>
         <CardHeader>
-          <CardTitle>Zonas y Steps</CardTitle>
+          <CardTitle>{t('steps.zonesAndSteps')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -213,12 +215,12 @@ export default async function PropertyStepsPage({ params }: { params: Promise<{ 
                         
                         {zone.stepsCount > 0 && (
                           <div className="text-sm text-gray-600">
-                            {zone.publishedSteps}/{zone.stepsCount} steps publicados
+                            {t('steps.publishedCount', { published: zone.publishedSteps, total: zone.stepsCount })}
                           </div>
                         )}
                         
                         <div className="text-sm text-gray-500">
-                          Actualizado: {zone.lastUpdated}
+                          {t('steps.updated')}: {zone.lastUpdated}
                         </div>
                       </div>
                     </div>
@@ -246,12 +248,12 @@ export default async function PropertyStepsPage({ params }: { params: Promise<{ 
                       {zone.stepsCount === 0 ? (
                         <>
                           <Plus className="w-4 h-4 mr-2" />
-                          Crear Steps
+                          {t('steps.createSteps')}
                         </>
                       ) : (
                         <>
                           <Edit className="w-4 h-4 mr-2" />
-                          Editar Steps
+                          {t('steps.editSteps')}
                         </>
                       )}
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -264,16 +266,16 @@ export default async function PropertyStepsPage({ params }: { params: Promise<{ 
           
           {zones.length === 0 && (
             <div className="text-center py-12">
-              <div className="text-gray-400 text-lg mb-2">No hay zonas configuradas</div>
+              <div className="text-gray-400 text-lg mb-2">{t('steps.noZones')}</div>
               <div className="text-gray-500 text-sm mb-6">
-                Primero debes crear zonas para poder añadir steps
+                {t('steps.noZonesDescription')}
               </div>
               <Button
                 onClick={() => router.push(`/properties/${id}/zones`)}
                 className="bg-violet-600 hover:bg-violet-700"
               >
                 <Plus className="w-5 h-5 mr-2" />
-                Ir a Zonas
+                {t('steps.goToZones')}
               </Button>
             </div>
           )}

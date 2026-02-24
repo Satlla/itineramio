@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, Suspense } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -32,43 +33,36 @@ import { useAuth } from '../../../../../src/providers/AuthProvider'
 // PropertySetType as string literal type
 type PropertySetType = 'HOTEL' | 'BUILDING' | 'COMPLEX' | 'RESORT' | 'HOSTEL' | 'APARTHOTEL'
 
-// Validation schema
-const createPropertySetSchema = z.object({
-  name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres').max(100, 'Máximo 100 caracteres'),
-  description: z.string().min(10, 'La descripción debe tener al menos 10 caracteres').max(1000, 'Máximo 1000 caracteres'),
-  type: z.enum(['HOTEL', 'BUILDING', 'COMPLEX', 'RESORT', 'HOSTEL', 'APARTHOTEL']),
+// Validation schema factory that accepts t for translations
+function createPropertySetSchemaWithT(t: (key: string) => string) {
+  return z.object({
+    name: z.string().min(3, t('validation.nameMin')).max(100, t('validation.nameMax')),
+    description: z.string().min(10, t('validation.descriptionMin')).max(1000, t('validation.descriptionMax')),
+    type: z.enum(['HOTEL', 'BUILDING', 'COMPLEX', 'RESORT', 'HOSTEL', 'APARTHOTEL']),
 
-  // Dirección
-  street: z.string().min(5, 'La dirección debe tener al menos 5 caracteres'),
-  city: z.string().min(2, 'La ciudad debe tener al menos 2 caracteres'),
-  state: z.string().min(2, 'La provincia debe tener al menos 2 caracteres'),
-  country: z.string().min(2, 'El país debe tener al menos 2 caracteres').default('España'),
-  postalCode: z.string().min(4, 'Código postal debe tener al menos 4 caracteres').max(10, 'Código postal máximo 10 caracteres'),
+    // Dirección
+    street: z.string().min(5, t('validation.streetMin')),
+    city: z.string().min(2, t('validation.cityMin')),
+    state: z.string().min(2, t('validation.stateMin')),
+    country: z.string().min(2, t('validation.countryMin')).default('España'),
+    postalCode: z.string().min(4, t('validation.postalCodeMin')).max(10, t('validation.postalCodeMax')),
 
-  // Imagen del conjunto
-  profileImage: z.string().optional(),
+    // Imagen del conjunto
+    profileImage: z.string().optional(),
 
-  // Contacto del host
-  hostContactName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(100, 'Máximo 100 caracteres'),
-  hostContactPhone: z.string().min(9, 'Teléfono debe tener al menos 9 caracteres'),
-  hostContactEmail: z.string().email('Email inválido'),
-  hostContactLanguage: z.string().default('es'),
-  hostContactPhoto: z.string().optional(),
+    // Contacto del host
+    hostContactName: z.string().min(2, t('validation.contactNameMin')).max(100, t('validation.contactNameMax')),
+    hostContactPhone: z.string().min(9, t('validation.phoneMin')),
+    hostContactEmail: z.string().email(t('validation.emailInvalid')),
+    hostContactLanguage: z.string().default('es'),
+    hostContactPhoto: z.string().optional(),
 
-  // Selected properties
-  selectedProperties: z.array(z.string()).optional()
-})
+    // Selected properties
+    selectedProperties: z.array(z.string()).optional()
+  })
+}
 
-type CreatePropertySetFormData = z.infer<typeof createPropertySetSchema>
-
-const propertySetTypes = [
-  { value: 'HOTEL', label: 'Hotel', icon: Building2 },
-  { value: 'BUILDING', label: 'Edificio', icon: Building2 },
-  { value: 'COMPLEX', label: 'Complejo', icon: Building2 },
-  { value: 'RESORT', label: 'Resort', icon: Building2 },
-  { value: 'HOSTEL', label: 'Hostel', icon: Building2 },
-  { value: 'APARTHOTEL', label: 'Aparthotel', icon: Building2 }
-] as const
+type CreatePropertySetFormData = z.infer<ReturnType<typeof createPropertySetSchemaWithT>>
 
 interface Property {
   id: string
@@ -86,6 +80,16 @@ function NewPropertySetPageContent() {
   const editId = searchParams.get('edit')
   const isEditing = !!editId
   const { user } = useAuth()
+  const { t } = useTranslation('property')
+
+  const propertySetTypes = [
+    { value: 'HOTEL', label: t('types.hotel'), icon: Building2 },
+    { value: 'BUILDING', label: t('types.building'), icon: Building2 },
+    { value: 'COMPLEX', label: t('types.complex'), icon: Building2 },
+    { value: 'RESORT', label: t('types.resort'), icon: Building2 },
+    { value: 'HOSTEL', label: t('types.hostel'), icon: Building2 },
+    { value: 'APARTHOTEL', label: t('types.aparthotel'), icon: Building2 }
+  ] as const
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
@@ -94,6 +98,8 @@ function NewPropertySetPageContent() {
   const [loadingProperties, setLoadingProperties] = useState(false)
   const [availableProperties, setAvailableProperties] = useState<Property[]>([])
   const [selectedProperties, setSelectedProperties] = useState<string[]>([])
+
+  const createPropertySetSchema = createPropertySetSchemaWithT(t)
 
   const {
     register,
@@ -154,10 +160,10 @@ function NewPropertySetPageContent() {
         try {
           const response = await fetch(`/api/property-sets/${editId}`)
           const result = await response.json()
-          
+
           if (response.ok && result.success) {
             const propertySet = result.data
-            
+
             // Reset form with property set data
             reset({
               name: propertySet.name,
@@ -175,28 +181,28 @@ function NewPropertySetPageContent() {
               hostContactLanguage: propertySet.hostContactLanguage,
               hostContactPhoto: propertySet.hostContactPhoto || undefined
             })
-            
+
             // Set selected properties
             const selectedIds = propertySet.properties?.map((p: Property) => p.id) || []
             setSelectedProperties(selectedIds)
             setValue('selectedProperties', selectedIds)
           } else {
             console.error('Error loading property set:', result.error)
-            alert('Error al cargar los datos del conjunto')
+            alert(t('groups.errorLoadingSet'))
             router.push('/properties/groups')
           }
         } catch (error) {
           console.error('Error loading property set:', error)
-          alert('Error al cargar los datos del conjunto')
+          alert(t('groups.errorLoadingSet'))
           router.push('/properties/groups')
         } finally {
           setIsLoading(false)
         }
       }
-      
+
       loadPropertySetData()
     }
-  }, [isEditing, editId, reset, router, setValue])
+  }, [isEditing, editId, reset, router, setValue, t])
 
   const onSubmit = async (data: CreatePropertySetFormData) => {
     console.log('📝 Form submitted with data:', data)
@@ -221,7 +227,7 @@ function NewPropertySetPageContent() {
 
       if (!response.ok) {
         console.error('❌ API error:', result)
-        throw new Error(result.error || `Error al ${isEditing ? 'actualizar' : 'crear'} el conjunto`)
+        throw new Error(result.error || (isEditing ? t('groups.errorUpdating') : t('groups.errorCreating')))
       }
 
       console.log(`✅ Conjunto ${isEditing ? 'actualizado' : 'creado'} exitosamente:`, result.data)
@@ -231,7 +237,7 @@ function NewPropertySetPageContent() {
       router.push(`/properties/groups/${result.data.id}`)
     } catch (error) {
       console.error(`❌ Error ${isEditing ? 'actualizando' : 'creando'} conjunto:`, error)
-      alert(`Error al ${isEditing ? 'actualizar' : 'crear'} el conjunto. Por favor, inténtalo de nuevo.`)
+      alert(isEditing ? t('groups.errorUpdating') : t('groups.errorCreating'))
     } finally {
       setIsSubmitting(false)
     }
@@ -249,18 +255,18 @@ function NewPropertySetPageContent() {
     switch (step) {
       case 1:
         return !!watchedValues.name && !!watchedValues.description
-      
+
       case 2:
-        return !!watchedValues.street && !!watchedValues.city && !!watchedValues.state && 
+        return !!watchedValues.street && !!watchedValues.city && !!watchedValues.state &&
                !!watchedValues.country && !!watchedValues.postalCode
-      
+
       case 3:
-        return !!watchedValues.hostContactName && !!watchedValues.hostContactPhone && 
+        return !!watchedValues.hostContactName && !!watchedValues.hostContactPhone &&
                !!watchedValues.hostContactEmail
-      
+
       case 4:
         return true // Property selection is optional
-      
+
       default:
         return false
     }
@@ -294,7 +300,7 @@ function NewPropertySetPageContent() {
       const newSelection = prev.includes(propertyId)
         ? prev.filter(id => id !== propertyId)
         : [...prev, propertyId]
-      
+
       setValue('selectedProperties', newSelection)
       return newSelection
     })
@@ -312,17 +318,17 @@ function NewPropertySetPageContent() {
             <Link href="/properties/groups">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Volver
+                {t('common.back')}
               </Button>
             </Link>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                {isEditing ? 'Editar Conjunto' : 'Nuevo Conjunto de Propiedades'}
+                {isEditing ? t('groups.editTitle') : t('groups.newTitle')}
               </h1>
               <p className="text-gray-600 mt-1">
-                {isEditing 
-                  ? 'Actualiza la información de tu conjunto'
-                  : 'Agrupa múltiples propiedades bajo una misma gestión'
+                {isEditing
+                  ? t('groups.editSubtitle')
+                  : t('groups.newSubtitle')
                 }
               </p>
             </div>
@@ -333,7 +339,7 @@ function NewPropertySetPageContent() {
         {isLoading && (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full"></div>
-            <span className="ml-3 text-gray-600">Cargando datos del conjunto...</span>
+            <span className="ml-3 text-gray-600">{t('groups.loadingSet')}</span>
           </div>
         )}
 
@@ -347,18 +353,18 @@ function NewPropertySetPageContent() {
               >
                 <div className={`
                   w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
-                  ${currentStep >= step 
-                    ? 'bg-violet-600 text-white' 
+                  ${currentStep >= step
+                    ? 'bg-violet-600 text-white'
                     : 'bg-gray-200 text-gray-600'
                   }
                 `}>
                   {step}
                 </div>
                 <div className="ml-2 text-sm font-medium">
-                  {step === 1 && 'Información Básica'}
-                  {step === 2 && 'Ubicación'}
-                  {step === 3 && 'Contacto'}
-                  {step === 4 && 'Propiedades'}
+                  {step === 1 && t('groups.steps.basicInfo')}
+                  {step === 2 && t('groups.steps.location')}
+                  {step === 3 && t('groups.steps.contact')}
+                  {step === 4 && t('groups.steps.properties')}
                 </div>
                 {step < 4 && (
                   <div className={`
@@ -381,18 +387,18 @@ function NewPropertySetPageContent() {
             >
               <Card className="p-8">
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                  Información Básica
+                  {t('groups.steps.basicInfo')}
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Nombre */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nombre del conjunto *
+                      {t('groups.form.setName')}
                     </label>
                     <Input
                       {...register('name')}
-                      placeholder="Ej: Hotel Vista Mar, Complejo Residencial Los Pinos"
+                      placeholder={t('groups.form.setNamePlaceholder')}
                       error={!!errors.name}
                     />
                     {errors.name && (
@@ -403,12 +409,12 @@ function NewPropertySetPageContent() {
                   {/* Descripción */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Descripción *
+                      {t('groups.form.description')}
                     </label>
                     <textarea
                       {...register('description')}
                       rows={4}
-                      placeholder="Describe tu conjunto de propiedades, sus características principales..."
+                      placeholder={t('groups.form.descriptionPlaceholder')}
                       className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 ${
                         errors.description ? 'border-red-300' : ''
                       }`}
@@ -421,7 +427,7 @@ function NewPropertySetPageContent() {
                   {/* Tipo de conjunto */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Tipo de establecimiento *
+                      {t('groups.form.establishmentType')}
                     </label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {propertySetTypes.map((type) => {
@@ -448,28 +454,28 @@ function NewPropertySetPageContent() {
                   {/* Imagen del conjunto */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Foto principal del conjunto
+                      {t('groups.form.mainPhoto')}
                     </label>
                     <ImageUpload
                       value={watchedValues.profileImage}
                       onChange={(imageUrl) => setValue('profileImage', imageUrl || undefined)}
-                      placeholder="Subir foto del conjunto"
+                      placeholder={t('groups.form.mainPhotoUpload')}
                       variant="property"
                       maxSize={10}
                     />
                     <p className="mt-1 text-xs text-gray-500">
-                      Esta será la imagen principal del conjunto
+                      {t('groups.form.mainPhotoHint')}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex justify-end mt-8">
-                  <Button 
-                    onClick={nextStep} 
+                  <Button
+                    onClick={nextStep}
                     type="button"
                     disabled={!validateStep(1)}
                   >
-                    Siguiente
+                    {t('common.next')}
                   </Button>
                 </div>
               </Card>
@@ -485,7 +491,7 @@ function NewPropertySetPageContent() {
             >
               <Card className="p-8">
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                  Ubicación
+                  {t('groups.steps.location')}
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -493,7 +499,7 @@ function NewPropertySetPageContent() {
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <MapPin className="inline w-4 h-4 mr-1" />
-                      Dirección completa *
+                      {t('groups.form.fullAddress')}
                     </label>
                     <AddressAutocomplete
                       value={watchedValues.street}
@@ -508,7 +514,7 @@ function NewPropertySetPageContent() {
                         }
                       }}
                       error={!!errors.street}
-                      placeholder="Escribe una dirección y selecciona de la lista..."
+                      placeholder={t('groups.form.addressPlaceholder')}
                     />
                     {errors.street && (
                       <p className="mt-1 text-sm text-red-600">{errors.street.message}</p>
@@ -518,11 +524,11 @@ function NewPropertySetPageContent() {
                   {/* Ciudad (auto-filled from Google Maps) */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Ciudad *
+                      {t('groups.form.city')}
                     </label>
                     <Input
                       {...register('city')}
-                      placeholder="Se autocompleta con la dirección"
+                      placeholder={t('groups.form.cityPlaceholder')}
                       error={!!errors.city}
                     />
                     {errors.city && (
@@ -533,11 +539,11 @@ function NewPropertySetPageContent() {
                   {/* Provincia (auto-filled from Google Maps) */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Provincia *
+                      {t('groups.form.state')}
                     </label>
                     <Input
                       {...register('state')}
-                      placeholder="Se autocompleta con la dirección"
+                      placeholder={t('groups.form.statePlaceholder')}
                       error={!!errors.state}
                     />
                     {errors.state && (
@@ -548,7 +554,7 @@ function NewPropertySetPageContent() {
                   {/* Código postal */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Código postal *
+                      {t('groups.form.postalCode')}
                     </label>
                     <Input
                       {...register('postalCode')}
@@ -564,7 +570,7 @@ function NewPropertySetPageContent() {
                   {/* País (auto-filled from Google Maps) */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      País *
+                      {t('groups.form.country')}
                     </label>
                     <Input
                       {...register('country')}
@@ -579,14 +585,14 @@ function NewPropertySetPageContent() {
 
                 <div className="flex justify-between mt-8">
                   <Button onClick={prevStep} type="button" variant="outline">
-                    Anterior
+                    {t('common.previous')}
                   </Button>
-                  <Button 
-                    onClick={nextStep} 
+                  <Button
+                    onClick={nextStep}
                     type="button"
                     disabled={!validateStep(2)}
                   >
-                    Siguiente
+                    {t('common.next')}
                   </Button>
                 </div>
               </Card>
@@ -602,12 +608,12 @@ function NewPropertySetPageContent() {
             >
               <Card className="p-8">
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                  Información de Contacto
+                  {t('groups.form.contactInfoTitle')}
                 </h2>
-                
+
                 <div className="bg-blue-50 rounded-lg p-4 mb-6">
                   <p className="text-sm text-blue-800">
-                    <strong>💡 Importante:</strong> Esta información será usada para el contacto principal del conjunto de propiedades.
+                    <strong>💡 {t('groups.form.contactInfoNote')}</strong>
                   </p>
                 </div>
 
@@ -615,17 +621,17 @@ function NewPropertySetPageContent() {
                   {/* Foto de perfil */}
                   <div className="md:col-span-2 flex flex-col items-center">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Foto de perfil de contacto
+                      {t('groups.form.contactProfilePhoto')}
                     </label>
                     <ImageUpload
                       value={watchedValues.hostContactPhoto}
                       onChange={(imageUrl) => setValue('hostContactPhoto', imageUrl || undefined)}
-                      placeholder="Subir foto de perfil"
+                      placeholder={t('groups.form.contactProfileUpload')}
                       variant="profile"
                       maxSize={5}
                     />
                     <p className="mt-2 text-xs text-gray-500 text-center">
-                      Esta foto aparecerá cuando los huéspedes contacten
+                      {t('groups.form.contactProfileHint')}
                     </p>
                   </div>
 
@@ -633,11 +639,11 @@ function NewPropertySetPageContent() {
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <User className="inline w-4 h-4 mr-1" />
-                      Nombre completo *
+                      {t('groups.form.fullName')}
                     </label>
                     <Input
                       {...register('hostContactName')}
-                      placeholder="Tu nombre completo"
+                      placeholder={t('groups.form.fullNamePlaceholder')}
                       error={!!errors.hostContactName}
                     />
                     {errors.hostContactName && (
@@ -649,7 +655,7 @@ function NewPropertySetPageContent() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <Phone className="inline w-4 h-4 mr-1" />
-                      Teléfono WhatsApp *
+                      {t('groups.form.whatsappPhone')}
                     </label>
                     <Input
                       {...register('hostContactPhone')}
@@ -660,7 +666,7 @@ function NewPropertySetPageContent() {
                       <p className="mt-1 text-sm text-red-600">{errors.hostContactPhone.message}</p>
                     )}
                     <p className="mt-1 text-xs text-gray-500">
-                      Los huéspedes podrán contactarte via WhatsApp
+                      {t('groups.form.whatsappHint')}
                     </p>
                   </div>
 
@@ -668,7 +674,7 @@ function NewPropertySetPageContent() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       <Mail className="inline w-4 h-4 mr-1" />
-                      Email de contacto *
+                      {t('groups.form.contactEmail')}
                     </label>
                     <Input
                       {...register('hostContactEmail')}
@@ -684,29 +690,29 @@ function NewPropertySetPageContent() {
                   {/* Idioma preferido */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Idioma preferido para comunicación
+                      {t('groups.form.preferredLanguage')}
                     </label>
                     <select
                       {...register('hostContactLanguage')}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
                     >
-                      <option value="es">Español</option>
-                      <option value="en">English</option>
-                      <option value="fr">Français</option>
+                      <option value="es">{t('languages.es')}</option>
+                      <option value="en">{t('languages.en')}</option>
+                      <option value="fr">{t('languages.fr')}</option>
                     </select>
                   </div>
                 </div>
 
                 <div className="flex justify-between mt-8">
                   <Button onClick={prevStep} type="button" variant="outline">
-                    Anterior
+                    {t('common.previous')}
                   </Button>
-                  <Button 
-                    onClick={nextStep} 
+                  <Button
+                    onClick={nextStep}
                     type="button"
                     disabled={!validateStep(3)}
                   >
-                    Siguiente
+                    {t('common.next')}
                   </Button>
                 </div>
               </Card>
@@ -722,33 +728,33 @@ function NewPropertySetPageContent() {
             >
               <Card className="p-8">
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                  Seleccionar Propiedades
+                  {t('groups.form.selectProperties')}
                 </h2>
-                
+
                 <div className="bg-green-50 rounded-lg p-4 mb-6">
                   <p className="text-sm text-green-800">
-                    <strong>💡 Consejo:</strong> Selecciona las propiedades que pertenecen a este conjunto. Puedes dejarlo vacío y agregar propiedades más tarde.
+                    <strong>💡</strong> {t('groups.form.selectPropertiesTip')}
                   </p>
                 </div>
 
                 {loadingProperties ? (
                   <div className="text-center py-12">
                     <Loader2 className="w-8 h-8 text-violet-600 mx-auto mb-4 animate-spin" />
-                    <p className="text-gray-600">Cargando propiedades disponibles...</p>
+                    <p className="text-gray-600">{t('groups.form.loadingAvailableProperties')}</p>
                   </div>
                 ) : selectableProperties.length === 0 ? (
                   <div className="text-center py-12">
                     <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      No hay propiedades disponibles
+                      {t('groups.form.noPropertiesAvailable')}
                     </h3>
                     <p className="text-gray-600 mb-4">
-                      Crea algunas propiedades primero para poder agregarlas al conjunto
+                      {t('groups.form.noPropertiesAvailableDesc')}
                     </p>
                     <Link href="/properties/new">
                       <Button>
                         <Plus className="w-4 h-4 mr-2" />
-                        Crear Primera Propiedad
+                        {t('groups.form.createFirstProperty')}
                       </Button>
                     </Link>
                   </div>
@@ -767,8 +773,8 @@ function NewPropertySetPageContent() {
                         <div className="flex items-center space-x-4">
                           <div className="flex-shrink-0">
                             {property.profileImage ? (
-                              <img 
-                                src={property.profileImage} 
+                              <img
+                                src={property.profileImage}
                                 alt={property.name}
                                 className="w-12 h-12 rounded-lg object-cover"
                               />
@@ -778,7 +784,7 @@ function NewPropertySetPageContent() {
                               </div>
                             )}
                           </div>
-                          
+
                           <div className="flex-1">
                             <h3 className="font-semibold text-gray-900">{property.name}</h3>
                             <p className="text-sm text-gray-600">{property.city}, {property.state}</p>
@@ -786,12 +792,12 @@ function NewPropertySetPageContent() {
                               <p className="text-xs text-gray-500">{property.type}</p>
                               {property.propertySetId && property.propertySetId !== editId && (
                                 <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">
-                                  En otro conjunto
+                                  {t('common.inAnotherSet')}
                                 </span>
                               )}
                             </div>
                           </div>
-                          
+
                           <div className="flex-shrink-0">
                             {selectedProperties.includes(property.id) && (
                               <div className="w-6 h-6 rounded-full bg-violet-600 flex items-center justify-center">
@@ -809,25 +815,25 @@ function NewPropertySetPageContent() {
                 {Object.keys(errors).length > 0 && (
                   <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
                     <h4 className="text-sm font-medium text-red-800 mb-2">
-                      Por favor corrige los siguientes errores:
+                      {t('groups.form.fixErrors')}
                     </h4>
                     <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
-                      {errors.name && <li>Nombre: {errors.name.message}</li>}
-                      {errors.description && <li>Descripción: {errors.description.message}</li>}
-                      {errors.street && <li>Dirección: {errors.street.message}</li>}
-                      {errors.city && <li>Ciudad: {errors.city.message}</li>}
-                      {errors.state && <li>Provincia: {errors.state.message}</li>}
-                      {errors.postalCode && <li>Código postal: {errors.postalCode.message}</li>}
-                      {errors.hostContactName && <li>Nombre de contacto: {errors.hostContactName.message}</li>}
-                      {errors.hostContactPhone && <li>Teléfono: {errors.hostContactPhone.message}</li>}
-                      {errors.hostContactEmail && <li>Email: {errors.hostContactEmail.message}</li>}
+                      {errors.name && <li>{t('groups.form.errorName', { message: errors.name.message })}</li>}
+                      {errors.description && <li>{t('groups.form.errorDescription', { message: errors.description.message })}</li>}
+                      {errors.street && <li>{t('groups.form.errorAddress', { message: errors.street.message })}</li>}
+                      {errors.city && <li>{t('groups.form.errorCity', { message: errors.city.message })}</li>}
+                      {errors.state && <li>{t('groups.form.errorState', { message: errors.state.message })}</li>}
+                      {errors.postalCode && <li>{t('groups.form.errorPostalCode', { message: errors.postalCode.message })}</li>}
+                      {errors.hostContactName && <li>{t('groups.form.errorContactName', { message: errors.hostContactName.message })}</li>}
+                      {errors.hostContactPhone && <li>{t('groups.form.errorPhone', { message: errors.hostContactPhone.message })}</li>}
+                      {errors.hostContactEmail && <li>{t('groups.form.errorEmail', { message: errors.hostContactEmail.message })}</li>}
                     </ul>
                   </div>
                 )}
 
                 <div className="flex justify-between mt-8">
                   <Button onClick={prevStep} type="button" variant="outline">
-                    Anterior
+                    {t('common.previous')}
                   </Button>
                   <Button
                     type="submit"
@@ -842,8 +848,8 @@ function NewPropertySetPageContent() {
                   >
                     <Save className="w-4 h-4 mr-2" />
                     {isSubmitting
-                      ? (isEditing ? 'Actualizando...' : 'Creando...')
-                      : (isEditing ? 'Actualizar Conjunto' : 'Crear Conjunto')
+                      ? (isEditing ? t('groups.updating') : t('groups.creating'))
+                      : (isEditing ? t('groups.updateSet') : t('groups.createSet'))
                     }
                   </Button>
                 </div>

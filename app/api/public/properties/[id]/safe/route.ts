@@ -10,24 +10,50 @@ export async function GET(
     const { id } = await params
     console.log('🔍 Safe Public Property endpoint - received ID:', id)
     
+    // First check if this is a demo preview property
+    const demoCheck = await prisma.$queryRaw`
+      SELECT id, "isDemoPreview", "demoExpiresAt"
+      FROM properties
+      WHERE id = ${id} AND "isDemoPreview" = true
+      LIMIT 1
+    ` as any[]
+
+    const demoProperty = demoCheck[0]
+    const isDemo = !!demoProperty
+
+    if (isDemo) {
+      // Demo property: check expiration instead of isPublished/subscription
+      if (demoProperty.demoExpiresAt && new Date(demoProperty.demoExpiresAt) <= new Date()) {
+        return NextResponse.json({
+          success: false,
+          error: 'Este demo ha expirado',
+          code: 'DEMO_EXPIRED'
+        }, { status: 410 })
+      }
+    }
+
     // Use raw SQL to get property safely
     const properties = await prisma.$queryRaw`
-      SELECT 
+      SELECT
         id, name, slug, description, type,
         street, city, state, country, "postalCode",
         bedrooms, bathrooms, "maxGuests", "squareMeters",
         "profileImage", "hostContactName", "hostContactPhone",
         "hostContactEmail", "hostContactLanguage", "hostContactPhoto",
         status, "isPublished", "propertySetId", "hostId",
+        "isDemoPreview", "demoExpiresAt",
         "createdAt", "updatedAt", "publishedAt"
       FROM properties
       WHERE id = ${id}
-        AND "isPublished" = true
+        AND (
+          "isPublished" = true
+          OR ("isDemoPreview" = true AND "demoExpiresAt" > NOW())
+        )
       LIMIT 1
     ` as any[]
-    
+
     const property = properties[0]
-    
+
     if (!property) {
       return NextResponse.json({
         success: false,
@@ -35,8 +61,8 @@ export async function GET(
       }, { status: 404 })
     }
 
-    // Check if host has MANUALES module access
-    if (property.hostId) {
+    // Check if host has MANUALES module access (skip for demo properties)
+    if (!isDemo && property.hostId) {
       const moduleAccess = await checkHostManualesAccess(property.hostId)
       if (!moduleAccess.hasAccess) {
         console.log(`🚫 Manual blocked for property ${id} - host ${property.hostId} has no MANUALES access: ${moduleAccess.blockedReason}`)
@@ -51,7 +77,7 @@ export async function GET(
 
     // Get zones and steps safely using raw SQL
     const zones = await prisma.$queryRaw`
-      SELECT 
+      SELECT
         z.id,
         z.name,
         z.slug,
@@ -61,6 +87,9 @@ export async function GET(
         z.status,
         z."isPublished",
         z."propertyId",
+        z."order",
+        z.type,
+        z."recommendationCategory",
         z."createdAt",
         z."updatedAt",
         z."publishedAt"
@@ -69,19 +98,39 @@ export async function GET(
         AND (
           (z."isPublished" = true AND z.status = 'ACTIVE')
           OR EXISTS (
-            SELECT 1 FROM steps s 
-            WHERE s."zoneId" = z.id 
+            SELECT 1 FROM steps s
+            WHERE s."zoneId" = z.id
               AND s."isPublished" = true
           )
+          OR (
+            z.type = 'RECOMMENDATIONS'
+            AND z."isPublished" = true
+            AND EXISTS (
+              SELECT 1 FROM recommendations r
+              WHERE r."zoneId" = z.id
+            )
+          )
         )
-      ORDER BY z.id ASC
+      ORDER BY COALESCE(z."order", 999999) ASC, z.id ASC
     ` as any[]
-    
-    // Get steps for each zone
+
+    // Get steps for each zone (and recommendation count for RECOMMENDATIONS zones)
     const zonesWithSteps = await Promise.all(
       zones.map(async (zone: any) => {
+        // For RECOMMENDATIONS zones, count recommendations instead of steps
+        if (zone.type === 'RECOMMENDATIONS') {
+          const recCount = await prisma.recommendation.count({
+            where: { zoneId: zone.id },
+          })
+          return {
+            ...zone,
+            stepsCount: recCount,
+            steps: []
+          }
+        }
+
         const steps = await prisma.$queryRaw`
-          SELECT 
+          SELECT
             id, "zoneId", type, title, content,
             "isPublished", "createdAt", "updatedAt"
           FROM steps
@@ -89,12 +138,12 @@ export async function GET(
             AND "isPublished" = true
           ORDER BY id ASC
         ` as any[]
-        
+
         // Process steps to extract mediaUrl from content JSON
         const processedSteps = steps.map(step => {
           let mediaUrl = null
           let linkUrl = null
-          
+
           try {
             if (step.content && typeof step.content === 'object') {
               const content = step.content as any

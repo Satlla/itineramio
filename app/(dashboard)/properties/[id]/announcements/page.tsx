@@ -28,6 +28,7 @@ import { PropertySetUpdateModal } from '../../../../../src/components/ui/Propert
 import { useRouter, useParams } from 'next/navigation'
 import { useAuth } from '../../../../../src/providers/AuthProvider'
 import { useNotifications } from '../../../../../src/hooks/useNotifications'
+import { useTranslation } from 'react-i18next'
 
 interface MultiLangText {
   es: string
@@ -49,12 +50,12 @@ interface Announcement {
 }
 
 const CATEGORIES = [
-  { id: 'parking', label: 'Aparcamiento', icon: Car, color: 'blue' },
-  { id: 'cleaning', label: 'Limpieza', icon: Users, color: 'green' },
-  { id: 'construction', label: 'Obras/Ruidos', icon: Wrench, color: 'orange' },
-  { id: 'check-in', label: 'Check-in/out', icon: Key, color: 'purple' },
-  { id: 'amenities', label: 'Servicios', icon: Wifi, color: 'indigo' },
-  { id: 'other', label: 'Otros', icon: Info, color: 'gray' }
+  { id: 'parking', labelKey: 'announcements.categories.parking', icon: Car, color: 'blue' },
+  { id: 'cleaning', labelKey: 'announcements.categories.cleaning', icon: Users, color: 'green' },
+  { id: 'construction', labelKey: 'announcements.categories.construction', icon: Wrench, color: 'orange' },
+  { id: 'check-in', labelKey: 'announcements.categories.checkIn', icon: Key, color: 'purple' },
+  { id: 'amenities', labelKey: 'announcements.categories.amenities', icon: Wifi, color: 'indigo' },
+  { id: 'other', labelKey: 'announcements.categories.other', icon: Info, color: 'gray' }
 ]
 
 const AVISO_TEMPLATES = [
@@ -151,10 +152,10 @@ const AVISO_TEMPLATES = [
 ]
 
 const PRIORITIES = [
-  { id: 'LOW', label: 'Baja', color: 'gray' },
-  { id: 'NORMAL', label: 'Normal', color: 'blue' },
-  { id: 'HIGH', label: 'Alta', color: 'orange' },
-  { id: 'URGENT', label: 'Urgente', color: 'red' }
+  { id: 'LOW', labelKey: 'announcements.priorities.low', color: 'gray' },
+  { id: 'NORMAL', labelKey: 'announcements.priorities.normal', color: 'blue' },
+  { id: 'HIGH', labelKey: 'announcements.priorities.high', color: 'orange' },
+  { id: 'URGENT', labelKey: 'announcements.priorities.urgent', color: 'red' }
 ]
 
 export default function PropertyAnnouncementsPage() {
@@ -162,6 +163,7 @@ export default function PropertyAnnouncementsPage() {
   const params = useParams()
   const { user } = useAuth()
   const { addNotification } = useNotifications()
+  const { t } = useTranslation('property')
 
   const [propertyId, setPropertyId] = useState<string>('')
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
@@ -215,7 +217,7 @@ export default function PropertyAnnouncementsPage() {
       const response = await fetch(`/api/properties/${propertyId}`)
       if (response.ok) {
         const data = await response.json()
-        setPropertyName(data.data.name || 'Propiedad')
+        setPropertyName(data.data.name || t('common.property'))
         setPropertySetId(data.data.propertySetId || null)
 
         // Fetch property set properties if this property belongs to a set
@@ -268,11 +270,11 @@ export default function PropertyAnnouncementsPage() {
 
         setAnnouncements(parsedAnnouncements)
       } else {
-        addNotification({ title: 'Error', message: 'Error al cargar avisos', type: 'error', read: false })
+        addNotification({ title: 'Error', message: t('announcements.notifications.loadError'), type: 'error', read: false })
       }
     } catch (error) {
       console.error('Error loading announcements:', error)
-      addNotification({ title: 'Error', message: 'Error al cargar anuncios', type: 'error', read: false })
+      addNotification({ title: 'Error', message: t('announcements.notifications.loadError'), type: 'error', read: false })
     } finally {
       setLoading(false)
     }
@@ -280,12 +282,12 @@ export default function PropertyAnnouncementsPage() {
 
   const handleCreateAnnouncement = async () => {
     if (!propertyId) {
-      addNotification({ title: 'Error', message: 'ID de propiedad no disponible', type: 'error', read: false })
+      addNotification({ title: 'Error', message: t('announcements.notifications.propertyIdMissing'), type: 'error', read: false })
       return
     }
 
     if (!formData.title.es.trim() || !formData.message.es.trim()) {
-      addNotification({ title: 'Error', message: 'Título y mensaje en español son requeridos', type: 'error', read: false })
+      addNotification({ title: 'Error', message: t('announcements.notifications.titleMessageRequired'), type: 'error', read: false })
       return
     }
 
@@ -308,7 +310,7 @@ export default function PropertyAnnouncementsPage() {
 
   const handleUpdateAnnouncement = async () => {
     if (!propertyId || !editingAnnouncement || !formData.title.es.trim() || !formData.message.es.trim()) {
-      addNotification({ title: 'Error', message: 'Título y mensaje en español son requeridos', type: 'error', read: false })
+      addNotification({ title: 'Error', message: t('announcements.notifications.titleMessageRequired'), type: 'error', read: false })
       return
     }
 
@@ -330,7 +332,7 @@ export default function PropertyAnnouncementsPage() {
   }
 
   const handleDeleteAnnouncement = async (id: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este anuncio?')) {
+    if (!confirm(t('announcements.confirmDelete'))) {
       return
     }
 
@@ -369,19 +371,19 @@ export default function PropertyAnnouncementsPage() {
 
       if (response.ok) {
         addNotification({
-          title: 'Éxito',
-          message: `Aviso ${!announcementToToggle.isActive ? 'activado' : 'desactivado'} correctamente`,
+          title: 'OK',
+          message: t('announcements.notifications.toggleSuccess', { status: !announcementToToggle.isActive ? t('announcements.notifications.toggleActivated') : t('announcements.notifications.toggleDeactivated') }),
           type: 'success',
           read: false
         })
         loadAnnouncements()
       } else {
         const data = await response.json()
-        addNotification({ title: 'Error', message: data.error || 'Error al actualizar aviso', type: 'error', read: false })
+        addNotification({ title: 'Error', message: data.error || t('announcements.notifications.toggleError'), type: 'error', read: false })
       }
     } catch (error) {
       console.error('Error toggling announcement:', error)
-      addNotification({ title: 'Error', message: 'Error al actualizar aviso', type: 'error', read: false })
+      addNotification({ title: 'Error', message: t('announcements.notifications.toggleError'), type: 'error', read: false })
     } finally {
       setAnnouncementToToggle(null)
     }
@@ -432,17 +434,17 @@ export default function PropertyAnnouncementsPage() {
       if (successCount > 0) {
         const message = successCount > 1
           ? (scope === 'all'
-              ? 'Se ha creado el aviso para todo el conjunto'
-              : `Se ha creado el aviso en ${successCount} propiedades`)
-          : 'Aviso creado correctamente'
+              ? t('announcements.notifications.createSuccessAll')
+              : t('announcements.notifications.createSuccessMultiple', { count: successCount }))
+          : t('announcements.notifications.createSuccess')
 
-        addNotification({ title: 'Éxito', message, type: 'success', read: false })
+        addNotification({ title: 'OK', message, type: 'success', read: false })
         setShowCreateForm(false)
         resetForm()
         loadAnnouncements()
       }
     } catch (error) {
-      addNotification({ title: 'Error', message: 'Error al crear aviso', type: 'error', read: false })
+      addNotification({ title: 'Error', message: t('announcements.notifications.createError'), type: 'error', read: false })
     } finally {
       setSaving(false)
     }
@@ -492,17 +494,17 @@ export default function PropertyAnnouncementsPage() {
       if (successCount > 0) {
         const message = successCount > 1
           ? (scope === 'all'
-              ? `Se ha actualizado "${formData.title.es}" en todo el conjunto`
-              : `Se ha actualizado "${formData.title.es}" en ${successCount} propiedades`)
-          : 'Aviso actualizado correctamente'
+              ? t('announcements.notifications.updateSuccessAll', { title: formData.title.es })
+              : t('announcements.notifications.updateSuccessMultiple', { title: formData.title.es, count: successCount }))
+          : t('announcements.notifications.updateSuccess')
 
-        addNotification({ title: 'Éxito', message, type: 'success', read: false })
+        addNotification({ title: 'OK', message, type: 'success', read: false })
         setEditingAnnouncement(null)
         resetForm()
         loadAnnouncements()
       }
     } catch (error) {
-      addNotification({ title: 'Error', message: 'Error al actualizar aviso', type: 'error', read: false })
+      addNotification({ title: 'Error', message: t('announcements.notifications.updateError'), type: 'error', read: false })
     } finally {
       setSaving(false)
     }
@@ -550,15 +552,15 @@ export default function PropertyAnnouncementsPage() {
       if (successCount > 0) {
         const message = successCount > 1
           ? (scope === 'all'
-              ? `Se ha eliminado "${announcementTitle}" de todo el conjunto`
-              : `Se ha eliminado "${announcementTitle}" de ${successCount} propiedades`)
-          : 'Aviso eliminado correctamente'
+              ? t('announcements.notifications.deleteSuccessAll', { title: announcementTitle })
+              : t('announcements.notifications.deleteSuccessMultiple', { title: announcementTitle, count: successCount }))
+          : t('announcements.notifications.deleteSuccess')
 
-        addNotification({ title: 'Éxito', message, type: 'success', read: false })
+        addNotification({ title: 'OK', message, type: 'success', read: false })
         loadAnnouncements()
       }
     } catch (error) {
-      addNotification({ title: 'Error', message: 'Error al eliminar aviso', type: 'error', read: false })
+      addNotification({ title: 'Error', message: t('announcements.notifications.deleteError'), type: 'error', read: false })
     }
   }
 
@@ -657,16 +659,16 @@ export default function PropertyAnnouncementsPage() {
             className="flex items-center text-gray-600 hover:text-gray-900 mb-6 text-sm"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
-            Volver a {propertyName}
+            {t('announcements.backTo', { name: propertyName })}
           </button>
           
           <div className="space-y-4">
             <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">
-              Avisos Importantes
+              {t('announcements.title')}
             </h1>
-            
+
             <p className="text-gray-600 text-base leading-relaxed max-w-3xl">
-              Los avisos son para comunicar limitaciones importantes que los huéspedes deben conocer antes de su llegada. Úsalos para informar sobre servicios no disponibles, restricciones de horarios o situaciones temporales.
+              {t('announcements.description')}
             </p>
             
             <div className="pt-2">
@@ -676,7 +678,7 @@ export default function PropertyAnnouncementsPage() {
                 disabled={announcements.filter(a => a.isActive).length >= 5}
               >
                 <Plus className="w-4 h-4 mr-2 inline-block" />
-                Nuevo Aviso {announcements.filter(a => a.isActive).length >= 5 && `(Máx. 5)`}
+                {t('announcements.newAnnouncement')} {announcements.filter(a => a.isActive).length >= 5 && `(${t('announcements.maxReached', { max: 5 })})`}
               </Button>
             </div>
           </div>
@@ -687,7 +689,7 @@ export default function PropertyAnnouncementsPage() {
           <Card className="mb-8 border-gray-200 shadow-sm">
             <CardHeader className="border-b border-gray-200 bg-gray-50 px-6 py-4">
               <CardTitle className="text-lg font-medium">
-                {editingAnnouncement ? 'Editar Aviso' : 'Crear Nuevo Aviso'}
+                {editingAnnouncement ? t('announcements.editAnnouncement') : t('announcements.createNewAnnouncement')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 p-6">
@@ -695,7 +697,7 @@ export default function PropertyAnnouncementsPage() {
               {!editingAnnouncement && (
                 <div className="border-b border-gray-200 pb-6">
                   <h4 className="text-base font-medium text-gray-900 mb-4">
-                    Plantillas rápidas
+                    {t('announcements.quickTemplates')}
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {AVISO_TEMPLATES.map((template) => {
@@ -733,7 +735,7 @@ export default function PropertyAnnouncementsPage() {
                   })}
                 </div>
                 <p className="text-xs text-gray-500 mt-3">
-                  Selecciona una plantilla para empezar
+                  {t('announcements.selectTemplate')}
                 </p>
               </div>
             )}
@@ -780,7 +782,7 @@ export default function PropertyAnnouncementsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Título * {activeLanguage === 'es' && '(requerido)'}
+                    {t('announcements.titleLabel')} {activeLanguage === 'es' && t('announcements.titleRequired')}
                   </label>
                   <Input
                     value={formData.title[activeLanguage]}
@@ -788,17 +790,13 @@ export default function PropertyAnnouncementsPage() {
                       ...prev,
                       title: { ...prev.title, [activeLanguage]: e.target.value }
                     }))}
-                    placeholder={
-                      activeLanguage === 'es' ? 'Ej: Obras en el edificio' :
-                      activeLanguage === 'en' ? 'Ex: Building construction' :
-                      'Ex: Travaux dans le bâtiment'
-                    }
+                    placeholder={t('announcements.titlePlaceholder')}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Categoría
+                    {t('announcements.categoryLabel')}
                   </label>
                   <select
                     value={formData.category}
@@ -807,7 +805,7 @@ export default function PropertyAnnouncementsPage() {
                   >
                     {CATEGORIES.map(category => (
                       <option key={category.id} value={category.id}>
-                        {category.label}
+                        {t(category.labelKey)}
                       </option>
                     ))}
                   </select>
@@ -816,7 +814,7 @@ export default function PropertyAnnouncementsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Mensaje * {activeLanguage === 'es' && '(requerido)'}
+                  {t('announcements.messageLabel')} {activeLanguage === 'es' && t('announcements.titleRequired')}
                 </label>
                 <textarea
                   value={formData.message[activeLanguage]}
@@ -824,17 +822,13 @@ export default function PropertyAnnouncementsPage() {
                     ...prev,
                     message: { ...prev.message, [activeLanguage]: e.target.value }
                   }))}
-                  placeholder={
-                    activeLanguage === 'es' ? 'Describe la información importante que deben saber tus huéspedes...' :
-                    activeLanguage === 'en' ? 'Describe the important information your guests should know...' :
-                    'Décrivez les informations importantes que vos invités doivent connaître...'
-                  }
+                  placeholder={t('announcements.messagePlaceholder')}
                   rows={4}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
                 {activeLanguage !== 'es' && (
                   <p className="text-xs text-gray-500 mt-1">
-                    Opcional - Si lo dejas vacío, se mostrará el texto en español
+                    {t('announcements.optionalFallback')}
                   </p>
                 )}
               </div>
@@ -842,7 +836,7 @@ export default function PropertyAnnouncementsPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Prioridad
+                    {t('announcements.priorityLabel')}
                   </label>
                   <select
                     value={formData.priority}
@@ -851,7 +845,7 @@ export default function PropertyAnnouncementsPage() {
                   >
                     {PRIORITIES.map(priority => (
                       <option key={priority.id} value={priority.id}>
-                        {priority.label}
+                        {t(priority.labelKey)}
                       </option>
                     ))}
                   </select>
@@ -859,7 +853,7 @@ export default function PropertyAnnouncementsPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Fecha inicio (opcional)
+                    {t('announcements.startDateLabel')}
                   </label>
                   <Input
                     type="date"
@@ -868,13 +862,13 @@ export default function PropertyAnnouncementsPage() {
                     className="w-full"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Deja vacío para activar inmediatamente
+                    {t('announcements.startDateHint')}
                   </p>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Fecha fin (opcional)
+                    {t('announcements.endDateLabel')}
                   </label>
                   <Input
                     type="date"
@@ -883,7 +877,7 @@ export default function PropertyAnnouncementsPage() {
                     className="w-full"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Deja vacío para aviso permanente
+                    {t('announcements.endDateHint')}
                   </p>
                 </div>
               </div>
@@ -897,7 +891,7 @@ export default function PropertyAnnouncementsPage() {
                   className="mr-2 w-4 h-4 text-black rounded focus:ring-black"
                 />
                 <label htmlFor="isActive" className="text-sm text-gray-700">
-                  Aviso activo (visible para los huéspedes)
+                  {t('announcements.activeCheckbox')}
                 </label>
               </div>
 
@@ -907,14 +901,14 @@ export default function PropertyAnnouncementsPage() {
                   onClick={cancelEdit}
                   className="px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
-                  Cancelar
+                  {t('announcements.cancel')}
                 </Button>
                 <Button
                   onClick={editingAnnouncement ? handleUpdateAnnouncement : handleCreateAnnouncement}
                   disabled={saving}
                   className="bg-black hover:bg-gray-900 text-white px-6 py-2"
                 >
-                  {saving ? 'Guardando...' : (editingAnnouncement ? 'Actualizar aviso' : 'Crear aviso')}
+                  {saving ? t('announcements.saving') : (editingAnnouncement ? t('announcements.updateAnnouncement') : t('announcements.createAnnouncement'))}
                 </Button>
               </div>
             </CardContent>
@@ -933,17 +927,17 @@ export default function PropertyAnnouncementsPage() {
                 <Bell className="w-10 h-10 text-gray-400" />
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No tienes avisos creados
+                {t('announcements.emptyTitle')}
               </h3>
               <p className="text-gray-500 mb-6 text-sm max-w-md mx-auto">
-                Crea tu primer aviso para comunicar información importante a tus huéspedes
+                {t('announcements.emptyDescription')}
               </p>
               <Button
                 onClick={() => setShowCreateForm(true)}
                 className="bg-black hover:bg-gray-900 text-white rounded-lg px-6 py-3 font-medium"
               >
                 <Plus className="w-4 h-4 mr-2 inline-block" />
-                Crear Primer Aviso
+                {t('announcements.createFirst')}
               </Button>
             </CardContent>
           </Card>
@@ -974,14 +968,14 @@ export default function PropertyAnnouncementsPage() {
                               </h3>
                               <div className="flex items-center space-x-2 mt-1">
                                 <span className={`px-2 py-1 text-xs rounded-full ${getPriorityBadgeClass(announcement.priority)}`}>
-                                  {priority.label}
+                                  {t(priority.labelKey)}
                                 </span>
                                 <span className={`px-2 py-1 text-xs rounded-full bg-${category.color}-100 text-${category.color}-700`}>
-                                  {category.label}
+                                  {t(category.labelKey)}
                                 </span>
                                 {!announcement.isActive && (
                                   <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700">
-                                    Inactivo
+                                    {t('announcements.inactive')}
                                   </span>
                                 )}
                               </div>
@@ -994,7 +988,7 @@ export default function PropertyAnnouncementsPage() {
 
                           {/* Multi-language indicator */}
                           <div className="flex items-center space-x-2 mb-3">
-                            <span className="text-xs text-gray-500">Idiomas:</span>
+                            <span className="text-xs text-gray-500">{t('announcements.languages')}</span>
                             {announcement.title.es && <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">🇪🇸 ES</span>}
                             {announcement.title.en && <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">🇬🇧 EN</span>}
                             {announcement.title.fr && <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">🇫🇷 FR</span>}
@@ -1004,19 +998,19 @@ export default function PropertyAnnouncementsPage() {
                             <div className="flex items-center text-sm text-gray-500 mb-4">
                               <Calendar className="w-4 h-4 mr-1" />
                               {announcement.startDate && (
-                                <span>Desde: {new Date(announcement.startDate).toLocaleDateString()}</span>
+                                <span>{t('announcements.dateFrom')} {new Date(announcement.startDate).toLocaleDateString()}</span>
                               )}
                               {announcement.startDate && announcement.endDate && <span className="mx-2">•</span>}
                               {announcement.endDate && (
-                                <span>Hasta: {new Date(announcement.endDate).toLocaleDateString()}</span>
+                                <span>{t('announcements.dateTo')} {new Date(announcement.endDate).toLocaleDateString()}</span>
                               )}
                             </div>
                           )}
                           
                           <div className="text-xs text-gray-400">
-                            Creado: {new Date(announcement.createdAt).toLocaleDateString()}
+                            {t('announcements.createdAt')} {new Date(announcement.createdAt).toLocaleDateString()}
                             {announcement.updatedAt !== announcement.createdAt && (
-                              <> • Actualizado: {new Date(announcement.updatedAt).toLocaleDateString()}</>
+                              <> • {t('announcements.updatedAt')} {new Date(announcement.updatedAt).toLocaleDateString()}</>
                             )}
                           </div>
                         </div>
@@ -1083,12 +1077,12 @@ export default function PropertyAnnouncementsPage() {
                 )}
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                {announcementToToggle.isActive ? '¿Desactivar este aviso?' : '¿Activar este aviso?'}
+                {announcementToToggle.isActive ? t('announcements.confirmDeactivate') : t('announcements.confirmActivate')}
               </h3>
               <p className="text-gray-600 mb-4">
                 {announcementToToggle.isActive
-                  ? 'El aviso dejará de ser visible para los huéspedes.'
-                  : 'El aviso será visible para todos los huéspedes que accedan al manual.'}
+                  ? t('announcements.deactivateDescription')
+                  : t('announcements.activateDescription')}
               </p>
               <div className="bg-gray-50 rounded-lg p-4 text-left">
                 <p className="font-medium text-gray-900 text-sm">{announcementToToggle.title.es}</p>
@@ -1102,13 +1096,13 @@ export default function PropertyAnnouncementsPage() {
                 onClick={() => setAnnouncementToToggle(null)}
                 className="flex-1"
               >
-                Cancelar
+                {t('announcements.cancel')}
               </Button>
               <Button
                 onClick={confirmToggleActive}
                 className={`flex-1 ${announcementToToggle.isActive ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'} text-white`}
               >
-                {announcementToToggle.isActive ? 'Desactivar' : 'Activar'}
+                {announcementToToggle.isActive ? t('announcements.deactivate') : t('announcements.activate')}
               </Button>
             </div>
           </motion.div>

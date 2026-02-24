@@ -48,6 +48,8 @@ export async function GET(
         z."isPublished",
         z."propertyId",
         z."order",
+        z.type,
+        z."recommendationCategory",
         z."createdAt",
         z."updatedAt",
         z."publishedAt"
@@ -60,15 +62,35 @@ export async function GET(
             WHERE s."zoneId" = z.id
               AND s."isPublished" = true
           )
+          OR (
+            z.type = 'RECOMMENDATIONS'
+            AND z."isPublished" = true
+            AND EXISTS (
+              SELECT 1 FROM recommendations r
+              WHERE r."zoneId" = z.id
+            )
+          )
         )
       ORDER BY COALESCE(z."order", 999999) ASC, z.id ASC
     ` as any[]
 
-    // Get steps for each zone
+    // Get steps for each zone (and recommendation count for RECOMMENDATIONS zones)
     const zonesWithSteps = await Promise.all(
       zones.map(async (zone: any) => {
+        // For RECOMMENDATIONS zones, count recommendations instead of steps
+        if (zone.type === 'RECOMMENDATIONS') {
+          const recCount = await prisma.recommendation.count({
+            where: { zoneId: zone.id },
+          })
+          return {
+            ...zone,
+            stepsCount: recCount,
+            steps: []
+          }
+        }
+
         const steps = await prisma.$queryRaw`
-          SELECT 
+          SELECT
             id, "zoneId", type, title, content,
             "isPublished", "createdAt", "updatedAt"
           FROM steps
@@ -76,12 +98,12 @@ export async function GET(
             AND "isPublished" = true
           ORDER BY id ASC
         ` as any[]
-        
+
         // Process steps to extract mediaUrl from content JSON
         const processedSteps = steps.map(step => {
           let mediaUrl = null
           let linkUrl = null
-          
+
           try {
             if (step.content && typeof step.content === 'object') {
               const content = step.content as any

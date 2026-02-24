@@ -43,41 +43,41 @@ const getErrorMessage = (error: any): string => {
   return String(error.message)
 }
 
-// Validation schema
-const createPropertySchema = z.object({
-  name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres').max(80, 'Máximo 80 caracteres'),
-  nameEn: z.string().max(80, 'Máximo 80 caracteres').optional(),
-  nameFr: z.string().max(80, 'Máximo 80 caracteres').optional(),
-  description: z.string().min(10, 'La descripción debe tener al menos 10 caracteres').max(300, 'Máximo 300 caracteres'),
-  descriptionEn: z.string().max(300, 'Máximo 300 caracteres').optional(),
-  descriptionFr: z.string().max(300, 'Máximo 300 caracteres').optional(),
+// Validation schema factory - takes t() function for i18n
+const createPropertySchemaFn = (t: (key: string) => string) => z.object({
+  name: z.string().min(3, t('propertyForm.validation.nameMin')).max(80, t('propertyForm.validation.nameMax')),
+  nameEn: z.string().max(80, t('propertyForm.validation.nameEnMax')).optional(),
+  nameFr: z.string().max(80, t('propertyForm.validation.nameFrMax')).optional(),
+  description: z.string().min(10, t('propertyForm.validation.descriptionMin')).max(300, t('propertyForm.validation.descriptionMax')),
+  descriptionEn: z.string().max(300, t('propertyForm.validation.descriptionEnMax')).optional(),
+  descriptionFr: z.string().max(300, t('propertyForm.validation.descriptionFrMax')).optional(),
   type: z.enum(['APARTMENT', 'HOUSE', 'ROOM', 'VILLA']),
-  
+
   // Dirección
-  street: z.string().min(5, 'La dirección debe tener al menos 5 caracteres'),
-  city: z.string().min(2, 'La ciudad debe tener al menos 2 caracteres'),
-  state: z.string().min(2, 'La provincia debe tener al menos 2 caracteres'),
-  country: z.string().default('España'),
-  postalCode: z.string().regex(/^[0-9]{5}$/, 'Código postal debe tener 5 dígitos'),
-  
+  street: z.string().min(5, t('propertyForm.validation.streetMin')),
+  city: z.string().min(2, t('propertyForm.validation.cityMin')),
+  state: z.string().min(2, t('propertyForm.validation.stateMin')),
+  country: z.string().default(t('propertyForm.countryDefault')),
+  postalCode: z.string().regex(/^[0-9]{5}$/, t('propertyForm.validation.postalCodeFormat')),
+
   // Características
-  bedrooms: z.number().min(0, 'Mínimo 0 habitaciones').max(20, 'Máximo 20 habitaciones'),
-  bathrooms: z.number().min(0, 'Mínimo 0 baños').max(10, 'Máximo 10 baños'),
-  maxGuests: z.number().min(1, 'Mínimo 1 huésped').max(50, 'Máximo 50 huéspedes'),
-  squareMeters: z.number().min(10, 'Mínimo 10 m²').max(1000, 'Máximo 1000 m²').optional(),
-  
+  bedrooms: z.number().min(0, t('propertyForm.validation.bedroomsMin')).max(20, t('propertyForm.validation.bedroomsMax')),
+  bathrooms: z.number().min(0, t('propertyForm.validation.bathroomsMin')).max(10, t('propertyForm.validation.bathroomsMax')),
+  maxGuests: z.number().min(1, t('propertyForm.validation.maxGuestsMin')).max(50, t('propertyForm.validation.maxGuestsMax')),
+  squareMeters: z.number().min(10, t('propertyForm.validation.squareMetersMin')).max(1000, t('propertyForm.validation.squareMetersMax')).optional(),
+
   // Imagen de la propiedad
   profileImage: z.string().optional(),
-  
+
   // Contacto del host
-  hostContactName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(100, 'Máximo 100 caracteres'),
-  hostContactPhone: z.string().regex(/^[+]?[(]?[0-9\s\-()]{9,}$/, 'Teléfono inválido'),
-  hostContactEmail: z.string().email('Email inválido'),
+  hostContactName: z.string().min(2, t('propertyForm.validation.hostNameMin')).max(100, t('propertyForm.validation.hostNameMax')),
+  hostContactPhone: z.string().regex(/^[+]?[(]?[0-9\s\-()]{9,}$/, t('propertyForm.validation.phoneInvalid')),
+  hostContactEmail: z.string().email(t('propertyForm.validation.emailInvalid')),
   hostContactLanguage: z.string().default('es'),
   hostContactPhoto: z.string().optional()
 })
 
-type CreatePropertyFormData = z.infer<typeof createPropertySchema>
+type CreatePropertyFormData = z.infer<ReturnType<typeof createPropertySchemaFn>>
 
 const propertyTypesConfig = [
   { value: 'APARTMENT', labelKey: 'propertyForm.apartment', icon: Home },
@@ -88,6 +88,7 @@ const propertyTypesConfig = [
 
 function NewPropertyPageContent() {
   const { t } = useTranslation('dashboard')
+  const createPropertySchema = createPropertySchemaFn(t)
   const router = useRouter()
   const searchParams = useSearchParams()
   const editId = searchParams.get('edit')
@@ -196,12 +197,12 @@ function NewPropertyPageContent() {
             })
           } else {
             console.error('Error loading property:', result.error)
-            alert('Error al cargar los datos de la propiedad')
+            alert(t('propertyForm.errorLoadingProperty'))
             router.push('/properties')
           }
         } catch (error) {
           console.error('Error loading property:', error)
-          alert('Error al cargar los datos de la propiedad')
+          alert(t('propertyForm.errorLoadingProperty'))
           router.push('/properties')
         } finally {
           setIsLoading(false)
@@ -258,7 +259,7 @@ function NewPropertyPageContent() {
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text()
         console.error('❌ Respuesta no es JSON:', text.substring(0, 200))
-        throw new Error('El servidor respondió con un formato inválido. Por favor, recarga la página e intenta de nuevo.')
+        throw new Error(t('propertyForm.invalidServerResponse'))
       }
 
       const result = await response.json()
@@ -267,11 +268,11 @@ function NewPropertyPageContent() {
       if (!response.ok) {
         // Si requiere login, redirigir al login
         if (result.requiresLogin || response.status === 401) {
-          alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.')
+          alert(t('propertyForm.sessionExpired'))
           router.push('/login')
           return
         }
-        throw new Error(result.error || `Error al ${isEditing ? 'actualizar' : 'crear'} la propiedad`)
+        throw new Error(result.error || t(isEditing ? 'propertyForm.errorUpdating' : 'propertyForm.errorCreating'))
       }
 
       console.log(`✅ Propiedad ${isEditing ? 'actualizada' : 'creada'} exitosamente:`, result.data)
@@ -304,15 +305,15 @@ function NewPropertyPageContent() {
     } catch (error: any) {
       console.error(`❌ Error ${isEditing ? 'actualizando' : 'creando'} propiedad:`, error)
 
-      let errorMessage = `Error al ${isEditing ? 'actualizar' : 'crear'} la propiedad.`
+      let errorMessage = t(isEditing ? 'propertyForm.errorUpdating' : 'propertyForm.errorCreating')
 
       if (error.name === 'AbortError') {
-        errorMessage = 'La solicitud tardó demasiado. Por favor, verifica tu conexión e inténtalo de nuevo.'
+        errorMessage = t('propertyForm.requestTimeout')
       } else if (error.message) {
         errorMessage = error.message
       }
 
-      alert(errorMessage + '\n\nSi el problema persiste, contacta con soporte.')
+      alert(errorMessage + '\n\n' + t('propertyForm.contactSupport'))
       setIsSubmitting(false)
     }
   }
@@ -449,7 +450,7 @@ function NewPropertyPageContent() {
       
       if (hasFormData && !isSubmitting && !submissionSuccess) {
         e.preventDefault()
-        e.returnValue = '¿Estás seguro de que quieres salir? Los datos se guardarán automáticamente.'
+        e.returnValue = t('propertyForm.unsavedChanges')
         return e.returnValue
       }
     }
@@ -699,7 +700,7 @@ function NewPropertyPageContent() {
                       <>
                         <Input
                           {...register('name')}
-                          placeholder="Ej: Apartamento en el centro"
+                          placeholder={t('propertyForm.propertyNamePlaceholder')}
                           maxLength={80}
                           error={!!errors.name}
                         />
@@ -711,14 +712,14 @@ function NewPropertyPageContent() {
                     {activeLanguage === 'en' && (
                       <Input
                         {...register('nameEn')}
-                        placeholder="Ex: Downtown Apartment"
+                        placeholder={t('propertyForm.propertyNamePlaceholderEn')}
                         maxLength={80}
                       />
                     )}
                     {activeLanguage === 'fr' && (
                       <Input
                         {...register('nameFr')}
-                        placeholder="Ex: Appartement au centre-ville"
+                        placeholder={t('propertyForm.propertyNamePlaceholderFr')}
                         maxLength={80}
                       />
                     )}
@@ -737,7 +738,7 @@ function NewPropertyPageContent() {
                           {...register('description')}
                           rows={3}
                           maxLength={300}
-                          placeholder="Describe tu propiedad en pocas palabras..."
+                          placeholder={t('propertyForm.descriptionPlaceholder')}
                           className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 resize-none ${
                             errors.description ? 'border-red-300' : ''
                           }`}
@@ -754,7 +755,7 @@ function NewPropertyPageContent() {
                           {...register('descriptionEn')}
                           rows={3}
                           maxLength={300}
-                          placeholder="Describe your property in a few words..."
+                          placeholder={t('propertyForm.descriptionPlaceholderEn')}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 resize-none"
                         />
                         <p className="mt-1 text-xs text-gray-400 text-right">{watchedValues.descriptionEn?.length || 0}/300</p>
@@ -766,7 +767,7 @@ function NewPropertyPageContent() {
                           {...register('descriptionFr')}
                           rows={3}
                           maxLength={300}
-                          placeholder="Décrivez votre propriété en quelques mots..."
+                          placeholder={t('propertyForm.descriptionPlaceholderFr')}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 resize-none"
                         />
                         <p className="mt-1 text-xs text-gray-400 text-right">{watchedValues.descriptionFr?.length || 0}/300</p>
@@ -1045,7 +1046,7 @@ function NewPropertyPageContent() {
                     </label>
                     <Input
                       {...register('country')}
-                      placeholder="España"
+                      placeholder={t('propertyForm.countryDefault')}
                       error={!!errors.country}
                     />
                     {errors.country && (
@@ -1286,10 +1287,10 @@ function NewPropertyPageContent() {
                   setShowTrialModal(false)
                   router.push(`/properties/${createdPropertyData.id}/zones`)
                 } else {
-                  alert('Error al activar el período de prueba')
+                  alert(t('propertyForm.trialActivationError'))
                 }
               } catch (error) {
-                alert('Error al activar el período de prueba')
+                alert(t('propertyForm.trialActivationError'))
               }
             }}
             onPayNow={() => {
@@ -1302,8 +1303,8 @@ function NewPropertyPageContent() {
         {/* Onboarding Popup */}
         <OnboardingPopup
           isOpen={showOnboardingPopup}
-          title="¡Bienvenido al Asistente de Creación!"
-          description="Vamos a crear tu primera propiedad paso a paso. Es muy fácil, solo sigue las instrucciones:"
+          title={t('propertyForm.onboardingTitle')}
+          description={t('propertyForm.onboardingDescription')}
           onSkip={() => {
             setShowOnboardingPopup(false)
             skipOnboarding()

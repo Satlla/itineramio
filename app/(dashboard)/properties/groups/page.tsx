@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { 
   Plus, 
@@ -35,6 +36,7 @@ interface PropertySet {
 
 export default function PropertySetsPage() {
   const router = useRouter()
+  const { t } = useTranslation('property')
   const { user } = useAuth()
   const [propertySets, setPropertySets] = useState<PropertySet[]>([])
   const [loading, setLoading] = useState(true)
@@ -60,7 +62,7 @@ export default function PropertySetsPage() {
   }
 
   if (loading) {
-    return <AnimatedLoadingSpinner text="Cargando conjuntos..." type="general" />
+    return <AnimatedLoadingSpinner text={t('groups.listing.loading')} type="general" />
   }
 
   return (
@@ -77,16 +79,16 @@ export default function PropertySetsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  Conjuntos de Propiedades
+                  {t('groups.listing.title')}
                 </h1>
                 <p className="text-gray-600 mt-2">
-                  Gestiona hoteles, edificios y complejos con múltiples propiedades
+                  {t('groups.listing.subtitle')}
                 </p>
               </div>
               <Button asChild className="bg-violet-600 hover:bg-violet-700">
                 <Link href="/properties/groups/new">
                   <Plus className="w-4 h-4 mr-2" />
-                  Nuevo Conjunto
+                  {t('groups.listing.newGroup')}
                 </Link>
               </Button>
             </div>
@@ -103,15 +105,15 @@ export default function PropertySetsPage() {
                 <CardContent>
                   <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    No tienes conjuntos de propiedades aún
+                    {t('groups.listing.empty')}
                   </h3>
                   <p className="text-gray-600 mb-4">
-                    Los conjuntos son perfectos para hoteles, edificios o complejos con múltiples unidades
+                    {t('groups.listing.emptyDescription')}
                   </p>
                   <Button asChild className="bg-violet-600 hover:bg-violet-700">
                     <Link href="/properties/groups/new">
                       <Plus className="w-4 h-4 mr-2" />
-                      Crear Primer Conjunto
+                      {t('groups.listing.createFirst')}
                     </Link>
                   </Button>
                 </CardContent>
@@ -164,27 +166,27 @@ export default function PropertySetsPage() {
                           <div className="grid grid-cols-3 gap-3 mb-4 flex-grow">
                             <div className="text-center">
                               <div className="text-2xl font-bold text-gray-900">{propertySet.propertiesCount || 0}</div>
-                              <div className="text-xs text-gray-600">Propiedades</div>
+                              <div className="text-xs text-gray-600">{t('common.properties')}</div>
                             </div>
                             <div className="text-center">
                               <div className="text-2xl font-bold text-gray-900">{propertySet.totalZones || 0}</div>
-                              <div className="text-xs text-gray-600">Zonas</div>
+                              <div className="text-xs text-gray-600">{t('common.zones')}</div>
                             </div>
                             <div className="text-center">
                               <div className="text-2xl font-bold text-gray-900">{propertySet.totalViews || 0}</div>
-                              <div className="text-xs text-gray-600">Vistas</div>
+                              <div className="text-xs text-gray-600">{t('groups.listing.views')}</div>
                             </div>
                           </div>
 
                           {/* Type Badge and Rating */}
                           <div className="flex items-center justify-between mb-4">
                             <Badge variant="secondary" className="text-xs">
-                              {propertySet.type === 'HOTEL' && 'Hotel'}
-                              {propertySet.type === 'BUILDING' && 'Edificio'}
-                              {propertySet.type === 'COMPLEX' && 'Complejo'}
-                              {propertySet.type === 'RESORT' && 'Resort'}
-                              {propertySet.type === 'HOSTEL' && 'Hostel'}
-                              {propertySet.type === 'APARTHOTEL' && 'Aparthotel'}
+                              {propertySet.type === 'HOTEL' && t('types.hotel')}
+                              {propertySet.type === 'BUILDING' && t('types.building')}
+                              {propertySet.type === 'COMPLEX' && t('types.complex')}
+                              {propertySet.type === 'RESORT' && t('types.resort')}
+                              {propertySet.type === 'HOSTEL' && t('types.hostel')}
+                              {propertySet.type === 'APARTHOTEL' && t('types.aparthotel')}
                             </Badge>
                             {propertySet.avgRating > 0 && (
                               <div className="flex items-center text-sm text-gray-600">
@@ -203,7 +205,7 @@ export default function PropertySetsPage() {
                               router.push(`/properties/groups/${propertySet.id}`)
                             }}
                           >
-                            Gestionar
+                            {t('common.manage')}
                             <ArrowRight className="w-4 h-4 ml-2" />
                           </Button>
                         </div>

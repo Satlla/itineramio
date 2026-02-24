@@ -1,4 +1,7 @@
+'use client'
+
 import { redirect } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import { isFeatureEnabled } from '../../../src/lib/feature-flags'
 import PricingCalculator from '../../components/PricingCalculator'
 
@@ -19,12 +22,9 @@ import PricingCalculator from '../../components/PricingCalculator'
  * - Integración con sistema de cupones
  */
 
-export const metadata = {
-  title: 'Precios | Itineramio',
-  description: 'Pricing transparente y flexible. Paga solo por las propiedades que uses con descuentos automáticos por volumen.',
-}
-
 export default function PricingV2Page() {
+  const { t } = useTranslation('dashboard')
+
   // Feature flag check - redirect to 404 if disabled
   if (!isFeatureEnabled('ENABLE_PRICING_V2')) {
     redirect('/404')
@@ -37,10 +37,10 @@ export default function PricingV2Page() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
-              Precios simples y transparentes
+              {t('pricing.hero.title')}
             </h1>
             <p className="text-xl sm:text-2xl text-violet-100 max-w-3xl mx-auto mb-8">
-              Paga solo por las propiedades que uses. Sin costes ocultos. Sin compromisos a largo plazo.
+              {t('pricing.hero.subtitle')}
             </p>
 
             {/* Feature Flag Indicator (only visible in development) */}
@@ -61,10 +61,10 @@ export default function PricingV2Page() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              ¿Por qué elegir Itineramio?
+              {t('pricing.whyChoose.title')}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              La solución completa para gestionar la información de tus propiedades vacacionales
+              {t('pricing.whyChoose.subtitle')}
             </p>
           </div>
 
@@ -76,9 +76,9 @@ export default function PricingV2Page() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Precio justo</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{t('pricing.benefits.fairPrice.title')}</h3>
               <p className="text-gray-600">
-                Paga solo por lo que usas. Más propiedades = mejor precio por unidad.
+                {t('pricing.benefits.fairPrice.description')}
               </p>
             </div>
 
@@ -89,9 +89,9 @@ export default function PricingV2Page() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Sin compromisos</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{t('pricing.benefits.noCommitment.title')}</h3>
               <p className="text-gray-600">
-                Prueba 15 días sin compromiso. Sin penalizaciones ni preguntas.
+                {t('pricing.benefits.noCommitment.description')}
               </p>
             </div>
 
@@ -102,9 +102,9 @@ export default function PricingV2Page() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Configuración instantánea</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{t('pricing.benefits.instantSetup.title')}</h3>
               <p className="text-gray-600">
-                Empieza en minutos. 15 días de evaluación sin necesidad de tarjeta.
+                {t('pricing.benefits.instantSetup.description')}
               </p>
             </div>
           </div>
@@ -116,10 +116,10 @@ export default function PricingV2Page() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Comparativa con la competencia
+              {t('pricing.comparison.title')}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Precios más competitivos con más funcionalidades incluidas
+              {t('pricing.comparison.subtitle')}
             </p>
           </div>
 
@@ -127,21 +127,21 @@ export default function PricingV2Page() {
             <table className="w-full bg-white rounded-xl shadow-lg border border-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Característica</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">{t('pricing.comparison.feature')}</th>
                   <th className="px-6 py-4 text-center text-sm font-semibold text-violet-600">Itineramio</th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-500">Competidor A</th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-500">Competidor B</th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-500">{t('pricing.comparison.competitorA')}</th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-500">{t('pricing.comparison.competitorB')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 <tr>
-                  <td className="px-6 py-4 text-sm text-gray-700">Precio por 5 propiedades</td>
-                  <td className="px-6 py-4 text-center text-sm font-semibold text-violet-600">€30/mes</td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-500">€49/mes</td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-500">€39/mes</td>
+                  <td className="px-6 py-4 text-sm text-gray-700">{t('pricing.comparison.priceFor5')}</td>
+                  <td className="px-6 py-4 text-center text-sm font-semibold text-violet-600">{t('pricing.comparison.itineramioPrice')}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-500">{t('pricing.comparison.competitorAPrice')}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-500">{t('pricing.comparison.competitorBPrice')}</td>
                 </tr>
                 <tr className="bg-gray-50">
-                  <td className="px-6 py-4 text-sm text-gray-700">Códigos QR personalizados</td>
+                  <td className="px-6 py-4 text-sm text-gray-700">{t('pricing.comparison.customQr')}</td>
                   <td className="px-6 py-4 text-center">
                     <svg className="w-6 h-6 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -159,7 +159,7 @@ export default function PricingV2Page() {
                   </td>
                 </tr>
                 <tr>
-                  <td className="px-6 py-4 text-sm text-gray-700">Multiidioma</td>
+                  <td className="px-6 py-4 text-sm text-gray-700">{t('pricing.comparison.multilanguage')}</td>
                   <td className="px-6 py-4 text-center">
                     <svg className="w-6 h-6 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -171,18 +171,18 @@ export default function PricingV2Page() {
                     </svg>
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <span className="text-xs text-gray-500">+€10/mes</span>
+                    <span className="text-xs text-gray-500">{t('pricing.comparison.multilanguageExtra')}</span>
                   </td>
                 </tr>
                 <tr className="bg-gray-50">
-                  <td className="px-6 py-4 text-sm text-gray-700">Analytics avanzados</td>
+                  <td className="px-6 py-4 text-sm text-gray-700">{t('pricing.comparison.advancedAnalytics')}</td>
                   <td className="px-6 py-4 text-center">
                     <svg className="w-6 h-6 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <span className="text-xs text-gray-500">Premium only</span>
+                    <span className="text-xs text-gray-500">{t('pricing.comparison.premiumOnly')}</span>
                   </td>
                   <td className="px-6 py-4 text-center">
                     <svg className="w-6 h-6 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,7 +191,7 @@ export default function PricingV2Page() {
                   </td>
                 </tr>
                 <tr>
-                  <td className="px-6 py-4 text-sm text-gray-700">Integración WhatsApp</td>
+                  <td className="px-6 py-4 text-sm text-gray-700">{t('pricing.comparison.whatsappIntegration')}</td>
                   <td className="px-6 py-4 text-center">
                     <svg className="w-6 h-6 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -219,68 +219,68 @@ export default function PricingV2Page() {
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Preguntas frecuentes
+              {t('pricing.faq.title')}
             </h2>
           </div>
 
           <div className="space-y-6">
             <details className="group bg-gray-50 rounded-lg p-6 cursor-pointer">
               <summary className="font-semibold text-gray-900 text-lg flex justify-between items-center">
-                ¿Qué incluye el período de evaluación?
+                {t('pricing.faq.trialQuestion')}
                 <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
               <p className="mt-4 text-gray-600">
-                El período de evaluación de 15 días incluye acceso completo a todas las funcionalidades de la plataforma. No necesitas introducir tarjeta de crédito para empezar.
+                {t('pricing.faq.trialAnswer')}
               </p>
             </details>
 
             <details className="group bg-gray-50 rounded-lg p-6 cursor-pointer">
               <summary className="font-semibold text-gray-900 text-lg flex justify-between items-center">
-                ¿Puedo cambiar el número de propiedades en cualquier momento?
+                {t('pricing.faq.changePropertiesQuestion')}
                 <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
               <p className="mt-4 text-gray-600">
-                Sí, puedes añadir o quitar propiedades cuando quieras. El precio se ajusta automáticamente y se prorratean los cambios en tu próxima factura.
+                {t('pricing.faq.changePropertiesAnswer')}
               </p>
             </details>
 
             <details className="group bg-gray-50 rounded-lg p-6 cursor-pointer">
               <summary className="font-semibold text-gray-900 text-lg flex justify-between items-center">
-                ¿Hay descuentos por pago anual?
+                {t('pricing.faq.annualDiscountQuestion')}
                 <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
               <p className="mt-4 text-gray-600">
-                Sí, obtienes un 15% de descuento si pagas anualmente en lugar de mensualmente.
+                {t('pricing.faq.annualDiscountAnswer')}
               </p>
             </details>
 
             <details className="group bg-gray-50 rounded-lg p-6 cursor-pointer">
               <summary className="font-semibold text-gray-900 text-lg flex justify-between items-center">
-                ¿Cómo funcionan los cupones de descuento?
+                {t('pricing.faq.couponQuestion')}
                 <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
               <p className="mt-4 text-gray-600">
-                Puedes introducir un código de cupón durante el registro o en la calculadora de precios. Los cupones pueden ofrecer descuentos porcentuales, meses incluidos o descuentos fijos.
+                {t('pricing.faq.couponAnswer')}
               </p>
             </details>
 
             <details className="group bg-gray-50 rounded-lg p-6 cursor-pointer">
               <summary className="font-semibold text-gray-900 text-lg flex justify-between items-center">
-                ¿Qué métodos de pago aceptan?
+                {t('pricing.faq.paymentMethodsQuestion')}
                 <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
               <p className="mt-4 text-gray-600">
-                Aceptamos tarjetas de crédito/débito (Visa, Mastercard, American Express), SEPA Direct Debit para Europa, y próximamente Bizum para España.
+                {t('pricing.faq.paymentMethodsAnswer')}
               </p>
             </details>
           </div>
@@ -291,19 +291,19 @@ export default function PricingV2Page() {
       <section className="py-20 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 text-white">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-6">
-            ¿Listo para empezar?
+            {t('pricing.cta.title')}
           </h2>
           <p className="text-xl text-violet-100 mb-8">
-            Únete a cientos de propietarios que ya confían en Itineramio
+            {t('pricing.cta.subtitle')}
           </p>
           <a
             href="/register"
             className="inline-block bg-white text-violet-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors shadow-xl"
           >
-            Comienza tu evaluación de 15 días
+            {t('pricing.cta.button')}
           </a>
           <p className="mt-4 text-violet-200 text-sm">
-            Sin tarjeta requerida • Prueba 15 días sin compromiso
+            {t('pricing.cta.disclaimer')}
           </p>
         </div>
       </section>
