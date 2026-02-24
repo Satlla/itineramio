@@ -158,6 +158,13 @@
     "ago": "{{time}} ago",
     "in": "in {{time}}"
   },
+  "whatsapp": {
+    "greeting": "Hi! I'm interested in Itineramio and would like more information. Could you help me?",
+    "online": "Online",
+    "helpMessage": "👋 Hi! Need help with Itineramio? We're here to answer all your questions.",
+    "startChat": "Start conversation",
+    "typicalResponse": "Typical response in a few minutes"
+  },
   "meta": {
     "siteName": "Itineramio",
     "siteDescription": "Create interactive digital manuals for your vacation rentals"
@@ -358,6 +365,161 @@
       "makePrivate": "Make private",
       "makePublic": "Make public",
       "public": "Public"
+    }
+  },
+  "cookies": {
+    "banner": {
+      "message": "We use cookies to improve your experience.",
+      "moreInfo": "More information",
+      "customize": "Customize",
+      "essentialOnly": "Essential only",
+      "acceptAll": "Accept all",
+      "closeBanner": "Close banner",
+      "savePreferences": "Save preferences"
+    },
+    "categories": {
+      "essential": {
+        "title": "Essential",
+        "alwaysActive": "Always active",
+        "description": "Required for the site to function. Includes authentication, security, and basic preferences."
+      },
+      "analytics": {
+        "title": "Analytics",
+        "description": "Help us understand how you use the site to improve it. Aggregated and anonymous data."
+      },
+      "marketing": {
+        "title": "Marketing",
+        "description": "Allow us to show you relevant content and advertising based on your interests."
+      }
+    },
+    "preferences": {
+      "buttonLabel": "Cookie preferences",
+      "title": "Cookie Preferences",
+      "description": "You can change your cookie preferences at any time. Some changes may require a page reload.",
+      "cancel": "Cancel",
+      "saveChanges": "Save changes",
+      "essential": {
+        "title": "Essential Cookies",
+        "description": "Required for the basic functioning of the site. They cannot be disabled."
+      },
+      "analytics": {
+        "title": "Analytics Cookies",
+        "description": "Allow us to analyze site usage in aggregate to improve the experience."
+      },
+      "marketing": {
+        "title": "Marketing Cookies",
+        "description": "Used to show you personalized advertising and content based on your interests."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unread": "{{count}} unread",
+    "markAllRead": "Mark all as read",
+    "empty": "You have no notifications",
+    "emptyDescription": "We'll notify you when something important happens",
+    "viewDetails": "View details →",
+    "timeAgo": {
+      "minutes": "{{count}}m ago",
+      "hours": "{{count}}h ago",
+      "days": "{{count}}d ago"
+    },
+    "evaluation": {
+      "public": "Public",
+      "private": "Private",
+      "withComment": "With comment"
+    }
+  },
+  "admin": {
+    "impersonation": {
+      "label": "ADMIN MODE",
+      "viewing": "Viewing as:",
+      "admin": "Admin",
+      "exiting": "Exiting...",
+      "backToAdmin": "Back to Admin",
+      "error": "Error ending impersonation"
+    },
+    "header": {
+      "title": "Admin Panel",
+      "logout": "Sign Out",
+      "exit": "Exit"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "clients": "Clients",
+      "users": "Users",
+      "subscriptions": "Subscriptions",
+      "properties": "Properties",
+      "billing": "Billing",
+      "payments": "Payments",
+      "invoices": "Invoices",
+      "reports": "Reports",
+      "settings": "Settings",
+      "modules": "Modules",
+      "plans": "Plans",
+      "pricing": "Pricing",
+      "coupons": "Coupons",
+      "customPlans": "Custom Plans",
+      "marketing": "Marketing",
+      "leads": "Qualified Leads",
+      "queries": "Consultations",
+      "subscribers": "Subscribers",
+      "funnels": "Funnels",
+      "blog": "Blog",
+      "faq": "FAQ",
+      "hostProfiles": "Host Profiles",
+      "system": "System",
+      "analytics": "Analytics",
+      "systemUsers": "System Users",
+      "logs": "Logs",
+      "configuration": "Configuration",
+      "academy": "Academy",
+      "academyLeads": "Leads",
+      "quizLeads": "Quiz Leads",
+      "academyUsers": "Users"
+    },
+    "dashboard": {
+      "errorLoading": "Error loading data",
+      "retry": "Retry",
+      "subtitle": "General overview of the Itineramio platform",
+      "totalUsers": "Total Users",
+      "active": "active",
+      "properties": "Properties",
+      "monthlyRevenue": "Monthly Revenue",
+      "revenueChange": "+12% vs previous month",
+      "pendingInvoices": "Pending Invoices",
+      "recentActivity": "Recent Activity",
+      "viewMore": "View more",
+      "noRecentActivity": "No recent activity",
+      "quickActions": "Quick Actions",
+      "createUser": "Create User",
+      "createUserDesc": "Add new user to the system",
+      "generateInvoice": "Generate Invoice",
+      "generateInvoiceDesc": "Create manual invoice",
+      "searchProperty": "Search Property",
+      "searchPropertyDesc": "Quick access by ID"
+    }
+  },
+  "autosave": {
+    "saved": "Saved",
+    "savedAt": "Saved {{time}}",
+    "saving": "Saving...",
+    "savingDraft": "Saving draft..."
+  },
+  "savedData": {
+    "title": "📝 Saved data found",
+    "description": "We found information from a property you were creating earlier.",
+    "savedAgo": "Saved {{time}}",
+    "continue": "Continue where I left off",
+    "startOver": "Start over",
+    "timeAgo": {
+      "justNow": "just now",
+      "minutes": "{{count}} minute ago",
+      "minutes_plural": "{{count}} minutes ago",
+      "hours": "{{count}} hour ago",
+      "hours_plural": "{{count}} hours ago",
+      "days": "{{count}} day ago",
+      "days_plural": "{{count}} days ago"
     }
   }
 }

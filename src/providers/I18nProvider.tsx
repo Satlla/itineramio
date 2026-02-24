@@ -10,11 +10,17 @@ interface I18nProviderProps {
 
 export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
   useEffect(() => {
-    // Cargar idioma guardado (solo en el cliente)
+    // Cargar idioma guardado o detectar del navegador (solo en el cliente)
     if (typeof window !== 'undefined') {
       const savedLanguage = localStorage.getItem('itineramio-language')
       if (savedLanguage && savedLanguage !== i18n.language) {
         i18n.changeLanguage(savedLanguage)
+      } else if (!savedLanguage) {
+        // Detect from browser language (post-hydration to avoid mismatch)
+        const browserLang = navigator.language?.split('-')[0]
+        if (browserLang && ['es', 'en', 'fr'].includes(browserLang) && browserLang !== i18n.language) {
+          i18n.changeLanguage(browserLang)
+        }
       }
     }
     

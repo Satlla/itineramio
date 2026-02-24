@@ -158,6 +158,13 @@
     "ago": "il y a {{time}}",
     "in": "dans {{time}}"
   },
+  "whatsapp": {
+    "greeting": "Bonjour ! Je suis intéressé par Itineramio et j'aimerais obtenir plus d'informations. Pourriez-vous m'aider ?",
+    "online": "En ligne",
+    "helpMessage": "👋 Bonjour ! Besoin d'aide avec Itineramio ? Nous sommes là pour répondre à toutes vos questions.",
+    "startChat": "Démarrer la conversation",
+    "typicalResponse": "Réponse typique en quelques minutes"
+  },
   "meta": {
     "siteName": "Itineramio",
     "siteDescription": "Créez des manuels numériques interactifs pour vos locations de vacances"
@@ -358,6 +365,161 @@
       "makePrivate": "Rendre privee",
       "makePublic": "Rendre publique",
       "public": "Publique"
+    }
+  },
+  "cookies": {
+    "banner": {
+      "message": "Nous utilisons des cookies pour ameliorer votre experience.",
+      "moreInfo": "Plus d'informations",
+      "customize": "Personnaliser",
+      "essentialOnly": "Essentiels uniquement",
+      "acceptAll": "Tout accepter",
+      "closeBanner": "Fermer la banniere",
+      "savePreferences": "Enregistrer les preferences"
+    },
+    "categories": {
+      "essential": {
+        "title": "Essentiels",
+        "alwaysActive": "Toujours actifs",
+        "description": "Necessaires au fonctionnement du site. Incluent l'authentification, la securite et les preferences de base."
+      },
+      "analytics": {
+        "title": "Analytiques",
+        "description": "Nous aident a comprendre comment vous utilisez le site pour l'ameliorer. Donnees agregees et anonymes."
+      },
+      "marketing": {
+        "title": "Marketing",
+        "description": "Permettent de vous montrer du contenu et de la publicite pertinents en fonction de vos interets."
+      }
+    },
+    "preferences": {
+      "buttonLabel": "Preferences de cookies",
+      "title": "Preferences de Cookies",
+      "description": "Vous pouvez modifier vos preferences de cookies a tout moment. Certains changements peuvent necessiter un rechargement de la page.",
+      "cancel": "Annuler",
+      "saveChanges": "Enregistrer les modifications",
+      "essential": {
+        "title": "Cookies Essentiels",
+        "description": "Necessaires au fonctionnement de base du site. Ils ne peuvent pas etre desactives."
+      },
+      "analytics": {
+        "title": "Cookies Analytiques",
+        "description": "Nous permettent d'analyser l'utilisation du site de maniere agregee pour ameliorer l'experience."
+      },
+      "marketing": {
+        "title": "Cookies Marketing",
+        "description": "Utilises pour vous montrer de la publicite et du contenu personnalises en fonction de vos interets."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unread": "{{count}} non lue(s)",
+    "markAllRead": "Tout marquer comme lu",
+    "empty": "Vous n'avez pas de notifications",
+    "emptyDescription": "Nous vous avertirons quand quelque chose d'important se produira",
+    "viewDetails": "Voir les details →",
+    "timeAgo": {
+      "minutes": "il y a {{count}}m",
+      "hours": "il y a {{count}}h",
+      "days": "il y a {{count}}j"
+    },
+    "evaluation": {
+      "public": "Publique",
+      "private": "Privee",
+      "withComment": "Avec commentaire"
+    }
+  },
+  "admin": {
+    "impersonation": {
+      "label": "MODE ADMIN",
+      "viewing": "Vu en tant que :",
+      "admin": "Admin",
+      "exiting": "Sortie...",
+      "backToAdmin": "Retour a l'Admin",
+      "error": "Erreur lors de la fin de l'usurpation"
+    },
+    "header": {
+      "title": "Panneau Admin",
+      "logout": "Deconnexion",
+      "exit": "Quitter"
+    },
+    "nav": {
+      "dashboard": "Tableau de bord",
+      "clients": "Clients",
+      "users": "Utilisateurs",
+      "subscriptions": "Abonnements",
+      "properties": "Proprietes",
+      "billing": "Facturation",
+      "payments": "Paiements",
+      "invoices": "Factures",
+      "reports": "Rapports",
+      "settings": "Parametres",
+      "modules": "Modules",
+      "plans": "Plans",
+      "pricing": "Tarifs",
+      "coupons": "Coupons",
+      "customPlans": "Plans personnalises",
+      "marketing": "Marketing",
+      "leads": "Leads qualifies",
+      "queries": "Consultations",
+      "subscribers": "Abonnes",
+      "funnels": "Entonnoirs",
+      "blog": "Blog",
+      "faq": "FAQ",
+      "hostProfiles": "Profils d'hotes",
+      "system": "Systeme",
+      "analytics": "Analytiques",
+      "systemUsers": "Utilisateurs systeme",
+      "logs": "Journaux",
+      "configuration": "Configuration",
+      "academy": "Academie",
+      "academyLeads": "Leads",
+      "quizLeads": "Quiz Leads",
+      "academyUsers": "Utilisateurs"
+    },
+    "dashboard": {
+      "errorLoading": "Erreur lors du chargement des donnees",
+      "retry": "Reessayer",
+      "subtitle": "Vue d'ensemble de la plateforme Itineramio",
+      "totalUsers": "Utilisateurs totaux",
+      "active": "actifs",
+      "properties": "Proprietes",
+      "monthlyRevenue": "Revenu mensuel",
+      "revenueChange": "+12% vs mois precedent",
+      "pendingInvoices": "Factures en attente",
+      "recentActivity": "Activite recente",
+      "viewMore": "Voir plus",
+      "noRecentActivity": "Pas d'activite recente",
+      "quickActions": "Actions rapides",
+      "createUser": "Creer un utilisateur",
+      "createUserDesc": "Ajouter un nouvel utilisateur au systeme",
+      "generateInvoice": "Generer une facture",
+      "generateInvoiceDesc": "Creer une facture manuelle",
+      "searchProperty": "Rechercher une propriete",
+      "searchPropertyDesc": "Acces rapide par ID"
+    }
+  },
+  "autosave": {
+    "saved": "Enregistre",
+    "savedAt": "Enregistre {{time}}",
+    "saving": "Enregistrement...",
+    "savingDraft": "Enregistrement du brouillon..."
+  },
+  "savedData": {
+    "title": "📝 Donnees sauvegardees trouvees",
+    "description": "Nous avons trouve des informations d'une propriete que vous etiez en train de creer.",
+    "savedAgo": "Enregistre {{time}}",
+    "continue": "Reprendre ou j'en etais",
+    "startOver": "Recommencer",
+    "timeAgo": {
+      "justNow": "a l'instant",
+      "minutes": "il y a {{count}} minute",
+      "minutes_plural": "il y a {{count}} minutes",
+      "hours": "il y a {{count}} heure",
+      "hours_plural": "il y a {{count}} heures",
+      "days": "il y a {{count}} jour",
+      "days_plural": "il y a {{count}} jours"
     }
   }
 }

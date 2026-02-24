@@ -175,7 +175,7 @@
       "activate": "Activer la série",
       "setAsDefault": "Définir par défaut",
       "deleteSeries": "Supprimer la série",
-      "note": "Le numéro actuel est le dernier numéro attribué. La prochaine facture utilisera le numéro suivant. Vous pouvez modifier le numéro actuel pour ajuster la numérotation (ex : mettre 0 pour commencer à 1, ou 269 pour que la prochaine soit 270)."
+      "note": "Note : Le numéro actuel est le dernier numéro attribué. La prochaine facture utilisera le numéro suivant. Vous pouvez modifier le numéro actuel pour ajuster la numérotation (ex : mettre 0 pour commencer à 1, ou 269 pour que la prochaine soit 270)."
     }
   },
   "dashboard": {
@@ -329,6 +329,16 @@
       "allUnitsInvoiceToOwner": "Tous les appartements du groupe sont facturés à ce propriétaire",
       "commissionPercent": "Commission %",
       "cleaningEuros": "Nettoyage €",
+      "cleaningType": "Type de nettoyage",
+      "cleaningTypeFixed": "Fixe par réservation",
+      "cleaningTypePerNight": "Par nuit",
+      "cleaningFeeRecipient": "Qui reçoit les frais de nettoyage?",
+      "cleaningFeeRecipientManager": "Gestionnaire",
+      "cleaningFeeRecipientOwner": "Propriétaire",
+      "cleaningHintGroup": "Si les appartements du groupe ont des prix de nettoyage différents, configurez le prix sur chaque appartement individuellement. Il sera appliqué automatiquement dans les règlements et la facturation.",
+      "cleaningHintUnit": "Ce prix prévaut sur celui du groupe. Si vous entrez des frais de nettoyage spécifiques lors de la création d'une réservation, ceux-ci ont la priorité la plus élevée.",
+      "overrideGroupHint": "Si vous remplissez ces valeurs, elles prévaudront sur celles du groupe pour cet appartement.",
+      "inheritedFromGroup": "Hérité du groupe",
       "addExistingUnits": "Ajouter des appartements existants",
       "platformNames": "Noms sur les plateformes (pour l'importation)",
       "platformNamesHint": "Si le nom sur la plateforme est différent du nom interne, ajoutez-le ici pour que les réservations importées soient automatiquement assignées.",
@@ -343,17 +353,6 @@
       "commaSeparated": "séparés par une virgule",
       "change": "Modifier",
       "upload": "Télécharger"
-    },
-    "actions": {
-      "newGroup": "Nouveau groupe",
-      "newUnit": "Nouvel appartement"
-    },
-    "errors": {
-      "deleteError": "Erreur lors de la suppression",
-      "createError": "Erreur lors de la création",
-      "saveError": "Erreur lors de l'enregistrement",
-      "uploadError": "Erreur lors du téléchargement de l'image",
-      "noImageUrl": "Erreur : Aucune URL d'image reçue"
     },
     "modal": {
       "newApartment": "Nouvel appartement",
@@ -398,6 +397,7 @@
     "actions": {
       "newGroup": "Nouveau groupe",
       "newApartment": "Nouvel appartement",
+      "newUnit": "Nouvel appartement",
       "creating": "Création...",
       "createApartment": "Créer l'appartement",
       "createGroup": "Créer le groupe",
@@ -408,13 +408,16 @@
     },
     "errors": {
       "deleteError": "Erreur lors de la suppression",
+      "createError": "Erreur lors de la création",
       "saveError": "Erreur lors de la création",
       "updateError": "Erreur lors de l'enregistrement",
       "uploadError": "Erreur lors du téléchargement de l'image",
+      "noImageUrl": "Erreur : Aucune URL d'image reçue",
       "noUrlReceived": "Erreur : Aucune URL d'image reçue"
     }
   },
   "owners": {
+    "owner": "Propriétaire",
     "title": "Propriétaires",
     "subtitle": "Gérer les propriétaires de vos appartements",
     "loading": "Chargement des propriétaires...",
@@ -463,7 +466,14 @@
       "ibanHelp": "(pour les virements)",
       "address": "Adresse",
       "city": "Ville",
-      "postalCode": "Code postal"
+      "postalCode": "Code postal",
+      "retentionRate": "Retenue à la source",
+      "retentionRateHelp": "par défaut {{defaultRate}}",
+      "retentionDefault": "Par défaut selon le type",
+      "retentionNone": "Sans retenue",
+      "retentionNew": "Nouvel indépendant",
+      "retentionStandard": "Standard entreprises",
+      "retentionRental": "Location immobilière"
     },
     "validation": {
       "nameRequired": "Le prénom et le nom sont requis",
@@ -584,7 +594,11 @@
       "numberExists": "Ce numéro existe déjà",
       "date": "Date",
       "dueDate": "Échéance",
-      "configureYourTaxData": "Configurez vos données fiscales"
+      "configureYourTaxData": "Configurez vos données fiscales",
+      "selectContact": "Sélectionnez un contact pour la facture",
+      "selectSeries": "Sélectionnez une série de facturation",
+      "addAtLeastOneLine": "Ajoutez au moins une ligne à la facture",
+      "creating": "Création..."
     },
     "detail": {
       "backToInvoices": "Retour aux factures",
@@ -695,6 +709,10 @@
       "phone": "Téléphone",
       "iban": "IBAN",
       "ibanHelp": "Compte bancaire pour les paiements",
+      "ibanDescription": "Compte bancaire pour les paiements",
+      "cityPlaceholder": "Ville",
+      "emailPlaceholder": "email@exemple.com",
+      "phonePlaceholder": "+33 6 00 00 00 00",
       "creating": "Création..."
     },
     "generate": {
@@ -854,7 +872,21 @@
     "actions": {
       "newSettlement": "Nouveau règlement",
       "downloadPdf": "Télécharger le PDF",
-      "markAsPaid": "Marquer comme payé"
+      "downloadExcel": "Télécharger Excel",
+      "viewInvoice": "Voir la facture",
+      "sendToOwner": "Envoyer au propriétaire"
+    },
+    "pending": {
+      "title": "Règlements en Attente",
+      "subtitle": "Réservations du mois en cours non encore réglées",
+      "loading": "Chargement des règlements en attente...",
+      "noReservations": "Aucune réservation en attente de règlement ce mois-ci",
+      "occupancy": "Occupation",
+      "netPrice": "Prix net",
+      "expenses": "Dépenses",
+      "generateSettlement": "Générer le règlement",
+      "reservations": "réservations",
+      "nights": "nuits"
     }
   },
   "billing": {
@@ -883,7 +915,34 @@
       "reservations": "Réservations",
       "pending": "en attente",
       "noOwner": "Sans propriétaire",
-      "assignOwner": "Assigner un propriétaire"
+      "assignOwner": "Assigner un propriétaire",
+      "apartments": "appartements"
+    },
+    "property": {
+      "loading": "Chargement de la propriété...",
+      "backToProperties": "Retour aux propriétés",
+      "noOwnerAssigned": "Aucun propriétaire assigné",
+      "commission": "Commission",
+      "cleaning": "Nettoyage",
+      "managerCollects": "Le gestionnaire encaisse",
+      "ownerCollects": "Le propriétaire encaisse",
+      "noBillingData": "Aucune donnée de facturation pour cette propriété"
+    },
+    "yearView": {
+      "reservations": "réservations"
+    },
+    "month": {
+      "loading": "Chargement du mois...",
+      "loadingInvoice": "Chargement de la facture...",
+      "backToProperty": "Retour à la propriété",
+      "backToBilling": "Retour à la Facturation",
+      "backToPropertyName": "Retour à",
+      "reservations": "rés.",
+      "nights": "nuits",
+      "pending": "En attente",
+      "noActivity": "Aucune activité",
+      "loadingEmail": "Chargement...",
+      "sendByEmail": "Envoyer par email"
     }
   },
   "reservations": {
@@ -1210,11 +1269,15 @@
     "settlementTitle": "Règlement {{month}} {{year}}",
     "actions": {
       "downloadPdf": "Télécharger PDF",
+      "downloadExcel": "Télécharger Excel",
       "sendByEmail": "Envoyer par email",
       "whatsapp": "WhatsApp",
-      "markAsPaid": "Marquer comme payé",
+      "viewInvoice": "Voir la facture",
       "issueInvoice": "Émettre la facture",
-      "delete": "Supprimer"
+      "delete": "Supprimer",
+      "recalculate": "Recalculer",
+      "recalculating": "Recalcul en cours...",
+      "sendToOwner": "Envoyer au propriétaire"
     },
     "reservations": {
       "title": "Réservations",
@@ -1222,11 +1285,45 @@
       "tableHeaders": {
         "code": "Code",
         "guest": "Voyageur",
+        "platform": "Plateforme",
         "checkIn": "Arrivée",
         "checkOut": "Départ",
         "nights": "Nuits",
+        "income": "Revenu",
+        "pricePerNight": "€/nuit",
+        "commission": "Commission ({{rate}}%)",
+        "commissionVat": "TVA Com. ({{rate}}%)",
+        "cleaning": "Nettoyage",
+        "netOwner": "Net propriétaire",
         "amount": "Montant"
-      }
+      },
+      "totals": "Totaux"
+    },
+    "kpi": {
+      "occupancy": "Occupation",
+      "occupancyDetail": "{{totalNights}}/{{daysInMonth}} nuits",
+      "grossIncome": "Revenus bruts",
+      "commission": "Commission",
+      "commissionDetail": "{{rate}}% + TVA {{vatRate}}%",
+      "commissionFixed": "Fixe + TVA {{vatRate}}%",
+      "netOwner": "Net propriétaire"
+    },
+    "breakdown": {
+      "title": "Détail des déductions",
+      "grossIncome": "Revenus bruts",
+      "netPrice": "Prix net",
+      "commissionPct": "(-) Commission de gestion ({{rate}}%)",
+      "commissionFixed": "(-) Commission de gestion (fixe)",
+      "vatCommission": "(-) TVA sur commission ({{rate}}%)",
+      "cleaning": "(-) Nettoyage ({{detail}})",
+      "cleaningPerReservation": "{{value}}€/réservation × {{count}}",
+      "cleaningPerNight": "{{value}}€/nuit × {{nights}}",
+      "expenses": "(-) Frais refacturables",
+      "expensesVat": "(-) TVA sur frais",
+      "subtotalNet": "Sous-total net",
+      "retentionIrpf": "(+) Retenue IRPF ({{rate}}% sur commission)",
+      "retentionInfo": "à titre informatif",
+      "totalTransfer": "TOTAL À TRANSFÉRER"
     },
     "expenses": {
       "title": "Frais refacturés",
@@ -1434,7 +1531,75 @@
     "yes": "Oui",
     "no": "Non",
     "or": "ou",
+    "of": "de",
     "and": "et",
+    "date": "Date",
+    "dueDate": "Échéance",
+    "import": "Importer",
+    "deleting": "Suppression...",
+    "night": "nuit",
+    "nights": "nuits",
+    "perNight": "par nuit",
+    "cleaning": "Nettoyage",
+    "automatic": "Automatique",
+    "platform": "Plateforme",
+    "checkIn": "Arrivée",
+    "checkOut": "Départ",
+    "guestName": "Nom du voyageur",
+    "guestFullNamePlaceholder": "Nom complet du voyageur",
+    "guestEmail": "Email du voyageur",
+    "guestContact": "Contact du voyageur",
+    "recurringGuest": "Voyageur récurrent",
+    "stays": "séjours",
+    "confirmationCode": "Code de confirmation",
+    "netIncome": "Revenu net",
+    "internalNotes": "Notes internes",
+    "internalNotesPlaceholder": "Notes visibles uniquement par vous...",
+    "leaveEmptyForConfigured": "Laisser vide pour utiliser la valeur configurée",
+    "selectApartment": "Sélectionner un appartement",
+    "gestionApartments": "Appartements de gestion",
+    "manualProperties": "Propriétés manuelles",
+    "noApartments": "Aucun appartement",
+    "createOneFirst": "Créez-en un d'abord",
+    "theApartment": "l'appartement",
+    "selectAll": "Tout sélectionner",
+    "notSettled": "Non réglé",
+    "selected": "sélectionnés",
+    "noReservations": "Aucune réservation",
+    "noReservationsDescription": "Importez ou créez des réservations pour commencer",
+    "createReservation": "Créer une réservation",
+    "editReservation": "Modifier la réservation",
+    "deleteReservationConfirm": "Êtes-vous sûr de vouloir supprimer cette réservation ?",
+    "deleteMultipleReservations": "Supprimer les réservations sélectionnées ?",
+    "deleteAll": "Tout supprimer",
+    "reservations": "réservations",
+    "unknownError": "Erreur inconnue",
+    "configureMapping": "Configurer le mappage",
+    "importFromCSV": "Importer depuis CSV",
+    "csvFromEarnings": "CSV des revenus Airbnb",
+    "xlsFromExtranet": "XLS de l'Extranet Booking",
+    "csvWithColumns": "CSV avec colonnes personnalisées",
+    "clickToSelectFile": "Cliquez pour sélectionner un fichier",
+    "assignToProperty": "Assigner à une propriété",
+    "autoDetectProperty": "Détecter la propriété automatiquement",
+    "deleteCurrentReservations": "Supprimer les réservations actuelles",
+    "imported": "importées",
+    "duplicatesSkipped": "doublons ignorés",
+    "importError": "Erreur d'importation",
+    "errorsFound": "erreurs trouvées",
+    "rowsWithErrors": "Lignes avec erreurs",
+    "row": "Ligne",
+    "importMore": "Importer plus",
+    "viewInBilling": "Voir dans la facturation",
+    "reservationCreated": "Réservation créée",
+    "reservationCreatedFor": "Réservation créée pour {{guest}}",
+    "addedToSettlements": "Disponible pour les règlements",
+    "canExportExcel": "Vous pouvez exporter vers Excel",
+    "availableInBilling": "Disponible dans la facturation",
+    "reservationAppearsIn": "La réservation apparaît dans",
+    "important": "Important",
+    "reservationCannotBeDeleted": "Cette réservation ne peut pas être supprimée car elle est liée à un règlement",
+    "addAnother": "Ajouter une autre",
     "months": {
       "january": "Janvier",
       "february": "Février",
@@ -1463,10 +1628,13 @@
     },
     "validation": {
       "required": "Ce champ est requis",
+      "requiredFields": "Des champs obligatoires sont manquants",
       "invalidEmail": "Email invalide",
       "invalidNif": "NIF/NIE invalide",
       "invalidCif": "CIF invalide",
-      "invalidIban": "IBAN invalide"
+      "invalidIban": "IBAN invalide",
+      "selectCsvOrExcel": "Sélectionnez un fichier CSV ou Excel",
+      "selectProperty": "Sélectionnez une propriété"
     },
     "errors": {
       "generic": "Une erreur s'est produite",
@@ -1475,7 +1643,122 @@
       "unauthorized": "Non autorisé",
       "saveError": "Erreur lors de l'enregistrement",
       "deleteError": "Erreur lors de la suppression",
-      "loadError": "Erreur lors du chargement"
+      "loadError": "Erreur lors du chargement",
+      "createReservation": "Erreur lors de la création de la réservation",
+      "updateReservation": "Erreur lors de la mise à jour de la réservation",
+      "deleteReservation": "Erreur lors de la suppression de la réservation",
+      "deleteReservations": "Erreur lors de la suppression des réservations",
+      "readFile": "Erreur lors de la lecture du fichier",
+      "importFile": "Erreur lors de l'importation du fichier"
     }
+  },
+  "integrations": {
+    "title": "Importer des réservations",
+    "subtitle": "Connectez Gmail pour importer automatiquement les réservations Airbnb",
+    "unnamedProperty": "Propriété sans nom",
+    "messages": {
+      "gmailConnected": "Gmail connecté avec succès",
+      "authDenied": "Authentification refusée",
+      "noCode": "Aucun code d'autorisation reçu",
+      "missingTokens": "Erreur lors de l'obtention des tokens",
+      "callbackFailed": "Erreur de rappel",
+      "connectionError": "Erreur de connexion",
+      "gmailDisconnected": "Gmail déconnecté",
+      "disconnectError": "Erreur lors de la déconnexion",
+      "syncSuccess": "Synchronisation terminée : {{count}} nouveaux emails",
+      "syncError": "Erreur de synchronisation",
+      "reparseSuccess": "Emails ré-analysés",
+      "reparseError": "Erreur lors de la ré-analyse",
+      "importSuccess": "✅ Importé : {{created}} réservations créées, {{updated}} mises à jour",
+      "importError": "Erreur lors du traitement",
+      "propertyNameRequired": "Entrez un nom de propriété"
+    },
+    "connect": {
+      "title": "Connectez votre Gmail",
+      "description": "Connectez le compte Gmail où vous recevez les emails Airbnb pour importer automatiquement vos réservations.",
+      "button": "Connecter Gmail"
+    },
+    "status": {
+      "connected": "Connecté",
+      "lastSync": "Dernière synchro : {{date}}"
+    },
+    "summary": {
+      "title": "{{count}} réservations prêtes",
+      "from": "De {{count}} {{property}}",
+      "apartment": "appartement",
+      "apartments": "appartements",
+      "autoDetected": "Auto-détectés",
+      "autoDetectedCount": "{{count}} appartements",
+      "autoDetectedReservations": "{{count}} réservations",
+      "needsConfig": "À configurer",
+      "needsConfigCount": "{{count}} appartements",
+      "needsConfigReservations": "{{count}} réservations",
+      "totalIncome": "Revenus totaux à importer",
+      "buttonReview": "Configurer et importer",
+      "buttonImport": "Tout importer",
+      "reparse": "Propriétés mal détectées ? Ré-analyser les emails"
+    },
+    "empty": {
+      "noPending": "Aucune réservation en attente d'importation",
+      "syncEmails": "Synchroniser les emails"
+    },
+    "wizard": {
+      "configuring": "Configuration {{current}} sur {{total}}",
+      "reservations": "réservations",
+      "stepName": "Quel est le nom de cette propriété ?",
+      "stepNameDescription": "Vous pouvez utiliser le nom détecté ou en écrire un autre",
+      "propertyNamePlaceholder": "Nom de la propriété",
+      "cityPlaceholder": "Ville (optionnel)",
+      "existingProperty": "Ou est-ce une propriété que vous avez déjà ?",
+      "stepOwner": "À qui appartient cette propriété ?",
+      "stepOwnerDescription": "Sélectionnez le propriétaire ou laissez vide si c'est la vôtre",
+      "ownProperty": "C'est la mienne (auto-géré)",
+      "ownPropertyDescription": "Pas de propriétaire externe",
+      "createOwner": "Créer un nouveau propriétaire",
+      "newOwner": "Nouveau propriétaire",
+      "ownerTypePerson": "Personne",
+      "ownerTypeCompany": "Entreprise",
+      "firstNamePlaceholder": "Prénom",
+      "lastNamePlaceholder": "Nom de famille",
+      "companyNamePlaceholder": "Raison sociale",
+      "createOwnerButton": "Créer le propriétaire",
+      "stepCommission": "Combien facturez-vous pour la gestion ?",
+      "stepCommissionDescription": "Sélectionnez votre commission de gestion",
+      "commissionCustom": "Personnaliser",
+      "commissionPercent": "% de commission",
+      "advancedOptions": "Options avancées",
+      "whoReceives": "Qui reçoit les réservations ?",
+      "receiverOwner": "Propriétaire",
+      "receiverManager": "Gestionnaire",
+      "cleaningAmount": "Nettoyage (€)",
+      "cleaningRecipient": "Qui reçoit ?",
+      "cleaningRecipientManager": "Gestionnaire",
+      "cleaningRecipientOwner": "Propriétaire",
+      "back": "Retour",
+      "next": "Suivant",
+      "finish": "Terminer"
+    },
+    "confirmation": {
+      "title": "Tout est prêt pour l'importation",
+      "description": "Vérifiez le résumé et confirmez",
+      "autoDetected": "auto-détecté",
+      "new": "Nouveau",
+      "reservationsCount": "réservations",
+      "owner": "· {{owner}}",
+      "commission": "· {{percent}}% de commission",
+      "totalTitle": "Total à importer",
+      "totalReservations": "{{count}} réservations",
+      "cancel": "Annuler",
+      "import": "Tout importer",
+      "importing": "Importation..."
+    },
+    "help": {
+      "title": "Comment ça marche",
+      "step1": "Connectez votre compte Gmail où vous recevez les emails Airbnb",
+      "step2": "Le système détecte automatiquement les propriétés de chaque email",
+      "step3": "Configurez les nouvelles propriétés (seulement la première fois)",
+      "step4": "Les prochaines fois, elles seront importées automatiquement"
+    },
+    "disconnect": "Déconnecter Gmail ?"
   }
 }

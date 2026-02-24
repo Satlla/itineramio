@@ -265,7 +265,37 @@
     "invalidServerResponse": "El servidor respondió con un formato inválido. Por favor, recarga la página e intenta de nuevo.",
     "requestTimeout": "La solicitud tardó demasiado. Por favor, verifica tu conexión e inténtalo de nuevo.",
     "contactSupport": "Si el problema persiste, contacta con soporte.",
-    "unsavedChanges": "¿Estás seguro de que quieres salir? Los datos se guardarán automáticamente."
+    "unsavedChanges": "¿Estás seguro de que quieres salir? Los datos se guardarán automáticamente.",
+    "trialActivationError": "Error al activar el período de prueba",
+    "onboardingTitle": "¡Bienvenido al Asistente de Creación!",
+    "onboardingDescription": "Vamos a crear tu primera propiedad paso a paso. Es muy fácil, solo sigue las instrucciones:",
+    "countryDefault": "España",
+    "validation": {
+      "nameMin": "El nombre debe tener al menos 3 caracteres",
+      "nameMax": "Máximo 80 caracteres",
+      "nameEnMax": "Máximo 80 caracteres",
+      "nameFrMax": "Máximo 80 caracteres",
+      "descriptionMin": "La descripción debe tener al menos 10 caracteres",
+      "descriptionMax": "Máximo 300 caracteres",
+      "descriptionEnMax": "Máximo 300 caracteres",
+      "descriptionFrMax": "Máximo 300 caracteres",
+      "streetMin": "La dirección debe tener al menos 5 caracteres",
+      "cityMin": "La ciudad debe tener al menos 2 caracteres",
+      "stateMin": "La provincia debe tener al menos 2 caracteres",
+      "postalCodeFormat": "Código postal debe tener 5 dígitos",
+      "bedroomsMin": "Mínimo 0 habitaciones",
+      "bedroomsMax": "Máximo 20 habitaciones",
+      "bathroomsMin": "Mínimo 0 baños",
+      "bathroomsMax": "Máximo 10 baños",
+      "maxGuestsMin": "Mínimo 1 huésped",
+      "maxGuestsMax": "Máximo 50 huéspedes",
+      "squareMetersMin": "Mínimo 10 m²",
+      "squareMetersMax": "Máximo 1000 m²",
+      "hostNameMin": "El nombre debe tener al menos 2 caracteres",
+      "hostNameMax": "Máximo 100 caracteres",
+      "phoneInvalid": "Teléfono inválido",
+      "emailInvalid": "Email inválido"
+    }
   },
   "propertyZones": {
     "backToGroup": "Volver al conjunto",
@@ -568,6 +598,180 @@
     "dailyDescription": "Consejos diarios para aprovechar al máximo Itineramio y mejorar la experiencia de tus huéspedes",
     "goToSection": "Ir a la sección"
   },
+  "sidebar": {
+    "menu": "Menú",
+    "defaultUser": "Usuario",
+    "properties": "Propiedades",
+    "propertiesDesc": "Gestionar tus propiedades",
+    "sets": "Conjuntos",
+    "setsDesc": "Agrupar propiedades similares",
+    "gestion": "Gestión",
+    "gestionDesc": "Gestión económica de propiedades",
+    "mediaLibrary": "Biblioteca de Medios",
+    "mediaLibraryDesc": "Gestionar imágenes y archivos",
+    "account": "Cuenta",
+    "accountDesc": "Información personal y configuración",
+    "settings": "Configuración",
+    "settingsDesc": "Editar tu perfil y preferencias",
+    "subscriptions": "Suscripciones",
+    "subscriptionsDesc": "Gestiona tus suscripciones y facturas",
+    "billing": "Facturación",
+    "billingDesc": "Datos de facturación y documentación",
+    "hostResources": "Recursos del Host",
+    "hostResourcesDesc": "Guías y mejores prácticas",
+    "help": "Ayuda",
+    "helpDesc": "Centro de ayuda y soporte",
+    "privacy": "Privacidad",
+    "privacyDesc": "Configuración de privacidad",
+    "language": "Idioma",
+    "logout": "Cerrar sesión"
+  },
+  "navbar": {
+    "home": "Inicio",
+    "properties": "Propiedades",
+    "sets": "Conjuntos",
+    "gestion": "Gestión",
+    "notifications": "Notificaciones",
+    "noNotifications": "No tienes notificaciones",
+    "unreadNotifications": "Tienes {{count}} notificación(es) sin leer",
+    "clickToViewAll": "Haz clic para ver todas las notificaciones",
+    "viewAllNotifications": "Ver todas las notificaciones"
+  },
+  "trial": {
+    "topBar": {
+      "activateSubscription": "Activa tu suscripción",
+      "lastDay": "Último día de prueba",
+      "daysLeft_one": "{{count}} día de prueba",
+      "daysLeft_other": "{{count}} días de prueba",
+      "evaluationPeriod": "Período de evaluación",
+      "activatePlan": "Activa tu plan para continuar",
+      "viewFeatures": "Ver funcionalidades",
+      "viewPlans": "Ver planes →",
+      "closeBar": "Cerrar barra"
+    },
+    "countdown": {
+      "activateSubscription": "Activa tu suscripción",
+      "lastDay": "Último día de período de prueba",
+      "daysLeft_one": "Queda {{count}} día de período de prueba",
+      "daysLeft_other": "{{count}} días de período de prueba",
+      "choosePlan": "Elige un plan para continuar gestionando tus propiedades",
+      "aboutToEnd": "Tu período de prueba está por finalizar",
+      "exploreFeatures": "Explora todas las funciones antes de que finalice",
+      "evaluationPeriod": "Período de evaluación",
+      "activatePlan": "Activa tu plan",
+      "choosePlanShort": "Elige un plan para continuar",
+      "days": "días",
+      "hours": "horas",
+      "min": "min",
+      "sec": "seg",
+      "unlimitedProperties": "Propiedades ilimitadas",
+      "prioritySupport": "Soporte prioritario",
+      "noCommitment": "Sin permanencia",
+      "viewPlans": "Ver Planes",
+      "moreInfo": "Más info",
+      "closeBanner": "Cerrar banner"
+    }
+  },
+  "firstProperty": {
+    "title": "¡Crea tu primera propiedad!",
+    "description": "Te guiaremos paso a paso para que puedas crear tu primera propiedad y comenzar a usar Itineramio.",
+    "startGuide": "Comenzar guía",
+    "later": "Más tarde",
+    "tip": "También verás un icono de bombilla en el botón de crear propiedad"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "subtitle": "Mantente al día con las actualizaciones de tu cuenta y propiedades",
+    "unreadCount": "{{count}} sin leer",
+    "new": "Nueva",
+    "stats": {
+      "total": "Total",
+      "unread": "Sin Leer",
+      "read": "Leídas"
+    },
+    "tabs": {
+      "all": "Todas",
+      "unread": "Sin Leer",
+      "read": "Leídas"
+    },
+    "actions": {
+      "markSelectedAsRead": "Marcar como leídas ({{count}})",
+      "markAllAsRead": "Marcar todas como leídas",
+      "selectAll": "Seleccionar todas",
+      "deselectAll": "Deseleccionar todas"
+    },
+    "empty": {
+      "noUnread": "No hay notificaciones sin leer",
+      "noRead": "No hay notificaciones leídas",
+      "noNotifications": "No tienes notificaciones",
+      "description": "Las notificaciones aparecerán aquí cuando haya actividad en tu cuenta",
+      "changeFilter": "Cambia el filtro para ver otras notificaciones"
+    },
+    "timeAgo": {
+      "justNow": "Hace un momento",
+      "minutes": "Hace {{count}} min",
+      "hours": "Hace {{count}}h",
+      "days": "Hace {{count}}d"
+    }
+  },
+  "subscriptionSuccess": {
+    "goToDashboard": "Ir al Dashboard",
+    "viewBilling": "Ver Facturación",
+    "viewSubscriptionStatus": "Ver Estado de Suscripción",
+    "thankYou": "Gracias por confiar en Itineramio 🎉",
+    "stripe": {
+      "verifying": "Verificando pago...",
+      "confirmingPayment": "Estamos confirmando tu pago con Stripe",
+      "confirmed": "¡Pago Confirmado!",
+      "subscriptionActive": "Tu suscripción está activa",
+      "errorTitle": "Error en la verificación",
+      "verifyError": "Error al verificar el pago",
+      "connectionError": "Error al conectar con el servidor",
+      "subscriptionDetails": "Detalles de tu suscripción",
+      "plan": "Plan",
+      "validUntil": "Válido hasta"
+    },
+    "paymentMethod": {
+      "bizum": {
+        "name": "Bizum",
+        "description": "Pago instantáneo"
+      },
+      "transfer": {
+        "name": "Transferencia Bancaria",
+        "description": "Pago mediante SEPA"
+      },
+      "stripe": {
+        "name": "Tarjeta",
+        "description": "Pago con tarjeta"
+      },
+      "default": {
+        "name": "Pago",
+        "description": "Método de pago"
+      }
+    },
+    "manual": {
+      "requestSent": "¡Solicitud Enviada Correctamente!",
+      "proofReceived": "Hemos recibido tu comprobante de pago"
+    },
+    "timeline": {
+      "proofReceived": "Comprobante recibido",
+      "proofReceivedDesc": "Tu comprobante de pago ha sido enviado correctamente a nuestro equipo.",
+      "verificationInProgress": "Verificación en proceso",
+      "verificationInProgressDesc": "Nuestro equipo verificará tu pago en las próximas 24-48 horas laborables.",
+      "subscriptionActivation": "Activación de suscripción",
+      "subscriptionActivationDesc": "Recibirás un email de confirmación cuando tu suscripción esté activa."
+    },
+    "whatNow": {
+      "title": "¿Qué sucede ahora?",
+      "emailConfirmation": "Recibirás un email de confirmación cuando verifiquemos tu pago",
+      "autoActivation": "Tu suscripción se activará automáticamente tras la verificación",
+      "checkStatus": "Puedes consultar el estado en tu panel de control"
+    },
+    "support": {
+      "question": "¿Tienes alguna pregunta?",
+      "contactUs": "Contáctanos"
+    }
+  },
   "modals": {
     "share": {
       "title": "Compartir enlace",
@@ -652,6 +856,306 @@
       "operationCompleted": "Operación completada correctamente",
       "understood": "Entendido",
       "continue": "Continuar"
+    }
+  },
+  "mediaLibrary": {
+    "title": "Biblioteca de Medios",
+    "subtitle": "Gestiona tus imágenes y videos reutilizables",
+    "images": "Imágenes",
+    "videos": "Videos",
+    "spaceUsed": "Espacio usado",
+    "duplicatesAvoided": "Duplicados evitados",
+    "searchPlaceholder": "Buscar archivos...",
+    "filterAll": "Todos",
+    "uploadFile": "Subir archivo",
+    "deleteSelected": "Eliminar ({{count}})",
+    "noFilesFound": "No se encontraron archivos",
+    "emptyLibrary": "Tu biblioteca está vacía",
+    "tryOtherFilters": "Intenta con otros filtros",
+    "uploadFirstFile": "Sube tu primer archivo para empezar",
+    "fileType": "Tipo de archivo",
+    "image": "Imagen",
+    "video": "Video",
+    "duplicateDetection": "Detección de duplicados",
+    "duplicateDetectionDesc": "Si subes un archivo idéntico a uno existente, se reutilizará automáticamente para ahorrar espacio.",
+    "confirmDeletion": "Confirmar eliminación",
+    "confirmDeleteSingle": "¿Estás seguro de que quieres eliminar \"{{name}}\"?",
+    "confirmDeleteMultiple": "¿Estás seguro de que quieres eliminar {{count}} archivos?",
+    "filesInUseDetected": "¡Archivos en uso detectados!",
+    "filesInUseDescription": "{{inUse}} archivo(s) de {{total}} están siendo usados en propiedades activas.",
+    "usageCount": "{{count}} usos",
+    "usedIn": "Usado en:",
+    "usedInProperties": "Usado en {{count}} propiedad(es):",
+    "andMore": "+{{count}} más",
+    "deletionImpact": "Impacto de la eliminación:",
+    "impactZones": "Las zonas mencionadas pueden dejar de mostrar estos medios",
+    "impactSteps": "Los pasos afectados quedarán sin contenido multimedia",
+    "impactGuests": "Los huéspedes no podrán ver las imágenes/videos en las guías",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "deleteAnyway": "Eliminar de todas formas",
+    "error": "Error",
+    "success": "Éxito",
+    "copied": "Copiado",
+    "urlCopied": "URL copiada al portapapeles",
+    "uploadSuccess": "Archivo subido correctamente",
+    "errorLoadingFiles": "No se pudieron cargar los archivos multimedia",
+    "errorSavingToLibrary": "No se pudo guardar en la biblioteca",
+    "filesDeleted": "{{count}} archivo(s) eliminado(s)",
+    "errorDeletingFiles": "No se pudieron eliminar los archivos"
+  },
+  "unifiedWelcome": {
+    "greeting": "¡Hola, {{name}}!",
+    "trialDays": "✨ {{count}} días de prueba",
+    "skip": "Saltar",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "start": "¡Empezar!",
+    "slides": {
+      "welcome": {
+        "title": "¡Bienvenido a Itineramio!",
+        "subtitle": "Deja de repetir lo mismo a cada huésped",
+        "description": "Crea un manual digital con toda la información que tus huéspedes necesitan. WiFi, check-in, electrodomésticos... todo en un solo lugar.",
+        "features": {
+          "0": "Olvídate de repetir las mismas respuestas",
+          "1": "Accesible desde cualquier móvil",
+          "2": "Configúralo en minutos"
+        }
+      },
+      "zones": {
+        "title": "Zonas ilimitadas",
+        "subtitle": "WiFi, Check-in, Lavadora, Cocina...",
+        "description": "Crea todas las zonas que necesites con vídeos, imágenes o texto. Tus huéspedes tendrán toda la información organizada.",
+        "features": {
+          "0": "Añade vídeos explicativos",
+          "1": "Sube imágenes paso a paso",
+          "2": "Instrucciones detalladas"
+        }
+      },
+      "multilang": {
+        "title": "Manual en varios idiomas",
+        "subtitle": "Español, Inglés, Francés",
+        "description": "Tu manual se muestra automáticamente en el idioma del huésped. Llega a visitantes de todo el mundo.",
+        "features": {
+          "0": "Español",
+          "1": "Inglés",
+          "2": "Francés"
+        }
+      },
+      "whatsapp": {
+        "title": "WhatsApp a un click",
+        "subtitle": "Conexión directa con tus huéspedes",
+        "description": "Si tienen un problema, pueden contactarte por WhatsApp con un solo toque. Sin buscar números ni copiar enlaces.",
+        "features": {
+          "0": "Botón directo a WhatsApp",
+          "1": "Respuesta inmediata",
+          "2": "Menos llamadas, más soluciones"
+        }
+      },
+      "announcements": {
+        "title": "Avisos importantes",
+        "subtitle": "Lo primero que ven al entrar",
+        "description": "Añade avisos destacados para que tus huéspedes sepan lo esencial nada más aterrizar en tu manual.",
+        "features": {
+          "0": "Avisos visibles al entrar",
+          "1": "Información importante primero",
+          "2": "Normas, horarios, contactos"
+        }
+      }
+    }
+  },
+  "welcomeModal": {
+    "greeting": "¡Bienvenido!",
+    "greetingWithName": "¡Bienvenido, {{name}}!",
+    "subtitle": "Tu herramienta para crear manuales digitales",
+    "trialDays_one": "día",
+    "trialDays_other": "días",
+    "trialPeriod": "de período de prueba",
+    "discoverTitle": "Descubre todo lo que puedes hacer con Itineramio",
+    "discoverDescription": "Crea manuales digitales interactivos para tus propiedades en minutos. Tus huéspedes accederán a toda la información desde su móvil.",
+    "startToday": "¡Comienza hoy!",
+    "createFirstDescription": "Crea tu primera propiedad y descubre todas las funcionalidades",
+    "mainFeatures": "Características principales",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "createProperty": "Crear propiedad",
+    "explore": "Explorar",
+    "features": {
+      "0": {
+        "title": "Crea zonas interactivas",
+        "description": "Divide tu propiedad en zonas con instrucciones detalladas"
+      },
+      "1": {
+        "title": "Códigos QR imprimibles",
+        "description": "Acceso directo a las instrucciones desde cualquier dispositivo"
+      },
+      "2": {
+        "title": "Envío automático",
+        "description": "Tu manual se envía automáticamente antes del check-in"
+      },
+      "3": {
+        "title": "Zonas individuales",
+        "description": "Envía solo la zona que necesiten tus huéspedes"
+      },
+      "4": {
+        "title": "Ahorra tiempo",
+        "description": "Hasta 8 horas/semana en gestión"
+      },
+      "5": {
+        "title": "Profesional y fácil",
+        "description": "Guías digitales en minutos, sin complicaciones"
+      }
+    }
+  },
+  "pricing": {
+    "hero": {
+      "title": "Precios simples y transparentes",
+      "subtitle": "Paga solo por las propiedades que uses. Sin costes ocultos. Sin compromisos a largo plazo."
+    },
+    "whyChoose": {
+      "title": "¿Por qué elegir Itineramio?",
+      "subtitle": "La solución completa para gestionar la información de tus propiedades vacacionales"
+    },
+    "benefits": {
+      "fairPrice": {
+        "title": "Precio justo",
+        "description": "Paga solo por lo que usas. Más propiedades = mejor precio por unidad."
+      },
+      "noCommitment": {
+        "title": "Sin compromisos",
+        "description": "Prueba 15 días sin compromiso. Sin penalizaciones ni preguntas."
+      },
+      "instantSetup": {
+        "title": "Configuración instantánea",
+        "description": "Empieza en minutos. 15 días de evaluación sin necesidad de tarjeta."
+      }
+    },
+    "comparison": {
+      "title": "Comparativa con la competencia",
+      "subtitle": "Precios más competitivos con más funcionalidades incluidas",
+      "feature": "Característica",
+      "competitorA": "Competidor A",
+      "competitorB": "Competidor B",
+      "priceFor5": "Precio por 5 propiedades",
+      "itineramioPrice": "€30/mes",
+      "competitorAPrice": "€49/mes",
+      "competitorBPrice": "€39/mes",
+      "customQr": "Códigos QR personalizados",
+      "multilanguage": "Multiidioma",
+      "multilanguageExtra": "+€10/mes",
+      "advancedAnalytics": "Analytics avanzados",
+      "premiumOnly": "Premium only",
+      "whatsappIntegration": "Integración WhatsApp"
+    },
+    "faq": {
+      "title": "Preguntas frecuentes",
+      "trialQuestion": "¿Qué incluye el período de evaluación?",
+      "trialAnswer": "El período de evaluación de 15 días incluye acceso completo a todas las funcionalidades de la plataforma. No necesitas introducir tarjeta de crédito para empezar.",
+      "changePropertiesQuestion": "¿Puedo cambiar el número de propiedades en cualquier momento?",
+      "changePropertiesAnswer": "Sí, puedes añadir o quitar propiedades cuando quieras. El precio se ajusta automáticamente y se prorratean los cambios en tu próxima factura.",
+      "annualDiscountQuestion": "¿Hay descuentos por pago anual?",
+      "annualDiscountAnswer": "Sí, obtienes un 15% de descuento si pagas anualmente en lugar de mensualmente.",
+      "couponQuestion": "¿Cómo funcionan los cupones de descuento?",
+      "couponAnswer": "Puedes introducir un código de cupón durante el registro o en la calculadora de precios. Los cupones pueden ofrecer descuentos porcentuales, meses incluidos o descuentos fijos.",
+      "paymentMethodsQuestion": "¿Qué métodos de pago aceptan?",
+      "paymentMethodsAnswer": "Aceptamos tarjetas de crédito/débito (Visa, Mastercard, American Express), SEPA Direct Debit para Europa, y próximamente Bizum para España."
+    },
+    "cta": {
+      "title": "¿Listo para empezar?",
+      "subtitle": "Únete a cientos de propietarios que ya confían en Itineramio",
+      "button": "Comienza tu evaluación de 15 días",
+      "disclaimer": "Sin tarjeta requerida • Prueba 15 días sin compromiso"
+    }
+  },
+  "checkout": {
+    "title": "Completar Pago Manual",
+    "backToPlans": "Volver a planes",
+    "upToProperties": "Hasta {{count}} propiedades",
+    "period": {
+      "annual": "/año",
+      "biannual": "/semestre",
+      "monthly": "/mes"
+    },
+    "loading": {
+      "verifyingBilling": "Verificando datos de facturación..."
+    },
+    "billing": {
+      "required": "Datos de facturación requeridos",
+      "requiredDescription": "Antes de continuar con tu compra, necesitas completar tus datos de facturación. Esto es necesario para emitir facturas legalmente válidas según la normativa española.",
+      "purchaseInfo": "Información de tu compra",
+      "planSaved": "Tu selección de plan se guardará automáticamente",
+      "returnAfter": "Volverás aquí después de completar tus datos",
+      "completeBilling": "Completar datos de facturación",
+      "cancelPurchase": "Cancelar compra"
+    },
+    "proration": {
+      "title": "Crédito por plan anterior aplicado",
+      "description": "Has recibido un crédito de €{{amount}} por los días no utilizados de tu plan anterior.",
+      "daysRemaining": "{{days}} días restantes de tu plan {{plan}}",
+      "credit": "Crédito prorrateo"
+    },
+    "coupon": {
+      "title": "Código de cupón",
+      "placeholder": "Ingresa tu código de cupón",
+      "apply": "Aplicar",
+      "validating": "Validando...",
+      "applied": "¡Cupón aplicado! Descuento: €{{amount}}",
+      "appliedLabel": "Cupón aplicado",
+      "invalid": "Cupón no válido",
+      "enterCode": "Ingresa un código de cupón",
+      "validationError": "Error al validar el cupón",
+      "removed": "Cupón eliminado",
+      "remove": "Eliminar",
+      "discountLabel": "Descuento cupón",
+      "percentOff": "{{value}}% de descuento",
+      "amountOff": "€{{value}} de descuento",
+      "totalWithDiscount": "Total con descuento"
+    },
+    "instructions": {
+      "title": "Instrucciones de Pago",
+      "forBizum": "Para Bizum",
+      "forTransfer": "Para Transferencia",
+      "phone": "Teléfono",
+      "concept": "Concepto",
+      "subscriptionPayment": "Pago Suscripción",
+      "beneficiary": "Beneficiario"
+    },
+    "paymentMethod": {
+      "label": "Método de pago utilizado",
+      "transfer": "Transferencia"
+    },
+    "reference": {
+      "label": "Tu referencia de pago",
+      "description": "Usa esta referencia como concepto en tu pago",
+      "copy": "Copiar",
+      "copied": "Concepto copiado al portapapeles"
+    },
+    "upload": {
+      "label": "Justificante de pago",
+      "removeFile": "Eliminar archivo",
+      "dragOrClick": "Arrastra tu justificante aquí o haz clic para seleccionar",
+      "selectFile": "Seleccionar archivo",
+      "fileRestrictions": "Solo imágenes (JPG, PNG) - Máximo 5MB",
+      "imageTooLarge": "La imagen debe ser menor a 5MB",
+      "invalidImage": "Por favor selecciona una imagen válida",
+      "attachProof": "Por favor adjunta el justificante de pago"
+    },
+    "submit": {
+      "sending": "Enviando...",
+      "sendProof": "Enviar Justificante",
+      "reviewTime": "Tu solicitud será revisada en menos de 24 horas"
+    },
+    "success": {
+      "title": "¡Solicitud Enviada!",
+      "description": "Hemos recibido tu justificante de pago. Lo revisaremos en las próximas 24 horas.",
+      "emailConfirmation": "Recibirás una confirmación por email cuando tu plan esté activado.",
+      "requestSent": "Solicitud enviada correctamente"
+    },
+    "errors": {
+      "referenceGeneration": "Error generando referencia de pago",
+      "uploadFailed": "Error al subir el justificante",
+      "processingRequest": "Error al procesar la solicitud",
+      "processingPayment": "Error al procesar el pago"
     }
   }
 }

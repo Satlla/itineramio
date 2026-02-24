@@ -175,7 +175,7 @@
       "activate": "Activar serie",
       "setAsDefault": "Marcar como predeterminada",
       "deleteSeries": "Eliminar serie",
-      "note": "El número actual es el último número asignado. La próxima factura usará el número siguiente. Puedes editar el número actual para ajustar la numeración (ej: poner 0 para empezar desde 1, o 269 para que la próxima sea 270)."
+      "note": "Nota: El número actual es el último número asignado. La próxima factura usará el número siguiente. Puedes editar el número actual para ajustar la numeración (ej: poner 0 para empezar desde 1, o 269 para que la próxima sea 270)."
     }
   },
   "dashboard": {
@@ -329,6 +329,16 @@
       "allUnitsInvoiceToOwner": "Todos los apartamentos del conjunto facturan a este propietario",
       "commissionPercent": "Comisión %",
       "cleaningEuros": "Limpieza €",
+      "cleaningType": "Tipo de limpieza",
+      "cleaningTypeFixed": "Fijo por reserva",
+      "cleaningTypePerNight": "Por noche",
+      "cleaningFeeRecipient": "¿Quién recibe la limpieza?",
+      "cleaningFeeRecipientManager": "Gestor",
+      "cleaningFeeRecipientOwner": "Propietario",
+      "cleaningHintGroup": "Si los apartamentos del conjunto tienen distintos precios de limpieza, configura el precio en cada apartamento individualmente. Se aplicará automáticamente en la liquidación y facturación.",
+      "cleaningHintUnit": "Este precio prevalece sobre el del conjunto. Si al crear una reserva introduces una limpieza específica, esa tiene prioridad máxima.",
+      "overrideGroupHint": "Si rellenas estos valores, prevalecerán sobre los del conjunto para este apartamento.",
+      "inheritedFromGroup": "Heredado del conjunto",
       "addExistingUnits": "Añadir apartamentos existentes",
       "platformNames": "Nombres en plataformas (para importación)",
       "platformNamesHint": "Si el nombre en la plataforma es diferente al nombre interno, añádelo aquí para que las reservas importadas se asignen automáticamente.",
@@ -343,17 +353,6 @@
       "commaSeparated": "separados por coma",
       "change": "Cambiar",
       "upload": "Subir"
-    },
-    "actions": {
-      "newGroup": "Nuevo conjunto",
-      "newUnit": "Nuevo apartamento"
-    },
-    "errors": {
-      "deleteError": "Error al eliminar",
-      "createError": "Error al crear",
-      "saveError": "Error al guardar",
-      "uploadError": "Error al subir la imagen",
-      "noImageUrl": "Error: No se recibió URL de la imagen"
     },
     "modal": {
       "newApartment": "Nuevo apartamento",
@@ -398,6 +397,7 @@
     "actions": {
       "newGroup": "Nuevo conjunto",
       "newApartment": "Nuevo apartamento",
+      "newUnit": "Nuevo apartamento",
       "creating": "Creando...",
       "createApartment": "Crear apartamento",
       "createGroup": "Crear conjunto",
@@ -408,13 +408,16 @@
     },
     "errors": {
       "deleteError": "Error al eliminar",
+      "createError": "Error al crear",
       "saveError": "Error al crear",
       "updateError": "Error al guardar",
       "uploadError": "Error al subir la imagen",
+      "noImageUrl": "Error: No se recibió URL de la imagen",
       "noUrlReceived": "Error: No se recibió URL de la imagen"
     }
   },
   "owners": {
+    "owner": "Propietario",
     "title": "Propietarios",
     "subtitle": "Gestiona los propietarios de tus apartamentos",
     "loading": "Cargando propietarios...",
@@ -463,7 +466,14 @@
       "ibanHelp": "(para transferencias)",
       "address": "Dirección",
       "city": "Ciudad",
-      "postalCode": "C.P."
+      "postalCode": "C.P.",
+      "retentionRate": "Retención IRPF",
+      "retentionRateHelp": "por defecto {{defaultRate}}",
+      "retentionDefault": "Por defecto según tipo",
+      "retentionNone": "Sin retención",
+      "retentionNew": "Autónomo nuevo",
+      "retentionStandard": "Estándar empresas",
+      "retentionRental": "Alquiler inmobiliario"
     },
     "validation": {
       "nameRequired": "Nombre y apellidos son requeridos",
@@ -584,7 +594,11 @@
       "numberExists": "Este número ya existe",
       "date": "Fecha",
       "dueDate": "Vencimiento",
-      "configureYourTaxData": "Configura tus datos fiscales"
+      "configureYourTaxData": "Configura tus datos fiscales",
+      "selectContact": "Selecciona un contacto para la factura",
+      "selectSeries": "Selecciona una serie de facturación",
+      "addAtLeastOneLine": "Añade al menos una línea a la factura",
+      "creating": "Creando..."
     },
     "detail": {
       "backToInvoices": "Volver a facturas",
@@ -695,6 +709,10 @@
       "phone": "Teléfono",
       "iban": "IBAN",
       "ibanHelp": "Cuenta bancaria para pagos",
+      "ibanDescription": "Cuenta bancaria para pagos",
+      "cityPlaceholder": "Ciudad",
+      "emailPlaceholder": "email@ejemplo.com",
+      "phonePlaceholder": "+34 600 000 000",
       "creating": "Creando..."
     },
     "generate": {
@@ -854,7 +872,21 @@
     "actions": {
       "newSettlement": "Nueva liquidación",
       "downloadPdf": "Descargar PDF",
-      "markAsPaid": "Marcar como pagada"
+      "downloadExcel": "Descargar Excel",
+      "viewInvoice": "Ver factura",
+      "sendToOwner": "Enviar al propietario"
+    },
+    "pending": {
+      "title": "Liquidaciones Pendientes",
+      "subtitle": "Reservas del mes actual sin liquidar",
+      "loading": "Cargando liquidaciones pendientes...",
+      "noReservations": "No hay reservas pendientes de liquidar este mes",
+      "occupancy": "Ocupación",
+      "netPrice": "Precio neto",
+      "expenses": "Gastos",
+      "generateSettlement": "Generar liquidación",
+      "reservations": "reservas",
+      "nights": "noches"
     }
   },
   "billing": {
@@ -883,7 +915,34 @@
       "reservations": "Reservas",
       "pending": "pendientes",
       "noOwner": "Sin propietario",
-      "assignOwner": "Asignar propietario"
+      "assignOwner": "Asignar propietario",
+      "apartments": "apartamentos"
+    },
+    "property": {
+      "loading": "Cargando propiedad...",
+      "backToProperties": "Volver a propiedades",
+      "noOwnerAssigned": "Sin propietario asignado",
+      "commission": "Comisión",
+      "cleaning": "Limpieza",
+      "managerCollects": "Gestor cobra",
+      "ownerCollects": "Propietario cobra",
+      "noBillingData": "No hay datos de facturación para esta propiedad"
+    },
+    "yearView": {
+      "reservations": "reservas"
+    },
+    "month": {
+      "loading": "Cargando mes...",
+      "loadingInvoice": "Cargando factura...",
+      "backToProperty": "Volver a la propiedad",
+      "backToBilling": "Volver a Facturación",
+      "backToPropertyName": "Volver a",
+      "reservations": "res.",
+      "nights": "noches",
+      "pending": "Pendiente",
+      "noActivity": "Sin actividad",
+      "loadingEmail": "Cargando...",
+      "sendByEmail": "Enviar por email"
     }
   },
   "reservations": {
@@ -1058,6 +1117,115 @@
       "action": "Configurar integraciones"
     }
   },
+  "integrations": {
+    "title": "Importar reservas",
+    "subtitle": "Conecta Gmail para importar reservas de Airbnb automáticamente",
+    "unnamedProperty": "Propiedad sin nombre",
+    "messages": {
+      "gmailConnected": "Gmail conectado correctamente",
+      "authDenied": "Autenticación denegada",
+      "noCode": "No se recibió código de autorización",
+      "missingTokens": "Error al obtener tokens",
+      "callbackFailed": "Error en el callback",
+      "connectionError": "Error de conexión",
+      "gmailDisconnected": "Gmail desconectado",
+      "disconnectError": "Error al desconectar",
+      "syncSuccess": "Sincronización completada: {{count}} emails nuevos",
+      "syncError": "Error al sincronizar",
+      "reparseSuccess": "Emails re-analizados",
+      "reparseError": "Error al re-analizar",
+      "importSuccess": "✅ Importado: {{created}} reservas creadas, {{updated}} actualizadas",
+      "importError": "Error al procesar",
+      "propertyNameRequired": "Introduce un nombre para la propiedad"
+    },
+    "connect": {
+      "title": "Conecta tu Gmail",
+      "description": "Conecta la cuenta de Gmail donde recibes los emails de Airbnb para importar tus reservas automáticamente.",
+      "button": "Conectar Gmail"
+    },
+    "status": {
+      "connected": "Conectado",
+      "lastSync": "Última sync: {{date}}"
+    },
+    "summary": {
+      "title": "{{count}} reservas listas",
+      "from": "De {{count}} {{property}}",
+      "apartment": "apartamento",
+      "apartments": "apartamentos",
+      "autoDetected": "Auto-detectados",
+      "autoDetectedCount": "{{count}} apartamentos",
+      "autoDetectedReservations": "{{count}} reservas",
+      "needsConfig": "Necesitan configurar",
+      "needsConfigCount": "{{count}} apartamentos",
+      "needsConfigReservations": "{{count}} reservas",
+      "totalIncome": "Ingresos totales a importar",
+      "buttonReview": "Configurar e importar",
+      "buttonImport": "Importar todo",
+      "reparse": "¿No se detectan bien las propiedades? Re-analizar emails"
+    },
+    "empty": {
+      "noPending": "No hay reservas pendientes de importar",
+      "syncEmails": "Sincronizar emails"
+    },
+    "wizard": {
+      "configuring": "Configurando {{current}} de {{total}}",
+      "reservations": "reservas",
+      "stepName": "¿Cómo se llama esta propiedad?",
+      "stepNameDescription": "Puedes usar el nombre detectado o escribir otro",
+      "propertyNamePlaceholder": "Nombre de la propiedad",
+      "cityPlaceholder": "Ciudad (opcional)",
+      "existingProperty": "¿O es una propiedad que ya tienes?",
+      "stepOwner": "¿De quién es esta propiedad?",
+      "stepOwnerDescription": "Selecciona el propietario o déjalo vacío si es tuya",
+      "ownProperty": "Es mía (gestión propia)",
+      "ownPropertyDescription": "No hay propietario externo",
+      "createOwner": "Crear nuevo propietario",
+      "newOwner": "Nuevo propietario",
+      "ownerTypePerson": "Persona",
+      "ownerTypeCompany": "Empresa",
+      "firstNamePlaceholder": "Nombre",
+      "lastNamePlaceholder": "Apellidos",
+      "companyNamePlaceholder": "Razón social",
+      "createOwnerButton": "Crear propietario",
+      "stepCommission": "¿Cuánto cobras por gestionar?",
+      "stepCommissionDescription": "Selecciona tu comisión de gestión",
+      "commissionCustom": "Personalizar",
+      "commissionPercent": "% de comisión",
+      "advancedOptions": "Opciones avanzadas",
+      "whoReceives": "¿Quién cobra las reservas?",
+      "receiverOwner": "Propietario",
+      "receiverManager": "Gestor",
+      "cleaningAmount": "Limpieza (€)",
+      "cleaningRecipient": "¿Quién recibe?",
+      "cleaningRecipientManager": "Gestor",
+      "cleaningRecipientOwner": "Propietario",
+      "back": "Atrás",
+      "next": "Siguiente",
+      "finish": "Finalizar"
+    },
+    "confirmation": {
+      "title": "Todo listo para importar",
+      "description": "Revisa el resumen y confirma",
+      "autoDetected": "auto-detectado",
+      "new": "Nueva",
+      "reservationsCount": "reservas",
+      "owner": "· {{owner}}",
+      "commission": "· {{percent}}% comisión",
+      "totalTitle": "Total a importar",
+      "totalReservations": "{{count}} reservas",
+      "cancel": "Cancelar",
+      "import": "Importar todo",
+      "importing": "Importando..."
+    },
+    "help": {
+      "title": "Cómo funciona",
+      "step1": "Conecta tu cuenta de Gmail donde recibes los emails de Airbnb",
+      "step2": "El sistema detecta automáticamente las propiedades de cada email",
+      "step3": "Configura las propiedades nuevas (solo la primera vez)",
+      "step4": "Las próximas veces se importarán automáticamente"
+    },
+    "disconnect": "¿Desconectar Gmail?"
+  },
   "series": {
     "title": "Series de Facturación",
     "subtitle": "Configura las series de numeración para tus facturas",
@@ -1210,11 +1378,15 @@
     "settlementTitle": "Liquidación {{month}} {{year}}",
     "actions": {
       "downloadPdf": "Descargar PDF",
+      "downloadExcel": "Descargar Excel",
       "sendByEmail": "Enviar por email",
       "whatsapp": "WhatsApp",
-      "markAsPaid": "Marcar como pagada",
+      "viewInvoice": "Ver factura",
       "issueInvoice": "Emitir factura",
-      "delete": "Eliminar"
+      "delete": "Eliminar",
+      "recalculate": "Recalcular",
+      "recalculating": "Recalculando...",
+      "sendToOwner": "Enviar al propietario"
     },
     "reservations": {
       "title": "Reservas",
@@ -1222,11 +1394,45 @@
       "tableHeaders": {
         "code": "Código",
         "guest": "Huésped",
+        "platform": "Plataforma",
         "checkIn": "Entrada",
         "checkOut": "Salida",
         "nights": "Noches",
+        "income": "Ingreso",
+        "pricePerNight": "€/noche",
+        "commission": "Comisión ({{rate}}%)",
+        "commissionVat": "IVA Com. ({{rate}}%)",
+        "cleaning": "Limpieza",
+        "netOwner": "Neto propietario",
         "amount": "Importe"
-      }
+      },
+      "totals": "Totales"
+    },
+    "kpi": {
+      "occupancy": "Ocupación",
+      "occupancyDetail": "{{totalNights}}/{{daysInMonth}} noches",
+      "grossIncome": "Ingresos brutos",
+      "commission": "Comisión",
+      "commissionDetail": "{{rate}}% + IVA {{vatRate}}%",
+      "commissionFixed": "Fija + IVA {{vatRate}}%",
+      "netOwner": "Neto propietario"
+    },
+    "breakdown": {
+      "title": "Desglose de deducciones",
+      "grossIncome": "Ingresos brutos",
+      "netPrice": "Precio neto",
+      "commissionPct": "(-) Comisión gestión ({{rate}}%)",
+      "commissionFixed": "(-) Comisión gestión (fija)",
+      "vatCommission": "(-) IVA s/ comisión ({{rate}}%)",
+      "cleaning": "(-) Limpieza ({{detail}})",
+      "cleaningPerReservation": "{{value}}€/reserva × {{count}}",
+      "cleaningPerNight": "{{value}}€/noche × {{nights}}",
+      "expenses": "(-) Gastos repercutibles",
+      "expensesVat": "(-) IVA gastos",
+      "subtotalNet": "Subtotal neto",
+      "retentionIrpf": "(+) Retención IRPF ({{rate}}% s/ comisión)",
+      "retentionInfo": "solo informativo",
+      "totalTransfer": "TOTAL A TRANSFERIR"
     },
     "expenses": {
       "title": "Gastos repercutidos",
@@ -1434,7 +1640,75 @@
     "yes": "Sí",
     "no": "No",
     "or": "o",
+    "of": "de",
     "and": "y",
+    "date": "Fecha",
+    "dueDate": "Vencimiento",
+    "import": "Importar",
+    "deleting": "Eliminando...",
+    "night": "noche",
+    "nights": "noches",
+    "perNight": "por noche",
+    "cleaning": "Limpieza",
+    "automatic": "Automático",
+    "platform": "Plataforma",
+    "checkIn": "Entrada",
+    "checkOut": "Salida",
+    "guestName": "Nombre del huésped",
+    "guestFullNamePlaceholder": "Nombre completo del huésped",
+    "guestEmail": "Email del huésped",
+    "guestContact": "Contacto del huésped",
+    "recurringGuest": "Huésped recurrente",
+    "stays": "estancias",
+    "confirmationCode": "Código de confirmación",
+    "netIncome": "Ingreso neto",
+    "internalNotes": "Notas internas",
+    "internalNotesPlaceholder": "Notas visibles solo para ti...",
+    "leaveEmptyForConfigured": "Dejar vacío para usar el configurado",
+    "selectApartment": "Seleccionar apartamento",
+    "gestionApartments": "Apartamentos de gestión",
+    "manualProperties": "Propiedades manuales",
+    "noApartments": "No hay apartamentos",
+    "createOneFirst": "Crea uno primero",
+    "theApartment": "el apartamento",
+    "selectAll": "Seleccionar todo",
+    "notSettled": "Sin liquidar",
+    "selected": "seleccionados",
+    "noReservations": "No hay reservas",
+    "noReservationsDescription": "Importa o crea reservas para empezar",
+    "createReservation": "Crear reserva",
+    "editReservation": "Editar reserva",
+    "deleteReservationConfirm": "¿Estás seguro de que quieres eliminar esta reserva?",
+    "deleteMultipleReservations": "¿Eliminar las reservas seleccionadas?",
+    "deleteAll": "Eliminar todas",
+    "reservations": "reservas",
+    "unknownError": "Error desconocido",
+    "configureMapping": "Configurar mapeo",
+    "importFromCSV": "Importar desde CSV",
+    "csvFromEarnings": "CSV de ganancias de Airbnb",
+    "xlsFromExtranet": "XLS de Extranet de Booking",
+    "csvWithColumns": "CSV con columnas personalizadas",
+    "clickToSelectFile": "Haz clic para seleccionar archivo",
+    "assignToProperty": "Asignar a propiedad",
+    "autoDetectProperty": "Detectar propiedad automáticamente",
+    "deleteCurrentReservations": "Eliminar reservas actuales",
+    "imported": "importadas",
+    "duplicatesSkipped": "duplicados omitidos",
+    "importError": "Error de importación",
+    "errorsFound": "errores encontrados",
+    "rowsWithErrors": "Filas con errores",
+    "row": "Fila",
+    "importMore": "Importar más",
+    "viewInBilling": "Ver en facturación",
+    "reservationCreated": "Reserva creada",
+    "reservationCreatedFor": "Reserva creada para {{guest}}",
+    "addedToSettlements": "Disponible para liquidaciones",
+    "canExportExcel": "Puedes exportar a Excel",
+    "availableInBilling": "Disponible en facturación",
+    "reservationAppearsIn": "La reserva aparece en",
+    "important": "Importante",
+    "reservationCannotBeDeleted": "Esta reserva no se puede eliminar porque está asociada a una liquidación",
+    "addAnother": "Añadir otra",
     "months": {
       "january": "Enero",
       "february": "Febrero",
@@ -1463,10 +1737,13 @@
     },
     "validation": {
       "required": "Este campo es requerido",
+      "requiredFields": "Faltan campos obligatorios",
       "invalidEmail": "Email no válido",
       "invalidNif": "NIF/NIE no válido",
       "invalidCif": "CIF no válido",
-      "invalidIban": "IBAN no válido"
+      "invalidIban": "IBAN no válido",
+      "selectCsvOrExcel": "Selecciona un archivo CSV o Excel",
+      "selectProperty": "Selecciona una propiedad"
     },
     "errors": {
       "generic": "Ha ocurrido un error",
@@ -1475,7 +1752,13 @@
       "unauthorized": "No autorizado",
       "saveError": "Error al guardar",
       "deleteError": "Error al eliminar",
-      "loadError": "Error al cargar"
+      "loadError": "Error al cargar",
+      "createReservation": "Error al crear la reserva",
+      "updateReservation": "Error al actualizar la reserva",
+      "deleteReservation": "Error al eliminar la reserva",
+      "deleteReservations": "Error al eliminar las reservas",
+      "readFile": "Error al leer el archivo",
+      "importFile": "Error al importar el archivo"
     }
   }
 }

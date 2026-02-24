@@ -158,6 +158,13 @@
     "ago": "hace {{time}}",
     "in": "en {{time}}"
   },
+  "whatsapp": {
+    "greeting": "¡Hola! Me interesa Itineramio y me gustaría obtener más información. ¿Podrían ayudarme?",
+    "online": "En línea",
+    "helpMessage": "👋 ¡Hola! ¿Necesitas ayuda con Itineramio? Estamos aquí para resolver todas tus dudas.",
+    "startChat": "Iniciar conversación",
+    "typicalResponse": "Respuesta típica en pocos minutos"
+  },
   "meta": {
     "siteName": "Itineramio",
     "siteDescription": "Crea manuales digitales interactivos para tus alojamientos turísticos"
@@ -358,6 +365,161 @@
       "makePrivate": "Hacer privada",
       "makePublic": "Hacer pública",
       "public": "Publica"
+    }
+  },
+  "cookies": {
+    "banner": {
+      "message": "Utilizamos cookies para mejorar tu experiencia.",
+      "moreInfo": "Más información",
+      "customize": "Personalizar",
+      "essentialOnly": "Solo esenciales",
+      "acceptAll": "Aceptar todo",
+      "closeBanner": "Cerrar banner",
+      "savePreferences": "Guardar preferencias"
+    },
+    "categories": {
+      "essential": {
+        "title": "Esenciales",
+        "alwaysActive": "Siempre activas",
+        "description": "Necesarias para el funcionamiento del sitio. Incluyen autenticación, seguridad y preferencias básicas."
+      },
+      "analytics": {
+        "title": "Analíticas",
+        "description": "Nos ayudan a entender cómo usas el sitio para mejorarlo. Datos agregados y anónimos."
+      },
+      "marketing": {
+        "title": "Marketing",
+        "description": "Permiten mostrarte contenido y publicidad relevante basada en tus intereses."
+      }
+    },
+    "preferences": {
+      "buttonLabel": "Preferencias de cookies",
+      "title": "Preferencias de Cookies",
+      "description": "Puedes cambiar tus preferencias de cookies en cualquier momento. Algunos cambios pueden requerir recargar la página.",
+      "cancel": "Cancelar",
+      "saveChanges": "Guardar cambios",
+      "essential": {
+        "title": "Cookies Esenciales",
+        "description": "Necesarias para el funcionamiento básico del sitio. No pueden desactivarse."
+      },
+      "analytics": {
+        "title": "Cookies Analíticas",
+        "description": "Nos permiten analizar el uso del sitio de forma agregada para mejorar la experiencia."
+      },
+      "marketing": {
+        "title": "Cookies de Marketing",
+        "description": "Utilizadas para mostrarte publicidad y contenido personalizado según tus intereses."
+      }
+    }
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "unread": "{{count}} sin leer",
+    "markAllRead": "Marcar todas como leídas",
+    "empty": "No tienes notificaciones",
+    "emptyDescription": "Te avisaremos cuando haya algo importante",
+    "viewDetails": "Ver detalles →",
+    "timeAgo": {
+      "minutes": "hace {{count}}m",
+      "hours": "hace {{count}}h",
+      "days": "hace {{count}}d"
+    },
+    "evaluation": {
+      "public": "Pública",
+      "private": "Privada",
+      "withComment": "Con comentario"
+    }
+  },
+  "admin": {
+    "impersonation": {
+      "label": "MODO ADMIN",
+      "viewing": "Viendo como:",
+      "admin": "Admin",
+      "exiting": "Saliendo...",
+      "backToAdmin": "Volver a Admin",
+      "error": "Error al terminar la suplantación"
+    },
+    "header": {
+      "title": "Panel Admin",
+      "logout": "Cerrar Sesión",
+      "exit": "Salir"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "clients": "Clientes",
+      "users": "Usuarios",
+      "subscriptions": "Suscripciones",
+      "properties": "Propiedades",
+      "billing": "Facturación",
+      "payments": "Pagos",
+      "invoices": "Facturas",
+      "reports": "Reportes",
+      "settings": "Configuración",
+      "modules": "Módulos",
+      "plans": "Planes",
+      "pricing": "Precios",
+      "coupons": "Cupones",
+      "customPlans": "Custom Plans",
+      "marketing": "Marketing",
+      "leads": "Leads Cualificados",
+      "queries": "Consultas",
+      "subscribers": "Suscriptores",
+      "funnels": "Embudos",
+      "blog": "Blog",
+      "faq": "FAQ",
+      "hostProfiles": "Host Profiles",
+      "system": "Sistema",
+      "analytics": "Analytics",
+      "systemUsers": "Usuarios Sistema",
+      "logs": "Logs",
+      "configuration": "Configuración",
+      "academy": "Academia",
+      "academyLeads": "Leads",
+      "quizLeads": "Quiz Leads",
+      "academyUsers": "Usuarios"
+    },
+    "dashboard": {
+      "errorLoading": "Error al cargar datos",
+      "retry": "Reintentar",
+      "subtitle": "Resumen general de la plataforma Itineramio",
+      "totalUsers": "Usuarios Totales",
+      "active": "activos",
+      "properties": "Propiedades",
+      "monthlyRevenue": "Revenue Mensual",
+      "revenueChange": "+12% vs mes anterior",
+      "pendingInvoices": "Facturas Pendientes",
+      "recentActivity": "Actividad Reciente",
+      "viewMore": "Ver más",
+      "noRecentActivity": "No hay actividad reciente",
+      "quickActions": "Acciones Rápidas",
+      "createUser": "Crear Usuario",
+      "createUserDesc": "Añadir nuevo usuario al sistema",
+      "generateInvoice": "Generar Factura",
+      "generateInvoiceDesc": "Crear factura manual",
+      "searchProperty": "Buscar Propiedad",
+      "searchPropertyDesc": "Acceso rápido por ID"
+    }
+  },
+  "autosave": {
+    "saved": "Guardado",
+    "savedAt": "Guardado {{time}}",
+    "saving": "Guardando...",
+    "savingDraft": "Guardando borrador..."
+  },
+  "savedData": {
+    "title": "📝 Datos guardados encontrados",
+    "description": "Encontramos información de una propiedad que estabas creando anteriormente.",
+    "savedAgo": "Guardado {{time}}",
+    "continue": "Continuar donde lo dejé",
+    "startOver": "Empezar de nuevo",
+    "timeAgo": {
+      "justNow": "hace un momento",
+      "minutes": "hace {{count}} minuto",
+      "minutes_plural": "hace {{count}} minutos",
+      "hours": "hace {{count}} hora",
+      "hours_plural": "hace {{count}} horas",
+      "days": "hace {{count}} día",
+      "days_plural": "hace {{count}} días"
     }
   }
 }

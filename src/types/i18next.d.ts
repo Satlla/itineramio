@@ -2,7 +2,7 @@ import 'i18next'
 import 'react-i18next'
 
 // Define available namespaces
-type Namespaces = 'common' | 'auth' | 'dashboard' | 'property' | 'zones' | 'account' | 'landing' | 'tools' | 'legal'
+type Namespaces = 'common' | 'auth' | 'dashboard' | 'property' | 'zones' | 'account' | 'landing' | 'tools' | 'legal' | 'gestion' | 'ai-setup'
 
 declare module 'i18next' {
   interface CustomTypeOptions {

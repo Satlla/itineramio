@@ -1,6 +1,5 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import LanguageDetector from 'i18next-browser-languagedetector'
 
 // Import Spanish translations
 import esCommon from './locales/es/common.json'
@@ -13,6 +12,7 @@ import esZones from './locales/es/zones.json'
 import esAccount from './locales/es/account.json'
 import esLegal from './locales/es/legal.json'
 import esGestion from './locales/es/gestion.json'
+import esAiSetup from './locales/es/ai-setup.json'
 
 // Import English translations
 import enCommon from './locales/en/common.json'
@@ -25,6 +25,7 @@ import enZones from './locales/en/zones.json'
 import enAccount from './locales/en/account.json'
 import enLegal from './locales/en/legal.json'
 import enGestion from './locales/en/gestion.json'
+import enAiSetup from './locales/en/ai-setup.json'
 
 // Import French translations
 import frCommon from './locales/fr/common.json'
@@ -37,6 +38,7 @@ import frZones from './locales/fr/zones.json'
 import frAccount from './locales/fr/account.json'
 import frLegal from './locales/fr/legal.json'
 import frGestion from './locales/fr/gestion.json'
+import frAiSetup from './locales/fr/ai-setup.json'
 
 const resources = {
   es: {
@@ -49,7 +51,8 @@ const resources = {
     zones: esZones,
     account: esAccount,
     legal: esLegal,
-    gestion: esGestion
+    gestion: esGestion,
+    'ai-setup': esAiSetup
   },
   en: {
     common: enCommon,
@@ -61,7 +64,8 @@ const resources = {
     zones: enZones,
     account: enAccount,
     legal: enLegal,
-    gestion: enGestion
+    gestion: enGestion,
+    'ai-setup': enAiSetup
   },
   fr: {
     common: frCommon,
@@ -73,26 +77,23 @@ const resources = {
     zones: frZones,
     account: frAccount,
     legal: frLegal,
-    gestion: frGestion
+    gestion: frGestion,
+    'ai-setup': frAiSetup
   }
 }
 
 i18n
-  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources,
+    lng: 'es',
     fallbackLng: 'es',
     defaultNS: 'common',
-    ns: ['common', 'landing', 'auth', 'dashboard', 'property', 'tools', 'zones', 'account', 'legal', 'gestion'],
+    ns: ['common', 'landing', 'auth', 'dashboard', 'property', 'tools', 'zones', 'account', 'legal', 'gestion', 'ai-setup'],
     debug: false,
     interpolation: {
       escapeValue: false
     },
-    detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
-      caches: ['localStorage']
-    }
   })
 
 export const LANGUAGE_CONFIG = {
