@@ -5,6 +5,7 @@ import {
   validateHashChain,
   formatDateVF,
   formatAmountVF,
+  formatAmountXml,
 } from '../../../src/lib/verifactu/hash'
 
 describe('VeriFactu Hash', () => {
@@ -169,10 +170,24 @@ describe('VeriFactu Hash', () => {
   })
 
   describe('formatAmountVF', () => {
-    it('should format amounts with 2 decimal places', () => {
-      expect(formatAmountVF(1210)).toBe('1210.00')
-      expect(formatAmountVF(42.5)).toBe('42.50')
-      expect(formatAmountVF(0)).toBe('0.00')
+    it('should strip trailing decimal zeros per AEAT spec', () => {
+      // AEAT spec: trailing decimal zeros are stripped for hash computation
+      // 1210.00 → 1210, 42.50 → 42.5, 123.10 → 123.1
+      expect(formatAmountVF(1210)).toBe('1210')
+      expect(formatAmountVF(42.5)).toBe('42.5')
+      expect(formatAmountVF(0)).toBe('0')
+      expect(formatAmountVF(123.10)).toBe('123.1')
+      expect(formatAmountVF(99.99)).toBe('99.99')
+      expect(formatAmountVF(100.00)).toBe('100')
+    })
+  })
+
+  describe('formatAmountXml', () => {
+    it('should always return 2 decimal places for XML fields', () => {
+      expect(formatAmountXml(1210)).toBe('1210.00')
+      expect(formatAmountXml(42.5)).toBe('42.50')
+      expect(formatAmountXml(0)).toBe('0.00')
+      expect(formatAmountXml(123.1)).toBe('123.10')
     })
   })
 })

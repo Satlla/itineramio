@@ -70,7 +70,7 @@ interface Invoice {
   retentionRate: number
   retentionAmount: number
   total: number
-  status: 'DRAFT' | 'PROFORMA' | 'ISSUED' | 'SENT' | 'PAID' | 'OVERDUE'
+  status: 'DRAFT' | 'PROFORMA' | 'ISSUED' | 'SENT' | 'PAID' | 'OVERDUE' | 'CANCELLED'
   isLocked: boolean
   isRectifying: boolean
   rectifyingType?: 'SUBSTITUTION' | 'DIFFERENCE'
@@ -89,6 +89,7 @@ interface Invoice {
   invoiceType?: string
   taxRegimeKey?: string
   verifactuTimestamp?: string
+  qrCode?: string
 }
 
 interface ManagerConfig {
@@ -125,8 +126,11 @@ export default function InvoiceDetailPage() {
   const [managerConfig, setManagerConfig] = useState<ManagerConfig | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  // VeriFactu polling
+  // VeriFactu polling & cancellation
   const [pollingVerifactu, setPollingVerifactu] = useState(false)
+  const [retryingVerifactu, setRetryingVerifactu] = useState(false)
+  const [cancellingVerifactu, setCancellingVerifactu] = useState(false)
+  const [showCancelVerifactu, setShowCancelVerifactu] = useState(false)
 
   // Modals
   const [showPreview, setShowPreview] = useState(false)
@@ -554,6 +558,82 @@ export default function InvoiceDetailPage() {
         )}
       </AnimatePresence>
 
+      {/* VeriFactu Cancel Confirmation Modal */}
+      <AnimatePresence>
+        {showCancelVerifactu && invoice && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            onClick={() => setShowCancelVerifactu(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 bg-amber-50 border-b border-amber-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                    <AlertTriangle className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-amber-900">Anular registro VeriFactu</h3>
+                </div>
+              </div>
+              <div className="p-6">
+                <p className="text-gray-700">
+                  Se enviará una anulación a la AEAT para la factura <strong>{invoice.fullNumber}</strong>.
+                </p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Esto cancela el registro fiscal de esta factura. Si necesitas corregir importes,
+                  es preferible crear una factura rectificativa en lugar de anular.
+                </p>
+              </div>
+              <div className="p-6 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setShowCancelVerifactu(false)}>
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={async () => {
+                    setCancellingVerifactu(true)
+                    try {
+                      const res = await fetch(`/api/gestion/invoices/${invoice.id}/verifactu-cancel`, {
+                        method: 'POST',
+                        credentials: 'include',
+                      })
+                      const data = await res.json()
+                      if (res.ok && data.success) {
+                        setShowCancelVerifactu(false)
+                        // Refresh invoice data
+                        const invoiceRes = await fetch(`/api/gestion/invoices/${invoice.id}`, { credentials: 'include' })
+                        if (invoiceRes.ok) {
+                          const invoiceData = await invoiceRes.json()
+                          setInvoice(invoiceData.invoice)
+                        }
+                      } else {
+                        setError(data.error || 'Error al anular')
+                      }
+                    } catch {
+                      setError('Error de conexión')
+                    } finally {
+                      setCancellingVerifactu(false)
+                    }
+                  }}
+                  disabled={cancellingVerifactu}
+                  className="bg-amber-600 hover:bg-amber-700"
+                >
+                  <AlertTriangle className="w-4 h-4 mr-2" />
+                  {cancellingVerifactu ? 'Anulando...' : 'Confirmar anulación'}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Issue Modal */}
       <AnimatePresence>
         {showIssueModal && (
@@ -819,20 +899,36 @@ export default function InvoiceDetailPage() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
               <Card className="border-emerald-200 bg-emerald-50">
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-                        <Lock className="w-4 h-4 text-emerald-600" />
-                      </div>
-                      <div>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3 flex-1">
+                      {/* QR Code */}
+                      {invoice.qrCode && (
+                        <div className="flex-shrink-0">
+                          <div className="bg-white rounded-lg p-1.5 shadow-sm border border-emerald-200">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={invoice.qrCode}
+                              alt="QR tributario VERI*FACTU"
+                              className="w-20 h-20"
+                            />
+                          </div>
+                          <p className="text-[10px] text-emerald-600 text-center mt-1 font-medium">QR tributario</p>
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-emerald-900">VERI*FACTU</p>
-                        <p className="text-xs text-emerald-700">
+                        <p className="text-xs text-emerald-700 mt-0.5">
                           {invoice.invoiceType && `Tipo ${invoice.invoiceType} · `}
                           Hash: {invoice.verifactuHash.substring(0, 16)}...
                         </p>
+                        {invoice.verifactuTimestamp && (
+                          <p className="text-[10px] text-emerald-600 mt-1">
+                            Registro: {new Date(invoice.verifactuTimestamp).toLocaleString('es-ES')}
+                          </p>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col items-end gap-2 flex-shrink-0">
                       {invoice.verifactuStatus !== 'ACCEPTED' && (
                         <button
                           onClick={async () => {
@@ -871,6 +967,44 @@ export default function InvoiceDetailPage() {
                          invoice.verifactuStatus === 'ERROR' ? 'Error' :
                          'Pendiente envío'}
                       </Badge>
+                      {/* Retry button — for PENDING or ERROR */}
+                      {(invoice.verifactuStatus === 'PENDING' || invoice.verifactuStatus === 'ERROR') && (
+                        <button
+                          onClick={async () => {
+                            setRetryingVerifactu(true)
+                            try {
+                              const res = await fetch(`/api/gestion/invoices/${invoice.id}/verifactu-retry`, {
+                                method: 'POST',
+                                credentials: 'include',
+                              })
+                              const data = await res.json()
+                              if (res.ok && data.success) {
+                                setInvoice(prev => prev ? { ...prev, verifactuStatus: 'SUBMITTED' } : prev)
+                              } else {
+                                setError(data.error || 'Error al reenviar')
+                              }
+                            } catch {
+                              setError('Error de conexión')
+                            } finally {
+                              setRetryingVerifactu(false)
+                            }
+                          }}
+                          disabled={retryingVerifactu}
+                          className="text-xs text-amber-700 hover:text-amber-900 flex items-center gap-1 disabled:opacity-50"
+                        >
+                          <Send className={`w-3 h-3 ${retryingVerifactu ? 'animate-pulse' : ''}`} />
+                          {retryingVerifactu ? 'Reenviando...' : 'Reenviar a AEAT'}
+                        </button>
+                      )}
+                      {/* Cancel VeriFactu button — only for SUBMITTED or ACCEPTED */}
+                      {(invoice.verifactuStatus === 'SUBMITTED' || invoice.verifactuStatus === 'ACCEPTED') && (
+                        <button
+                          onClick={() => setShowCancelVerifactu(true)}
+                          className="text-[10px] text-red-500 hover:text-red-700 mt-1"
+                        >
+                          Anular registro AEAT
+                        </button>
+                      )}
                     </div>
                   </div>
                 </CardContent>

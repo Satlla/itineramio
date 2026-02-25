@@ -19,7 +19,8 @@ const VALID_TRANSITIONS: Record<ClientInvoiceStatus, ClientInvoiceStatus[]> = {
   ISSUED: ['SENT', 'PAID', 'OVERDUE'],
   SENT: ['PAID', 'OVERDUE'],
   OVERDUE: ['PAID'],
-  PAID: []
+  PAID: [],
+  CANCELLED: [], // Terminal state — cancelled via VeriFactu annulation
 }
 
 /**

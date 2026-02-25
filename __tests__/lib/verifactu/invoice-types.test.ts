@@ -16,13 +16,22 @@ describe('VeriFactu Invoice Types', () => {
       expect(type).toBe('F1')
     })
 
-    it('should return R4 for rectifying invoices', () => {
+    it('should return R1 for rectifying invoices (error correction)', () => {
       const type = resolveAEATInvoiceType({
         isRectifying: true,
         rectifyingType: 'SUBSTITUTION',
         total: 500,
       })
-      expect(type).toBe('R4')
+      expect(type).toBe('R1')
+    })
+
+    it('should return R1 for rectifying invoices by difference', () => {
+      const type = resolveAEATInvoiceType({
+        isRectifying: true,
+        rectifyingType: 'DIFFERENCE',
+        total: -200,
+      })
+      expect(type).toBe('R1')
     })
   })
 

@@ -25,7 +25,7 @@ export interface VerifactiCreateRequest {
   numero: string
   /** DD-MM-YYYY or "CURRENT_DATE" */
   fecha_expedicion: string
-  /** F1, F2, F3, R1, R5 */
+  /** F1, F2, F3, R1-R5 */
   tipo_factura: string
   descripcion: string
   /** Recipient NIF (required for F1) */
@@ -34,6 +34,19 @@ export interface VerifactiCreateRequest {
   nombre: string
   lineas: VerifactiLineItem[]
   importe_total: string
+  /** Rectificativa fields (only for R1-R5 invoices) */
+  tipo_rectificativa?: 'S' | 'I' // Sustitución | Por diferencias
+  /** Original invoice references (for rectificativas) */
+  facturas_rectificadas?: Array<{
+    serie: string
+    numero: string
+    fecha_expedicion: string
+  }>
+  /** Original amounts before rectification (for sustitución type) */
+  importe_rectificacion?: {
+    base_rectificada: string
+    cuota_rectificada: string
+  }
 }
 
 export interface VerifactiCreateResponse {
@@ -198,6 +211,8 @@ export function buildVerifactiRequest(invoice: {
   fullNumber: string
   issueDate: Date
   isRectifying: boolean
+  rectifyingType?: 'SUBSTITUTION' | 'DIFFERENCE' | null
+  invoiceType: string // AEAT type code (F1, R1, etc.)
   total: number
   totalVat: number
   items: Array<{
@@ -217,13 +232,17 @@ export function buildVerifactiRequest(invoice: {
   series: {
     prefix: string
   }
+  /** Original invoice data for rectificativas */
+  rectifies?: {
+    fullNumber: string
+    issueDate: Date
+    subtotal: number
+    totalVat: number
+  } | null
 }): VerifactiCreateRequest {
   // Extract serie and numero from fullNumber (e.g. "F250001" -> serie "F25", numero "0001")
   const prefix = invoice.series.prefix
   const numero = invoice.fullNumber.replace(prefix, '')
-
-  // Determine invoice type
-  const tipoFactura = invoice.isRectifying ? 'R1' : 'F1'
 
   // Recipient name
   const nombre = invoice.owner.type === 'EMPRESA'
@@ -262,15 +281,43 @@ export function buildVerifactiRequest(invoice: {
     ? invoice.items[0].concept
     : `Servicios de gestión (${invoice.items.length} conceptos)`
 
-  return {
+  const request: VerifactiCreateRequest = {
     serie: prefix,
     numero,
     fecha_expedicion: fecha,
-    tipo_factura: tipoFactura,
+    tipo_factura: invoice.invoiceType,
     descripcion,
     nif,
     nombre,
     lineas,
     importe_total: invoice.total.toFixed(2),
   }
+
+  // Add rectificativa data if this is a rectifying invoice
+  if (invoice.isRectifying && invoice.rectifies) {
+    const tipoRectificativa = invoice.rectifyingType === 'SUBSTITUTION' ? 'S' : 'I'
+    request.tipo_rectificativa = tipoRectificativa
+
+    // Original invoice reference
+    const origPrefix = invoice.rectifies.fullNumber.match(/^[A-Z]+/)?.[0] || prefix
+    const origNumero = invoice.rectifies.fullNumber.replace(origPrefix, '')
+    const origDate = invoice.rectifies.issueDate
+    const origFecha = `${String(origDate.getDate()).padStart(2, '0')}-${String(origDate.getMonth() + 1).padStart(2, '0')}-${origDate.getFullYear()}`
+
+    request.facturas_rectificadas = [{
+      serie: origPrefix,
+      numero: origNumero,
+      fecha_expedicion: origFecha,
+    }]
+
+    // For substitution type, include original amounts
+    if (tipoRectificativa === 'S') {
+      request.importe_rectificacion = {
+        base_rectificada: invoice.rectifies.subtotal.toFixed(2),
+        cuota_rectificada: invoice.rectifies.totalVat.toFixed(2),
+      }
+    }
+  }
+
+  return request
 }

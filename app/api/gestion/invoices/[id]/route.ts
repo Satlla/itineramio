@@ -113,6 +113,7 @@ export async function GET(
         verifactuTimestamp: invoice.verifactuTimestamp?.toISOString(),
         invoiceType: invoice.invoiceType,
         taxRegimeKey: invoice.taxRegimeKey,
+        qrCode: invoice.qrCode,
         owner: {
           ...invoice.owner,
           // Convert any Decimal fields

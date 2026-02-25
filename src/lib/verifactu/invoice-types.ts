@@ -39,6 +39,14 @@ export const TAX_REGIME_KEYS: Record<string, { code: string; label: string; desc
 
 /**
  * Maps itineramio invoice properties to the appropriate AEAT invoice type.
+ *
+ * For rectificativas in property management context:
+ * - R1: Error correction (art. 80.1, 80.2, 80.6) — most common for gestores
+ * - R4: Other causes — fallback
+ *
+ * We default rectificativas to R1 (error correction) since in property management,
+ * rectifications are typically issued to correct billing errors or adjust amounts.
+ * R4 is used as a fallback when reason is unknown.
  */
 export function resolveAEATInvoiceType(invoice: {
   isRectifying: boolean
@@ -46,12 +54,12 @@ export function resolveAEATInvoiceType(invoice: {
   total: number
 }): AEATInvoiceType {
   if (invoice.isRectifying) {
-    // Default to R4 (general rectificativa) unless we have more specific info
-    return 'R4'
+    // R1 for error correction (most common in property management)
+    // Both SUBSTITUTION and DIFFERENCE map to R1 when correcting billing errors
+    return 'R1'
   }
 
-  // Simplified invoices are those under 400€ (Spanish threshold)
-  // For now, default to F1 (complete invoice) since gestor invoices typically are complete
+  // F1: Complete invoice (standard for gestor invoices)
   return 'F1'
 }
 

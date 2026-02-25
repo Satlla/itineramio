@@ -180,6 +180,7 @@ model PropertySet {
   properties          Property[]
   host                User       @relation(fields: [hostId], references: [id], onDelete: Cascade)
 
+  @@index([hostId])
   @@map("property_sets")
 }
 
@@ -248,6 +249,7 @@ model Property {
   externalMappings        PropertyExternalMapping[]
 
   @@index([slug])
+  @@index([hostId, deletedAt])
   @@map("properties")
 }
 
@@ -699,6 +701,7 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, read])
+  @@index([userId, type, createdAt])
   @@index([createdAt])
   @@map("notifications")
 }
@@ -2913,6 +2916,7 @@ enum ClientInvoiceStatus {
   PAID
   OVERDUE
   PROFORMA
+  CANCELLED
 }
 
 enum RectifyingType {

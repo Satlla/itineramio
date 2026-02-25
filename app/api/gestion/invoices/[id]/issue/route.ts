@@ -181,7 +181,7 @@ export async function POST(
       // No body provided, use automatic numbering
     }
 
-    // Get invoice with validation
+    // Get invoice with validation (includes rectificativa relation for VeriFactu)
     const invoice = await prisma.clientInvoice.findFirst({
       where: {
         id,
@@ -200,6 +200,16 @@ export async function POST(
             companyName: true,
             nif: true,
             cif: true,
+          }
+        },
+        rectifies: {
+          select: {
+            id: true,
+            fullNumber: true,
+            issueDate: true,
+            subtotal: true,
+            totalVat: true,
+            total: true,
           }
         }
       }
@@ -358,6 +368,14 @@ export async function POST(
     } = {}
 
     if (verifactuEnabled && invoiceConfig) {
+      // Validate NIF before computing hash — empty NIF would produce wrong hash
+      if (!invoiceConfig.nif || invoiceConfig.nif.trim().length === 0) {
+        return NextResponse.json(
+          { error: 'VeriFactu está activado pero no has configurado tu NIF en el perfil de gestor. Configúralo antes de emitir.' },
+          { status: 400 }
+        )
+      }
+
       // Resolve AEAT invoice type
       const invoiceType = resolveAEATInvoiceType({
         isRectifying: invoice.isRectifying,
@@ -365,7 +383,8 @@ export async function POST(
         total: Number(invoice.total),
       })
 
-      // Get previous hash from the last issued invoice in the same series
+      // Get previous record from the last issued invoice in the same series
+      // We need the full identification for Encadenamiento per AEAT XSD
       const previousInvoice = await prisma.clientInvoice.findFirst({
         where: {
           userId,
@@ -375,7 +394,11 @@ export async function POST(
           id: { not: id },
         },
         orderBy: { issuedAt: 'desc' },
-        select: { verifactuHash: true },
+        select: {
+          verifactuHash: true,
+          fullNumber: true,
+          issueDate: true,
+        },
       })
       const previousHash = previousInvoice?.verifactuHash || ''
 
@@ -415,6 +438,28 @@ export async function POST(
         qrCode: qrDataUrl,
         verifactuStatus: 'PENDING',
       }
+
+      // Store extra audit data for hash re-verification and XML generation
+      const auditExtra: Record<string, unknown> = {
+        // Exact timestamp string used in hash computation (DateTime field loses timezone)
+        fechaHoraHusoGenRegistro: timestamp,
+        fechaExpedicion,
+        nifEmisor: invoiceConfig.nif,
+        cuotaTotal: formatAmountVF(Number(invoice.totalVat)),
+        importeTotal: formatAmountVF(Number(invoice.total)),
+      }
+
+      if (previousInvoice?.fullNumber && previousInvoice?.issueDate) {
+        const prevFechaExpedicion = formatDateVF(previousInvoice.issueDate)
+        auditExtra.registroAnterior = {
+          nifEmisor: invoiceConfig.nif,
+          numSerieFactura: previousInvoice.fullNumber,
+          fechaExpedicion: prevFechaExpedicion,
+          huella: previousHash,
+        }
+      }
+
+      ;(verifactuData as Record<string, unknown>)._auditExtra = auditExtra
     }
 
     // Update invoice to ISSUED (with VeriFactu data if enabled)
@@ -453,6 +498,7 @@ export async function POST(
 
     // Create audit log entry
     if (verifactuEnabled) {
+      const auditExtra = (verifactuData as Record<string, unknown>)._auditExtra || {}
       await prisma.invoiceAuditLog.create({
         data: {
           invoiceId: id,
@@ -460,7 +506,9 @@ export async function POST(
           newData: {
             fullNumber,
             verifactuHash: verifactuData.verifactuHash,
+            verifactuPreviousHash: verifactuData.verifactuPreviousHash,
             invoiceType: verifactuData.invoiceType,
+            ...(auditExtra as Record<string, unknown>),
           },
           userId,
         }
@@ -476,6 +524,8 @@ export async function POST(
           fullNumber,
           issueDate: invoice.issueDate,
           isRectifying: invoice.isRectifying,
+          rectifyingType: invoice.rectifyingType,
+          invoiceType: verifactuData.invoiceType || 'F1',
           total: Number(invoice.total),
           totalVat: Number(invoice.totalVat),
           items: invoice.items.map(i => ({
@@ -495,6 +545,12 @@ export async function POST(
           series: {
             prefix: invoice.series.prefix,
           },
+          rectifies: invoice.rectifies ? {
+            fullNumber: invoice.rectifies.fullNumber || '',
+            issueDate: invoice.rectifies.issueDate,
+            subtotal: Number(invoice.rectifies.subtotal),
+            totalVat: Number(invoice.rectifies.totalVat),
+          } : null,
         })
 
         const result = await verifactiCreateInvoice(invoiceConfig.verifactuApiKey, verifactiRequest)
@@ -502,7 +558,7 @@ export async function POST(
         if (result.success) {
           verifactiResult = { uuid: result.data.uuid, qrUrl: result.data.qr_url }
 
-          // Update invoice with Verifacti UUID and status
+          // Update invoice with Verifacti status
           await prisma.clientInvoice.update({
             where: { id },
             data: {
@@ -522,10 +578,31 @@ export async function POST(
         } else {
           verifactiResult = { error: result.error }
           console.error('Verifacti submission failed:', result.error)
+
+          // Save failed submission for retry tracking
+          await prisma.verifactuSubmission.create({
+            data: {
+              invoiceId: id,
+              xmlPayload: JSON.stringify(verifactiRequest),
+              response: null,
+              status: 'ERROR',
+              errorMessage: result.error,
+            },
+          }).catch(err => console.error('Error saving failed submission:', err))
         }
       } catch (verifactiError) {
         console.error('Error submitting to Verifacti:', verifactiError)
         verifactiResult = { error: 'Error de conexión con Verifacti' }
+
+        // Save connection error for retry tracking
+        await prisma.verifactuSubmission.create({
+          data: {
+            invoiceId: id,
+            xmlPayload: '{}',
+            status: 'ERROR',
+            errorMessage: verifactiError instanceof Error ? verifactiError.message : 'Error de conexión',
+          },
+        }).catch(err => console.error('Error saving error submission:', err))
       }
     }
 

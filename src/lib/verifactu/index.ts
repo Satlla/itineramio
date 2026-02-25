@@ -9,6 +9,7 @@ export {
   validateHashChain,
   formatDateVF,
   formatAmountVF,
+  formatAmountXml,
   generateTimestamp,
   type RegistroAltaHashInput,
   type RegistroAnulacionHashInput,
@@ -41,8 +42,13 @@ export {
   generateRegistroAltaXml,
   generateRegistroAnulacionXml,
   generateSOAPEnvelope,
+  DEFAULT_SOFTWARE_INFO,
   type RegistroAltaData,
   type RegistroAnulacionData,
+  type SoftwareInfo,
+  type DesgloseDetail,
+  type CalificacionOperacion,
+  type OperacionExenta,
 } from './xml'
 
 export {

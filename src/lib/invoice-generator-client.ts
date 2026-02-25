@@ -529,9 +529,9 @@ export function generateClientInvoiceHTML(data: ClientInvoiceData): string {
       ${data.verifactu.qrDataUrl ? `
       <div style="flex-shrink: 0;">
         <div style="font-size: 8pt; font-weight: 600; color: #333; margin-bottom: 4px; text-align: center;">QR tributario</div>
-        <img src="${data.verifactu.qrDataUrl}" alt="QR tributario" style="width: 30mm; height: 30mm;" />
+        <img src="${data.verifactu.qrDataUrl}" alt="QR tributario" style="width: 30mm; height: 40mm;" />
       </div>` : ''}
-      <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 30mm;">
+      <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 40mm;">
         <div style="font-size: 14pt; font-weight: 700; color: #000; letter-spacing: 2px;">VERI*FACTU</div>
         <div style="font-size: 8pt; color: #666; margin-top: 4px;">Sistema de facturación verificable — RD 1007/2023</div>
         ${data.verifactu.hash ? `<div style="font-size: 7pt; color: #999; margin-top: 4px; font-family: monospace; word-break: break-all;">Hash: ${data.verifactu.hash}</div>` : ''}

@@ -81,6 +81,14 @@ export function computeRegistroAnulacionHash(input: RegistroAnulacionHashInput):
 }
 
 /**
+ * Format a decimal amount for XML fields (always 2 decimal places).
+ * This is different from formatAmountVF which strips trailing zeros for hash computation.
+ */
+export function formatAmountXml(amount: number): string {
+  return amount.toFixed(2)
+}
+
+/**
  * Format a date as DD-MM-YYYY per VeriFactu spec.
  */
 export function formatDateVF(date: Date): string {
@@ -91,10 +99,15 @@ export function formatDateVF(date: Date): string {
 }
 
 /**
- * Format a decimal amount with 2 decimal places using dot as separator.
+ * Format a decimal amount for VeriFactu hash computation.
+ * Per AEAT spec: trailing decimal zeros are stripped (123.10 → 123.1, 100.00 → 100).
+ * Uses dot as decimal separator.
  */
 export function formatAmountVF(amount: number): string {
-  return amount.toFixed(2)
+  // toFixed(2) first to ensure proper rounding, then strip trailing zeros
+  const fixed = amount.toFixed(2)
+  // Remove trailing zeros after decimal point, then remove trailing dot if present
+  return fixed.replace(/\.?0+$/, '') || '0'
 }
 
 /**
