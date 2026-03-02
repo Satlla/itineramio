@@ -2,7 +2,6 @@ import { NextRequest } from 'next/server'
 import { requireAuth } from '../../../../src/lib/auth'
 import { planLimitsService } from '../../../../src/lib/plan-limits'
 import { generateManual, type PropertyInput, type GenerationEvent } from '../../../../src/lib/ai-setup/generator'
-import { type MediaAnalysisResult } from '../../../../src/lib/ai-setup/vision'
 
 export const maxDuration = 300
 export const runtime = 'nodejs'
@@ -25,7 +24,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { propertyData, mediaAnalysis } = body as {
       propertyData: PropertyInput
-      mediaAnalysis: MediaAnalysisResult[]
+      mediaAnalysis: any[]
     }
 
     if (!propertyData || !propertyData.name || !propertyData.street) {

@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowRight, Clock, Target, Gift, CheckCircle2, Users, BarChart3, Zap } from 'lucide-react'

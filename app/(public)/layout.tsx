@@ -1,11 +1,17 @@
-import { Metadata } from 'next'
+import { Metadata, Viewport } from 'next'
+import { Suspense } from 'react'
 
 export const metadata: Metadata = {
   title: 'Itineramio - Guía Interactiva',
   description: 'Accede a tu guía interactiva personalizada',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
-  themeColor: '#6366f1',
   manifest: '/manifest.json',
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#6366f1',
 }
 
 export default function PublicLayout({
@@ -15,7 +21,7 @@ export default function PublicLayout({
 }) {
   return (
     <div className="min-h-screen">
-      {children}
+      <Suspense>{children}</Suspense>
     </div>
   )
 }

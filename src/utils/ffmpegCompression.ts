@@ -4,13 +4,30 @@ import { fetchFile, toBlobURL } from '@ffmpeg/util'
 
 let ffmpeg: FFmpeg | null = null
 let ffmpegLoaded = false
+let ffmpegLoadPromise: Promise<FFmpeg> | null = null
 
-// Initialize FFmpeg (lazy loading)
+// Initialize FFmpeg (lazy loading, singleton)
 async function initFFmpeg(onProgress?: (message: string) => void): Promise<FFmpeg> {
   if (ffmpeg && ffmpegLoaded) {
     return ffmpeg
   }
 
+  // Prevent multiple concurrent loads
+  if (ffmpegLoadPromise) return ffmpegLoadPromise
+
+  ffmpegLoadPromise = _doLoadFFmpeg(onProgress)
+  try {
+    return await ffmpegLoadPromise
+  } catch (e) {
+    // Reset on failure so next attempt starts fresh
+    ffmpeg = null
+    ffmpegLoaded = false
+    ffmpegLoadPromise = null
+    throw e
+  }
+}
+
+async function _doLoadFFmpeg(onProgress?: (message: string) => void): Promise<FFmpeg> {
   ffmpeg = new FFmpeg()
 
   ffmpeg.on('log', ({ message }) => {
@@ -24,13 +41,15 @@ async function initFFmpeg(onProgress?: (message: string) => void): Promise<FFmpe
 
   onProgress?.('Cargando compresor de video...')
 
-  // Load FFmpeg core from CDN
-  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm'
+  // Load FFmpeg UMD core — local in dev (CORS issues with CDN), CDN in prod
+  const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+  const baseURL = isLocal
+    ? `${window.location.origin}/ffmpeg`
+    : 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd'
 
   await ffmpeg.load({
     coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
     wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-    workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript'),
   })
 
   ffmpegLoaded = true

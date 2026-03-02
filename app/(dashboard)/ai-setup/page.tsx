@@ -479,6 +479,7 @@ export default function AISetupPage() {
                 propertyData={buildPropertyData()}
                 mediaAnalysis={media}
                 onComplete={clearDraft}
+                onBack={() => setCurrentStep(4)}
               />
             )}
           </AnimatePresence>

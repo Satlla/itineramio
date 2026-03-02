@@ -1,15 +1,25 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Clock, Gift, AlertTriangle, X, Sparkles, Copy, CheckCircle, Flame } from 'lucide-react'
 import Link from 'next/link'
+
+// Social proof messages for the ticker
+const SOCIAL_PROOF_MESSAGES = [
+  { es: 'Maria G. se registro hace 12 min — 80% menos consultas de huespedes', en: 'Maria G. signed up 12 min ago — 80% fewer guest inquiries', fr: 'Maria G. s\'est inscrite il y a 12 min — 80% moins de demandes' },
+  { es: 'Carlos R.: "Mis huespedes ya no me llaman preguntando"', en: 'Carlos R.: "My guests don\'t call me asking anymore"', fr: 'Carlos R. : "Mes invites ne m\'appellent plus"' },
+  { es: '127 anfitriones activaron su manual esta semana', en: '127 hosts activated their manual this week', fr: '127 hotes ont active leur manuel cette semaine' },
+  { es: 'Ana P.: "El chatbot es lo mejor que he probado"', en: 'Ana P.: "The chatbot is the best thing I\'ve tried"', fr: 'Ana P. : "Le chatbot est le meilleur outil que j\'ai essaye"' },
+  { es: 'Luis M. ahorra 5h/semana con su manual digital', en: 'Luis M. saves 5h/week with his digital manual', fr: 'Luis M. economise 5h/semaine avec son manuel numerique' },
+]
 
 interface DemoCountdownBannerProps {
   expiresAt: string
   couponCode: string
   leadEmail?: string
   leadName?: string
+  propertyId?: string
 }
 
 function formatTime(seconds: number): string {
@@ -81,7 +91,7 @@ function getLang(): string {
   return localStorage.getItem('itineramio-language') || navigator.language?.split('-')[0] || 'es'
 }
 
-export default function DemoCountdownBanner({ expiresAt, couponCode, leadEmail, leadName }: DemoCountdownBannerProps) {
+export default function DemoCountdownBanner({ expiresAt, couponCode, leadEmail, leadName, propertyId }: DemoCountdownBannerProps) {
   const [secondsLeft, setSecondsLeft] = useState(() => {
     const diff = Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000)
     return Math.max(0, diff)
@@ -92,8 +102,19 @@ export default function DemoCountdownBanner({ expiresAt, couponCode, leadEmail, 
   const [showUrgencyAlert, setShowUrgencyAlert] = useState(false)
   const [spotsRemaining, setSpotsRemaining] = useState(28)
 
+  const [tickerIndex, setTickerIndex] = useState(0)
+
   const lang = typeof window !== 'undefined' ? getLang() : 'es'
   const tr = T[lang] || T.es
+  const langKey = (lang === 'en' || lang === 'fr') ? lang : 'es'
+
+  // Rotate social proof messages every 8 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTickerIndex(prev => (prev + 1) % SOCIAL_PROOF_MESSAGES.length)
+    }, 8000)
+    return () => clearInterval(interval)
+  }, [])
 
   // Fetch spots on mount
   useEffect(() => {
@@ -136,7 +157,7 @@ export default function DemoCountdownBanner({ expiresAt, couponCode, leadEmail, 
     }
   }, [urgencyLevel])
 
-  const registerUrl = `/register?from=demo&coupon=${couponCode}${leadEmail ? `&email=${encodeURIComponent(leadEmail)}` : ''}${leadName ? `&name=${encodeURIComponent(leadName)}` : ''}`
+  const registerUrl = `/register?from=demo&coupon=${couponCode}${propertyId ? `&propertyId=${propertyId}` : ''}${leadEmail ? `&email=${encodeURIComponent(leadEmail)}` : ''}${leadName ? `&name=${encodeURIComponent(leadName)}` : ''}`
 
   const handleCopyCoupon = useCallback(() => {
     navigator.clipboard.writeText(couponCode).catch(() => {})
@@ -227,7 +248,25 @@ export default function DemoCountdownBanner({ expiresAt, couponCode, leadEmail, 
       </div>
 
       {/* Bottom sticky CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-xl border-t border-gray-800">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-950/95 backdrop-blur-xl border-t border-gray-800" id="demo-register-cta">
+        {/* Social proof ticker */}
+        <div className="border-b border-gray-800/50 overflow-hidden">
+          <div className="max-w-6xl mx-auto px-3 py-1.5">
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={tickerIndex}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3 }}
+                className="text-xs text-gray-400 text-center truncate"
+              >
+                {SOCIAL_PROOF_MESSAGES[tickerIndex][langKey as keyof typeof SOCIAL_PROOF_MESSAGES[0]]}
+              </motion.p>
+            </AnimatePresence>
+          </div>
+        </div>
+
         <div className="max-w-6xl mx-auto px-3 py-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <Gift className="w-5 h-5 text-violet-400 flex-shrink-0" />

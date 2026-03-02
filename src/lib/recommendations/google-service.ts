@@ -160,22 +160,33 @@ async function searchAICurated(
 
     // Step 2: For each name, use Google Find Place to get real data
     const places: GooglePlace[] = []
-    for (const name of placeNames.slice(0, category.maxResults)) {
+    for (const name of placeNames.slice(0, category.maxResults + 3)) { // fetch extras in case some are filtered
       try {
         const place = await findPlaceByName(name, city, lat, lng)
-        if (place) {
-          places.push(place)
-        }
+        if (!place) continue
+        // Skip permanently closed places
+        if (place.businessStatus === 'CLOSED_PERMANENTLY') continue
+        // Skip low-rated places (if rating available)
+        if (place.rating && place.rating < 3.5) continue
+        places.push(place)
       } catch (err) {
         console.error(`[google] Find place failed for "${name}":`, err)
       }
     }
 
-    // Sort by distance
-    places.sort((a, b) => a.distanceMeters - b.distanceMeters)
+    // Sort: places with photos first, then by distance
+    places.sort((a, b) => {
+      const aHasPhoto = a.photoUrl ? 0 : 1
+      const bHasPhoto = b.photoUrl ? 0 : 1
+      if (aHasPhoto !== bHasPhoto) return aHasPhoto - bHasPhoto
+      return a.distanceMeters - b.distanceMeters
+    })
 
-    console.log(`[google] AI-curated found ${places.length}/${placeNames.length} places for ${category.id}`)
-    return places
+    // Trim to maxResults after filtering
+    const trimmed = places.slice(0, category.maxResults)
+
+    console.log(`[google] AI-curated found ${trimmed.length}/${placeNames.length} places for ${category.id} (${places.length - trimmed.length} filtered)`)
+    return trimmed
   } catch (err) {
     console.error(`[google] AI-curated search failed for ${category.id}:`, err)
     return searchGoogleText(category.label, lat, lng, category)
@@ -292,8 +303,20 @@ function parseGoogleResults(
     }
   })
 
-  parsed.sort((a, b) => a.distanceMeters - b.distanceMeters)
-  return parsed.slice(0, maxResults)
+  // Filter out: permanently closed, low rating (<3.5), prioritize with photos
+  const filtered = parsed
+    .filter(p => p.businessStatus !== 'CLOSED_PERMANENTLY')
+    .filter(p => !p.rating || p.rating >= 3.5)
+
+  // Sort: places with photos first, then by distance
+  filtered.sort((a, b) => {
+    const aHasPhoto = a.photoUrl ? 0 : 1
+    const bHasPhoto = b.photoUrl ? 0 : 1
+    if (aHasPhoto !== bHasPhoto) return aHasPhoto - bHasPhoto
+    return a.distanceMeters - b.distanceMeters
+  })
+
+  return filtered.slice(0, maxResults)
 }
 
 /**

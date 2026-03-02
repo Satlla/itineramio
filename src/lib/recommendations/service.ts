@@ -326,9 +326,17 @@ async function loadPlacesFromDb(placeDbIds: string[], lat: number, lng: number):
         walkMinutes: Math.ceil(distanceMeters / WALK_SPEED_MPM),
       }
     })
+    // Filter out permanently closed and low-rated places
+    .filter(p => p.businessStatus !== 'CLOSED_PERMANENTLY')
+    .filter(p => !p.rating || p.rating >= 3.5)
 
-  // Sort by distance (closest first)
-  results.sort((a, b) => a.distanceMeters - b.distanceMeters)
+  // Sort: places with photos first, then by distance
+  results.sort((a, b) => {
+    const aHasPhoto = a.photoUrl ? 0 : 1
+    const bHasPhoto = b.photoUrl ? 0 : 1
+    if (aHasPhoto !== bHasPhoto) return aHasPhoto - bHasPhoto
+    return a.distanceMeters - b.distanceMeters
+  })
   return results
 }
 
@@ -426,7 +434,7 @@ export async function fetchNearbyPlaces(
   const tileKey = geoTileKey(lat, lng)
   const categories = categoryIds
     ? CATEGORIES.filter(c => categoryIds.includes(c.id))
-    : CATEGORIES
+    : CATEGORIES.filter(c => c.defaultEnabled)
 
   const osmCategories = categories.filter(c => c.source === 'OSM')
   const googleCategories = categories.filter(c => c.source === 'GOOGLE')

@@ -5,6 +5,9 @@ import { generateSlug } from '../../../../src/lib/slug-utils'
 import { generatePropertyNumber, extractNumberFromReference } from '../../../../src/lib/property-number-generator'
 import { fetchAllLocationData } from '../../../../src/lib/ai-setup/places'
 import { generateRecommendations } from '../../../../src/lib/recommendations'
+import { validateEmail } from '../../../../src/utils/email-validation'
+import { verifyDemoVerificationToken } from '../../../../src/lib/demo-otp'
+import { sendEmail, emailTemplates } from '../../../../src/lib/email'
 import {
   type PropertyInput,
   type TrilingualZoneConfig,
@@ -25,7 +28,12 @@ import { APPLIANCE_REGISTRY, type CanonicalApplianceType } from '../../../../src
 async function verifyTurnstile(token: string): Promise<boolean> {
   const secretKey = process.env.TURNSTILE_SECRET_KEY
   if (!secretKey) {
-    console.warn('[demo] TURNSTILE_SECRET_KEY not configured, skipping verification')
+    // In production, reject if Turnstile is not configured
+    if (process.env.NODE_ENV === 'production') {
+      console.error('[demo] TURNSTILE_SECRET_KEY not configured in production — rejecting')
+      return false
+    }
+    console.warn('[demo] TURNSTILE_SECRET_KEY not configured, skipping verification (dev mode)')
     return true
   }
 
@@ -52,10 +60,12 @@ async function verifyTurnstile(token: string): Promise<boolean> {
 
 async function cleanupExpiredDemos() {
   try {
+    // Only cleanup properties expired more than 48h ago (safety margin for registration flow)
+    const safeCleanupThreshold = new Date(Date.now() - 48 * 60 * 60 * 1000)
     const expired = await prisma.property.findMany({
       where: {
         isDemoPreview: true,
-        demoExpiresAt: { lt: new Date() },
+        demoExpiresAt: { lt: safeCleanupThreshold },
       },
       select: { id: true },
     })
@@ -146,8 +156,16 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
-    // 2. Validate Turnstile
-    if (body.turnstileToken) {
+    // 2. Validate Turnstile (mandatory)
+    if (!body.turnstileToken) {
+      // Allow bypass only in development
+      if (process.env.NODE_ENV === 'production') {
+        return NextResponse.json(
+          { error: 'Verificación de seguridad requerida. Completa el captcha.' },
+          { status: 403 }
+        )
+      }
+    } else {
       const isValid = await verifyTurnstile(body.turnstileToken)
       if (!isValid) {
         return NextResponse.json(
@@ -161,6 +179,8 @@ export async function POST(request: NextRequest) {
     const {
       // Lead data
       leadName, leadEmail, leadPhone,
+      // Email verification token (from OTP flow)
+      emailVerificationToken,
       // Property data
       propertyName, street, city, state, country, postalCode, lat, lng,
       propertyType, bedrooms, bathrooms, maxGuests,
@@ -176,11 +196,54 @@ export async function POST(request: NextRequest) {
       customIcons,
     } = body
 
-    if (!leadName || !leadEmail || !propertyName || !street || !city || !lat || !lng) {
+    if (!leadName || !leadEmail || !leadPhone || !propertyName || !street || !city || !lat || !lng) {
       return NextResponse.json(
         { error: 'Faltan campos obligatorios.' },
         { status: 400 }
       )
+    }
+
+    // 3b. Validate email (format + disposable + suspicious)
+    const emailValidation = validateEmail(leadEmail)
+    if (!emailValidation.isValid) {
+      return NextResponse.json(
+        { error: emailValidation.error || 'Email no válido.' },
+        { status: 400 }
+      )
+    }
+
+    // 3c. Rate limit by email: max 2 demos per email per 24h
+    const normalizedEmail = leadEmail.toLowerCase().trim()
+    const emailRateLimitKey = `demo:email:${normalizedEmail}`
+    const emailRateCheck = checkRateLimit(emailRateLimitKey, {
+      maxRequests: 2,
+      windowMs: 24 * 60 * 60 * 1000,
+    })
+    if (!emailRateCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Ya has generado el máximo de demos con este email. Vuelve mañana.' },
+        { status: 429 }
+      )
+    }
+
+    // 3d. Validate email verification token (OTP flow)
+    if (!emailVerificationToken) {
+      // Allow bypass only in development
+      if (process.env.NODE_ENV === 'production') {
+        return NextResponse.json(
+          { error: 'Verificación de email requerida.' },
+          { status: 403 }
+        )
+      }
+      console.warn('[demo] emailVerificationToken not provided, skipping (dev mode)')
+    } else {
+      const isTokenValid = verifyDemoVerificationToken(emailVerificationToken, normalizedEmail)
+      if (!isTokenValid) {
+        return NextResponse.json(
+          { error: 'Token de verificación inválido o expirado. Vuelve a verificar tu email.' },
+          { status: 403 }
+        )
+      }
     }
 
     // 4. Cleanup expired demos (opportunistic)
@@ -204,9 +267,17 @@ export async function POST(request: NextRequest) {
           city,
           country: country || 'España',
           generatedAt: new Date().toISOString(),
+          demoGeneratedAt: new Date().toISOString(),
+          couponCode: '', // Will be updated after coupon creation
+          propertyId: '', // Will be updated after property creation
+          feedbackEmailSentAt: null,
+          urgencyEmailSentAt: null,
         },
       },
     })
+
+    // 5b. Cleanup OTPs for this email (non-blocking)
+    prisma.demoOtp.deleteMany({ where: { email: normalizedEmail } }).catch(() => {})
 
     // 6. Create personalized Coupon
     const now = new Date()
@@ -220,7 +291,7 @@ export async function POST(request: NextRequest) {
         maxUses: 1,
         maxUsesPerUser: 1,
         validFrom: now,
-        validUntil: new Date(now.getTime() + 60 * 60 * 1000), // 1 hour
+        validUntil: new Date(now.getTime() + 24 * 60 * 60 * 1000), // 24 hours
         campaignSource: 'demo-preview',
         isActive: true,
         isPublic: false,
@@ -277,38 +348,89 @@ export async function POST(request: NextRequest) {
       if (acZone) allZones.push(acZone)
     }
 
-    // 9b. Build appliance zones from media analysis (if provided)
+    // 9b. Build user media zones (simple version for demo — no AI improvement)
     if (Array.isArray(mediaAnalysis) && mediaAnalysis.length > 0) {
-      const BUILTIN_CATEGORIES = new Set(['entrance', 'check_out', 'wifi', 'parking', 'ac'])
-      const processedTypes = new Set<string>()
+      // Group media by zone (skip built-in zones: checkin, garage, ac)
+      const BUILTIN_ZONE_IDS = new Set(['checkin', 'garage', 'ac'])
+      const zoneGroups = new Map<string, { name: string; description: string; mediaUrls: string[] }>()
 
       for (const item of mediaAnalysis) {
-        const analysis = item.analysis
-        if (!analysis) continue
-        // Skip media assigned to built-in zones
-        if (item.category && BUILTIN_CATEGORIES.has(item.category)) continue
+        const zoneId = item.zoneId
+        if (!zoneId && !item.customZoneName) continue
+        if (zoneId && BUILTIN_ZONE_IDS.has(zoneId)) continue
 
-        // Check primary_item first
-        if (analysis.primary_item) {
-          const type = analysis.primary_item as CanonicalApplianceType
-          if (!processedTypes.has(type) && APPLIANCE_REGISTRY[type]) {
-            processedTypes.add(type)
-            const zone = buildSingleApplianceZone(type, APPLIANCE_REGISTRY[type])
-            if (zone) allZones.push(zone)
+        const key = item.customZoneName ? `custom-${item.customZoneName}` : zoneId
+        if (!key) continue
+
+        if (!zoneGroups.has(key)) {
+          const PREDEFINED: Record<string, string> = {
+            kitchen: 'Cocina', bathroom: 'Baño', bedroom: 'Dormitorio principal',
+            bedroom2: 'Dormitorio 2', living: 'Salón', terrace: 'Terraza / Jardín',
+            pool: 'Piscina', laundry: 'Lavadora / Lavandería', tv: 'TV / Entretenimiento',
           }
+          zoneGroups.set(key, {
+            name: item.customZoneName || PREDEFINED[zoneId!] || zoneId!,
+            description: '',
+            mediaUrls: [],
+          })
+        }
+        const group = zoneGroups.get(key)!
+        if (item.description) group.description += (group.description ? '\n' : '') + item.description
+        if (item.url) group.mediaUrls.push(item.url)
+      }
+
+      for (const [, data] of zoneGroups) {
+        const steps: TrilingualZoneConfig['steps'] = []
+
+        // Add description step if there's text content
+        if (data.description) {
+          steps.push({
+            type: 'text',
+            title: { es: data.name, en: data.name, fr: data.name },
+            content: {
+              es: data.description,
+              en: data.description,
+              fr: data.description,
+            },
+          })
         }
 
-        // Then iterate all detected appliances
-        if (Array.isArray(analysis.appliances)) {
-          for (const appliance of analysis.appliances) {
-            const type = appliance.canonical_type as CanonicalApplianceType
-            if (processedTypes.has(type)) continue
-            if (!APPLIANCE_REGISTRY[type]) continue
-            processedTypes.add(type)
-            const zone = buildSingleApplianceZone(type, APPLIANCE_REGISTRY[type])
-            if (zone) allZones.push(zone)
-          }
+        // Add media steps for each uploaded file
+        for (const url of data.mediaUrls) {
+          const isVideo = /\.(mp4|mov|webm)$/i.test(url)
+          steps.push({
+            type: isVideo ? 'VIDEO' : 'IMAGE',
+            title: { es: data.name, en: data.name, fr: data.name },
+            content: {
+              es: '',
+              en: '',
+              fr: '',
+              mediaUrl: url,
+            } as any,
+          })
         }
+
+        // Fallback: if no steps at all, add a text placeholder
+        if (steps.length === 0) {
+          steps.push({
+            type: 'text',
+            title: { es: data.name, en: data.name, fr: data.name },
+            content: {
+              es: `Zona: ${data.name}`,
+              en: `Zone: ${data.name}`,
+              fr: `Zone : ${data.name}`,
+            },
+          })
+        }
+
+        const zone: TrilingualZoneConfig = {
+          name: { es: data.name, en: data.name, fr: data.name },
+          icon: 'zap',
+          description: { es: data.description || data.name, en: data.description || data.name, fr: data.description || data.name },
+          steps,
+          needsTranslation: true,
+        }
+        allZones.push(zone)
       }
     }
 
@@ -442,7 +564,8 @@ export async function POST(request: NextRequest) {
     }
     const propertyCode = generatePropertyNumber(highestNumber)
 
-    const demoExpiresAt = new Date(now.getTime() + 15 * 60 * 1000) // 15 min buffer
+    const demoExpiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000) // 24h real lifetime
+    const demoVisualExpiresAt = new Date(now.getTime() + 15 * 60 * 1000) // 15 min visual countdown
 
     const property = await prisma.property.create({
       data: {
@@ -469,6 +592,19 @@ export async function POST(request: NextRequest) {
         demoLeadId: lead.id,
         hostId: demoUserId,
         analytics: { create: {} },
+      },
+    })
+
+    // 12b. Update Lead metadata with couponCode and propertyId
+    await prisma.lead.update({
+      where: { id: lead.id },
+      data: {
+        metadata: {
+          ...(lead.metadata as Record<string, unknown>),
+          couponCode,
+          propertyId: property.id,
+          propertyName: propertyInput.name,
+        },
       },
     })
 
@@ -507,22 +643,29 @@ export async function POST(request: NextRequest) {
       })
 
       await prisma.step.createMany({
-        data: zoneConfig.steps.map((stepConfig, idx) => ({
-          zoneId: zone.id,
-          type: stepConfig.type || 'text',
-          title: {
-            es: stepConfig.title.es,
-            en: stepConfig.title.en || stepConfig.title.es,
-            fr: stepConfig.title.fr || stepConfig.title.es,
-          },
-          content: {
+        data: zoneConfig.steps.map((stepConfig, idx) => {
+          const contentObj: Record<string, any> = {
             es: stepConfig.content.es,
             en: stepConfig.content.en || stepConfig.content.es,
             fr: stepConfig.content.fr || stepConfig.content.es,
-          },
-          isPublished: true,
-          order: idx,
-        })),
+          }
+          // Preserve mediaUrl for image/video steps
+          if ((stepConfig.content as any).mediaUrl) {
+            contentObj.mediaUrl = (stepConfig.content as any).mediaUrl
+          }
+          return {
+            zoneId: zone.id,
+            type: stepConfig.type || 'text',
+            title: {
+              es: stepConfig.title.es,
+              en: stepConfig.title.en || stepConfig.title.es,
+              fr: stepConfig.title.fr || stepConfig.title.es,
+            },
+            content: contentObj,
+            isPublished: true,
+            order: idx,
+          }
+        }),
       })
     }
 
@@ -542,13 +685,43 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 15. Return response
+    // 15. Send confirmation email (non-blocking)
+    const couponExpiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.itineramio.com'
+    const guideUrl = `${baseUrl}/guide/${property.id}?demo=1&coupon=${couponCode}&expires=${encodeURIComponent(demoVisualExpiresAt.toISOString())}`
+    try {
+      await sendEmail({
+        to: leadEmail,
+        subject: `Tu demo de ${propertyInput.name} esta lista`,
+        html: emailTemplates.demoConfirmation({
+          leadName: leadName,
+          propertyName: propertyInput.name,
+          guideUrl,
+          couponCode,
+          couponExpiresAt: couponExpiresAt.toLocaleString('es-ES', {
+            timeZone: 'Europe/Madrid',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+          propertyId: property.id,
+          leadEmail,
+          zonesCount: filteredZones.length,
+        }),
+      })
+    } catch (emailErr) {
+      console.error('[demo] Confirmation email failed (non-blocking):', emailErr)
+    }
+
+    // 16. Return response
     return NextResponse.json({
       success: true,
       propertyId: property.id,
       couponCode,
-      expiresAt: demoExpiresAt.toISOString(),
-      couponExpiresAt: new Date(now.getTime() + 60 * 60 * 1000).toISOString(),
+      expiresAt: demoVisualExpiresAt.toISOString(),
+      couponExpiresAt: couponExpiresAt.toISOString(),
     })
   } catch (error) {
     console.error('[demo] Generation error:', error)

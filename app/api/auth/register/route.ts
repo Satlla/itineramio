@@ -87,6 +87,9 @@ export async function POST(request: NextRequest) {
       }, { status: 201 })
     }
 
+    // Extract demoPropertyId before Zod validation (it's not in the schema)
+    const demoPropertyId = typeof body.demoPropertyId === 'string' ? body.demoPropertyId : null
+
     // Validate input
     const validatedData = registerSchema.parse(body)
     console.log('✅ Data validated successfully')
@@ -181,7 +184,8 @@ export async function POST(request: NextRequest) {
         // Store policy acceptance and marketing consent in notificationPreferences for now
         notificationPreferences: {
           policyAcceptance,
-          marketingConsent: marketingConsentData
+          marketingConsent: marketingConsentData,
+          ...(demoPropertyId && { demoPropertyId })
         }
       },
       select: {

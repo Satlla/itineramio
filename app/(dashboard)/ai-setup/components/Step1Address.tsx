@@ -79,9 +79,39 @@ interface Step1AddressProps {
 
 export default function Step1Address({ data, onChange, onNext }: Step1AddressProps) {
   const { t } = useTranslation('ai-setup')
+  const [showErrors, setShowErrors] = React.useState(false)
 
   const update = (partial: Partial<Step1Data>) => {
     onChange({ ...data, ...partial })
+  }
+
+  const missingFields = {
+    propertyName: !data.propertyName,
+    street: !data.street && !data.city,
+    propertyType: !data.propertyType,
+    maxGuests: data.maxGuests < 1,
+    hostContactName: !data.hostContactName,
+    hostContactPhone: !data.hostContactPhone,
+    hostContactEmail: !data.hostContactEmail,
+  }
+
+  const missingCount = Object.values(missingFields).filter(Boolean).length
+
+  const errorBorder = (field: keyof typeof missingFields) =>
+    showErrors && missingFields[field] ? 'border-red-500 ring-1 ring-red-500/50' : 'border-gray-700'
+
+  const handleNext = () => {
+    if (!isValid) {
+      setShowErrors(true)
+      // Scroll to first error
+      setTimeout(() => {
+        const firstError = document.querySelector('[data-error="true"]')
+        firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 100)
+      return
+    }
+    setShowErrors(false)
+    onNext()
   }
 
   const propertyTypes = [
@@ -161,7 +191,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
 
         {/* Name + Description */}
         <div className="flex-1 w-full space-y-4">
-          <div className="space-y-3">
+          <div className="space-y-3" data-error={showErrors && missingFields.propertyName ? 'true' : undefined}>
             <label className="flex items-center text-sm font-medium text-gray-300">
               <PenLine className="w-4 h-4 mr-2 text-violet-400" />
               {t('step1.propertyName')}
@@ -171,8 +201,11 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
               value={data.propertyName}
               onChange={(e) => update({ propertyName: e.target.value })}
               placeholder={t('step1.propertyNamePlaceholder')}
-              className="h-10 w-full rounded-lg border border-gray-700 bg-gray-900 px-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
+              className={`h-10 w-full rounded-lg border bg-gray-900 px-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 ${errorBorder('propertyName')}`}
             />
+            {showErrors && missingFields.propertyName && (
+              <p className="text-xs text-red-400">{t('step1.propertyName')} es obligatorio</p>
+            )}
           </div>
           <div className="space-y-3">
             <label className="flex items-center text-sm font-medium text-gray-300">
@@ -192,11 +225,14 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
       </div>
 
       {/* Address */}
-      <div className="space-y-3">
+      <div className="space-y-3" data-error={showErrors && missingFields.street ? 'true' : undefined}>
         <label className="flex items-center text-sm font-medium text-gray-300">
           <MapPin className="w-4 h-4 mr-2 text-violet-400" />
           {t('step1.address')}
         </label>
+        {showErrors && missingFields.street && (
+          <p className="text-xs text-red-400">{t('step1.address')} es obligatorio</p>
+        )}
         <AddressAutocomplete
           value={data.formattedAddress}
           onChange={(addr) => update({
@@ -221,11 +257,14 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
       </div>
 
       {/* Property Type */}
-      <div className="space-y-3">
+      <div className="space-y-3" data-error={showErrors && missingFields.propertyType ? 'true' : undefined}>
         <label className="flex items-center text-sm font-medium text-gray-300">
           <Home className="w-4 h-4 mr-2 text-violet-400" />
           {t('step1.propertyType')}
         </label>
+        {showErrors && missingFields.propertyType && (
+          <p className="text-xs text-red-400">Selecciona un tipo de propiedad</p>
+        )}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {propertyTypes.map(({ value, label, icon: Icon }) => (
             <button
@@ -522,7 +561,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
         </div>
 
         {/* Name */}
-        <div className="space-y-3">
+        <div className="space-y-3" data-error={showErrors && missingFields.hostContactName ? 'true' : undefined}>
           <label className="flex items-center text-sm font-medium text-gray-300">
             <User className="w-4 h-4 mr-2 text-violet-400" />
             {t('step1.host.fullName')}
@@ -532,13 +571,16 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
             value={data.hostContactName}
             onChange={(e) => update({ hostContactName: e.target.value })}
             placeholder={t('step1.host.fullNamePlaceholder')}
-            className="h-10 w-full rounded-lg border border-gray-700 bg-gray-900 px-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className={`h-10 w-full rounded-lg border bg-gray-900 px-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 ${errorBorder('hostContactName')}`}
           />
+          {showErrors && missingFields.hostContactName && (
+            <p className="text-xs text-red-400">{t('step1.host.fullName')} es obligatorio</p>
+          )}
         </div>
 
         {/* Phone & Email */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-3">
+          <div className="space-y-3" data-error={showErrors && missingFields.hostContactPhone ? 'true' : undefined}>
             <label className="flex items-center text-sm font-medium text-gray-300">
               <Phone className="w-4 h-4 mr-2 text-violet-400" />
               {t('step1.host.phone')}
@@ -548,10 +590,13 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
               value={data.hostContactPhone}
               onChange={(e) => update({ hostContactPhone: e.target.value })}
               placeholder="+34 600 000 000"
-              className="h-10 w-full rounded-lg border border-gray-700 bg-gray-900 px-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
+              className={`h-10 w-full rounded-lg border bg-gray-900 px-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 ${errorBorder('hostContactPhone')}`}
             />
+            {showErrors && missingFields.hostContactPhone && (
+              <p className="text-xs text-red-400">{t('step1.host.phone')} es obligatorio</p>
+            )}
           </div>
-          <div className="space-y-3">
+          <div className="space-y-3" data-error={showErrors && missingFields.hostContactEmail ? 'true' : undefined}>
             <label className="flex items-center text-sm font-medium text-gray-300">
               <Mail className="w-4 h-4 mr-2 text-violet-400" />
               {t('step1.host.email')}
@@ -561,8 +606,11 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
               value={data.hostContactEmail}
               onChange={(e) => update({ hostContactEmail: e.target.value })}
               placeholder="tu@email.com"
-              className="h-10 w-full rounded-lg border border-gray-700 bg-gray-900 px-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
+              className={`h-10 w-full rounded-lg border bg-gray-900 px-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 ${errorBorder('hostContactEmail')}`}
             />
+            {showErrors && missingFields.hostContactEmail && (
+              <p className="text-xs text-red-400">{t('step1.host.email')} es obligatorio</p>
+            )}
           </div>
         </div>
 
@@ -600,17 +648,19 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
       >
         <button
           type="button"
-          onClick={onNext}
-          disabled={!isValid}
-          className={`w-full h-12 sm:h-14 rounded-xl text-base sm:text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
-            isValid
-              ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25'
-              : 'bg-gray-800 text-gray-500 cursor-not-allowed'
-          }`}
+          onClick={handleNext}
+          className="w-full h-12 sm:h-14 rounded-xl text-base sm:text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25"
         >
           {t('step1.nextDetails')}
           <ChevronRight className="w-5 h-5" />
         </button>
+        {showErrors && missingCount > 0 && (
+          <p className="text-center text-sm text-red-400 mt-3">
+            {missingCount === 1
+              ? 'Falta 1 campo obligatorio por completar'
+              : `Faltan ${missingCount} campos obligatorios por completar`}
+          </p>
+        )}
       </motion.div>
     </motion.div>
   )

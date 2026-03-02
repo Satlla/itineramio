@@ -14,7 +14,7 @@ export async function GET(
       SELECT id, "isPublished"
       FROM properties
       WHERE id = ${propertyId}
-        AND "isPublished" = true
+        AND ("isPublished" = true OR ("isDemoPreview" = true AND "demoExpiresAt" > NOW()))
       LIMIT 1
     ` as any[]
 
@@ -27,7 +27,7 @@ export async function GET(
         SELECT id, "isPublished"
         FROM properties
         WHERE id LIKE ${propertyId + '%'}
-          AND "isPublished" = true
+          AND ("isPublished" = true OR ("isDemoPreview" = true AND "demoExpiresAt" > NOW()))
         LIMIT 1
       ` as any[]
       

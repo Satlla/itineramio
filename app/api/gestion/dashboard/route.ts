@@ -9,7 +9,7 @@ const getCachedDashboardStats = unstable_cache(
     const currentYear = new Date().getFullYear()
     const currentMonth = new Date().getMonth() + 1
 
-    // Get counts - all in parallel for better performance
+    // ALL queries in parallel for maximum performance
     const [
       totalProperties,
       totalOwners,
@@ -21,7 +21,14 @@ const getCachedDashboardStats = unstable_cache(
       unliquidatedReservationsCount,
       draftInvoicesCount,
       unpaidInvoicesCount,
-      totalExpenses
+      totalExpenses,
+      yearlyReservations,
+      monthlyReservations,
+      pendingToInvoice,
+      billingUnits,
+      billingUnitsWithReservations,
+      existingLiquidations,
+      recentReservations
     ] = await Promise.all([
       prisma.billingUnit.count({ where: { userId } }),
       prisma.propertyOwner.count({ where: { userId } }),
@@ -72,57 +79,89 @@ const getCachedDashboardStats = unstable_cache(
       }),
       prisma.propertyExpense.count({
         where: { userId }
+      }),
+      // Yearly income aggregate
+      prisma.reservation.aggregate({
+        where: {
+          userId,
+          checkIn: {
+            gte: new Date(currentYear, 0, 1),
+            lt: new Date(currentYear + 1, 0, 1)
+          },
+          status: { in: ['CONFIRMED', 'COMPLETED'] }
+        },
+        _sum: {
+          hostEarnings: true,
+          roomTotal: true,
+          ownerAmount: true,
+          managerAmount: true,
+          cleaningAmount: true
+        },
+        _count: true
+      }),
+      // Monthly income aggregate
+      prisma.reservation.aggregate({
+        where: {
+          userId,
+          checkIn: {
+            gte: new Date(currentYear, currentMonth - 1, 1),
+            lt: new Date(currentYear, currentMonth, 1)
+          },
+          status: { in: ['CONFIRMED', 'COMPLETED'] }
+        },
+        _sum: {
+          hostEarnings: true,
+          roomTotal: true,
+          ownerAmount: true,
+          managerAmount: true,
+          cleaningAmount: true
+        },
+        _count: true
+      }),
+      // Pending to invoice
+      prisma.reservation.count({
+        where: {
+          userId,
+          invoiced: false,
+          status: { not: 'CANCELLED' }
+        }
+      }),
+      // Billing units for commission calculation
+      prisma.billingUnit.findMany({
+        where: { userId },
+        select: { commissionValue: true, ownerId: true }
+      }),
+      // Billing units with reservations for pending liquidations
+      prisma.billingUnit.findMany({
+        where: { userId },
+        include: {
+          reservations: {
+            where: {
+              checkIn: {
+                gte: new Date(currentYear, 0, 1),
+                lt: new Date(currentYear + 1, 0, 1)
+              },
+              status: { in: ['CONFIRMED', 'COMPLETED'] }
+            },
+            select: { checkIn: true }
+          }
+        }
+      }),
+      // Existing liquidations
+      prisma.liquidation.findMany({
+        where: { userId, year: currentYear },
+        select: { month: true, ownerId: true }
+      }),
+      // Recent reservations
+      prisma.reservation.count({
+        where: {
+          userId,
+          createdAt: {
+            gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+          }
+        }
       })
     ])
-
-    // Get yearly income from reservations
-    const yearlyReservations = await prisma.reservation.aggregate({
-      where: {
-        userId,
-        checkIn: {
-          gte: new Date(currentYear, 0, 1),
-          lt: new Date(currentYear + 1, 0, 1)
-        },
-        status: { in: ['CONFIRMED', 'COMPLETED'] }
-      },
-      _sum: {
-        hostEarnings: true,
-        roomTotal: true,
-        ownerAmount: true,
-        managerAmount: true,
-        cleaningAmount: true
-      },
-      _count: true
-    })
-
-    // Get monthly income
-    const monthlyReservations = await prisma.reservation.aggregate({
-      where: {
-        userId,
-        checkIn: {
-          gte: new Date(currentYear, currentMonth - 1, 1),
-          lt: new Date(currentYear, currentMonth, 1)
-        },
-        status: { in: ['CONFIRMED', 'COMPLETED'] }
-      },
-      _sum: {
-        hostEarnings: true,
-        roomTotal: true,
-        ownerAmount: true,
-        managerAmount: true,
-        cleaningAmount: true
-      },
-      _count: true
-    })
-
-    // Get pending to invoice count
-    const pendingToInvoice = await prisma.reservation.count({
-      where: {
-        userId,
-        invoiced: false,
-        status: { not: 'CANCELLED' }
-      }
-    })
 
     // Calculate totals
     const yearlyIncome = Number(yearlyReservations._sum.hostEarnings || yearlyReservations._sum.roomTotal || 0)
@@ -135,12 +174,7 @@ const getCachedDashboardStats = unstable_cache(
     const yearlyCleaningAmount = Number(yearlyReservations._sum.cleaningAmount) || 0
     const monthlyCleaningAmount = Number(monthlyReservations._sum.cleaningAmount) || 0
 
-    // Get average commission rate
-    const billingUnits = await prisma.billingUnit.findMany({
-      where: { userId },
-      select: { commissionValue: true }
-    })
-
+    // Average commission rate
     const avgCommission = billingUnits.length > 0
       ? billingUnits.reduce((sum, c) => sum + Number(c.commissionValue), 0) / billingUnits.length
       : 15
@@ -148,27 +182,7 @@ const getCachedDashboardStats = unstable_cache(
     const yearlyCommission = yearlyManagerAmount > 0 ? yearlyManagerAmount : (yearlyIncome * avgCommission) / 100
     const monthlyCommission = monthlyManagerAmount > 0 ? monthlyManagerAmount : (monthlyIncome * avgCommission) / 100
 
-    // Count pending liquidations
-    const billingUnitsWithReservations = await prisma.billingUnit.findMany({
-      where: { userId },
-      include: {
-        reservations: {
-          where: {
-            checkIn: {
-              gte: new Date(currentYear, 0, 1),
-              lt: new Date(currentYear + 1, 0, 1)
-            },
-            status: { in: ['CONFIRMED', 'COMPLETED'] }
-          },
-          select: { checkIn: true }
-        }
-      }
-    })
-
-    const existingLiquidations = await prisma.liquidation.findMany({
-      where: { userId, year: currentYear },
-      select: { month: true, ownerId: true }
-    })
+    // Pending liquidations calculation
     const liquidatedOwnerMonths = new Set(
       existingLiquidations.map(l => `${l.ownerId}-${l.month}`)
     )
@@ -187,16 +201,6 @@ const getCachedDashboardStats = unstable_cache(
       })
     })
     const pendingLiquidations = pendingOwnerMonths.size
-
-    // Recent reservations count
-    const recentReservations = await prisma.reservation.count({
-      where: {
-        userId,
-        createdAt: {
-          gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-        }
-      }
-    })
 
     // Onboarding status
     const companyConfigured = !!(userInvoiceConfig?.businessName && userInvoiceConfig?.nif)

@@ -10,12 +10,15 @@ export async function GET(
     const { slugOrId } = await params
     console.log('🔍 Resolving property:', slugOrId)
     
-    // First try direct ID lookup
+    // First try direct ID lookup (published OR demo preview not expired)
     let property = await prisma.property.findFirst({
       where: {
         id: slugOrId,
-        isPublished: true,
-        deletedAt: null
+        deletedAt: null,
+        OR: [
+          { isPublished: true },
+          { isDemoPreview: true, demoExpiresAt: { gt: new Date() } },
+        ],
       },
       select: {
         id: true,
@@ -38,8 +41,11 @@ export async function GET(
     // If not found by ID, try to find by slug
     const properties = await prisma.property.findMany({
       where: {
-        isPublished: true,
-        deletedAt: null
+        deletedAt: null,
+        OR: [
+          { isPublished: true },
+          { isDemoPreview: true, demoExpiresAt: { gt: new Date() } },
+        ],
       },
       select: {
         id: true,

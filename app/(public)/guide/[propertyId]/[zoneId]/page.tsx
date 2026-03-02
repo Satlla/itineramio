@@ -626,13 +626,13 @@ export default function ZoneGuidePage({
       ])
       
       // If zone endpoint fails, try safe endpoint
-      if (!zoneResponse.ok && zoneResponse.status === 500) {
+      if (!zoneResponse.ok && (zoneResponse.status === 500 || zoneResponse.status === 404)) {
         console.log('Zone endpoint failed, trying safe endpoint...')
         zoneResponse = await fetch(`/api/public/properties/${actualPropertyId}/zones/${zId}/safe`)
       }
-      
-      // If property endpoint fails, try safe endpoint
-      if (!propertyResponse.ok && propertyResponse.status === 500) {
+
+      // If property endpoint fails, try safe endpoint (handles demo previews)
+      if (!propertyResponse.ok && (propertyResponse.status === 500 || propertyResponse.status === 404)) {
         console.log('Property endpoint failed, trying safe endpoint...')
         propertyResponse = await fetch(`/api/public/properties/${actualPropertyId}/safe`)
       }
@@ -956,9 +956,9 @@ export default function ZoneGuidePage({
             transition={{ delay: 0.3 }}
             className="text-center text-gray-500 text-xs sm:text-sm mt-8 px-4"
           >
-            <p>
+            <span>
               Powered by <ItineramioLogo size="sm" gradient className="inline-block mx-1" /> Itineramio
-            </p>
+            </span>
           </motion.div>
         </main>
 
@@ -1393,9 +1393,9 @@ export default function ZoneGuidePage({
           transition={{ delay: 0.6 }}
           className="text-center text-gray-500 text-xs sm:text-sm mt-6 sm:mt-8 px-4"
         >
-          <p>
+          <span>
             Powered by <ItineramioLogo size="sm" gradient className="inline-block mx-1" /> Itineramio
-          </p>
+          </span>
         </motion.div>
       </main>
 

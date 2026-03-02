@@ -9,10 +9,11 @@ export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
-    // Rate limit: 10 uploads per IP per 24h
+    // Rate limit: 30 uploads per IP per 24h (generous for testing)
+    const isDev = process.env.NODE_ENV === 'development'
     const rateLimitKey = getRateLimitKey(request, null, 'demo-upload')
     const rateCheck = checkRateLimit(rateLimitKey, {
-      maxRequests: 10,
+      maxRequests: isDev ? 200 : 30,
       windowMs: 24 * 60 * 60 * 1000,
     })
     if (!rateCheck.allowed) {

@@ -35,6 +35,7 @@ export default function RegisterPage() {
   const [referralCode, setReferralCode] = useState<string | null>(null)
 
   const [demoCoupon, setDemoCoupon] = useState<string | null>(null)
+  const [demoPropertyId, setDemoPropertyId] = useState<string | null>(null)
 
   // Capture referral code and demo params from URL
   useEffect(() => {
@@ -46,6 +47,7 @@ export default function RegisterPage() {
     const name = searchParams.get('name')
     const email = searchParams.get('email')
     const coupon = searchParams.get('coupon')
+    const propertyId = searchParams.get('propertyId')
     if (name || email) {
       setFormData(prev => ({
         ...prev,
@@ -55,6 +57,9 @@ export default function RegisterPage() {
     }
     if (coupon) {
       setDemoCoupon(coupon)
+    }
+    if (propertyId) {
+      setDemoPropertyId(propertyId)
     }
   }, [searchParams])
 
@@ -160,6 +165,7 @@ export default function RegisterPage() {
           marketingConsent,
           registrationLanguage: navigator.language || 'es',
           ...(referralCode && { referralCode }),
+          ...(demoPropertyId && { demoPropertyId }),
           _hp: formData.website // Honeypot field
         }),
       })
@@ -265,8 +271,49 @@ export default function RegisterPage() {
               </p>
             </div>
 
-            {/* Demo coupon banner */}
-            {demoCoupon && (
+            {/* Demo property preview card */}
+            {demoCoupon && searchParams.get('from') === 'demo' && (
+              <div className="bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200 rounded-xl p-4 mb-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-violet-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      Tu manual de {searchParams.get('name') ? decodeURIComponent(searchParams.get('name')!) : 'tu propiedad'} te espera
+                    </p>
+                    <p className="text-xs text-gray-500">Registrate para mantenerlo activo</p>
+                  </div>
+                </div>
+
+                {/* Pricing with discount */}
+                <div className="flex items-center justify-between bg-white rounded-lg p-3 mb-3">
+                  <div>
+                    <p className="text-xs text-gray-500">Plan Basico</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-400 line-through">9 EUR/mes</span>
+                      <span className="text-lg font-bold text-violet-600">7,20 EUR/mes</span>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-1 text-xs font-bold bg-green-100 text-green-700 rounded-full">-20%</span>
+                </div>
+
+                {/* Coupon code */}
+                <div className="flex items-center gap-2 bg-violet-100/60 rounded-lg p-2.5">
+                  <Gift className="w-4 h-4 text-violet-500 flex-shrink-0" />
+                  <span className="text-xs text-violet-700 font-medium">Cupon aplicado:</span>
+                  <span className="font-mono text-sm font-bold text-violet-600">{demoCoupon}</span>
+                </div>
+
+                {/* Social proof */}
+                <p className="text-xs text-gray-500 mt-2 text-center">
+                  Unete a +500 anfitriones que ya no reciben consultas repetitivas
+                </p>
+              </div>
+            )}
+
+            {/* Simple coupon banner for non-demo */}
+            {demoCoupon && searchParams.get('from') !== 'demo' && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
                 <div className="flex items-center space-x-2 sm:space-x-3">
                   <Gift className="w-5 h-5 text-green-600 flex-shrink-0" />

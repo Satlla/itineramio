@@ -50,6 +50,10 @@ import { getZoneIconByName } from '../../../../src/data/zoneIconsExtended'
 import { ShareLanguageModal } from '../../../../src/components/ui/ShareLanguageModal'
 import ChatBot from '../../../../src/components/ui/ChatBot'
 import DemoCountdownBanner from '../../../../src/components/ui/DemoCountdownBanner'
+import DemoShareModal from '../../../../src/components/demo/DemoShareModal'
+import DemoExitIntent from '../../../../src/components/demo/DemoExitIntent'
+import DemoInlineFeedback from '../../../../src/components/demo/DemoInlineFeedback'
+import DemoGuidedTour from '../../../../src/components/demo/DemoGuidedTour'
 
 interface Property {
   id: string
@@ -549,6 +553,10 @@ export default function PropertyGuidePage() {
   const [demoExpiresAt, setDemoExpiresAt] = useState('')
   const [demoEmail, setDemoEmail] = useState('')
   const [demoName, setDemoName] = useState('')
+  const [showDemoShareModal, setShowDemoShareModal] = useState(false)
+  const [showSharePrompt, setShowSharePrompt] = useState(false)
+  const [sharePromptDismissed, setSharePromptDismissed] = useState(false)
+  const [zonesExplored, setZonesExplored] = useState(0)
 
   // Detect demo mode from query params
   useEffect(() => {
@@ -561,6 +569,25 @@ export default function PropertyGuidePage() {
       setDemoName(urlParams.get('name') || '')
     }
   }, [])
+
+  // Track zones explored in demo mode for share prompt
+  useEffect(() => {
+    if (!isDemoMode || sharePromptDismissed) return
+    const dismissed = localStorage.getItem('demo-share-prompt-dismissed')
+    if (dismissed) { setSharePromptDismissed(true); return }
+
+    const checkZones = () => {
+      if (property?.zones) {
+        const viewed = property.zones.filter(z => localStorage.getItem(`zone-${z.id}-viewed`) === 'true').length
+        setZonesExplored(viewed)
+        if (viewed >= 2 && !showSharePrompt) {
+          setShowSharePrompt(true)
+        }
+      }
+    }
+    const interval = setInterval(checkZones, 3000)
+    return () => clearInterval(interval)
+  }, [isDemoMode, property, sharePromptDismissed, showSharePrompt])
 
   // Detectar scroll para ocultar la flecha cuando llegue a las zonas
   useEffect(() => {
@@ -629,27 +656,13 @@ export default function PropertyGuidePage() {
     try {
       setLoading(true)
       
-      // Try by slug first (for URLs generated with createPropertySlug)
-      let response = await fetch(`/api/public/properties/by-slug/${propertyId}`)
+      // Try safe by-slug first (handles both published and demo preview properties)
+      let response = await fetch(`/api/public/properties/by-slug/${propertyId}/safe`)
       let result = await response.json()
-      
-      // If not found by slug, try by ID (for backward compatibility)
-      if (!response.ok && response.status === 404) {
+
+      // If not found by slug, try safe by ID (for backward compatibility)
+      if (!response.ok && (response.status === 404 || response.status === 500)) {
         console.log('Property not found by slug, trying by ID...')
-        response = await fetch(`/api/public/properties/${propertyId}`)
-        result = await response.json()
-      }
-      
-      // If by-slug endpoint fails with 500, try safe by-slug endpoint
-      if (!response.ok && response.status === 500) {
-        console.log('By-slug endpoint failed, trying safe by-slug endpoint...')
-        response = await fetch(`/api/public/properties/by-slug/${propertyId}/safe`)
-        result = await response.json()
-      }
-      
-      // If main ID endpoint fails, try safe endpoint
-      if (!response.ok && response.status === 500) {
-        console.log('Main property endpoint failed, trying safe endpoint...')
         response = await fetch(`/api/public/properties/${propertyId}/safe`)
         result = await response.json()
       }
@@ -886,7 +899,7 @@ export default function PropertyGuidePage() {
   }
 
   // Verificar si la propiedad está activa (skip for demo mode)
-  if (!isDemoMode && (property.status !== 'ACTIVE' || !property.isPublished)) {
+  if (!isDemoMode && !property.isDemoPreview && (property.status !== 'ACTIVE' || !property.isPublished)) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
         <div className="text-center max-w-md mx-auto">
@@ -942,6 +955,7 @@ export default function PropertyGuidePage() {
           couponCode={demoCouponCode}
           leadEmail={demoEmail}
           leadName={demoName}
+          propertyId={propertyId}
         />
       )}
 
@@ -962,6 +976,7 @@ export default function PropertyGuidePage() {
 
             <div className="flex items-center gap-2">
               <select
+                id="language-selector"
                 value={language}
                 onChange={(e) => {
                   const newLang = e.target.value
@@ -2112,7 +2127,92 @@ export default function PropertyGuidePage() {
             email: property.hostContactEmail
           } : undefined}
           className="bottom-24 right-6"
+          isDemoMode={isDemoMode}
         />
+      )}
+
+      {/* Demo mode components */}
+      {isDemoMode && property && (
+        <>
+          {/* Demo Share Modal */}
+          <DemoShareModal
+            isOpen={showDemoShareModal}
+            onClose={() => setShowDemoShareModal(false)}
+            propertyName={getPropertyText(property.name as string, (property as any).nameTranslations, language, 'Propiedad')}
+            shareUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/guide/${propertyId}`}
+          />
+
+          {/* Exit Intent Modal */}
+          {demoCouponCode && demoExpiresAt && (
+            <DemoExitIntent
+              propertyName={getPropertyText(property.name as string, (property as any).nameTranslations, language, 'Propiedad')}
+              couponCode={demoCouponCode}
+              expiresAt={demoExpiresAt}
+              propertyId={propertyId}
+              leadEmail={demoEmail}
+              leadName={demoName}
+            />
+          )}
+
+          {/* Guided Tour */}
+          <DemoGuidedTour isActive={isDemoMode} />
+
+          {/* Inline Feedback */}
+          <DemoInlineFeedback
+            propertyId={propertyId}
+            propertyName={getPropertyText(property.name as string, (property as any).nameTranslations, language, 'Propiedad')}
+            leadEmail={demoEmail}
+            onOpenShare={() => setShowDemoShareModal(true)}
+          />
+
+          {/* Share prompt toast */}
+          <AnimatePresence>
+            {showSharePrompt && !sharePromptDismissed && (
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 50 }}
+                className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-6 sm:w-80 z-[55] bg-gray-900 border border-gray-700 rounded-xl p-4 shadow-xl"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-white mb-2">
+                      Te esta gustando? Comparte con otros anfitriones
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          const text = encodeURIComponent(`Mira el manual digital que he creado con IA para mi alojamiento. Es increible! ${window.location.origin}/guide/${propertyId}`)
+                          window.open(`https://wa.me/?text=${text}`, '_blank')
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500 text-white text-xs font-medium hover:bg-green-600 transition-colors"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        WhatsApp
+                      </button>
+                      <button
+                        onClick={() => setShowDemoShareModal(true)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-700 text-white text-xs font-medium hover:bg-gray-600 transition-colors"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                        Copiar enlace
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSharePromptDismissed(true)
+                      localStorage.setItem('demo-share-prompt-dismissed', 'true')
+                    }}
+                    className="text-gray-500 hover:text-gray-300 p-1"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </>
       )}
     </div>
   )

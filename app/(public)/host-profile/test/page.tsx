@@ -1,6 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+export const dynamic = 'force-dynamic'
+
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react'
@@ -16,6 +18,14 @@ interface Answer {
 }
 
 export default function HostProfileTestPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><InlineSpinner /></div>}>
+      <HostProfileTestContent />
+    </Suspense>
+  )
+}
+
+function HostProfileTestContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 

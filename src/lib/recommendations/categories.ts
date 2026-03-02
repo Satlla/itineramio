@@ -18,6 +18,8 @@ export interface CategoryConfig {
   radius: number
   /** Max results to return */
   maxResults: number
+  /** Whether this category is enabled by default (free/essential categories) */
+  defaultEnabled: boolean
   /** Google Places type (only for source=GOOGLE, searchMode=nearby) */
   googleType?: string
   /** Overpass query tags (only for source=OSM) */
@@ -44,7 +46,7 @@ export interface CategoryConfig {
  * ai_curated = Claude picks the best places, Google fetches details
  */
 export const CATEGORIES: CategoryConfig[] = [
-  // --- FREE (OSM/Overpass) — essential services, proximity matters most ---
+  // --- DEFAULT ENABLED (OSM/Overpass, FREE) — essential services ---
   {
     id: 'pharmacy',
     label: 'Farmacias',
@@ -52,17 +54,8 @@ export const CATEGORIES: CategoryConfig[] = [
     source: 'OSM',
     radius: 2000,
     maxResults: 5,
+    defaultEnabled: true,
     osmTags: { amenity: 'pharmacy' },
-    fetchDetails: true,
-  },
-  {
-    id: 'supermarket',
-    label: 'Supermercados',
-    icon: 'ShoppingCart',
-    source: 'OSM',
-    radius: 1500,
-    maxResults: 5,
-    osmTags: { shop: 'supermarket' },
     fetchDetails: true,
   },
   {
@@ -72,7 +65,31 @@ export const CATEGORIES: CategoryConfig[] = [
     source: 'OSM',
     radius: 5000,
     maxResults: 3,
+    defaultEnabled: true,
     osmTags: { amenity: ['hospital', 'clinic'] },
+  },
+  {
+    id: 'parking',
+    label: 'Aparcamientos',
+    icon: 'ParkingCircle',
+    source: 'OSM',
+    radius: 2000,
+    maxResults: 5,
+    defaultEnabled: true,
+    osmTags: { amenity: 'parking' },
+  },
+
+  // --- OTHER FREE (OSM) — not default ---
+  {
+    id: 'supermarket',
+    label: 'Supermercados',
+    icon: 'ShoppingCart',
+    source: 'OSM',
+    radius: 1500,
+    maxResults: 5,
+    defaultEnabled: false,
+    osmTags: { shop: 'supermarket' },
+    fetchDetails: true,
   },
   {
     id: 'atm',
@@ -81,6 +98,7 @@ export const CATEGORIES: CategoryConfig[] = [
     source: 'OSM',
     radius: 1500,
     maxResults: 3,
+    defaultEnabled: false,
     osmTags: { amenity: 'atm' },
   },
   {
@@ -90,6 +108,7 @@ export const CATEGORIES: CategoryConfig[] = [
     source: 'OSM',
     radius: 3000,
     maxResults: 3,
+    defaultEnabled: false,
     osmTags: { amenity: 'fuel' },
   },
   {
@@ -99,6 +118,7 @@ export const CATEGORIES: CategoryConfig[] = [
     source: 'OSM',
     radius: 2000,
     maxResults: 3,
+    defaultEnabled: false,
     osmTags: { leisure: 'fitness_centre' },
   },
   {
@@ -108,18 +128,8 @@ export const CATEGORIES: CategoryConfig[] = [
     source: 'OSM',
     radius: 2000,
     maxResults: 3,
+    defaultEnabled: false,
     osmTags: { shop: ['laundry', 'dry_cleaning'] },
-  },
-  {
-    id: 'parking',
-    label: 'Aparcamientos',
-    icon: 'ParkingCircle',
-    source: 'GOOGLE',
-    radius: 2000,
-    maxResults: 5,
-    searchMode: 'text',
-    textQuery: 'parking público coches subterráneo',
-    fetchDetails: true,
   },
   {
     id: 'transit_station',
@@ -128,10 +138,11 @@ export const CATEGORIES: CategoryConfig[] = [
     source: 'OSM',
     radius: 1500,
     maxResults: 3,
+    defaultEnabled: false,
     osmTags: { public_transport: 'station' },
   },
 
-  // --- AI-CURATED — Claude picks the best, Google fetches the data ---
+  // --- PREMIUM (Google, paid) — not default ---
   {
     id: 'restaurant',
     label: 'Restaurantes destacados',
@@ -139,6 +150,7 @@ export const CATEGORIES: CategoryConfig[] = [
     source: 'GOOGLE',
     radius: 5000,
     maxResults: 8,
+    defaultEnabled: false,
     searchMode: 'ai_curated',
     aiPrompt: 'Los 8 mejores restaurantes de {city} que un turista debe conocer. Incluye restaurantes famosos, con encanto y buena relación calidad-precio. Mezcla alta cocina con locales populares auténticos.',
     fetchDetails: true,
@@ -150,6 +162,7 @@ export const CATEGORIES: CategoryConfig[] = [
     source: 'GOOGLE',
     radius: 3000,
     maxResults: 5,
+    defaultEnabled: false,
     searchMode: 'ai_curated',
     aiPrompt: 'Las 5 mejores cafeterías y brunch spots de {city}. Incluye cafeterías de especialidad, con buen ambiente y bien valoradas.',
     fetchDetails: true,
@@ -161,6 +174,7 @@ export const CATEGORIES: CategoryConfig[] = [
     source: 'GOOGLE',
     radius: 10000,
     maxResults: 8,
+    defaultEnabled: false,
     searchMode: 'ai_curated',
     aiPrompt: 'Los 8 lugares imprescindibles que ver en {city}: monumentos, miradores, plazas, barrios históricos, museos principales. Solo los más emblemáticos y visitados.',
     fetchDetails: true,
@@ -172,6 +186,7 @@ export const CATEGORIES: CategoryConfig[] = [
     source: 'GOOGLE',
     radius: 5000,
     maxResults: 5,
+    defaultEnabled: false,
     searchMode: 'ai_curated',
     aiPrompt: 'Los 5 mejores parques y jardines de {city} para pasear, hacer deporte o descansar. Incluye parques urbanos, jardines históricos y espacios naturales cercanos.',
     fetchDetails: true,
@@ -183,6 +198,7 @@ export const CATEGORIES: CategoryConfig[] = [
     source: 'GOOGLE',
     radius: 50000,
     maxResults: 6,
+    defaultEnabled: false,
     searchMode: 'ai_curated',
     aiPrompt: 'Las 6 mejores playas cerca de {city} (hasta 1h en coche). Incluye playas paradisíacas, calas escondidas y playas familiares. Prioriza las más bonitas y recomendadas, no solo las más cercanas.',
     fetchDetails: true,
@@ -194,6 +210,7 @@ export const CATEGORIES: CategoryConfig[] = [
     source: 'GOOGLE',
     radius: 15000,
     maxResults: 6,
+    defaultEnabled: false,
     searchMode: 'ai_curated',
     aiPrompt: 'Los 6 mejores centros comerciales y zonas de compras de {city} y alrededores. Incluye grandes centros comerciales, outlets, galerías comerciales y centros con más tiendas y mejor valorados. Prioriza los más grandes y visitados.',
     fetchDetails: true,

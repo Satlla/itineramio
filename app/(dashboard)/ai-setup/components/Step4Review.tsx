@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -42,7 +42,7 @@ import {
 } from 'lucide-react'
 import type { Step1Data } from './Step1Address'
 import type { Step2Data } from './Step2Details'
-import type { MediaItem } from './Step2Media'
+import { PREDEFINED_ZONES, type MediaItem } from './Step2Media'
 
 // ============================================
 // TYPES
@@ -609,76 +609,22 @@ const iconComponents: Record<string, React.ReactNode> = {
   'building-2': <Building2 className="w-5 h-5" />,
 }
 
-// Categories that map to built-in zones (not media-detected zones)
-const BUILTIN_CATEGORIES = new Set(['entrance', 'check_out', 'wifi', 'parking', 'ac'])
-
-// Display names for appliance-based zones (canonical_type → display info)
-const APPLIANCE_DISPLAY_NAMES: Record<string, { nameEs: string; icon: string }> = {
-  washing_machine: { nameEs: 'Lavadora', icon: 'zap' },
-  dishwasher: { nameEs: 'Lavavajillas', icon: 'zap' },
-  coffee_machine: { nameEs: 'Cafetera', icon: 'zap' },
-  microwave: { nameEs: 'Microondas', icon: 'zap' },
-  oven: { nameEs: 'Horno', icon: 'zap' },
-  induction_hob: { nameEs: 'Vitrocerámica', icon: 'zap' },
-  air_conditioning: { nameEs: 'Aire Acondicionado', icon: 'thermometer' },
-  television: { nameEs: 'Smart TV', icon: 'zap' },
-  refrigerator: { nameEs: 'Frigorífico', icon: 'zap' },
-  toaster: { nameEs: 'Tostadora', icon: 'zap' },
-  kettle: { nameEs: 'Hervidor', icon: 'zap' },
-  dryer: { nameEs: 'Secadora', icon: 'zap' },
-  iron: { nameEs: 'Plancha', icon: 'zap' },
-  safe: { nameEs: 'Caja Fuerte', icon: 'zap' },
-  heater: { nameEs: 'Calefacción', icon: 'thermometer' },
+// Predefined zone IDs that map to built-in review zones (template-generated)
+const PREDEFINED_TO_BUILTIN: Record<string, string> = {
+  'checkin': 'check-in',
+  'garage': 'parking',
+  'ac': 'air-conditioning',
 }
 
-// Match media to zones by user-assigned category, falling back to room_type
+// Match media to built-in review zones by user-assigned zoneId
 function matchMediaToZone(zoneId: string, media: MediaItem[]): MediaItem[] {
-  // Handle appliance-specific zone IDs (e.g. "appliance-microwave")
-  if (zoneId.startsWith('appliance-')) {
-    const applianceType = zoneId.replace('appliance-', '')
-    return media.filter(m =>
-      m.analysis &&
-      (m.analysis.primary_item === applianceType ||
-        (m.analysis.appliances?.length === 1 && m.analysis.appliances[0].canonical_type === applianceType))
-    )
-  }
+  // Find which predefined zone IDs map to this built-in review zone
+  const matchingZoneIds = Object.entries(PREDEFINED_TO_BUILTIN)
+    .filter(([, reviewId]) => reviewId === zoneId)
+    .map(([predefinedId]) => predefinedId)
 
-  // Map zone IDs to the category values that belong in them
-  const zoneToCats: Record<string, string[]> = {
-    'check-in': ['entrance'],
-    'check-out': ['check_out'],
-    'wifi': ['wifi'],
-    'parking': ['parking'],
-    'air-conditioning': ['ac'],
-    'room-kitchen': ['kitchen', 'dishwasher', 'microwave', 'coffee'],
-    'room-bathroom': ['bathroom'],
-    'room-bedroom': ['bedroom'],
-    'room-living_room': ['living_room', 'tv'],
-    'room-terrace': ['terrace'],
-    'room-pool': ['pool'],
-    'room-laundry': ['washing_machine'],
-  }
-
-  const cats = zoneToCats[zoneId]
-  if (cats) {
-    const matched = media.filter(m => m.category && cats.includes(m.category))
-    if (matched.length > 0) return matched
-  }
-
-  // Fallback: room_type mapping for items without an explicit built-in category
-  const roomTypeMapping: Record<string, string[]> = {
-    'check-in': ['entrance', 'hallway', 'door', 'exterior'],
-    'check-out': ['entrance', 'hallway'],
-    'parking': ['parking', 'garage'],
-    'air-conditioning': ['living_room', 'bedroom'],
-  }
-  const roomTypes = roomTypeMapping[zoneId]
-  if (!roomTypes) return []
-  return media.filter(m =>
-    m.analysis &&
-    roomTypes.includes(m.analysis.room_type) &&
-    (!m.category || !BUILTIN_CATEGORIES.has(m.category))
-  )
+  if (matchingZoneIds.length === 0) return []
+  return media.filter(m => m.zoneId && matchingZoneIds.includes(m.zoneId))
 }
 
 // ============================================
@@ -709,6 +655,7 @@ export default function Step4Review({
   const [editingZone, setEditingZone] = useState<string | null>(null)
   const [editBuffer, setEditBuffer] = useState('')
   const [expandedZone, setExpandedZone] = useState<string | null>(null)
+  const [initialExpanded, setInitialExpanded] = useState(false)
   const [justSaved, setJustSaved] = useState<string | null>(null)
   const [iconPickerZone, setIconPickerZone] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState<string | null>(null)
@@ -719,99 +666,58 @@ export default function Step4Review({
     [step1Data, step2Data, locationData, locationDataLoading],
   )
 
-  // Add media-detected zones (exclude media assigned to built-in zones)
-  // Groups by primary_item (appliance) when available, falls back to room_type for general photos
+  // Add user-assigned media zones (exclude media assigned to built-in review zones)
   const mediaZones = useMemo(() => {
-    // Two maps: one for appliance-specific zones, one for room-level zones
-    const applianceMap = new Map<string, { label: string; items: string[]; mediaItems: MediaItem[] }>()
-    const roomMap = new Map<string, { items: string[]; mediaItems: MediaItem[] }>()
+    const builtinZoneIds = new Set(Object.keys(PREDEFINED_TO_BUILTIN))
+    const zoneGroups = new Map<string, { name: string; icon: string; mediaItems: MediaItem[] }>()
 
     for (const m of media) {
-      if (!m.analysis) continue
-      // Skip media explicitly assigned to built-in zones or custom zones (handled separately)
-      if (m.category && BUILTIN_CATEGORIES.has(m.category)) continue
-      if (m.category === 'custom') continue
+      // Skip media without a zone assignment
+      if (!m.zoneId && !m.customZoneName) continue
+      // Skip media assigned to zones that map to built-in review zones
+      if (m.zoneId && builtinZoneIds.has(m.zoneId)) continue
 
-      const primaryItem = m.analysis.primary_item
-      const firstAppliance = m.analysis.appliances?.[0]?.canonical_type
-
-      // If media has a primary_item or a single appliance, group by appliance
-      const applianceKey = primaryItem || (m.analysis.appliances?.length === 1 ? firstAppliance : null)
-
-      if (applianceKey && APPLIANCE_DISPLAY_NAMES[applianceKey]) {
-        if (!applianceMap.has(applianceKey)) {
-          applianceMap.set(applianceKey, {
-            label: APPLIANCE_DISPLAY_NAMES[applianceKey].nameEs,
-            items: [],
+      if (m.zoneId && m.zoneId !== '__custom__') {
+        // Predefined zone
+        const predefined = PREDEFINED_ZONES.find(z => z.id === m.zoneId)
+        if (!predefined) continue
+        if (!zoneGroups.has(m.zoneId)) {
+          zoneGroups.set(m.zoneId, {
+            name: predefined.name,
+            icon: predefined.icon,
             mediaItems: [],
           })
         }
-        const entry = applianceMap.get(applianceKey)!
-        entry.mediaItems.push(m)
-        const appliances = (m.analysis.appliances || []).map((a: any) =>
-          typeof a === 'string' ? a : a.detected_label || a.canonical_type
-        )
-        entry.items.push(...appliances)
-      } else {
-        // No specific appliance focus — group by room_type (or 'other' as fallback)
-        const room = m.analysis.room_type || 'other'
-        if (!roomMap.has(room)) roomMap.set(room, { items: [], mediaItems: [] })
-        const entry = roomMap.get(room)!
-        entry.mediaItems.push(m)
-        const appliances = (m.analysis.appliances || []).map((a: any) =>
-          typeof a === 'string' ? a : a.detected_label || a.canonical_type
-        )
-        entry.items.push(...appliances)
+        zoneGroups.get(m.zoneId)!.mediaItems.push(m)
+      } else if (m.customZoneName) {
+        // Custom zone — group by name
+        const key = `custom-${m.customZoneName}`
+        if (!zoneGroups.has(key)) {
+          zoneGroups.set(key, {
+            name: m.customZoneName,
+            icon: 'zap',
+            mediaItems: [],
+          })
+        }
+        zoneGroups.get(key)!.mediaItems.push(m)
       }
-    }
-
-    const roomLabels: Record<string, string> = {
-      kitchen: t('step4.roomLabels.kitchen'), bathroom: t('step4.roomLabels.bathroom'), bedroom: t('step4.roomLabels.bedroom'),
-      living_room: t('step4.roomLabels.livingRoom'), terrace: t('step4.roomLabels.terrace'), laundry: t('step4.roomLabels.laundry'),
-      balcony: t('step4.roomLabels.balcony'), dining_room: t('step4.roomLabels.diningRoom'), pool: t('step4.roomLabels.pool'),
-      other: t('step4.roomLabels.other'), unknown: t('step4.roomLabels.unknown'),
     }
 
     const zones: { id: string; title: string; iconName: string; content: string; source: 'media'; mediaItems: MediaItem[] }[] = []
 
-    // Appliance-specific zones first
-    for (const [applianceType, data] of applianceMap.entries()) {
-      const display = APPLIANCE_DISPLAY_NAMES[applianceType]
-      zones.push({
-        id: `appliance-${applianceType}`,
-        title: display?.nameEs || applianceType,
-        iconName: display?.icon || 'zap',
-        content: `${t('step4.mediaDetected')}\n• ${data.label}\n\n${t('step4.mediaInstructions')}`,
-        source: 'media',
-        mediaItems: data.mediaItems,
-      })
-    }
+    for (const [key, data] of zoneGroups.entries()) {
+      const descriptions = data.mediaItems
+        .map(m => m.description)
+        .filter(Boolean)
+        .join('\n\n')
 
-    // Custom zones (media with category='custom')
-    const customMedia = media.filter(m => m.category === 'custom')
-    for (const m of customMedia) {
-      const title = m.customZoneName || t('step4.customZone').replace(':', '')
       zones.push({
-        id: `custom-${m.id}`,
-        title,
-        iconName: 'zap',
-        content: `${t('step4.customZone')} ${title}\n\n${t('step4.customZoneContent')}`,
-        source: 'media',
-        mediaItems: [m],
-      })
-    }
-
-    // Room-level zones for general photos without specific appliance focus
-    for (const [room, data] of roomMap.entries()) {
-      if (['entrance', 'hallway', 'door', 'exterior', 'parking', 'garage'].includes(room)) continue
-      const uniqueItems = Array.from(new Set(data.items))
-      zones.push({
-        id: `room-${room}`,
-        title: roomLabels[room] || room,
-        iconName: 'zap',
-        content: uniqueItems.length > 0
-          ? `${t('step4.mediaDetected')}\n${uniqueItems.map(i => `• ${i}`).join('\n')}\n\n${t('step4.mediaInstructionsEach')}`
-          : t('step4.zoneDetected'),
+        id: `user-${key}`,
+        title: data.name,
+        iconName: data.icon,
+        content: descriptions
+          ? `${t('step4.userZoneMedia')}\n${descriptions}`
+          : '✨ La IA generará el contenido automáticamente basándose en el nombre de la zona y las fotos/vídeos subidos.',
         source: 'media',
         mediaItems: data.mediaItems,
       })
@@ -866,6 +772,14 @@ export default function Step4Review({
   ]
   const enabledCount = allZones.filter(z => !disabledZones.has(z.id)).length
 
+  // Auto-expand first zone on mount so the user understands the UI
+  useEffect(() => {
+    if (!initialExpanded && allZones.length > 0) {
+      setExpandedZone(allZones[0].id)
+      setInitialExpanded(true)
+    }
+  }, [allZones, initialExpanded])
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -876,19 +790,23 @@ export default function Step4Review({
     >
       {/* Header */}
       <div className="text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 mb-4"
+        >
+          <Check className="w-4 h-4 text-emerald-400" />
+          <span className="text-sm text-emerald-300 font-medium">Ya casi está</span>
+        </motion.div>
         <motion.h2
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-2xl sm:text-3xl font-bold text-white mb-2"
+          className="text-2xl sm:text-3xl font-bold text-white mb-3"
         >
-          {t('step4.title')}
+          Tu manual está listo para revisar
         </motion.h2>
-        <p className="text-gray-400 text-xs sm:text-sm">
-          {t('step4.subtitle')}
-          <br />
-          <span className="text-violet-400">{t('step4.autoTranslate')}</span>
-        </p>
       </div>
 
       {/* Stats */}
@@ -898,13 +816,35 @@ export default function Step4Review({
         <span className="text-gray-400">{t('step4.languages')}</span>
       </div>
 
-      {/* Info banner */}
-      <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4 flex items-start gap-3">
-        <Sparkles className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-        <p className="text-sm text-gray-400 leading-relaxed">
-          {t('step4.infoBanner')}
+      {/* Info banner — detailed instructions */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="bg-gradient-to-br from-violet-500/5 to-blue-500/5 border border-violet-500/20 rounded-xl p-5 space-y-3"
+      >
+        <div className="flex items-center gap-2 text-violet-300">
+          <Sparkles className="w-4 h-4" />
+          <span className="text-sm font-semibold">Hemos creado tu manual con IA</span>
+        </div>
+        <p className="text-sm text-gray-300 leading-relaxed">
+          Todas las zonas ya tienen contenido generado. Revísalas y edita lo que necesites antes de generar el manual definitivo.
         </p>
-      </div>
+        <ul className="text-sm text-gray-400 space-y-1.5">
+          <li className="flex items-start gap-2">
+            <Check className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+            <span>El contenido <strong className="text-violet-300">se traducirá automáticamente</strong> a inglés y francés</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <Check className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+            <span>Comprueba datos clave: <strong className="text-gray-300">dirección, contenedor de basura más cercano, indicaciones de llegada</strong></span>
+          </li>
+          <li className="flex items-start gap-2">
+            <Check className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+            <span>Después de generar podrás seguir editando, añadir más vídeos y pasos dentro de cada zona</span>
+          </li>
+        </ul>
+      </motion.div>
 
       {/* Zone cards */}
       <div className="space-y-3">
@@ -1051,9 +991,10 @@ export default function Step4Review({
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); startEdit(zone.id, content) }}
-                    className="p-1 text-gray-500 hover:text-violet-400 transition-colors"
+                    className="flex items-center gap-1 px-2 py-1 rounded-md text-xs text-gray-400 hover:text-violet-300 hover:bg-violet-500/10 transition-colors"
                   >
-                    <Pencil className="w-3.5 h-3.5" />
+                    <Pencil className="w-3 h-3" />
+                    <span className="hidden sm:inline">Editar</span>
                   </button>
                 )}
 
@@ -1075,15 +1016,21 @@ export default function Step4Review({
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden"
                   >
-                    {/* Media strip */}
+                    {/* Media preview */}
                     {zoneMedia.length > 0 && (
                       <div className="px-4 pb-3 flex gap-2 overflow-x-auto">
                         {zoneMedia.map((m) => (
-                          <div key={m.id} className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-gray-700">
+                          <div key={m.id} className={`relative flex-shrink-0 rounded-lg overflow-hidden border border-gray-700 ${
+                            m.type === 'video' ? 'w-full max-w-md' : 'w-20 h-20'
+                          }`}>
                             {m.type === 'video' ? (
-                              <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                                <Play className="w-6 h-6 text-violet-400" />
-                              </div>
+                              <video
+                                src={m.url}
+                                controls
+                                playsInline
+                                preload="metadata"
+                                className="w-full rounded-lg max-h-52 bg-gray-800"
+                              />
                             ) : (
                               <img src={m.url} alt="" className="w-full h-full object-cover" />
                             )}

@@ -1,15 +1,17 @@
 /**
  * Manual generation orchestrator for AI Setup wizard.
  *
- * Template-first approach:
+ * Simplified approach:
  * 1. Essential zones (check-in, check-out, wifi, house-rules, emergency, recycling)
  *    → use professional pre-built templates from zone-content-templates.ts (already trilingual)
- * 2. Appliance zones (one per detected appliance)
- *    → template if available, otherwise generateBasicApplianceContent (already trilingual)
- * 3. Location zones (directions, supermarkets, restaurants, etc.)
+ * 2. User-defined zones (from media uploads with zone + description)
+ *    → user writes description, AI perfects text and translates to EN/FR
+ * 3. Location zones (directions)
  *    → dynamic from Google Places (ES only, translated via Claude Haiku)
+ * 4. Nearby recommendations (pharmacy, hospital, parking)
+ *    → OSM free data only by default
  *
- * Result: drastically less AI usage, more professional content, faster generation.
+ * Cost: ~€0.05-0.10 per manual (no Vision AI, just text improvement + translation)
  */
 
 import { prisma } from '../prisma'
@@ -19,14 +21,12 @@ import { translateFields } from '../translate'
 import { generateZoneQRCode } from '../qr'
 import { fetchAllLocationData } from './places'
 import { generateRecommendations } from '../recommendations'
-import { type MediaAnalysisResult, type DetectedAppliance } from './vision'
 import { getZoneContentTemplate, type ZoneContentTemplate } from '../../data/zone-content-templates'
 import {
   APPLIANCE_REGISTRY,
   generateBasicApplianceContent,
   getEmergencyNumbers,
   resolveCountryCode,
-  normalizeAppliance,
   type CanonicalApplianceType,
 } from './zone-registry'
 import {
@@ -63,250 +63,289 @@ export interface GenerationEvent {
 
 type SendEvent = (event: GenerationEvent) => void
 
-// Helpers (replaceVariables, applyPlaceholderDefaults, cleanUnfilledPlaceholders, templateToZoneConfig)
-// are now in zone-builders.ts
+// ============================================
+// TEMPLATE ZONES (must match Step2Media.tsx)
+// Only template zones — everything else is a custom user zone.
+// ============================================
+
+const PREDEFINED_ZONES = [
+  { id: 'checkin', name: 'Check-in', icon: 'key' },
+  { id: 'garage', name: 'Parking privado', icon: 'parking' },
+  { id: 'ac', name: 'Aire Acondicionado', icon: 'snowflake' },
+] as const
+
+// Emoji → lucide icon mapping for custom zones
+const EMOJI_TO_ICON: Record<string, string> = {
+  '🔑': 'key', '🍳': 'kitchen', '🚿': 'bathroom', '🛏️': 'bed',
+  '🛋️': 'sofa', '🌳': 'trees', '🏊': 'pool', '🚗': 'parking',
+  '🧺': 'laundry', '🌡️': 'snowflake', '📺': 'tv', '☕': 'coffee',
+  '🏋️': 'dumbbell', '🎮': 'gamepad-2', '🧹': 'paintbrush', '🔧': 'wrench',
+  '📋': 'clipboard', '⚡': 'zap', '🚰': 'bathroom', '🏠': 'home',
+  '❄️': 'snowflake', '☀️': 'sun', '🅿️': 'parking',
+}
+
+// ============================================
+// USER MEDIA ZONE BUILDERS (AI perfects + translates)
+// ============================================
+
+const HAIKU_MODEL = 'claude-haiku-4-5-20251001'
+
+/**
+ * Improve user description and translate to EN/FR using Claude Haiku.
+ * Returns trilingual content + zone name translations.
+ */
+async function improveAndTranslate(
+  zoneName: string,
+  userDescription: string,
+): Promise<{
+  es: string; en: string; fr: string
+  nameEn: string; nameFr: string
+}> {
+  const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || ''
+  if (!ANTHROPIC_API_KEY) {
+    return { es: userDescription, en: userDescription, fr: userDescription, nameEn: zoneName, nameFr: zoneName }
+  }
+
+  const prompt = `Eres un redactor profesional de manuales de alojamiento turístico.
+El usuario ha escrito esta descripción para la zona "${zoneName}":
+
+"${userDescription}"
+
+Mejora la redacción para que sea clara, profesional y útil para un huésped.
+- Mantén el contenido original, solo mejora la forma
+- Usa formato con emojis y negritas (**) para facilitar la lectura
+- Añade pasos numerados si es una instrucción
+- No inventes información que no esté en el original
+- Máximo 200 palabras
+
+IMPORTANTE: Responde SOLO con JSON válido, sin markdown fences ni explicación:
+{"zoneName":{"es":"${zoneName}","en":"...","fr":"..."},"content":{"es":"...","en":"...","fr":"..."}}`
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: HAIKU_MODEL,
+        max_tokens: 1024,
+        temperature: 0.3,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    })
+
+    if (!response.ok) {
+      console.error('[generator] improveAndTranslate failed:', response.status)
+      return { es: userDescription, en: userDescription, fr: userDescription, nameEn: zoneName, nameFr: zoneName }
+    }
+
+    const data = await response.json()
+    const text = data.content?.[0]?.text || ''
+    const jsonStr = text.replace(/```json\s*\n?/g, '').replace(/```\s*$/g, '').trim()
+    const parsed = JSON.parse(jsonStr)
+
+    return {
+      es: parsed.content?.es || userDescription,
+      en: parsed.content?.en || userDescription,
+      fr: parsed.content?.fr || userDescription,
+      nameEn: parsed.zoneName?.en || zoneName,
+      nameFr: parsed.zoneName?.fr || zoneName,
+    }
+  } catch (err) {
+    console.error('[generator] improveAndTranslate error:', err)
+    return { es: userDescription, en: userDescription, fr: userDescription, nameEn: zoneName, nameFr: zoneName }
+  }
+}
+
+/**
+ * Build zones from user-uploaded media with zone assignments and descriptions.
+ * Groups media items by zone, improves text with AI, and translates.
+ * Each zone gets media URLs embedded for later assignment.
+ */
+interface UserZoneConfig extends TrilingualZoneConfig {
+  mediaItems?: Array<{ url: string; type: 'image' | 'video' }>
+}
+
+async function buildUserMediaZones(
+  mediaItems: any[],
+  sendEvent: SendEvent,
+  isMock: boolean,
+): Promise<UserZoneConfig[]> {
+  // Group media items by zone
+  const zoneGroups = new Map<string, {
+    name: string
+    icon: string
+    items: Array<{ url: string; type: string; description: string }>
+  }>()
+
+  for (const item of mediaItems) {
+    if (!item.zoneId && !item.customZoneName?.trim()) continue
+    if (!item.description?.trim()) continue
+
+    const key = item.zoneId || `custom-${item.customZoneName}`
+    if (!zoneGroups.has(key)) {
+      const predefined = PREDEFINED_ZONES.find(z => z.id === item.zoneId)
+      const iconFromEmoji = item.customZoneIcon ? (EMOJI_TO_ICON[item.customZoneIcon] || 'zap') : 'zap'
+      zoneGroups.set(key, {
+        name: predefined?.name || item.customZoneName || 'Zona',
+        icon: predefined?.icon || iconFromEmoji,
+        items: [],
+      })
+    }
+    zoneGroups.get(key)!.items.push({
+      url: item.url,
+      type: item.type,
+      description: item.description,
+    })
+  }
+
+  const zones: UserZoneConfig[] = []
+
+  for (const [, group] of zoneGroups) {
+    sendEvent({ type: 'status', message: `Perfeccionando zona: ${group.name}...` })
+
+    // Combine descriptions from all items in this zone
+    const combinedDesc = group.items.map(i => i.description).join('\n\n')
+
+    let improved: { es: string; en: string; fr: string; nameEn: string; nameFr: string }
+
+    if (isMock) {
+      improved = {
+        es: combinedDesc,
+        en: combinedDesc,
+        fr: combinedDesc,
+        nameEn: group.name,
+        nameFr: group.name,
+      }
+    } else {
+      improved = await improveAndTranslate(group.name, combinedDesc)
+    }
+
+    zones.push({
+      name: { es: group.name, en: improved.nameEn, fr: improved.nameFr },
+      icon: group.icon,
+      description: {
+        es: `Instrucciones de ${group.name}`,
+        en: `${improved.nameEn} instructions`,
+        fr: `Instructions ${improved.nameFr}`,
+      },
+      steps: [{
+        type: 'text',
+        title: { es: group.name, en: improved.nameEn, fr: improved.nameFr },
+        content: { es: improved.es, en: improved.en, fr: improved.fr },
+      }],
+      needsTranslation: false, // Already trilingual from Claude
+      mediaItems: group.items.map(i => ({ url: i.url, type: i.type as 'image' | 'video' })),
+    })
+  }
+
+  return zones
+}
+
+// ============================================
+// MEDIA ASSIGNMENT (new format: zoneId / customZoneName)
+// ============================================
 
 /**
  * Assign uploaded media (images/videos) to the matching zone steps.
- * Matches by room_type or appliance canonical_type → zone name.
+ * Uses the user zone configs to match media by zone name.
  */
 async function assignMediaToSteps(
   propertyId: string,
-  mediaItems: any[],
-  zoneConfigs: TrilingualZoneConfig[],
+  userZoneConfigs: UserZoneConfig[],
 ): Promise<void> {
-  // Build a map: zone name (ES lowercase) → appliance types that belong to it
-  const zoneNameToAppliances = new Map<string, Set<string>>()
-  for (const [type, entry] of Object.entries(APPLIANCE_REGISTRY)) {
-    const nameEs = entry.nameEs.toLowerCase()
-    const existing = zoneNameToAppliances.get(nameEs) || new Set()
-    existing.add(type)
-    zoneNameToAppliances.set(nameEs, existing)
-  }
+  if (userZoneConfigs.length === 0) return
 
-  // Room type → zone name mapping
-  const roomTypeToZoneName: Record<string, string> = {
-    kitchen: 'cocina',
-    bathroom: 'baño',
-    bedroom: 'dormitorio',
-    living_room: 'salón',
-    laundry: 'lavadora',
-    entrance: 'check in',
-    terrace: 'terraza',
-    garden: 'jardín',
-    pool: 'piscina',
-    garage: 'parking',
-    parking: 'parking',
-  }
-
-  // Get all zones with their first step from DB
   const dbZones = await prisma.zone.findMany({
     where: { propertyId },
     include: { steps: { orderBy: { order: 'asc' }, take: 1 } },
     orderBy: { order: 'asc' },
   })
 
-  // User-assigned category → zone name (ES) mapping
-  const categoryToZoneNameEs: Record<string, string> = {
-    entrance: 'check in',
-    check_out: 'check out',
-    wifi: 'wifi',
-    kitchen: 'cocina',
-    bathroom: 'baño',
-    bedroom: 'dormitorio',
-    living_room: 'salón',
-    parking: 'parking',
-    ac: 'aire acondicionado',
-    terrace: 'terraza',
-    pool: 'piscina',
-    tv: 'televisión',
-    washing_machine: 'lavadora',
-    dishwasher: 'lavavajillas',
-    microwave: 'microondas',
-    coffee: 'cafetera',
-  }
+  for (const userZone of userZoneConfigs) {
+    if (!userZone.mediaItems || userZone.mediaItems.length === 0) continue
 
-  // Track which zones already got a media item (max 1 per zone)
-  const assignedZoneIds = new Set<string>()
+    // Find the DB zone matching this user zone by name
+    const dbZone = dbZones.find(z => {
+      const name = typeof z.name === 'object' ? (z.name as any).es : z.name
+      return name === userZone.name.es
+    })
 
-  for (const mediaItem of mediaItems) {
-    if (!mediaItem.url) continue
-    const analysis = mediaItem.analysis || mediaItem
-    const category = mediaItem.category as string | undefined
+    if (!dbZone || dbZone.steps.length === 0) continue
 
-    // Skip if no useful data at all
-    if (!category && !analysis.room_type && !analysis.appliances?.length) continue
+    // Assign the first media item to the zone's first step
+    const firstMedia = userZone.mediaItems[0]
+    const mediaType = firstMedia.type === 'video' ? 'VIDEO' : 'IMAGE'
+    const existingContent = (dbZone.steps[0].content as any) || {}
 
-    const mediaType = mediaItem.type === 'video' ? 'VIDEO' : 'IMAGE'
-    const mediaUrl = mediaItem.url
-    const caption = (mediaItem.caption || '').trim()
+    await prisma.step.update({
+      where: { id: dbZone.steps[0].id },
+      data: {
+        type: mediaType,
+        content: { ...existingContent, mediaUrl: firstMedia.url },
+      },
+    })
 
-    // Helper to update a step with media + optional caption
-    const assignToStep = async (step: any, dbZone: any) => {
-      const existingContent = (step.content as any) || {}
-      const updatedContent: any = { ...existingContent, mediaUrl }
-      // If the user wrote a caption, append it to the ES content
-      if (caption) {
-        const existingEs = existingContent.es || ''
-        updatedContent.es = existingEs ? `${existingEs}\n\n${caption}` : caption
-      }
-      await prisma.step.update({
-        where: { id: step.id },
-        data: { type: mediaType, content: updatedContent },
-      })
-      assignedZoneIds.add(dbZone.id)
-    }
-
-    // Priority 1: user-assigned category
-    let matched = false
-    if (category) {
-      const targetName = categoryToZoneNameEs[category]
-      if (targetName) {
-        const dbZone = dbZones.find(z => {
-          if (assignedZoneIds.has(z.id)) return false
-          const name = typeof z.name === 'object' ? (z.name as any).es : z.name
-          return name?.toLowerCase().includes(targetName)
-        })
-        if (dbZone && dbZone.steps.length > 0) {
-          await assignToStep(dbZone.steps[0], dbZone)
-          matched = true
-          console.log(`[generator] Assigned ${mediaType} to zone "${(dbZone.name as any)?.es}" via category "${category}"`)
-        }
-      }
-    }
-
-    if (matched) continue
-
-    // Priority 2: match by appliance (more specific than room_type)
-    if (analysis.appliances?.length) {
-      for (const appliance of analysis.appliances) {
-        const canonicalType = appliance.canonical_type
-        // Find which zone name this appliance belongs to
-        for (const [zoneNameLower, types] of zoneNameToAppliances.entries()) {
-          if (types.has(canonicalType)) {
-            // Find the DB zone with this name
-            const dbZone = dbZones.find(z => {
-              if (assignedZoneIds.has(z.id)) return false
-              const name = typeof z.name === 'object' ? (z.name as any).es : z.name
-              return name?.toLowerCase().includes(zoneNameLower)
-            })
-            if (dbZone && dbZone.steps.length > 0) {
-              await assignToStep(dbZone.steps[0], dbZone)
-              matched = true
-              console.log(`[generator] Assigned ${mediaType} to zone "${(dbZone.name as any)?.es}" step "${(dbZone.steps[0].title as any)?.es}"`)
-              break
-            }
-          }
-        }
-        if (matched) break
-      }
-    }
-
-    // Priority 3: match by room_type
-    if (!matched && analysis.room_type) {
-      const targetName = roomTypeToZoneName[analysis.room_type]
-      if (targetName) {
-        const dbZone = dbZones.find(z => {
-          if (assignedZoneIds.has(z.id)) return false
-          const name = typeof z.name === 'object' ? (z.name as any).es : z.name
-          return name?.toLowerCase().includes(targetName)
-        })
-        if (dbZone && dbZone.steps.length > 0) {
-          await assignToStep(dbZone.steps[0], dbZone)
-          console.log(`[generator] Assigned ${mediaType} to zone "${(dbZone.name as any)?.es}" via room_type "${analysis.room_type}"`)
-        }
-      }
-    }
+    console.log(`[generator] Assigned ${mediaType} to zone "${userZone.name.es}"`)
   }
 }
 
 /**
- * Categories that map to built-in zones (check-in, check-out, wifi, etc.)
- * Media assigned to these should NOT also create appliance zones.
+ * Assign media from template zones (checkin, garage, ac) to matching DB zones.
+ * Template zone media has a zoneId but no description — it's attached to the auto-generated zone.
  */
-const BUILTIN_USER_CATEGORIES = new Set(['entrance', 'check_out', 'wifi', 'parking', 'ac'])
-
-/**
- * Normalize media analysis to new format (handles old {zone, items[]} format).
- * Preserves user-assigned category so buildApplianceZones can skip built-in media.
- */
-function normalizeMediaInput(raw: any): MediaAnalysisResult {
-  // MediaItem objects from the wizard have analysis nested inside
-  const data = raw.analysis || raw
-  const userCategory = raw.category as string | undefined
-
-  if (data.zone && !data.room_type) {
-    return {
-      room_type: data.zone,
-      appliances: (data.items || []).map((item: string) => ({
-        detected_label: item,
-        canonical_type: normalizeAppliance(item) || item,
-        confidence: data.confidence || 0.8,
-      })),
-      description: data.description || '',
-      confidence: data.confidence || 0.8,
-      userCategory,
-    }
-  }
-  return { ...data, userCategory } as MediaAnalysisResult
-}
-
-// Essential zone builders (buildCheckInZone, buildCheckOutZone, buildWifiZone, etc.)
-// are now in zone-builders.ts
-
-// ============================================
-// APPLIANCE ZONE BUILDERS (one zone per appliance)
-// ============================================
-
-function buildApplianceZones(mediaAnalysis: MediaAnalysisResult[]): TrilingualZoneConfig[] {
-  const zones: TrilingualZoneConfig[] = []
-  const processedTypes = new Set<string>()
-
-  for (const analysis of mediaAnalysis) {
-    // Skip media assigned to built-in zones (check-in, wifi, etc.)
-    // Their primary_item/appliances should NOT create separate appliance zones
-    if (analysis.userCategory && BUILTIN_USER_CATEGORIES.has(analysis.userCategory)) {
-      continue
-    }
-
-    // Priority: check primary_item first (specific appliance the media focuses on)
-    if (analysis.primary_item) {
-      const type = analysis.primary_item as CanonicalApplianceType
-      if (!processedTypes.has(type)) {
-        processedTypes.add(type)
-        const registry = APPLIANCE_REGISTRY[type]
-        if (registry) {
-          const zone = buildSingleApplianceZone(type, registry)
-          if (zone) zones.push(zone)
-        }
-      }
-    }
-
-    // Then iterate all detected appliances
-    if (!analysis.appliances) continue
-    for (const appliance of analysis.appliances) {
-      const type = appliance.canonical_type as CanonicalApplianceType
-      if (processedTypes.has(type)) continue
-      processedTypes.add(type)
-
-      const registry = APPLIANCE_REGISTRY[type]
-      if (!registry) continue
-
-      const zone = buildSingleApplianceZone(type, registry)
-      if (zone) zones.push(zone)
-    }
+async function assignTemplateZoneMedia(
+  propertyId: string,
+  mediaItems: any[],
+): Promise<void> {
+  // Map template zone IDs to DB zone name patterns (ES)
+  const TEMPLATE_TO_NAME: Record<string, string[]> = {
+    'checkin': ['Check In', 'Check-in'],
+    'garage': ['Parking privado', 'Parking'],
+    'ac': ['Aire Acondicionado', 'Aire acondicionado'],
   }
 
-  return zones
-}
+  const templateMedia = mediaItems.filter(m =>
+    m.zoneId && Object.keys(TEMPLATE_TO_NAME).includes(m.zoneId)
+  )
+  if (templateMedia.length === 0) return
 
-// buildSingleApplianceZone is now in zone-builders.ts
+  const dbZones = await prisma.zone.findMany({
+    where: { propertyId },
+    include: { steps: { orderBy: { order: 'asc' }, take: 1 } },
+    orderBy: { order: 'asc' },
+  })
+
+  for (const item of templateMedia) {
+    const namePatterns = TEMPLATE_TO_NAME[item.zoneId] || []
+    const dbZone = dbZones.find(z => {
+      const name = typeof z.name === 'object' ? (z.name as any).es : z.name
+      return namePatterns.some(pattern => name === pattern)
+    })
+
+    if (!dbZone || dbZone.steps.length === 0) continue
+
+    const mediaType = item.type === 'video' ? 'VIDEO' : 'IMAGE'
+    const existingContent = (dbZone.steps[0].content as any) || {}
+
+    await prisma.step.update({
+      where: { id: dbZone.steps[0].id },
+      data: {
+        type: mediaType,
+        content: { ...existingContent, mediaUrl: item.url },
+      },
+    })
+
+    console.log(`[generator] Assigned template ${mediaType} to zone "${(dbZone.name as any)?.es || dbZone.name}"`)
+  }
+}
 
 // ============================================
 // RECOMMENDATION ZONE BUILDER (host-provided places → Claude categorization)
 // ============================================
-
-const RECOMMENDATION_MODEL = 'claude-haiku-4-5-20251001'
 
 async function buildRecommendationZones(
   recommendations: string,
@@ -372,7 +411,7 @@ Rules:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: RECOMMENDATION_MODEL,
+        model: HAIKU_MODEL,
         max_tokens: 2048,
         temperature: 0.3,
         messages: [{ role: 'user', content: prompt }],
@@ -427,7 +466,7 @@ Rules:
           fr: `Recommandations de l'hôte à ${city}`,
         },
         steps,
-        needsTranslation: false, // Already trilingual from Claude
+        needsTranslation: false,
       })
     }
 
@@ -470,16 +509,14 @@ function buildFallbackRecommendationZone(recommendations: string): TrilingualZon
 function buildLocationZones(
   locationData: Awaited<ReturnType<typeof fetchAllLocationData>>,
   propertyInput: PropertyInput,
-  hasRecommendations: boolean = false,
 ): TrilingualZoneConfig[] {
   const zones: TrilingualZoneConfig[] = []
 
-  // How to get there — professional format matching zone-content-templates
   const dirSteps: TrilingualZoneConfig['steps'] = []
   const mapsLink = `https://www.google.com/maps/search/?api=1&query=${propertyInput.lat},${propertyInput.lng}`
   const address = `${propertyInput.street}, ${propertyInput.postalCode} ${propertyInput.city}`
 
-  // Airport (taxi only — transit directions are often unreliable)
+  // Airport (taxi only)
   const airportD = locationData.directions.drivingFromAirport
   if (airportD) {
     const parts: string[] = [
@@ -528,10 +565,6 @@ function buildLocationZones(
     needsTranslation: true,
   })
 
-  // NOTE: Parking, supermarkets, restaurants, pharmacies, attractions, transit, etc.
-  // are now handled by the Recommendations system (interactive cards with
-  // photos, opening hours, AI descriptions, sorted by distance). No more text zones.
-
   return zones
 }
 
@@ -542,7 +575,7 @@ function buildLocationZones(
 export async function generateManual(
   userId: string,
   propertyInput: PropertyInput,
-  mediaAnalysis: MediaAnalysisResult[],
+  mediaAnalysis: any[],
   sendEvent: SendEvent,
 ): Promise<string> {
   const startTime = Date.now()
@@ -626,11 +659,8 @@ export async function generateManual(
           propertyInput.city,
         )
 
-    // ── 3. Build ALL zones (template-first) ──
+    // ── 3. Build ALL zones ──
     sendEvent({ type: 'status', message: 'Generando manual profesional...' })
-
-    // Normalize media analysis (handle old format)
-    const normalizedMedia = mediaAnalysis.map(normalizeMediaInput)
 
     const allZones: TrilingualZoneConfig[] = []
     const zoneIdsNeedingTranslation = new Set<string>()
@@ -647,16 +677,49 @@ export async function generateManual(
 
     allZones.push(buildHouseRulesZone(propertyInput))
 
-    // Appliance zones (one per detected appliance, already trilingual)
-    const applianceZones = buildApplianceZones(normalizedMedia)
-    allZones.push(...applianceZones)
+    // User-defined zones from media (AI perfects + translates)
+    const userZones = await buildUserMediaZones(mediaAnalysis, sendEvent, isMock)
+    allZones.push(...userZones)
 
-    // AC zone: add if user said hasAC and not already detected in media
+    // AC zone: add if user said hasAC and not already covered by user zones
     if (propertyInput.hasAC) {
-      const hasACFromMedia = applianceZones.some(z => z.name.es === 'Aire Acondicionado')
-      if (!hasACFromMedia) {
+      const hasACFromUser = userZones.some(z =>
+        z.name.es.toLowerCase().includes('aire') || z.name.es.toLowerCase().includes('calefac')
+      )
+      if (!hasACFromUser) {
         const acZone = buildSingleApplianceZone('air_conditioning', APPLIANCE_REGISTRY.air_conditioning)
         if (acZone) allZones.push(acZone)
+      }
+    }
+
+    // Parking zone (from step1/step2 data, if hasParking)
+    if (propertyInput.hasParking === 'yes') {
+      const hasParkingFromUser = userZones.some(z =>
+        z.name.es.toLowerCase().includes('parking') || z.name.es.toLowerCase().includes('garaje')
+      )
+      if (!hasParkingFromUser) {
+        const d = propertyInput.details || {} as any
+        const accessMap: Record<string, string> = {
+          remote: 'Mando a distancia (incluido con las llaves)',
+          code: `Código: **${d.parkingAccessCode || '(se enviará antes de tu llegada)'}**`,
+          card: 'Tarjeta (incluida con las llaves)',
+          key: 'Llave (incluida con las llaves)',
+        }
+        allZones.push({
+          name: { es: 'Parking privado', en: '', fr: '' },
+          icon: 'parking',
+          description: { es: 'Información del parking privado', en: '', fr: '' },
+          steps: [{
+            type: 'text',
+            title: { es: 'Parking privado', en: '', fr: '' },
+            content: {
+              es: `🚗 **Plaza número:** ${d.parkingSpotNumber || '(indicar)'}\n🏢 **Planta:** ${d.parkingFloor || '(indicar)'}\n\n**Para entrar:**\n1. ${accessMap[d.parkingAccess] || accessMap.remote}\n2. La puerta tarda unos segundos en abrirse\n3. Tu plaza está señalizada\n\n**Para salir:** Pulsa el botón de apertura interior\n\n⚠️ Cuidado con la altura si llevas SUV o furgoneta.`,
+              en: '',
+              fr: '',
+            },
+          }],
+          needsTranslation: true,
+        })
       }
     }
 
@@ -664,7 +727,6 @@ export async function generateManual(
     allZones.push(buildRecyclingZone(propertyInput))
 
     // Emergency zone (template + country-specific numbers, already trilingual)
-    // Hospitals are now handled by the Recommendations system
     allZones.push(buildEmergencyZone(propertyInput, []))
 
     // Recommendation zones (host-provided places, already trilingual)
@@ -675,27 +737,8 @@ export async function generateManual(
       allZones.push(...recZones)
     }
 
-    // Custom zones (media items with category='custom' and customZoneName)
-    const customZonesFromMedia = mediaAnalysis.filter(
-      (m: any) => m.category === 'custom' && m.customZoneName
-    )
-    for (const m of customZonesFromMedia) {
-      const customName = (m as any).customZoneName as string
-      allZones.push({
-        name: { es: customName, en: '', fr: '' },
-        icon: 'zap',
-        description: { es: `Zona personalizada: ${customName}`, en: '', fr: '' },
-        steps: [{
-          type: 'text',
-          title: { es: customName, en: '', fr: '' },
-          content: { es: `Zona personalizada del alojamiento.`, en: '', fr: '' },
-        }],
-        needsTranslation: true,
-      })
-    }
-
     // Location zones (ES only, need translation)
-    const locationZones = buildLocationZones(locationData, propertyInput, hasRecommendations)
+    const locationZones = buildLocationZones(locationData, propertyInput)
     allZones.push(...locationZones)
 
     // ── 3.5 Apply custom titles and icons from Step 4 ──
@@ -703,13 +746,11 @@ export async function generateManual(
     const cIcons = propertyInput.customIcons || {}
 
     for (const zoneConfig of allZones) {
-      // Build the review zone ID the same way Step4Review does
       const applianceKey = Object.keys(APPLIANCE_REGISTRY).find(
         k => APPLIANCE_REGISTRY[k as CanonicalApplianceType].nameEs === zoneConfig.name.es
       )
       const reviewZoneId = applianceKey ? `appliance-${applianceKey}` : generateSlug(zoneConfig.name.es)
 
-      // Apply custom title
       if (cTitles[reviewZoneId]) {
         zoneConfig.name.es = cTitles[reviewZoneId]
         zoneConfig.name.en = ''
@@ -717,13 +758,12 @@ export async function generateManual(
         zoneConfig.needsTranslation = true
       }
 
-      // Apply custom icon
       if (cIcons[reviewZoneId]) {
         zoneConfig.icon = cIcons[reviewZoneId]
       }
     }
 
-    // ── 3.6 Apply reviewed content overrides from Step 4 (renumbered) ──
+    // ── 3.6 Apply reviewed content overrides from Step 4 ──
     const reviewed = propertyInput.reviewedContent || {}
     const reviewIdMap: Record<string, string> = {
       'Check In': 'check-in',
@@ -732,6 +772,7 @@ export async function generateManual(
       'Normas de la Casa': 'house-rules',
       'Emergencias': 'emergency-contacts',
       'Reciclaje': 'recycling',
+      'Parking privado': 'parking',
       'Aire Acondicionado': 'air-conditioning',
       'Cómo Llegar': 'directions',
       'Cómo llegar': 'directions',
@@ -740,10 +781,7 @@ export async function generateManual(
     for (const zoneConfig of allZones) {
       const reviewId = reviewIdMap[zoneConfig.name.es] || generateSlug(zoneConfig.name.es)
       if (reviewed[reviewId] && zoneConfig.steps.length > 0) {
-        // User edited this zone's content — override the ES version of the first step
-        // (the review step shows all content as a single block, so merge into step[0])
         zoneConfig.steps[0].content.es = reviewed[reviewId]
-        // Mark for re-translation since user edited the Spanish content
         zoneConfig.needsTranslation = true
       }
     }
@@ -757,6 +795,7 @@ export async function generateManual(
       'Normas de la Casa': 'house-rules',
       'Emergencias': 'emergency-contacts',
       'Reciclaje': 'recycling',
+      'Parking privado': 'parking',
       'Aire Acondicionado': 'air-conditioning',
       'Cómo Llegar': 'directions',
       'Cómo llegar': 'directions',
@@ -801,7 +840,6 @@ export async function generateManual(
         },
       })
 
-      // Track zones needing translation
       if (zoneConfig.needsTranslation) {
         zoneIdsNeedingTranslation.add(zone.id)
       }
@@ -839,13 +877,15 @@ export async function generateManual(
     }
 
     // ── 4.5 Assign uploaded media (images/videos) to matching zone steps ──
-    await assignMediaToSteps(property.id, mediaAnalysis, filteredZones)
+    await assignMediaToSteps(property.id, userZones)
 
-    // ── 5. Translate ONLY location zones (template zones already have 3 languages) ──
+    // Also assign media from template zones (checkin, garage, ac)
+    await assignTemplateZoneMedia(property.id, mediaAnalysis)
+
+    // ── 5. Translate ONLY zones that need it (location zones, edited zones) ──
     sendEvent({ type: 'translation', language: 'en', progress: 0 })
 
     if (isMock) {
-      // Skip translations in mock mode — just mark as done
       console.log('[generator] MOCK MODE — skipping translations')
       sendEvent({ type: 'translation', language: 'en', progress: 100 })
       sendEvent({ type: 'translation', language: 'fr', progress: 100 })
@@ -858,7 +898,6 @@ export async function generateManual(
 
       const zonesToTranslate = zonesWithSteps.filter(z => zoneIdsNeedingTranslation.has(z.id))
 
-      // Translate zone names and descriptions
       const zoneNameFields = zonesToTranslate.map(z => ({
         es: (z.name as any)?.es || '',
         en: '',
@@ -897,7 +936,6 @@ export async function generateManual(
 
       sendEvent({ type: 'translation', language: 'en', progress: 100 })
 
-      // Translate steps of location zones
       sendEvent({ type: 'translation', language: 'fr', progress: 0 })
 
       for (const zone of zonesToTranslate) {
@@ -940,7 +978,6 @@ export async function generateManual(
 
       sendEvent({ type: 'translation', language: 'fr', progress: 100 })
     } else {
-      // No translation needed — all zones are template-based
       sendEvent({ type: 'translation', language: 'en', progress: 100 })
       sendEvent({ type: 'translation', language: 'fr', progress: 100 })
     }
@@ -963,15 +1000,15 @@ export async function generateManual(
       }
     }))
 
-    // ── 7. Auto-generate nearby recommendations ──
+    // ── 7. Auto-generate nearby recommendations (default categories only) ──
     if (propertyInput.lat && propertyInput.lng) {
-      sendEvent({ type: 'status', message: 'Generando recomendaciones locales...' })
+      sendEvent({ type: 'status', message: 'Buscando servicios cercanos...' })
       try {
         const recResult = await generateRecommendations(
           property.id,
           propertyInput.lat,
           propertyInput.lng,
-          undefined,
+          undefined, // Uses defaultEnabled categories only
           propertyInput.city,
         )
         totalZones += recResult.zonesCreated

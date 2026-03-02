@@ -1120,6 +1120,21 @@ model Lead {
   @@map("leads")
 }
 
+model DemoOtp {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  attempts  Int      @default(0)
+  verified  Boolean  @default(false)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([email])
+  @@index([email, code])
+  @@index([expiresAt])
+  @@map("demo_otps")
+}
+
 model CustomerJourneyStage {
   id        String       @id @default(cuid())
   leadId    String?      @map("lead_id")

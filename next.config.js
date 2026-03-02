@@ -145,7 +145,7 @@ const nextConfig = {
           "font-src 'self' https://fonts.gstatic.com",
           "img-src 'self' data: blob: https://*.blob.vercel-storage.com https://*.public.blob.vercel-storage.com https://images.unsplash.com https://www.google-analytics.com https://www.facebook.com https://www.googletagmanager.com",
           "connect-src 'self' https://www.google-analytics.com https://maps.googleapis.com https://www.facebook.com https://region1.google-analytics.com",
-          "frame-src 'self' https://www.googletagmanager.com https://www.youtube.com https://player.vimeo.com"
+          "frame-src 'self' https://www.googletagmanager.com https://www.youtube.com https://player.vimeo.com https://challenges.cloudflare.com https://www.facebook.com"
         ].join('; ')
       }
     ]
@@ -167,12 +167,12 @@ const nextConfig = {
         ],
       },
       {
-        // Cache API routes for a short time + no store for sensitive data
+        // Default short cache for API routes — individual routes can override
         source: '/api/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-cache, no-store, must-revalidate',
+            value: 'private, no-cache, must-revalidate',
           },
         ],
       },

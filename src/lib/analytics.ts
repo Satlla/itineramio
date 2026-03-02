@@ -36,6 +36,20 @@ export type AnalyticsEvent =
   // Calculator & CTA events
   | 'calculator_used'
   | 'cta_clicked'
+  // Demo funnel events
+  | 'demo_wow_screen_viewed'
+  | 'demo_wow_explore_clicked'
+  | 'demo_guide_tour_step'
+  | 'demo_chatbot_promoted'
+  | 'demo_chatbot_opened'
+  | 'demo_chatbot_message_sent'
+  | 'demo_share_modal_opened'
+  | 'demo_share_completed'
+  | 'demo_feedback_submitted'
+  | 'demo_exit_intent_shown'
+  | 'demo_exit_intent_register_clicked'
+  | 'demo_register_clicked'
+  | 'demo_register_completed'
 
 // Helper para trackear eventos en Google Analytics y GTM
 export function trackEvent(

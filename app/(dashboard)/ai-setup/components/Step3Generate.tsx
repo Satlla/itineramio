@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Sparkles,
@@ -14,9 +14,13 @@ import {
   ArrowRight,
   Loader2,
   Crown,
+  MapPin,
+  Heart,
+  X,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+import { PREDEFINED_ZONES, type MediaItem } from './Step2Media'
 
 interface ZoneEvent {
   name: string
@@ -34,11 +38,12 @@ interface GenerationStats {
 
 interface Step3GenerateProps {
   propertyData: any
-  mediaAnalysis: any[]
+  mediaAnalysis: MediaItem[]
   onComplete?: () => void
+  onBack?: () => void
 }
 
-// Map icon names to lucide components
+// Map icon names to emojis
 const iconMap: Record<string, string> = {
   'key': '🔑',
   'log-out': '🚪',
@@ -70,9 +75,10 @@ const iconMap: Record<string, string> = {
   'snowflake': '❄️',
 }
 
-export default function Step3Generate({ propertyData, mediaAnalysis, onComplete }: Step3GenerateProps) {
+export default function Step3Generate({ propertyData, mediaAnalysis, onComplete, onBack }: Step3GenerateProps) {
   const router = useRouter()
   const { t } = useTranslation('ai-setup')
+  const [confirmed, setConfirmed] = useState(false)
   const [status, setStatus] = useState(() => t('step5.preparing'))
   const [zones, setZones] = useState<ZoneEvent[]>([])
   const [translations, setTranslations] = useState<Record<string, number>>({})
@@ -87,14 +93,28 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
   const onCompleteRef = useRef(onComplete)
   onCompleteRef.current = onComplete
 
+  // Compute user zones from media for the confirmation modal
+  const userZoneNames = useMemo(() => {
+    const zoneNames = new Set<string>()
+    for (const item of mediaAnalysis) {
+      if (item.zoneId) {
+        const zone = PREDEFINED_ZONES.find(z => z.id === item.zoneId)
+        if (zone) zoneNames.add(zone.name)
+      } else if (item.customZoneName?.trim()) {
+        zoneNames.add(item.customZoneName.trim())
+      }
+    }
+    return Array.from(zoneNames)
+  }, [mediaAnalysis])
+
   // Elapsed time counter
   useEffect(() => {
-    if (stats) return // Stop when complete
+    if (!confirmed || stats) return
     const interval = setInterval(() => {
       setElapsed(Math.round((Date.now() - startTimeRef.current) / 1000))
     }, 1000)
     return () => clearInterval(interval)
-  }, [stats])
+  }, [confirmed, stats])
 
   // Auto-scroll to latest zone
   useEffect(() => {
@@ -103,10 +123,12 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
     }
   }, [zones])
 
-  // Start generation
+  // Start generation only after confirmation
   useEffect(() => {
+    if (!confirmed) return
+
     const controller = new AbortController()
-    const TIMEOUT_MS = 5 * 60 * 1000 // 5 minutes max
+    const TIMEOUT_MS = 5 * 60 * 1000
 
     // Reset state on retry
     setStatus(t('step5.preparing'))
@@ -126,7 +148,6 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
 
     const generate = async () => {
       try {
-        // Parse auth token correctly — JWT tokens contain '=' in base64
         const tokenCookie = document.cookie.split(';').find(c => c.trim().startsWith('auth-token='))
         const token = tokenCookie ? tokenCookie.trim().split('=').slice(1).join('=') : undefined
 
@@ -165,9 +186,8 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
 
           buffer += decoder.decode(value, { stream: true })
 
-          // Process complete SSE events
           const lines = buffer.split('\n')
-          buffer = lines.pop() || '' // Keep incomplete line in buffer
+          buffer = lines.pop() || ''
 
           for (const line of lines) {
             if (!line.startsWith('data: ')) continue
@@ -193,20 +213,19 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
                   break
                 case 'property_id':
                   setPropertyId(event.propertyId)
-                  // Generation succeeded — clear the draft
                   onCompleteRef.current?.()
                   break
                 case 'error':
                   setError(event.error)
                   break
               }
-            } catch (parseErr) {
+            } catch {
               // Skip malformed SSE events
             }
           }
         }
       } catch (err) {
-        if ((err as Error).name === 'AbortError') return // Timeout already handled
+        if ((err as Error).name === 'AbortError') return
         console.error('[Step3] Generation error:', err)
         setError(err instanceof Error ? err.message : t('step5.unknownError'))
       } finally {
@@ -220,8 +239,119 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
       clearTimeout(timeoutId)
       controller.abort()
     }
-  }, [retryCount]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [confirmed, retryCount]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── Confirmation Modal ──
+  if (!confirmed) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-2xl mx-auto"
+      >
+        <div className="bg-gray-900/80 border border-gray-800 rounded-2xl overflow-hidden backdrop-blur-xl">
+          {/* Header */}
+          <div className="p-6 sm:p-8 text-center space-y-3 border-b border-gray-800/50">
+            <div className="w-16 h-16 mx-auto rounded-full bg-violet-500/20 flex items-center justify-center">
+              <Sparkles className="w-8 h-8 text-violet-400" />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-bold text-white">
+              {t('step5.confirmTitle')}
+            </h2>
+            <p className="text-gray-400 text-sm">
+              {t('step5.confirmSubtitle')}
+            </p>
+          </div>
+
+          {/* Content */}
+          <div className="p-6 sm:p-8 space-y-4">
+            {/* Essential zones */}
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-green-500/5 border border-green-500/20">
+              <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-green-300">{t('step5.essentialZones')}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{t('step5.essentialZonesList')}</p>
+              </div>
+            </div>
+
+            {/* User zones (from media) */}
+            {userZoneNames.length > 0 && (
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-violet-500/5 border border-violet-500/20">
+                <CheckCircle className="w-5 h-5 text-violet-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-violet-300">
+                    {t('step5.userZones', { count: userZoneNames.length })}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">{userZoneNames.join(', ')}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Nearby services */}
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-blue-500/5 border border-blue-500/20">
+              <Heart className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-blue-300">{t('step5.nearbyServices')}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{t('step5.nearbyServicesList')}</p>
+              </div>
+            </div>
+
+            {/* Directions */}
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20">
+              <MapPin className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-amber-300">{t('step5.directions')}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{t('step5.directionsList')}</p>
+              </div>
+            </div>
+
+            {/* AI actions */}
+            <div className="mt-6 p-4 rounded-xl bg-gray-800/50 border border-gray-700/50 space-y-2">
+              <p className="text-sm font-medium text-gray-300">{t('step5.aiWillDo')}</p>
+              <ul className="space-y-1.5 text-sm text-gray-400">
+                <li className="flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-violet-400 flex-shrink-0" />
+                  {t('step5.aiAction1')}
+                </li>
+                <li className="flex items-center gap-2">
+                  <Globe className="w-3.5 h-3.5 text-violet-400 flex-shrink-0" />
+                  {t('step5.aiAction2')}
+                </li>
+                <li className="flex items-center gap-2">
+                  <MapPin className="w-3.5 h-3.5 text-violet-400 flex-shrink-0" />
+                  {t('step5.aiAction3')}
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="p-6 sm:p-8 pt-0 flex gap-3">
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="flex-1 h-12 sm:h-14 rounded-xl text-base font-semibold border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+              >
+                {t('step5.cancel')}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setConfirmed(true)}
+              className="flex-1 h-12 sm:h-14 rounded-xl text-base sm:text-lg font-semibold bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25 transition-all duration-300 flex items-center justify-center gap-2"
+            >
+              <Sparkles className="w-5 h-5" />
+              {t('step5.generate')}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
+
+  // ── Generation Progress ──
   const isComplete = !!stats
   const totalSteps = zones.reduce((sum, z) => sum + z.stepsCount, 0)
 
@@ -274,33 +404,23 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete 
 
       {/* Progress stats bar */}
       <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-sm">
-        {/* Languages */}
         <div className="flex items-center gap-2 text-gray-400">
           <Globe className="w-4 h-4" />
-          <span>ES ✓</span>
+          <span>ES &#10003;</span>
           <span>EN {translations.en !== undefined ? (translations.en >= 100 ? '✓' : '...') : ''}</span>
           <span>FR {translations.fr !== undefined ? (translations.fr >= 100 ? '✓' : '...') : ''}</span>
         </div>
-
         <div className="w-px h-4 bg-gray-700 hidden sm:block" />
-
-        {/* Zones */}
         <div className="flex items-center gap-2 text-gray-400">
           <Layers className="w-4 h-4" />
           <span>{zones.length} {t('step5.zones')}</span>
         </div>
-
         <div className="w-px h-4 bg-gray-700 hidden sm:block" />
-
-        {/* Steps */}
         <div className="flex items-center gap-2 text-gray-400">
           <ListChecks className="w-4 h-4" />
           <span>{totalSteps} {t('step5.steps')}</span>
         </div>
-
         <div className="w-px h-4 bg-gray-700 hidden sm:block" />
-
-        {/* Time */}
         <div className="flex items-center gap-2 text-gray-400">
           <Clock className="w-4 h-4" />
           <span>{stats?.time || elapsed}s</span>

@@ -94,6 +94,7 @@ export default function DashboardPage(): JSX.Element {
   const [showFirstPropertyOnboarding, setShowFirstPropertyOnboarding] = useState(false)
   const [trialStatus, setTrialStatus] = useState<any>(null)
   const [hasActiveSubscription, setHasActiveSubscription] = useState<boolean | null>(null)
+  const [demoClaimedPropertyId, setDemoClaimedPropertyId] = useState<string | null>(null)
   const hasCheckedWelcomeModal = useRef(false)
   const hasFetchedDashboardData = useRef(false)
   const [stats, setStats] = useState({
@@ -109,6 +110,21 @@ export default function DashboardPage(): JSX.Element {
   const searchParams = useSearchParams()
   const { user } = useAuth()
   const { startOnboarding, showSpotlight, spotlightTarget, setSpotlight } = useOnboarding()
+
+  // Detect demoClaimed from URL params (property transferred from demo)
+  useEffect(() => {
+    const demoClaimed = searchParams.get('demoClaimed')
+    if (demoClaimed) {
+      setDemoClaimedPropertyId(demoClaimed)
+      // Clean URL params
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href)
+        url.searchParams.delete('demoClaimed')
+        url.searchParams.delete('welcome')
+        window.history.replaceState({}, '', url.toString())
+      }
+    }
+  }, [searchParams])
 
   // Real-time activity state - solo datos reales
   const [recentActivity, setRecentActivity] = useState<any[]>([])
@@ -275,6 +291,14 @@ export default function DashboardPage(): JSX.Element {
       // Wait for loading to complete
       if (loading) return
 
+      // Skip onboarding if user just claimed a demo property
+      if (demoClaimedPropertyId) {
+        console.log('🚫 Demo property claimed, skipping onboarding modal')
+        setShowUnifiedWelcome(false)
+        localStorage.setItem('hasSeenUnifiedWelcome', 'true')
+        return
+      }
+
       // ABSOLUTE GUARD: NEVER show if already seen - check localStorage FIRST
       if (typeof window !== 'undefined' && localStorage.getItem('hasSeenUnifiedWelcome') === 'true') {
         console.log('🚫 Unified welcome modal already seen (localStorage), not showing')
@@ -332,10 +356,12 @@ export default function DashboardPage(): JSX.Element {
     }
 
     checkOnboardingStatus()
-  }, [searchParams, user, loading, properties])
+  }, [searchParams, user, loading, properties, demoClaimedPropertyId])
 
   // Check if should show first property notification/onboarding
   useEffect(() => {
+    // Skip if demo property was claimed
+    if (demoClaimedPropertyId) return
     // Solo mostrar si no está cargando y no hay propiedades
     if (!loading && properties.length === 0) {
       const hasSeenFirstPropertyOnboarding = localStorage.getItem('hasSeenFirstPropertyOnboarding')
@@ -547,6 +573,66 @@ export default function DashboardPage(): JSX.Element {
               </div>
             </div>
           </motion.div>
+
+          {/* Demo property claimed celebration */}
+          {demoClaimedPropertyId && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mb-4 sm:mb-6 bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 border border-violet-200 rounded-2xl p-5 sm:p-6 relative overflow-hidden"
+            >
+              {/* Decorative glow */}
+              <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-violet-200/30 blur-3xl pointer-events-none" />
+
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-4">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', damping: 12, delay: 0.2 }}
+                    className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-violet-500/30"
+                  >
+                    <CheckCircle className="w-6 h-6 text-white" />
+                  </motion.div>
+                  <div className="flex-1">
+                    <p className="text-lg font-bold text-gray-900">Tu manual ya es tuyo para siempre!</p>
+                    <p className="text-sm text-gray-600">Tu propiedad demo ha sido transferida a tu cuenta.</p>
+                  </div>
+                  <button
+                    onClick={() => setDemoClaimedPropertyId(null)}
+                    className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Next steps */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
+                  <Link
+                    href={`/properties/${demoClaimedPropertyId}/zones`}
+                    className="flex items-center gap-2.5 p-3 bg-white rounded-xl border border-gray-200 hover:border-violet-300 hover:shadow-sm transition-all group"
+                  >
+                    <Edit className="w-4 h-4 text-violet-500" />
+                    <span className="text-sm font-medium text-gray-700 group-hover:text-violet-700">Personalizar manual</span>
+                  </Link>
+                  <Link
+                    href={`/properties/${demoClaimedPropertyId}/qr`}
+                    className="flex items-center gap-2.5 p-3 bg-white rounded-xl border border-gray-200 hover:border-violet-300 hover:shadow-sm transition-all group"
+                  >
+                    <Hash className="w-4 h-4 text-violet-500" />
+                    <span className="text-sm font-medium text-gray-700 group-hover:text-violet-700">Generar QR codes</span>
+                  </Link>
+                  <Link
+                    href="/account/billing"
+                    className="flex items-center gap-2.5 p-3 bg-white rounded-xl border border-gray-200 hover:border-violet-300 hover:shadow-sm transition-all group"
+                  >
+                    <Star className="w-4 h-4 text-violet-500" />
+                    <span className="text-sm font-medium text-gray-700 group-hover:text-violet-700">Elegir plan</span>
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* Stats Cards */}
           <motion.div

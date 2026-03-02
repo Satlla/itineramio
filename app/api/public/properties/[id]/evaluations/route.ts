@@ -9,13 +9,15 @@ export async function GET(
   try {
     const { id } = await params
 
-    // Get property to check if it exists, is active, and is published
+    // Get property to check if it exists and is published or demo preview
     const property = await prisma.property.findFirst({
       where: {
         id,
-        status: 'ACTIVE',
-        isPublished: true,
-        deletedAt: null
+        deletedAt: null,
+        OR: [
+          { status: 'ACTIVE', isPublished: true },
+          { isDemoPreview: true, demoExpiresAt: { gt: new Date() } }
+        ]
       },
       select: {
         id: true,

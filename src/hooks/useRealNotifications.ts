@@ -17,7 +17,10 @@ let globalNotifications: Notification[] = []
 let globalLoading = true
 let globalHasFetched = false
 let globalIsFetching = false
+let globalLastFetchedAt = 0
 let listeners: Set<() => void> = new Set()
+
+const STALE_TIME_MS = 30_000 // 30 seconds
 
 function subscribe(listener: () => void) {
   listeners.add(listener)
@@ -35,7 +38,12 @@ function notifyListeners() {
 async function fetchNotificationsGlobal(force = false) {
   // Guard against duplicate calls (global singleton)
   if (globalIsFetching) return
-  if (globalHasFetched && !force) return
+
+  // Stale-while-revalidate: serve cached data if fresh, refetch in background if stale
+  const now = Date.now()
+  const isStale = now - globalLastFetchedAt > STALE_TIME_MS
+
+  if (globalHasFetched && !force && !isStale) return
 
   globalIsFetching = true
 
@@ -50,6 +58,7 @@ async function fetchNotificationsGlobal(force = false) {
         createdAt: new Date(n.createdAt)
       }))
       globalHasFetched = true
+      globalLastFetchedAt = Date.now()
     }
   } catch (error) {
     console.error('Error fetching notifications:', error)

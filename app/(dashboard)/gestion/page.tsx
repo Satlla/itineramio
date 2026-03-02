@@ -34,16 +34,27 @@ export default function GestionDashboardPage() {
   const currentMonth = new Date().toLocaleDateString('es-ES', { month: 'long' })
 
   useEffect(() => {
-    // Polling para detectar cuando el usuario vuelve de hacer algo
-    const interval = setInterval(() => {
+    // Detectar cuando otra pestaña/página señala que hay cambios
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'gestion-needs-refresh' && e.newValue) {
+        sessionStorage.removeItem('gestion-needs-refresh')
+        refresh()
+      }
+    }
+    // Also check on focus (for same-tab navigation via sessionStorage)
+    const handleFocus = () => {
       const needsRefresh = sessionStorage.getItem('gestion-needs-refresh')
       if (needsRefresh) {
         sessionStorage.removeItem('gestion-needs-refresh')
         refresh()
       }
-    }, 500)
-
-    return () => clearInterval(interval)
+    }
+    window.addEventListener('storage', handleStorage)
+    window.addEventListener('focus', handleFocus)
+    return () => {
+      window.removeEventListener('storage', handleStorage)
+      window.removeEventListener('focus', handleFocus)
+    }
   }, [refresh])
 
   // Check if should show wizard after data loads

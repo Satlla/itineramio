@@ -31,7 +31,7 @@ export async function GET(
       JOIN properties p ON p.id = z."propertyId"
       WHERE z.id = ${zoneId}
         AND z."propertyId" = ${propertyId}
-        AND p."isPublished" = true
+        AND (p."isPublished" = true OR (p."isDemoPreview" = true AND p."demoExpiresAt" > NOW()))
         AND (
           (z."isPublished" = true AND z.status = 'ACTIVE')
           OR EXISTS (
@@ -69,7 +69,7 @@ export async function GET(
         JOIN properties p ON p.id = z."propertyId"
         WHERE z.id LIKE ${zoneId + '%'}
           AND z."propertyId" LIKE ${propertyId + '%'}
-          AND p."isPublished" = true
+          AND (p."isPublished" = true OR (p."isDemoPreview" = true AND p."demoExpiresAt" > NOW()))
           AND (
             (z."isPublished" = true AND z.status = 'ACTIVE')
             OR EXISTS (
@@ -96,13 +96,15 @@ export async function GET(
       )
     }
 
-    // Check if host has MANUALES module access
+    // Check if host has MANUALES module access (skip for demo preview properties)
     const property = await prisma.property.findUnique({
       where: { id: zone.propertyId },
-      select: { hostId: true }
+      select: { hostId: true, isDemoPreview: true, demoExpiresAt: true }
     })
 
-    if (property?.hostId) {
+    const isDemoProperty = property?.isDemoPreview && property?.demoExpiresAt && property.demoExpiresAt > new Date()
+
+    if (property?.hostId && !isDemoProperty) {
       const moduleAccess = await checkHostManualesAccess(property.hostId)
       if (!moduleAccess.hasAccess) {
         console.log(`🚫 Zone blocked for property ${propertyId} - host ${property.hostId} has no MANUALES access: ${moduleAccess.blockedReason}`)

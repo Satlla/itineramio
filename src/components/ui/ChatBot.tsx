@@ -45,6 +45,7 @@ interface ChatBotProps {
     email: string
   }
   className?: string
+  isDemoMode?: boolean
 }
 
 interface FAQ {
@@ -80,6 +81,9 @@ const i18n: Record<string, Record<string, string>> = {
     emailSkip: 'Ahora no',
     emailSuccess: '¡Gracias! Te enviaremos recomendaciones útiles.',
     emailError: 'Error al enviar. Inténtalo de nuevo.',
+    demoWelcome: '¡Hola! Soy el asistente IA de {propertyName}. Tus huespedes pueden preguntarme cualquier cosa sobre tu alojamiento, 24/7, en 3 idiomas.\n\nPruebame: preguntame donde esta el WiFi, como funciona el check-in, o que restaurantes hay cerca',
+    demoBannerText: 'Imagina que tus huespedes tienen esto 24/7. Sin llamadas a las 3 AM, sin repetir las mismas instrucciones.',
+    demoBannerCta: 'Activar mi chatbot IA',
   },
   en: {
     header: 'AI Assistant',
@@ -107,6 +111,9 @@ const i18n: Record<string, Record<string, string>> = {
     emailSkip: 'Not now',
     emailSuccess: 'Thank you! We\'ll send you useful recommendations.',
     emailError: 'Error sending. Please try again.',
+    demoWelcome: 'Hello! I\'m the AI assistant for {propertyName}. Your guests can ask me anything about your accommodation, 24/7, in 3 languages.\n\nTry me: ask where the WiFi is, how check-in works, or what restaurants are nearby',
+    demoBannerText: 'Imagine your guests having this 24/7. No calls at 3 AM, no repeating the same instructions.',
+    demoBannerCta: 'Activate my AI chatbot',
   },
   fr: {
     header: 'Assistant IA',
@@ -134,6 +141,9 @@ const i18n: Record<string, Record<string, string>> = {
     emailSkip: 'Pas maintenant',
     emailSuccess: 'Merci ! Nous vous enverrons des recommandations utiles.',
     emailError: 'Erreur d\'envoi. Veuillez réessayer.',
+    demoWelcome: 'Bonjour ! Je suis l\'assistant IA de {propertyName}. Vos invites peuvent me poser n\'importe quelle question sur votre hebergement, 24h/24, en 3 langues.\n\nEssayez-moi : demandez-moi ou se trouve le WiFi, comment fonctionne l\'enregistrement, ou quels restaurants se trouvent a proximite',
+    demoBannerText: 'Imaginez que vos invites aient ceci 24h/24. Plus d\'appels a 3h du matin, plus de repetitions des memes instructions.',
+    demoBannerCta: 'Activer mon chatbot IA',
   }
 }
 
@@ -169,7 +179,8 @@ export default function ChatBot({
   propertyName,
   language = 'es',
   hostContact,
-  className = ''
+  className = '',
+  isDemoMode = false,
 }: ChatBotProps) {
   const [isEnabled, setIsEnabled] = useState<boolean | null>(null)
   const [isOpen, setIsOpen] = useState(false)
@@ -179,6 +190,9 @@ export default function ChatBot({
   const [isLoading, setIsLoading] = useState(false)
   const [showFAQs, setShowFAQs] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Demo promotion state
+  const [showDemoBanner, setShowDemoBanner] = useState(false)
 
   // Email collection state
   const [showEmailOverlay, setShowEmailOverlay] = useState(false)
@@ -256,12 +270,20 @@ export default function ChatBot({
     }
   }, [isOpen, isMinimized])
 
-  // Show email overlay after 3 user messages
+  // Show demo banner after first user message in demo mode
   useEffect(() => {
-    if (userMessageCountRef.current >= 3 && !emailCollected && !emailDismissed && !showEmailOverlay) {
+    if (isDemoMode && userMessageCountRef.current >= 1 && !showDemoBanner) {
+      const timer = setTimeout(() => setShowDemoBanner(true), 1500)
+      return () => clearTimeout(timer)
+    }
+  }, [messages, isDemoMode, showDemoBanner])
+
+  // Show email overlay after 3 user messages (skip in demo mode)
+  useEffect(() => {
+    if (!isDemoMode && userMessageCountRef.current >= 3 && !emailCollected && !emailDismissed && !showEmailOverlay) {
       setShowEmailOverlay(true)
     }
-  }, [messages, emailCollected, emailDismissed, showEmailOverlay])
+  }, [messages, emailCollected, emailDismissed, showEmailOverlay, isDemoMode])
 
   const initializeChat = () => {
     // Try to restore from localStorage
@@ -285,7 +307,7 @@ export default function ChatBot({
       }
     }
 
-    const welcomeKey = zoneId && zoneName ? 'welcomeZone' : 'welcomeProperty'
+    const welcomeKey = isDemoMode ? 'demoWelcome' : (zoneId && zoneName ? 'welcomeZone' : 'welcomeProperty')
     const welcomeContent = t(welcomeKey, lang, {
       propertyName,
       zoneName: zoneName || ''
@@ -690,17 +712,39 @@ export default function ChatBot({
       {/* Chat Button */}
       <AnimatePresence>
         {!isOpen && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleOpen}
-            className={`fixed w-14 h-14 bg-black text-white rounded-2xl shadow-xl hover:shadow-2xl hover:bg-gray-800 transition-all duration-300 z-50 flex items-center justify-center ${className || 'bottom-4 right-4 sm:bottom-6 sm:right-6'}`}
-          >
-            <MessageCircle className="w-6 h-6" />
-          </motion.button>
+          <div className={`fixed z-50 ${className || 'bottom-4 right-4 sm:bottom-6 sm:right-6'}`} id="demo-chatbot-btn">
+            {/* Demo glow ring */}
+            {isDemoMode && (
+              <motion.div
+                className="absolute inset-0 rounded-2xl bg-violet-500/30 blur-md"
+                animate={{ scale: [1, 1.5, 1], opacity: [0.6, 0, 0.6] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+            )}
+            <motion.button
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleOpen}
+              className="relative w-14 h-14 bg-black text-white rounded-2xl shadow-xl hover:shadow-2xl hover:bg-gray-800 transition-all duration-300 flex items-center justify-center"
+            >
+              <MessageCircle className="w-6 h-6" />
+            </motion.button>
+            {/* Demo tooltip badge */}
+            {isDemoMode && !isOpen && (
+              <motion.div
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 10 }}
+                className="absolute bottom-full right-0 mb-2 whitespace-nowrap bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg shadow-lg border border-gray-700 pointer-events-none"
+              >
+                Pruebalo: pregunta algo a tu asistente IA
+                <div className="absolute -bottom-1 right-5 w-2 h-2 bg-gray-900 border-b border-r border-gray-700 rotate-45" />
+              </motion.div>
+            )}
+          </div>
         )}
       </AnimatePresence>
 
@@ -866,6 +910,28 @@ export default function ChatBot({
                   )}
 
                   <div ref={messagesEndRef} />
+
+                  {/* Demo Conversion Banner */}
+                  <AnimatePresence>
+                    {isDemoMode && showDemoBanner && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        className="sticky bottom-0 bg-violet-50 border border-violet-200 rounded-xl p-3 mx-1 mb-1 shadow-sm z-10"
+                      >
+                        <p className="text-xs text-gray-700 mb-2 leading-relaxed">
+                          {t('demoBannerText', lang)}
+                        </p>
+                        <a
+                          href={`/register?from=demo&utm_source=chatbot`}
+                          className="block w-full text-center py-2 px-3 bg-black text-white text-xs font-semibold rounded-lg hover:bg-gray-800 transition-colors"
+                        >
+                          {t('demoBannerCta', lang)}
+                        </a>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   {/* Email Collection Banner (non-blocking) */}
                   <AnimatePresence>

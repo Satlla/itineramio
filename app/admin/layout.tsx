@@ -32,7 +32,8 @@ import {
   HelpCircle,
   Video,
   UserCog,
-  Layers
+  Layers,
+  Target
 } from 'lucide-react'
 
 // Navigation structure organized by function with permissions
@@ -85,6 +86,7 @@ const buildNavigationSections = (t: (key: string) => string) => [
     collapsible: true,
     items: [
       { name: t('admin.nav.leads'), href: '/admin/leads', icon: UsersRound, hot: true, permissions: ['marketing.view'] },
+      { name: t('admin.nav.demoConversions'), href: '/admin/demo-conversions', icon: Target, permissions: ['marketing.view'] },
       { name: t('admin.nav.queries'), href: '/admin/consultas', icon: Video, permissions: ['calendar.view'] },
       { name: t('admin.nav.subscribers'), href: '/admin/marketing/leads', icon: Mail, permissions: ['marketing.view'] },
       { name: t('admin.nav.funnels'), href: '/admin/funnels', icon: Megaphone, permissions: ['marketing.view'] },

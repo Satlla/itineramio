@@ -9,6 +9,69 @@ if (!JWT_SECRET) {
   throw new Error('JWT_SECRET environment variable is not set')
 }
 
+/**
+ * Transfer a demo property to the newly verified user.
+ * Returns the propertyId if transfer was successful, null otherwise.
+ */
+async function claimDemoProperty(userId: string, userEmail: string): Promise<string | null> {
+  try {
+    // 1. Check notificationPreferences for demoPropertyId
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { notificationPreferences: true }
+    })
+
+    const prefs = (user?.notificationPreferences as Record<string, unknown>) || {}
+    let propertyId = prefs.demoPropertyId as string | undefined
+
+    // 2. Fallback: find Lead with same email and source='demo', get propertyId from metadata
+    if (!propertyId) {
+      const lead = await prisma.lead.findFirst({
+        where: { email: userEmail, source: 'demo' },
+        orderBy: { createdAt: 'desc' },
+        select: { metadata: true }
+      })
+      const leadMeta = (lead?.metadata as Record<string, unknown>) || {}
+      propertyId = leadMeta.propertyId as string | undefined
+    }
+
+    if (!propertyId) return null
+
+    // 3. Find the demo property (must still be isDemoPreview=true)
+    const property = await prisma.property.findFirst({
+      where: { id: propertyId, isDemoPreview: true }
+    })
+
+    if (!property) return null
+
+    // 4. Transfer ownership
+    await prisma.property.update({
+      where: { id: propertyId },
+      data: {
+        hostId: userId,
+        isDemoPreview: false,
+        demoExpiresAt: null,
+        status: 'DRAFT',
+      }
+    })
+
+    // 5. Clean demoPropertyId from notificationPreferences
+    if (prefs.demoPropertyId) {
+      const { demoPropertyId: _, ...cleanPrefs } = prefs
+      await prisma.user.update({
+        where: { id: userId },
+        data: { notificationPreferences: cleanPrefs as Record<string, unknown> as any }
+      })
+    }
+
+    console.log(`[claimDemoProperty] Transferred property ${propertyId} to user ${userId}`)
+    return propertyId
+  } catch (error) {
+    console.error('[claimDemoProperty] Error:', error)
+    return null
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -41,6 +104,9 @@ export async function GET(request: NextRequest) {
           console.error('Error sending welcome email:', error)
         })
 
+        // Attempt to transfer demo property to the new user
+        const claimedPropertyId = await claimDemoProperty(user.id, user.email)
+
         // Create JWT token for automatic login
         const token = jwt.sign(
           { userId: user.id },
@@ -49,8 +115,11 @@ export async function GET(request: NextRequest) {
         )
 
         // Redirect to dashboard with login cookie and welcome flag
+        const redirectUrl = claimedPropertyId
+          ? `/main?welcome=true&demoClaimed=${claimedPropertyId}`
+          : '/main?welcome=true'
         const response = NextResponse.redirect(
-          new URL('/main?welcome=true', request.url)
+          new URL(redirectUrl, request.url)
         )
         
         response.cookies.set('auth-token', token, {

@@ -12,43 +12,52 @@ export async function GET(
     
     // Try to find property by slug first using raw SQL
     let properties = await prisma.$queryRaw`
-      SELECT 
+      SELECT
         id, name, slug, description, type,
         street, city, state, country, "postalCode",
         bedrooms, bathrooms, "maxGuests", "squareMeters",
         "profileImage", "hostContactName", "hostContactPhone",
         "hostContactEmail", "hostContactLanguage", "hostContactPhoto",
         status, "isPublished", "propertySetId", "hostId",
+        "isDemoPreview", "demoExpiresAt",
         "createdAt", "updatedAt", "publishedAt"
       FROM properties
       WHERE slug = ${slug}
-        AND "isPublished" = true
+        AND (
+          "isPublished" = true
+          OR ("isDemoPreview" = true AND "demoExpiresAt" > NOW())
+        )
       LIMIT 1
     ` as any[]
-    
+
     // If not found by slug, try by ID (for backward compatibility)
     if (properties.length === 0) {
       console.log('🔍 Property not found by slug, trying by ID:', slug)
-      
+
       properties = await prisma.$queryRaw`
-        SELECT 
+        SELECT
           id, name, slug, description, type,
           street, city, state, country, "postalCode",
           bedrooms, bathrooms, "maxGuests", "squareMeters",
           "profileImage", "hostContactName", "hostContactPhone",
           "hostContactEmail", "hostContactLanguage", "hostContactPhoto",
           status, "isPublished", "propertySetId", "hostId",
+          "isDemoPreview", "demoExpiresAt",
           "createdAt", "updatedAt", "publishedAt"
         FROM properties
         WHERE id = ${slug}
-          AND "isPublished" = true
+          AND (
+            "isPublished" = true
+            OR ("isDemoPreview" = true AND "demoExpiresAt" > NOW())
+          )
         LIMIT 1
       ` as any[]
     }
     
     const property = properties[0]
-    console.log('🔍 Safe Public Property final result found:', !!property)
-    
+    const isDemo = !!property?.isDemoPreview
+    console.log('🔍 Safe Public Property final result found:', !!property, 'isDemo:', isDemo)
+
     if (!property) {
       return NextResponse.json({
         success: false,
@@ -56,8 +65,17 @@ export async function GET(
       }, { status: 404 })
     }
 
-    // Check if host has MANUALES module access
-    if (property.hostId) {
+    // Check demo expiration
+    if (isDemo && property.demoExpiresAt && new Date(property.demoExpiresAt) <= new Date()) {
+      return NextResponse.json({
+        success: false,
+        error: 'Este demo ha expirado',
+        code: 'DEMO_EXPIRED'
+      }, { status: 410 })
+    }
+
+    // Check if host has MANUALES module access (skip for demo properties)
+    if (!isDemo && property.hostId) {
       const moduleAccess = await checkHostManualesAccess(property.hostId)
       if (!moduleAccess.hasAccess) {
         console.log(`🚫 Manual blocked for property ${slug} - host ${property.hostId} has no MANUALES access: ${moduleAccess.blockedReason}`)

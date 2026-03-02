@@ -2,14 +2,11 @@ import type { Metadata, Viewport } from 'next'
 import { Inter, Satisfy } from 'next/font/google'
 import './globals.css'
 
-// Force dynamic rendering — required because many client pages use useSearchParams()
-// which fails during static prerendering in Next.js 15
-export const dynamic = 'force-dynamic'
-
 import { Providers } from './providers'
 import { I18nProvider } from '../src/providers/I18nProvider'
 import { Toaster } from 'react-hot-toast'
 import { validateEnvironmentVariables } from '../src/lib/env-validation'
+import { Suspense } from 'react'
 import { ErrorBoundary } from '../src/components/ErrorBoundary'
 import { ChunkErrorHandler } from '../src/components/ChunkErrorHandler'
 import { Analytics } from '@vercel/analytics/next'
@@ -263,7 +260,7 @@ export default function RootLayout({
           <I18nProvider>
             <Providers>
               <LoadingProvider>
-                {children}
+                <Suspense>{children}</Suspense>
               </LoadingProvider>
               <Toaster
               position="top-right"
