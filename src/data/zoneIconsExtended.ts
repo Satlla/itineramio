@@ -75,6 +75,8 @@ import {
   Snowflake,
   Wind,
   Flame,
+  LogOut,
+  ScrollText,
   LucideIcon
 } from 'lucide-react'
 
@@ -195,6 +197,10 @@ export const iconIdMapping: { [key: string]: LucideIcon } = {
   'exit': DoorClosed,
   'door': DoorOpen,
   'door-exit': DoorClosed,
+  'log-out': LogOut,
+  'scroll-text': ScrollText,
+  'checkin': Key,
+  'checkout': DoorClosed,
   'car': Car,
   'kitchen': ChefHat,
   'kitchen-main': ChefHat,

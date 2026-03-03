@@ -44,8 +44,8 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { Button } from '../../../../src/components/ui/Button'
 import { Card } from '../../../../src/components/ui/Card'
-import { ZoneIconDisplay } from '../../../../src/components/ui/IconSelector'
 import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
+import { ZONE_ICONS } from '../../../../src/data/zoneIcons'
 import { getZoneIconByName } from '../../../../src/data/zoneIconsExtended'
 import { ShareLanguageModal } from '../../../../src/components/ui/ShareLanguageModal'
 import ChatBot from '../../../../src/components/ui/ChatBot'
@@ -106,17 +106,22 @@ interface Announcement {
   createdAt: string
 }
 
-// Zone icon mapping using centralized system - BLACK STYLE FOR PUBLIC VIEW
+// Zone icon mapping - uses ZONE_ICONS (130+) as primary, then extended fallback
 const getZoneIcon = (iconName: string, className: string = "w-6 h-6") => {
   if (!iconName) {
-    return <Home className={`${className} text-gray-700`} />
+    return <Home className={`${className}`} />
   }
-  
-  // Use the improved icon mapping system from extended icons
+
+  // 1. Try ZONE_ICONS array (same source as dashboard IconSelector)
+  const zoneIcon = ZONE_ICONS.find(icon => icon.id === iconName)
+  if (zoneIcon) {
+    const IconComponent = zoneIcon.icon
+    return <IconComponent className={className} />
+  }
+
+  // 2. Fallback to extended name-based matching
   const IconComponent = getZoneIconByName(iconName)
-  // Force black/gray color for all icons in public view
-  const blackClassName = className.replace(/text-\w+-\d+/, 'text-gray-700')
-  return <IconComponent className={blackClassName} />
+  return <IconComponent className={className} />
 }
 
 // Helper function to get text from multilingual objects

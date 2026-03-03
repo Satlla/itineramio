@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { Button } from '../../../../../src/components/ui/Button'
 import { Card, CardContent } from '../../../../../src/components/ui/Card'
 import { ZoneIconDisplay } from '../../../../../src/components/ui/IconSelector'
+import { ZONE_ICONS } from '../../../../../src/data/zoneIcons'
+import { getZoneIconByName } from '../../../../../src/data/zoneIconsExtended'
 import { ItineramioLogo } from '../../../../../src/components/ui/ItineramioLogo'
 import { Badge } from '../../../../../src/components/ui/Badge'
 import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/AnimatedLoadingSpinner'
@@ -51,28 +53,22 @@ interface Property {
   hostContactPhoto?: string
 }
 
-// Zone icon mapping
+// Zone icon mapping - uses ZONE_ICONS (130+) as primary, then extended fallback
 const getZoneIcon = (iconName: string, className: string = "w-6 h-6") => {
-  const iconMap: { [key: string]: JSX.Element } = {
-    'wifi': <Wifi className={className} />,
-    'zap': <Zap className={className} />,
-    'car': <Car className={className} />,
-    'parking': <Car className={className} />,
-    'kitchen': <Utensils className={className} />,
-    'cocina': <Utensils className={className} />,
-    'bed': <Bed className={className} />,
-    'dormitorio': <Bed className={className} />,
-    'bath': <Bath className={className} />,
-    'baño': <Bath className={className} />,
-    'security': <Shield className={className} />,
-    'seguridad': <Shield className={className} />,
-    'tv': <Tv className={className} />,
-    'coffee': <Coffee className={className} />,
-    'location': <MapPin className={className} />,
-    'ubicación': <MapPin className={className} />
+  if (!iconName) {
+    return <MapPin className={className} />
   }
-  
-  return iconMap[iconName.toLowerCase()] || <MapPin className={className} />
+
+  // 1. Try ZONE_ICONS array (same source as dashboard IconSelector)
+  const zoneIcon = ZONE_ICONS.find(icon => icon.id === iconName)
+  if (zoneIcon) {
+    const IconComponent = zoneIcon.icon
+    return <IconComponent className={className} />
+  }
+
+  // 2. Fallback to extended name-based matching
+  const IconComponent = getZoneIconByName(iconName)
+  return <IconComponent className={className} />
 }
 
 // Helper function to get text from multilingual objects
