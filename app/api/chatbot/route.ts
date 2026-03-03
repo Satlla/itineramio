@@ -129,8 +129,8 @@ export async function POST(request: NextRequest) {
       zones = property.zones;
     }
 
-    // TEMP: Block chatbot for non-allowed hosts during beta
-    if (!ALLOWED_HOST_EMAILS.includes(property.host?.email?.toLowerCase())) {
+    // TEMP: Block chatbot for non-allowed hosts during beta (allow demo properties)
+    if (!property.isDemoPreview && !ALLOWED_HOST_EMAILS.includes(property.host?.email?.toLowerCase())) {
       return NextResponse.json({
         error: 'Chatbot not available for this property'
       }, { status: 403 });

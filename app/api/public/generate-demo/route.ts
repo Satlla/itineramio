@@ -352,7 +352,7 @@ export async function POST(request: NextRequest) {
     if (Array.isArray(mediaAnalysis) && mediaAnalysis.length > 0) {
       // Group media by zone (skip built-in zones: checkin, garage, ac)
       const BUILTIN_ZONE_IDS = new Set(['checkin', 'garage', 'ac'])
-      const zoneGroups = new Map<string, { name: string; description: string; mediaUrls: string[] }>()
+      const zoneGroups = new Map<string, { name: string; description: string; mediaItems: { url: string; type: string }[] }>()
 
       for (const item of mediaAnalysis) {
         const zoneId = item.zoneId
@@ -371,12 +371,12 @@ export async function POST(request: NextRequest) {
           zoneGroups.set(key, {
             name: item.customZoneName || PREDEFINED[zoneId!] || zoneId!,
             description: '',
-            mediaUrls: [],
+            mediaItems: [],
           })
         }
         const group = zoneGroups.get(key)!
         if (item.description) group.description += (group.description ? '\n' : '') + item.description
-        if (item.url) group.mediaUrls.push(item.url)
+        if (item.url) group.mediaItems.push({ url: item.url, type: item.type || 'image' })
       }
 
       for (const [, data] of zoneGroups) {
@@ -395,17 +395,16 @@ export async function POST(request: NextRequest) {
           })
         }
 
-        // Add media steps for each uploaded file
-        for (const url of data.mediaUrls) {
-          const isVideo = /\.(mp4|mov|webm)$/i.test(url)
+        // Add media steps for each uploaded file (use item.type from MediaItem)
+        for (const mediaItem of data.mediaItems) {
           steps.push({
-            type: isVideo ? 'VIDEO' : 'IMAGE',
+            type: mediaItem.type === 'video' ? 'VIDEO' : 'IMAGE',
             title: { es: data.name, en: data.name, fr: data.name },
             content: {
               es: '',
               en: '',
               fr: '',
-              mediaUrl: url,
+              mediaUrl: mediaItem.url,
             } as any,
           })
         }

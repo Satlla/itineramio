@@ -282,6 +282,7 @@ export default function Step2Media({
         }])
       } catch {
         errors.push(t('step3.errors.uploadError', { name: file.name }))
+        setCompressStatus(null)
       }
     }
 
