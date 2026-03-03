@@ -28,12 +28,10 @@ import { APPLIANCE_REGISTRY, type CanonicalApplianceType } from '../../../../src
 async function verifyTurnstile(token: string): Promise<boolean> {
   const secretKey = process.env.TURNSTILE_SECRET_KEY
   if (!secretKey) {
-    // In production, reject if Turnstile is not configured
-    if (process.env.NODE_ENV === 'production') {
-      console.error('[demo] TURNSTILE_SECRET_KEY not configured in production — rejecting')
-      return false
-    }
-    console.warn('[demo] TURNSTILE_SECRET_KEY not configured, skipping verification (dev mode)')
+    // If Turnstile secret is not configured, skip verification gracefully.
+    // The demo flow already has rate limiting (IP + email), OTP verification,
+    // and disposable email blocking as anti-abuse measures.
+    console.warn('[demo] TURNSTILE_SECRET_KEY not configured, skipping verification')
     return true
   }
 
@@ -156,10 +154,10 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
-    // 2. Validate Turnstile (mandatory)
+    // 2. Validate Turnstile (if configured)
+    const turnstileConfigured = !!process.env.TURNSTILE_SECRET_KEY
     if (!body.turnstileToken) {
-      // Allow bypass only in development
-      if (process.env.NODE_ENV === 'production') {
+      if (turnstileConfigured) {
         return NextResponse.json(
           { error: 'Verificación de seguridad requerida. Completa el captcha.' },
           { status: 403 }
