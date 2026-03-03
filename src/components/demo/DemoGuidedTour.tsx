@@ -22,7 +22,7 @@ const TOUR_STEPS: TourStep[] = [
     targetId: 'demo-chatbot-btn',
     title: 'Asistente IA 24/7',
     description: 'Tu asistente IA 24/7. Pruebalo! Pregunta lo que quieras.',
-    position: 'left',
+    position: 'top',
   },
   {
     targetId: 'language-selector',
@@ -111,6 +111,17 @@ export default function DemoGuidedTour({ isActive }: DemoGuidedTourProps) {
         top = rect.top + scrollTop + rect.height / 2
         left = rect.right + 12
         break
+    }
+
+    // Clamp left to stay within viewport (tooltip is w-72 = 288px)
+    const tooltipWidth = 288
+    const viewportWidth = window.innerWidth
+    const padding = 16
+    if (step.position === 'top' || step.position === 'bottom') {
+      // Centered tooltips: ensure they don't overflow
+      const minLeft = padding + tooltipWidth / 2
+      const maxLeft = viewportWidth - padding - tooltipWidth / 2
+      left = Math.max(minLeft, Math.min(maxLeft, left))
     }
 
     setTooltipPosition({ top, left })

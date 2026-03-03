@@ -10,29 +10,7 @@ export async function GET(
     const { id } = await params
     console.log('🔍 Safe Public Property endpoint - received ID:', id)
     
-    // First check if this is a demo preview property
-    const demoCheck = await prisma.$queryRaw`
-      SELECT id, "isDemoPreview", "demoExpiresAt"
-      FROM properties
-      WHERE id = ${id} AND "isDemoPreview" = true
-      LIMIT 1
-    ` as any[]
-
-    const demoProperty = demoCheck[0]
-    const isDemo = !!demoProperty
-
-    if (isDemo) {
-      // Demo property: check expiration instead of isPublished/subscription
-      if (demoProperty.demoExpiresAt && new Date(demoProperty.demoExpiresAt) <= new Date()) {
-        return NextResponse.json({
-          success: false,
-          error: 'Este demo ha expirado',
-          code: 'DEMO_EXPIRED'
-        }, { status: 410 })
-      }
-    }
-
-    // Use raw SQL to get property safely
+    // Get property in a single query (handles both published and demo)
     const properties = await prisma.$queryRaw`
       SELECT
         id, name, slug, description, type,
@@ -53,6 +31,7 @@ export async function GET(
     ` as any[]
 
     const property = properties[0]
+    const isDemo = !!property?.isDemoPreview
 
     if (!property) {
       return NextResponse.json({
@@ -114,64 +93,56 @@ export async function GET(
       ORDER BY COALESCE(z."order", 999999) ASC, z.id ASC
     ` as any[]
 
-    // Get steps for each zone (and recommendation count for RECOMMENDATIONS zones)
-    const zonesWithSteps = await Promise.all(
-      zones.map(async (zone: any) => {
-        // For RECOMMENDATIONS zones, count recommendations instead of steps
-        if (zone.type === 'RECOMMENDATIONS') {
-          const recCount = await prisma.recommendation.count({
-            where: { zoneId: zone.id },
-          })
-          return {
-            ...zone,
-            stepsCount: recCount,
-            steps: []
-          }
+    // Get ALL steps and recommendation counts in batch (instead of N queries per zone)
+    const zoneIds = zones.map((z: any) => z.id)
+    const recZoneIds = zones.filter((z: any) => z.type === 'RECOMMENDATIONS').map((z: any) => z.id)
+
+    const [allSteps, recCounts] = await Promise.all([
+      zoneIds.length > 0
+        ? prisma.$queryRaw`
+            SELECT id, "zoneId", type, title, content, "isPublished", "createdAt", "updatedAt"
+            FROM steps
+            WHERE "zoneId" = ANY(${zoneIds}::text[])
+              AND "isPublished" = true
+            ORDER BY "zoneId", "order" ASC, id ASC
+          ` as Promise<any[]>
+        : Promise.resolve([]),
+      recZoneIds.length > 0
+        ? prisma.$queryRaw`
+            SELECT "zoneId", COUNT(*)::int as count
+            FROM recommendations
+            WHERE "zoneId" = ANY(${recZoneIds}::text[])
+            GROUP BY "zoneId"
+          ` as Promise<any[]>
+        : Promise.resolve([]),
+    ])
+
+    // Group steps by zoneId
+    const stepsByZone = new Map<string, any[]>()
+    for (const step of allSteps) {
+      let mediaUrl = null
+      let linkUrl = null
+      try {
+        if (step.content && typeof step.content === 'object') {
+          if (step.content.mediaUrl) mediaUrl = step.content.mediaUrl
+          if (step.content.linkUrl) linkUrl = step.content.linkUrl
         }
+      } catch {}
+      const processed = { ...step, mediaUrl, linkUrl }
+      if (!stepsByZone.has(step.zoneId)) stepsByZone.set(step.zoneId, [])
+      stepsByZone.get(step.zoneId)!.push(processed)
+    }
 
-        const steps = await prisma.$queryRaw`
-          SELECT
-            id, "zoneId", type, title, content,
-            "isPublished", "createdAt", "updatedAt"
-          FROM steps
-          WHERE "zoneId" = ${zone.id}
-            AND "isPublished" = true
-          ORDER BY id ASC
-        ` as any[]
+    const recCountMap = new Map<string, number>()
+    for (const r of recCounts) recCountMap.set(r.zoneId, r.count)
 
-        // Process steps to extract mediaUrl from content JSON
-        const processedSteps = steps.map(step => {
-          let mediaUrl = null
-          let linkUrl = null
-
-          try {
-            if (step.content && typeof step.content === 'object') {
-              const content = step.content as any
-              if (content.mediaUrl) {
-                mediaUrl = content.mediaUrl
-              }
-              if (content.linkUrl) {
-                linkUrl = content.linkUrl
-              }
-            }
-          } catch (error) {
-            console.error('Error parsing step content:', error)
-          }
-
-          return {
-            ...step,
-            mediaUrl,
-            linkUrl
-          }
-        })
-
-        return {
-          ...zone,
-          stepsCount: processedSteps.length,
-          steps: processedSteps
-        }
-      })
-    )
+    const zonesWithSteps = zones.map((zone: any) => {
+      if (zone.type === 'RECOMMENDATIONS') {
+        return { ...zone, stepsCount: recCountMap.get(zone.id) || 0, steps: [] }
+      }
+      const steps = stepsByZone.get(zone.id) || []
+      return { ...zone, stepsCount: steps.length, steps }
+    })
 
     const result = {
       ...property,
