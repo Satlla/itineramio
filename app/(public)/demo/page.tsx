@@ -359,7 +359,9 @@ const defaultStep2: Step2Data = {
 
 function getLang(): string {
   if (typeof window === 'undefined') return 'es'
-  return localStorage.getItem('itineramio-language') || navigator.language?.split('-')[0] || 'es'
+  const saved = localStorage.getItem('itineramio-language')
+  if (saved && ['es', 'en', 'fr'].includes(saved)) return saved
+  return 'es'
 }
 
 const T: Record<string, Record<string, string>> = {
