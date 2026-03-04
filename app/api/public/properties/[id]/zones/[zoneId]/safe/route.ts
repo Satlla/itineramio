@@ -12,7 +12,7 @@ export async function GET(
     
     // Find the zone using raw SQL
     const zones = await prisma.$queryRaw`
-      SELECT 
+      SELECT
         z.id,
         z.name,
         z.slug,
@@ -20,6 +20,7 @@ export async function GET(
         z.description,
         z.color,
         z.status,
+        z.type,
         z."isPublished",
         z."propertyId",
         z."createdAt",
@@ -34,9 +35,10 @@ export async function GET(
         AND (p."isPublished" = true OR (p."isDemoPreview" = true AND p."demoExpiresAt" > NOW()))
         AND (
           (z."isPublished" = true AND z.status = 'ACTIVE')
+          OR z.type = 'RECOMMENDATIONS'
           OR EXISTS (
-            SELECT 1 FROM steps s 
-            WHERE s."zoneId" = z.id 
+            SELECT 1 FROM steps s
+            WHERE s."zoneId" = z.id
               AND s."isPublished" = true
           )
         )
@@ -50,7 +52,7 @@ export async function GET(
       console.log('🔍 Zone not found with exact match, trying startsWith...')
       
       const zonesWithPrefix = await prisma.$queryRaw`
-        SELECT 
+        SELECT
           z.id,
           z.name,
           z.slug,
@@ -58,6 +60,7 @@ export async function GET(
           z.description,
           z.color,
           z.status,
+          z.type,
           z."isPublished",
           z."propertyId",
           z."createdAt",
@@ -72,9 +75,10 @@ export async function GET(
           AND (p."isPublished" = true OR (p."isDemoPreview" = true AND p."demoExpiresAt" > NOW()))
           AND (
             (z."isPublished" = true AND z.status = 'ACTIVE')
+            OR z.type = 'RECOMMENDATIONS'
             OR EXISTS (
-              SELECT 1 FROM steps s 
-              WHERE s."zoneId" = z.id 
+              SELECT 1 FROM steps s
+              WHERE s."zoneId" = z.id
                 AND s."isPublished" = true
             )
           )
@@ -117,9 +121,61 @@ export async function GET(
       }
     }
 
+    // For RECOMMENDATIONS zones, load recommendations with places
+    if (zone.type === 'RECOMMENDATIONS') {
+      const recommendations = await prisma.recommendation.findMany({
+        where: { zoneId: zone.id },
+        include: { place: true },
+        orderBy: { order: 'asc' },
+      })
+
+      const processedZone = {
+        ...zone,
+        property: {
+          name: zone.propertyName,
+          isPublished: zone.propertyIsPublished
+        },
+        steps: [],
+        recommendations: recommendations.map(rec => ({
+          id: rec.id,
+          description: rec.description,
+          descriptionTranslations: rec.descriptionTranslations,
+          distanceMeters: rec.distanceMeters,
+          walkMinutes: rec.walkMinutes,
+          order: rec.order,
+          place: rec.place ? {
+            id: rec.place.id,
+            name: rec.place.name,
+            address: rec.place.address,
+            latitude: rec.place.latitude,
+            longitude: rec.place.longitude,
+            phone: rec.place.phone,
+            website: rec.place.website,
+            photoUrl: rec.place.photoUrl,
+            rating: rec.place.rating,
+            openingHours: rec.place.openingHours,
+          } : null,
+        })),
+      }
+
+      delete processedZone.propertyName
+      delete processedZone.propertyIsPublished
+
+      console.log('🔍 Safe Public Zone (RECOMMENDATIONS) loaded:', {
+        id: processedZone.id,
+        name: processedZone.name,
+        recommendationsCount: processedZone.recommendations.length
+      })
+
+      return NextResponse.json({
+        success: true,
+        data: processedZone
+      })
+    }
+
     // Get steps for this zone using raw SQL
     const steps = await prisma.$queryRaw`
-      SELECT 
+      SELECT
         id, "zoneId", type, title, content,
         "isPublished", "createdAt", "updatedAt"
       FROM steps
@@ -132,7 +188,7 @@ export async function GET(
     const processedSteps = steps.map(step => {
       let mediaUrl = null
       let linkUrl = null
-      
+
       try {
         if (step.content && typeof step.content === 'object') {
           const content = step.content as any

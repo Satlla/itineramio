@@ -81,6 +81,17 @@ function buildAddress(tags: Record<string, string>): string {
 }
 
 /**
+ * Generate a fallback name for parking places without a name.
+ */
+function buildParkingFallback(tags: Record<string, string>): string {
+  if (tags.parking === 'underground' || tags.parking === 'multi-storey') return 'Parking cubierto'
+  if (tags.parking === 'surface') return 'Aparcamiento exterior'
+  if (tags.fee === 'yes') return 'Aparcamiento de pago'
+  if (tags.fee === 'no' || tags.access === 'yes') return 'Aparcamiento gratuito'
+  return 'Aparcamiento'
+}
+
+/**
  * Search for nearby places using the Overpass API.
  */
 export async function searchOsm(
@@ -92,12 +103,20 @@ export async function searchOsm(
 
   const query = buildOverpassQuery(lat, lng, category)
 
+  const isParking = category.id === 'parking'
+
   try {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 8000)
+
     const response = await fetch(OVERPASS_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: `data=${encodeURIComponent(query)}`,
+      signal: controller.signal,
     })
+
+    clearTimeout(timeout)
 
     if (!response.ok) {
       console.error(`[osm] Overpass API error for ${category.id}:`, response.status)
@@ -115,8 +134,22 @@ export async function searchOsm(
         if (!elLat || !elLng) return null
 
         const tags = el.tags || {}
-        const name = tags.name || tags.brand || ''
-        if (!name) return null // Skip unnamed places
+
+        // Filter out motorcycle parking and private access
+        if (isParking) {
+          if (tags.parking === 'motorcycle') return null
+          if (tags.access === 'private') return null
+        }
+
+        let name = tags.name || tags.brand || ''
+        // For parking, generate a fallback name instead of skipping
+        if (!name) {
+          if (isParking) {
+            name = buildParkingFallback(tags)
+          } else {
+            return null // Skip unnamed non-parking places
+          }
+        }
 
         const distanceMeters = haversineMeters(lat, lng, elLat, elLng)
         const walkMinutes = Math.ceil(distanceMeters / WALK_SPEED_MPM)
@@ -137,8 +170,12 @@ export async function searchOsm(
     // Sort by distance and limit
     places.sort((a, b) => a.distanceMeters - b.distanceMeters)
     return places.slice(0, category.maxResults)
-  } catch (error) {
-    console.error(`[osm] Error fetching ${category.id}:`, error)
+  } catch (error: any) {
+    if (error?.name === 'AbortError') {
+      console.error(`[osm] Overpass API timeout for ${category.id} (8s)`)
+    } else {
+      console.error(`[osm] Error fetching ${category.id}:`, error)
+    }
     return []
   }
 }

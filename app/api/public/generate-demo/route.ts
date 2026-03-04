@@ -20,6 +20,13 @@ import {
   buildSingleApplianceZone,
 } from '../../../../src/lib/ai-setup/zone-builders'
 import { APPLIANCE_REGISTRY, type CanonicalApplianceType } from '../../../../src/lib/ai-setup/zone-registry'
+import { buildCityInfoZone } from '../../../../src/lib/ai-setup/city-links-builder'
+
+// Free OSM categories to include in demo (all free categories, not just default 3)
+const DEMO_CATEGORY_IDS = [
+  'pharmacy', 'hospital', 'parking',
+  'supermarket', 'transit_station', 'atm', 'laundry',
+]
 
 // ============================================
 // Turnstile verification
@@ -516,7 +523,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 11b. Filter disabled zones and apply customizations
+    // 11b. City info zone (tourist map, transport, emergency numbers)
+    allZones.push(buildCityInfoZone(
+      propertyInput.city,
+      propertyInput.lat,
+      propertyInput.lng,
+      propertyInput.country,
+    ))
+
+    // 11c. Filter disabled zones and apply customizations
     const disabledSet = new Set<string>(Array.isArray(disabledZoneIds) ? disabledZoneIds : [])
     const reviewedContentMap: Record<string, string> = reviewedContent || {}
     const customTitlesMap: Record<string, string> = customTitles || {}
@@ -674,7 +689,7 @@ export async function POST(request: NextRequest) {
           property.id,
           propertyInput.lat,
           propertyInput.lng,
-          undefined,
+          DEMO_CATEGORY_IDS,
           propertyInput.city,
         )
       } catch (err) {
