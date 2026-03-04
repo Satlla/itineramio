@@ -27,6 +27,10 @@ import {
   Ruler,
   FileText,
   AlertTriangle,
+  Loader2,
+  CheckCircle,
+  Link,
+  AlertCircle,
 } from 'lucide-react'
 import { AddressAutocomplete } from '../../../../src/components/ui/AddressAutocomplete'
 import { ImageUpload } from '../../../../src/components/ui/ImageUpload'
@@ -71,16 +75,28 @@ export interface Step1Data {
   hostContactPhoto: string
 }
 
+interface AirbnbImportResult {
+  importing: boolean
+  imported: boolean
+  error: string | null
+  importedFields: string[]
+}
+
 interface Step1AddressProps {
   data: Step1Data
   onChange: (data: Step1Data) => void
   onNext: () => void
   uploadEndpoint?: string
+  onAirbnbImport?: (url: string) => Promise<void>
+  airbnbImport?: AirbnbImportResult
 }
 
-export default function Step1Address({ data, onChange, onNext, uploadEndpoint }: Step1AddressProps) {
+export default function Step1Address({ data, onChange, onNext, uploadEndpoint, onAirbnbImport, airbnbImport }: Step1AddressProps) {
   const { t } = useTranslation('ai-setup')
   const [showErrors, setShowErrors] = React.useState(false)
+  const [airbnbUrl, setAirbnbUrl] = React.useState('')
+
+  const isValidAirbnbUrl = /airbnb\.\w+\/rooms\/\d+/.test(airbnbUrl)
 
   const update = (partial: Partial<Step1Data>) => {
     onChange({ ...data, ...partial })
@@ -98,8 +114,19 @@ export default function Step1Address({ data, onChange, onNext, uploadEndpoint }:
 
   const missingCount = Object.values(missingFields).filter(Boolean).length
 
+  const importedFieldSet = new Set(airbnbImport?.importedFields || [])
+
   const errorBorder = (field: keyof typeof missingFields) =>
     showErrors && missingFields[field] ? 'border-red-500 ring-1 ring-red-500/50' : 'border-gray-700'
+
+  const importedBorder = (field: string) =>
+    importedFieldSet.has(field) ? 'border-violet-500/40 ring-1 ring-violet-500/20' : 'border-gray-700'
+
+  const fieldBorder = (field: string, errorField?: keyof typeof missingFields) => {
+    if (errorField && showErrors && missingFields[errorField]) return 'border-red-500 ring-1 ring-red-500/50'
+    if (importedFieldSet.has(field)) return 'border-violet-500/40 ring-1 ring-violet-500/20'
+    return 'border-gray-700'
+  }
 
   const handleNext = () => {
     if (!isValid) {
@@ -173,6 +200,92 @@ export default function Step1Address({ data, onChange, onNext, uploadEndpoint }:
         <p className="text-gray-400 text-sm sm:text-base">{t('step1.subtitle')}</p>
       </div>
 
+      {/* Airbnb Import Section */}
+      {onAirbnbImport && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="relative overflow-hidden rounded-xl border border-violet-500/20 bg-gradient-to-br from-violet-950/40 to-gray-900/60 p-4 sm:p-5"
+        >
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Link className="w-4 h-4 text-violet-400" />
+              <span className="text-sm font-medium text-white">
+                {t('step1.airbnbImport.title', { defaultValue: '¿Tienes un anuncio en Airbnb?' })}
+              </span>
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/20">AUTO</span>
+            </div>
+            <p className="text-xs text-gray-400">
+              {t('step1.airbnbImport.subtitle', { defaultValue: 'Pega el enlace y completaremos la mayoría de datos automáticamente' })}
+            </p>
+
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={airbnbUrl}
+                onChange={(e) => setAirbnbUrl(e.target.value)}
+                placeholder="https://www.airbnb.es/rooms/..."
+                disabled={airbnbImport?.importing}
+                className="flex-1 h-10 rounded-lg border border-gray-700 bg-gray-900 px-3 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-50"
+              />
+              <button
+                type="button"
+                onClick={() => isValidAirbnbUrl && onAirbnbImport(airbnbUrl)}
+                disabled={!isValidAirbnbUrl || airbnbImport?.importing}
+                className={`h-10 px-4 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 whitespace-nowrap ${
+                  isValidAirbnbUrl && !airbnbImport?.importing
+                    ? 'bg-violet-600 text-white hover:bg-violet-500'
+                    : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                {airbnbImport?.importing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="hidden sm:inline">
+                      {t('step1.airbnbImport.importing', { defaultValue: 'Importando...' })}
+                    </span>
+                  </>
+                ) : (
+                  t('step1.airbnbImport.button', { defaultValue: 'Importar' })
+                )}
+              </button>
+            </div>
+
+            {/* Success message */}
+            {airbnbImport?.imported && !airbnbImport?.importing && (
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-start gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20"
+              >
+                <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm text-emerald-300 font-medium">
+                    {t('step1.airbnbImport.success', { defaultValue: 'Datos importados correctamente' })}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {t('step1.airbnbImport.successHint', { defaultValue: 'Revisa los campos y completa los que falten (WiFi, contacto, etc.)' })}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Error message */}
+            {airbnbImport?.error && (
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20"
+              >
+                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-300">{airbnbImport.error}</p>
+              </motion.div>
+            )}
+          </div>
+        </motion.div>
+      )}
+
       {/* Property Name + Profile Image */}
       <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-center sm:items-start">
         {/* Profile Image */}
@@ -203,7 +316,7 @@ export default function Step1Address({ data, onChange, onNext, uploadEndpoint }:
               value={data.propertyName}
               onChange={(e) => update({ propertyName: e.target.value })}
               placeholder={t('step1.propertyNamePlaceholder')}
-              className={`h-10 w-full rounded-lg border bg-gray-900 px-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 ${errorBorder('propertyName')}`}
+              className={`h-10 w-full rounded-lg border bg-gray-900 px-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 ${fieldBorder('propertyName', 'propertyName')}`}
             />
             {showErrors && missingFields.propertyName && (
               <p className="text-xs text-red-400">{t('step1.propertyName')} es obligatorio</p>
