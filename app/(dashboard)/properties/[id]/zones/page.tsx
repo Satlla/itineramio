@@ -3112,6 +3112,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             Inteligencia
           </button>
 
+          <button
+            onClick={() => {
+              const publicUrl = `${window.location.origin}/guide/${id}`
+              window.open(publicUrl, '_blank')
+            }}
+            className="text-gray-500 hover:text-gray-700 transition-colors p-1"
+            aria-label="Vista pública"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
+
           {/* Property Options Menú */}
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
