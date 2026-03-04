@@ -270,6 +270,26 @@ export async function POST(request: NextRequest) {
         if (sessionId) {
           await saveConversation({ propertyId, zoneId: zoneId || null, sessionId, language, userMessage: message, aiResponse: fullResponse, isUnanswered });
         }
+        // Save unanswered questions to property intelligence
+        if (isUnanswered) {
+          try {
+            const prop = await prisma.property.findUnique({ where: { id: propertyId }, select: { intelligence: true } });
+            const intel = (prop?.intelligence as Record<string, any>) || {};
+            const unanswered = Array.isArray(intel.unansweredQuestions) ? intel.unansweredQuestions : [];
+            unanswered.push({
+              question: message.slice(0, 300),
+              askedAt: new Date().toISOString(),
+              askedBy: sessionId || 'guest',
+              answered: false,
+            });
+            await prisma.property.update({
+              where: { id: propertyId },
+              data: { intelligence: { ...intel, unansweredQuestions: unanswered } },
+            });
+          } catch (e) {
+            console.error('[ChatBot] Error saving unanswered question:', e);
+          }
+        }
       });
 
       return new Response(stream, {
@@ -570,6 +590,259 @@ If a guest reports a problem you don't have specific info about, provide these g
 IMPORTANT: Always provide these practical tips first, then suggest contacting the host for property-specific help.
 `;
 
+function buildIntelligenceSection(property: any): string {
+  const intel = property.intelligence;
+  if (!intel || typeof intel !== 'object') return '';
+
+  const lines: string[] = ['PROPERTY INTELLIGENCE:'];
+
+  // Host
+  if (intel.hostName) lines.push(`- Anfitrión: ${intel.hostName}${intel.isSuperhost ? ' (Superhost)' : ''}`);
+
+  // WiFi
+  if (intel.wifi) {
+    const w = intel.wifi;
+    if (w.networkName) lines.push(`- WiFi: red "${w.networkName}"${w.password ? ', contraseña: ' + w.password : ''}`);
+    if (w.routerLocation) lines.push(`- Router: ${w.routerLocation}`);
+    if (w.troubleshooting) lines.push(`- WiFi troubleshooting: ${w.troubleshooting}`);
+  }
+
+  // Items with locations
+  if (intel.items) {
+    const itemLabels: Record<string, string> = {
+      iron: 'Plancha', ironingBoard: 'Tabla de planchar', hairdryer: 'Secador',
+      firstAid: 'Botiquín', extraBlankets: 'Mantas extra', broom: 'Escoba',
+    };
+    const itemParts: string[] = [];
+    for (const [key, label] of Object.entries(itemLabels)) {
+      const item = (intel.items as any)[key];
+      if (item) {
+        const loc = item.location ? `, ${item.location}` : '';
+        itemParts.push(`${label} (${item.has ? 'sí' + loc : 'no'})`);
+      }
+    }
+    if (itemParts.length > 0) lines.push(`- Items: ${itemParts.join(', ')}`);
+  }
+
+  // Appliances
+  if (intel.appliances) {
+    const appLabels: Record<string, string> = {
+      washingMachine: 'Lavadora', dryer: 'Secadora', dishwasher: 'Lavavajillas',
+      oven: 'Horno', microwave: 'Microondas', coffeeMachine: 'Cafetera',
+      toaster: 'Tostadora', kettle: 'Hervidor', vacuumCleaner: 'Aspiradora', mop: 'Fregona',
+    };
+    for (const [key, label] of Object.entries(appLabels)) {
+      const app = (intel.appliances as any)[key];
+      if (app?.has) {
+        let desc = `${label}: sí`;
+        if (app.location) desc += `, ${app.location}`;
+        if (app.instructions) desc += ` — ${app.instructions}`;
+        if (app.type) desc += ` (${app.type})`;
+        if (app.detergentLocation) desc += `, pastillas: ${app.detergentLocation}`;
+        if (app.capsuleLocation) desc += `, cápsulas: ${app.capsuleLocation}`;
+        lines.push(`- ${desc}`);
+      } else if (app?.has === false) {
+        lines.push(`- ${label}: no`);
+      }
+    }
+  }
+
+  // Climate
+  if (intel.climate) {
+    const c = intel.climate;
+    if (c.ac?.has) {
+      let desc = `AC: sí (${c.ac.type || 'tipo no especificado'})`;
+      if (c.ac.remoteLocation) desc += `, mando: ${c.ac.remoteLocation}`;
+      if (c.ac.instructions) desc += ` — ${c.ac.instructions}`;
+      lines.push(`- ${desc}`);
+    }
+    if (c.heating?.has) {
+      let desc = `Calefacción: sí (${c.heating.type || 'tipo no especificado'})`;
+      if (c.heating.thermostatLocation) desc += `, termostato: ${c.heating.thermostatLocation}`;
+      if (c.heating.instructions) desc += ` — ${c.heating.instructions}`;
+      lines.push(`- ${desc}`);
+    }
+    if (c.fan?.has) lines.push(`- Ventilador: ${c.fan.location || 'sí'}`);
+    if (c.fireplace?.has) lines.push(`- Chimenea: ${c.fireplace.type || 'sí'}${c.fireplace.instructions ? ' — ' + c.fireplace.instructions : ''}`);
+  }
+
+  // Water & bathroom
+  if (intel.waterBathroom) {
+    const wb = intel.waterBathroom;
+    if (wb.hotWaterType) {
+      lines.push(`- Agua caliente: ${wb.hotWaterType}${wb.tankCapacityLiters ? ' (' + wb.tankCapacityLiters + 'L)' : ''}`);
+      if (wb.hotWaterWarning) lines.push(`  ⚠️ ${wb.hotWaterWarning}`);
+    }
+    if (wb.gasBottle?.applies) {
+      lines.push(`- Bombona gas: ${wb.gasBottle.location || ''}${wb.gasBottle.howToChange ? ' — ' + wb.gasBottle.howToChange : ''}`);
+      if (wb.gasBottle.emergencyNumber) lines.push(`  📞 Emergencia gas: ${wb.gasBottle.emergencyNumber}`);
+    }
+    if (wb.towelsLocation) lines.push(`- Toallas: ${wb.towelsLocation}`);
+    if (wb.extraTowelsLocation) lines.push(`- Toallas extra: ${wb.extraTowelsLocation}`);
+    if (wb.toiletPaperLocation) lines.push(`- Papel higiénico extra: ${wb.toiletPaperLocation}`);
+  }
+
+  // Bedroom
+  if (intel.bedroom) {
+    const b = intel.bedroom;
+    if (b.pillowTypes) lines.push(`- Almohadas: ${b.pillowTypes}`);
+    if (b.extraPillowsLocation) lines.push(`- Almohadas extra: ${b.extraPillowsLocation}`);
+    if (b.bedLinenLocation) lines.push(`- Ropa de cama: ${b.bedLinenLocation}`);
+    if (b.safebox?.has) lines.push(`- Caja fuerte: ${b.safebox.location || 'sí'}${b.safebox.instructions ? ' — ' + b.safebox.instructions : ''}`);
+  }
+
+  // Kitchen
+  if (intel.kitchen) {
+    const k = intel.kitchen;
+    if (k.essentialsProvided?.length) lines.push(`- Básicos cocina: ${k.essentialsProvided.join(', ')}`);
+    if (k.waterDrinkable !== undefined) lines.push(`- Agua grifo potable: ${k.waterDrinkable ? 'sí' : 'no'}`);
+    if (k.waterFilter?.has) lines.push(`- Filtro agua: ${k.waterFilter.location || 'sí'}`);
+    if (k.nearestSupermarket) lines.push(`- Supermercado: ${k.nearestSupermarket}${k.supermarketHours ? ' (' + k.supermarketHours + ')' : ''}`);
+    if (k.trashBagsLocation) lines.push(`- Bolsas basura: ${k.trashBagsLocation}`);
+  }
+
+  // Entertainment
+  if (intel.entertainment) {
+    const e = intel.entertainment;
+    if (e.tv?.has) {
+      let desc = `TV: ${e.tv.type || 'sí'}`;
+      if (e.tv.streamingApps?.length) desc += ` — ${e.tv.streamingApps.join(', ')}`;
+      if (e.tv.remoteLocation) desc += `, mando: ${e.tv.remoteLocation}`;
+      if (e.tv.instructions) desc += ` — ${e.tv.instructions}`;
+      lines.push(`- ${desc}`);
+    }
+    if (e.bluetooth?.has) lines.push(`- Bluetooth: ${e.bluetooth.deviceName || 'sí'}`);
+    if (e.boardGames?.has) lines.push(`- Juegos mesa: ${e.boardGames.location || 'sí'}`);
+  }
+
+  // Laundry
+  if (intel.laundry) {
+    const l = intel.laundry;
+    if (l.detergentLocation) lines.push(`- Detergente: ${l.detergentLocation}`);
+    if (l.dryingRack?.has) lines.push(`- Tendedero: ${l.dryingRack.location || 'sí'}`);
+    if (l.dryingInstructions) lines.push(`- Secado: ${l.dryingInstructions}`);
+    if (l.cleaningProducts) lines.push(`- Productos limpieza: ${l.cleaningProducts}`);
+  }
+
+  // House rules
+  if (intel.houseRules) {
+    const rules: string[] = [];
+    if (intel.houseRules.noPets) rules.push('No mascotas');
+    if (intel.houseRules.noSmoking) rules.push('No fumar');
+    if (intel.houseRules.noParties) rules.push('No fiestas');
+    if (intel.houseRules.quietHoursStart && intel.houseRules.quietHoursEnd) {
+      rules.push(`Silencio ${intel.houseRules.quietHoursStart}-${intel.houseRules.quietHoursEnd}`);
+    }
+    if (intel.houseRules.additionalRules) rules.push(intel.houseRules.additionalRules);
+    if (rules.length > 0) lines.push(`- Normas: ${rules.join(', ')}`);
+  }
+
+  // Checkout tasks
+  if (intel.checkoutTasks && intel.checkoutTasks.length > 0) {
+    lines.push(`- Tareas checkout: ${intel.checkoutTasks.join(', ')}`);
+  }
+
+  // Amenities
+  if (intel.allAmenities && intel.allAmenities.length > 0) {
+    lines.push(`- Amenities: ${intel.allAmenities.slice(0, 30).join(', ')}`);
+  }
+
+  // Details (check-in, checkout, parking, services)
+  if (intel.details) {
+    const d = intel.details;
+    if (d.hotWaterType && !intel.waterBathroom?.hotWaterType) lines.push(`- Agua caliente: ${d.hotWaterType}`);
+    if (d.electricalPanelLocation) lines.push(`- Panel eléctrico: ${d.electricalPanelLocation}`);
+    if (d.checkoutInstructions) lines.push(`- Checkout: ${d.checkoutInstructions}`);
+    if (d.keyReturn) lines.push(`- Devolución llave: ${d.keyReturn}${d.keyReturnDetails ? ' — ' + d.keyReturnDetails : ''}`);
+    if (d.lockboxCode) lines.push(`- Lockbox: código ${d.lockboxCode}${d.lockboxLocation ? ', ' + d.lockboxLocation : ''}`);
+    if (d.doorCode) lines.push(`- Código puerta: ${d.doorCode}`);
+    if (d.recyclingContainerLocation) lines.push(`- Reciclaje: ${d.recyclingContainerLocation}`);
+    if (d.parkingSpotNumber) lines.push(`- Parking: plaza ${d.parkingSpotNumber}${d.parkingFloor ? ', planta ' + d.parkingFloor : ''}${d.parkingAccess ? ', acceso: ' + d.parkingAccess : ''}${d.parkingAccessCode ? ' (código: ' + d.parkingAccessCode + ')' : ''}`);
+    if (d.supportHoursFrom && d.supportHoursTo) lines.push(`- Soporte: ${d.supportHoursFrom}-${d.supportHoursTo}`);
+    if (d.emergencyPhone) lines.push(`- Emergencia: ${d.emergencyPhone}`);
+    if (d.lateCheckout) lines.push(`- Late checkout: ${d.lateCheckout}${d.lateCheckoutPrice ? ' (' + d.lateCheckoutPrice + ')' : ''}${d.lateCheckoutUntil ? ' hasta ' + d.lateCheckoutUntil : ''}`);
+    if (d.luggageAfterCheckout) lines.push(`- Equipaje: ${d.luggageAfterCheckout}${d.luggageUntil ? ' hasta ' + d.luggageUntil : ''}${d.luggageConsignaInfo ? ' — ' + d.luggageConsignaInfo : ''}`);
+    if (d.latePlan) lines.push(`- Llegada tarde: ${d.latePlan}${d.latePlanDetails ? ' — ' + d.latePlanDetails : ''}`);
+  }
+
+  // Security
+  if (intel.security) {
+    const s = intel.security;
+    if (s.nearestHospital) lines.push(`- Hospital: ${s.nearestHospital}`);
+    if (s.nearestPharmacy) lines.push(`- Farmacia: ${s.nearestPharmacy}`);
+    if (s.lockInstructions) lines.push(`- Cerradura: ${s.lockInstructions}`);
+    if (s.alarmSystem?.has) lines.push(`- Alarma: código ${s.alarmSystem.code || '?'}${s.alarmSystem.instructions ? ' — ' + s.alarmSystem.instructions : ''}`);
+    if (s.neighborContact?.name) lines.push(`- Vecino contacto: ${s.neighborContact.name}${s.neighborContact.phone ? ', tel: ' + s.neighborContact.phone : ''}${s.neighborContact.apartment ? ', ' + s.neighborContact.apartment : ''}`);
+  }
+
+  // Outdoor
+  if (intel.outdoor) {
+    const o = intel.outdoor;
+    if (o.pool?.has) lines.push(`- Piscina: ${o.pool.type || 'sí'}${o.pool.hours ? ', horario: ' + o.pool.hours : ''}${o.pool.rules ? ' — ' + o.pool.rules : ''}`);
+    if (o.jacuzzi?.has) lines.push(`- Jacuzzi: sí${o.jacuzzi.instructions ? ' — ' + o.jacuzzi.instructions : ''}`);
+    if (o.bbq?.has) lines.push(`- BBQ: ${o.bbq.type || 'sí'}${o.bbq.location ? ', ' + o.bbq.location : ''}${o.bbq.rules ? ' — ' + o.bbq.rules : ''}`);
+    if (o.terrace?.has) lines.push(`- Terraza: sí${o.terrace.furniture ? ' — ' + o.terrace.furniture : ''}`);
+  }
+
+  // Neighborhood
+  if (intel.neighborhood) {
+    const n = intel.neighborhood;
+    if (n.publicTransport) lines.push(`- Transporte: ${n.publicTransport}`);
+    if (n.taxiApp) lines.push(`- Taxi: ${n.taxiApp}`);
+    if (n.nearestRestaurant) lines.push(`- Restaurante: ${n.nearestRestaurant}`);
+    if (n.nearestCafe) lines.push(`- Café: ${n.nearestCafe}`);
+    if (n.nearestATM) lines.push(`- Cajero: ${n.nearestATM}`);
+    if (n.nearestBeach) lines.push(`- Playa: ${n.nearestBeach}`);
+    if (n.nightlifeArea) lines.push(`- Ocio nocturno: ${n.nightlifeArea}`);
+    if (n.bestViewpoint) lines.push(`- Mirador: ${n.bestViewpoint}`);
+    if (n.walkingTips) lines.push(`- Tips: ${n.walkingTips}`);
+  }
+
+  // Children
+  if (intel.children) {
+    const ch = intel.children;
+    if (ch.crib?.has) lines.push(`- Cuna: ${ch.crib.location || 'sí'}`);
+    if (ch.highChair?.has) lines.push(`- Trona: ${ch.highChair.location || 'sí'}`);
+    if (ch.nearestPlayground) lines.push(`- Parque infantil: ${ch.nearestPlayground}`);
+    if (ch.childFriendlyNote) lines.push(`- Niños: ${ch.childFriendlyNote}`);
+  }
+
+  // Accessibility
+  if (intel.accessibility) {
+    const a = intel.accessibility;
+    const parts: string[] = [];
+    if (a.elevator !== undefined) parts.push(`Ascensor: ${a.elevator ? 'sí' : 'no'}`);
+    if (a.floorNumber !== undefined) parts.push(`Planta ${a.floorNumber}`);
+    if (a.stepsToEntrance) parts.push(`${a.stepsToEntrance} escalones`);
+    if (a.wheelchairAccessible !== undefined) parts.push(`Silla ruedas: ${a.wheelchairAccessible ? 'sí' : 'no'}`);
+    if (a.accessibilityNote) parts.push(a.accessibilityNote);
+    if (parts.length > 0) lines.push(`- Accesibilidad: ${parts.join(', ')}`);
+  }
+
+  // Pets & weather
+  if (intel.petsWeather) {
+    const pw = intel.petsWeather;
+    if (pw.nearestVet) lines.push(`- Veterinario: ${pw.nearestVet}`);
+    if (pw.dogFriendlyAreas) lines.push(`- Zonas perros: ${pw.dogFriendlyAreas}`);
+    if (pw.petRules) lines.push(`- Normas mascotas: ${pw.petRules}`);
+    if (pw.heatAdvice) lines.push(`- Consejo calor: ${pw.heatAdvice}`);
+    if (pw.coldAdvice) lines.push(`- Consejo frío: ${pw.coldAdvice}`);
+    if (pw.rainAdvice) lines.push(`- Consejo lluvia: ${pw.rainAdvice}`);
+  }
+
+  // Quirks (important for chatbot — things guests ask about)
+  if (intel.quirks) {
+    const q = intel.quirks;
+    if (q.doorTrick) lines.push(`- Truco puerta: ${q.doorTrick}`);
+    if (q.lightSwitch) lines.push(`- Interruptor: ${q.lightSwitch}`);
+    if (q.waterTrick) lines.push(`- Truco agua: ${q.waterTrick}`);
+    if (q.noiseWarnings) lines.push(`- Ruido: ${q.noiseWarnings}`);
+    if (q.otherQuirks?.length) lines.push(`- Peculiaridades: ${q.otherQuirks.join('; ')}`);
+  }
+
+  return lines.length > 1 ? '\n' + lines.join('\n') + '\n' : '';
+}
+
 function buildZoneSystemPrompt(property: any, zone: any, language: string): string {
   const zoneSteps = zone.steps.map((step: any, index: number) => {
     return buildStepDescription(step, index, language);
@@ -577,12 +850,14 @@ function buildZoneSystemPrompt(property: any, zone: any, language: string): stri
 
   const hostInfo = buildHostInfo(property.host, language);
 
+  const intelligenceSection = buildIntelligenceSection(property);
+
   const prompt = `You are a virtual assistant expert for the property "${getLocalizedText(property.name, language)}" located in ${property.city}, ${property.country}.
 You are specifically helping with the "${getLocalizedText(zone.name, language)}" zone.
 
 PROPERTY INFORMATION:
 ${getLocalizedText(property.description, language) || 'N/A'}
-
+${intelligenceSection}
 CURRENT ZONE INFORMATION:
 ${getLocalizedText(zone.description, language) || 'N/A'}
 
@@ -634,12 +909,14 @@ function buildPropertySystemPrompt(property: any, zones: any[], language: string
 
   const propertyName = getLocalizedText(property.name, language);
 
+  const intelligenceSection = buildIntelligenceSection(property);
+
   const prompt = `You are a virtual assistant expert for the property "${propertyName}" located in ${property.city}, ${property.country}.
 You have access to ALL zones and sections of the property manual.
 
 PROPERTY INFORMATION:
 ${getLocalizedText(property.description, language) || 'N/A'}
-
+${intelligenceSection}
 ${hostInfo}
 
 MANUAL ZONES:
