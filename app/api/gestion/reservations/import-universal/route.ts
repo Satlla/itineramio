@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import type { ColumnMapping, ImportConfig, UniversalImportRequest } from '@/types/import'
+import { tryParseSpanishDate, parseDateRange } from '@/lib/spanish-date-parser'
 
 /**
  * POST /api/gestion/reservations/import-universal
@@ -33,41 +34,67 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify property belongs to user and get billing config
-    const property = await prisma.property.findFirst({
-      where: {
-        id: propertyId,
-        hostId: userId
-      },
-      include: {
-        billingConfig: {
-          select: {
-            id: true,
-            commissionType: true,
-            commissionValue: true,
-            cleaningValue: true,
-            cleaningFeeRecipient: true,
-            cleaningFeeSplitPct: true
-          }
-        }
-      }
+    // Try BillingUnit first (new system), then fall back to legacy Property
+    let billingUnitId: string | null = null
+    let billingConfigId: string | null = null
+    let billingConfig: {
+      id: string
+      commissionType: string
+      commissionValue: unknown
+      cleaningValue: unknown
+      cleaningFeeRecipient: string
+      cleaningFeeSplitPct: unknown
+    } | null = null
+
+    const billingUnit = await prisma.billingUnit.findFirst({
+      where: { id: propertyId, userId, isActive: true }
     })
 
-    if (!property) {
-      return NextResponse.json(
-        { error: 'Propiedad no encontrada' },
-        { status: 404 }
-      )
-    }
+    if (billingUnit) {
+      billingUnitId = billingUnit.id
+      billingConfig = {
+        id: billingUnit.id,
+        commissionType: billingUnit.commissionType,
+        commissionValue: billingUnit.commissionValue,
+        cleaningValue: billingUnit.cleaningValue,
+        cleaningFeeRecipient: billingUnit.cleaningFeeRecipient,
+        cleaningFeeSplitPct: billingUnit.cleaningFeeSplitPct
+      }
+    } else {
+      // Fall back to legacy Property
+      const property = await prisma.property.findFirst({
+        where: { id: propertyId, hostId: userId },
+        include: {
+          billingConfig: {
+            select: {
+              id: true,
+              commissionType: true,
+              commissionValue: true,
+              cleaningValue: true,
+              cleaningFeeRecipient: true,
+              cleaningFeeSplitPct: true
+            }
+          }
+        }
+      })
 
-    if (!property.billingConfig) {
-      return NextResponse.json(
-        { error: 'Configure la facturación de la propiedad primero' },
-        { status: 400 }
-      )
-    }
+      if (!property) {
+        return NextResponse.json(
+          { error: 'Propiedad no encontrada' },
+          { status: 404 }
+        )
+      }
 
-    const billingConfig = property.billingConfig
+      if (!property.billingConfig) {
+        return NextResponse.json(
+          { error: 'Configure la facturación de la propiedad primero' },
+          { status: 400 }
+        )
+      }
+
+      billingConfigId = property.billingConfig.id
+      billingConfig = property.billingConfig
+    }
 
     const results = {
       totalRows: rows.length,
@@ -97,7 +124,7 @@ export async function POST(request: NextRequest) {
             where: {
               userId,
               confirmationCode: parsed.confirmationCode,
-              billingConfigId: billingConfig.id
+              ...(billingUnitId ? { billingUnitId } : { billingConfigId: billingConfigId! })
             }
           })
 
@@ -131,7 +158,7 @@ export async function POST(request: NextRequest) {
         await prisma.reservation.create({
           data: {
             userId,
-            billingConfigId: billingConfig.id,
+            ...(billingUnitId ? { billingUnitId } : { billingConfigId: billingConfigId! }),
             platform,
             confirmationCode: parsed.confirmationCode,
             guestName: parsed.guestName,
@@ -217,8 +244,6 @@ function parseRow(
 
   // Get values from mapped columns
   const guestName = row[mapping.guestName]?.trim() || ''
-  const checkInStr = row[mapping.checkIn]?.trim() || ''
-  const checkOutStr = row[mapping.checkOut]?.trim() || ''
   const amountStr = row[mapping.amount]?.trim() || ''
 
   // Optional fields
@@ -243,15 +268,31 @@ function parseRow(
     errors.push('Nombre de huésped vacío')
   }
 
-  // Parse dates
-  const checkIn = parseDate(checkInStr, config.dateFormat)
-  const checkOut = parseDate(checkOutStr, config.dateFormat)
+  // Parse dates - support dateRange (single column) or separate checkIn/checkOut
+  let checkIn: Date | null = null
+  let checkOut: Date | null = null
 
-  if (!checkIn) {
-    errors.push(`Fecha de entrada inválida: "${checkInStr}"`)
-  }
-  if (!checkOut) {
-    errors.push(`Fecha de salida inválida: "${checkOutStr}"`)
+  if (mapping.dateRange !== undefined) {
+    const rangeStr = row[mapping.dateRange]?.trim() || ''
+    const range = parseDateRange(rangeStr, config.dateFormat)
+    if (range) {
+      checkIn = range.checkIn
+      checkOut = range.checkOut
+    } else {
+      errors.push(`Rango de fechas inválido: "${rangeStr}"`)
+    }
+  } else {
+    const checkInStr = row[mapping.checkIn]?.trim() || ''
+    const checkOutStr = row[mapping.checkOut]?.trim() || ''
+    checkIn = parseDate(checkInStr, config.dateFormat)
+    checkOut = parseDate(checkOutStr, config.dateFormat)
+
+    if (!checkIn) {
+      errors.push(`Fecha de entrada inválida: "${checkInStr}"`)
+    }
+    if (!checkOut) {
+      errors.push(`Fecha de salida inválida: "${checkOutStr}"`)
+    }
   }
 
   // Parse amounts
@@ -293,12 +334,18 @@ function parseRow(
 }
 
 /**
- * Parse date string - auto-detects format
+ * Parse date string - auto-detects format, with Spanish date fallback
  */
-function parseDate(str: string, _format?: ImportConfig['dateFormat']): Date | null {
+function parseDate(str: string, format?: ImportConfig['dateFormat']): Date | null {
   if (!str) return null
 
   const cleanStr = str.trim()
+
+  // If format is explicitly SPANISH, try that first
+  if (format === 'SPANISH') {
+    return tryParseSpanishDate(cleanStr)
+  }
+
   let day: number, month: number, year: number
 
   // Try ISO format first: YYYY-MM-DD (most unambiguous)
@@ -310,7 +357,10 @@ function parseDate(str: string, _format?: ImportConfig['dateFormat']): Date | nu
   } else {
     // Try DD/MM/YYYY or MM/DD/YYYY
     const match = cleanStr.match(/^(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{4})$/)
-    if (!match) return null
+    if (!match) {
+      // Fallback: try Spanish date format (e.g., "6Dic", "27Ene")
+      return tryParseSpanishDate(cleanStr)
+    }
 
     const first = parseInt(match[1], 10)
     const second = parseInt(match[2], 10)
