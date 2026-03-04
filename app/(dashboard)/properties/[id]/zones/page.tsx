@@ -3090,17 +3090,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </p>
         </div>
         <div className="hidden lg:flex items-center gap-6">
-          {/* Desktop links - same style as mobile */}
           <button
-            onClick={handleViewEvaluations}
-            className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors relative"
+            onClick={() => router.push(`/properties/${id}/chatbot`)}
+            className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
           >
-            {t('propertyZones.evaluations', 'Evaluaciones')}
-            {unreadEvaluations > 0 && (
-              <span className="absolute -top-2 -right-0 translate-x-full bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center ml-1">
-                {unreadEvaluations}
-              </span>
-            )}
+            {t('propertyZones.chatbot', 'Chatbot')}
           </button>
 
           <button
@@ -3111,44 +3105,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </button>
 
           <button
-            onClick={() => router.push(`/properties/${id}/analytics`)}
-            className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors"
-          >
-            {t('propertyZones.analytics', 'Analíticas')}
-          </button>
-
-          <button
-            onClick={() => router.push(`/properties/${id}/chatbot`)}
-            className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
-          >
-            {t('propertyZones.chatbot', 'Chatbot')}
-          </button>
-
-          <button
             onClick={() => router.push(`/properties/${id}/intelligence`)}
             className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors flex items-center gap-1"
           >
             <Brain className="w-3.5 h-3.5" />
             Inteligencia
-          </button>
-
-          <button
-            onClick={() => setShowGlobalRecommendations(true)}
-            className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors flex items-center gap-1"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            Añadir lugar
-          </button>
-
-          <button
-            onClick={() => {
-              const publicUrl = `${window.location.origin}/guide/${id}`
-              window.open(publicUrl, '_blank')
-            }}
-            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-            aria-label={t('propertyZones.publicView')}
-          >
-            <Eye className="w-5 h-5 text-gray-700" />
           </button>
 
           {/* Property Options Menú */}
@@ -3164,6 +3125,35 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
               <DropdownMenu.Content className="w-56 bg-white rounded-md border shadow-lg p-1 z-50">
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={handleViewEvaluations}
+                >
+                  <Star className="h-4 w-4 mr-2" />
+                  {t('propertyZones.evaluations', 'Evaluaciones')}
+                  {unreadEvaluations > 0 && (
+                    <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {unreadEvaluations}
+                    </span>
+                  )}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={() => router.push(`/properties/${id}/analytics`)}
+                >
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  {t('propertyZones.analytics', 'Analíticas')}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={() => {
+                    const publicUrl = `${window.location.origin}/guide/${id}`
+                    window.open(publicUrl, '_blank')
+                  }}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  {t('propertyZones.publicView', 'Vista pública')}
+                </DropdownMenu.Item>
                 <DropdownMenu.Item
                   className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                   onSelect={() => setShowPropertyQRModal(true)}
@@ -3187,46 +3177,22 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       {/* Mobile buttons - below text */}
       <div className="lg:hidden mb-6">
         <div className="flex items-center gap-3">
-          {/* Left side - Text links (scrollable) */}
-          <div className="flex items-center gap-3 overflow-x-auto flex-1 min-w-0 pb-1 pr-2" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {/* Evaluaciones */}
-            <button
-              onClick={handleViewEvaluations}
-              className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors relative whitespace-nowrap flex-shrink-0"
-            >
-              {t('propertyZones.evaluations', 'Evaluaciones')}
-              {unreadEvaluations > 0 && (
-                <span className="absolute -top-2 -right-0 translate-x-full bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center ml-1">
-                  {unreadEvaluations}
-                </span>
-              )}
-            </button>
-
-            {/* Avisos */}
-            <button
-              onClick={() => router.push(`/properties/${id}/announcements`)}
-              className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors whitespace-nowrap flex-shrink-0"
-            >
-              {t('propertyZones.announcements', 'Avisos')}
-            </button>
-
-            {/* Analíticas */}
-            <button
-              onClick={() => router.push(`/properties/${id}/analytics`)}
-              className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors whitespace-nowrap flex-shrink-0"
-            >
-              {t('propertyZones.analytics', 'Analíticas')}
-            </button>
-
-            {/* Chatbot */}
+          {/* Left side - Text links */}
+          <div className="flex items-center gap-3 flex-1 min-w-0">
             <button
               onClick={() => router.push(`/properties/${id}/chatbot`)}
-              className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors whitespace-nowrap flex-shrink-0"
+              className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors whitespace-nowrap flex-shrink-0"
             >
               {t('propertyZones.chatbot', 'Chatbot')}
             </button>
 
-            {/* Inteligencia */}
+            <button
+              onClick={() => router.push(`/properties/${id}/announcements`)}
+              className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors whitespace-nowrap flex-shrink-0"
+            >
+              {t('propertyZones.announcements', 'Avisos')}
+            </button>
+
             <button
               onClick={() => router.push(`/properties/${id}/intelligence`)}
               className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors flex items-center gap-1 whitespace-nowrap flex-shrink-0"
@@ -3234,42 +3200,63 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               <Brain className="w-3.5 h-3.5" />
               Inteligencia
             </button>
-
-            {/* Añadir lugar */}
-            <button
-              onClick={() => setShowGlobalRecommendations(true)}
-              className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors flex items-center gap-1 whitespace-nowrap flex-shrink-0"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              Añadir lugar
-            </button>
           </div>
 
-          {/* Right side - Icon buttons */}
-          <div className="flex items-center gap-3">
-            {/* Vista Pública */}
-            <button
-              onClick={() => {
-                const publicUrl = `${window.location.origin}/guide/${id}`
-                window.open(publicUrl, '_blank')
-              }}
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label={t('propertyZones.publicView')}
-            >
-              <Eye className="w-5 h-5 text-gray-700" />
-            </button>
-
-
-            {/* QR Code */}
-            <button
-              onClick={() => setShowPropertyQRModal(true)}
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label={t('zones.viewQr')}
-            >
-              <QrCode className="w-5 h-5 text-gray-700" />
-            </button>
-
-          </div>
+          {/* Right side - Menu */}
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button className="p-2 rounded-full hover:bg-gray-100 transition-colors flex-shrink-0">
+                <MoreVertical className="w-5 h-5 text-gray-700" />
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content className="w-56 bg-white rounded-md border shadow-lg p-1 z-50" align="end">
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={handleViewEvaluations}
+                >
+                  <Star className="h-4 w-4 mr-2" />
+                  {t('propertyZones.evaluations', 'Evaluaciones')}
+                  {unreadEvaluations > 0 && (
+                    <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {unreadEvaluations}
+                    </span>
+                  )}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={() => router.push(`/properties/${id}/analytics`)}
+                >
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  {t('propertyZones.analytics', 'Analíticas')}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={() => {
+                    const publicUrl = `${window.location.origin}/guide/${id}`
+                    window.open(publicUrl, '_blank')
+                  }}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  {t('propertyZones.publicView', 'Vista pública')}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={() => setShowPropertyQRModal(true)}
+                >
+                  <QrCode className="h-4 w-4 mr-2" />
+                  {t('propertyZones.propertyQr')}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={() => router.push(`/properties/new?edit=${id}`)}
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  {t('propertyZones.editProperty')}
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
         </div>
       </div>
 
@@ -3337,6 +3324,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 </h2>
                 <div className="flex gap-3">
                   <Button
+                    onClick={() => setShowGlobalRecommendations(true)}
+                    variant="outline"
+                    className="border-violet-200 text-violet-700 hover:bg-violet-50"
+                  >
+                    <Search className="w-4 h-4 mr-2" />
+                    Añadir lugar
+                  </Button>
+                  <Button
                     onClick={() => setShowCreateForm(true)}
                     variant="outline"
                     className="border-violet-200 text-violet-700 hover:bg-violet-50"
@@ -3368,6 +3363,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   Añade zonas con instrucciones para que tus huéspedes tengan toda la información que necesitan.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button
+                    onClick={() => setShowGlobalRecommendations(true)}
+                    variant="outline"
+                    className="border-violet-200 text-violet-700 hover:bg-violet-50 flex-1 sm:flex-none"
+                  >
+                    <Search className="w-4 h-4 mr-2" />
+                    Añadir lugar
+                  </Button>
                   <Button
                     onClick={() => setShowCreateForm(true)}
                     variant="outline"
@@ -4105,6 +4108,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           {zones.length === 0 ? (
             <div className="flex gap-2">
               <Button
+                onClick={() => setShowGlobalRecommendations(true)}
+                variant="outline"
+                className="border-violet-200 text-violet-700 hover:bg-violet-50 flex-1"
+              >
+                <Search className="w-4 h-4 mr-1" />
+                Lugar
+              </Button>
+              <Button
                 onClick={() => setShowCreateForm(true)}
                 variant="outline"
                 className="border-violet-200 text-violet-700 hover:bg-violet-50 flex-1"
@@ -4123,9 +4134,18 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           ) : (
             <div className="flex gap-2">
               <Button
+                onClick={() => setShowGlobalRecommendations(true)}
+                variant="outline"
+                className="border-violet-200 text-violet-700 hover:bg-violet-50"
+                title="Añadir lugar"
+              >
+                <Search className="w-4 h-4" />
+              </Button>
+              <Button
                 onClick={() => setShowCreateForm(true)}
                 variant="outline"
                 className="border-violet-200 text-violet-700 hover:bg-violet-50"
+                title="Zona personalizada"
               >
                 <Plus className="w-4 h-4" />
               </Button>
@@ -4135,20 +4155,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               >
                 <Plus className="w-5 h-5 mr-2" />
                 Añadir Elementos
-              </Button>
-              <Button
-                onClick={() => {
-                  // Scroll to suggestions section
-                  const suggestionsSection = document.querySelector('#mobile-suggestions')
-                  if (suggestionsSection) {
-                    suggestionsSection.scrollIntoView({ behavior: 'smooth' })
-                  }
-                }}
-                variant="outline"
-                className="w-12 h-12 p-0"
-                title="Ver sugerencias"
-              >
-                <Lightbulb className="w-5 h-5" />
               </Button>
             </div>
           )}
