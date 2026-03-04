@@ -308,6 +308,8 @@ export default function PerfilGestorPage() {
 
       if (response.ok) {
         setMessage({ type: 'success', text: t('companyProfile.messages.profileSaved') })
+        // Señalar al dashboard que refresque el estado del onboarding
+        sessionStorage.setItem('gestion-needs-refresh', 'true')
       } else {
         setMessage({ type: 'error', text: t('companyProfile.messages.errorSavingProfile') })
       }

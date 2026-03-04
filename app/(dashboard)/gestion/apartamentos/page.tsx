@@ -369,7 +369,7 @@ export default function ApartamentosPage() {
         onClose={() => setShowNewUnitModal(false)}
         owners={owners}
         groups={groups}
-        onSuccess={() => { setShowNewUnitModal(false); fetchData() }}
+        onSuccess={() => { setShowNewUnitModal(false); fetchData(); sessionStorage.setItem('gestion-needs-refresh', 'true') }}
       />
 
       <NewGroupModal
@@ -377,7 +377,7 @@ export default function ApartamentosPage() {
         onClose={() => setShowNewGroupModal(false)}
         owners={owners}
         standaloneUnits={standaloneUnits}
-        onSuccess={() => { setShowNewGroupModal(false); fetchData() }}
+        onSuccess={() => { setShowNewGroupModal(false); fetchData(); sessionStorage.setItem('gestion-needs-refresh', 'true') }}
       />
 
       <EditUnitModal
@@ -385,7 +385,7 @@ export default function ApartamentosPage() {
         onClose={() => setEditingUnit(null)}
         owners={owners}
         groups={groups}
-        onSuccess={() => { setEditingUnit(null); fetchData() }}
+        onSuccess={() => { setEditingUnit(null); fetchData(); sessionStorage.setItem('gestion-needs-refresh', 'true') }}
       />
 
       <EditGroupModal
@@ -393,7 +393,7 @@ export default function ApartamentosPage() {
         onClose={() => setEditingGroup(null)}
         owners={owners}
         availableUnits={standaloneUnits}
-        onSuccess={() => { setEditingGroup(null); fetchData() }}
+        onSuccess={() => { setEditingGroup(null); fetchData(); sessionStorage.setItem('gestion-needs-refresh', 'true') }}
       />
     </div>
   )

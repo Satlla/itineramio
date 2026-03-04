@@ -203,6 +203,8 @@ export default function ClientesPage() {
         }
         resetForm()
         setShowModal(false)
+        // Señalar al dashboard que refresque el estado del onboarding
+        sessionStorage.setItem('gestion-needs-refresh', 'true')
       } else {
         const data = await response.json()
         setFormErrors({ general: data.error || (editingClient ? t('owners.errors.updateError') : t('owners.errors.createError')) })
