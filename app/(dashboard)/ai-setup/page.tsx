@@ -11,6 +11,7 @@ import Step2Details, { type Step2Data } from './components/Step2Details'
 import Step3Media, { type MediaItem } from './components/Step2Media'
 import Step4Review, { type LocationData } from './components/Step4Review'
 import Step5Generate from './components/Step3Generate'
+import { buildIntelligenceFromImport } from '../../../src/types/intelligence'
 
 const STORAGE_KEY = 'itineramio-ai-setup-draft'
 
@@ -125,6 +126,106 @@ export default function AISetupPage() {
 
   // Step 3 data — media items (URLs only, not blobs)
   const [media, setMedia] = useState<MediaItem[]>([])
+
+  // Airbnb import state
+  const [airbnbImport, setAirbnbImport] = useState<{
+    importing: boolean
+    imported: boolean
+    error: string | null
+    importedFields: string[]
+  }>({ importing: false, imported: false, error: null, importedFields: [] })
+  const [airbnbData, setAirbnbData] = useState<Record<string, any> | null>(null)
+  const [airbnbUrl, setAirbnbUrl] = useState<string>('')
+
+  const handleAirbnbImport = useCallback(async (url: string) => {
+    setAirbnbImport({ importing: true, imported: false, error: null, importedFields: [] })
+
+    try {
+      const res = await fetch('/api/public/demo-import-airbnb', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      })
+      const json = await res.json()
+
+      if (!res.ok || !json.success) {
+        setAirbnbImport({ importing: false, imported: false, error: json.error || 'Error al importar', importedFields: [] })
+        return
+      }
+
+      const d = json.data
+      setAirbnbData(d)
+      setAirbnbUrl(url)
+      const importedFields: string[] = []
+      const updates: Partial<Step1Data> = {}
+
+      if (d.propertyName) { updates.propertyName = d.propertyName; importedFields.push('propertyName') }
+      if (d.propertyDescription) { updates.propertyDescription = d.propertyDescription; importedFields.push('propertyDescription') }
+      if (d.lat && d.lng) { updates.lat = d.lat; updates.lng = d.lng; importedFields.push('address') }
+      if (d.city) { updates.city = d.city; importedFields.push('city') }
+      if (d.country) { updates.country = d.country }
+      if (d.formattedAddress) { updates.formattedAddress = d.formattedAddress; updates.street = d.formattedAddress }
+      if (d.propertyType) { updates.propertyType = d.propertyType; importedFields.push('propertyType') }
+      if (d.maxGuests > 0) { updates.maxGuests = d.maxGuests; importedFields.push('maxGuests') }
+      if (d.bedrooms > 0) { updates.bedrooms = d.bedrooms; importedFields.push('bedrooms') }
+      if (d.bathrooms > 0) { updates.bathrooms = d.bathrooms; importedFields.push('bathrooms') }
+      if (d.hasAC !== undefined) { updates.hasAC = d.hasAC; importedFields.push('hasAC') }
+      if (d.hasPool !== undefined) { updates.hasPool = d.hasPool; importedFields.push('hasPool') }
+      if (d.hasParking) { updates.hasParking = d.hasParking; importedFields.push('hasParking') }
+      if (d.checkInMethod) { updates.checkInMethod = d.checkInMethod; importedFields.push('checkInMethod') }
+      if (d.checkInTime) { updates.checkInTime = d.checkInTime; importedFields.push('checkInTime') }
+      if (d.checkOutTime) { updates.checkOutTime = d.checkOutTime; importedFields.push('checkOutTime') }
+      if (d.profileImage) { updates.profileImage = d.profileImage; importedFields.push('profileImage') }
+
+      setStep1Data(prev => ({ ...prev, ...updates }))
+
+      // Import photos as media items
+      if (d.photos && d.photos.length > 0) {
+        const photoMedia: MediaItem[] = d.photos.map((photoUrl: string, i: number) => ({
+          id: `airbnb-${Date.now()}-${i}`,
+          url: photoUrl,
+          type: 'image' as const,
+        }))
+        setMedia(prev => [...prev, ...photoMedia])
+        importedFields.push('photos')
+      }
+
+      // Map items to step2Data
+      if (d.items) {
+        setStep2Data(prev => ({
+          ...prev,
+          items: {
+            iron: { has: d.items.iron || prev.items.iron.has, location: prev.items.iron.location },
+            ironingBoard: { has: d.items.ironingBoard || prev.items.ironingBoard.has, location: prev.items.ironingBoard.location },
+            hairdryer: { has: d.items.hairdryer || prev.items.hairdryer.has, location: prev.items.hairdryer.location },
+            firstAid: { has: d.items.firstAid || prev.items.firstAid.has, location: prev.items.firstAid.location },
+            extraBlankets: { has: d.items.extraBlankets || prev.items.extraBlankets.has, location: prev.items.extraBlankets.location },
+            broom: { has: d.items.broom || prev.items.broom.has, location: prev.items.broom.location },
+          },
+          ...(d.checkoutTasks && d.checkoutTasks.length > 0
+            ? { checkoutInstructions: d.checkoutTasks.join('\n') }
+            : {}),
+        }))
+        const itemNames = Object.entries(d.items).filter(([, v]) => v).map(([k]) => k)
+        if (itemNames.length > 0) importedFields.push('items')
+        if (d.checkoutTasks?.length > 0) importedFields.push('checkoutTasks')
+      }
+
+      if (d.houseRules) {
+        if (d.houseRules.noPets) importedFields.push('noPets')
+        if (d.houseRules.noSmoking) importedFields.push('noSmoking')
+        if (d.houseRules.noParties) importedFields.push('noParties')
+        if (d.houseRules.quietHoursStart) importedFields.push('quietHours')
+      }
+      if (d.hostName) importedFields.push('hostName')
+      if (d.isSuperhost) importedFields.push('isSuperhost')
+      if (d.allAmenities?.length > 0) importedFields.push('allAmenities')
+
+      setAirbnbImport({ importing: false, imported: true, error: null, importedFields })
+    } catch {
+      setAirbnbImport({ importing: false, imported: false, error: 'Error de conexión. Inténtalo de nuevo.', importedFields: [] })
+    }
+  }, [])
 
   // Step 4: disabled zones, reviewed content, custom titles/icons from review
   const [disabledZones, setDisabledZones] = useState<Set<string>>(new Set())
@@ -329,6 +430,8 @@ export default function AISetupPage() {
       hostContactPhoto: step1Data.hostContactPhoto,
       // Step 2
       details: step2Data,
+      // Intelligence from Airbnb import
+      intelligence: buildIntelligenceFromImport(airbnbData, step2Data, airbnbUrl || undefined),
       // Step 4: disabled zones + reviewed content + custom titles/icons
       disabledZones: [...disabledZones],
       reviewedContent,
@@ -427,6 +530,8 @@ export default function AISetupPage() {
                 data={step1Data}
                 onChange={setStep1Data}
                 onNext={() => setCurrentStep(2)}
+                onAirbnbImport={handleAirbnbImport}
+                airbnbImport={airbnbImport}
               />
             )}
 
