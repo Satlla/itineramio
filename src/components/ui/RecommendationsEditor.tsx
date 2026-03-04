@@ -35,7 +35,6 @@ import {
   useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Button } from './Button'
 import { ZoneIconDisplay } from './IconSelector'
 import { PlaceSearchInput, PlaceSearchResult } from './PlaceSearchInput'
 import { CATEGORIES, getCategoryById } from '../../lib/recommendations/categories'
@@ -588,14 +587,13 @@ export function RecommendationsEditor({
         {/* Header */}
         <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 sticky top-0 z-10">
           <div className="max-w-3xl mx-auto flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               onClick={handleClose}
-              className="hover:bg-gray-100 rounded-full p-2"
+              className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full p-2 transition-colors flex-shrink-0"
+              aria-label="Volver"
             >
               <ArrowLeft className="w-5 h-5" />
-            </Button>
+            </button>
             <div>
               <h1 className="text-lg sm:text-xl font-semibold text-gray-900">Añadir recomendación</h1>
               <p className="text-gray-500 text-xs sm:text-sm">Busca un lugar y selecciona su categoría</p>
@@ -821,14 +819,13 @@ export function RecommendationsEditor({
       <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 sticky top-0 z-10">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               onClick={handleClose}
-              className="hover:bg-gray-100 rounded-full p-2"
+              className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full p-2 transition-colors flex-shrink-0"
+              aria-label="Volver"
             >
               <ArrowLeft className="w-5 h-5" />
-            </Button>
+            </button>
             {zone && <ZoneIconDisplay iconId={zone.iconId} size="md" />}
             <div>
               <h1 className="text-lg sm:text-xl font-semibold text-gray-900">{zone?.name || 'Zona'}</h1>
