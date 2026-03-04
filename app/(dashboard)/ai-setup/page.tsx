@@ -161,10 +161,9 @@ export default function AISetupPage() {
 
       if (d.propertyName) { updates.propertyName = d.propertyName; importedFields.push('propertyName') }
       if (d.propertyDescription) { updates.propertyDescription = d.propertyDescription; importedFields.push('propertyDescription') }
-      if (d.lat && d.lng) { updates.lat = d.lat; updates.lng = d.lng; importedFields.push('address') }
+      // No auto-fill address from Airbnb — user must enter exact address manually
       if (d.city) { updates.city = d.city; importedFields.push('city') }
       if (d.country) { updates.country = d.country }
-      if (d.formattedAddress) { updates.formattedAddress = d.formattedAddress; updates.street = d.formattedAddress }
       if (d.propertyType) { updates.propertyType = d.propertyType; importedFields.push('propertyType') }
       if (d.maxGuests > 0) { updates.maxGuests = d.maxGuests; importedFields.push('maxGuests') }
       if (d.bedrooms > 0) { updates.bedrooms = d.bedrooms; importedFields.push('bedrooms') }
@@ -179,16 +178,8 @@ export default function AISetupPage() {
 
       setStep1Data(prev => ({ ...prev, ...updates }))
 
-      // Import photos as media items
-      if (d.photos && d.photos.length > 0) {
-        const photoMedia: MediaItem[] = d.photos.map((photoUrl: string, i: number) => ({
-          id: `airbnb-${Date.now()}-${i}`,
-          url: photoUrl,
-          type: 'image' as const,
-        }))
-        setMedia(prev => [...prev, ...photoMedia])
-        importedFields.push('photos')
-      }
+      // Only import cover photo as profile image (already done above via d.profileImage)
+      // Don't import all listing photos — they're not relevant for zones
 
       // Map items to step2Data
       if (d.items) {

@@ -453,6 +453,14 @@ export default function Step2Media({
                     <Camera className="w-3.5 h-3.5" /> {imageCount}
                   </span>
                 )}
+                <button
+                  type="button"
+                  onClick={() => onMediaChange([])}
+                  className="text-red-400 hover:text-red-300 transition-colors flex items-center gap-1 ml-2"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  Eliminar todo
+                </button>
               </div>
             </div>
 
