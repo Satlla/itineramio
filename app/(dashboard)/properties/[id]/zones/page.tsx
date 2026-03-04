@@ -3063,33 +3063,31 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            {/* Botón Volver a Propiedades - Siempre visible */}
-            <Button
-              onClick={() => router.push('/properties')}
-              variant="ghost"
-              size="sm"
-              className="hover:bg-gray-100 rounded-full p-2"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <h1 className="text-3xl font-bold text-gray-900">
-              {propertyName ? `Zonas de ${propertyName}` : 'Zonas de la Propiedad'}
-            </h1>
-            {propertyCode && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                <Hash className="w-4 h-4 mr-1" />
-                {propertyCode}
-              </span>
-            )}
-          </div>
-          <p className="text-gray-600 mt-2">
-            Gestiona las diferentes zonas y sus códigos QR
-          </p>
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-1">
+          {/* Botón Volver a Propiedades - Siempre visible */}
+          <Button
+            onClick={() => router.push('/properties')}
+            variant="ghost"
+            size="sm"
+            className="hover:bg-gray-100 rounded-full p-2"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {propertyName ? `Zonas de ${propertyName}` : 'Zonas de la Propiedad'}
+          </h1>
+          {propertyCode && (
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+              <Hash className="w-4 h-4 mr-1" />
+              {propertyCode}
+            </span>
+          )}
         </div>
-        <div className="hidden lg:flex items-center gap-6">
+        <p className="text-gray-500 text-sm ml-12 mb-3">
+          Gestiona las diferentes zonas y sus códigos QR
+        </p>
+        <div className="flex items-center gap-4 ml-12">
           <button
             onClick={() => router.push(`/properties/${id}/chatbot`)}
             className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
@@ -3115,102 +3113,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           {/* Property Options Menú */}
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-10 w-10 p-0"
-              >
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Portal>
-              <DropdownMenu.Content className="w-56 bg-white rounded-md border shadow-lg p-1 z-50">
-                <DropdownMenu.Item
-                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                  onSelect={handleViewEvaluations}
-                >
-                  <Star className="h-4 w-4 mr-2" />
-                  {t('propertyZones.evaluations', 'Evaluaciones')}
-                  {unreadEvaluations > 0 && (
-                    <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {unreadEvaluations}
-                    </span>
-                  )}
-                </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                  onSelect={() => router.push(`/properties/${id}/analytics`)}
-                >
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  {t('propertyZones.analytics', 'Analíticas')}
-                </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                  onSelect={() => {
-                    const publicUrl = `${window.location.origin}/guide/${id}`
-                    window.open(publicUrl, '_blank')
-                  }}
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  {t('propertyZones.publicView', 'Vista pública')}
-                </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                  onSelect={() => setShowPropertyQRModal(true)}
-                >
-                  <QrCode className="h-4 w-4 mr-2" />
-                  {t('propertyZones.propertyQr')}
-                </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                  onSelect={() => router.push(`/properties/new?edit=${id}`)}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  {t('propertyZones.editProperty')}
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-          </DropdownMenu.Root>
-        </div>
-      </div>
-
-      {/* Mobile buttons - below text */}
-      <div className="lg:hidden mb-6">
-        <div className="flex items-center gap-3">
-          {/* Left side - Text links */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <button
-              onClick={() => router.push(`/properties/${id}/chatbot`)}
-              className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors whitespace-nowrap flex-shrink-0"
-            >
-              {t('propertyZones.chatbot', 'Chatbot')}
-            </button>
-
-            <button
-              onClick={() => router.push(`/properties/${id}/announcements`)}
-              className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors whitespace-nowrap flex-shrink-0"
-            >
-              {t('propertyZones.announcements', 'Avisos')}
-            </button>
-
-            <button
-              onClick={() => router.push(`/properties/${id}/intelligence`)}
-              className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors flex items-center gap-1 whitespace-nowrap flex-shrink-0"
-            >
-              <Brain className="w-3.5 h-3.5" />
-              Inteligencia
-            </button>
-          </div>
-
-          {/* Right side - Menu */}
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild>
-              <button className="p-2 rounded-full hover:bg-gray-100 transition-colors flex-shrink-0">
-                <MoreVertical className="w-5 h-5 text-gray-700" />
+              <button className="p-1.5 rounded-full hover:bg-gray-100 transition-colors">
+                <MoreVertical className="h-4 w-4 text-gray-500" />
               </button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
-              <DropdownMenu.Content className="w-56 bg-white rounded-md border shadow-lg p-1 z-50" align="end">
+              <DropdownMenu.Content className="w-56 bg-white rounded-md border shadow-lg p-1 z-50">
                 <DropdownMenu.Item
                   className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                   onSelect={handleViewEvaluations}
