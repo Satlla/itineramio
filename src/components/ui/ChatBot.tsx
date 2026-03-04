@@ -81,6 +81,9 @@ const i18n: Record<string, Record<string, string>> = {
     emailSkip: 'Ahora no',
     emailSuccess: '¡Gracias! Te enviaremos recomendaciones útiles.',
     emailError: 'Error al enviar. Inténtalo de nuevo.',
+    welcomeBubble: '¡Hola! Soy el asistente de {propertyName} 👋 Si tienes alguna duda durante tu estancia, puedes consultarme aquí.',
+    welcomeBubbleSuggestions: 'Cómo hacer check-in|Clave del WiFi|Qué visitar|Restaurantes cerca',
+    welcomeBubbleDismiss: 'En otro momento',
     demoWelcome: '¡Hola! Soy el asistente IA de {propertyName}. Tus huespedes pueden preguntarme cualquier cosa sobre tu alojamiento, 24/7, en 3 idiomas.\n\nPruebame: preguntame donde esta el WiFi, como funciona el check-in, o que restaurantes hay cerca',
     demoBannerText: 'Imagina que tus huespedes tienen esto 24/7. Sin llamadas a las 3 AM, sin repetir las mismas instrucciones.',
     demoBannerCta: 'Activar mi chatbot IA',
@@ -111,6 +114,9 @@ const i18n: Record<string, Record<string, string>> = {
     emailSkip: 'Not now',
     emailSuccess: 'Thank you! We\'ll send you useful recommendations.',
     emailError: 'Error sending. Please try again.',
+    welcomeBubble: 'Hello! I\'m the assistant for {propertyName} 👋 If you have any questions during your stay, you can ask me here.',
+    welcomeBubbleSuggestions: 'How to check in|WiFi password|What to visit|Restaurants nearby',
+    welcomeBubbleDismiss: 'Maybe later',
     demoWelcome: 'Hello! I\'m the AI assistant for {propertyName}. Your guests can ask me anything about your accommodation, 24/7, in 3 languages.\n\nTry me: ask where the WiFi is, how check-in works, or what restaurants are nearby',
     demoBannerText: 'Imagine your guests having this 24/7. No calls at 3 AM, no repeating the same instructions.',
     demoBannerCta: 'Activate my AI chatbot',
@@ -141,6 +147,9 @@ const i18n: Record<string, Record<string, string>> = {
     emailSkip: 'Pas maintenant',
     emailSuccess: 'Merci ! Nous vous enverrons des recommandations utiles.',
     emailError: 'Erreur d\'envoi. Veuillez réessayer.',
+    welcomeBubble: 'Bonjour ! Je suis l\'assistant de {propertyName} 👋 Si vous avez des questions pendant votre séjour, vous pouvez me consulter ici.',
+    welcomeBubbleSuggestions: 'Comment faire le check-in|Mot de passe WiFi|Que visiter|Restaurants à proximité',
+    welcomeBubbleDismiss: 'Plus tard',
     demoWelcome: 'Bonjour ! Je suis l\'assistant IA de {propertyName}. Vos invites peuvent me poser n\'importe quelle question sur votre hebergement, 24h/24, en 3 langues.\n\nEssayez-moi : demandez-moi ou se trouve le WiFi, comment fonctionne l\'enregistrement, ou quels restaurants se trouvent a proximite',
     demoBannerText: 'Imaginez que vos invites aient ceci 24h/24. Plus d\'appels a 3h du matin, plus de repetitions des memes instructions.',
     demoBannerCta: 'Activer mon chatbot IA',
@@ -185,6 +194,9 @@ export default function ChatBot({
   const [isEnabled, setIsEnabled] = useState<boolean | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
+  const [showWelcomeBubble, setShowWelcomeBubble] = useState(false)
+  const [dismissingBubble, setDismissingBubble] = useState(false)
+  const chatButtonRef = useRef<HTMLButtonElement>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [currentMessage, setCurrentMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -270,6 +282,24 @@ export default function ChatBot({
     }
   }, [isOpen, isMinimized])
 
+  // Show welcome bubble after 3 seconds (only once per session, only if chat not already opened)
+  useEffect(() => {
+    if (isEnabled === false || isOpen) return
+    const welcomeKey = `chatbot-welcome-${propertyId}`
+    const alreadyShown = typeof window !== 'undefined' && sessionStorage.getItem(welcomeKey)
+    if (alreadyShown) return
+
+    const timer = setTimeout(() => {
+      if (!isOpen) {
+        setShowWelcomeBubble(true)
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(welcomeKey, '1')
+        }
+      }
+    }, 3000)
+    return () => clearTimeout(timer)
+  }, [isEnabled, propertyId, isOpen])
+
   // Show demo banner after first user message in demo mode
   useEffect(() => {
     if (isDemoMode && userMessageCountRef.current >= 1 && !showDemoBanner) {
@@ -323,7 +353,29 @@ export default function ChatBot({
     setShowFAQs(true)
   }
 
+  const handleDismissWelcome = () => {
+    setDismissingBubble(true)
+    setTimeout(() => {
+      setShowWelcomeBubble(false)
+      setDismissingBubble(false)
+    }, 500)
+  }
+
+  const handleWelcomeSuggestion = (suggestion: string) => {
+    setShowWelcomeBubble(false)
+    setIsOpen(true)
+    if (messages.length === 0) {
+      initializeChat()
+    }
+    // Send the suggestion as a message after chat opens
+    setTimeout(() => {
+      setCurrentMessage(suggestion)
+      setTimeout(() => sendMessage(suggestion), 100)
+    }, 400)
+  }
+
   const handleOpen = () => {
+    setShowWelcomeBubble(false)
     setIsOpen(true)
     if (messages.length === 0) {
       initializeChat()
@@ -378,13 +430,14 @@ export default function ChatBot({
     setShowEmailOverlay(false)
   }
 
-  const sendMessage = async () => {
-    if (!currentMessage.trim() || isLoading) return
+  const sendMessage = async (overrideMessage?: string) => {
+    const messageText = overrideMessage || currentMessage.trim()
+    if (!messageText || isLoading) return
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: currentMessage.trim(),
+      content: messageText,
       timestamp: new Date()
     }
 
@@ -722,6 +775,7 @@ export default function ChatBot({
               />
             )}
             <motion.button
+              ref={chatButtonRef}
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
@@ -745,6 +799,71 @@ export default function ChatBot({
               </motion.div>
             )}
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Welcome Bubble */}
+      <AnimatePresence>
+        {showWelcomeBubble && !isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={dismissingBubble
+              ? { opacity: 0, scale: 0.2, x: 0, y: 40 }
+              : { opacity: 1, y: 0, scale: 1 }
+            }
+            exit={{ opacity: 0, scale: 0.2, y: 40 }}
+            transition={{ duration: dismissingBubble ? 0.4 : 0.3, ease: 'easeOut' }}
+            className={`fixed z-50 ${className ? className.replace(/bottom-\d+/, 'bottom-40').replace(/sm:bottom-\d+/, 'sm:bottom-28') : 'bottom-40 right-4 sm:bottom-28 sm:right-6'}`}
+            style={{ maxWidth: '320px', width: 'calc(100vw - 32px)' }}
+          >
+            <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+              {/* Header */}
+              <div className="bg-black text-white px-4 py-3 flex items-center gap-3">
+                <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Bot className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[9px] text-white/40 font-semibold uppercase tracking-wider">{t('header', lang)}</p>
+                  <p className="text-sm font-medium truncate">{propertyName}</p>
+                </div>
+              </div>
+
+              {/* Message */}
+              <div className="px-4 py-3">
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {t('welcomeBubble', lang, { propertyName })}
+                </p>
+              </div>
+
+              {/* Suggestion chips */}
+              <div className="px-4 pb-3 flex flex-wrap gap-1.5">
+                {t('welcomeBubbleSuggestions', lang).split('|').map((suggestion, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleWelcomeSuggestion(suggestion)}
+                    className="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 hover:bg-violet-100 hover:text-violet-700 transition-colors"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+
+              {/* Dismiss */}
+              <div className="px-4 pb-3">
+                <button
+                  onClick={handleDismissWelcome}
+                  className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {t('welcomeBubbleDismiss', lang)}
+                </button>
+              </div>
+            </div>
+
+            {/* Arrow pointing to chat button */}
+            <div className="flex justify-end mr-5 -mt-px">
+              <div className="w-3 h-3 bg-white border-b border-r border-gray-100 rotate-45 translate-y-[-6px]" />
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
