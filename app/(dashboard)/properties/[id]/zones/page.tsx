@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash, ChevronDown, ArrowLeft, BarChart3, Download } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash, ChevronDown, ArrowLeft, BarChart3, Download, Brain } from 'lucide-react'
 import {
   DndContext,
   closestCenter,
@@ -3096,6 +3096,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </button>
 
           <button
+            onClick={() => router.push(`/properties/${id}/intelligence`)}
+            className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors flex items-center gap-1"
+          >
+            <Brain className="w-3.5 h-3.5" />
+            Inteligencia
+          </button>
+
+          <button
             onClick={() => setShowRecommendationsModal(true)}
             className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors flex items-center gap-1"
           >
@@ -3149,13 +3157,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
       {/* Mobile buttons - below text */}
       <div className="lg:hidden mb-6">
-        <div className="flex items-center justify-between">
-          {/* Left side - Text links */}
-          <div className="flex items-center gap-4">
-            {/* Evaluaciones - Keep text */}
+        <div className="flex items-center justify-between gap-3">
+          {/* Left side - Text links (scrollable) */}
+          <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide flex-1 min-w-0 -mx-1 px-1">
+            {/* Evaluaciones */}
             <button
               onClick={handleViewEvaluations}
-              className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors relative"
+              className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors relative whitespace-nowrap flex-shrink-0"
             >
               {t('propertyZones.evaluations', 'Evaluaciones')}
               {unreadEvaluations > 0 && (
@@ -3165,18 +3173,18 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               )}
             </button>
 
-            {/* Avisos - Keep text */}
+            {/* Avisos */}
             <button
               onClick={() => router.push(`/properties/${id}/announcements`)}
-              className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors"
+              className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors whitespace-nowrap flex-shrink-0"
             >
               {t('propertyZones.announcements', 'Avisos')}
             </button>
 
-            {/* Analíticas - Keep text */}
+            {/* Analíticas */}
             <button
               onClick={() => router.push(`/properties/${id}/analytics`)}
-              className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors"
+              className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors whitespace-nowrap flex-shrink-0"
             >
               {t('propertyZones.analytics', 'Analíticas')}
             </button>
@@ -3184,9 +3192,18 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             {/* Chatbot */}
             <button
               onClick={() => router.push(`/properties/${id}/chatbot`)}
-              className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors"
+              className="text-black font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors whitespace-nowrap flex-shrink-0"
             >
               {t('propertyZones.chatbot', 'Chatbot')}
+            </button>
+
+            {/* Inteligencia */}
+            <button
+              onClick={() => router.push(`/properties/${id}/intelligence`)}
+              className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors flex items-center gap-1 whitespace-nowrap flex-shrink-0"
+            >
+              <Brain className="w-3.5 h-3.5" />
+              Inteligencia
             </button>
           </div>
 
