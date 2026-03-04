@@ -1075,8 +1075,64 @@ export default function ImportarReservasPage() {
             </Card>
           )}
 
+          {/* Direct import section when universal mapping is configured but server preview failed */}
+          {universalMapping && !showColumnMapper && !isAnalyzing && !importResult && (!previewAnalysis || previewAnalysis.newReservations === 0) && rawRows.length > 0 && (
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-lg font-semibold mb-4">Importar con mapeo personalizado</h2>
+                <div className="p-4 bg-green-50 border border-green-200 rounded-lg mb-4">
+                  <div className="flex items-center gap-2 text-green-700">
+                    <CheckCircle2 className="h-5 w-5" />
+                    <span className="font-medium">Columnas configuradas correctamente</span>
+                  </div>
+                  <p className="text-sm text-green-600 mt-1">
+                    {rawRows.length} filas encontradas en el archivo
+                  </p>
+                </div>
+
+                {!selectedPropertyId && (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg mb-4 text-sm text-amber-700">
+                    <AlertTriangle className="h-4 w-4 inline mr-1" />
+                    Selecciona un apartamento arriba antes de importar
+                  </div>
+                )}
+
+                <div className="flex justify-end">
+                  <Button
+                    onClick={handleImport}
+                    disabled={isImporting || !selectedPropertyId}
+                    className="bg-violet-600 hover:bg-violet-700 text-white"
+                  >
+                    {isImporting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Importando...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Importar {rawRows.length} filas
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {isImporting && (
+                  <div className="mt-4">
+                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-violet-600 transition-all duration-300"
+                        style={{ width: `${importProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Preview Analysis - shows BEFORE import */}
-          {previewAnalysis && !importResult && !showColumnMapper && !isAnalyzing && (
+          {previewAnalysis && previewAnalysis.newReservations > 0 && !importResult && !showColumnMapper && !isAnalyzing && (
             <Card>
               <CardContent className="p-6">
                 <h2 className="text-lg font-semibold mb-4">
