@@ -390,6 +390,95 @@ const isZoneViewed = (zoneId: string) => {
   return localStorage.getItem(`zone-${zoneId}-viewed`) === 'true'
 }
 
+// Generate dynamic highlights based on actual zones
+const getPropertyHighlights = (zones: Zone[], language: string): { icon: any; title: string; desc: string }[] => {
+  const zoneNames = zones
+    .filter(z => z.stepsCount && z.stepsCount > 0)
+    .map(z => {
+      const name = typeof z.name === 'string' ? z.name : (z.name as any)?.[language] || (z.name as any)?.es || ''
+      return name.toLowerCase()
+    })
+
+  const highlights: { icon: any; title: string; desc: string; priority: number }[] = []
+
+  const texts: Record<string, Record<string, { title: string; desc: string }>> = {
+    wifi: {
+      es: { title: 'WiFi incluido', desc: 'Instrucciones de conexión disponibles en el manual.' },
+      en: { title: 'WiFi included', desc: 'Connection instructions available in the manual.' },
+      fr: { title: 'WiFi inclus', desc: 'Instructions de connexion disponibles dans le manuel.' },
+    },
+    checkin: {
+      es: { title: 'Instrucciones de llegada', desc: 'Sigue los pasos del manual para tu check-in.' },
+      en: { title: 'Arrival instructions', desc: 'Follow the manual steps for your check-in.' },
+      fr: { title: 'Instructions d\'arrivée', desc: 'Suivez les étapes du manuel pour votre enregistrement.' },
+    },
+    parking: {
+      es: { title: 'Info de parking', desc: 'Toda la información sobre aparcamiento en el manual.' },
+      en: { title: 'Parking info', desc: 'All parking information available in the manual.' },
+      fr: { title: 'Info parking', desc: 'Toutes les infos de stationnement dans le manuel.' },
+    },
+    kitchen: {
+      es: { title: 'Cocina equipada', desc: 'Instrucciones de electrodomésticos disponibles.' },
+      en: { title: 'Equipped kitchen', desc: 'Appliance instructions available.' },
+      fr: { title: 'Cuisine équipée', desc: 'Instructions des appareils disponibles.' },
+    },
+    climate: {
+      es: { title: 'Climatización', desc: 'Instrucciones de aire acondicionado y calefacción.' },
+      en: { title: 'Climate control', desc: 'AC and heating instructions available.' },
+      fr: { title: 'Climatisation', desc: 'Instructions de climatisation et chauffage.' },
+    },
+    recommendations: {
+      es: { title: 'Recomendaciones locales', desc: 'Restaurantes, actividades y más cerca de ti.' },
+      en: { title: 'Local recommendations', desc: 'Restaurants, activities and more near you.' },
+      fr: { title: 'Recommandations locales', desc: 'Restaurants, activités et plus près de vous.' },
+    },
+    rules: {
+      es: { title: 'Normas de convivencia', desc: 'Información importante para una estancia agradable.' },
+      en: { title: 'House rules', desc: 'Important information for a pleasant stay.' },
+      fr: { title: 'Règles de la maison', desc: 'Informations importantes pour un séjour agréable.' },
+    },
+    transport: {
+      es: { title: 'Transporte público', desc: 'Cómo moverte por la zona con transporte público.' },
+      en: { title: 'Public transport', desc: 'How to get around the area by public transport.' },
+      fr: { title: 'Transports en commun', desc: 'Comment se déplacer dans la zone en transport.' },
+    },
+  }
+
+  const l = language || 'es'
+  const getLang = (key: string) => texts[key]?.[l] || texts[key]?.es || { title: '', desc: '' }
+
+  for (const name of zoneNames) {
+    if (name.includes('wifi') || name.includes('internet')) {
+      highlights.push({ icon: Wifi, ...getLang('wifi'), priority: 2 })
+    } else if (name.includes('check in') || name.includes('check-in') || name.includes('llegada') || name.includes('arrivée') || name.includes('enregistrement')) {
+      highlights.push({ icon: Key, ...getLang('checkin'), priority: 1 })
+    } else if (name.includes('parking') || name.includes('aparcamiento') || name.includes('stationnement')) {
+      highlights.push({ icon: Car, ...getLang('parking'), priority: 4 })
+    } else if (name.includes('cocina') || name.includes('kitchen') || name.includes('cuisine') || name.includes('vitro') || name.includes('hob')) {
+      highlights.push({ icon: Utensils, ...getLang('kitchen'), priority: 5 })
+    } else if (name.includes('clima') || name.includes('aire') || name.includes('air') || name.includes('heating') || name.includes('calefac')) {
+      highlights.push({ icon: Zap, ...getLang('climate'), priority: 6 })
+    } else if (name.includes('recomend') || name.includes('recommend') || name.includes('restaurante') || name.includes('restaurant')) {
+      highlights.push({ icon: Star, ...getLang('recommendations'), priority: 3 })
+    } else if (name.includes('norma') || name.includes('rule') || name.includes('règle')) {
+      highlights.push({ icon: Shield, ...getLang('rules'), priority: 7 })
+    } else if (name.includes('transport') || name.includes('llegar') || name.includes('arriver') || name.includes('get here') || name.includes('get there')) {
+      highlights.push({ icon: MapPin, ...getLang('transport'), priority: 8 })
+    }
+  }
+
+  // Deduplicate by title and sort by priority
+  const seen = new Set<string>()
+  const unique = highlights.filter(h => {
+    if (seen.has(h.title)) return false
+    seen.add(h.title)
+    return true
+  })
+  unique.sort((a, b) => a.priority - b.priority)
+
+  return unique.slice(0, 2)
+}
+
 // Helper function to calculate progress
 const calculateProgress = (zones: Zone[]) => {
   // Only count zones that have steps
@@ -1102,25 +1191,29 @@ export default function PropertyGuidePage() {
               </div>
             </div>
 
-            {/* Highlights Row */}
-            <div className={`py-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-              <div className="space-y-4">
-                <div className="flex items-start gap-4">
-                  <Shield className={`w-6 h-6 flex-shrink-0 mt-0.5 ${darkMode ? 'text-white' : 'text-[#222222]'}`} />
-                  <div>
-                    <h3 className={`font-medium ${darkMode ? 'text-white' : 'text-[#222222]'}`}>{t('verifiedHost', language, { hostName: property.hostContactName || '' })}</h3>
-                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>{t('verifiedHostDesc', language)}</p>
+            {/* Highlights Row — dynamic based on actual zones */}
+            {(() => {
+              const highlights = getPropertyHighlights(property.zones, language)
+              if (highlights.length === 0) return null
+              return (
+                <div className={`py-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                  <div className="space-y-4">
+                    {highlights.map((hl, i) => {
+                      const Icon = hl.icon
+                      return (
+                        <div key={i} className="flex items-start gap-4">
+                          <Icon className={`w-6 h-6 flex-shrink-0 mt-0.5 ${darkMode ? 'text-white' : 'text-[#222222]'}`} />
+                          <div>
+                            <h3 className={`font-medium ${darkMode ? 'text-white' : 'text-[#222222]'}`}>{hl.title}</h3>
+                            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>{hl.desc}</p>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
-                <div className="flex items-start gap-4">
-                  <Key className={`w-6 h-6 flex-shrink-0 mt-0.5 ${darkMode ? 'text-white' : 'text-[#222222]'}`} />
-                  <div>
-                    <h3 className={`font-medium ${darkMode ? 'text-white' : 'text-[#222222]'}`}>{t('selfCheckIn', language)}</h3>
-                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`}>{t('selfCheckInDesc', language)}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+              )
+            })()}
 
             {/* Description - Hidden on mobile to reduce scroll */}
             <div className={`hidden md:block py-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
