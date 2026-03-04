@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
-import { unstable_cache } from 'next/cache'
 
-// Cache dashboard stats for 60 seconds per user
-const getCachedDashboardStats = unstable_cache(
-  async (userId: string) => {
+async function getDashboardStats(userId: string) {
     const currentYear = new Date().getFullYear()
     const currentMonth = new Date().getMonth() + 1
 
@@ -244,15 +241,11 @@ const getCachedDashboardStats = unstable_cache(
         unpaidInvoices: unpaidInvoicesCount
       }
     }
-  },
-  ['gestion-dashboard'],
-  { revalidate: 60, tags: ['gestion-dashboard'] } // Cache for 60 seconds
-)
+}
 
 /**
  * GET /api/gestion/dashboard
  * Obtener estadísticas del dashboard de gestión
- * Results are cached for 60 seconds per user to reduce DB load
  */
 export async function GET(request: NextRequest) {
   try {
@@ -262,8 +255,7 @@ export async function GET(request: NextRequest) {
     }
     const userId = authResult.userId
 
-    // Use cached data (revalidates every 60 seconds)
-    const data = await getCachedDashboardStats(userId)
+    const data = await getDashboardStats(userId)
 
     return NextResponse.json({
       success: true,

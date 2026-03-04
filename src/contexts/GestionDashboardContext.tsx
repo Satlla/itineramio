@@ -70,8 +70,13 @@ export function GestionDashboardProvider({ children }: { children: React.ReactNo
   }, [])
 
   // Fetch on mount and when pathname changes
+  // Also check sessionStorage flag for immediate refresh after creating data
   useEffect(() => {
-    const timer = setTimeout(fetchData, 100)
+    const needsRefresh = typeof window !== 'undefined' && sessionStorage.getItem('gestion-needs-refresh')
+    if (needsRefresh) {
+      sessionStorage.removeItem('gestion-needs-refresh')
+    }
+    const timer = setTimeout(fetchData, needsRefresh ? 0 : 100)
     return () => clearTimeout(timer)
   }, [pathname, fetchData])
 
