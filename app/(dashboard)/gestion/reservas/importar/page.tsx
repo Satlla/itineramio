@@ -543,6 +543,18 @@ export default function ImportarReservasPage() {
     setImportResult(null)
     setMessage(null)
 
+    // Filter out empty rows and header-like rows before sending
+    const filteredRows = rawRows.filter(row => {
+      // Skip rows where all cells are empty
+      if (row.every(cell => !cell || !cell.trim())) return false
+      // Skip rows that look like headers (contain header text in mapped columns)
+      if (rawHeaders.length > 0) {
+        const nonEmptyCells = row.filter(cell => cell && cell.trim())
+        if (nonEmptyCells.length > 0 && nonEmptyCells.every(cell => rawHeaders.includes(cell.trim()))) return false
+      }
+      return true
+    })
+
     try {
       // Simulate progress
       const progressInterval = setInterval(() => {
@@ -557,7 +569,7 @@ export default function ImportarReservasPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            rows: rawRows,
+            rows: filteredRows,
             headers: rawHeaders,
             platform: detectedPlatform,
             skipDuplicates,
@@ -573,7 +585,7 @@ export default function ImportarReservasPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            rows: rawRows,
+            rows: filteredRows,
             mapping: universalMapping.mapping,
             config: universalMapping.config,
             propertyId: selectedPropertyId,

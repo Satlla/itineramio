@@ -109,6 +109,29 @@ export async function POST(request: NextRequest) {
       const row = rows[i]
       const rowNum = i + 2 // +2 for header row and 1-based index
 
+      // Skip empty rows and header-like rows silently
+      const hasContent = row.some(cell => cell && cell.trim() && cell.trim().length > 0)
+      if (!hasContent) {
+        results.skippedCount++
+        continue
+      }
+
+      // Skip rows where the guest name matches a header keyword (sub-header row)
+      const guestVal = row[mapping.guestName]?.trim() || ''
+      const dateVal = mapping.dateRange !== undefined
+        ? row[mapping.dateRange]?.trim() || ''
+        : row[mapping.checkIn]?.trim() || ''
+      if (!guestVal && !dateVal) {
+        results.skippedCount++
+        continue
+      }
+      // Skip obvious header rows (date column contains header-like text)
+      const headerKeywords = ['fecha', 'date', 'check-in', 'checkin', 'período', 'periodo']
+      if (headerKeywords.includes(dateVal.toLowerCase())) {
+        results.skippedCount++
+        continue
+      }
+
       try {
         const parsed = parseRow(row, mapping, config, rowNum)
 

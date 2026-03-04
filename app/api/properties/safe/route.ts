@@ -165,6 +165,7 @@ export async function POST(request: NextRequest) {
     // Create property with raw SQL
     const nameTranslationsJson = validatedData.nameTranslations ? JSON.stringify(validatedData.nameTranslations) : null
     const descriptionTranslationsJson = validatedData.descriptionTranslations ? JSON.stringify(validatedData.descriptionTranslations) : null
+    const intelligenceJson = body.intelligence ? JSON.stringify(body.intelligence) : null
 
     await prisma.$executeRaw`
       INSERT INTO properties (
@@ -174,7 +175,7 @@ export async function POST(request: NextRequest) {
         "profileImage", "hostContactName", "hostContactPhone",
         "hostContactEmail", "hostContactLanguage", "hostContactPhoto",
         status, "isPublished", "hostId", "propertySetId",
-        "createdAt", "updatedAt"
+        intelligence, "createdAt", "updatedAt"
       ) VALUES (
         ${propertyId}, ${validatedData.name}, ${nameTranslationsJson}::jsonb, ${uniqueSlug}, ${validatedData.description}, ${descriptionTranslationsJson}::jsonb, ${validatedData.type},
         ${validatedData.street}, ${validatedData.city}, ${validatedData.state}, ${validatedData.country}, ${validatedData.postalCode},
@@ -182,7 +183,7 @@ export async function POST(request: NextRequest) {
         ${validatedData.profileImage || null}, ${validatedData.hostContactName}, ${validatedData.hostContactPhone},
         ${validatedData.hostContactEmail}, ${validatedData.hostContactLanguage}, ${validatedData.hostContactPhoto || null},
         'DRAFT', false, ${userId}, ${validatedData.propertySetId || null},
-        NOW(), NOW()
+        ${intelligenceJson}::jsonb, NOW(), NOW()
       )
     `
     

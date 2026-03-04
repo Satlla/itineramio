@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { Loader2, ExternalLink } from 'lucide-react'
 import { Button, Input, Card, ImageUpload, PropertyPreview, SavedDataBanner, AddressAutocomplete } from '../../../../src/components/ui'
 import { InlineSpinner } from '../../../../src/components/ui/Spinner'
 import { AutoSaveIndicator } from '../../../../src/components/ui/AutoSaveIndicator'
@@ -111,6 +112,11 @@ function NewPropertyPageContent() {
   const [submissionSuccess, setSubmissionSuccess] = useState(false)
   const [showTrialModal, setShowTrialModal] = useState(false)
   const [activeLanguage, setActiveLanguage] = useState<'es' | 'en' | 'fr'>('es')
+  const [airbnbUrl, setAirbnbUrl] = useState('')
+  const [airbnbImporting, setAirbnbImporting] = useState(false)
+  const [airbnbImported, setAirbnbImported] = useState(false)
+  const [airbnbError, setAirbnbError] = useState<string | null>(null)
+  const [airbnbIntelligence, setAirbnbIntelligence] = useState<Record<string, any> | null>(null)
   const [createdPropertyData, setCreatedPropertyData] = useState<{
     id: string
     name: string
@@ -213,6 +219,53 @@ function NewPropertyPageContent() {
     }
   }, [isEditing, editId, reset, router])
 
+  // Airbnb import handler
+  const handleAirbnbImport = async () => {
+    if (!airbnbUrl.trim()) return
+    setAirbnbImporting(true)
+    setAirbnbError(null)
+
+    try {
+      const res = await fetch('/api/public/demo-import-airbnb', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: airbnbUrl }),
+      })
+      const json = await res.json()
+
+      if (!res.ok || !json.success) {
+        setAirbnbError(json.error || 'Error al importar')
+        setAirbnbImporting(false)
+        return
+      }
+
+      const d = json.data
+
+      // Pre-fill form fields
+      if (d.propertyName) setValue('name', d.propertyName)
+      if (d.propertyDescription) setValue('description', d.propertyDescription.substring(0, 300))
+      if (d.formattedAddress) setValue('street', d.formattedAddress)
+      if (d.city) setValue('city', d.city)
+      if (d.country) setValue('country', d.country)
+      if (d.propertyType) setValue('type', d.propertyType as any)
+      if (d.maxGuests > 0) setValue('maxGuests', d.maxGuests)
+      if (d.bedrooms > 0) setValue('bedrooms', d.bedrooms)
+      if (d.bathrooms > 0) setValue('bathrooms', d.bathrooms)
+      if (d.profileImage) setValue('profileImage', d.profileImage)
+
+      // Build intelligence from airbnb data
+      const { buildIntelligenceFromImport } = await import('../../../../src/types/intelligence')
+      const intel = buildIntelligenceFromImport(d, null, airbnbUrl)
+      setAirbnbIntelligence(intel)
+
+      setAirbnbImported(true)
+      setAirbnbImporting(false)
+    } catch {
+      setAirbnbError('Error de conexión. Inténtalo de nuevo.')
+      setAirbnbImporting(false)
+    }
+  }
+
   const onSubmit = async (data: CreatePropertyFormData) => {
     setIsSubmitting(true)
 
@@ -246,7 +299,10 @@ function NewPropertyPageContent() {
         method,
         headers,
         credentials: 'include',
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          ...(airbnbIntelligence ? { intelligence: airbnbIntelligence } : {}),
+        }),
         signal: controller.signal
       })
 
@@ -639,6 +695,49 @@ function NewPropertyPageContent() {
                 <h2 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-3 sm:mb-4 md:mb-6">
                   {t('propertyForm.step1')}
                 </h2>
+
+                {/* Airbnb Import */}
+                {!isEditing && (
+                  <div className="mb-6 p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl border border-violet-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <ExternalLink className="w-4 h-4 text-violet-600" />
+                      <h3 className="text-sm font-semibold text-violet-800">Importar desde Airbnb</h3>
+                      {airbnbImported && (
+                        <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Importado</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-violet-600 mb-3">Pega el enlace de tu anuncio de Airbnb para autorellenar los datos</p>
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        value={airbnbUrl}
+                        onChange={(e) => setAirbnbUrl(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAirbnbImport() } }}
+                        placeholder="https://www.airbnb.com/rooms/..."
+                        className="flex-1 text-sm border border-violet-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none bg-white"
+                        disabled={airbnbImporting}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAirbnbImport}
+                        disabled={airbnbImporting || !airbnbUrl.trim()}
+                        className="px-4 py-2 bg-violet-600 text-white text-sm font-medium rounded-lg hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                      >
+                        {airbnbImporting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Importando...
+                          </>
+                        ) : (
+                          'Importar'
+                        )}
+                      </button>
+                    </div>
+                    {airbnbError && (
+                      <p className="text-xs text-red-600 mt-2">{airbnbError}</p>
+                    )}
+                  </div>
+                )}
 
                 {/* Language Tabs for Name and Description */}
                 <div className="mb-6">

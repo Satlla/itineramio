@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
           cleaningFee: t.cleaningFeeColumn ?? undefined,
           commission: t.commissionColumn ?? undefined,
           status: t.statusColumn ?? undefined,
+          dateRange: t.dateRangeColumn ?? undefined,
         } as ColumnMapping,
         config: {
           dateFormat: t.dateFormat,
@@ -125,6 +126,7 @@ export async function POST(request: NextRequest) {
         cleaningFeeColumn: mapping.cleaningFee ?? null,
         commissionColumn: mapping.commission ?? null,
         statusColumn: mapping.status ?? null,
+        dateRangeColumn: mapping.dateRange ?? null,
         dateFormat: config.dateFormat || 'DD/MM/YYYY',
         numberFormat: config.numberFormat || 'EU',
         amountType: config.amountType || 'NET',
@@ -148,6 +150,7 @@ export async function POST(request: NextRequest) {
           cleaningFee: template.cleaningFeeColumn ?? undefined,
           commission: template.commissionColumn ?? undefined,
           status: template.statusColumn ?? undefined,
+          dateRange: template.dateRangeColumn ?? undefined,
         },
         config: {
           dateFormat: template.dateFormat,

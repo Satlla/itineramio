@@ -8,6 +8,7 @@ export interface ColumnMapping {
   checkIn: number
   checkOut: number
   amount: number
+  dateRange?: number  // Single column with "checkIn - checkOut" (e.g., "31Dic - 4Ene", "01/01 - 05/01")
   confirmationCode?: number
   nights?: number
   cleaningFee?: number
@@ -17,7 +18,7 @@ export interface ColumnMapping {
 
 // Import configuration
 export interface ImportConfig {
-  dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD-MM-YYYY'
+  dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD' | 'DD-MM-YYYY' | 'SPANISH'
   numberFormat: 'EU' | 'US'  // EU: 1.234,56 | US: 1,234.56
   amountType: 'NET' | 'GROSS'  // NET: hostEarnings | GROSS: roomTotal
   platform: 'AIRBNB' | 'BOOKING' | 'VRBO' | 'DIRECT' | 'OTHER'

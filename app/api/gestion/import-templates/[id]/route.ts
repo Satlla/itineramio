@@ -48,6 +48,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           cleaningFee: template.cleaningFeeColumn ?? undefined,
           commission: template.commissionColumn ?? undefined,
           status: template.statusColumn ?? undefined,
+          dateRange: template.dateRangeColumn ?? undefined,
         } as ColumnMapping,
         config: {
           dateFormat: template.dateFormat,
@@ -138,6 +139,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       updateData.cleaningFeeColumn = mapping.cleaningFee ?? null
       updateData.commissionColumn = mapping.commission ?? null
       updateData.statusColumn = mapping.status ?? null
+      updateData.dateRangeColumn = mapping.dateRange ?? null
     }
 
     if (config) {
@@ -171,6 +173,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
           cleaningFee: template.cleaningFeeColumn ?? undefined,
           commission: template.commissionColumn ?? undefined,
           status: template.statusColumn ?? undefined,
+          dateRange: template.dateRangeColumn ?? undefined,
         },
         config: {
           dateFormat: template.dateFormat,

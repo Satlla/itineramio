@@ -226,6 +226,7 @@ model Property {
   propertyCode            String?                @unique
   descriptionTranslations Json?
   nameTranslations        Json?
+  intelligence            Json?
   trialNotified3d         Boolean                @default(false)
   isDemoPreview           Boolean                @default(false)
   demoExpiresAt           DateTime?
@@ -2688,6 +2689,7 @@ model ImportTemplate {
   cleaningFeeColumn      Int?
   commissionColumn       Int?
   statusColumn           Int?
+  dateRangeColumn        Int?
   dateFormat             String   @default("DD/MM/YYYY")
   numberFormat           String   @default("EU")
   amountType             String   @default("NET")

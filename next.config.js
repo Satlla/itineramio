@@ -3,7 +3,6 @@
 
 const nextConfig = {
   reactStrictMode: true,
-  output: 'standalone',
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -12,6 +11,9 @@ const nextConfig = {
   },
   experimental: {
     esmExternals: true,
+    outputFileTracingExcludes: {
+      '/api/*': ['./public/uploads/**', './public/ffmpeg/**'],
+    },
   },
   images: {
     remotePatterns: [

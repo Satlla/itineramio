@@ -54,8 +54,8 @@ export function middleware(request: NextRequest) {
     pathname.startsWith(route)
   )
 
-  // Si el usuario tiene token y está en la raíz, redirigir a /main
-  if (pathname === '/' && token) {
+  // Si el usuario tiene token y está en la raíz o en /demo, redirigir a /main
+  if ((pathname === '/' || pathname === '/demo') && token) {
     return NextResponse.redirect(new URL('/main', request.url))
   }
 
@@ -141,7 +141,7 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
     // Skip if property identifier is reserved
     if (!reservedPropertyRoutes.includes(propertyIdentifier)) {
       // Skip if this looks like other dashboard routes - DO NOT REWRITE THESE
-      const reservedRoutes = ['zones', 'settings', 'analytics', 'steps', 'qr', 'new', 'announcements', 'evaluations', 'chatbot']
+      const reservedRoutes = ['zones', 'settings', 'analytics', 'steps', 'qr', 'new', 'announcements', 'evaluations', 'chatbot', 'intelligence']
       if (!reservedRoutes.includes(zoneIdentifier)) {
         const url = request.nextUrl.clone()
         url.pathname = `/properties/slug/${propertyIdentifier}/zone/${zoneIdentifier}`

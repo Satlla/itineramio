@@ -37,7 +37,10 @@ const updatePropertySchema = z.object({
   isPublished: z.boolean().optional(),
   
   // Property Set Association
-  propertySetId: z.string().nullable().optional()
+  propertySetId: z.string().nullable().optional(),
+
+  // Intelligence data
+  intelligence: z.any().optional()
 }).strict()
 
 export async function GET(

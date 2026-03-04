@@ -281,7 +281,11 @@ export async function PUT(
     if (body.isPublished !== undefined) {
       await prisma.$executeRaw`UPDATE properties SET "isPublished" = ${body.isPublished}, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
     }
-    
+    if (body.intelligence !== undefined) {
+      const intelligenceJson = body.intelligence ? JSON.stringify(body.intelligence) : null
+      await prisma.$executeRaw`UPDATE properties SET "intelligence" = ${intelligenceJson}::jsonb, "updatedAt" = NOW() WHERE id = ${actualPropertyId}`
+    }
+
     // Get updated property
     const updatedProperty = await prisma.$queryRaw`
       SELECT * FROM properties WHERE id = ${actualPropertyId}

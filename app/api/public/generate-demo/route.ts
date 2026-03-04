@@ -603,6 +603,7 @@ export async function POST(request: NextRequest) {
         demoExpiresAt,
         demoLeadId: lead.id,
         hostId: demoUserId,
+        intelligence: body.intelligence || null,
         analytics: { create: {} },
       },
     })

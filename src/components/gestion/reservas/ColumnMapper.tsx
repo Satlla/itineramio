@@ -22,6 +22,7 @@ import type {
   NumberFormatOption,
   PlatformOption
 } from '@/types/import'
+import { tryParseSpanishDate, parseDateRange } from '@/lib/spanish-date-parser'
 
 // Field definitions
 const REQUIRED_FIELDS: MappingField[] = [
@@ -97,7 +98,8 @@ const DATE_FORMATS: DateFormatOption[] = [
   { value: 'DD/MM/YYYY', label: 'DD/MM/YYYY (Europeo)', example: '25/12/2024' },
   { value: 'MM/DD/YYYY', label: 'MM/DD/YYYY (Americano)', example: '12/25/2024' },
   { value: 'YYYY-MM-DD', label: 'YYYY-MM-DD (ISO)', example: '2024-12-25' },
-  { value: 'DD-MM-YYYY', label: 'DD-MM-YYYY', example: '25-12-2024' }
+  { value: 'DD-MM-YYYY', label: 'DD-MM-YYYY', example: '25-12-2024' },
+  { value: 'SPANISH', label: 'Español abreviado (6Dic)', example: '6Dic, 25Ene' }
 ]
 
 const NUMBER_FORMATS: NumberFormatOption[] = [
@@ -132,8 +134,11 @@ export function ColumnMapper({
     platform: 'OTHER'
   })
 
+  // Date range mode: single column with "checkIn - checkOut"
+  const [useDateRange, setUseDateRange] = useState(false)
+
   // UI state
-  const [showOptionalFields, setShowOptionalFields] = useState(false)
+  const [showOptionalFields, setShowOptionalFields] = useState(true)
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('')
   const [saveTemplateName, setSaveTemplateName] = useState('')
   const [showSaveTemplate, setShowSaveTemplate] = useState(false)
@@ -146,6 +151,8 @@ export function ColumnMapper({
       if (template) {
         setMapping(template.mapping)
         setConfig(template.config)
+        // Auto-detect dateRange mode from template
+        setUseDateRange(template.mapping.dateRange !== undefined)
       }
     }
   }, [selectedTemplateId, savedTemplates])
@@ -161,13 +168,13 @@ export function ColumnMapper({
 
   // Check if mapping is complete
   const isMappingComplete = useMemo(() => {
-    return (
-      mapping.guestName !== undefined &&
-      mapping.checkIn !== undefined &&
-      mapping.checkOut !== undefined &&
-      mapping.amount !== undefined
-    )
-  }, [mapping])
+    const hasGuest = mapping.guestName !== undefined
+    const hasAmount = mapping.amount !== undefined
+    if (useDateRange) {
+      return hasGuest && mapping.dateRange !== undefined && hasAmount
+    }
+    return hasGuest && mapping.checkIn !== undefined && mapping.checkOut !== undefined && hasAmount
+  }, [mapping, useDateRange])
 
   // Parse preview data
   const previewData = useMemo(() => {
@@ -177,8 +184,6 @@ export function ColumnMapper({
       const errors: string[] = []
 
       const guestName = mapping.guestName !== undefined ? row[mapping.guestName] : ''
-      const checkInStr = mapping.checkIn !== undefined ? row[mapping.checkIn] : ''
-      const checkOutStr = mapping.checkOut !== undefined ? row[mapping.checkOut] : ''
       const amountStr = mapping.amount !== undefined ? row[mapping.amount] : ''
 
       // Validate guest name
@@ -186,12 +191,35 @@ export function ColumnMapper({
         errors.push('Nombre vacio')
       }
 
-      // Validate dates
-      const checkIn = parsePreviewDate(checkInStr, config.dateFormat)
-      const checkOut = parsePreviewDate(checkOutStr, config.dateFormat)
+      // Validate dates - handle dateRange mode
+      let checkIn: Date | null = null
+      let checkOut: Date | null = null
+      let checkInDisplay = ''
+      let checkOutDisplay = ''
 
-      if (!checkIn) errors.push('Fecha entrada invalida')
-      if (!checkOut) errors.push('Fecha salida invalida')
+      if (useDateRange && mapping.dateRange !== undefined) {
+        const rangeStr = row[mapping.dateRange] || ''
+        const range = parseDateRange(rangeStr, config.dateFormat)
+        if (range) {
+          checkIn = range.checkIn
+          checkOut = range.checkOut
+          checkInDisplay = formatDate(checkIn)
+          checkOutDisplay = formatDate(checkOut)
+        } else {
+          errors.push('Rango de fechas invalido')
+          checkInDisplay = rangeStr
+          checkOutDisplay = ''
+        }
+      } else {
+        const checkInStr = mapping.checkIn !== undefined ? row[mapping.checkIn] : ''
+        const checkOutStr = mapping.checkOut !== undefined ? row[mapping.checkOut] : ''
+        checkIn = parsePreviewDate(checkInStr, config.dateFormat)
+        checkOut = parsePreviewDate(checkOutStr, config.dateFormat)
+        checkInDisplay = checkIn ? formatDate(checkIn) : checkInStr
+        checkOutDisplay = checkOut ? formatDate(checkOut) : checkOutStr
+        if (!checkIn) errors.push('Fecha entrada invalida')
+        if (!checkOut) errors.push('Fecha salida invalida')
+      }
 
       // Validate amount
       const amount = parsePreviewAmount(amountStr, config.numberFormat)
@@ -200,14 +228,14 @@ export function ColumnMapper({
       return {
         rowIndex,
         guestName: guestName?.trim() || '-',
-        checkIn: checkIn ? formatDate(checkIn) : checkInStr,
-        checkOut: checkOut ? formatDate(checkOut) : checkOutStr,
+        checkIn: checkInDisplay,
+        checkOut: checkOutDisplay,
         amount: amount > 0 ? formatAmount(amount) : amountStr,
         isValid: errors.length === 0,
         errors
       }
     })
-  }, [mapping, config, sampleRows, isMappingComplete])
+  }, [mapping, config, sampleRows, isMappingComplete, useDateRange])
 
   // Count valid/invalid rows
   const validCount = previewData.filter(r => r.isValid).length
@@ -245,7 +273,14 @@ export function ColumnMapper({
   // Handle apply
   const handleApply = () => {
     if (isMappingComplete) {
-      onMappingComplete(mapping as ColumnMapping, config)
+      const finalMapping = { ...mapping } as ColumnMapping
+      if (useDateRange && mapping.dateRange !== undefined) {
+        // Set checkIn/checkOut to same column as dateRange (backend will use dateRange)
+        finalMapping.checkIn = mapping.dateRange
+        finalMapping.checkOut = mapping.dateRange
+        finalMapping.dateRange = mapping.dateRange
+      }
+      onMappingComplete(finalMapping, config)
     }
   }
 
@@ -296,8 +331,79 @@ export function ColumnMapper({
             CAMPOS OBLIGATORIOS
           </h3>
 
+          {/* Date range toggle */}
+          <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={useDateRange}
+                onChange={(e) => {
+                  setUseDateRange(e.target.checked)
+                  // Clear date-related mappings when toggling
+                  setMapping(prev => {
+                    const next = { ...prev }
+                    delete next.checkIn
+                    delete next.checkOut
+                    delete next.dateRange
+                    return next
+                  })
+                }}
+                className="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+              />
+              <div>
+                <span className="text-sm font-medium text-gray-800">
+                  Entrada y salida juntas
+                </span>
+                <p className="text-xs text-gray-500">
+                  Ej: &quot;6Dic - 10Dic&quot;, &quot;01/01 - 05/01&quot;, &quot;1Ene al 5Ene&quot;
+                </p>
+              </div>
+            </label>
+          </div>
+
           <div className="space-y-4">
-            {REQUIRED_FIELDS.map((field) => (
+            {/* Guest name - always shown */}
+            {REQUIRED_FIELDS.filter(f => f.key === 'guestName').map((field) => (
+              <FieldMapping
+                key={field.key}
+                field={field}
+                value={mapping[field.key]}
+                options={columnOptions}
+                onChange={(value) => handleMappingChange(field.key, value)}
+                sampleRows={sampleRows}
+              />
+            ))}
+
+            {/* Date fields - conditional */}
+            {useDateRange ? (
+              <FieldMapping
+                field={{
+                  key: 'dateRange' as keyof ColumnMapping,
+                  label: 'Date Range',
+                  labelEs: 'Rango de fechas (entrada - salida)',
+                  required: true,
+                  description: 'Columna con entrada y salida juntas, ej: "6Dic - 10Dic"'
+                }}
+                value={mapping.dateRange}
+                options={columnOptions}
+                onChange={(value) => handleMappingChange('dateRange', value)}
+                sampleRows={sampleRows}
+              />
+            ) : (
+              REQUIRED_FIELDS.filter(f => f.key === 'checkIn' || f.key === 'checkOut').map((field) => (
+                <FieldMapping
+                  key={field.key}
+                  field={field}
+                  value={mapping[field.key]}
+                  options={columnOptions}
+                  onChange={(value) => handleMappingChange(field.key, value)}
+                  sampleRows={sampleRows}
+                />
+              ))
+            )}
+
+            {/* Amount - always shown */}
+            {REQUIRED_FIELDS.filter(f => f.key === 'amount').map((field) => (
               <FieldMapping
                 key={field.key}
                 field={field}
@@ -630,6 +736,9 @@ function parsePreviewDate(str: string, format: ImportConfig['dateFormat']): Date
       month = parseInt(match[2], 10)
       day = parseInt(match[3], 10)
       break
+    }
+    case 'SPANISH': {
+      return tryParseSpanishDate(cleanStr)
     }
     default:
       return null

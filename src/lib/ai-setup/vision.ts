@@ -241,34 +241,14 @@ export async function analyzeVideo(videoUrl: string): Promise<MediaAnalysisResul
     return analyzeImage(videoUrl)
   }
 
-  console.log('[vision] Extracting multiple frames from video:', videoUrl)
-
-  try {
-    const frames = await extractVideoFrames(videoUrl, 3)
-
-    if (frames.length === 0) {
-      throw new Error('No frames extracted from video')
-    }
-
-    console.log('[vision] Extracted', frames.length, 'frames, sending to Claude')
-
-    const images = frames.map(f => ({ base64: f, mediaType: 'image/jpeg' }))
-    const prompt = frames.length > 1 ? VISION_PROMPT_MULTI_FRAME : VISION_PROMPT
-    const result = await callVision(images, prompt)
-
-    console.log('[vision] Video result:', result.room_type, '| appliances:', result.appliances.length)
-    return result
-  } catch (err) {
-    console.error('[vision] Multi-frame extraction failed:', (err as Error).message)
-    // FFmpeg not available (Vercel) or other error — return a low-confidence placeholder
-    // The user can manually assign the category in the UI
-    console.warn('[vision] Returning placeholder result for video — user should assign category manually')
-    return {
-      room_type: 'other',
-      appliances: [],
-      description: 'Video could not be analyzed automatically. Please assign category manually.',
-      confidence: 0.1,
-    }
+  // Server-side FFmpeg extraction was removed (370MB+ binary exceeds Vercel limits).
+  // Videos should be processed via client-side frame extraction (analyzeFrames).
+  console.warn('[vision] Server-side video extraction not available — use client-side frames')
+  return {
+    room_type: 'other',
+    appliances: [],
+    description: 'Video could not be analyzed automatically. Please assign category manually.',
+    confidence: 0.1,
   }
 }
 
@@ -311,80 +291,8 @@ export async function analyzeFrames(dataUrls: string[]): Promise<MediaAnalysisRe
 // EXTRACT VIDEO FRAMES (using FFmpeg)
 // ============================================
 
-async function extractVideoFrames(videoUrl: string, count: number): Promise<string[]> {
-  const ffmpeg = require('fluent-ffmpeg') as any
-  const ffmpegPath = (require('@ffmpeg-installer/ffmpeg') as any).path
-  const os = require('os')
-
-  ffmpeg.setFfmpegPath(ffmpegPath as string)
-
-  // Download video to tmp
-  let videoBuffer: Buffer
-  if (videoUrl.startsWith('/uploads/')) {
-    const filePath = path.join(process.cwd(), 'public', videoUrl)
-    videoBuffer = fs.readFileSync(filePath)
-  } else {
-    const response = await fetch(videoUrl)
-    if (!response.ok) throw new Error(`Failed to fetch video: ${response.status}`)
-    videoBuffer = Buffer.from(await response.arrayBuffer())
-  }
-
-  const tmpDir = os.tmpdir()
-  const videoTmpPath = path.join(tmpDir, `ai-setup-video-${Date.now()}.mp4`)
-  fs.writeFileSync(videoTmpPath, videoBuffer)
-
-  // Get video duration
-  const duration = await new Promise<number>((resolve, reject) => {
-    ffmpeg.ffprobe(videoTmpPath, (err: any, data: any) => {
-      if (err) {
-        resolve(10) // Default to 10 seconds if probe fails
-      } else {
-        resolve(data.format?.duration || 10)
-      }
-    })
-  })
-
-  // Extract frames at 15%, 50%, 85% of the video
-  const timestamps = count === 1
-    ? [Math.max(1, duration * 0.25)]
-    : [
-        Math.max(0.5, duration * 0.15),
-        Math.max(1, duration * 0.50),
-        Math.max(1.5, duration * 0.85),
-      ].slice(0, count)
-
-  const frames: string[] = []
-
-  for (let i = 0; i < timestamps.length; i++) {
-    const framePath = path.join(tmpDir, `ai-setup-frame-${Date.now()}-${i}.jpg`)
-
-    try {
-      await new Promise<void>((resolve, reject) => {
-        ffmpeg(videoTmpPath)
-          .seekInput(timestamps[i])
-          .frames(1)
-          .outputOptions(['-q:v', '2']) // High quality JPEG
-          .output(framePath)
-          .on('end', () => resolve())
-          .on('error', (err: any) => reject(new Error(`FFmpeg error: ${err.message}`)))
-          .run()
-      })
-
-      if (fs.existsSync(framePath)) {
-        const frameBuffer = fs.readFileSync(framePath)
-        frames.push(frameBuffer.toString('base64'))
-        try { fs.unlinkSync(framePath) } catch (_) {}
-      }
-    } catch (err) {
-      console.warn(`[vision] Frame extraction at ${timestamps[i]}s failed:`, err)
-    }
-  }
-
-  // Clean up video tmp file
-  try { fs.unlinkSync(videoTmpPath) } catch (_) {}
-
-  return frames
-}
+// Server-side FFmpeg video extraction removed — too large for serverless (370MB+).
+// Videos are now handled via client-side frame extraction (analyzeFrames).
 
 // ============================================
 // NORMALIZE VISION RESPONSE

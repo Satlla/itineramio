@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash, ChevronDown, ArrowLeft, BarChart3, Download, Brain } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash, ChevronDown, ArrowLeft, BarChart3, Download, Brain, Search } from 'lucide-react'
 import {
   DndContext,
   closestCenter,
@@ -33,6 +33,7 @@ import { ZoneInspirationManager } from '../../../../../src/components/ui/ZoneIns
 import { ZoneStaticSuggestions } from '../../../../../src/components/ui/ZoneStaticSuggestions'
 import { ZoneInspirationModal } from '../../../../../src/components/ui/ZoneInspirationModal'
 import { StepEditor, Step } from '../../../../../src/components/ui/StepEditor'
+import { RecommendationsEditor } from '../../../../../src/components/ui/RecommendationsEditor'
 import { MobileZoneToast } from '../../../../../src/components/ui/MobileZoneToast'
 import { cn } from '../../../../../src/lib/utils'
 import { useRouter } from 'next/navigation'
@@ -52,7 +53,7 @@ import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsen
 import { CopyZoneToPropertyModal } from '../../../../../src/components/ui/CopyZoneToPropertyModal'
 import ZoneQRDesigner from '../../../../../src/components/zones/ZoneQRDesigner'
 import { EvaluationsModal } from '../../../../../src/components/ui/EvaluationsModal'
-import { GenerateRecommendationsModal } from '../../../../../src/components/ui/GenerateRecommendationsModal'
+// GenerateRecommendationsModal removed — replaced by "Añadir lugar" flow
 import { PropertySetUpdateModal } from '../../../../../src/components/ui/PropertySetUpdateModal'
 import { LanguageCompletionModal } from '../../../../../src/components/ui/LanguageCompletionModal'
 // Removed unused imports
@@ -140,7 +141,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [editingZoneForSteps, setEditingZoneForSteps] = useState<Zone | null>(null)
   const [loadingSteps, setLoadingSteps] = useState(false)
   const [currentSteps, setCurrentSteps] = useState<Step[]>([])
-  
+
+  // Recommendations editor state
+  const [showRecommendationsEditor, setShowRecommendationsEditor] = useState(false)
+  const [editingRecommendationsZone, setEditingRecommendationsZone] = useState<Zone | null>(null)
+  const [showGlobalRecommendations, setShowGlobalRecommendations] = useState(false)
+  const [propertyLat, setPropertyLat] = useState<number | null>(null)
+  const [propertyLng, setPropertyLng] = useState<number | null>(null)
+
   // Delete confirmation modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [zoneToDelete, setZoneToDelete] = useState<Zone | null>(null)
@@ -181,7 +189,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [completedZoneName, setCompletedZoneName] = useState('')
 
   // Recommendations modal state
-  const [showRecommendationsModal, setShowRecommendationsModal] = useState(false)
 
   const [isCreatingZone, setIsCreatingZone] = useState(false)
   const [isUpdatingZone, setIsUpdatingZone] = useState(false)
@@ -385,6 +392,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setPropertyLocation(`${propResult.data.city}, ${propResult.data.state}`)
         setPropertyStatus(propResult.data.status || 'DRAFT')
         setPropertySetId(propResult.data.propertySetId || null)
+
+        // Try to geocode property address for recommendations editor
+        const addr = `${propResult.data.street}, ${propResult.data.city}, ${propResult.data.state}, ${propResult.data.country}`
+        try {
+          const geoRes = await fetch(`/api/places/search?q=${encodeURIComponent(addr)}&geocode=1`, { credentials: 'include' })
+          const geoData = await geoRes.json()
+          if (geoData.success && geoData.data?.[0]) {
+            setPropertyLat(geoData.data[0].lat)
+            setPropertyLng(geoData.data[0].lng)
+          }
+        } catch { /* geocoding is optional */ }
 
         // Fetch property set properties if this property belongs to a set
         if (propResult.data.propertySetId) {
@@ -2578,10 +2596,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             isDragging ? 'shadow-2xl ring-4 ring-violet-500 border-violet-500 bg-violet-50' : ''
           }`}
           onClick={() => {
-            // For RECOMMENDATIONS zones, open the public preview instead of step editor
+            // For RECOMMENDATIONS zones, open the recommendations editor
             if (zone.type === 'RECOMMENDATIONS') {
-              const publicUrl = `${window.location.origin}/guide/${id}/${zone.id}`
-              window.open(publicUrl, '_blank')
+              setEditingRecommendationsZone(zone)
+              setShowRecommendationsEditor(true)
               return
             }
 
@@ -2661,6 +2679,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                       <DropdownMenu.Item
                         className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                         onSelect={async () => {
+                          if (zone.type === 'RECOMMENDATIONS') {
+                            setEditingRecommendationsZone(zone)
+                            setShowRecommendationsEditor(true)
+                            return
+                          }
                           console.log('Opening steps editor for zone:', zone.id, zone)
                           setEditingZoneForSteps(zone)
                           await loadZoneSteps(zone.id)
@@ -2747,6 +2770,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             isDragging ? 'shadow-xl ring-2 ring-violet-400 z-50' : ''
           }`}
           onClick={async () => {
+            // For RECOMMENDATIONS zones, open recommendations editor
+            if (zone.type === 'RECOMMENDATIONS') {
+              setEditingRecommendationsZone(zone)
+              setShowRecommendationsEditor(true)
+              return
+            }
             // En móvil, ir directamente al editor de pasos
             setEditingZoneForSteps(zone)
             await loadZoneSteps(zone.id)
@@ -3104,11 +3133,11 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </button>
 
           <button
-            onClick={() => setShowRecommendationsModal(true)}
+            onClick={() => setShowGlobalRecommendations(true)}
             className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors flex items-center gap-1"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            Recomendaciones
+            Añadir lugar
           </button>
 
           <button
@@ -3204,6 +3233,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             >
               <Brain className="w-3.5 h-3.5" />
               Inteligencia
+            </button>
+
+            {/* Añadir lugar */}
+            <button
+              onClick={() => setShowGlobalRecommendations(true)}
+              className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors flex items-center gap-1 whitespace-nowrap flex-shrink-0"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Añadir lugar
             </button>
           </div>
 
@@ -3839,6 +3877,59 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         )}
       </AnimatePresence>
 
+      {/* Recommendations Editor - Zone mode */}
+      {showRecommendationsEditor && editingRecommendationsZone && (
+        <RecommendationsEditor
+          mode="zone"
+          zone={editingRecommendationsZone}
+          propertyId={id}
+          propertyLat={propertyLat}
+          propertyLng={propertyLng}
+          onClose={() => {
+            setShowRecommendationsEditor(false)
+            setEditingRecommendationsZone(null)
+          }}
+          onUpdate={async () => {
+            const zonesResponse = await fetch(`/api/properties/${id}/zones`, {
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' }
+            })
+            const zonesResult = await zonesResponse.json()
+            if (zonesResult.success) {
+              setZones(transformZonesFromApi(zonesResult.data, id))
+            }
+          }}
+        />
+      )}
+
+      {/* Recommendations Editor - Global mode */}
+      {showGlobalRecommendations && (
+        <RecommendationsEditor
+          mode="global"
+          propertyId={id}
+          propertyLat={propertyLat}
+          propertyLng={propertyLng}
+          existingZones={zones.filter(z => z.type === 'RECOMMENDATIONS').map(z => ({
+            id: z.id,
+            name: z.name,
+            iconId: z.iconId,
+            recommendationCategory: z.recommendationCategory,
+            recommendationsCount: z.recommendationsCount,
+          }))}
+          onClose={() => setShowGlobalRecommendations(false)}
+          onUpdate={async () => {
+            const zonesResponse = await fetch(`/api/properties/${id}/zones`, {
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' }
+            })
+            const zonesResult = await zonesResponse.json()
+            if (zonesResult.success) {
+              setZones(transformZonesFromApi(zonesResult.data, id))
+            }
+          }}
+        />
+      )}
+
       {/* Essential Zones Modal */}
       <AnimatePresence>
         {showEssentialZonesModal && (
@@ -4360,30 +4451,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         propertySetProperties={propertySetProperties}
       />
 
-      {/* Generate Recommendations Modal */}
-      <GenerateRecommendationsModal
-        isOpen={showRecommendationsModal}
-        onClose={() => setShowRecommendationsModal(false)}
-        propertyId={id}
-        propertyName={propertyName}
-        propertyLocation={propertyLocation}
-        onSuccess={async () => {
-          const zonesResponse = await fetch(`/api/properties/${id}/zones`, {
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' }
-          })
-          const zonesResult = await zonesResponse.json()
-          if (zonesResult.success) {
-            setZones(transformZonesFromApi(zonesResult.data, id))
-          }
-          addNotification({
-            type: 'success',
-            title: '✅ Recomendaciones generadas',
-            message: 'Las zonas de recomendaciones se han creado correctamente',
-            read: false
-          })
-        }}
-      />
 
     </div>
   )

@@ -266,12 +266,15 @@ export async function POST(request: NextRequest) {
         
         // Associate with authenticated user
         hostId: userId,
-        
+
+        // Intelligence data (from Airbnb import or manual)
+        intelligence: body.intelligence || null,
+
         // Create analytics record
         analytics: {
           create: {}
         },
-        
+
         // Timestamps are handled automatically by Prisma
       },
       include: {

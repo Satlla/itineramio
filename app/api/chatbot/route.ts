@@ -76,6 +76,10 @@ export async function POST(request: NextRequest) {
             include: {
               steps: {
                 orderBy: { id: 'asc' }
+              },
+              recommendations: {
+                include: { place: true },
+                orderBy: { order: 'asc' }
               }
             }
           },
@@ -106,6 +110,10 @@ export async function POST(request: NextRequest) {
             include: {
               steps: {
                 orderBy: { id: 'asc' }
+              },
+              recommendations: {
+                include: { place: true },
+                orderBy: { order: 'asc' }
               }
             },
             orderBy: { order: 'asc' }
@@ -351,10 +359,11 @@ function getKeywords(text: string): string[] {
 function detectRelevantMedia(userMessage: string, aiResponse: string, zones: any[], language: string): MediaItem[] {
   const media: MediaItem[] = [];
   const userKeywords = new Set(getKeywords(userMessage));
-  // Also check AI response keywords for zones the AI explicitly referenced
-  const aiKeywords = new Set(getKeywords(aiResponse));
 
   for (const zone of zones) {
+    // Skip RECOMMENDATIONS zones — they don't have step media
+    if (zone.type === 'RECOMMENDATIONS') continue;
+
     const zoneName = getLocalizedText(zone.name, language);
     const zoneNameLower = zoneName.toLowerCase();
     const zoneKeywords = getKeywords(zoneName);
@@ -365,36 +374,34 @@ function detectRelevantMedia(userMessage: string, aiResponse: string, zones: any
     if (!zoneMatchesQuery) {
       for (const [key, synonyms] of Object.entries(ZONE_SYNONYMS)) {
         if (zoneNameLower.includes(key) || key.includes(zoneNameLower)) {
-          zoneMatchesQuery = synonyms.some(s => userKeywords.has(s));
-          if (zoneMatchesQuery) break;
+          // Require at least 2 synonym matches OR one exact zone name match to avoid false positives
+          const matchCount = synonyms.filter(s => userKeywords.has(s)).length;
+          if (matchCount >= 1) {
+            zoneMatchesQuery = true;
+            break;
+          }
         }
       }
     }
 
-    // Also check step titles against user keywords (step-level matching)
+    // Only show media from the matched zone — don't cross-match step titles against unrelated zones
+    if (!zoneMatchesQuery) continue;
+
     for (const step of (zone.steps || [])) {
       const content = step.content as any;
       if (!content || !content.mediaUrl) continue;
-      // Only include IMAGE or VIDEO steps, skip TEXT/LINK
       const stepType = (step.type || '').toUpperCase();
       if (stepType !== 'IMAGE' && stepType !== 'VIDEO') continue;
 
       const stepTitle = getLocalizedText(step.title, language);
-      const stepKeywords = getKeywords(stepTitle);
 
-      // Match if zone matches OR if step title keywords match user/AI keywords
-      const stepMatchesUser = stepKeywords.some(w => userKeywords.has(w));
-      const stepMatchesAI = stepKeywords.some(w => aiKeywords.has(w));
+      media.push({
+        type: stepType === 'VIDEO' ? 'VIDEO' : 'IMAGE',
+        url: content.mediaUrl,
+        caption: stepTitle || zoneName
+      });
 
-      if (zoneMatchesQuery || stepMatchesUser || stepMatchesAI) {
-        media.push({
-          type: stepType === 'VIDEO' ? 'VIDEO' : 'IMAGE',
-          url: content.mediaUrl,
-          caption: stepTitle || zoneName
-        });
-
-        if (media.length >= 3) return media;
-      }
+      if (media.length >= 3) return media;
     }
   }
 
@@ -844,9 +851,24 @@ function buildIntelligenceSection(property: any): string {
 }
 
 function buildZoneSystemPrompt(property: any, zone: any, language: string): string {
-  const zoneSteps = zone.steps.map((step: any, index: number) => {
-    return buildStepDescription(step, index, language);
-  }).join('\n');
+  let zoneSteps = '';
+  if (zone.type === 'RECOMMENDATIONS' && zone.recommendations?.length > 0) {
+    zoneSteps = zone.recommendations.map((rec: any) => {
+      if (!rec.place) return '';
+      const p = rec.place;
+      let line = `- ${p.name}`;
+      if (p.address) line += ` (${p.address})`;
+      if (p.rating) line += ` ★${p.rating}`;
+      if (rec.distanceMeters) line += ` — ${rec.distanceMeters < 1000 ? rec.distanceMeters + 'm' : (rec.distanceMeters / 1000).toFixed(1) + 'km'}`;
+      if (rec.walkMinutes) line += `, ${rec.walkMinutes} min a pie`;
+      if (rec.description) line += ` — ${rec.description}`;
+      return line;
+    }).filter(Boolean).join('\n');
+  } else {
+    zoneSteps = zone.steps.map((step: any, index: number) => {
+      return buildStepDescription(step, index, language);
+    }).join('\n');
+  }
 
   const hostInfo = buildHostInfo(property.host, language);
 
@@ -894,7 +916,20 @@ function buildPropertySystemPrompt(property: any, zones: any[], language: string
     let zoneSection = `\n--- ${zoneName} ---\n`;
     if (zoneDesc) zoneSection += `${zoneDesc}\n`;
 
-    if (zone.steps && zone.steps.length > 0) {
+    if (zone.type === 'RECOMMENDATIONS' && zone.recommendations?.length > 0) {
+      // Recommendation zones: list places with their data
+      for (const rec of zone.recommendations) {
+        if (!rec.place) continue;
+        const p = rec.place;
+        let line = `  - ${p.name}`;
+        if (p.address) line += ` (${p.address})`;
+        if (p.rating) line += ` ★${p.rating}`;
+        if (rec.distanceMeters) line += ` — ${rec.distanceMeters < 1000 ? rec.distanceMeters + 'm' : (rec.distanceMeters / 1000).toFixed(1) + 'km'}`;
+        if (rec.walkMinutes) line += `, ${rec.walkMinutes} min a pie`;
+        if (rec.description) line += ` — ${rec.description}`;
+        zoneSection += `${line}\n`;
+      }
+    } else if (zone.steps && zone.steps.length > 0) {
       for (const [index, step] of zone.steps.entries()) {
         zoneSection += `  ${buildStepDescription(step, index, language)}\n`;
       }
