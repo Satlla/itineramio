@@ -16,6 +16,7 @@ interface ImageUploadProps {
   accept?: string
   error?: boolean
   saveToLibrary?: boolean // Whether to save to media library
+  uploadEndpoint?: string // Custom upload endpoint (e.g. for public demo)
 }
 
 export function ImageUpload({
@@ -27,7 +28,8 @@ export function ImageUpload({
   maxSize = 10, // Increased for better quality images (was 5MB)
   accept = "image/jpeg,image/jpg,image/png,image/gif,image/webp",
   error = false,
-  saveToLibrary = true
+  saveToLibrary = true,
+  uploadEndpoint = '/api/upload'
 }: ImageUploadProps) {
   const [dragActive, setDragActive] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -168,8 +170,8 @@ export function ImageUpload({
         formData.append('skipDuplicateCheck', 'true')
       }
       
-      console.log('🌐 ImageUpload: Making fetch request to /api/upload')
-      const response = await fetch('/api/upload', {
+      console.log(`🌐 ImageUpload: Making fetch request to ${uploadEndpoint}`)
+      const response = await fetch(uploadEndpoint, {
         method: 'POST',
         body: formData
       })

@@ -75,9 +75,10 @@ interface Step1AddressProps {
   data: Step1Data
   onChange: (data: Step1Data) => void
   onNext: () => void
+  uploadEndpoint?: string
 }
 
-export default function Step1Address({ data, onChange, onNext }: Step1AddressProps) {
+export default function Step1Address({ data, onChange, onNext, uploadEndpoint }: Step1AddressProps) {
   const { t } = useTranslation('ai-setup')
   const [showErrors, setShowErrors] = React.useState(false)
 
@@ -186,6 +187,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
             variant="square"
             placeholder={t('step1.photo')}
             maxSize={10}
+            {...(uploadEndpoint && { uploadEndpoint })}
           />
         </div>
 
@@ -553,6 +555,7 @@ export default function Step1Address({ data, onChange, onNext }: Step1AddressPro
               variant="profile"
               placeholder={t('step1.host.yourPhoto')}
               maxSize={5}
+              {...(uploadEndpoint && { uploadEndpoint })}
             />
           </div>
           <p className="text-sm text-gray-500 text-center sm:text-left">

@@ -1093,6 +1093,7 @@ function DemoPageInner() {
                     data={step1Data}
                     onChange={setStep1Data}
                     onNext={() => setWizardStep(2)}
+                    uploadEndpoint="/api/public/demo-upload"
                   />
                 )}
 
