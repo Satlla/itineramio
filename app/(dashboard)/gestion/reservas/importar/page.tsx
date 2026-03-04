@@ -16,9 +16,13 @@ import {
   Building2,
   ChevronDown,
   Calendar,
-  Settings2
+  Settings2,
+  Save,
+  FileText,
+  Sparkles
 } from 'lucide-react'
-import { SimpleColumnMapper, type SimpleMapping, ListingMapper, type ListingInfo, type ListingMapping, type BillingUnitOption } from '@/components/gestion/reservas'
+import { SimpleColumnMapper, ListingMapper, type ListingInfo, type ListingMapping, type BillingUnitOption } from '@/components/gestion/reservas'
+import type { ColumnMapping, ImportConfig, ImportTemplate } from '@/types/import'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { useTranslation } from 'react-i18next'
 
@@ -118,7 +122,7 @@ export default function ImportarReservasPage() {
   const [showColumnMapper, setShowColumnMapper] = useState(false)
   const [rawHeaders, setRawHeaders] = useState<string[]>([])
   const [rawRows, setRawRows] = useState<string[][]>([])
-  const [simpleMapping, setSimpleMapping] = useState<SimpleMapping | null>(null)
+  // simpleMapping removed - now using universalMapping for all custom mappings
 
   // Preview analysis state
   const [previewAnalysis, setPreviewAnalysis] = useState<PreviewAnalysis | null>(null)
@@ -131,6 +135,79 @@ export default function ImportarReservasPage() {
   const [useSmartImport, setUseSmartImport] = useState(false)
   const [skipUnmappedListings, setSkipUnmappedListings] = useState(false)
   const [mappedReservationsCount, setMappedReservationsCount] = useState(0)
+
+  // Template state
+  const [savedTemplates, setSavedTemplates] = useState<ImportTemplate[]>([])
+  const [suggestedTemplate, setSuggestedTemplate] = useState<ImportTemplate | null>(null)
+  const [universalMapping, setUniversalMapping] = useState<{ mapping: ColumnMapping; config: ImportConfig } | null>(null)
+  const [templateApplied, setTemplateApplied] = useState(false)
+
+  // Fetch saved import templates
+  useEffect(() => {
+    async function fetchTemplates() {
+      try {
+        const res = await fetch('/api/gestion/import-templates')
+        if (res.ok) {
+          const data = await res.json()
+          setSavedTemplates(data.templates || [])
+        }
+      } catch (error) {
+        console.error('Error fetching import templates:', error)
+      }
+    }
+    fetchTemplates()
+  }, [])
+
+  // Auto-detect template when headers change (Jaccard similarity)
+  useEffect(() => {
+    if (rawHeaders.length === 0 || savedTemplates.length === 0 || detectedPlatform !== 'UNKNOWN') {
+      setSuggestedTemplate(null)
+      return
+    }
+
+    const normalizedHeaders = rawHeaders.map(h => h.trim().toLowerCase())
+    let bestMatch: ImportTemplate | null = null
+    let bestScore = 0
+
+    for (const template of savedTemplates) {
+      const templateHeaders = (template.originalHeaders || []).map(h => h.trim().toLowerCase())
+      if (templateHeaders.length === 0) continue
+
+      // Check exact match first
+      if (
+        templateHeaders.length === normalizedHeaders.length &&
+        templateHeaders.every((h, i) => h === normalizedHeaders[i])
+      ) {
+        bestMatch = template
+        bestScore = 2 // Perfect match
+        break
+      }
+
+      // Jaccard similarity
+      const setA = new Set(normalizedHeaders)
+      const setB = new Set(templateHeaders)
+      const intersection = [...setA].filter(x => setB.has(x))
+      const union = new Set([...setA, ...setB])
+      const jaccard = intersection.length / union.size
+
+      // Verify mapped indices are valid (within column range)
+      const maxCol = rawHeaders.length - 1
+      const mapping = template.mapping
+      const indicesValid = mapping.guestName <= maxCol &&
+        mapping.checkIn <= maxCol &&
+        mapping.checkOut <= maxCol &&
+        mapping.amount <= maxCol
+
+      const score = jaccard * (indicesValid ? 1.5 : 0.5)
+
+      if (score > bestScore && score >= 0.6) {
+        bestScore = score
+        bestMatch = template
+      }
+    }
+
+    setSuggestedTemplate(bestMatch)
+  }, [rawHeaders, savedTemplates, detectedPlatform])
 
   // Fetch properties and billing units
   useEffect(() => {
@@ -244,7 +321,10 @@ export default function ImportarReservasPage() {
     setMessage(null)
     setDetectedPlatform('UNKNOWN')
     setShowColumnMapper(false)
-    setSimpleMapping(null)
+    // simpleMapping removed
+    setUniversalMapping(null)
+    setTemplateApplied(false)
+    setSuggestedTemplate(null)
 
     try {
       const fileName = uploadedFile.name.toLowerCase()
@@ -303,36 +383,120 @@ export default function ImportarReservasPage() {
     }
   })
 
-  // Handle simple mapping confirm
-  const handleSimpleMappingConfirm = (mapping: SimpleMapping) => {
-    setSimpleMapping(mapping)
+  // Handle mapping complete (with config)
+  const handleUniversalMappingComplete = (mapping: ColumnMapping, config: ImportConfig) => {
+    setUniversalMapping({ mapping, config })
     setShowColumnMapper(false)
+    setTemplateApplied(true)
 
-    // Re-parse data with the new mapping for preview
+    // Build preview analysis from ALL rows using the mapping
+    let validRows = 0
+    const newDetails: Array<{ code: string; guestName: string; checkIn: string; amount: number; listing: string }> = []
+
+    for (let i = 0; i < rawRows.length; i++) {
+      const row = rawRows[i]
+      const guestName = row[mapping.guestName] || ''
+      const checkIn = mapping.dateRange !== undefined ? (row[mapping.dateRange] || '') : (row[mapping.checkIn] || '')
+      const checkOut = mapping.dateRange !== undefined ? (row[mapping.dateRange] || '') : (row[mapping.checkOut] || '')
+      const amountStr = row[mapping.amount] || ''
+      const amount = parseAmount(amountStr)
+
+      if (!guestName && !checkIn && amount <= 0) continue // empty row
+      if (checkIn || checkOut) {
+        validRows++
+        if (newDetails.length < 20) {
+          newDetails.push({
+            code: mapping.confirmationCode !== undefined ? (row[mapping.confirmationCode] || 'Se generará') : 'Se generará',
+            guestName: guestName || 'Sin nombre',
+            checkIn,
+            amount,
+            listing: '(Sin nombre)'
+          })
+        }
+      }
+    }
+
+    // Set preview analysis so the import button becomes enabled
+    setPreviewAnalysis({
+      totalRows: rawRows.length,
+      validRows,
+      newReservations: validRows,
+      duplicates: 0,
+      invalidRows: rawRows.length - validRows,
+      listingsFound: [],
+      dateRange: { min: null, max: null },
+      duplicateDetails: [],
+      newDetails
+    })
+
+    // Re-parse data for table preview (first 20 rows)
     const previewRows = rawRows.slice(0, 20).map((row, i) => {
       const guestName = row[mapping.guestName] || ''
-      const checkIn = row[mapping.checkIn] || ''
-      const checkOut = row[mapping.checkOut] || ''
+      const checkInVal = mapping.dateRange !== undefined ? (row[mapping.dateRange] || '') : (row[mapping.checkIn] || '')
+      const checkOutVal = mapping.dateRange !== undefined ? (row[mapping.dateRange] || '') : (row[mapping.checkOut] || '')
       const amountStr = row[mapping.amount] || ''
       const amount = parseAmount(amountStr)
 
       return {
         index: i + 2,
-        confirmationCode: '',
+        confirmationCode: mapping.confirmationCode !== undefined ? (row[mapping.confirmationCode] || '') : '',
         guestName,
-        checkIn,
-        checkOut,
-        nights: 0,
-        roomTotal: amount,
-        cleaningFee: 0,
-        hostServiceFee: 0,
-        hostEarnings: amount,
-        status: 'CONFIRMED',
-        hasError: !guestName || !checkIn || !checkOut || amount <= 0
+        checkIn: checkInVal,
+        checkOut: checkOutVal,
+        nights: mapping.nights !== undefined ? parseInt(row[mapping.nights] || '0', 10) : 0,
+        roomTotal: config.amountType === 'GROSS' ? amount : 0,
+        cleaningFee: mapping.cleaningFee !== undefined ? parseAmount(row[mapping.cleaningFee] || '') : 0,
+        hostServiceFee: mapping.commission !== undefined ? parseAmount(row[mapping.commission] || '') : 0,
+        hostEarnings: config.amountType === 'NET' ? amount : 0,
+        status: mapping.status !== undefined ? (row[mapping.status] || 'CONFIRMED') : 'CONFIRMED',
+        hasError: !guestName || (!checkInVal && !checkOutVal) || amount <= 0
       } as ParsedRow
     })
 
     setParsedData(previewRows)
+  }
+
+  // Handle applying a suggested template
+  const handleApplySuggestedTemplate = () => {
+    if (!suggestedTemplate) return
+    handleUniversalMappingComplete(suggestedTemplate.mapping, suggestedTemplate.config)
+    setSuggestedTemplate(null)
+  }
+
+  // Handle saving a new template
+  const handleSaveTemplate = async (name: string, mapping: ColumnMapping, config: ImportConfig) => {
+    const res = await fetch('/api/gestion/import-templates', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        mapping,
+        config,
+        originalHeaders: rawHeaders
+      })
+    })
+
+    if (!res.ok) {
+      const data = await res.json()
+      throw new Error(data.error || 'Error guardando plantilla')
+    }
+
+    const data = await res.json()
+    setSavedTemplates(prev => [data.template, ...prev])
+  }
+
+  // Handle deleting a template
+  const handleDeleteTemplate = async (templateId: string) => {
+    try {
+      const res = await fetch(`/api/gestion/import-templates/${templateId}`, {
+        method: 'DELETE'
+      })
+      if (res.ok) {
+        setSavedTemplates(prev => prev.filter(t => t.id !== templateId))
+      }
+    } catch (error) {
+      console.error('Error deleting template:', error)
+    }
   }
 
   const handleImport = async () => {
@@ -403,25 +567,15 @@ export default function ImportarReservasPage() {
           })
         })
       }
-      // Simple mapping mode (universal import)
-      else if (simpleMapping) {
+      // Universal mapping mode (ColumnMapper with full config)
+      else if (universalMapping) {
         response = await fetch('/api/gestion/reservations/import-universal', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             rows: rawRows,
-            mapping: {
-              guestName: simpleMapping.guestName,
-              checkIn: simpleMapping.checkIn,
-              checkOut: simpleMapping.checkOut,
-              amount: simpleMapping.amount,
-            },
-            config: {
-              dateFormat: 'DD/MM/YYYY',
-              numberFormat: 'EU',
-              amountType: 'NET',
-              platform: 'OTHER'
-            },
+            mapping: universalMapping.mapping,
+            config: universalMapping.config,
             propertyId: selectedPropertyId,
             skipDuplicates
           })
@@ -490,7 +644,10 @@ export default function ImportarReservasPage() {
     setShowColumnMapper(false)
     setRawHeaders([])
     setRawRows([])
-    setSimpleMapping(null)
+    // simpleMapping removed
+    setUniversalMapping(null)
+    setTemplateApplied(false)
+    setSuggestedTemplate(null)
     setPreviewAnalysis(null)
     setSmartImportInfo(null)
     setListingMappings({})
@@ -810,7 +967,7 @@ export default function ImportarReservasPage() {
                       </button>
                     </div>
                   )}
-                  {detectedPlatform === 'UNKNOWN' && !showColumnMapper && !simpleMapping && (
+                  {detectedPlatform === 'UNKNOWN' && !showColumnMapper && !universalMapping && (
                     <div className="flex items-center justify-between px-3 py-2 rounded-lg text-sm bg-amber-50 text-amber-700">
                       <div className="flex items-center gap-2">
                         <AlertTriangle className="h-4 w-4" />
@@ -825,7 +982,33 @@ export default function ImportarReservasPage() {
                       </button>
                     </div>
                   )}
-                  {simpleMapping && (
+                  {/* Template suggestion banner */}
+                  {suggestedTemplate && !showColumnMapper && !universalMapping && (
+                    <div className="flex items-center justify-between px-3 py-2 rounded-lg text-sm bg-violet-50 text-violet-700 border border-violet-200">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4" />
+                        <span>Plantilla detectada: <strong>{suggestedTemplate.name}</strong></span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleApplySuggestedTemplate}
+                          className="text-xs font-medium bg-violet-600 text-white px-3 py-1 rounded hover:bg-violet-700"
+                        >
+                          Usar plantilla
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSuggestedTemplate(null)
+                            setShowColumnMapper(true)
+                          }}
+                          className="text-xs underline hover:no-underline"
+                        >
+                          Manual
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {universalMapping && (
                     <div className="flex items-center justify-between px-3 py-2 rounded-lg text-sm bg-green-50 text-green-700">
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="h-4 w-4" />
@@ -864,15 +1047,17 @@ export default function ImportarReservasPage() {
             </CardContent>
           </Card>
 
-          {/* Simple Column Mapper */}
+          {/* Column Mapper */}
           {showColumnMapper && rawHeaders.length > 0 && (
             <Card>
               <CardContent className="p-6">
                 <SimpleColumnMapper
                   headers={rawHeaders}
                   sampleRows={rawRows.slice(0, 5)}
-                  onConfirm={handleSimpleMappingConfirm}
+                  onConfirm={handleUniversalMappingComplete}
                   onCancel={() => setShowColumnMapper(false)}
+                  savedTemplates={savedTemplates}
+                  onSaveTemplate={handleSaveTemplate}
                 />
               </CardContent>
             </Card>
@@ -1293,8 +1478,41 @@ export default function ImportarReservasPage() {
           )}
         </div>
 
-        {/* Sidebar - Import history */}
+        {/* Sidebar */}
         <div className="space-y-6">
+          {/* Saved templates */}
+          {savedTemplates.length > 0 && (
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Save className="h-5 w-5 text-violet-600" />
+                  <h2 className="text-lg font-semibold">Plantillas guardadas</h2>
+                </div>
+                <div className="space-y-2">
+                  {savedTemplates.map((template) => (
+                    <div
+                      key={template.id}
+                      className="flex items-center justify-between p-3 border border-gray-200 rounded-lg text-sm"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <FileText className="h-4 w-4 text-violet-500 flex-shrink-0" />
+                        <span className="font-medium truncate">{template.name}</span>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteTemplate(template.id)}
+                        className="p-1 text-gray-400 hover:text-red-500 flex-shrink-0"
+                        title="Eliminar plantilla"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Import history */}
           <Card>
             <CardContent className="p-6">
               <h2 className="text-lg font-semibold mb-4">{t('importReservations.history.title')}</h2>
