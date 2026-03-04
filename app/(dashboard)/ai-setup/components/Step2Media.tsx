@@ -617,9 +617,20 @@ export default function Step2Media({
                             {/* Dropdown menu */}
                             {openDropdown === item.id && (
                               <div
-                                className="absolute z-50 mt-1 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-2xl overflow-hidden max-h-72 overflow-y-auto"
+                                className="absolute z-50 mt-1 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-2xl overflow-hidden"
                                 onClick={(e) => e.stopPropagation()}
                               >
+                                {/* Create custom zone — always visible at top */}
+                                <button
+                                  type="button"
+                                  onClick={() => { handleZoneChange(item.id, CUSTOM_ZONE_VALUE); setOpenDropdown(null) }}
+                                  className="w-full flex items-center gap-2.5 px-3 py-3 text-sm font-medium text-violet-400 hover:bg-violet-500/10 transition-colors border-b border-gray-800"
+                                >
+                                  <Plus className="w-4 h-4 flex-shrink-0" />
+                                  <span>{t('step3.createNewZone')}</span>
+                                </button>
+
+                                <div className="max-h-64 overflow-y-auto">
                                 {/* Template zones */}
                                 <div className="px-3 py-1.5 text-[10px] text-gray-500 uppercase tracking-wider bg-gray-900/90 sticky top-0">Zonas del wizard</div>
                                 {PREDEFINED_ZONES.filter(z => z.group === 'template').map(zone => (
@@ -669,16 +680,6 @@ export default function Step2Media({
                                   </button>
                                 ))}
 
-                                {/* Create custom — sticky at bottom so always visible */}
-                                <div className="border-t border-gray-800 sticky bottom-0 bg-gray-900">
-                                  <button
-                                    type="button"
-                                    onClick={() => { handleZoneChange(item.id, CUSTOM_ZONE_VALUE); setOpenDropdown(null) }}
-                                    className="w-full flex items-center gap-2.5 px-3 py-3 text-sm font-medium text-violet-400 hover:bg-violet-500/10 transition-colors"
-                                  >
-                                    <Plus className="w-4 h-4 flex-shrink-0" />
-                                    <span>{t('step3.createNewZone')}</span>
-                                  </button>
                                 </div>
                               </div>
                             )}
