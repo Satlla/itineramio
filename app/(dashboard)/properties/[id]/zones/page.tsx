@@ -3157,9 +3157,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
       {/* Mobile buttons - below text */}
       <div className="lg:hidden mb-6">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
           {/* Left side - Text links (scrollable) */}
-          <div className="flex items-center gap-3 overflow-x-auto flex-1 min-w-0 -mx-1 px-1 pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="flex items-center gap-3 overflow-x-auto flex-1 min-w-0 pb-1 pr-2" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {/* Evaluaciones */}
             <button
               onClick={handleViewEvaluations}
