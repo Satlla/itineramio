@@ -81,21 +81,6 @@ export const zonasEsenciales = [
   },
   {
     name: {
-      es: 'Parking',
-      en: 'Parking',
-      fr: 'Parking'
-    },
-    description: {
-      es: 'Información sobre aparcamiento',
-      en: 'Parking information',
-      fr: 'Informations sur le stationnement'
-    },
-    icon: 'car',
-    order: 6,
-    templateId: 'parking'
-  },
-  {
-    name: {
       es: 'Climatización',
       en: 'Climate Control',
       fr: 'Climatisation'
@@ -106,7 +91,7 @@ export const zonasEsenciales = [
       fr: 'Climatisation et chauffage'
     },
     icon: 'thermometer',
-    order: 7,
+    order: 6,
     templateId: 'heating'
   },
   {
@@ -121,7 +106,7 @@ export const zonasEsenciales = [
       fr: 'Contacts importants et hôte'
     },
     icon: 'phone',
-    order: 8,
+    order: 7,
     templateId: 'emergency-contacts'
   },
   {
@@ -136,7 +121,7 @@ export const zonasEsenciales = [
       fr: 'Métro, bus et options de mobilité'
     },
     icon: 'bus',
-    order: 9,
+    order: 8,
     templateId: 'public-transport'
   },
   {
@@ -151,7 +136,7 @@ export const zonasEsenciales = [
       fr: 'Restaurants, boutiques et points d\'intérêt'
     },
     icon: 'star',
-    order: 10,
+    order: 9,
     templateId: 'recommendations'
   },
   {
@@ -166,7 +151,7 @@ export const zonasEsenciales = [
       fr: 'Comment et où jeter les déchets'
     },
     icon: 'trash',
-    order: 11,
+    order: 10,
     templateId: 'recycling'
   }
 ]

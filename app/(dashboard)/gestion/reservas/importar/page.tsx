@@ -1432,11 +1432,30 @@ export default function ImportarReservasPage() {
           {importResult && (
             <Card>
               <CardContent className="p-6">
-                <div className="flex items-center gap-2 mb-6">
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
-                  <h2 className="text-lg font-semibold">{t('importReservations.result.title')}</h2>
-                </div>
+                {/* Success header when reservations were imported */}
+                {importResult.importedCount > 0 ? (
+                  <div className="flex items-center gap-3 mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <CheckCircle2 className="h-8 w-8 text-green-600 flex-shrink-0" />
+                    <div>
+                      <h2 className="text-lg font-bold text-green-800">
+                        {importResult.importedCount} {importResult.importedCount === 1 ? 'reserva importada' : 'reservas importadas'} correctamente
+                      </h2>
+                      {importResult.skippedCount > 0 && (
+                        <p className="text-sm text-green-600 mt-1">
+                          {importResult.skippedCount} {importResult.skippedCount === 1 ? 'fila omitida' : 'filas omitidas'} (duplicadas o vacías)
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 mb-6">
+                    <AlertTriangle className="h-5 w-5 text-amber-600" />
+                    <h2 className="text-lg font-semibold">{t('importReservations.result.title')}</h2>
+                  </div>
+                )}
 
+                {/* Only show stats grid when there were no imports (error state) */}
+                {importResult.importedCount === 0 && (
                 <div className="grid grid-cols-3 gap-4 mb-6">
                   <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
                     <div className="text-2xl font-bold text-green-600">
@@ -1457,6 +1476,7 @@ export default function ImportarReservasPage() {
                     <div className="text-sm text-red-800">{t('importReservations.result.errors')}</div>
                   </div>
                 </div>
+                )}
 
                 {/* Batch ID for rollback */}
                 {importResult.importBatchId && importResult.importedCount > 0 && (
@@ -1519,22 +1539,42 @@ export default function ImportarReservasPage() {
                 )}
 
                 {importResult.errors.length > 0 && (
-                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <div className="flex items-center gap-2 text-red-800 font-medium mb-2">
-                      <AlertTriangle className="w-4 h-4" />
-                      {t('importReservations.result.errorsTitle')}
+                  importResult.importedCount > 0 ? (
+                    /* Minor note when import succeeded — don't scare the user */
+                    <details className="mb-6">
+                      <summary className="text-sm text-gray-500 cursor-pointer hover:text-gray-700">
+                        {importResult.errorCount} {importResult.errorCount === 1 ? 'fila con problemas' : 'filas con problemas'} (filas vacías o incompletas del archivo)
+                      </summary>
+                      <ul className="mt-2 list-disc list-inside text-xs text-gray-500 space-y-1 pl-2">
+                        {importResult.errors.slice(0, 5).map((error, i) => (
+                          <li key={i}>
+                            {t('importReservations.result.row')} {error.row}: {error.error}
+                          </li>
+                        ))}
+                        {importResult.errors.length > 5 && (
+                          <li>{t('importReservations.result.andMoreErrors', { count: importResult.errors.length - 5 })}</li>
+                        )}
+                      </ul>
+                    </details>
+                  ) : (
+                    /* Red error box when nothing was imported */
+                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-center gap-2 text-red-800 font-medium mb-2">
+                        <AlertTriangle className="w-4 h-4" />
+                        {t('importReservations.result.errorsTitle')}
+                      </div>
+                      <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                        {importResult.errors.slice(0, 5).map((error, i) => (
+                          <li key={i}>
+                            {t('importReservations.result.row')} {error.row}: {error.error}
+                          </li>
+                        ))}
+                        {importResult.errors.length > 5 && (
+                          <li>{t('importReservations.result.andMoreErrors', { count: importResult.errors.length - 5 })}</li>
+                        )}
+                      </ul>
                     </div>
-                    <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
-                      {importResult.errors.slice(0, 5).map((error, i) => (
-                        <li key={i}>
-                          {t('importReservations.result.row')} {error.row}: {error.error}
-                        </li>
-                      ))}
-                      {importResult.errors.length > 5 && (
-                        <li>{t('importReservations.result.andMoreErrors', { count: importResult.errors.length - 5 })}</li>
-                      )}
-                    </ul>
-                  </div>
+                  )
                 )}
 
                 <Button onClick={resetImport} variant="outline" className="w-full">

@@ -121,12 +121,13 @@ export async function POST(request: NextRequest) {
       const dateVal = mapping.dateRange !== undefined
         ? row[mapping.dateRange]?.trim() || ''
         : row[mapping.checkIn]?.trim() || ''
-      if (!guestVal && !dateVal) {
+      // Skip rows missing essential data (empty guest + date, or empty date alone)
+      if (!dateVal || (!guestVal && !dateVal)) {
         results.skippedCount++
         continue
       }
       // Skip obvious header rows (date column contains header-like text)
-      const headerKeywords = ['fecha', 'date', 'check-in', 'checkin', 'período', 'periodo']
+      const headerKeywords = ['fecha', 'date', 'check-in', 'checkin', 'período', 'periodo', 'reserva']
       if (headerKeywords.includes(dateVal.toLowerCase())) {
         results.skippedCount++
         continue

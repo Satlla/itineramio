@@ -294,7 +294,6 @@ export async function POST(request: NextRequest) {
         { name: 'Check Out', description: 'Instrucciones para la salida', icon: 'exit' },
         { name: 'Cómo Llegar', description: 'Direcciones desde aeropuerto, estación y ubicación exacta', icon: 'map-pin' },
         { name: 'Normas de la Casa', description: 'Reglas y políticas del apartamento', icon: 'list' },
-        { name: 'Parking', description: 'Información sobre aparcamiento', icon: 'car' },
         { name: 'Climatización', description: 'Aire acondicionado y calefacción', icon: 'thermometer' },
         { name: 'Teléfonos de Emergencia', description: 'Contactos importantes y anfitrión', icon: 'phone' },
         { name: 'Transporte Público', description: 'Metro, autobús y opciones de movilidad', icon: 'bus' },

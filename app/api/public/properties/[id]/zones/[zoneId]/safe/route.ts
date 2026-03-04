@@ -203,8 +203,13 @@ export async function GET(
         console.error('Error parsing step content:', error)
       }
 
+      const effectiveType = (step.type === 'VIDEO' || step.type === 'IMAGE') && !mediaUrl
+        ? 'TEXT'
+        : step.type
+
       return {
         ...step,
+        type: effectiveType,
         mediaUrl,
         linkUrl
       }
