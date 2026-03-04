@@ -481,8 +481,8 @@ export default function Step2Media({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-gray-900/80 border border-gray-800 rounded-xl backdrop-blur-xl relative"
-                    style={{ zIndex: openDropdown === item.id ? 100 : undefined }}
+                    className="bg-gray-900/80 border border-gray-800 rounded-xl backdrop-blur-xl"
+                    style={{ position: 'relative', zIndex: openDropdown === item.id ? 999 : 1 }}
                   >
                     {(() => {
                       const isPortrait = item.type === 'video' && portraitVideos.has(item.id)
