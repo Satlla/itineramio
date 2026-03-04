@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     // TEMP: Restrict chatbot to specific host emails during beta
-    const ALLOWED_HOST_EMAILS = ['alejandrosatlla@gmail.com'];
+    const ALLOWED_HOST_EMAILS = ['alejandrosatlla@gmail.com', 'colaboracionesbnb@gmail.com'];
 
     // Get property and zone(s) context
     let property: any;
