@@ -3077,13 +3077,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           <h1 className="text-3xl font-bold text-gray-900">
             {propertyName ? `Zonas de ${propertyName}` : 'Zonas de la Propiedad'}
           </h1>
-          {propertyCode && (
+        </div>
+        {propertyCode && (
+          <div className="ml-12 mb-1">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
               <Hash className="w-4 h-4 mr-1" />
               {propertyCode}
             </span>
-          )}
-        </div>
+          </div>
+        )}
         <p className="text-gray-500 text-sm ml-12 mb-3">
           Gestiona las diferentes zonas y sus códigos QR
         </p>
