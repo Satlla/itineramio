@@ -207,7 +207,7 @@ export function StepEditor({
   // Show loading while detecting device type
   if (!isClient) {
     return (
-      <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
+      <div className="fixed inset-0 bg-white z-[200] flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full"></div>
       </div>
     )
@@ -554,7 +554,7 @@ export function StepEditor({
   )
 
   return (
-    <div className="fixed inset-0 bg-gray-50 z-[150] overflow-y-auto">
+    <div className="fixed inset-0 bg-gray-50 z-[200] overflow-y-auto">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">

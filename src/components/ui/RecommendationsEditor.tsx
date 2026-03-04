@@ -583,7 +583,7 @@ export function RecommendationsEditor({
 
   if (mode === 'global') {
     return (
-      <div className="fixed inset-0 bg-gray-50 z-[150] overflow-y-auto">
+      <div className="fixed inset-0 bg-gray-50 z-[200] overflow-y-auto">
         {/* Header */}
         <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 sticky top-0 z-10">
           <div className="max-w-3xl mx-auto flex items-center gap-3">
@@ -814,7 +814,7 @@ export function RecommendationsEditor({
     : ''
 
   return (
-    <div className="fixed inset-0 bg-gray-50 z-[150] overflow-y-auto">
+    <div className="fixed inset-0 bg-gray-50 z-[200] overflow-y-auto">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 sticky top-0 z-10">
         <div className="max-w-3xl mx-auto flex items-center justify-between">

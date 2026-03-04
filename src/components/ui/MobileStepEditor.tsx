@@ -368,7 +368,7 @@ export function MobileStepEditor({
   )
 
   return (
-    <div className="fixed inset-0 bg-white z-50 flex flex-col">
+    <div className="fixed inset-0 bg-white z-[200] flex flex-col">
       {/* Header - Fixed */}
       <div className="bg-white border-b border-gray-200 px-4 py-3">
         <div className="flex items-center justify-between">
