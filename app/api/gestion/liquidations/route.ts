@@ -352,69 +352,107 @@ export async function POST(request: NextRequest) {
         }
       })
     } else {
-      // Legacy mode: use PropertyBillingConfig
-      const billingConfigs = await prisma.propertyBillingConfig.findMany({
-        where: {
-          ownerId,
-          isActive: true,
-        },
-        include: {
-          property: {
-            select: { id: true, name: true },
-          },
-        },
+      // Fallback mode: get ALL billing units for this owner (direct + from groups)
+      const ownerUnits = await prisma.billingUnit.findMany({
+        where: { userId, ownerId },
+        select: { id: true }
       })
+      const ownerGroups = await prisma.billingUnitGroup.findMany({
+        where: { userId, ownerId },
+        include: { billingUnits: { select: { id: true } } }
+      })
+      const fallbackUnitIds = [
+        ...ownerUnits.map(u => u.id),
+        ...ownerGroups.flatMap(g => g.billingUnits.map(u => u.id))
+      ]
 
-      if (billingConfigs.length === 0) {
+      // Also check legacy PropertyBillingConfig
+      const billingConfigs = await prisma.propertyBillingConfig.findMany({
+        where: { ownerId, isActive: true },
+        include: { property: { select: { id: true, name: true } } },
+      })
+      const configIds = billingConfigs.map(bc => bc.id)
+
+      if (fallbackUnitIds.length === 0 && configIds.length === 0) {
         return NextResponse.json(
           { error: 'El propietario no tiene propiedades asignadas' },
           { status: 400 }
         )
       }
 
-      // Build reservation query
-      const reservationWhere: any = {
-        status: { in: ['COMPLETED', 'CONFIRMED'] },
-        liquidationId: null,
-      }
-
-      // If specific reservationIds provided, use those
-      if (reservationIds && Array.isArray(reservationIds) && reservationIds.length > 0) {
-        reservationWhere.id = { in: reservationIds }
-      } else {
-        // Otherwise, filter by billing configs and date range
-        const configIds = propertyId
-          ? billingConfigs.filter(bc => bc.property.id === propertyId).map(bc => bc.id)
-          : billingConfigs.map(bc => bc.id)
-
-        reservationWhere.billingConfigId = { in: configIds }
-        reservationWhere.checkIn = {
-          gte: startDate,
-          lte: endDate,
-        }
-      }
-
-      reservations = await prisma.reservation.findMany({
-        where: reservationWhere,
-        include: {
-          billingConfig: true,
-        },
-      })
-
-      expenses = await prisma.propertyExpense.findMany({
-        where: {
-          billingConfigId: { in: billingConfigs.map((bc) => bc.id) },
-          date: {
-            gte: startDate,
-            lte: endDate,
+      // Get reservations from billing units
+      if (fallbackUnitIds.length > 0) {
+        const unitRes = await prisma.reservation.findMany({
+          where: {
+            billingUnitId: { in: fallbackUnitIds },
+            status: { in: ['COMPLETED', 'CONFIRMED'] },
+            liquidationId: null,
+            checkIn: { gte: startDate, lte: endDate },
           },
-          chargeToOwner: true,
-          liquidationId: null,
-        },
-      })
+          include: {
+            billingUnit: {
+              select: {
+                id: true, name: true,
+                cleaningValue: true, cleaningVatIncluded: true,
+                commissionType: true, commissionValue: true, commissionVat: true
+              }
+            }
+          }
+        })
+        reservations.push(...unitRes)
 
-      // Use first config for commission settings in legacy mode
-      if (billingConfigs.length > 0) {
+        const unitExp = await prisma.propertyExpense.findMany({
+          where: {
+            billingUnitId: { in: fallbackUnitIds },
+            chargeToOwner: true,
+            liquidationId: null,
+            date: { gte: startDate, lte: endDate },
+          }
+        })
+        expenses.push(...unitExp)
+      }
+
+      // Get reservations from legacy billing configs (only those not already linked to a billing unit)
+      if (configIds.length > 0) {
+        const configRes = await prisma.reservation.findMany({
+          where: {
+            billingConfigId: { in: configIds },
+            billingUnitId: null,
+            status: { in: ['COMPLETED', 'CONFIRMED'] },
+            liquidationId: null,
+            checkIn: { gte: startDate, lte: endDate },
+          },
+          include: { billingConfig: true }
+        })
+        reservations.push(...configRes)
+
+        const configExp = await prisma.propertyExpense.findMany({
+          where: {
+            billingConfigId: { in: configIds },
+            billingUnitId: null,
+            chargeToOwner: true,
+            liquidationId: null,
+            date: { gte: startDate, lte: endDate },
+          }
+        })
+        expenses.push(...configExp)
+      }
+
+      // Use first billing unit or config for commission settings
+      if (fallbackUnitIds.length > 0) {
+        const firstUnit = await prisma.billingUnit.findFirst({
+          where: { id: fallbackUnitIds[0], userId }
+        })
+        if (firstUnit) {
+          commissionType = firstUnit.commissionType
+          commissionValue = firstUnit.commissionValue
+          commissionVat = firstUnit.commissionVat
+          cleaningType = firstUnit.cleaningType
+          cleaningValue = firstUnit.cleaningValue
+          monthlyFee = firstUnit.monthlyFee
+          monthlyFeeVat = firstUnit.monthlyFeeVat
+        }
+      } else if (billingConfigs.length > 0) {
         const firstConfig = billingConfigs[0]
         commissionType = firstConfig.commissionType
         commissionValue = firstConfig.commissionValue
