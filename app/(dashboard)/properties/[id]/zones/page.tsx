@@ -51,6 +51,7 @@ import { crearZonasEsenciales, borrarTodasLasZonas } from '../../../../../src/ut
 import { createBatchZones } from '../../../../../src/utils/createBatchZones'
 import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsencialesModal'
 import { CopyZoneToPropertyModal } from '../../../../../src/components/ui/CopyZoneToPropertyModal'
+import { ImportRecommendationsModal } from '../../../../../src/components/ui/ImportRecommendationsModal'
 import ZoneQRDesigner from '../../../../../src/components/zones/ZoneQRDesigner'
 import { EvaluationsModal } from '../../../../../src/components/ui/EvaluationsModal'
 // GenerateRecommendationsModal removed — replaced by "Añadir lugar" flow
@@ -161,6 +162,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   // Copy zone modal state
   const [showCopyZoneModal, setShowCopyZoneModal] = useState(false)
   const [zoneToCopy, setZoneToCopy] = useState<Zone | null>(null)
+
+  // Import recommendations modal state
+  const [showImportModal, setShowImportModal] = useState(false)
   
   // Essential zones modal state
   const [showEssentialZonesModal, setShowEssentialZonesModal] = useState(false)
@@ -3253,6 +3257,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     Añadir lugar
                   </Button>
                   <Button
+                    onClick={() => setShowImportModal(true)}
+                    variant="outline"
+                    className="border-violet-200 text-violet-700 hover:bg-violet-50"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Importar
+                  </Button>
+                  <Button
                     onClick={() => setShowCreateForm(true)}
                     variant="outline"
                     className="border-violet-200 text-violet-700 hover:bg-violet-50"
@@ -4063,6 +4075,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 <Search className="w-4 h-4" />
               </Button>
               <Button
+                onClick={() => setShowImportModal(true)}
+                variant="outline"
+                className="border-violet-200 text-violet-700 hover:bg-violet-50"
+                title="Importar recomendaciones"
+              >
+                <Download className="w-4 h-4" />
+              </Button>
+              <Button
                 onClick={() => setShowCreateForm(true)}
                 variant="outline"
                 className="border-violet-200 text-violet-700 hover:bg-violet-50"
@@ -4213,6 +4233,27 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         zoneId={zoneToCopy?.id || ''}
         currentPropertyId={id}
         onCopyComplete={handleCopyComplete}
+      />
+
+      <ImportRecommendationsModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        targetPropertyId={id}
+        targetPropertyLat={propertyLat}
+        targetPropertyLng={propertyLng}
+        onImportComplete={async () => {
+          const zonesResponse = await fetch(`/api/properties/${id}/zones`)
+          const zonesResult = await zonesResponse.json()
+          if (zonesResult.success) {
+            setZones(transformZonesFromApi(zonesResult.data, id))
+          }
+          addNotification({
+            type: 'success',
+            title: 'Recomendaciones importadas',
+            message: 'Las recomendaciones se han importado correctamente',
+            read: false
+          })
+        }}
       />
 
       {/* Evaluations Modal */}

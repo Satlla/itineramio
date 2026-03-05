@@ -627,6 +627,7 @@ export async function generateManual(
             hostContactPhoto: propertyInput.hostContactPhoto || null,
             profileImage: propertyInput.profileImage || null,
             squareMeters: propertyInput.squareMeters || null,
+            intelligence: propertyInput.intelligence || undefined,
             status: 'DRAFT',
             isPublished: false,
             hostId: userId,

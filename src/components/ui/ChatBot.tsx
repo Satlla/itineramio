@@ -24,6 +24,18 @@ interface MediaItem {
   caption?: string
 }
 
+interface RecommendationCard {
+  name: string
+  address: string
+  rating: number | null
+  distance: string | null
+  walkMinutes: number | null
+  photoUrl: string | null
+  category: string
+  categoryIcon: string
+  mapsUrl: string | null
+}
+
 interface Message {
   id: string
   role: 'user' | 'assistant'
@@ -31,6 +43,7 @@ interface Message {
   timestamp: Date
   typing?: boolean
   media?: MediaItem[]
+  recommendations?: RecommendationCard[]
 }
 
 interface ChatBotProps {
@@ -502,6 +515,7 @@ export default function ChatBot({
         const streamMsgId = Date.now().toString()
         let streamedContent = ''
         let streamMedia: MediaItem[] | undefined
+        let streamRecommendations: RecommendationCard[] | undefined
 
         // Replace typing indicator with empty assistant message
         setMessages(prev => {
@@ -533,6 +547,7 @@ export default function ChatBot({
                 }
                 if (parsed.done) {
                   streamMedia = parsed.media
+                  streamRecommendations = parsed.recommendations
                 }
               } catch {
                 // Skip malformed chunks
@@ -543,11 +558,12 @@ export default function ChatBot({
 
         clearTimeout(timeout)
 
-        // Set final content with media
+        // Set final content with media and recommendations
         const finalContent = streamedContent
         const finalMedia = streamMedia
+        const finalRecommendations = streamRecommendations
         setMessages(prev => prev.map(m =>
-          m.id === streamMsgId ? { ...m, content: finalContent, media: finalMedia } : m
+          m.id === streamMsgId ? { ...m, content: finalContent, media: finalMedia, recommendations: finalRecommendations } : m
         ))
 
         trackEvent('chatbot_interaction', {
@@ -573,7 +589,8 @@ export default function ChatBot({
             role: 'assistant',
             content: data.response,
             timestamp: new Date(),
-            media: data.media || undefined
+            media: data.media || undefined,
+            recommendations: data.recommendations || undefined,
           }
           return [...filtered, assistantMessage]
         })
@@ -670,6 +687,7 @@ export default function ChatBot({
           const streamMsgId = Date.now().toString()
           let streamedContent = ''
           let streamMedia: MediaItem[] | undefined
+          let streamRecommendations: RecommendationCard[] | undefined
 
           setMessages(prev => {
             const filtered = prev.filter(m => !m.typing)
@@ -696,14 +714,17 @@ export default function ChatBot({
                       m.id === streamMsgId ? { ...m, content: currentContent } : m
                     ))
                   }
-                  if (parsed.done) streamMedia = parsed.media
+                  if (parsed.done) {
+                    streamMedia = parsed.media
+                    streamRecommendations = parsed.recommendations
+                  }
                 } catch { /* skip */ }
               }
             }
           }
 
           setMessages(prev => prev.map(m =>
-            m.id === streamMsgId ? { ...m, content: streamedContent, media: streamMedia } : m
+            m.id === streamMsgId ? { ...m, content: streamedContent, media: streamMedia, recommendations: streamRecommendations } : m
           ))
         } else {
           const data = await response.json()
@@ -714,7 +735,8 @@ export default function ChatBot({
               role: 'assistant' as const,
               content: data.response,
               timestamp: new Date(),
-              media: data.media || undefined
+              media: data.media || undefined,
+              recommendations: data.recommendations || undefined,
             }]
           })
         }
@@ -974,7 +996,7 @@ export default function ChatBot({
                           {message.media && message.media.length > 0 && (
                             <div className="mt-2 space-y-2 max-w-[280px]">
                               {message.media.map((item, idx) => (
-                                <div key={idx} className="rounded-xl overflow-hidden border border-gray-100">
+                                <div key={idx} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm">
                                   {item.type === 'IMAGE' ? (
                                     <img
                                       src={item.url}
@@ -997,6 +1019,47 @@ export default function ChatBot({
                                     <p className="text-[11px] text-gray-500 px-2.5 py-1.5 bg-gray-50">{item.caption}</p>
                                   )}
                                 </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Recommendation Cards */}
+                          {message.recommendations && message.recommendations.length > 0 && (
+                            <div className="mt-2 space-y-1.5 max-w-[300px]">
+                              {message.recommendations.map((rec, idx) => (
+                                <a
+                                  key={idx}
+                                  href={rec.mapsUrl || '#'}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2.5 p-2 rounded-lg border border-gray-100 bg-white hover:bg-gray-50 hover:shadow-sm transition-all cursor-pointer no-underline"
+                                >
+                                  {rec.photoUrl ? (
+                                    <img
+                                      src={rec.photoUrl}
+                                      alt={rec.name}
+                                      className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                                    />
+                                  ) : (
+                                    <div className="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center flex-shrink-0">
+                                      <span className="text-lg">📍</span>
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-[13px] font-medium text-gray-900 truncate leading-tight">{rec.name}</p>
+                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                      {rec.rating && (
+                                        <span className="text-[11px] text-amber-600 font-medium">★ {rec.rating}</span>
+                                      )}
+                                      {rec.distance && (
+                                        <span className="text-[11px] text-gray-400">
+                                          {rec.rating ? '· ' : ''}{rec.distance}
+                                          {rec.walkMinutes ? ` · ${rec.walkMinutes} min 🚶` : ''}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </a>
                               ))}
                             </div>
                           )}

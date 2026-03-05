@@ -151,7 +151,12 @@ export async function POST(request: NextRequest) {
       const zone = zones[0] || null;
       const response = generateFallbackResponse(message, property, zone, language);
       const media = detectRelevantMedia(message, response, zones, language);
-      return NextResponse.json({ response, media: media.length > 0 ? media : undefined });
+      const recommendations = detectRelevantRecommendations(message, response, zones, language);
+      return NextResponse.json({
+        response,
+        media: media.length > 0 ? media : undefined,
+        recommendations: recommendations.length > 0 ? recommendations : undefined,
+      });
     }
 
     // Build context for OpenAI + fetch learned context in parallel
@@ -193,8 +198,8 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           model: 'gpt-4o-mini',
           messages,
-          max_tokens: 750,
-          temperature: 0.7,
+          max_tokens: 1500,
+          temperature: 0.3,
           presence_penalty: 0.1,
           frequency_penalty: 0.1,
           stream: true
@@ -256,9 +261,14 @@ export async function POST(request: NextRequest) {
               }
             }
 
-            // After stream completes, send media and finish
+            // After stream completes, send media + recommendation cards and finish
             const media = detectRelevantMedia(message, fullResponse, zones, language);
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true, media: media.length > 0 ? media : undefined })}\n\n`));
+            const recommendations = detectRelevantRecommendations(message, fullResponse, zones, language);
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+              done: true,
+              media: media.length > 0 ? media : undefined,
+              recommendations: recommendations.length > 0 ? recommendations : undefined,
+            })}\n\n`));
             controller.close();
           } catch (err) {
             controller.error(err);
@@ -313,9 +323,11 @@ export async function POST(request: NextRequest) {
       const zone = zones[0] || null;
       const response = generateFallbackResponse(message, property, zone, language);
       const media = detectRelevantMedia(message, response, zones, language);
+      const recommendations = detectRelevantRecommendations(message, response, zones, language);
       return NextResponse.json({
         response,
-        media: media.length > 0 ? media : undefined
+        media: media.length > 0 ? media : undefined,
+        recommendations: recommendations.length > 0 ? recommendations : undefined,
       });
     }
 
@@ -337,16 +349,30 @@ const ZONE_SYNONYMS: Record<string, string[]> = {
   'check out': ['salir', 'salida', 'dejar', 'leave', 'leaving', 'departure', 'checkout', 'sortie', 'partir', 'quitter'],
   'wifi': ['internet', 'wifi', 'contraseña', 'password', 'red', 'network', 'conexión', 'connection', 'réseau', 'mot de passe'],
   'parking': ['aparcar', 'coche', 'garaje', 'garage', 'car', 'park', 'voiture', 'garer', 'estacionamiento'],
-  'climatización': ['aire', 'calefacción', 'heating', 'cooling', 'temperature', 'temperatura', 'frío', 'calor', 'cold', 'hot', 'chauffage', 'climatisation'],
+  'climatización': ['aire', 'calefacción', 'heating', 'cooling', 'temperature', 'temperatura', 'frío', 'calor', 'cold', 'hot', 'chauffage', 'climatisation', 'ac', 'aire acondicionado'],
   'cocina': ['cocinar', 'cook', 'kitchen', 'horno', 'oven', 'microondas', 'microwave', 'vitrocerámica', 'cuisiner', 'cuisine', 'four'],
   'vitrocerámica': ['vitro', 'cocina', 'placa', 'hob', 'stove', 'cooktop', 'cocinar', 'cook', 'plaque'],
   'microondas': ['microwave', 'calentar', 'heat', 'warm', 'micro', 'réchauffer'],
   'lavadora': ['lavar', 'ropa', 'wash', 'laundry', 'washing', 'clothes', 'linge', 'laver', 'machine'],
   'basura': ['reciclar', 'reciclaje', 'trash', 'garbage', 'recycling', 'waste', 'bin', 'poubelle', 'déchet', 'recycler'],
-  'recomendaciones': ['restaurante', 'comer', 'restaurant', 'eat', 'food', 'visitar', 'visit', 'actividad', 'activity', 'manger', 'activité'],
+  'recomendaciones': ['restaurante', 'comer', 'restaurant', 'eat', 'food', 'visitar', 'visit', 'actividad', 'activity', 'manger', 'activité', 'café', 'coffee', 'bar', 'playa', 'beach', 'museo', 'museum', 'tapas', 'cenar', 'almorzar', 'desayunar', 'brunch'],
   'emergencia': ['emergencia', 'emergency', 'urgencia', 'urgence', 'policía', 'police', 'hospital', 'teléfono', 'phone', 'ambulancia', 'ambulance'],
   'normas': ['regla', 'rule', 'norma', 'ruido', 'noise', 'prohibido', 'forbidden', 'règle', 'bruit', 'interdit'],
   'transporte': ['metro', 'bus', 'taxi', 'tren', 'train', 'transport', 'llegar', 'aéroport', 'airport', 'aeropuerto'],
+};
+
+// Synonyms for recommendation categories
+const RECOMMENDATION_SYNONYMS: Record<string, string[]> = {
+  'restaurant': ['restaurante', 'comer', 'eat', 'food', 'cenar', 'almorzar', 'dinner', 'lunch', 'tapas', 'comida', 'manger', 'dîner', 'déjeuner'],
+  'cafe': ['café', 'cafetería', 'coffee', 'desayuno', 'breakfast', 'brunch', 'desayunar', 'petit-déjeuner'],
+  'tourist_attraction': ['visitar', 'visit', 'turismo', 'tourism', 'ver', 'see', 'monumento', 'monument', 'museo', 'museum', 'qué ver', 'what to see', 'sightseeing', 'tourist', 'tourisme', 'attraction'],
+  'park': ['parque', 'park', 'jardín', 'garden', 'naturaleza', 'nature', 'pasear', 'walk', 'jardin'],
+  'beach': ['playa', 'beach', 'mar', 'sea', 'costa', 'coast', 'bañarse', 'swim', 'plage', 'mer'],
+  'shopping_mall': ['compras', 'shopping', 'tienda', 'shop', 'store', 'centro comercial', 'mall', 'boutique', 'magasin'],
+  'supermarket': ['supermercado', 'supermarket', 'comprar', 'buy', 'mercado', 'market', 'grocery', 'marché'],
+  'pharmacy': ['farmacia', 'pharmacy', 'medicina', 'medicine', 'pharmacie', 'médicament'],
+  'hospital': ['hospital', 'urgencias', 'emergency', 'médico', 'doctor', 'hôpital', 'urgences'],
+  'parking': ['parking', 'aparcar', 'park', 'coche', 'car', 'garaje', 'garage', 'stationnement'],
 };
 
 function getKeywords(text: string): string[] {
@@ -406,6 +432,90 @@ function detectRelevantMedia(userMessage: string, aiResponse: string, zones: any
   }
 
   return media;
+}
+
+interface RecommendationCard {
+  name: string
+  address: string
+  rating: number | null
+  distance: string | null
+  walkMinutes: number | null
+  photoUrl: string | null
+  category: string
+  categoryIcon: string
+  mapsUrl: string | null
+}
+
+function detectRelevantRecommendations(userMessage: string, aiResponse: string, zones: any[], language: string): RecommendationCard[] {
+  const cards: RecommendationCard[] = [];
+  const userKeywords = new Set(getKeywords(userMessage));
+  const responseKeywords = new Set(getKeywords(aiResponse));
+
+  for (const zone of zones) {
+    if (zone.type !== 'RECOMMENDATIONS' || !zone.recommendations?.length) continue;
+
+    const categoryId = zone.recommendationCategory || '';
+    const zoneName = getLocalizedText(zone.name, language).toLowerCase();
+
+    // Check if user is asking about this recommendation category
+    let matches = false;
+
+    // Direct category synonym match
+    const synonyms = RECOMMENDATION_SYNONYMS[categoryId] || [];
+    if (synonyms.some(s => userKeywords.has(s))) {
+      matches = true;
+    }
+
+    // Zone name match
+    if (!matches) {
+      const zoneWords = getKeywords(zoneName);
+      if (zoneWords.some(w => userKeywords.has(w))) {
+        matches = true;
+      }
+    }
+
+    // Check if AI response mentions places from this zone (AI decided to recommend them)
+    if (!matches) {
+      for (const rec of zone.recommendations) {
+        if (!rec.place) continue;
+        const placeName = rec.place.name.toLowerCase();
+        if (aiResponse.toLowerCase().includes(placeName)) {
+          matches = true;
+          break;
+        }
+      }
+    }
+
+    if (!matches) continue;
+
+    for (const rec of zone.recommendations) {
+      if (!rec.place) continue;
+      const p = rec.place;
+      const distance = rec.distanceMeters
+        ? rec.distanceMeters < 1000
+          ? `${rec.distanceMeters}m`
+          : `${(rec.distanceMeters / 1000).toFixed(1)}km`
+        : null;
+
+      cards.push({
+        name: p.name,
+        address: p.address || '',
+        rating: p.rating,
+        distance,
+        walkMinutes: rec.walkMinutes,
+        photoUrl: p.photoUrl || null,
+        category: getLocalizedText(zone.name, language),
+        categoryIcon: zone.icon || '',
+        mapsUrl: p.latitude && p.longitude
+          ? `https://www.google.com/maps/search/?api=1&query=${p.latitude},${p.longitude}`
+          : null,
+      });
+
+      if (cards.length >= 6) return cards;
+    }
+  }
+
+  return cards;
 }
 
 // ========================================
@@ -874,33 +984,31 @@ function buildZoneSystemPrompt(property: any, zone: any, language: string): stri
 
   const intelligenceSection = buildIntelligenceSection(property);
 
-  const prompt = `You are a virtual assistant expert for the property "${getLocalizedText(property.name, language)}" located in ${property.city}, ${property.country}.
-You are specifically helping with the "${getLocalizedText(zone.name, language)}" zone.
+  const prompt = `You are the virtual concierge for "${getLocalizedText(property.name, language)}" in ${property.city}, ${property.country}.
+You are helping with the "${getLocalizedText(zone.name, language)}" zone.
 
-PROPERTY INFORMATION:
+YOUR KNOWLEDGE BASE — use ONLY this information to answer:
+
+PROPERTY:
 ${getLocalizedText(property.description, language) || 'N/A'}
 ${intelligenceSection}
-CURRENT ZONE INFORMATION:
-${getLocalizedText(zone.description, language) || 'N/A'}
+ZONE "${getLocalizedText(zone.name, language)}":
+${getLocalizedText(zone.description, language) || ''}
 
-ZONE STEPS AND INSTRUCTIONS:
+STEPS & INSTRUCTIONS:
 ${zoneSteps || 'No steps available'}
 
 ${hostInfo}
 ${EMERGENCY_KNOWLEDGE}
 
-RESPONSE STYLE:
-- CRITICAL: Detect the language the user writes in and ALWAYS respond in that SAME language. If they write in English, respond in English. If in Spanish, respond in Spanish. If in French, respond in French. If in any other language, respond in that language.
-- Be a friendly, approachable host — as if chatting on WhatsApp with your guest
-- Use **bold** to highlight important info (names, key data, steps)
-- Use bullet lists with - when listing things
-- Format links as [text](url) when relevant
-- Be brief and direct (max 2-3 short paragraphs)
-- Use occasional emojis to be friendly (📍🏠✅ etc.)
-- IMPORTANT: If a step has an image (📷), include it with markdown ![description](url). If it has a video (📹), include the link as [🎬 Video](url)
-- If you don't have the info, kindly suggest contacting the host
-- Don't make up information
-- Remember previous conversation context for coherent answers`;
+CRITICAL RULES:
+1. LANGUAGE: Detect the language the user writes in and ALWAYS respond in that SAME language.
+2. ANSWER FROM DATA: Your answers MUST come from the knowledge base above. Quote specific details (names, codes, locations, times).
+3. MEDIA: When a step has 📷 (image) or 📹 (video), ALWAYS include it in your answer using markdown: ![description](url) for images, [🎬 Ver vídeo](url) for videos.
+4. RECOMMENDATIONS: When mentioning places (restaurants, cafés, etc.), list them with name, distance and rating if available.
+5. STYLE: Be friendly and direct. Use **bold** for key info. Use bullet lists. Max 3 short paragraphs.
+6. HONESTY: If the info isn't in your knowledge base, say so and suggest contacting the host.
+7. NEVER invent information not present in the knowledge base above.`;
 
   return prompt;
 }
@@ -946,10 +1054,12 @@ function buildPropertySystemPrompt(property: any, zones: any[], language: string
 
   const intelligenceSection = buildIntelligenceSection(property);
 
-  const prompt = `You are a virtual assistant expert for the property "${propertyName}" located in ${property.city}, ${property.country}.
-You have access to ALL zones and sections of the property manual.
+  const prompt = `You are the virtual concierge for "${propertyName}" in ${property.city}, ${property.country}.
+You have access to the complete property manual with all zones and sections.
 
-PROPERTY INFORMATION:
+YOUR KNOWLEDGE BASE — use ONLY this information to answer:
+
+PROPERTY:
 ${getLocalizedText(property.description, language) || 'N/A'}
 ${intelligenceSection}
 ${hostInfo}
@@ -958,19 +1068,15 @@ MANUAL ZONES:
 ${zonesContent || 'No zones available'}
 ${EMERGENCY_KNOWLEDGE}
 
-RESPONSE STYLE:
-- CRITICAL: Detect the language the user writes in and ALWAYS respond in that SAME language. If they write in English, respond in English. If in Spanish, respond in Spanish. If in French, respond in French. If in any other language, respond in that language.
-- Be a friendly, approachable host — as if chatting on WhatsApp with your guest
-- Use **bold** to highlight important info (names, key data, steps)
-- Use bullet lists with - when listing things
-- Format links as [text](url) when relevant
-- Be brief and direct (max 2-3 short paragraphs)
-- Use occasional emojis to be friendly (📍🏠✅ etc.)
-- Search all relevant zones to give the best answer
-- IMPORTANT: If a step has an image (📷), include it with markdown ![description](url). If it has a video (📹), include the link as [🎬 Video](url)
-- If you don't have the info, kindly suggest contacting the host
-- Don't make up information
-- Remember previous conversation context for coherent answers`;
+CRITICAL RULES:
+1. LANGUAGE: Detect the language the user writes in and ALWAYS respond in that SAME language.
+2. ANSWER FROM DATA: Your answers MUST come from the knowledge base above. Quote specific details (WiFi name, codes, locations, times, step-by-step instructions).
+3. MEDIA: When a step has 📷 (image) or 📹 (video), ALWAYS include it in your answer using markdown: ![description](url) for images, [🎬 Ver vídeo](url) for videos. This is very important — guests need visual guides.
+4. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions, etc., list the actual places from the manual with their name, rating (★), distance, and walk time.
+5. SEARCH ALL ZONES: Look through ALL zones to find the most relevant information for each question.
+6. STYLE: Be friendly and direct like a WhatsApp chat. Use **bold** for key info. Use bullet lists with -. Max 3 short paragraphs. Use emojis sparingly (📍🏠✅☕🍽️).
+7. HONESTY: If the info isn't in your knowledge base, say so and suggest contacting the host.
+8. NEVER invent information not present in the knowledge base above.`;
 
   return prompt;
 }

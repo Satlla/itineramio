@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
 
 // TEMP: Restrict chatbot to specific host emails during beta
-const ALLOWED_HOST_EMAILS = ['alejandrosatlla@gmail.com', 'system-demo@itineramio.com']
+const ALLOWED_HOST_EMAILS = ['alejandrosatlla@gmail.com', 'system-demo@itineramio.com', 'colaboracionesbnb@gmail.com']
 
 export async function POST(request: NextRequest) {
   try {
