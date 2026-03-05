@@ -81,7 +81,7 @@ export function PendingSettlementsSection({ year, month }: Props) {
 
       if (response.ok) {
         const data = await response.json()
-        console.log('[PendingSettlements] Data received:', data)
+        console.log('[PendingSettlements] year:', year, 'month:', month, 'totalPending:', data.totalPending, 'owners:', data.owners?.length, '_debug:', data._debug)
         setPendingData(data)
       } else {
         const errorText = await response.text()
