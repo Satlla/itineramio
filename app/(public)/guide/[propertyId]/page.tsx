@@ -41,6 +41,7 @@ import {
   Sun
 } from 'lucide-react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { useParams, useRouter } from 'next/navigation'
 import { Button } from '../../../../src/components/ui/Button'
 import { Card } from '../../../../src/components/ui/Card'
@@ -48,12 +49,14 @@ import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLo
 import { ZONE_ICONS } from '../../../../src/data/zoneIcons'
 import { getZoneIconByName } from '../../../../src/data/zoneIconsExtended'
 import { ShareLanguageModal } from '../../../../src/components/ui/ShareLanguageModal'
-import ChatBot from '../../../../src/components/ui/ChatBot'
-import DemoCountdownBanner from '../../../../src/components/ui/DemoCountdownBanner'
-import DemoShareModal from '../../../../src/components/demo/DemoShareModal'
-import DemoExitIntent from '../../../../src/components/demo/DemoExitIntent'
-import DemoInlineFeedback from '../../../../src/components/demo/DemoInlineFeedback'
-import DemoGuidedTour from '../../../../src/components/demo/DemoGuidedTour'
+
+// Lazy-loaded heavy components
+const ChatBot = dynamic(() => import('../../../../src/components/ui/ChatBot'), { ssr: false })
+const DemoCountdownBanner = dynamic(() => import('../../../../src/components/ui/DemoCountdownBanner'), { ssr: false })
+const DemoShareModal = dynamic(() => import('../../../../src/components/demo/DemoShareModal'), { ssr: false })
+const DemoExitIntent = dynamic(() => import('../../../../src/components/demo/DemoExitIntent'), { ssr: false })
+const DemoInlineFeedback = dynamic(() => import('../../../../src/components/demo/DemoInlineFeedback'), { ssr: false })
+const DemoGuidedTour = dynamic(() => import('../../../../src/components/demo/DemoGuidedTour'), { ssr: false })
 
 interface Property {
   id: string

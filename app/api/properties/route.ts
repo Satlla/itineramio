@@ -537,43 +537,58 @@ export async function GET(request: NextRequest) {
       }
     })
     
-    const total = await prisma.property.count({ where })
-
-    // Get zones count, steps count, and video count for all properties in one query
+    // Run total count in parallel with property fetch is not possible (already fetched above)
+    // But we can parallelize all the enrichment queries
     const propertyIds = properties.map(p => p.id)
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
 
-    const zoneCounts = await prisma.$queryRaw`
-      SELECT
-        z."propertyId",
-        COUNT(DISTINCT z.id) as "zonesCount",
-        COUNT(DISTINCT s.id) as "stepsCount",
-        COUNT(DISTINCT CASE WHEN s.type = 'video' THEN s.id END) as "videosCount"
-      FROM zones z
-      LEFT JOIN steps s ON s."zoneId" = z.id
-      WHERE z."propertyId" = ANY(${propertyIds})
-      GROUP BY z."propertyId"
-    ` as Array<{ propertyId: string; zonesCount: bigint; stepsCount: bigint; videosCount: bigint }>
+    const [total, zoneCounts, analytics, timeSavedData, chatbotCounts] = await Promise.all([
+      prisma.property.count({ where }),
 
-    // Get analytics for all properties
-    const analytics = await prisma.$queryRaw`
-      SELECT "propertyId", "totalViews", "overallRating", "uniqueVisitors", "whatsappClicks"
-      FROM property_analytics
-      WHERE "propertyId" = ANY(${propertyIds})
-    ` as Array<{ propertyId: string; totalViews: number; overallRating: number; uniqueVisitors: number; whatsappClicks: number }>
+      // Get zones count, steps count, and video count for all properties in one query
+      prisma.$queryRaw`
+        SELECT
+          z."propertyId",
+          COUNT(DISTINCT z.id) as "zonesCount",
+          COUNT(DISTINCT s.id) as "stepsCount",
+          COUNT(DISTINCT CASE WHEN s.type = 'video' THEN s.id END) as "videosCount"
+        FROM zones z
+        LEFT JOIN steps s ON s."zoneId" = z.id
+        WHERE z."propertyId" = ANY(${propertyIds})
+        GROUP BY z."propertyId"
+      ` as Promise<Array<{ propertyId: string; zonesCount: bigint; stepsCount: bigint; videosCount: bigint }>>,
 
-    // Get time saved per property based on zone views (excluding host views)
-    // Each zone view contributes time based on the zone's icon type
-    const timeSavedData = await prisma.$queryRaw`
-      SELECT
-        z."propertyId",
-        z.icon,
-        COUNT(zv.id) as "viewCount"
-      FROM zones z
-      LEFT JOIN zone_views zv ON zv."zoneId" = z.id
-        AND (zv."isHostView" = false OR zv."isHostView" IS NULL)
-      WHERE z."propertyId" = ANY(${propertyIds})
-      GROUP BY z."propertyId", z.icon
-    ` as Array<{ propertyId: string; icon: string; viewCount: bigint }>
+      // Get analytics for all properties
+      prisma.$queryRaw`
+        SELECT "propertyId", "totalViews", "overallRating", "uniqueVisitors", "whatsappClicks"
+        FROM property_analytics
+        WHERE "propertyId" = ANY(${propertyIds})
+      ` as Promise<Array<{ propertyId: string; totalViews: number; overallRating: number; uniqueVisitors: number; whatsappClicks: number }>>,
+
+      // Get time saved per property based on zone views (excluding host views)
+      prisma.$queryRaw`
+        SELECT
+          z."propertyId",
+          z.icon,
+          COUNT(zv.id) as "viewCount"
+        FROM zones z
+        LEFT JOIN zone_views zv ON zv."zoneId" = z.id
+          AND (zv."isHostView" = false OR zv."isHostView" IS NULL)
+        WHERE z."propertyId" = ANY(${propertyIds})
+        GROUP BY z."propertyId", z.icon
+      ` as Promise<Array<{ propertyId: string; icon: string; viewCount: bigint }>>,
+
+      // Get chatbot conversation counts per property (current month)
+      propertyIds.length > 0 ? prisma.$queryRaw`
+        SELECT "propertyId", COUNT(*)::int as "count"
+        FROM chatbot_conversations
+        WHERE "propertyId" = ANY(${propertyIds})
+          AND "createdAt" >= ${monthStart}
+        GROUP BY "propertyId"
+      ` as Promise<Array<{ propertyId: string; count: number }>> : Promise.resolve([] as Array<{ propertyId: string; count: number }>)
+    ])
+    const chatbotCountMap = new Map(chatbotCounts.map(c => [c.propertyId, c.count]))
 
     // Calculate time saved per property
     const timeSavedMap = new Map<string, number>()
@@ -583,18 +598,6 @@ export async function GET(request: NextRequest) {
       const current = timeSavedMap.get(row.propertyId) || 0
       timeSavedMap.set(row.propertyId, current + timeSaved)
     })
-
-    // Get chatbot conversation counts per property (current month)
-    const now = new Date()
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-    const chatbotCounts = propertyIds.length > 0 ? await prisma.$queryRaw`
-      SELECT "propertyId", COUNT(*)::int as "count"
-      FROM chatbot_conversations
-      WHERE "propertyId" = ANY(${propertyIds})
-        AND "createdAt" >= ${monthStart}
-      GROUP BY "propertyId"
-    ` as Array<{ propertyId: string; count: number }> : []
-    const chatbotCountMap = new Map(chatbotCounts.map(c => [c.propertyId, c.count]))
 
     // Create lookup maps
     const zoneCountMap = new Map(zoneCounts.map(z => [z.propertyId, {

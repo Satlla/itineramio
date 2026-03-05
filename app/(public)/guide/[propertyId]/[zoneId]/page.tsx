@@ -14,7 +14,8 @@ import { Badge } from '../../../../../src/components/ui/Badge'
 import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/AnimatedLoadingSpinner'
 import { ShareLanguageModal } from '../../../../../src/components/ui/ShareLanguageModal'
 import { TextToSpeech } from '../../../../../src/components/ui/TextToSpeech'
-import ChatBot from '../../../../../src/components/ui/ChatBot'
+import dynamic from 'next/dynamic'
+const ChatBot = dynamic(() => import('../../../../../src/components/ui/ChatBot'), { ssr: false })
 import { RecommendationZone } from '../../../../../src/components/ui/RecommendationZone'
 import type { RecommendationData } from '../../../../../src/components/ui/RecommendationCard'
 

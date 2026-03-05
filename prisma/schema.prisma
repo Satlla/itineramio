@@ -251,6 +251,7 @@ model Property {
 
   @@index([slug])
   @@index([hostId, deletedAt])
+  @@index([isPublished, deletedAt])
   @@map("properties")
 }
 
@@ -493,6 +494,8 @@ model buildings {
   organizations  organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   properties     Property[]
   zones          Zone[]
+
+  @@index([organizationId])
 }
 
 model organization_members {
@@ -506,6 +509,7 @@ model organization_members {
   users          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, userId])
+  @@index([userId])
 }
 
 model organizations {
@@ -589,6 +593,7 @@ model UserSubscription {
   plan                 SubscriptionPlan? @relation(fields: [planId], references: [id])
   user                 User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId, status])
   @@map("user_subscriptions")
 }
 
@@ -2967,6 +2972,8 @@ model Place {
   updatedAt       DateTime         @updatedAt
   recommendations Recommendation[]
 
+  @@index([source])
+  @@index([latitude, longitude])
   @@map("places")
 }
 

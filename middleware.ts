@@ -155,6 +155,6 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|public|login|register|admin).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|public|login|register|admin|guide).*)',
   ],
 }
