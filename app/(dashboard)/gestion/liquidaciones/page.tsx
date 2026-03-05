@@ -219,7 +219,10 @@ export default function LiquidacionesPage() {
           </motion.div>
 
           {/* Pending Settlements Section */}
-          <PendingSettlementsSection />
+          <PendingSettlementsSection
+            year={selectedYear}
+            month={selectedMonth || new Date().getMonth() + 1}
+          />
 
           {/* Filters */}
           <motion.div

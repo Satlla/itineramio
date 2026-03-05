@@ -50,27 +50,29 @@ const MONTHS = [
   'july', 'august', 'september', 'october', 'november', 'december'
 ]
 
-export function PendingSettlementsSection() {
+interface Props {
+  year: number
+  month: number
+}
+
+export function PendingSettlementsSection({ year, month }: Props) {
   const { t } = useTranslation('gestion')
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [pendingData, setPendingData] = useState<PendingData | null>(null)
 
-  const currentYear = new Date().getFullYear()
-  const currentMonth = new Date().getMonth() + 1
-
   useEffect(() => {
     fetchPendingData()
-  }, [])
+  }, [year, month])
 
   const fetchPendingData = async () => {
     try {
       setLoading(true)
       setError(null)
       const params = new URLSearchParams({
-        year: currentYear.toString(),
-        month: currentMonth.toString()
+        year: year.toString(),
+        month: month.toString()
       })
 
       const response = await fetch(`/api/gestion/reservations/pending?${params}`, {
@@ -102,7 +104,7 @@ export function PendingSettlementsSection() {
   }
 
   const handleOwnerClick = (ownerId: string) => {
-    router.push(`/gestion/liquidaciones/nueva?ownerId=${ownerId}&year=${currentYear}&month=${currentMonth}`)
+    router.push(`/gestion/liquidaciones/nueva?ownerId=${ownerId}&year=${year}&month=${month}`)
   }
 
   // Show loading state
@@ -136,7 +138,7 @@ export function PendingSettlementsSection() {
     return null
   }
 
-  const monthName = t(`common.months.${MONTHS[currentMonth - 1]}`)
+  const monthName = t(`common.months.${MONTHS[month - 1]}`)
 
   return (
     <motion.div
