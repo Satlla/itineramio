@@ -38,6 +38,8 @@ interface OwnerGroup {
 interface PendingData {
   owners: OwnerGroup[]
   totalPending: number
+  totalAmount: number
+  otherMonthsPending: number
   daysInMonth: number
   year: number
   month: number
@@ -200,6 +202,13 @@ export function PendingSettlementsSection() {
               )
             })}
           </div>
+
+          {/* Other months notice */}
+          {pendingData.otherMonthsPending > 0 && (
+            <p className="mt-3 text-xs text-gray-500 text-center">
+              {t('settlements.pending.otherMonths', { count: pendingData.otherMonthsPending })}
+            </p>
+          )}
         </CardContent>
       </Card>
     </motion.div>

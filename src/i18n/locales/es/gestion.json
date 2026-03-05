@@ -886,7 +886,8 @@
       "expenses": "Gastos",
       "generateSettlement": "Generar liquidación",
       "reservations": "reservas",
-      "nights": "noches"
+      "nights": "noches",
+      "otherMonths": "Hay {{count}} reserva(s) pendiente(s) de otros meses"
     }
   },
   "billing": {

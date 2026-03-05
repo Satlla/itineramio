@@ -886,7 +886,8 @@
       "expenses": "Expenses",
       "generateSettlement": "Generate settlement",
       "reservations": "reservations",
-      "nights": "nights"
+      "nights": "nights",
+      "otherMonths": "There are {{count}} pending reservation(s) from other months"
     }
   },
   "billing": {

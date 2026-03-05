@@ -21,6 +21,15 @@
     },
     "app/api/chatbot/route.ts": {
       "maxDuration": 60
+    },
+    "app/api/gestion/reservations/import-universal/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/gestion/reservations/import-smart/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/gestion/reservations/import-csv/route.ts": {
+      "maxDuration": 60
     }
   },
   "crons": [

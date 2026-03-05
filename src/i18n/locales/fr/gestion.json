@@ -718,7 +718,7 @@
     "generate": {
       "title": "Générer une facture",
       "selectedReservations": "{{count}} réservations sélectionnées",
-      "invalidParams": "Paramètres invalides",
+      "invalidParams": "Paramètrès invalides",
       "noReservationsFound": "Réservations sélectionnées non trouvées",
       "loadError": "Erreur lors du chargement des données",
       "noOwnerAssigned": "Aucun propriétaire assigné à cette propriété",
@@ -886,7 +886,8 @@
       "expenses": "Dépenses",
       "generateSettlement": "Générer le règlement",
       "reservations": "réservations",
-      "nights": "nuits"
+      "nights": "nuits",
+      "otherMonths": "Il y a {{count}} réservation(s) en attente d'autres mois"
     }
   },
   "billing": {
@@ -1315,7 +1316,7 @@
       "commissionPct": "(-) Commission de gestion ({{rate}}%)",
       "commissionFixed": "(-) Commission de gestion (fixe)",
       "vatCommission": "(-) TVA sur commission ({{rate}}%)",
-      "cleaning": "(-) Nettoyage ({{detail}})",
+      "cleaning": "(-) Nettoyage ({{détail}})",
       "cleaningPerReservation": "{{value}}€/réservation × {{count}}",
       "cleaningPerNight": "{{value}}€/nuit × {{nights}}",
       "expenses": "(-) Frais refacturables",
