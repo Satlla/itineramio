@@ -6,17 +6,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   MessageCircle,
   X,
-  Send,
   Bot,
   User,
-  Phone,
   ChevronDown,
   AlertCircle,
   Loader2,
   Minimize2,
   Maximize2,
-  Mail
 } from 'lucide-react'
+import { ChatBubble } from './chatbot/ChatBubble'
+import { ChatInput } from './chatbot/ChatInput'
+import { ChatDemoBanner } from './chatbot/ChatDemoBanner'
+import { ChatEmailOverlay } from './chatbot/ChatEmailOverlay'
 
 interface MediaItem {
   type: 'IMAGE' | 'VIDEO'
@@ -208,7 +209,7 @@ export default function ChatBot({
   const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
   const [showWelcomeBubble, setShowWelcomeBubble] = useState(false)
-  const [dismissingBubble, setDismissingBubble] = useState(false)
+  // dismissingBubble moved to ChatBubble component
   const chatButtonRef = useRef<HTMLButtonElement>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [currentMessage, setCurrentMessage] = useState('')
@@ -223,11 +224,7 @@ export default function ChatBot({
   const [showEmailOverlay, setShowEmailOverlay] = useState(false)
   const [emailCollected, setEmailCollected] = useState(false)
   const [emailDismissed, setEmailDismissed] = useState(false)
-  const [emailInput, setEmailInput] = useState('')
-  const [nameInput, setNameInput] = useState('')
-  const [emailSubmitting, setEmailSubmitting] = useState(false)
-  const [emailError, setEmailError] = useState(false)
-  const [emailSuccess, setEmailSuccess] = useState(false)
+  // emailInput, nameInput, emailSubmitting, emailError, emailSuccess moved to ChatEmailOverlay
 
   // Session tracking — restore from localStorage if available
   const storageKey = `chatbot-${propertyId}${zoneId ? `-${zoneId}` : ''}`
@@ -366,14 +363,6 @@ export default function ChatBot({
     setShowFAQs(true)
   }
 
-  const handleDismissWelcome = () => {
-    setDismissingBubble(true)
-    setTimeout(() => {
-      setShowWelcomeBubble(false)
-      setDismissingBubble(false)
-    }, 500)
-  }
-
   const handleWelcomeSuggestion = (suggestion: string) => {
     setShowWelcomeBubble(false)
     setIsOpen(true)
@@ -404,45 +393,6 @@ export default function ChatBot({
     setIsMinimized(!isMinimized)
   }
 
-  const handleEmailSubmit = async () => {
-    if (!emailInput.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput)) return
-
-    setEmailSubmitting(true)
-    setEmailError(false)
-
-    try {
-      const res = await fetch('/api/chatbot/collect-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: emailInput.trim(),
-          name: nameInput.trim() || undefined,
-          propertyId,
-          sessionId: sessionIdRef.current,
-          language: lang
-        })
-      })
-
-      if (!res.ok) throw new Error('Failed')
-
-      setEmailCollected(true)
-      setEmailSuccess(true)
-      setTimeout(() => {
-        setShowEmailOverlay(false)
-        setEmailSuccess(false)
-      }, 2000)
-    } catch {
-      setEmailError(true)
-    } finally {
-      setEmailSubmitting(false)
-    }
-  }
-
-  const handleEmailDismiss = () => {
-    setEmailDismissed(true)
-    setShowEmailOverlay(false)
-  }
-
   const sendMessage = async (overrideMessage?: string) => {
     const messageText = overrideMessage || currentMessage.trim()
     if (!messageText || isLoading) return
@@ -471,6 +421,10 @@ export default function ChatBot({
     }
     setMessages(prev => [...prev, typingMessage])
 
+    // Abort after 55s to prevent hanging forever in production
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 55000)
+
     try {
       const body: Record<string, any> = {
         message: userMessage.content,
@@ -484,10 +438,6 @@ export default function ChatBot({
       // Only send zoneId/zoneName when available
       if (zoneId) body.zoneId = zoneId
       if (zoneName) body.zoneName = zoneName
-
-      // Abort after 55s to prevent hanging forever in production
-      const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), 55000)
 
       const response = await fetch('/api/chatbot', {
         method: 'POST',
@@ -832,65 +782,16 @@ export default function ChatBot({
       {/* Welcome Bubble */}
       <AnimatePresence>
         {showWelcomeBubble && !isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={dismissingBubble
-              ? { opacity: 0, scale: 0.2, x: 0, y: 40 }
-              : { opacity: 1, y: 0, scale: 1 }
-            }
-            exit={{ opacity: 0, scale: 0.2, y: 40 }}
-            transition={{ duration: dismissingBubble ? 0.4 : 0.3, ease: 'easeOut' }}
-            className={`fixed z-50 ${className ? className.replace(/bottom-\d+/, 'bottom-40').replace(/sm:bottom-\d+/, 'sm:bottom-28') : 'bottom-40 right-4 sm:bottom-28 sm:right-6'}`}
-            style={{ maxWidth: '320px', width: 'calc(100vw - 32px)' }}
-          >
-            <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
-              {/* Header */}
-              <div className="bg-black text-white px-4 py-3 flex items-center gap-3">
-                <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-4 h-4" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[9px] text-white/40 font-semibold uppercase tracking-wider">{t('header', lang)}</p>
-                  <p className="text-sm font-medium truncate">{propertyName}</p>
-                </div>
-              </div>
-
-              {/* Message */}
-              <div className="px-4 py-3">
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  {t('welcomeBubble', lang, { propertyName })}
-                </p>
-              </div>
-
-              {/* Suggestion chips */}
-              <div className="px-4 pb-3 flex flex-wrap gap-1.5">
-                {t('welcomeBubbleSuggestions', lang).split('|').map((suggestion, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleWelcomeSuggestion(suggestion)}
-                    className="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 hover:bg-violet-100 hover:text-violet-700 transition-colors"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
-
-              {/* Dismiss */}
-              <div className="px-4 pb-3">
-                <button
-                  onClick={handleDismissWelcome}
-                  className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  {t('welcomeBubbleDismiss', lang)}
-                </button>
-              </div>
-            </div>
-
-            {/* Arrow pointing to chat button */}
-            <div className="flex justify-end mr-5 -mt-px">
-              <div className="w-3 h-3 bg-white border-b border-r border-gray-100 rotate-45 translate-y-[-6px]" />
-            </div>
-          </motion.div>
+          <ChatBubble
+            propertyName={propertyName}
+            welcomeText={t('welcomeBubble', lang, { propertyName })}
+            suggestions={t('welcomeBubbleSuggestions', lang).split('|')}
+            dismissText={t('welcomeBubbleDismiss', lang)}
+            headerText={t('header', lang)}
+            className={className ? className.replace(/bottom-\d+/, 'bottom-40').replace(/sm:bottom-\d+/, 'sm:bottom-28') : 'bottom-40 right-4 sm:bottom-28 sm:right-6'}
+            onSuggestionClick={handleWelcomeSuggestion}
+            onDismiss={() => setShowWelcomeBubble(false)}
+          />
         )}
       </AnimatePresence>
 
@@ -1101,128 +1002,49 @@ export default function ChatBot({
                   {/* Demo Conversion Banner */}
                   <AnimatePresence>
                     {isDemoMode && showDemoBanner && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20 }}
-                        className="sticky bottom-0 bg-violet-50 border border-violet-200 rounded-xl p-3 mx-1 mb-1 shadow-sm z-10"
-                      >
-                        <p className="text-xs text-gray-700 mb-2 leading-relaxed">
-                          {t('demoBannerText', lang)}
-                        </p>
-                        <a
-                          href={`/register?from=demo&utm_source=chatbot`}
-                          className="block w-full text-center py-2 px-3 bg-black text-white text-xs font-semibold rounded-lg hover:bg-gray-800 transition-colors"
-                        >
-                          {t('demoBannerCta', lang)}
-                        </a>
-                      </motion.div>
+                      <ChatDemoBanner
+                        text={t('demoBannerText', lang)}
+                        ctaText={t('demoBannerCta', lang)}
+                      />
                     )}
                   </AnimatePresence>
 
                   {/* Email Collection Banner (non-blocking) */}
                   <AnimatePresence>
                     {showEmailOverlay && !emailCollected && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20 }}
-                        className="sticky bottom-0 bg-gray-50 border border-gray-200 rounded-xl p-3 mx-1 mb-1 shadow-sm z-10"
-                      >
-                        {emailSuccess ? (
-                          <p className="text-sm text-center text-green-600 font-medium py-1">
-                            {t('emailSuccess', lang)}
-                          </p>
-                        ) : (
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
-                              <Mail className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                              <p className="text-xs text-gray-600 font-medium">
-                                {t('emailPrompt', lang)}
-                              </p>
-                            </div>
-                            <div className="flex space-x-2">
-                              <input
-                                type="email"
-                                value={emailInput}
-                                onChange={(e) => setEmailInput(e.target.value)}
-                                placeholder={t('emailPlaceholder', lang)}
-                                className="flex-1 min-w-0 px-2.5 py-2 border border-gray-200 rounded-lg text-xs focus:ring-1 focus:ring-black/5 focus:border-gray-300 transition-colors"
-                              />
-                              <input
-                                type="text"
-                                value={nameInput}
-                                onChange={(e) => setNameInput(e.target.value)}
-                                placeholder={t('namePlaceholder', lang)}
-                                className="flex-1 min-w-0 px-2.5 py-2 border border-gray-200 rounded-lg text-xs focus:ring-1 focus:ring-black/5 focus:border-gray-300 transition-colors"
-                              />
-                            </div>
-                            {emailError && (
-                              <p className="text-xs text-red-500">{t('emailError', lang)}</p>
-                            )}
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={handleEmailSubmit}
-                                disabled={emailSubmitting || !emailInput.trim()}
-                                className="flex-1 px-3 py-2 bg-black text-white text-xs rounded-lg hover:bg-gray-800 disabled:opacity-30 transition-colors"
-                              >
-                                {emailSubmitting ? (
-                                  <Loader2 className="w-3 h-3 animate-spin mx-auto" />
-                                ) : (
-                                  t('emailSubmit', lang)
-                                )}
-                              </button>
-                              <button
-                                onClick={handleEmailDismiss}
-                                className="px-3 py-2 text-gray-400 text-xs hover:text-gray-600 transition-colors"
-                              >
-                                {t('emailSkip', lang)}
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </motion.div>
+                      <ChatEmailOverlay
+                        propertyId={propertyId}
+                        sessionId={sessionIdRef.current}
+                        lang={lang}
+                        translations={{
+                          success: t('emailSuccess', lang),
+                          prompt: t('emailPrompt', lang),
+                          emailPlaceholder: t('emailPlaceholder', lang),
+                          namePlaceholder: t('namePlaceholder', lang),
+                          error: t('emailError', lang),
+                          submit: t('emailSubmit', lang),
+                          skip: t('emailSkip', lang),
+                        }}
+                        onCollected={() => { setEmailCollected(true); setShowEmailOverlay(false) }}
+                        onDismiss={() => { setEmailDismissed(true); setShowEmailOverlay(false) }}
+                      />
                     )}
                   </AnimatePresence>
                 </div>
 
                 {/* Input */}
-                <div className="border-t border-gray-100 px-4 py-3">
-                  <div className="flex items-center space-x-2">
-                    <div className="flex-1 relative">
-                      <input
-                        ref={inputRef}
-                        type="text"
-                        value={currentMessage}
-                        onChange={(e) => setCurrentMessage(e.target.value.slice(0, 500))}
-                        maxLength={500}
-                        onKeyDown={handleKeyPress}
-                        placeholder={t('placeholder', lang)}
-                        disabled={isLoading}
-                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black/5 focus:border-gray-300 text-sm disabled:opacity-50 transition-colors placeholder:text-gray-400"
-                      />
-                    </div>
-                    <button
-                      onClick={sendMessage}
-                      disabled={!currentMessage.trim() || isLoading}
-                      className="p-2.5 bg-black text-white rounded-xl hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    >
-                      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                    </button>
-                  </div>
-
-                  {hostContact?.phone && (
-                    <div className="mt-2 flex justify-center">
-                      <button
-                        onClick={handleWhatsApp}
-                        className="flex items-center space-x-1 text-[11px] text-gray-400 hover:text-green-600 transition-colors"
-                      >
-                        <Phone className="w-3 h-3" />
-                        <span>{t('contactWhatsApp', lang)}</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <ChatInput
+                  value={currentMessage}
+                  onChange={setCurrentMessage}
+                  onSend={sendMessage}
+                  onKeyDown={handleKeyPress}
+                  isLoading={isLoading}
+                  placeholder={t('placeholder', lang)}
+                  inputRef={inputRef}
+                  hostPhone={hostContact?.phone}
+                  onWhatsAppClick={handleWhatsApp}
+                  whatsAppLabel={t('contactWhatsApp', lang)}
+                />
               </>
             )}
           </motion.div>
