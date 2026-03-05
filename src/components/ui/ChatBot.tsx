@@ -672,10 +672,14 @@ export default function ChatBot({
       if (zoneId) body.zoneId = zoneId
       if (zoneName) body.zoneName = zoneName
 
+      const faqController = new AbortController()
+      const faqTimeout = setTimeout(() => faqController.abort(), 55000)
+
       fetch('/api/chatbot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
+        signal: faqController.signal,
       }).then(async (response) => {
         if (response.status === 429) throw new Error('rate_limited')
         if (!response.ok) throw new Error('api_error')
@@ -753,6 +757,7 @@ export default function ChatBot({
           }]
         })
       }).finally(() => {
+        clearTimeout(faqTimeout)
         setIsLoading(false)
       })
     }, 0)

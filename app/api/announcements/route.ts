@@ -179,14 +179,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// OPTIONS for CORS
+// OPTIONS for CORS - same-origin only (endpoint used from dashboard)
 export async function OPTIONS() {
-  return new Response(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  })
+  return new Response(null, { status: 204 })
 }

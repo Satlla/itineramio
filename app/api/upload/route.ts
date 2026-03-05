@@ -239,7 +239,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: `Error al subir archivo: ${blobError instanceof Error ? blobError.message : 'Error desconocido'}. Intenta nuevamente o usa una imagen más pequeña.`,
-            details: blobError instanceof Error ? blobError.stack : undefined
+            details: blobError instanceof Error ? blobError.message : undefined
           },
           { status: 500 }
         )

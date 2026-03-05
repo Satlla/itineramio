@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAuth } from '../../../src/lib/auth'
 
 // Route configuration for large file uploads
 export const maxDuration = 60 // 60 seconds timeout
@@ -7,6 +8,9 @@ export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAuth(request)
+    if (auth instanceof Response) return auth
+
     console.log('🔥 Large upload endpoint called')
     
     const data = await request.formData()

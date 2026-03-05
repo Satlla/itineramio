@@ -484,8 +484,7 @@ export async function PUT(
       { 
         success: false, 
         error: 'Error al guardar los pasos',
-        details: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
+        details: error instanceof Error ? error.message : String(error)
       },
       { status: 500 }
     )

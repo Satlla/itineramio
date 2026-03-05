@@ -1,9 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
 import { signAdminToken, validateAdminPassword } from '../../../../../src/lib/admin-auth'
+import { checkRateLimit, getRateLimitKey } from '../../../../../src/lib/rate-limit'
+
+const ADMIN_LOGIN_RATE_LIMIT = { maxRequests: 5, windowMs: 60 * 1000 }
 
 export async function POST(request: NextRequest) {
   try {
+    const rateLimitKey = getRateLimitKey(request, null, 'admin-login')
+    const rateLimitResult = checkRateLimit(rateLimitKey, ADMIN_LOGIN_RATE_LIMIT)
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json({
+        error: 'Demasiados intentos. Intenta de nuevo en un minuto.'
+      }, {
+        status: 429,
+        headers: { 'Retry-After': String(Math.ceil(rateLimitResult.resetIn / 1000)) }
+      })
+    }
+
     const { email, password } = await request.json()
 
     if (!email || !password) {
