@@ -245,15 +245,28 @@ export async function GET(request: NextRequest) {
     ownersWithPending.sort((a, b) => b.totals.netEarnings - a.totals.netEarnings)
     const totalPending = ownersWithPending.reduce((sum, o) => sum + o.totals.count, 0)
 
-    return NextResponse.json({
+    const response = {
       owners: ownersWithPending,
       totalPending,
       totalAmount: Math.round(ownersWithPending.reduce((sum, o) => sum + o.totals.netEarnings, 0) * 100) / 100,
       otherMonthsPending: otherMonthCount,
       daysInMonth,
       year: yearParam ? parseInt(yearParam) : null,
-      month: monthParam ? parseInt(monthParam) : null
-    })
+      month: monthParam ? parseInt(monthParam) : null,
+      _debug: {
+        ownerCount: owners.length,
+        unitsWithOwner: allUnits.length,
+        groups: allGroups.length,
+        configs: allConfigs.length,
+        allBillingUnitIds,
+        allBillingConfigIds,
+        unitReservationsCount: unitReservations.length,
+        configReservationsCount: configReservations.length,
+        dateFilter: { startDate, endDate }
+      }
+    }
+    console.log('[pending] response:', JSON.stringify(response._debug))
+    return NextResponse.json(response)
   } catch (error) {
     console.error('Error fetching pending reservations:', error)
     return NextResponse.json(
