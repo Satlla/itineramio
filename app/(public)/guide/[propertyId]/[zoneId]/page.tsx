@@ -473,6 +473,36 @@ const trackWhatsAppClick = async (propertyId: string) => {
   }
 }
 
+const trackCallClick = async (propertyId: string) => {
+  try {
+    await fetch('/api/analytics/track-interaction', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        propertyId,
+        interactionType: 'call_click'
+      })
+    })
+  } catch (error) {
+    console.error('Error tracking call click:', error)
+  }
+}
+
+const trackEmailClick = async (propertyId: string) => {
+  try {
+    await fetch('/api/analytics/track-interaction', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        propertyId,
+        interactionType: 'email_click'
+      })
+    })
+  } catch (error) {
+    console.error('Error tracking email click:', error)
+  }
+}
+
 const trackZoneRated = async (propertyId: string, zoneId: string, rating: number, comment?: string, isPublic: boolean = false) => {
   try {
     // Use the proper evaluations endpoint that saves to database
@@ -944,6 +974,7 @@ export default function ZoneGuidePage({
             recommendations={zone.recommendations}
             language={language}
             darkMode={false}
+            propertyId={propertyId}
           />
 
           {/* Footer */}
@@ -1445,7 +1476,7 @@ export default function ZoneGuidePage({
                   </div>
                   <Button
                     size="sm"
-                    onClick={() => window.open(`tel:${property.hostContactPhone}`, '_self')}
+                    onClick={() => { trackCallClick(propertyId); window.open(`tel:${property.hostContactPhone}`, '_self') }}
                     className="bg-blue-600 hover:bg-blue-700"
                   >
                     {t('call', language)}
@@ -1473,7 +1504,7 @@ export default function ZoneGuidePage({
                   </div>
                   <Button
                     size="sm"
-                    onClick={() => window.open(`mailto:${property.hostContactEmail}`, '_self')}
+                    onClick={() => { trackEmailClick(propertyId); window.open(`mailto:${property.hostContactEmail}`, '_self') }}
                     className="bg-purple-600 hover:bg-purple-700"
                   >
                     {t('email', language)}

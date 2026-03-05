@@ -39,7 +39,7 @@
     "videosTitle": "Vidéos",
     "totalViews": "Vues totales",
     "averageRating": "Note moyenne",
-    "active": "Active",
+    "active": "Activé",
     "inactive": "Inactive",
     "published": "Publiée",
     "unpublished": "Non publiée",
@@ -112,7 +112,7 @@
     "properties": "Propriétés",
     "analytics": "Statistiques",
     "media": "Médias",
-    "settings": "Paramètres",
+    "settings": "Paramètrès",
     "billing": "Facturation",
     "support": "Support"
   },
@@ -219,7 +219,7 @@
     "bedrooms": "Chambres",
     "bathrooms": "Salles de bain",
     "maxGuests": "Invités max",
-    "squareMeters": "Mètres carrés",
+    "squareMeters": "Mètrès carrés",
     "optional": "Optionnel",
     "previous": "Précédent",
     "next": "Suivant",
@@ -326,11 +326,11 @@
     "zoneCopied": "Zone copiée",
     "zoneCopiedMessage": "Zone copiée avec succès vers {{count}} propriété",
     "zoneCopiedMessagePlural": "Zone copiée avec succès vers {{count}} propriétés",
-    "partialCopy": "Copie partielle",
+    "partialCopy": "Copié partielle",
     "partialCopyMessage": "Zone copiée vers {{success}} propriétés, {{failed}} ont échoué",
-    "errorCopying": "Erreur lors de la copie",
-    "errorCopyingMessage": "Erreur lors de la copie de la zone vers {{count}} propriété",
-    "errorCopyingMessagePlural": "Erreur lors de la copie de la zone vers {{count}} propriétés",
+    "errorCopying": "Erreur lors de la copié",
+    "errorCopyingMessage": "Erreur lors de la copié de la zone vers {{count}} propriété",
+    "errorCopyingMessagePlural": "Erreur lors de la copié de la zone vers {{count}} propriétés",
     "propertyDeleted": "Propriété supprimée",
     "propertyDeletedMessage": "\"{{name}}\" a été supprimée définitivement",
     "errorDeleting": "Erreur lors de la suppression",
@@ -403,14 +403,14 @@
       "engagement": "Engagement",
       "engagementSubtitle": "Visites explorant les zones",
       "timeInManual": "Temps dans le manuel",
-      "activeSessions": "{{count}} sessions actives",
+      "activeSessions": "{{count}} sessions activés",
       "avgSessionDuration": "Durée moyenne de session",
       "totalInteractions": "Total des interactions",
       "zoneViews": "Vues de zones"
     },
     "timeStats": {
       "title": "Temps d'utilisation du manuel",
-      "basedOn": "Basé sur {{count}} sessions actives",
+      "basedOn": "Basé sur {{count}} sessions activés",
       "avgTime": "Temps moyen",
       "longestSession": "Session la plus longue",
       "pagesPerSession": "Pages/session"
@@ -418,7 +418,9 @@
     "charts": {
       "dailyActivity": "Activité quotidienne",
       "last14Days": "14 derniers jours",
-      "activityByDay": "Activité par jour"
+      "activityByDay": "Activité par jour",
+      "hourlyActivity": "Activité par heure",
+      "last30Days": "30 derniers jours"
     },
     "insights": {
       "mostPopular": "Zone la plus populaire",
@@ -610,8 +612,8 @@
     "mediaLibrary": "Médiathèque",
     "mediaLibraryDesc": "Gérer les images et fichiers",
     "account": "Compte",
-    "accountDesc": "Informations personnelles et paramètres",
-    "settings": "Paramètres",
+    "accountDesc": "Informations personnelles et paramètrès",
+    "settings": "Paramètrès",
     "settingsDesc": "Modifier votre profil et préférences",
     "subscriptions": "Abonnements",
     "subscriptionsDesc": "Gérer vos abonnements et factures",
@@ -622,7 +624,7 @@
     "help": "Aide",
     "helpDesc": "Centre d'aide et support",
     "privacy": "Confidentialité",
-    "privacyDesc": "Paramètres de confidentialité",
+    "privacyDesc": "Paramètrès de confidentialité",
     "language": "Langue",
     "logout": "Se déconnecter"
   },
@@ -647,7 +649,7 @@
       "activatePlan": "Activez votre plan pour continuer",
       "viewFeatures": "Voir les fonctionnalités",
       "viewPlans": "Voir les plans →",
-      "closeBar": "Fermer la barre"
+      "closeBar": "Fermer la barré"
     },
     "countdown": {
       "activateSubscription": "Activez votre abonnement",
@@ -882,7 +884,7 @@
     "confirmDeleteSingle": "Êtes-vous sûr de vouloir supprimer \"{{name}}\" ?",
     "confirmDeleteMultiple": "Êtes-vous sûr de vouloir supprimer {{count}} fichiers ?",
     "filesInUseDetected": "Fichiers en cours d'utilisation détectés !",
-    "filesInUseDescription": "{{inUse}} fichier(s) sur {{total}} sont utilisés dans des propriétés actives.",
+    "filesInUseDescription": "{{inUse}} fichier(s) sur {{total}} sont utilisés dans des propriétés activés.",
     "usageCount": "{{count}} utilisations",
     "usedIn": "Utilisé dans :",
     "usedInProperties": "Utilisé dans {{count}} propriété(s) :",
@@ -935,7 +937,7 @@
       "multilang": {
         "title": "Manuel en plusieurs langues",
         "subtitle": "Espagnol, Anglais, Français",
-        "description": "Votre manuel s'affiche automatiquement dans la langue de l'hôte. Atteignez des visiteurs du monde entier.",
+        "description": "Votre manuel s'affiché automatiquement dans la langue de l'hôte. Atteignez des visiteurs du monde entier.",
         "features": {
           "0": "Espagnol",
           "1": "Anglais",

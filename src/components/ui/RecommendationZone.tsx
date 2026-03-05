@@ -12,6 +12,7 @@ interface RecommendationZoneProps {
   recommendations: RecommendationData[]
   language?: string
   darkMode?: boolean
+  propertyId?: string
 }
 
 const translations: Record<string, Record<string, string>> = {
@@ -42,6 +43,7 @@ export function RecommendationZone({
   recommendations,
   language = 'es',
   darkMode = false,
+  propertyId,
 }: RecommendationZoneProps) {
   const sortedRecommendations = [...recommendations].sort((a, b) => a.order - b.order)
 
@@ -94,6 +96,7 @@ export function RecommendationZone({
                 index={index}
                 language={language}
                 darkMode={darkMode}
+                propertyId={propertyId}
               />
             </motion.div>
           ))}

@@ -36,6 +36,7 @@ interface RecommendationCardProps {
   index: number
   language?: string
   darkMode?: boolean
+  propertyId?: string
 }
 
 function formatDistance(meters?: number | null): string {
@@ -168,11 +169,24 @@ function parseOpeningStatus(openingHours: any, language: string) {
   return { isOpen, closesAt, opensNext, todayHours, openSunday, is24h, labels: l }
 }
 
+const trackRecommendationClick = (propertyId: string, placeName: string, action: string) => {
+  fetch('/api/analytics/track-interaction', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      propertyId,
+      interactionType: 'recommendation_click',
+      metadata: { placeName, action }
+    })
+  }).catch(() => {})
+}
+
 export function RecommendationCard({
   recommendation,
   index,
   language = 'es',
   darkMode = false,
+  propertyId,
 }: RecommendationCardProps) {
   const place = recommendation.place
   if (!place) return null
@@ -334,6 +348,7 @@ export function RecommendationCard({
                 href={getGoogleMapsUrl(place)}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => propertyId && trackRecommendationClick(propertyId, place.name, 'maps')}
                 className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${
                   darkMode
                     ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
@@ -347,6 +362,7 @@ export function RecommendationCard({
               {place.phone && (
                 <a
                   href={`tel:${place.phone}`}
+                  onClick={() => propertyId && trackRecommendationClick(propertyId, place.name, 'call')}
                   className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${
                     darkMode
                       ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
@@ -363,6 +379,7 @@ export function RecommendationCard({
                   href={place.website}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => propertyId && trackRecommendationClick(propertyId, place.name, 'website')}
                   className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${
                     darkMode
                       ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'

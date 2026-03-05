@@ -4,7 +4,7 @@ import { prisma } from '../../../../src/lib/prisma'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { propertyId, zoneId, interactionType, duration, stepIndex, totalSteps } = body
+    const { propertyId, zoneId, interactionType, duration, stepIndex, totalSteps, metadata: extraMetadata } = body
 
     if (!propertyId || !interactionType) {
       return NextResponse.json({
@@ -71,6 +71,9 @@ export async function POST(request: NextRequest) {
       case 'qr_download':
         // QR download tracked via TrackingEvent, no dedicated counter in analytics
         break
+      case 'recommendation_click':
+        // Recommendation interaction tracked via TrackingEvent
+        break
       case 'session_complete':
         // When a session is completed, calculate proper average
         if (duration && duration > 0) {
@@ -127,7 +130,8 @@ export async function POST(request: NextRequest) {
             stepIndex,
             totalSteps,
             visitorIp,
-            isUniqueVisitor
+            isUniqueVisitor,
+            ...extraMetadata
           },
           timestamp: new Date(),
           userAgent,

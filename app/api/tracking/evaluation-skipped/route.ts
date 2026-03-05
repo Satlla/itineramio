@@ -13,23 +13,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // For now, we'll just log the skipped evaluation
-    console.log('📊 EVALUATION SKIPPED:', {
-      propertyId,
-      zoneId,
-      reason: reason || 'user_choice',
-      timestamp: new Date().toISOString(),
-      userAgent: request.headers.get('user-agent') || 'Unknown',
-      ip: request.headers.get('x-forwarded-for') || 'unknown'
-    })
+    const userAgent = request.headers.get('user-agent') || 'Unknown'
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const visitorIp = ip.split(',')[0].trim()
 
-    // This could be stored in a simple log table or analytics service in the future
-    // For now, we track it conceptually without requiring new DB schema
+    await prisma.trackingEvent.create({
+      data: {
+        type: 'EVALUATION_SKIPPED',
+        propertyId,
+        zoneId,
+        metadata: { reason: reason || 'user_choice' },
+        timestamp: new Date(),
+        userAgent,
+        ipAddress: visitorIp
+      }
+    })
 
     return NextResponse.json({
       success: true,
       data: {
-        message: 'Evaluation skip tracked (logged)',
+        message: 'Evaluation skip tracked',
         timestamp: new Date().toISOString()
       }
     })

@@ -418,7 +418,9 @@
     "charts": {
       "dailyActivity": "Actividad diaria",
       "last14Days": "Últimos 14 días",
-      "activityByDay": "Actividad por día"
+      "activityByDay": "Actividad por día",
+      "hourlyActivity": "Actividad por hora",
+      "last30Days": "Últimos 30 días"
     },
     "insights": {
       "mostPopular": "Zona más popular",

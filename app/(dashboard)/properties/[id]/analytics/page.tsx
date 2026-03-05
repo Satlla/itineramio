@@ -678,6 +678,30 @@ export default function PropertyAnalyticsPage({ params }: { params: Promise<{ id
               </Card>
             </div>
 
+            {/* Hourly Activity Chart */}
+            {data.viewsByHour && data.viewsByHour.length > 0 && (
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-gray-900">{t('analytics.charts.hourlyActivity')}</h3>
+                  <span className="text-sm text-gray-500">{t('analytics.charts.last30Days')}</span>
+                </div>
+                <BarChart
+                  data={Array.from({ length: 24 }, (_, i) => {
+                    const hourData = data.viewsByHour.find((h: { hour: number; count: number }) => h.hour === i)
+                    return {
+                      label: `${String(i).padStart(2, '0')}h`,
+                      value: hourData?.count || 0
+                    }
+                  })}
+                  labelKey="label"
+                  valueKey="value"
+                  color="#8b5cf6"
+                  height={180}
+                  noDataText={t('analytics.noData')}
+                />
+              </Card>
+            )}
+
             {/* Insights Cards */}
             {(data.insights.mostViewedZone || data.insights.leastViewedZone) && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
