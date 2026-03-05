@@ -157,7 +157,7 @@ export function PendingSettlementsSection({ year, month }: Props) {
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
-                  {t('settlements.pending.title')} - {monthName} {currentYear}
+                  {t('settlements.pending.title')} - {monthName} {year}
                 </h2>
                 <p className="text-sm text-gray-600">
                   {t('settlements.pending.subtitle')}
