@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
       targetUserEmail: targetUser.email,
       startedAt: new Date().toISOString()
     }), {
-      httpOnly: false, // Accesible desde el frontend
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',

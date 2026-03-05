@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     // Clear admin impersonation cookie if exists
     response.cookies.set('admin-impersonation', '', {
-      httpOnly: false,
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 0,
