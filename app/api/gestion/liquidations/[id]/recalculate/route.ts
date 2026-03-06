@@ -50,6 +50,8 @@ export async function POST(
     const billingUnitGroupId = metadata.billingUnitGroupId
     const billingUnitIds = metadata.billingUnitIds
 
+    console.log('[recalculate] liquidation:', { id, ownerId: liquidation.ownerId, year: liquidation.year, month: liquidation.month, mode, billingUnitGroupId, billingUnitIds, metadata })
+
     // Unlink all current reservations and expenses
     await prisma.reservation.updateMany({
       where: { liquidationId: id },
@@ -110,6 +112,8 @@ export async function POST(
       }
     }
 
+    console.log('[recalculate] billing config:', { useBillingUnits, targetBillingUnitIds, commissionType, commissionValue: commissionValue.toString() })
+
     // Get reservations based on mode
     let reservations: any[] = []
     let expenses: any[] = []
@@ -145,7 +149,7 @@ export async function POST(
         },
       })
     } else {
-      // Legacy mode
+      // Legacy mode — try billingConfigs first, then fallback to billingUnits
       const billingConfigs = await prisma.propertyBillingConfig.findMany({
         where: { ownerId: liquidation.ownerId, isActive: true },
         include: { property: { select: { id: true, name: true } } },
@@ -182,6 +186,83 @@ export async function POST(
           monthlyFeeVat = firstConfig.monthlyFeeVat
         }
       }
+
+      // Fallback: if no reservations found via billingConfig, try billingUnits for this owner
+      if (reservations.length === 0) {
+        const ownerUnits = await prisma.billingUnit.findMany({
+          where: { ownerId: liquidation.ownerId, userId },
+          select: {
+            id: true, name: true,
+            commissionType: true, commissionValue: true, commissionVat: true,
+            cleaningType: true, cleaningValue: true, cleaningVatIncluded: true,
+            monthlyFee: true, monthlyFeeVat: true,
+          },
+        })
+        if (ownerUnits.length > 0) {
+          const ownerUnitIds = ownerUnits.map((u) => u.id)
+          reservations = await prisma.reservation.findMany({
+            where: {
+              billingUnitId: { in: ownerUnitIds },
+              status: { in: ['COMPLETED', 'CONFIRMED'] },
+              liquidationId: null,
+              checkIn: { gte: startDate, lte: endDate },
+            },
+            include: {
+              billingUnit: {
+                select: {
+                  id: true, name: true,
+                  cleaningValue: true, cleaningVatIncluded: true,
+                  commissionType: true, commissionValue: true, commissionVat: true,
+                }
+              }
+            },
+          })
+          expenses = await prisma.propertyExpense.findMany({
+            where: {
+              billingUnitId: { in: ownerUnitIds },
+              chargeToOwner: true,
+              liquidationId: null,
+              date: { gte: startDate, lte: endDate },
+            },
+          })
+          if (ownerUnits.length > 0) {
+            const firstUnit = ownerUnits[0]
+            commissionType = firstUnit.commissionType
+            commissionValue = firstUnit.commissionValue
+            commissionVat = firstUnit.commissionVat
+            cleaningType = firstUnit.cleaningType
+            cleaningValue = firstUnit.cleaningValue
+            monthlyFee = firstUnit.monthlyFee
+            monthlyFeeVat = firstUnit.monthlyFeeVat
+            useBillingUnits = true
+            targetBillingUnitIds = ownerUnitIds
+          }
+          console.log('[recalculate] Legacy fallback to billingUnits:', ownerUnitIds.length, 'units, found', reservations.length, 'reservations')
+        }
+      }
+    }
+
+    console.log('[recalculate] found reservations:', reservations.length, 'expenses:', expenses.length)
+    if (reservations.length === 0) {
+      // Debug: check what reservations exist for this owner in this period
+      const allOwnerReservations = await prisma.reservation.findMany({
+        where: {
+          userId,
+          status: { in: ['COMPLETED', 'CONFIRMED'] },
+          checkIn: { gte: startDate, lte: endDate },
+        },
+        select: { id: true, billingUnitId: true, billingConfigId: true, liquidationId: true, guestName: true, checkIn: true, status: true },
+        take: 20,
+      })
+      console.log('[recalculate] DEBUG all reservations in period:', JSON.stringify(allOwnerReservations.map(r => ({
+        id: r.id.slice(0, 8),
+        guest: r.guestName,
+        checkIn: r.checkIn,
+        billingUnitId: r.billingUnitId?.slice(0, 8),
+        billingConfigId: r.billingConfigId?.slice(0, 8),
+        liquidationId: r.liquidationId?.slice(0, 8),
+        status: r.status,
+      }))))
     }
 
     // Calculate totals (same logic as POST)
