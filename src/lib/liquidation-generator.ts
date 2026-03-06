@@ -748,10 +748,6 @@ export function generateLiquidationHTML(data: LiquidationData): string {
         <span class="label">Comisión de gestión</span>
         <span class="value negative">- ${formatCurrency(data.totals.totalCommission)}</span>
       </div>
-      <div class="summary-row">
-        <span class="label">IVA comisión</span>
-        <span class="value negative">- ${formatCurrency(data.totals.totalCommissionVat)}</span>
-      </div>
       ${data.totals.totalCleaning > 0 ? `
       <div class="summary-row">
         <span class="label">Limpiezas</span>
