@@ -12,6 +12,7 @@ interface ReservationItem {
   nights: number
   platform: string
   hostEarnings: number
+  cleaningAmount: number
   property: string
 }
 
@@ -171,17 +172,26 @@ function groupByProperty(data: LiquidationData): PropertyBreakdown[] {
 /**
  * Generate HTML section for a single property breakdown
  */
-function generatePropertySection(breakdown: PropertyBreakdown, index: number): string {
-  const reservationRows = breakdown.reservations.map((r) => `
+function generatePropertySection(breakdown: PropertyBreakdown, index: number, daysInMonth: number): string {
+  const totalNights = breakdown.reservations.reduce((sum, r) => sum + r.nights, 0)
+  const occupancyRate = daysInMonth > 0 ? Math.round((totalNights / daysInMonth) * 100) : 0
+  const totalCleaning = breakdown.reservations.reduce((sum, r) => sum + r.cleaningAmount, 0)
+  const avgPricePerNight = totalNights > 0 ? (breakdown.subtotalIncome - totalCleaning) / totalNights : 0
+
+  const reservationRows = breakdown.reservations.map((r) => {
+    const netPrice = r.hostEarnings - r.cleaningAmount
+    const pricePerNight = r.nights > 0 ? netPrice / r.nights : 0
+    return `
     <tr>
-      <td>${r.confirmationCode}</td>
       <td>${r.guestName}</td>
       <td>${formatDate(r.checkIn)}</td>
       <td>${formatDate(r.checkOut)}</td>
       <td class="text-center">${r.nights}</td>
       <td class="text-right">${formatCurrency(r.hostEarnings)}</td>
+      <td class="text-right">${formatCurrency(r.cleaningAmount)}</td>
+      <td class="text-right">${formatCurrency(pricePerNight)}</td>
     </tr>
-  `).join('')
+  `}).join('')
 
   const expenseRows = breakdown.expenses.map((e) => `
     <tr>
@@ -196,6 +206,9 @@ function generatePropertySection(breakdown: PropertyBreakdown, index: number): s
     <div class="property-section ${index > 0 ? 'page-break-before' : ''}">
       <div class="property-header">
         <h3>${breakdown.property}</h3>
+        <span style="font-size: 12px; color: #666; margin-left: 12px;">
+          ${totalNights} noches · ${occupancyRate}% ocupación · Precio medio/noche: ${formatCurrency(avgPricePerNight)}
+        </span>
       </div>
 
       ${breakdown.reservations.length > 0 ? `
@@ -204,12 +217,13 @@ function generatePropertySection(breakdown: PropertyBreakdown, index: number): s
         <table>
           <thead>
             <tr>
-              <th>Código</th>
               <th>Huésped</th>
               <th>Entrada</th>
               <th>Salida</th>
               <th class="text-center">Noches</th>
               <th class="text-right">Importe</th>
+              <th class="text-right">Limpieza</th>
+              <th class="text-right">€/noche</th>
             </tr>
           </thead>
           <tbody>
@@ -217,8 +231,10 @@ function generatePropertySection(breakdown: PropertyBreakdown, index: number): s
           </tbody>
           <tfoot>
             <tr class="subtotal-row">
-              <td colspan="5" class="text-right"><strong>Subtotal reservas:</strong></td>
+              <td colspan="4" class="text-right"><strong>Subtotal reservas:</strong></td>
               <td class="text-right"><strong>${formatCurrency(breakdown.subtotalIncome)}</strong></td>
+              <td class="text-right"><strong>${formatCurrency(totalCleaning)}</strong></td>
+              <td class="text-right"><strong>${formatCurrency(avgPricePerNight)}</strong></td>
             </tr>
           </tfoot>
         </table>
@@ -265,17 +281,23 @@ export function generateLiquidationHTML(data: LiquidationData): string {
   const propertyBreakdowns = useGroupedView ? groupByProperty(data) : []
 
   // Generar filas de reservas (for flat view)
-  const reservationRows = data.reservations.map((r) => `
+  const totalNightsFlat = data.reservations.reduce((sum, r) => sum + r.nights, 0)
+  const totalCleaningFlat = data.reservations.reduce((sum, r) => sum + r.cleaningAmount, 0)
+  const reservationRows = data.reservations.map((r) => {
+    const netPrice = r.hostEarnings - r.cleaningAmount
+    const pricePerNight = r.nights > 0 ? netPrice / r.nights : 0
+    return `
     <tr>
       <td>${r.property}</td>
-      <td>${r.confirmationCode}</td>
       <td>${r.guestName}</td>
       <td>${formatDate(r.checkIn)}</td>
       <td>${formatDate(r.checkOut)}</td>
       <td class="text-center">${r.nights}</td>
       <td class="text-right">${formatCurrency(r.hostEarnings)}</td>
+      <td class="text-right">${formatCurrency(r.cleaningAmount)}</td>
+      <td class="text-right">${formatCurrency(pricePerNight)}</td>
     </tr>
-  `).join('')
+  `}).join('')
 
   // Generar filas de gastos (for flat view)
   const expenseRows = data.expenses.map((e) => `
@@ -296,8 +318,9 @@ export function generateLiquidationHTML(data: LiquidationData): string {
   const amountClass = isPositive ? 'positive' : 'negative'
 
   // Generate property sections for grouped view
+  const daysInMonth = new Date(data.year, data.month, 0).getDate()
   const propertySectionsHTML = propertyBreakdowns.map((breakdown, index) =>
-    generatePropertySection(breakdown, index)
+    generatePropertySection(breakdown, index, daysInMonth)
   ).join('')
 
   return `
@@ -700,12 +723,13 @@ export function generateLiquidationHTML(data: LiquidationData): string {
         <thead>
           <tr>
             <th>Propiedad</th>
-            <th>Código</th>
             <th>Huésped</th>
             <th>Entrada</th>
             <th>Salida</th>
             <th class="text-center">Noches</th>
             <th class="text-right">Importe</th>
+            <th class="text-right">Limpieza</th>
+            <th class="text-right">€/noche</th>
           </tr>
         </thead>
         <tbody>

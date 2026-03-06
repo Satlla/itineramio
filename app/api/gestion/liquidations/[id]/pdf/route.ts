@@ -165,6 +165,7 @@ export async function GET(
         nights: r.nights || 0,
         platform: r.platform || '',
         hostEarnings: Number(r.hostEarnings || 0),
+        cleaningAmount: Number(r.cleaningAmount || 0),
         // Prefer billingUnit name over billingConfig property name
         property: r.billingUnit?.name || r.billingConfig?.property?.name || 'N/A',
       })),
