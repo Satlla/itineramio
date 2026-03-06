@@ -28,6 +28,7 @@ interface OnboardingStatus {
 
 interface PendingActions {
   unliquidatedReservations: number
+  pendingLiquidations: number
   draftInvoices: number
   unpaidInvoices: number
 }

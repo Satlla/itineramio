@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Button, Card, CardContent, Badge } from '@/components/ui'
 import {
@@ -25,6 +25,10 @@ import { SimpleColumnMapper, ListingMapper, type ListingInfo, type ListingMappin
 import type { ColumnMapping, ImportConfig, ImportTemplate } from '@/types/import'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { useTranslation } from 'react-i18next'
+import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ArrowRight } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 interface Property {
   id: string
@@ -106,6 +110,7 @@ export default function ImportarReservasPage() {
   const [isImporting, setIsImporting] = useState(false)
   const [importProgress, setImportProgress] = useState(0)
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [skipDuplicates, setSkipDuplicates] = useState(true)
   const [properties, setProperties] = useState<Property[]>([])
   const [importHistory, setImportHistory] = useState<ImportHistory[]>([])
@@ -618,7 +623,19 @@ export default function ImportarReservasPage() {
       }
 
       const data = await response.json()
+      console.log('[import] DEBUG response:', JSON.stringify(data._debug, null, 2))
       setImportResult(data.results)
+
+      // Show success modal and toast when reservations were imported
+      if (data.results.importedCount > 0) {
+        setShowSuccessModal(true)
+        toast.success(
+          `${data.results.importedCount} ${data.results.importedCount === 1 ? 'reserva importada' : 'reservas importadas'}. Tienes liquidaciones pendientes por generar.`,
+          { duration: 6000 }
+        )
+        // Trigger sidebar badge refresh
+        sessionStorage.setItem('gestion-needs-refresh', 'true')
+      }
 
       // Build success message
       let successMsg = t('importReservations.result.imported') + ': ' + data.results.importedCount
@@ -1704,6 +1721,71 @@ export default function ImportarReservasPage() {
         </div>
       </div>
     </div>
+    {/* Success Modal after importing reservations */}
+    <AnimatePresence>
+      {showSuccessModal && importResult && importResult.importedCount > 0 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => setShowSuccessModal(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-center mb-5">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Reservas importadas correctamente
+              </h3>
+              <p className="text-gray-600">
+                Se han importado <strong>{importResult.importedCount}</strong> {importResult.importedCount === 1 ? 'reserva' : 'reservas'}
+                {importResult.byBillingUnit && importResult.byBillingUnit.length > 0 && (
+                  <> en {importResult.byBillingUnit.length} {importResult.byBillingUnit.length === 1 ? 'apartamento' : 'apartamentos'}</>
+                )}
+              </p>
+            </div>
+
+            <div className="space-y-3 mb-6">
+              <div className="bg-violet-50 rounded-xl p-3 flex items-start gap-3">
+                <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-4 h-4 text-violet-600" />
+                </div>
+                <div className="text-sm">
+                  <p className="font-medium text-violet-900">Siguiente paso: Liquidaciones</p>
+                  <p className="text-violet-700">Revisa el desglose y envíalo al propietario</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowSuccessModal(false)}
+                className="flex-1"
+              >
+                Cerrar
+              </Button>
+              <Link href="/gestion/liquidaciones" className="flex-1">
+                <Button className="w-full bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800">
+                  Ir a Liquidaciones
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+
     </ErrorBoundary>
   )
 }

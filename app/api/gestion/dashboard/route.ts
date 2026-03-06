@@ -237,6 +237,7 @@ async function getDashboardStats(userId: string) {
       },
       pendingActions: {
         unliquidatedReservations: unliquidatedReservationsCount,
+        pendingLiquidations,
         draftInvoices: draftInvoicesCount,
         unpaidInvoices: unpaidInvoicesCount
       }

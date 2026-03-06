@@ -27,7 +27,7 @@ interface NavItem {
   labelKey: string
   descriptionKey: string
   icon: React.ReactNode
-  badgeKey?: 'unliquidatedReservations' | 'draftInvoices' | 'unpaidInvoices'
+  badgeKey?: 'unliquidatedReservations' | 'pendingLiquidations' | 'draftInvoices' | 'unpaidInvoices'
 }
 
 interface NavCategory {
@@ -37,6 +37,7 @@ interface NavCategory {
 
 interface PendingActions {
   unliquidatedReservations: number
+  pendingLiquidations: number
   draftInvoices: number
   unpaidInvoices: number
 }
@@ -70,7 +71,8 @@ const navCategories: NavCategory[] = [
         href: '/gestion/liquidaciones',
         labelKey: 'nav.items.settlements.title',
         icon: <Receipt className="w-5 h-5" />,
-        descriptionKey: 'nav.items.settlements.description'
+        descriptionKey: 'nav.items.settlements.description',
+        badgeKey: 'pendingLiquidations'
       },
       {
         href: '/gestion/facturacion',
