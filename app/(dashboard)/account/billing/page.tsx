@@ -343,7 +343,7 @@ export default function BillingPage() {
                   </div>
                 </div>
               )}
-              <div className="self-start sm:self-auto">
+              <div className="self-start sm:self-auto flex items-center gap-2">
                 <span className={`inline-flex items-center px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${
                   subscription.status === 'ACTIVE'
                     ? 'bg-green-100 text-green-800'
@@ -351,6 +351,21 @@ export default function BillingPage() {
                 }`}>
                   {subscription.status === 'ACTIVE' ? t('billing.active') : t('billing.inactive')}
                 </span>
+                <button
+                  onClick={async () => {
+                    try {
+                      const res = await fetch('/api/stripe/portal', { method: 'POST' })
+                      const data = await res.json()
+                      if (data.url) window.location.href = data.url
+                    } catch (err) {
+                      console.error('Error opening billing portal:', err)
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg text-xs sm:text-sm font-medium transition-colors"
+                >
+                  <CreditCard className="w-3.5 h-3.5" />
+                  Gestionar suscripción
+                </button>
               </div>
             </div>
           </div>

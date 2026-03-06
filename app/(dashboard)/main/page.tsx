@@ -344,6 +344,8 @@ export default function DashboardPage(): JSX.Element {
         }
 
         console.log('✅ Showing unified welcome modal for first time')
+        // Guardar en localStorage inmediatamente para que no reaparezca al navegar
+        localStorage.setItem('hasSeenUnifiedWelcome', 'true')
         setShowUnifiedWelcome(true)
 
         // Clean up URL if welcome param exists
@@ -362,6 +364,8 @@ export default function DashboardPage(): JSX.Element {
   useEffect(() => {
     // Skip if demo property was claimed
     if (demoClaimedPropertyId) return
+    // No mostrar si el welcome modal está abierto
+    if (showUnifiedWelcome) return
     // Solo mostrar si no está cargando y no hay propiedades
     if (!loading && properties.length === 0) {
       const hasSeenFirstPropertyOnboarding = localStorage.getItem('hasSeenFirstPropertyOnboarding')
@@ -374,7 +378,7 @@ export default function DashboardPage(): JSX.Element {
         return () => clearTimeout(timer)
       }
     }
-  }, [loading, properties])
+  }, [loading, properties, showUnifiedWelcome])
 
   // Handlers for first property onboarding
   const handleStartFirstPropertyTour = () => {

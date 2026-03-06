@@ -1126,6 +1126,165 @@ export async function sendTrialExpiredEmail({
 }
 
 // ========================================
+// EMAILS DE PAGO FALLIDO
+// ========================================
+
+/**
+ * Envía email cuando un pago falla (invoice.payment_failed)
+ */
+export async function sendPaymentFailedEmail({
+  email,
+  name,
+  amount,
+}: {
+  email: string
+  name: string
+  amount?: string
+}) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
+
+  const { data, error } = await resend.emails.send({
+    from: FROM_EMAIL,
+    to: email,
+    subject: '⚠️ Tu pago no se ha podido procesar',
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #1f2937;">
+        <div style="background: #dc2626; color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="margin: 0; font-size: 24px;">Pago no procesado</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+            Hola ${name},
+          </p>
+
+          <p style="font-size: 16px; line-height: 1.6;">
+            No hemos podido procesar tu pago${amount ? ` de <strong>${amount}</strong>` : ''}. Tu suscripción podría verse afectada si no se resuelve pronto.
+          </p>
+
+          <div style="margin: 25px 0; padding: 20px; background: #fef2f2; border-radius: 8px; border-left: 4px solid #dc2626;">
+            <h3 style="color: #991b1b; margin: 0 0 10px 0;">Posibles causas</h3>
+            <ul style="margin: 0; padding-left: 20px;">
+              <li style="margin: 8px 0; font-size: 15px; color: #7f1d1d;">Tarjeta expirada</li>
+              <li style="margin: 8px 0; font-size: 15px; color: #7f1d1d;">Fondos insuficientes</li>
+              <li style="margin: 8px 0; font-size: 15px; color: #7f1d1d;">Límite de la tarjeta alcanzado</li>
+              <li style="margin: 8px 0; font-size: 15px; color: #7f1d1d;">La entidad bancaria ha rechazado el cargo</li>
+            </ul>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${appUrl}/account/billing"
+               style="display: inline-block; background: #dc2626; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+              Actualizar método de pago →
+            </a>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 14px; color: #6b7280;">
+            Si crees que es un error, contacta con tu banco o responde a este email y te ayudamos.
+          </p>
+        </div>
+
+        <div style="margin-top: 30px; text-align: center;">
+          <p style="font-size: 12px; color: #9ca3af;">
+            © ${new Date().getFullYear()} Itineramio ·
+            <a href="${appUrl}" style="color: #7c3aed; text-decoration: none;">itineramio.com</a>
+          </p>
+        </div>
+      </div>
+    `,
+    replyTo: REPLY_TO_EMAIL,
+    tags: [{ name: 'type', value: 'payment_failed' }],
+  })
+
+  if (error) {
+    console.error('Error sending payment failed email:', error)
+    return { success: false, error }
+  }
+
+  return { success: true, data }
+}
+
+// ========================================
+// EMAILS DE TRIAL EXPIRADO (MÓDULOS)
+// ========================================
+
+/**
+ * Envía email cuando el trial de un módulo expira
+ */
+export async function sendModuleTrialExpiredEmail({
+  email,
+  name,
+  moduleName,
+}: {
+  email: string
+  name: string
+  moduleName: string
+}) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'
+
+  const { data, error } = await resend.emails.send({
+    from: FROM_EMAIL,
+    to: email,
+    subject: `Tu período de prueba de ${moduleName} ha terminado`,
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #1f2937;">
+        <div style="background: #374151; color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="margin: 0; font-size: 24px;">Trial de ${moduleName} finalizado</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+            Hola ${name},
+          </p>
+
+          <p style="font-size: 16px; line-height: 1.6;">
+            Tu período de prueba del módulo <strong>${moduleName}</strong> ha terminado. El acceso a sus funcionalidades ha sido desactivado.
+          </p>
+
+          <div style="background: #ecfdf5; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10b981;">
+            <h3 style="color: #065f46; margin: 0 0 10px 0;">Tus datos están guardados</h3>
+            <p style="margin: 0; font-size: 15px; color: #047857;">
+              No hemos borrado nada. Activa la suscripción y recuperarás el acceso <strong>inmediatamente</strong> con todo tu contenido intacto.
+            </p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${appUrl}/account/modules/gestion"
+               style="display: inline-block; background: #10b981; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+              Activar suscripción →
+            </a>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 14px; color: #6b7280;">
+            ¿Tienes dudas? Responde a este email y te ayudamos.
+          </p>
+        </div>
+
+        <div style="margin-top: 30px; text-align: center;">
+          <p style="font-size: 12px; color: #9ca3af;">
+            © ${new Date().getFullYear()} Itineramio ·
+            <a href="${appUrl}" style="color: #7c3aed; text-decoration: none;">itineramio.com</a>
+          </p>
+        </div>
+      </div>
+    `,
+    replyTo: REPLY_TO_EMAIL,
+    tags: [{ name: 'type', value: 'module_trial_expired' }],
+  })
+
+  if (error) {
+    console.error('Error sending module trial expired email:', error)
+    return { success: false, error }
+  }
+
+  return { success: true, data }
+}
+
+// ========================================
 // EMAILS DE SECUENCIA POR NIVEL
 // ========================================
 

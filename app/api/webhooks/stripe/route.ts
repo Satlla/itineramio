@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { prisma } from '@/lib/prisma'
+import { sendPaymentFailedEmail } from '@/lib/resend'
 
 /**
  * POST /api/webhooks/stripe
@@ -310,14 +311,80 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 }
 
 /**
- * Handle failed invoice payment
+ * Handle failed invoice payment — send email + in-app notification
  */
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string
+  const subscriptionId = invoice.subscription as string | null
 
   console.log(`❌ Invoice payment failed: ${invoice.id} for customer ${customerId}`)
 
-  // You could send a notification email here
+  try {
+    // Find user by subscription ID
+    let userId: string | null = null
+    let userEmail: string | null = null
+    let userName: string | null = null
+
+    if (subscriptionId) {
+      // Try UserSubscription first
+      const userSub = await prisma.userSubscription.findFirst({
+        where: { stripeSubscriptionId: subscriptionId },
+        include: { user: { select: { id: true, email: true, name: true } } }
+      })
+
+      if (userSub) {
+        userId = userSub.user.id
+        userEmail = userSub.user.email
+        userName = userSub.user.name
+      } else {
+        // Fallback: try UserModule
+        const userModule = await prisma.userModule.findFirst({
+          where: { stripeSubscriptionId: subscriptionId },
+          include: { user: { select: { id: true, email: true, name: true } } }
+        })
+
+        if (userModule) {
+          userId = userModule.user.id
+          userEmail = userModule.user.email
+          userName = userModule.user.name
+        }
+      }
+    }
+
+    if (!userId || !userEmail) {
+      console.log(`⚠️ Could not find user for failed payment. Customer: ${customerId}, Subscription: ${subscriptionId}`)
+      return
+    }
+
+    // Format amount
+    const amount = invoice.amount_due ? `€${(invoice.amount_due / 100).toFixed(2)}` : undefined
+
+    // Send email
+    await sendPaymentFailedEmail({
+      email: userEmail,
+      name: userName || 'Usuario',
+      amount,
+    })
+    console.log(`📧 Payment failed email sent to ${userEmail}`)
+
+    // Create in-app notification
+    await prisma.notification.create({
+      data: {
+        userId,
+        type: 'PAYMENT_FAILED',
+        title: '⚠️ Pago no procesado',
+        message: `No hemos podido procesar tu pago${amount ? ` de ${amount}` : ''}. Actualiza tu método de pago para evitar la suspensión de tu servicio.`,
+        data: {
+          invoiceId: invoice.id,
+          amount: invoice.amount_due,
+        }
+      }
+    })
+    console.log(`🔔 Payment failed notification created for user ${userId}`)
+  } catch (error) {
+    // Don't let errors here break the webhook response
+    console.error('Error handling payment failed notification:', error)
+  }
 }
 
 /**
@@ -361,6 +428,35 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     })
 
     console.log(`✅ Subscription ${userSubscription.id} updated to status: ${newStatus}`)
+
+    // Also update UserModule if this is a module subscription
+    const userModule = await prisma.userModule.findFirst({
+      where: { stripeSubscriptionId: subscription.id }
+    })
+
+    if (userModule) {
+      const moduleUpdate: any = {
+        expiresAt: new Date(subscription.current_period_end * 1000)
+      }
+
+      if (subscription.status === 'active') {
+        moduleUpdate.status = 'ACTIVE'
+        moduleUpdate.isActive = true
+      } else if (subscription.status === 'past_due') {
+        moduleUpdate.status = 'PAST_DUE'
+        // isActive stays true during grace period — module-limits handles the cutoff
+      } else if (subscription.status === 'canceled' || subscription.status === 'unpaid') {
+        moduleUpdate.status = 'CANCELED'
+        moduleUpdate.isActive = false
+        moduleUpdate.canceledAt = new Date()
+      }
+
+      await prisma.userModule.update({
+        where: { id: userModule.id },
+        data: moduleUpdate
+      })
+      console.log(`✅ UserModule ${userModule.id} updated to: ${moduleUpdate.status}`)
+    }
   } catch (error) {
     console.error('Error updating subscription from webhook:', error)
   }
@@ -401,6 +497,23 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     })
 
     console.log(`✅ Subscription ${userSubscription.id} marked as CANCELED`)
+
+    // Also cancel UserModule if this is a module subscription
+    const userModule = await prisma.userModule.findFirst({
+      where: { stripeSubscriptionId: subscription.id }
+    })
+
+    if (userModule) {
+      await prisma.userModule.update({
+        where: { id: userModule.id },
+        data: {
+          status: 'CANCELED',
+          isActive: false,
+          canceledAt: new Date()
+        }
+      })
+      console.log(`✅ UserModule ${userModule.id} marked as CANCELED`)
+    }
   } catch (error) {
     console.error('Error handling subscription deletion:', error)
   }
