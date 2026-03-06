@@ -305,7 +305,7 @@ export default function LiquidacionesPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.15 }}
-              className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6"
+              className="grid grid-cols-3 gap-3 mb-6"
             >
               <Card>
                 <CardContent className="p-3 sm:p-4 text-center">
@@ -317,12 +317,6 @@ export default function LiquidacionesPage() {
                 <CardContent className="p-3 sm:p-4 text-center">
                   <p className="text-xs text-gray-500 mb-1">{t('settlements.stats.commissions')}</p>
                   <p className="text-lg font-bold text-violet-600">{formatCurrency(totals.totalCommission)}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-3 sm:p-4 text-center">
-                  <p className="text-xs text-gray-500 mb-1">{t('settlements.stats.retentions')}</p>
-                  <p className="text-lg font-bold text-orange-600">{formatCurrency(totals.totalRetention)}</p>
                 </CardContent>
               </Card>
               <Card>
