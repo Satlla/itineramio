@@ -530,11 +530,11 @@ export default function LiquidacionDetailPage() {
                 <TrendingUp className="w-4 h-4 text-orange-600" />
                 <span className="text-xs font-medium text-gray-500 uppercase">{t('settlementDetail.kpi.commission')}</span>
               </div>
-              <div className="text-2xl font-bold text-gray-900">{formatCurrency(liquidation.totals.totalCommission + liquidation.totals.totalCommissionVat)}</div>
+              <div className="text-2xl font-bold text-gray-900">{formatCurrency(liquidation.totals.totalCommission)}</div>
               <p className="text-xs text-gray-500 mt-1">
                 {stats.commissionType === 'PERCENTAGE'
-                  ? t('settlementDetail.kpi.commissionDetail', { rate: stats.commissionValue, vatRate: stats.commissionVatRate })
-                  : t('settlementDetail.kpi.commissionFixed', { vatRate: stats.commissionVatRate })}
+                  ? `${stats.commissionValue}%`
+                  : t('settlementDetail.kpi.commissionFixed')}
               </p>
             </CardContent>
           </Card>
@@ -745,7 +745,7 @@ export default function LiquidacionDetailPage() {
                                   <td className="py-2 px-3 text-right text-red-600 tabular-nums">-{formatCurrency(res.cleaningAmount)}</td>
                                 )}
                                 <td className="py-2 px-3 text-right font-medium tabular-nums bg-blue-50/50">{formatCurrency(netPrice)}</td>
-                                <td className="py-2 px-3 text-right text-red-600 tabular-nums">-{formatCurrency(res.commissionAmount + res.commissionVatAmount)}</td>
+                                <td className="py-2 px-3 text-right text-red-600 tabular-nums">-{formatCurrency(res.commissionAmount)}</td>
                                 <td className="py-2 px-3 text-right font-semibold text-green-700 tabular-nums bg-green-50/50">{formatCurrency(res.netToOwner)}</td>
                               </tr>
                             )
@@ -762,7 +762,7 @@ export default function LiquidacionDetailPage() {
                               <td className="py-2.5 px-3 text-right text-red-600 tabular-nums">-{formatCurrency(group.subtotalCleaning)}</td>
                             )}
                             <td className="py-2.5 px-3 text-right tabular-nums bg-blue-50">{formatCurrency(group.subtotalNetPrice)}</td>
-                            <td className="py-2.5 px-3 text-right text-red-600 tabular-nums">-{formatCurrency(group.subtotalCommission + group.subtotalCommissionVat)}</td>
+                            <td className="py-2.5 px-3 text-right text-red-600 tabular-nums">-{formatCurrency(group.subtotalCommission)}</td>
                             <td className="py-2.5 px-3 text-right text-green-700 tabular-nums bg-green-50">{formatCurrency(group.subtotalNet)}</td>
                           </tr>
                         </tfoot>
@@ -798,12 +798,6 @@ export default function LiquidacionDetailPage() {
                   <span className="text-red-600 tabular-nums">-{formatCurrency(liquidation.totals.totalCommission)}</span>
                 </div>
 
-                {/* VAT on commission */}
-                <div className="flex justify-between py-1.5">
-                  <span className="text-gray-600">{t('settlementDetail.breakdown.vatCommission', { rate: stats.commissionVatRate })}:</span>
-                  <span className="text-red-600 tabular-nums">-{formatCurrency(liquidation.totals.totalCommissionVat)}</span>
-                </div>
-
                 {/* Cleaning */}
                 {liquidation.totals.totalCleaning > 0 && (
                   <div className="flex justify-between py-1.5">
@@ -836,17 +830,6 @@ export default function LiquidacionDetailPage() {
                   <span className="font-semibold text-gray-800">{t('settlementDetail.breakdown.subtotalNet')}:</span>
                   <span className="font-semibold tabular-nums">{formatCurrency(liquidation.totals.totalAmount)}</span>
                 </div>
-
-                {/* Retention (informational) */}
-                {stats.retentionRate > 0 && liquidation.totals.totalRetention > 0 && (
-                  <div className="flex justify-between py-1.5 text-gray-400">
-                    <span>
-                      {t('settlementDetail.breakdown.retentionIrpf', { rate: stats.retentionRate })}
-                      <span className="ml-2 text-xs italic">← {t('settlementDetail.breakdown.retentionInfo')}</span>
-                    </span>
-                    <span className="tabular-nums">{formatCurrency(liquidation.totals.totalRetention)}</span>
-                  </div>
-                )}
 
                 {/* Total divider */}
                 <div className="border-t-2 border-violet-300 my-2" />

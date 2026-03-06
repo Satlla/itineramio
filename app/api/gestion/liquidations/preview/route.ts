@@ -364,17 +364,14 @@ export async function GET(request: NextRequest) {
       }
 
       totalCommission = totalCommission.plus(commission)
-      totalCommissionVat = totalCommissionVat.plus(
-        commission.times(finalCommissionVat).dividedBy(100)
-      )
+      // IVA de comisión: no se incluye en la liquidación (solo en factura fiscal)
+      // totalCommissionVat se mantiene a 0
     }
 
     // Add monthly fee
     if (monthlyFee.greaterThan(0)) {
       totalCommission = totalCommission.plus(monthlyFee)
-      totalCommissionVat = totalCommissionVat.plus(
-        monthlyFee.times(monthlyFeeVat).dividedBy(100)
-      )
+      // IVA de cuota mensual: no se incluye en la liquidación (solo en factura fiscal)
     }
 
     // Calculate expenses total
@@ -384,9 +381,9 @@ export async function GET(request: NextRequest) {
       totalExpenses = totalExpenses.plus(new Decimal(exp.vatAmount))
     }
 
+    // Total sin IVA ni retención — la liquidación es un desglose informal
     const totalAmount = totalIncome
       .minus(totalCommission)
-      .minus(totalCommissionVat)
       .minus(totalCleaning)
       .minus(totalExpenses)
 
@@ -412,13 +409,11 @@ export async function GET(request: NextRequest) {
     // Calculate what owner pays to manager (if owner receives income)
     const ownerPaysManager = totalCommission.plus(totalCommissionVat).plus(totalCleaning)
 
-    // Calculate retention (use owner's retentionRate, or default: 15% for EMPRESA, 0% for PERSONA_FISICA)
+    // Retención IRPF: no se incluye en la liquidación (solo en factura fiscal)
     const retentionRate = owner.retentionRate !== null
       ? Number(owner.retentionRate)
       : (owner.type === 'EMPRESA' ? 15 : 0)
-    const totalRetention = retentionRate > 0
-      ? totalCommission.times(retentionRate).dividedBy(100)
-      : new Decimal(0)
+    const totalRetention = new Decimal(0)
 
     return NextResponse.json({
       reservations: allReservations,

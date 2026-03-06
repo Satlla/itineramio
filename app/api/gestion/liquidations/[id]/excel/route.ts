@@ -93,7 +93,7 @@ export async function GET(
 
     // Reservations table
     lines.push('RESERVAS')
-    lines.push('Apartamento;Plataforma;Huésped;Check-in;Check-out;Noches;Importe;Limpieza;Precio Neto;Comisión;IVA Comisión;Neto Propietario')
+    lines.push('Apartamento;Plataforma;Huésped;Check-in;Check-out;Noches;Importe;Limpieza;Precio Neto;Comisión;Neto Propietario')
 
     for (const [property, reservations] of reservationsByProperty) {
       const totalNights = reservations.reduce((sum, r) => sum + r.nights, 0)
@@ -105,8 +105,7 @@ export async function GET(
         const netPrice = hostEarnings - cleaning
         // Approximate commission (would need billing config for exact)
         const commission = Number(liquidation.totalCommission) / liquidation.reservations.length
-        const commissionVat = Number(liquidation.totalCommissionVat) / liquidation.reservations.length
-        const netToOwner = hostEarnings - cleaning - commission - commissionVat
+        const netToOwner = hostEarnings - cleaning - commission
 
         lines.push([
           property,
@@ -119,7 +118,6 @@ export async function GET(
           cleaning.toFixed(2),
           netPrice.toFixed(2),
           commission.toFixed(2),
-          commissionVat.toFixed(2),
           netToOwner.toFixed(2)
         ].join(';'))
       }
@@ -157,11 +155,7 @@ export async function GET(
     lines.push(`Total Ingresos;${Number(liquidation.totalIncome).toFixed(2)}`)
     lines.push(`Total Limpieza;-${Number(liquidation.totalCleaning).toFixed(2)}`)
     lines.push(`Total Comisión;-${Number(liquidation.totalCommission).toFixed(2)}`)
-    lines.push(`IVA Comisión;-${Number(liquidation.totalCommissionVat).toFixed(2)}`)
     lines.push(`Total Gastos;-${Number(liquidation.totalExpenses).toFixed(2)}`)
-    if (Number(liquidation.totalRetention) > 0) {
-      lines.push(`Retención IRPF;${Number(liquidation.totalRetention).toFixed(2)}`)
-    }
     lines.push(`NETO A TRANSFERIR;${Number(liquidation.totalAmount).toFixed(2)}`)
 
     const csv = lines.join('\n')

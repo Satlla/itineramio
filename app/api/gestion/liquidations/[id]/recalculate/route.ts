@@ -249,19 +249,14 @@ export async function POST(
         commission = new Decimal(resCommissionValue || 0)
       }
       totalCommission = totalCommission.plus(commission)
-
-      const commVat = commission.times(new Decimal(resCommissionVat || 21)).dividedBy(100)
-      totalCommissionVat = totalCommissionVat.plus(commVat)
+      // IVA de comisión: no se incluye en la liquidación (solo en factura fiscal)
+      // totalCommissionVat se mantiene a 0
     }
 
     // Monthly fee
     if (monthlyFee && monthlyFee.greaterThan(0)) {
       totalCommission = totalCommission.plus(monthlyFee)
-      if (monthlyFeeVat) {
-        totalCommissionVat = totalCommissionVat.plus(
-          monthlyFee.times(new Decimal(monthlyFeeVat)).dividedBy(100)
-        )
-      }
+      // IVA de cuota mensual: no se incluye en la liquidación (solo en factura fiscal)
     }
 
     // Expenses
@@ -271,18 +266,12 @@ export async function POST(
       totalExpenses = totalExpenses.plus(new Decimal(expense.vatAmount || 0))
     }
 
-    // Owner retention
-    const owner = await prisma.propertyOwner.findFirst({
-      where: { id: liquidation.ownerId },
-    })
-    let totalRetention = new Decimal(0)
-    if (owner?.type === 'PERSONA_FISICA') {
-      totalRetention = totalCommission.times(new Decimal(15)).dividedBy(100)
-    }
+    // Retención IRPF: no se incluye en la liquidación (solo en factura fiscal)
+    const totalRetention = new Decimal(0)
 
+    // Total sin IVA ni retención — la liquidación es un desglose informal
     const totalAmount = totalIncome
       .minus(totalCommission)
-      .minus(totalCommissionVat)
       .minus(totalCleaning)
       .minus(totalExpenses)
 

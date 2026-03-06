@@ -977,50 +977,6 @@ export default function NuevaLiquidacionPage() {
                       </td>
                     </tr>
 
-                    {/* VAT on Commission - only show if > 0 */}
-                    {preview.totals.totalCommissionVat > 0 && (
-                      <tr className="border-b">
-                        <td className="px-4 py-3 text-gray-600">
-                          IVA sobre comisión
-                          {preview.commission?.vatRate && (
-                            <span className="ml-2 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
-                              {preview.commission.vatRate}%
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-right font-medium text-red-600">
-                          {formatCurrency(preview.totals.totalCommissionVat)}
-                        </td>
-                      </tr>
-                    )}
-
-                    {/* Retention IRPF - only for companies */}
-                    {preview.retention && preview.retention.rate > 0 && (
-                      <tr className="border-b bg-orange-50">
-                        <td className="px-4 py-3 text-gray-600">
-                          Retención IRPF
-                          <span className="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">
-                            {preview.retention.rate}%
-                          </span>
-                          <span className="ml-2 text-xs text-gray-500">
-                            (Empresa)
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-right font-medium text-orange-600">
-                          -{formatCurrency(preview.totals.totalRetention || 0)}
-                        </td>
-                      </tr>
-                    )}
-
-                    {/* Info for individuals - no retention */}
-                    {preview.retention && preview.retention.rate === 0 && preview.retention.ownerType === 'PERSONA_FISICA' && (
-                      <tr className="border-b bg-blue-50">
-                        <td colSpan={2} className="px-4 py-2 text-xs text-blue-700">
-                          ℹ️ Sin retención IRPF (Persona física)
-                        </td>
-                      </tr>
-                    )}
-
                     {/* Cleaning */}
                     {preview.totals.totalCleaning > 0 && (
                       <tr className="border-b">

@@ -533,18 +533,14 @@ export async function POST(request: NextRequest) {
 
       totalCommission = totalCommission.plus(commission)
 
-      // Calcular IVA de comisión
-      const commVat = commission.times(new Decimal(resCommissionVat || 21)).dividedBy(100)
-      totalCommissionVat = totalCommissionVat.plus(commVat)
+      // IVA de comisión: no se incluye en la liquidación (solo en factura fiscal)
+      // totalCommissionVat se mantiene a 0
     }
 
     // Añadir cuota mensual (for GROUP or unit-based)
     if (monthlyFee && monthlyFee.greaterThan(0)) {
       totalCommission = totalCommission.plus(monthlyFee)
-      if (monthlyFeeVat) {
-        const feeVat = monthlyFee.times(new Decimal(monthlyFeeVat)).dividedBy(100)
-        totalCommissionVat = totalCommissionVat.plus(feeVat)
-      }
+      // IVA de cuota mensual: no se incluye en la liquidación (solo en factura fiscal)
     }
 
     // Calcular gastos
@@ -554,20 +550,12 @@ export async function POST(request: NextRequest) {
       totalExpenses = totalExpenses.plus(new Decimal(expense.vatAmount || 0))
     }
 
-    // Calcular retención IRPF (usar retentionRate del propietario, o default según tipo)
-    // Default: 15% para EMPRESA, 0% para PERSONA_FISICA
-    const retentionRate = owner.retentionRate !== null
-      ? new Decimal(owner.retentionRate)
-      : (owner.type === 'EMPRESA' ? new Decimal(15) : new Decimal(0))
-    let totalRetention = new Decimal(0)
-    if (retentionRate.greaterThan(0)) {
-      totalRetention = totalCommission.times(retentionRate).dividedBy(100)
-    }
+    // Retención IRPF: no se incluye en la liquidación (solo en factura fiscal)
+    const totalRetention = new Decimal(0)
 
-    // Calcular total a pagar al propietario
+    // Calcular total a pagar al propietario (sin IVA ni retención — es un desglose informal)
     const totalAmount = totalIncome
       .minus(totalCommission)
-      .minus(totalCommissionVat)
       .minus(totalCleaning)
       .minus(totalExpenses)
 
