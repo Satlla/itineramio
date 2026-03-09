@@ -336,7 +336,7 @@ export function CityGuidesBanner({ city, propertyId, onImported }: CityGuidesBan
     try {
       const res = await fetch(`/api/city-guides?city=${encodeURIComponent(city)}`, { credentials: 'include' })
       const data = await res.json()
-      const available = (data.guides || []).filter(
+      const available = (data.data || data.guides || []).filter(
         (g: CityGuide) => g.status === 'PUBLISHED' || g.status === 'VERIFIED'
       )
       setGuides(available)

@@ -64,6 +64,7 @@ export async function GET(request: NextRequest) {
       subscriberCount: g.subscriberCount,
       author: g.author,
       _count: g._count,
+      placesCount: g._count.places,
     }))
 
     return NextResponse.json({ success: true, data: result })
