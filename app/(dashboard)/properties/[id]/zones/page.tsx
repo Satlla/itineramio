@@ -4247,10 +4247,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         propertyLocation={propertyLocation}
         zonesCount={zones.length}
         totalSteps={zones.reduce((acc, zone) => acc + zone.stepsCount, 0)}
-        totalViews={0} // TODO: Add property analytics
-        totalRatings={0} // TODO: Add property ratings
-        mediaCount={0} // TODO: Calculate media count
-        createdDate={undefined} // TODO: Add property creation date
+        totalViews={0}
+        totalRatings={propertyEvaluations.length}
+        mediaCount={0}
+        createdDate={undefined}
         isPublished={propertyStatus === 'ACTIVE'}
         isDeleting={isDeletingProperty}
       />

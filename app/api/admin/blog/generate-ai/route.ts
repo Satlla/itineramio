@@ -46,22 +46,76 @@ export async function POST(req: NextRequest) {
 }
 
 async function generateBlogContent(topic: string, category: string) {
-  // TODO: Integrar con Anthropic Claude API
-  // Por ahora, retornamos contenido de ejemplo estructurado
-
+  const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || ''
   const categoryContext = getCategoryContext(category)
+  const keywords = generateKeywords(topic, category)
+  const tags = generateTags(topic, category)
 
-  const content = {
+  if (ANTHROPIC_API_KEY) {
+    try {
+      const prompt = `Eres experto en gestión de apartamentos turísticos y redacción de contenido SEO en español.
+
+Genera un artículo de blog completo y detallado sobre: "${topic}"
+Categoría: ${categoryContext}
+
+Devuelve SOLO un JSON válido con esta estructura exacta:
+{
+  "title": "título atractivo y SEO del artículo",
+  "excerpt": "resumen de 2-3 frases para preview (max 200 chars)",
+  "content": "contenido completo en HTML con h2, h3, p, ul, ol, strong. Mínimo 800 palabras. Incluye ejemplos reales, datos concretos, consejos accionables para gestores de apartamentos turísticos en España.",
+  "metaTitle": "título SEO (max 60 chars)",
+  "metaDescription": "descripción SEO (max 155 chars)",
+  "keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"],
+  "tags": ["Tag1", "Tag2", "Tag3"]
+}
+
+El contenido debe ser específico para el mercado español (Airbnb, Booking, regulaciones VUT, etc.), práctico y con datos reales.`
+
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 4096,
+          temperature: 0.7,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const text = data.content?.[0]?.text || ''
+        const jsonStr = text.replace(/```json\s*\n?/g, '').replace(/```\s*$/g, '').trim()
+        const parsed = JSON.parse(jsonStr)
+        return {
+          title: parsed.title || topic,
+          excerpt: parsed.excerpt || '',
+          content: parsed.content || generateHTMLContent(topic, categoryContext),
+          metaTitle: parsed.metaTitle || `${topic} - Guía Completa 2025 | Itineramio`,
+          metaDescription: parsed.metaDescription || '',
+          keywords: parsed.keywords || keywords,
+          tags: parsed.tags || tags,
+        }
+      }
+    } catch (err) {
+      console.error('[blog generate-ai] Claude error, using fallback:', err)
+    }
+  }
+
+  // Fallback: contenido estructurado estático
+  return {
     title: topic,
     excerpt: `Guía completa sobre ${topic}. Descubre estrategias probadas, consejos prácticos y mejores prácticas para optimizar tu gestión de apartamentos turísticos.`,
     content: generateHTMLContent(topic, categoryContext),
     metaTitle: `${topic} - Guía Completa 2025 | Itineramio`,
     metaDescription: `Todo lo que necesitas saber sobre ${topic}. Guía paso a paso actualizada con casos reales y estrategias comprobadas.`,
-    keywords: generateKeywords(topic, category),
-    tags: generateTags(topic, category)
+    keywords,
+    tags,
   }
-
-  return content
 }
 
 function getCategoryContext(category: string): string {
