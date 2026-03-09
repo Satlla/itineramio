@@ -34,6 +34,7 @@ import { ZoneStaticSuggestions } from '../../../../../src/components/ui/ZoneStat
 import { ZoneInspirationModal } from '../../../../../src/components/ui/ZoneInspirationModal'
 import { StepEditor, Step } from '../../../../../src/components/ui/StepEditor'
 import { RecommendationsEditor } from '../../../../../src/components/ui/RecommendationsEditor'
+import { CityGuidesBanner } from '../../../../../src/components/ui/CityGuidesBanner'
 import { MobileZoneToast } from '../../../../../src/components/ui/MobileZoneToast'
 import { cn } from '../../../../../src/lib/utils'
 import { useRouter } from 'next/navigation'
@@ -3297,6 +3298,21 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               </div>
             </div>
           )}
+          {/* City guides banner — visible when guides exist for this city */}
+          {propertyCity && (
+            <div className="mb-4">
+              <CityGuidesBanner
+                city={propertyCity}
+                propertyId={id}
+                onImported={async () => {
+                  const res = await fetch(`/api/properties/${id}/zones`)
+                  const result = await res.json()
+                  if (result.success) setZones(transformZonesFromApi(result.data, id))
+                }}
+              />
+            </div>
+          )}
+
           <AnimatePresence>
             {zones.length === 0 ? (
               <Card className="p-8 text-center">
