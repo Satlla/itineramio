@@ -3,7 +3,8 @@
 export const dynamic = 'force-dynamic'
 
 import { useEffect, useState } from 'react'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
+import { ChevronLeft, ChevronRight, Download, CheckCircle2, Loader2 } from 'lucide-react'
 
 interface Reservation {
   id: string
@@ -61,23 +62,43 @@ interface PortalData {
     totalCleaning: number
     totalExpenses: number
     totalAmount: number
+    notes?: string | null
   } | null
   invoices: Invoice[]
 }
 
+const MONTH_NAMES_SHORT = [
+  '', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+]
+
 export default function OwnerPortalPage() {
   const params = useParams()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const token = params.token as string
 
   const [data, setData] = useState<PortalData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [confirming, setConfirming] = useState(false)
+  const [confirmedAt, setConfirmedAt] = useState<string | null>(null)
 
-  const month = searchParams.get('month') || String(new Date().getMonth() + 1)
-  const year = searchParams.get('year') || String(new Date().getFullYear())
+  const now = new Date()
+  const month = parseInt(searchParams.get('month') || String(now.getMonth() + 1))
+  const year = parseInt(searchParams.get('year') || String(now.getFullYear()))
+
+  function navigateMonth(delta: number) {
+    let newMonth = month + delta
+    let newYear = year
+    if (newMonth < 1) { newMonth = 12; newYear-- }
+    if (newMonth > 12) { newMonth = 1; newYear++ }
+    router.push(`/propietario/${token}?month=${newMonth}&year=${newYear}`)
+  }
 
   useEffect(() => {
+    setLoading(true)
+    setData(null)
     async function fetchData() {
       try {
         const res = await fetch(`/api/owner/${token}?month=${month}&year=${year}`)
@@ -95,6 +116,28 @@ export default function OwnerPortalPage() {
     }
     fetchData()
   }, [token, month, year])
+
+  async function confirmLiquidation(liquidationId: string) {
+    setConfirming(true)
+    try {
+      const res = await fetch(`/api/owner/${token}/confirm`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ liquidationId })
+      })
+      if (res.ok) {
+        const json = await res.json()
+        setConfirmedAt(json.confirmedAt)
+      } else {
+        const err = await res.json()
+        setError(err.error || 'Error al confirmar')
+      }
+    } catch {
+      setError('Error de conexión al confirmar')
+    } finally {
+      setConfirming(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -127,6 +170,15 @@ export default function OwnerPortalPage() {
   const formatDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
 
+  // Parse ownerConfirmedAt from liquidation notes (if not already set via confirmation action)
+  const resolvedConfirmedAt = confirmedAt || (() => {
+    if (!data.liquidation || !(data.liquidation as any).notes) return null
+    try {
+      const parsed = JSON.parse((data.liquidation as any).notes)
+      return parsed.ownerConfirmedAt || null
+    } catch { return null }
+  })()
+
   const platformColors: Record<string, string> = {
     AIRBNB: 'bg-red-100 text-red-700',
     BOOKING: 'bg-blue-100 text-blue-700',
@@ -139,18 +191,34 @@ export default function OwnerPortalPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm text-gray-500">Portal de propietario</p>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {data.period.monthName} {data.period.year}
-              </h1>
+              <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">Portal de propietario</p>
+              <p className="font-semibold text-gray-900">{data.owner.name}</p>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-500">Hola,</p>
-              <p className="font-medium text-gray-900">{data.owner.name}</p>
+
+            {/* Month navigator */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigateMonth(-1)}
+                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-600" />
+              </button>
+              <span className="text-sm font-semibold text-gray-900 min-w-[120px] text-center">
+                {MONTH_NAMES_SHORT[data.period.month]} {data.period.year}
+              </span>
+              <button
+                onClick={() => navigateMonth(1)}
+                disabled={month === now.getMonth() + 1 && year === now.getFullYear()}
+                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-600" />
+              </button>
             </div>
+
+            <span className="text-xs text-gray-400 bg-gray-50 border border-gray-200 px-3 py-1 rounded-full hidden sm:block">Solo lectura</span>
           </div>
         </div>
       </header>
@@ -236,6 +304,53 @@ export default function OwnerPortalPage() {
                 </span>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Owner Confirmation Block */}
+        {data.liquidation && data.liquidation.status === 'SENT' && (
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            {resolvedConfirmedAt ? (
+              <div className="flex items-center gap-3 text-green-700">
+                <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0" />
+                <div>
+                  <p className="font-semibold">Liquidación confirmada</p>
+                  <p className="text-sm text-green-600">
+                    Confirmaste el{' '}
+                    {new Date(resolvedConfirmedAt).toLocaleDateString('es-ES', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">¿Todo correcto?</h2>
+                <p className="text-gray-600 mb-4 text-sm">
+                  Revisa el detalle de la liquidación y confirma que los importes son correctos.
+                  Tu gestor recibirá una notificación para proceder al pago.
+                </p>
+                {error && (
+                  <p className="text-red-600 text-sm mb-3">{error}</p>
+                )}
+                <button
+                  onClick={() => confirmLiquidation(data.liquidation!.id)}
+                  disabled={confirming}
+                  className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {confirming ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="w-5 h-5" />
+                  )}
+                  Confirmar liquidación
+                </button>
+              </div>
+            )}
           </div>
         )}
 

@@ -193,7 +193,8 @@ export async function GET(
         totalRetention: Number(liquidation.totalRetention),
         totalCleaning: Number(liquidation.totalCleaning),
         totalExpenses: Number(liquidation.totalExpenses),
-        totalAmount: Number(liquidation.totalAmount)
+        totalAmount: Number(liquidation.totalAmount),
+        notes: liquidation.notes || null
       } : null,
       invoices: invoices.map(inv => ({
         id: inv.id,

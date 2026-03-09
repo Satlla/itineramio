@@ -1103,4 +1103,95 @@ export const emailTemplates = {
     </body>
     </html>
   `,
+
+  liquidationSentToOwner: (params: {
+    ownerName: string
+    managerName: string
+    monthName: string
+    year: number
+    totalAmount: string
+    portalUrl: string
+  }) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f6f8fa; color: #24292f;">
+      <div style="max-width: 600px; margin: 0 auto; padding: 24px;">
+        <div style="text-align: center; padding: 16px 0 24px 0;">
+          <h2 style="color: #8b5cf6; margin: 0;">Itineramio</h2>
+        </div>
+        <div style="background: #0d1117; border-radius: 12px 12px 0 0; padding: 36px; text-align: center;">
+          <h1 style="color: #fff; margin: 0 0 8px 0; font-size: 24px;">Liquidación lista para revisar</h1>
+          <p style="color: #8b949e; margin: 0;">Hola ${params.ownerName}, tienes una liquidación pendiente de confirmación</p>
+        </div>
+        <div style="background: #fff; border-radius: 0 0 12px 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+          <p style="color: #475569; margin-top: 0;">
+            <strong>${params.managerName}</strong> ha preparado la liquidación de <strong>${params.monthName} ${params.year}</strong>.
+          </p>
+          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+            <p style="margin: 0 0 4px 0; color: #166534; font-size: 14px;">Total a percibir</p>
+            <p style="margin: 0; color: #15803d; font-size: 28px; font-weight: 700;">${params.totalAmount}</p>
+          </div>
+          <p style="color: #475569;">Revisa el detalle y confirma que todo es correcto pulsando el botón:</p>
+          <div style="text-align: center; margin: 24px 0;">
+            <a href="${params.portalUrl}" style="background: #8b5cf6; color: #fff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+              Ver y confirmar liquidación
+            </a>
+          </div>
+          <p style="color: #94a3b8; font-size: 13px;">Si tienes alguna duda, contacta directamente con ${params.managerName}.</p>
+        </div>
+        <div style="text-align: center; color: #6b7280; font-size: 13px; padding: 16px 0;">
+          <p>&copy; 2026 Itineramio. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `,
+
+  ownerConfirmedLiquidation: (params: {
+    managerName: string
+    ownerName: string
+    monthName: string
+    year: number
+    liquidationUrl: string
+  }) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f6f8fa; color: #24292f;">
+      <div style="max-width: 600px; margin: 0 auto; padding: 24px;">
+        <div style="text-align: center; padding: 16px 0 24px 0;">
+          <h2 style="color: #8b5cf6; margin: 0;">Itineramio</h2>
+        </div>
+        <div style="background: #0d1117; border-radius: 12px 12px 0 0; padding: 36px; text-align: center;">
+          <h1 style="color: #fff; margin: 0 0 8px 0; font-size: 24px;">&#10003; Liquidación confirmada</h1>
+          <p style="color: #8b949e; margin: 0;">El propietario ha dado el OK</p>
+        </div>
+        <div style="background: #fff; border-radius: 0 0 12px 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+          <p style="color: #475569; margin-top: 0;">
+            Hola <strong>${params.managerName}</strong>,
+          </p>
+          <p style="color: #475569;">
+            <strong>${params.ownerName}</strong> ha confirmado la liquidación de <strong>${params.monthName} ${params.year}</strong>.
+            Ya puedes proceder a marcarla como pagada o generar la factura correspondiente.
+          </p>
+          <div style="text-align: center; margin: 24px 0;">
+            <a href="${params.liquidationUrl}" style="background: #22c55e; color: #fff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
+              Ver liquidación
+            </a>
+          </div>
+        </div>
+        <div style="text-align: center; color: #6b7280; font-size: 13px; padding: 16px 0;">
+          <p>&copy; 2026 Itineramio. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `,
 }

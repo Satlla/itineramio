@@ -102,7 +102,8 @@ interface Liquidation {
   id: string
   year: number
   month: number
-  status: 'DRAFT' | 'SENT' | 'CANCELLED'
+  status: 'DRAFT' | 'SENT' | 'PAID' | 'CANCELLED'
+  incomeReceiver?: string // 'OWNER' | 'MANAGER'
   owner: Owner
   totals: Totals
   stats: Stats
@@ -111,6 +112,7 @@ interface Liquidation {
   invoiceDate?: string
   notes?: string
   pdfUrl?: string
+  paidAt?: string
   createdAt: string
   updatedAt: string
   reservations: Reservation[]
@@ -120,6 +122,7 @@ interface Liquidation {
 const STATUS_CONFIG = {
   DRAFT: { key: 'status.draft', color: 'bg-gray-100 text-gray-700', icon: Clock },
   SENT: { key: 'status.sent', color: 'bg-violet-100 text-violet-700', icon: Send },
+  PAID: { key: 'status.paid', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
   CANCELLED: { key: 'status.cancelled', color: 'bg-red-100 text-red-700', icon: XCircle }
 }
 
@@ -156,6 +159,8 @@ export default function LiquidacionDetailPage() {
   const [linkSent, setLinkSent] = useState<{ type: 'email' | 'whatsapp', url?: string } | null>(null)
   const [recalculating, setRecalculating] = useState(false)
   const [showOwnerInfo, setShowOwnerInfo] = useState(false)
+  const [sendingToOwner, setSendingToOwner] = useState(false)
+  const [sentToOwner, setSentToOwner] = useState(false)
 
   useEffect(() => {
     if (params.id) {
@@ -328,6 +333,28 @@ export default function LiquidacionDetailPage() {
     }
   }
 
+  const handleSendLiquidationToOwner = async () => {
+    if (!liquidation) return
+    try {
+      setSendingToOwner(true)
+      const response = await fetch(`/api/gestion/liquidations/${params.id}/send`, {
+        method: 'POST',
+        credentials: 'include'
+      })
+      if (response.ok) {
+        setSentToOwner(true)
+        setLiquidation(prev => prev ? { ...prev, status: 'SENT' } : prev)
+      } else {
+        const data = await response.json()
+        setError(data.error || 'Error al enviar al propietario')
+      }
+    } catch {
+      setError('Error al enviar la liquidación al propietario')
+    } finally {
+      setSendingToOwner(false)
+    }
+  }
+
   // Group reservations by property
   const reservationsByProperty = useMemo(() => {
     if (!liquidation) return []
@@ -413,6 +440,15 @@ export default function LiquidacionDetailPage() {
   const stats = liquidation.stats
   const hasMultipleProperties = reservationsByProperty.length > 1
 
+  // Parse ownerConfirmedAt from notes JSON
+  let ownerConfirmedAt: string | null = null
+  if (liquidation.notes) {
+    try {
+      const parsed = JSON.parse(liquidation.notes)
+      ownerConfirmedAt = parsed.ownerConfirmedAt || null
+    } catch { /* notes is not JSON */ }
+  }
+
   // Cleaning detail string for breakdown
   const cleaningDetailStr = stats.cleaningType === 'PER_NIGHT'
     ? t('settlementDetail.breakdown.cleaningPerNight', { value: stats.cleaningValue, nights: stats.totalNights })
@@ -487,6 +523,40 @@ export default function LiquidacionDetailPage() {
           </motion.div>
         )}
 
+        {/* Success - Sent to owner */}
+        {sentToOwner && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 bg-violet-50 border border-violet-200 rounded-lg flex items-center gap-3"
+          >
+            <CheckCircle2 className="w-5 h-5 text-violet-500" />
+            <p className="text-violet-700">
+              Liquidación enviada a <strong>{liquidation.owner.email}</strong>. El estado ha cambiado a SENT.
+            </p>
+            <button onClick={() => setSentToOwner(false)} className="ml-auto text-violet-400 hover:text-violet-600">
+              <XCircle className="w-4 h-4" />
+            </button>
+          </motion.div>
+        )}
+
+        {/* Owner confirmed badge */}
+        {ownerConfirmedAt && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-green-500" />
+            <p className="text-green-700 font-medium">
+              ✓ Propietario confirmó el{' '}
+              {new Date(ownerConfirmedAt).toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </p>
+          </div>
+        )}
+
         {/* KPI Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {/* Occupancy */}
@@ -539,16 +609,24 @@ export default function LiquidacionDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Net to Owner */}
-          <Card className="border-2 border-green-200 bg-green-50/30">
+          {/* Net to Owner / Total to Pay */}
+          <Card className={`border-2 ${liquidation.incomeReceiver === 'OWNER' ? 'border-orange-200 bg-orange-50/30' : 'border-green-200 bg-green-50/30'}`}>
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2">
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-                <span className="text-xs font-medium text-gray-500 uppercase">{t('settlementDetail.kpi.netOwner')}</span>
+                <CheckCircle2 className={`w-4 h-4 ${liquidation.incomeReceiver === 'OWNER' ? 'text-orange-600' : 'text-green-600'}`} />
+                <span className="text-xs font-medium text-gray-500 uppercase">
+                  {liquidation.incomeReceiver === 'OWNER' ? 'Total a transferir' : t('settlementDetail.kpi.netOwner')}
+                </span>
               </div>
-              <div className="text-2xl font-bold text-green-700">{formatCurrency(liquidation.totals.totalAmount)}</div>
+              <div className={`text-2xl font-bold ${liquidation.incomeReceiver === 'OWNER' ? 'text-orange-700' : 'text-green-700'}`}>
+                {liquidation.incomeReceiver === 'OWNER'
+                  ? formatCurrency(liquidation.totals.totalCommission + (liquidation.totals.totalCommission * liquidation.stats.commissionVatRate / 100) + liquidation.totals.totalCleaning + liquidation.totals.totalExpenses)
+                  : formatCurrency(liquidation.totals.totalAmount)}
+              </div>
               <p className="text-xs text-gray-500 mt-1">
-                {t('settlementDetail.summary.netToTransfer')}
+                {liquidation.incomeReceiver === 'OWNER'
+                  ? 'Gestión + IVA + limpieza + gastos'
+                  : t('settlementDetail.summary.netToTransfer')}
               </p>
             </CardContent>
           </Card>
@@ -573,6 +651,21 @@ export default function LiquidacionDetailPage() {
                 <FileText className="w-4 h-4 mr-2" />
                 Excel
               </Button>
+
+              {canSend && (
+                <Button
+                  onClick={handleSendLiquidationToOwner}
+                  disabled={sendingToOwner}
+                  className="bg-violet-600 hover:bg-violet-700 text-white"
+                >
+                  {sendingToOwner ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4 mr-2" />
+                  )}
+                  Enviar al propietario
+                </Button>
+              )}
 
               <Button
                 variant="outline"
@@ -644,6 +737,22 @@ export default function LiquidacionDetailPage() {
                     <FileText className="w-4 h-4 mr-2" />
                   )}
                   {t('settlementDetail.actions.issueInvoice')}
+                </Button>
+              )}
+
+              {['DRAFT', 'SENT'].includes(liquidation.status) && !isLocked && (
+                <Button
+                  variant="outline"
+                  onClick={() => handleUpdateStatus('PAID')}
+                  disabled={updating}
+                  className="border-green-200 text-green-700 hover:bg-green-50"
+                >
+                  {updating ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                  )}
+                  Marcar como pagado
                 </Button>
               )}
 
@@ -782,63 +891,122 @@ export default function LiquidacionDetailPage() {
                 {t('settlementDetail.breakdown.title')}
               </h3>
               <div className="max-w-lg space-y-1 text-sm font-mono">
-                {/* Gross income */}
-                <div className="flex justify-between py-1.5">
-                  <span className="text-gray-700">{t('settlementDetail.breakdown.grossIncome')}:</span>
-                  <span className="font-semibold tabular-nums">{formatCurrency(liquidation.totals.totalIncome)}</span>
-                </div>
-
-                {/* Commission */}
-                <div className="flex justify-between py-1.5">
-                  <span className="text-gray-600">
-                    {stats.commissionType === 'PERCENTAGE'
-                      ? t('settlementDetail.breakdown.commissionPct', { rate: stats.commissionValue })
-                      : t('settlementDetail.breakdown.commissionFixed')}:
-                  </span>
-                  <span className="text-red-600 tabular-nums">-{formatCurrency(liquidation.totals.totalCommission)}</span>
-                </div>
-
-                {/* Cleaning */}
-                {liquidation.totals.totalCleaning > 0 && (
-                  <div className="flex justify-between py-1.5">
-                    <span className="text-gray-600">{t('settlementDetail.breakdown.cleaning', { detail: cleaningDetailStr })}:</span>
-                    <span className="text-red-600 tabular-nums">-{formatCurrency(liquidation.totals.totalCleaning)}</span>
-                  </div>
-                )}
-
-                {/* Expenses */}
-                {liquidation.totals.totalExpenses > 0 && (
-                  <>
-                    <div className="flex justify-between py-1.5">
-                      <span className="text-gray-600">{t('settlementDetail.breakdown.expenses')}:</span>
-                      <span className="text-red-600 tabular-nums">-{formatCurrency(expensesTotals.base)}</span>
-                    </div>
-                    {expensesTotals.vat > 0 && (
+                {liquidation.incomeReceiver === 'OWNER' ? (
+                  (() => {
+                    const commissionVat = liquidation.totals.totalCommission * stats.commissionVatRate / 100
+                    const totalToPay = liquidation.totals.totalCommission + commissionVat + liquidation.totals.totalCleaning + liquidation.totals.totalExpenses
+                    return <>
+                    {/* OWNER model: propietario cobra, paga al gestor comisión+IVA+limpieza */}
+                    {stats.commissionType === 'PERCENTAGE' && (
                       <div className="flex justify-between py-1.5">
-                        <span className="text-gray-600">{t('settlementDetail.breakdown.expensesVat')}:</span>
-                        <span className="text-red-600 tabular-nums">-{formatCurrency(expensesTotals.vat)}</span>
+                        <span className="text-gray-600">% Comisión:</span>
+                        <span className="tabular-nums">{stats.commissionValue}%</span>
                       </div>
                     )}
+                    <div className="flex justify-between py-1.5">
+                      <span className="text-gray-600">Noches Reservadas:</span>
+                      <span className="tabular-nums">{stats.totalNights}</span>
+                    </div>
+                    <div className="flex justify-between py-1.5">
+                      <span className="text-gray-600">% Ocupación:</span>
+                      <span className="tabular-nums">{stats.occupancyRate}%</span>
+                    </div>
+                    <div className="flex justify-between py-1.5">
+                      <span className="text-gray-600">Precio medio/noche:</span>
+                      <span className="tabular-nums">{formatCurrency(stats.totalNights > 0 ? (liquidation.totals.totalIncome - liquidation.totals.totalCleaning) / stats.totalNights : 0)}</span>
+                    </div>
+
+                    <div className="border-t-2 border-gray-300 my-2" />
+
+                    <div className="flex justify-between py-1.5">
+                      <span className="text-gray-700">Total Gestión:</span>
+                      <span className="tabular-nums">{formatCurrency(liquidation.totals.totalCommission)}</span>
+                    </div>
+                    <div className="flex justify-between py-1.5">
+                      <span className="text-gray-700">IVA ({stats.commissionVatRate}%):</span>
+                      <span className="tabular-nums">{formatCurrency(commissionVat)}</span>
+                    </div>
+                    {liquidation.totals.totalCleaning > 0 && (
+                      <div className="flex justify-between py-1.5">
+                        <span className="text-gray-700">Total Limpieza:</span>
+                        <span className="tabular-nums">{formatCurrency(liquidation.totals.totalCleaning)}</span>
+                      </div>
+                    )}
+                    {liquidation.totals.totalExpenses > 0 && (
+                      <div className="flex justify-between py-1.5">
+                        <span className="text-gray-700">Gastos repercutidos:</span>
+                        <span className="tabular-nums">{formatCurrency(liquidation.totals.totalExpenses)}</span>
+                      </div>
+                    )}
+
+                    <div className="border-t-2 border-violet-300 my-2" />
+
+                    <div className="flex justify-between py-2">
+                      <span className="font-bold text-gray-900 text-base">Total a transferir:</span>
+                      <span className="font-bold text-orange-700 text-lg tabular-nums">
+                        {formatCurrency(totalToPay)}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between py-1.5 mt-2 border-t border-gray-200 pt-2">
+                      <span className="text-gray-500 text-xs">TOTAL FACTURACIÓN:</span>
+                      <span className="text-gray-500 text-xs tabular-nums">{formatCurrency(liquidation.totals.totalIncome)}</span>
+                    </div>
+                  </>})()
+                ) : (
+                  <>
+                    {/* MANAGER model: gestor cobra, transfiere al propietario */}
+                    <div className="flex justify-between py-1.5">
+                      <span className="text-gray-700">{t('settlementDetail.breakdown.grossIncome')}:</span>
+                      <span className="font-semibold tabular-nums">{formatCurrency(liquidation.totals.totalIncome)}</span>
+                    </div>
+
+                    <div className="flex justify-between py-1.5">
+                      <span className="text-gray-600">
+                        {stats.commissionType === 'PERCENTAGE'
+                          ? t('settlementDetail.breakdown.commissionPct', { rate: stats.commissionValue })
+                          : t('settlementDetail.breakdown.commissionFixed')}:
+                      </span>
+                      <span className="text-red-600 tabular-nums">-{formatCurrency(liquidation.totals.totalCommission)}</span>
+                    </div>
+
+                    {liquidation.totals.totalCleaning > 0 && (
+                      <div className="flex justify-between py-1.5">
+                        <span className="text-gray-600">{t('settlementDetail.breakdown.cleaning', { detail: cleaningDetailStr })}:</span>
+                        <span className="text-red-600 tabular-nums">-{formatCurrency(liquidation.totals.totalCleaning)}</span>
+                      </div>
+                    )}
+
+                    {liquidation.totals.totalExpenses > 0 && (
+                      <>
+                        <div className="flex justify-between py-1.5">
+                          <span className="text-gray-600">{t('settlementDetail.breakdown.expenses')}:</span>
+                          <span className="text-red-600 tabular-nums">-{formatCurrency(expensesTotals.base)}</span>
+                        </div>
+                        {expensesTotals.vat > 0 && (
+                          <div className="flex justify-between py-1.5">
+                            <span className="text-gray-600">{t('settlementDetail.breakdown.expensesVat')}:</span>
+                            <span className="text-red-600 tabular-nums">-{formatCurrency(expensesTotals.vat)}</span>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    <div className="border-t-2 border-gray-300 my-2" />
+
+                    <div className="flex justify-between py-1.5">
+                      <span className="font-semibold text-gray-800">{t('settlementDetail.breakdown.subtotalNet')}:</span>
+                      <span className="font-semibold tabular-nums">{formatCurrency(liquidation.totals.totalAmount)}</span>
+                    </div>
+
+                    <div className="border-t-2 border-violet-300 my-2" />
+
+                    <div className="flex justify-between py-2">
+                      <span className="font-bold text-gray-900 text-base">{t('settlementDetail.breakdown.totalTransfer')}:</span>
+                      <span className="font-bold text-green-700 text-lg tabular-nums">{formatCurrency(liquidation.totals.totalAmount)}</span>
+                    </div>
                   </>
                 )}
-
-                {/* Divider */}
-                <div className="border-t-2 border-gray-300 my-2" />
-
-                {/* Subtotal */}
-                <div className="flex justify-between py-1.5">
-                  <span className="font-semibold text-gray-800">{t('settlementDetail.breakdown.subtotalNet')}:</span>
-                  <span className="font-semibold tabular-nums">{formatCurrency(liquidation.totals.totalAmount)}</span>
-                </div>
-
-                {/* Total divider */}
-                <div className="border-t-2 border-violet-300 my-2" />
-
-                {/* Total to transfer */}
-                <div className="flex justify-between py-2">
-                  <span className="font-bold text-gray-900 text-base">{t('settlementDetail.breakdown.totalTransfer')}:</span>
-                  <span className="font-bold text-green-700 text-lg tabular-nums">{formatCurrency(liquidation.totals.totalAmount)}</span>
-                </div>
               </div>
             </CardContent>
           </Card>
