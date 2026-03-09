@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { CityGuidesBanner } from './CityGuidesBanner'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft,
@@ -85,6 +86,7 @@ interface RecommendationsEditorProps {
   // Zone mode props
   zone?: ZoneInfo
   // Common
+  propertyCity?: string
   onClose: () => void
   onUpdate: () => void
 }
@@ -332,6 +334,7 @@ export function RecommendationsEditor({
   propertyLng,
   existingZones = [],
   zone,
+  propertyCity = '',
   onClose,
   onUpdate,
 }: RecommendationsEditorProps) {
@@ -603,6 +606,15 @@ export function RecommendationsEditor({
 
         {/* Content */}
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          {/* City guides banner */}
+          {propertyCity && (
+            <CityGuidesBanner
+              city={propertyCity}
+              propertyId={propertyId}
+              onImported={onUpdate}
+            />
+          )}
+
           {/* Search */}
           <PlaceSearchInput
             propertyLat={propertyLat}

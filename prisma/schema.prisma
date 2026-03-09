@@ -93,6 +93,10 @@ model User {
   moderatedComments       ZoneComment[]          @relation("CommentModerator")
   zoneViews               ZoneView[]             @relation("HostZoneViews")
   apiKeys                 ApiKey[]
+  supportTickets          SupportTicket[]
+  productUpdateReads      ProductUpdateRead[]
+  cityGuides              CityGuide[]
+  guideSubscriptions      PropertyGuideSubscription[] @relation("GuideSubscriptions")
 
   @@map("users")
 }
@@ -248,6 +252,7 @@ model Property {
   zones                   Zone[]
   guidebookDeliveries     GuidebookDelivery[]
   externalMappings        PropertyExternalMapping[]
+  guideSubscriptions      PropertyGuideSubscription[]
 
   @@index([slug])
   @@index([hostId, deletedAt])
@@ -816,10 +821,12 @@ model Admin {
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
   permissions  Json               @default("[]")
-  activityLogs AdminActivityLog[]
-  auditLogs    AdminAuditLog[]
-  callLogs     CallLog[]
-  userNotes    UserNote[]
+  activityLogs    AdminActivityLog[]
+  auditLogs       AdminAuditLog[]
+  callLogs        CallLog[]
+  userNotes       UserNote[]
+  assignedTickets SupportTicket[]    @relation("AssignedTickets")
+  ticketMessages  TicketMessage[]    @relation("AdminMessages")
 
   @@map("admins")
 }
@@ -2489,6 +2496,8 @@ model Liquidation {
   invoiceDate        DateTime?
   invoiceSeries      String?
   notes              String?
+  incomeReceiver     String?           // OWNER or MANAGER — resolved from billing config if null
+  paidAt             DateTime?
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
   totalRetention     Decimal           @default(0)
@@ -2927,6 +2936,7 @@ enum ExpenseCategory {
 enum LiquidationStatus {
   DRAFT      // Can edit, recalculate
   SENT       // Sent to owner for review
+  PAID       // Marked as paid (without formal invoice)
   CANCELLED  // Cancelled
   // Note: Liquidation locks automatically when linked invoice is ISSUED
 }
@@ -2971,6 +2981,7 @@ model Place {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   recommendations Recommendation[]
+  cityGuidePlaces CityGuidePlace[]
 
   @@index([source])
   @@index([latitude, longitude])
@@ -3018,6 +3029,102 @@ model Recommendation {
   @@unique([zoneId, placeId])
   @@index([zoneId, order])
   @@map("recommendations")
+}
+
+// ============================================
+// City Guides — Shared community guides
+// ============================================
+
+model CityGuide {
+  id              String                   @id @default(cuid())
+  title           String
+  description     String?
+  city            String
+  country         String                   @default("ES")
+  coverImage      String?
+  authorId        String
+  author          User                     @relation(fields: [authorId], references: [id])
+  status          String                   @default("DRAFT") // DRAFT | PUBLISHED | VERIFIED | SUSPENDED
+  version         Int                      @default(1)
+  subscriberCount Int                      @default(0)
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+
+  places          CityGuidePlace[]
+  subscriptions   PropertyGuideSubscription[]
+  updates         CityGuideUpdate[]
+
+  @@index([city, status])
+  @@index([authorId])
+  @@map("city_guides")
+}
+
+model CityGuidePlace {
+  id             String    @id @default(cuid())
+  guideId        String
+  guide          CityGuide @relation(fields: [guideId], references: [id], onDelete: Cascade)
+  placeId        String
+  place          Place     @relation(fields: [placeId], references: [id])
+  category       String    // 'restaurant' | 'cafe' | 'museum' etc.
+  description    String?
+  addedInVersion Int       @default(1)
+  order          Int       @default(0)
+  createdAt      DateTime  @default(now())
+
+  @@unique([guideId, placeId])
+  @@index([guideId, category])
+  @@map("city_guide_places")
+}
+
+model PropertyGuideSubscription {
+  id               String    @id @default(cuid())
+  guideId          String
+  guide            CityGuide @relation(fields: [guideId], references: [id], onDelete: Cascade)
+  propertyId       String
+  property         Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User      @relation("GuideSubscriptions", fields: [userId], references: [id])
+  status           String    @default("ACTIVE") // ACTIVE | UNSUBSCRIBED
+  lastSeenVersion  Int       @default(1)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  notifications    GuideUpdateNotification[]
+
+  @@unique([guideId, propertyId])
+  @@index([propertyId, status])
+  @@map("property_guide_subscriptions")
+}
+
+model CityGuideUpdate {
+  id            String    @id @default(cuid())
+  guideId       String
+  guide         CityGuide @relation(fields: [guideId], references: [id], onDelete: Cascade)
+  version       Int
+  addedPlaceIds Json      // string[]
+  summary       String?
+  createdAt     DateTime  @default(now())
+
+  notifications GuideUpdateNotification[]
+
+  @@index([guideId, version])
+  @@map("city_guide_updates")
+}
+
+model GuideUpdateNotification {
+  id             String                    @id @default(cuid())
+  subscriptionId String
+  subscription   PropertyGuideSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  updateId       String
+  update         CityGuideUpdate           @relation(fields: [updateId], references: [id], onDelete: Cascade)
+  status         String                    @default("PENDING") // PENDING | ACCEPTED | PARTIAL | DECLINED
+  acceptedIds    Json?                     // string[] of accepted placeIds
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+
+  @@unique([subscriptionId, updateId])
+  @@index([subscriptionId, status])
+  @@map("guide_update_notifications")
 }
 
 enum SeriesType {
@@ -3162,4 +3269,170 @@ model PropertyExternalMapping {
   @@unique([propertyId, platform])
   @@unique([platform, externalId])
   @@map("property_external_mappings")
+}
+
+// ============================================
+// HELP CENTER / SUPPORT SYSTEM
+// ============================================
+
+enum TicketStatus {
+  OPEN
+  WAITING_ADMIN
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum MessageSender {
+  USER
+  AI
+  ADMIN
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum ArticleCategory {
+  GETTING_STARTED
+  PROPERTIES
+  GUIDES
+  BILLING
+  ACCOUNT
+  INTEGRATIONS
+  TROUBLESHOOTING
+  FEATURES
+}
+
+enum UpdateTag {
+  NEW
+  IMPROVEMENT
+  FIX
+}
+
+model SupportTicket {
+  id            String         @id @default(cuid())
+  userId        String?
+  email         String?
+  subject       String
+  status        TicketStatus   @default(OPEN)
+  priority      TicketPriority @default(MEDIUM)
+  aiEnabled     Boolean        @default(true)
+  assignedTo    String?
+  lastMessageAt DateTime?
+  metadata      Json?          @default("{}")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  messages      TicketMessage[]
+  user          User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  assignedAdmin Admin?         @relation("AssignedTickets", fields: [assignedTo], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([priority])
+  @@index([assignedTo])
+  @@index([createdAt])
+  @@index([status, createdAt])
+  @@map("support_tickets")
+}
+
+model TicketMessage {
+  id           String        @id @default(cuid())
+  ticketId     String
+  sender       MessageSender
+  content      String
+  attachments  Json?         @default("[]")
+  adminId      String?
+  isInternal   Boolean       @default(false)
+  aiConfidence Float?
+  createdAt    DateTime      @default(now())
+  ticket       SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  admin        Admin?        @relation("AdminMessages", fields: [adminId], references: [id], onDelete: SetNull)
+
+  @@index([ticketId])
+  @@index([ticketId, createdAt])
+  @@map("ticket_messages")
+}
+
+model HelpArticle {
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  title       Json
+  content     Json
+  excerpt     Json?
+  category    ArticleCategory
+  icon        String?
+  order       Int             @default(0)
+  status      ArticleStatus   @default(DRAFT)
+  featured    Boolean         @default(false)
+  helpfulYes  Int             @default(0)
+  helpfulNo   Int             @default(0)
+  views       Int             @default(0)
+  searchTerms String[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([slug])
+  @@index([status])
+  @@index([category])
+  @@index([featured])
+  @@index([status, category])
+  @@map("help_articles")
+}
+
+model ProductUpdate {
+  id          String              @id @default(cuid())
+  title       Json
+  description Json
+  image       String?
+  ctaText     Json?
+  ctaUrl      String?
+  tag         UpdateTag           @default(NEW)
+  isPublished Boolean             @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  reads       ProductUpdateRead[]
+
+  @@index([isPublished, publishedAt])
+  @@map("product_updates")
+}
+
+model ProductUpdateRead {
+  id              String        @id @default(cuid())
+  productUpdateId String
+  userId          String
+  readAt          DateTime      @default(now())
+  productUpdate   ProductUpdate @relation(fields: [productUpdateId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([productUpdateId, userId])
+  @@index([userId])
+  @@map("product_update_reads")
+}
+
+model FrequentQuestion {
+  id                    String   @id @default(cuid())
+  question              String   // The original question text
+  category              String   // Auto-detected or manual category
+  answer                Json?    // Manual answer {es, en, fr} - optional, for curated FAQs
+  frequency             Int      @default(1) // How many times this topic was asked
+  isAutoDetected        Boolean  @default(true)
+  includeInWelcomeEmail Boolean  @default(false)
+  status                String   @default("ACTIVE") // ACTIVE, ARCHIVED
+  lastAskedAt           DateTime @default(now())
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([status])
+  @@index([frequency])
+  @@index([category])
+  @@map("frequent_questions")
 }

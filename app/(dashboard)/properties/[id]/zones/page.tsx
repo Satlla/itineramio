@@ -149,6 +149,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [showGlobalRecommendations, setShowGlobalRecommendations] = useState(false)
   const [propertyLat, setPropertyLat] = useState<number | null>(null)
   const [propertyLng, setPropertyLng] = useState<number | null>(null)
+  const [propertyCity, setPropertyCity] = useState<string>('')
 
   // Delete confirmation modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -394,6 +395,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setPropertySlug(propResult.data.slug || '')
         setPropertyType(propResult.data.type || 'APARTMENT')
         setPropertyLocation(`${propResult.data.city}, ${propResult.data.state}`)
+        setPropertyCity(propResult.data.city || '')
         setPropertyStatus(propResult.data.status || 'DRAFT')
         setPropertySetId(propResult.data.propertySetId || null)
 
@@ -3819,6 +3821,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           mode="zone"
           zone={editingRecommendationsZone}
           propertyId={id}
+          propertyCity={propertyCity}
           propertyLat={propertyLat}
           propertyLng={propertyLng}
           onClose={() => {
@@ -3843,6 +3846,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         <RecommendationsEditor
           mode="global"
           propertyId={id}
+          propertyCity={propertyCity}
           propertyLat={propertyLat}
           propertyLng={propertyLng}
           existingZones={zones.filter(z => z.type === 'RECOMMENDATIONS').map(z => ({
