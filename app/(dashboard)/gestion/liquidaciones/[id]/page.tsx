@@ -848,6 +848,28 @@ export default function LiquidacionDetailPage() {
 
         {/* Full-width content */}
         <div className="space-y-6">
+
+          {/* Warning: no linked reservations but totals exist */}
+          {liquidation.reservations.length === 0 && liquidation.totals.totalIncome > 0 && (
+            <Card className="border-amber-200 bg-amber-50">
+              <CardContent className="p-4 flex items-start gap-3">
+                <div className="mt-0.5 text-amber-600 text-lg">⚠️</div>
+                <div className="flex-1">
+                  <p className="font-medium text-amber-900 text-sm">Las reservas no están vinculadas a esta liquidación</p>
+                  <p className="text-amber-700 text-xs mt-1">Los totales están guardados, pero el desglose de reservas no aparece. Haz clic en Recalcular para sincronizarlas.</p>
+                </div>
+                <Button
+                  onClick={handleRecalculate}
+                  disabled={recalculating || liquidation.status !== 'DRAFT'}
+                  size="sm"
+                  className="bg-amber-600 hover:bg-amber-700 text-white whitespace-nowrap"
+                >
+                  {recalculating ? 'Recalculando...' : '🔄 Recalcular ahora'}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Reservations Table - Excel style */}
           {liquidation.reservations.length > 0 && (
             <Card>

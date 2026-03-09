@@ -248,26 +248,52 @@ export async function POST(
     }
 
     console.log('[recalculate] found reservations:', reservations.length, 'expenses:', expenses.length)
+
+    // Final fallback: if no reservations found through normal config chain,
+    // look for ANY reservation for this user in this period that is unlinked.
+    // This handles cases where the BillingUnit has no ownerId set.
     if (reservations.length === 0) {
-      // Debug: check what reservations exist for this owner in this period
-      const allOwnerReservations = await prisma.reservation.findMany({
+      const fallbackReservations = await prisma.reservation.findMany({
         where: {
           userId,
           status: { in: ['COMPLETED', 'CONFIRMED'] },
+          liquidationId: null,
           checkIn: { gte: startDate, lte: endDate },
         },
-        select: { id: true, billingUnitId: true, billingConfigId: true, liquidationId: true, guestName: true, checkIn: true, status: true },
-        take: 20,
+        include: {
+          billingUnit: {
+            select: {
+              id: true, name: true,
+              cleaningValue: true, cleaningVatIncluded: true,
+              commissionType: true, commissionValue: true, commissionVat: true,
+              incomeReceiver: true, ownerId: true,
+            }
+          },
+          billingConfig: {
+            select: {
+              commissionType: true, commissionValue: true,
+              commissionVat: true, cleaningType: true, cleaningValue: true,
+            }
+          }
+        },
+        take: 100,
       })
-      console.log('[recalculate] DEBUG all reservations in period:', JSON.stringify(allOwnerReservations.map(r => ({
-        id: r.id.slice(0, 8),
-        guest: r.guestName,
-        checkIn: r.checkIn,
-        billingUnitId: r.billingUnitId?.slice(0, 8),
-        billingConfigId: r.billingConfigId?.slice(0, 8),
-        liquidationId: r.liquidationId?.slice(0, 8),
-        status: r.status,
-      }))))
+
+      console.log('[recalculate] final fallback found', fallbackReservations.length, 'reservations by userId+period')
+
+      if (fallbackReservations.length > 0) {
+        reservations = fallbackReservations
+
+        // Resolve commission/cleaning config from the first reservation's billing unit
+        const firstFallbackUnit = fallbackReservations[0]?.billingUnit
+        if (firstFallbackUnit) {
+          commissionType = firstFallbackUnit.commissionType
+          commissionValue = new Decimal(firstFallbackUnit.commissionValue)
+          commissionVat = new Decimal(firstFallbackUnit.commissionVat)
+          incomeReceiver = firstFallbackUnit.incomeReceiver || incomeReceiver
+          useBillingUnits = true
+        }
+      }
     }
 
     // Calculate totals (same logic as POST)

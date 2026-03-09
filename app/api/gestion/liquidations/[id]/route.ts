@@ -404,6 +404,14 @@ export async function PUT(
       data: updateData,
     })
 
+    // When marking PAID without a linked invoice: mark all associated reservations as COMPLETED
+    if (status === 'PAID' && !liquidation.invoiceId) {
+      await prisma.reservation.updateMany({
+        where: { liquidationId: id },
+        data: { status: 'COMPLETED' },
+      })
+    }
+
     return NextResponse.json({
       success: true,
       liquidation: {
