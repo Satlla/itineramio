@@ -72,7 +72,7 @@ export function ChatEmailOverlay({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
-      className="sticky bottom-0 bg-gray-50 border border-gray-200 rounded-xl p-3 mx-1 mb-1 shadow-sm z-10"
+      className="bg-gray-50 border border-gray-200 rounded-xl p-3 mx-1 mb-1 shadow-sm"
     >
       {success ? (
         <p className="text-sm text-center text-green-600 font-medium py-1">

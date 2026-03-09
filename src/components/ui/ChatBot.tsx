@@ -318,9 +318,10 @@ export default function ChatBot({
     }
   }, [messages, isDemoMode, showDemoBanner])
 
-  // Show email overlay after 3 user messages (skip in demo mode)
+  // Show email overlay after 3 user messages (skip in demo mode and when logged in)
   useEffect(() => {
-    if (!isDemoMode && userMessageCountRef.current >= 3 && !emailCollected && !emailDismissed && !showEmailOverlay) {
+    const loggedIn = document.cookie.split(';').some(c => c.trim().startsWith('auth-token='))
+    if (!isDemoMode && !loggedIn && userMessageCountRef.current >= 3 && !emailCollected && !emailDismissed && !showEmailOverlay) {
       setShowEmailOverlay(true)
     }
   }, [messages, emailCollected, emailDismissed, showEmailOverlay, isDemoMode])
