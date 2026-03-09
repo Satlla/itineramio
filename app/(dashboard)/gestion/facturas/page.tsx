@@ -24,7 +24,8 @@ import {
   RefreshCw,
   ArrowRight,
   Lock,
-  Unlock
+  Unlock,
+  Info
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -68,6 +69,7 @@ interface Invoice {
 export default function FacturasPage() {
   const router = useRouter()
   const { t } = useTranslation('gestion')
+  const { t: tLegal } = useTranslation('legal')
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [invoices, setInvoices] = useState<Invoice[]>([])
@@ -280,6 +282,14 @@ export default function FacturasPage() {
               </div>
             </div>
           </motion.div>
+
+          {/* Billing Disclaimer */}
+          <div className="flex items-start gap-2 px-3 py-2 mb-4 bg-blue-50 border border-blue-100 rounded-lg">
+            <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-blue-600">
+              {tLegal('disclaimers.billing.short')}
+            </p>
+          </div>
 
           {/* Totals */}
           <motion.div

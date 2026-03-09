@@ -11,7 +11,9 @@ import {
   X,
   Building2,
   User,
-  UserPlus
+  UserPlus,
+  Info,
+  AlertTriangle
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -68,6 +70,7 @@ interface InvoiceItem {
 export default function NuevaFacturaPage() {
   const router = useRouter()
   const { t } = useTranslation('gestion')
+  const { t: tLegal } = useTranslation('legal')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [owners, setOwners] = useState<Owner[]>([])
@@ -518,6 +521,16 @@ export default function NuevaFacturaPage() {
         </div>
       )}
 
+      {/* Billing Disclaimer */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4">
+        <div className="flex items-start gap-2 px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg">
+          <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-blue-600">
+            {tLegal('disclaimers.billing.short')}
+          </p>
+        </div>
+      </div>
+
       {/* Form */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
@@ -818,6 +831,16 @@ export default function NuevaFacturaPage() {
                   ))}
               </tbody>
             </table>
+
+            {/* Warning IVA no estándar */}
+            {items.some(item => item.vatRate !== 21) && (
+              <div className="flex items-start gap-2 px-3 py-2 mt-2 bg-amber-50 border border-amber-100 rounded-lg">
+                <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-amber-700">
+                  Tipo de IVA no estándar ({items.filter(i => i.vatRate !== 21).map(i => `${i.vatRate}%`).filter((v, idx, arr) => arr.indexOf(v) === idx).join(', ')}). Verifique que es correcto para su actividad y jurisdicción.
+                </p>
+              </div>
+            )}
 
             {/* Añadir línea */}
             <button

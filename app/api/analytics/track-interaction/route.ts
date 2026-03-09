@@ -28,26 +28,10 @@ export async function POST(request: NextRequest) {
       lastViewedAt: new Date()
     }
 
-    // Check if this is a unique visitor for this property
-    let isUniqueVisitor = false
-    if (interactionType === 'property_view') {
-      const existingView = await prisma.propertyView.findFirst({
-        where: {
-          propertyId,
-          visitorIp
-        }
-      })
-      isUniqueVisitor = !existingView
-    }
-
     switch (interactionType) {
       case 'property_view':
-        // Track property profile views
-        propertyUpdateData.totalViews = { increment: 1 }
-        // Only increment uniqueVisitors if this IP hasn't visited before
-        if (isUniqueVisitor) {
-          propertyUpdateData.uniqueVisitors = { increment: 1 }
-        }
+        // No-op: property views are handled by the canonical endpoint
+        // /api/properties/[id]/view — only TrackingEvent is created below
         break
       case 'zone_view':
         // Track zone views - increment zone views counter
@@ -77,15 +61,15 @@ export async function POST(request: NextRequest) {
       case 'session_complete':
         // When a session is completed, calculate proper average
         if (duration && duration > 0) {
-          // Get current analytics to calculate new average
-          const currentAnalytics = await prisma.propertyAnalytics.findUnique({
-            where: { propertyId }
-          })
+          const [currentAnalytics, sessionEventCount] = await Promise.all([
+            prisma.propertyAnalytics.findUnique({ where: { propertyId } }),
+            prisma.trackingEvent.count({
+              where: { propertyId, type: 'SESSION_COMPLETE' }
+            })
+          ])
 
           if (currentAnalytics) {
-            // Calculate weighted average: (old_avg * old_count + new_value) / (old_count + 1)
-            // We use totalViews as proxy for session count
-            const sessionCount = Math.max(currentAnalytics.totalViews, 1)
+            const sessionCount = Math.max(sessionEventCount, 1)
             const newAvg = Math.round(
               (currentAnalytics.avgSessionDuration * sessionCount + duration) / (sessionCount + 1)
             )
@@ -130,7 +114,6 @@ export async function POST(request: NextRequest) {
             stepIndex,
             totalSteps,
             visitorIp,
-            isUniqueVisitor,
             ...extraMetadata
           },
           timestamp: new Date(),
@@ -142,13 +125,9 @@ export async function POST(request: NextRequest) {
       console.error('Tracking event error:', error)
     }
 
-    // Update daily stats for relevant interactions
-    if (interactionType === 'property_view' || interactionType === 'whatsapp_click') {
-      updateDailyStats(
-        propertyId,
-        interactionType === 'property_view' && isUniqueVisitor,
-        interactionType === 'whatsapp_click'
-      ).catch(console.error)
+    // Update daily stats for whatsapp clicks
+    if (interactionType === 'whatsapp_click') {
+      updateDailyStats(propertyId, false, true).catch(console.error)
     }
 
     // Log for debugging
@@ -156,7 +135,6 @@ export async function POST(request: NextRequest) {
       console.log('📊 INTERACTION:', interactionType.toUpperCase(), {
         propertyId,
         zoneId: zoneId || null,
-        isUniqueVisitor,
         duration
       })
     }

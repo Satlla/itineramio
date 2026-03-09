@@ -26,7 +26,8 @@ import {
   Pencil,
   Star,
   ToggleLeft,
-  ToggleRight
+  ToggleRight,
+  Info
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button, Card, CardContent, Badge } from '../../../../src/components/ui'
@@ -83,6 +84,7 @@ interface InvoiceConfig {
 
 export default function PerfilGestorPage() {
   const { t } = useTranslation('gestion')
+  const { t: tLegal } = useTranslation('legal')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploadingLogo, setUploadingLogo] = useState(false)
@@ -1391,6 +1393,14 @@ export default function PerfilGestorPage() {
                       </div>
                     </div>
                   )}
+
+                  {/* VeriFactu Disclaimer */}
+                  <div className="flex items-start gap-2 px-3 py-2 mt-4 bg-blue-50 border border-blue-100 rounded-lg">
+                    <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-blue-600">
+                      {tLegal('disclaimers.verifactu.short')}
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>

@@ -196,108 +196,315 @@ export const emailTemplates = {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>¡Bienvenido a Itineramio!</title>
+      <title>Bienvenido a Itineramio</title>
+      <style>
+        @media only screen and (max-width: 600px) {
+          .container { padding: 12px !important; }
+          .content { padding: 24px 20px !important; }
+          .feature-grid td { display: block !important; width: 100% !important; padding: 0 0 12px 0 !important; }
+          .cta-btn { display: block !important; width: 100% !important; text-align: center !important; box-sizing: border-box !important; }
+          .hero { padding: 32px 20px !important; }
+          .hero h1 { font-size: 26px !important; }
+        }
+      </style>
     </head>
-    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background-color: #f5f5f5;">
-      <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <!-- Header with celebration -->
-        <div style="text-align: center; margin-bottom: 0; padding: 40px 30px; background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); border-radius: 16px 16px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 32px;">¡Bienvenido a Itineramio!</h1>
-          <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">Tu cuenta ha sido verificada con éxito</p>
+    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; color: #24292f; background-color: #f6f8fa;">
+      <div class="container" style="max-width: 600px; margin: 0 auto; padding: 24px;">
+
+        <!-- Header — minimal like GitHub -->
+        <div style="text-align: center; padding: 16px 0 24px 0;">
+          <img src="https://www.itineramio.com/logo.png" alt="Itineramio" width="140" style="display: inline-block;" />
         </div>
 
-        <!-- Content -->
-        <div style="background: white; padding: 35px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-          <h2 style="color: #1e293b; margin-top: 0; font-size: 24px;">¡Hola ${userName}!</h2>
-          <p style="color: #475569; font-size: 16px; line-height: 1.7;">
-            Gracias por unirte a <strong>Itineramio</strong>. Estamos encantados de tenerte aquí.
-            Ahora puedes empezar a crear manuales digitales increíbles para tus propiedades y
-            ofrecer una experiencia excepcional a tus huéspedes.
+        <!-- Hero -->
+        <div class="hero" style="background: #0d1117; border-radius: 16px 16px 0 0; padding: 44px 36px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0 0 8px 0; font-size: 30px; font-weight: 700; letter-spacing: -0.5px;">
+            Bienvenido, ${userName}
+          </h1>
+          <p style="color: #8b949e; margin: 0; font-size: 16px; font-weight: 400;">
+            Tu cuenta ha sido verificada. Vamos a hacer que tu manual sea un <span style="color: #a78bfa; font-weight: 600;">10</span>.
           </p>
+        </div>
 
-          <!-- Benefits Section -->
-          <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 4px solid #8b5cf6;">
-            <h3 style="color: #1e293b; margin: 0 0 15px 0; font-size: 18px;">¿Por qué Itineramio?</h3>
-            <ul style="color: #475569; padding-left: 0; margin: 0; list-style: none;">
-              <li style="margin: 12px 0; padding-left: 28px; position: relative;">
-                <span style="position: absolute; left: 0;">📉</span>
-                <strong>Reduce llamadas hasta un 80%</strong> - Tus huéspedes tendrán toda la información en su móvil
-              </li>
-              <li style="margin: 12px 0; padding-left: 28px; position: relative;">
-                <span style="position: absolute; left: 0;">⭐</span>
-                <strong>Mejora tus valoraciones</strong> - Una experiencia de check-in impecable
-              </li>
-              <li style="margin: 12px 0; padding-left: 28px; position: relative;">
-                <span style="position: absolute; left: 0;">⏰</span>
-                <strong>Ahorra tiempo</strong> - Deja de explicar lo mismo una y otra vez
-              </li>
-              <li style="margin: 12px 0; padding-left: 28px; position: relative;">
-                <span style="position: absolute; left: 0;">📱</span>
-                <strong>QR + Link directo</strong> - Comparte fácilmente por WhatsApp o email
-              </li>
-            </ul>
-          </div>
+        <!-- Main Content -->
+        <div class="content" style="background: #ffffff; padding: 36px; border-radius: 0 0 16px 16px; border: 1px solid #d0d7de; border-top: none;">
 
           ${trialEndDate ? `
-          <!-- Trial Info Section -->
-          <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); padding: 20px; border-radius: 12px; margin: 25px 0; border: 1px solid #a7f3d0; text-align: center;">
-            <p style="color: #065f46; margin: 0; font-size: 16px;">
-              <strong>🎁 Tu período de prueba de 15 días</strong><br>
-              <span style="font-size: 14px; color: #047857;">Válido hasta el <strong>${trialEndDate}</strong></span>
-            </p>
-            <p style="color: #059669; margin: 10px 0 0 0; font-size: 13px;">
-              Disfruta de todas las funcionalidades sin compromiso.
+          <!-- Trial Badge -->
+          <div style="background: #0d1117; color: #58a6ff; padding: 12px 20px; border-radius: 10px; margin-bottom: 28px; display: flex; align-items: center; text-align: center;">
+            <p style="margin: 0; font-size: 14px; width: 100%; text-align: center;">
+              <strong>15 dias de prueba gratuita</strong> &middot; Valido hasta el ${trialEndDate}
             </p>
           </div>
           ` : ''}
 
-          <!-- First Steps Section -->
-          <div style="background: #faf5ff; padding: 25px; border-radius: 12px; margin: 25px 0;">
-            <h3 style="color: #7c3aed; margin: 0 0 15px 0; font-size: 18px;">🚀 Tus primeros pasos</h3>
-            <ol style="color: #475569; padding-left: 20px; margin: 0;">
-              <li style="margin: 10px 0;"><strong>Crea tu primera propiedad</strong> - Añade los datos básicos de tu alojamiento</li>
-              <li style="margin: 10px 0;"><strong>Configura las zonas</strong> - WiFi, Check-in, Normas, Cocina...</li>
-              <li style="margin: 10px 0;"><strong>Añade fotos y videos</strong> - Haz tu manual más visual</li>
-              <li style="margin: 10px 0;"><strong>Genera tu QR</strong> - ¡Y compártelo con tus huéspedes!</li>
-            </ol>
+          <!-- Quick Start — like Apple's numbered steps -->
+          <div style="margin-bottom: 32px;">
+            <h2 style="color: #24292f; font-size: 20px; font-weight: 700; margin: 0 0 20px 0; letter-spacing: -0.3px;">
+              Tu manual listo en 15 minutos
+            </h2>
+
+            <!-- Step 1 -->
+            <div style="display: flex; margin-bottom: 16px;">
+              <div style="min-width: 36px; width: 36px; height: 36px; background: #a78bfa; border-radius: 50%; color: white; font-weight: 700; font-size: 16px; text-align: center; line-height: 36px; margin-right: 16px;">1</div>
+              <div>
+                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #24292f;">Usa el Asistente de IA</p>
+                <p style="margin: 4px 0 0 0; font-size: 14px; color: #656d76;">Nuestro wizard genera tu manual completo a partir de la direccion de tu propiedad. Zonas, instrucciones y contenido en minutos.</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div style="display: flex; margin-bottom: 16px;">
+              <div style="min-width: 36px; width: 36px; height: 36px; background: #a78bfa; border-radius: 50%; color: white; font-weight: 700; font-size: 16px; text-align: center; line-height: 36px; margin-right: 16px;">2</div>
+              <div>
+                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #24292f;">Personaliza y sube fotos</p>
+                <p style="margin: 4px 0 0 0; font-size: 14px; color: #656d76;">Revisa el contenido generado, ajusta lo que necesites y sube fotos de cada zona. Las traducciones a ingles y frances son automaticas.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div style="display: flex; margin-bottom: 16px;">
+              <div style="min-width: 36px; width: 36px; height: 36px; background: #a78bfa; border-radius: 50%; color: white; font-weight: 700; font-size: 16px; text-align: center; line-height: 36px; margin-right: 16px;">3</div>
+              <div>
+                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #24292f;">Comparte con tus huespedes</p>
+                <p style="margin: 4px 0 0 0; font-size: 14px; color: #656d76;">Imprime el codigo QR, envia el link por WhatsApp, o activa el envio automatico antes del check-in.</p>
+              </div>
+            </div>
           </div>
 
-          <!-- CTA Buttons -->
-          <div style="text-align: center; margin: 35px 0 25px 0;">
-            <a href="${dashboardUrl}"
-               style="background: #8b5cf6; color: white; padding: 16px 40px; text-decoration: none; border-radius: 10px; font-weight: 600; display: inline-block; box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4); font-size: 16px;">
-              Crear mi primera propiedad
+          <!-- CTA Principal -->
+          <div style="text-align: center; margin: 28px 0 32px 0;">
+            <a href="${dashboardUrl.replace('/main', '/ai-setup')}"
+               class="cta-btn"
+               style="background: #8b5cf6; color: white; padding: 14px 36px; text-decoration: none; border-radius: 10px; font-weight: 600; display: inline-block; font-size: 15px; letter-spacing: -0.2px;">
+              Crear mi manual con IA
             </a>
           </div>
 
-          <!-- Onboarding Guide Link -->
-          <div style="background: #fef3c7; padding: 20px; border-radius: 12px; margin: 25px 0; text-align: center; border: 1px solid #fcd34d;">
-            <p style="color: #92400e; margin: 0 0 12px 0; font-size: 15px;">
-              <strong>📖 ¿Quieres ver una guía completa paso a paso?</strong>
-            </p>
-            <a href="https://www.itineramio.com/bienvenido"
-               style="color: #d97706; font-weight: 600; text-decoration: underline; font-size: 15px;">
-              Ver guía de onboarding completa →
-            </a>
+          <!-- Divider -->
+          <hr style="border: none; border-top: 1px solid #d8dee4; margin: 32px 0;" />
+
+          <!-- Features Grid — 2x3 like Airbnb cards -->
+          <h2 style="color: #24292f; font-size: 18px; font-weight: 700; margin: 0 0 20px 0; letter-spacing: -0.3px;">
+            Lo que puedes hacer con Itineramio
+          </h2>
+
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 24px;">
+            <tr class="feature-grid">
+              <td style="width: 50%; padding: 0 8px 16px 0; vertical-align: top;">
+                <div style="background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 10px; padding: 16px;">
+                  <p style="margin: 0 0 6px 0; font-size: 20px;">&#x1F916;</p>
+                  <p style="margin: 0; font-size: 14px; font-weight: 600; color: #24292f;">Manual con IA</p>
+                  <p style="margin: 4px 0 0 0; font-size: 13px; color: #656d76;">La IA genera zonas, pasos e instrucciones automaticamente.</p>
+                </div>
+              </td>
+              <td style="width: 50%; padding: 0 0 16px 8px; vertical-align: top;">
+                <div style="background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 10px; padding: 16px;">
+                  <p style="margin: 0 0 6px 0; font-size: 20px;">&#x1F4F1;</p>
+                  <p style="margin: 0; font-size: 14px; font-weight: 600; color: #24292f;">Codigos QR</p>
+                  <p style="margin: 4px 0 0 0; font-size: 13px; color: #656d76;">General y por zona. Imprime y coloca en tu alojamiento.</p>
+                </div>
+              </td>
+            </tr>
+            <tr class="feature-grid">
+              <td style="width: 50%; padding: 0 8px 16px 0; vertical-align: top;">
+                <div style="background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 10px; padding: 16px;">
+                  <p style="margin: 0 0 6px 0; font-size: 20px;">&#x1F514;</p>
+                  <p style="margin: 0; font-size: 14px; font-weight: 600; color: #24292f;">Avisos en tiempo real</p>
+                  <p style="margin: 4px 0 0 0; font-size: 13px; color: #656d76;">Informa a huespedes de cambios: obras, piscina, eventos.</p>
+                </div>
+              </td>
+              <td style="width: 50%; padding: 0 0 16px 8px; vertical-align: top;">
+                <div style="background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 10px; padding: 16px;">
+                  <p style="margin: 0 0 6px 0; font-size: 20px;">&#x1F310;</p>
+                  <p style="margin: 0; font-size: 14px; font-weight: 600; color: #24292f;">Traducciones automaticas</p>
+                  <p style="margin: 4px 0 0 0; font-size: 13px; color: #656d76;">Tu manual en ES, EN y FR. Se detecta el idioma del huesped.</p>
+                </div>
+              </td>
+            </tr>
+            <tr class="feature-grid">
+              <td style="width: 50%; padding: 0 8px 0 0; vertical-align: top;">
+                <div style="background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 10px; padding: 16px;">
+                  <p style="margin: 0 0 6px 0; font-size: 20px;">&#x1F4CA;</p>
+                  <p style="margin: 0; font-size: 14px; font-weight: 600; color: #24292f;">Analytics</p>
+                  <p style="margin: 4px 0 0 0; font-size: 13px; color: #656d76;">Visitas, valoraciones, sesiones. Sabe que leen tus huespedes.</p>
+                </div>
+              </td>
+              <td style="width: 50%; padding: 0 0 0 8px; vertical-align: top;">
+                <div style="background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 10px; padding: 16px;">
+                  <p style="margin: 0 0 6px 0; font-size: 20px;">&#x2B50;</p>
+                  <p style="margin: 0; font-size: 14px; font-weight: 600; color: #24292f;">Valoraciones de huespedes</p>
+                  <p style="margin: 4px 0 0 0; font-size: 13px; color: #656d76;">Los huespedes valoran cada zona. Mejora con feedback real.</p>
+                </div>
+              </td>
+            </tr>
+          </table>
+
+          <!-- Divider -->
+          <hr style="border: none; border-top: 1px solid #d8dee4; margin: 28px 0;" />
+
+          <!-- FAQ Section -->
+          <h2 style="color: #24292f; font-size: 18px; font-weight: 700; margin: 0 0 16px 0; letter-spacing: -0.3px;">
+            Preguntas frecuentes
+          </h2>
+
+          <div style="margin-bottom: 16px;">
+            <p style="margin: 0; font-size: 14px; font-weight: 600; color: #24292f;">¿Como creo mi primera propiedad?</p>
+            <p style="margin: 4px 0 0 0; font-size: 14px; color: #656d76;">Ve a Dashboard &rarr; Crear manual con IA. El asistente te guia paso a paso: direccion, detalles, fotos y en 15 minutos tienes tu manual completo.</p>
+          </div>
+          <div style="margin-bottom: 16px;">
+            <p style="margin: 0; font-size: 14px; font-weight: 600; color: #24292f;">¿Como comparto el manual con huespedes?</p>
+            <p style="margin: 4px 0 0 0; font-size: 14px; color: #656d76;">Imprime el codigo QR y colocalo en tu alojamiento, o envia el link directo por WhatsApp, email o mensajeria de Airbnb/Booking.</p>
+          </div>
+          <div style="margin-bottom: 16px;">
+            <p style="margin: 0; font-size: 14px; font-weight: 600; color: #24292f;">¿Que zonas crea la IA?</p>
+            <p style="margin: 4px 0 0 0; font-size: 14px; color: #656d76;">Check-in, WiFi, Cocina, Normas de la casa, Recomendaciones locales, Checkout y mas. Puedes anadir, quitar o reordenar todas las zonas.</p>
+          </div>
+          <div style="margin-bottom: 16px;">
+            <p style="margin: 0; font-size: 14px; font-weight: 600; color: #24292f;">¿Las traducciones son automaticas?</p>
+            <p style="margin: 4px 0 0 0; font-size: 14px; color: #656d76;">Si. Tu escribes en espanol y el manual se traduce automaticamente a ingles y frances. El idioma se detecta segun el navegador del huesped.</p>
           </div>
 
-          <!-- Help Section -->
-          <div style="border-top: 1px solid #e5e7eb; margin-top: 30px; padding-top: 25px; text-align: center;">
-            <p style="color: #6b7280; font-size: 14px; margin: 0;">
-              ¿Tienes dudas? Estamos aquí para ayudarte.<br>
-              Escríbenos a <a href="mailto:hola@itineramio.com" style="color: #8b5cf6; text-decoration: none; font-weight: 500;">hola@itineramio.com</a>
-            </p>
+          <!-- Divider -->
+          <hr style="border: none; border-top: 1px solid #d8dee4; margin: 28px 0;" />
+
+          <!-- SofIA banner -->
+          <div style="background: #0d1117; border-radius: 10px; padding: 20px; text-align: center;">
+            <p style="color: #e6edf3; margin: 0 0 4px 0; font-size: 15px; font-weight: 600;">¿Tienes dudas? Habla con SofIA</p>
+            <p style="color: #8b949e; margin: 0 0 14px 0; font-size: 13px;">Tu asistente con IA disponible 24/7 en el widget de soporte</p>
+            <a href="https://www.itineramio.com/main"
+               style="background: #a78bfa; color: white; padding: 10px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 14px;">
+              Ir a mi panel
+            </a>
           </div>
         </div>
 
-        <!-- Footer -->
-        <div style="text-align: center; padding: 25px; color: #94a3b8; font-size: 13px;">
-          <p style="margin: 0 0 10px 0;">
-            <a href="https://www.itineramio.com/blog" style="color: #8b5cf6; text-decoration: none; margin: 0 10px;">Blog</a> |
-            <a href="https://www.itineramio.com/academia" style="color: #8b5cf6; text-decoration: none; margin: 0 10px;">Academia</a> |
-            <a href="https://www.itineramio.com/hub" style="color: #8b5cf6; text-decoration: none; margin: 0 10px;">Recursos</a>
+        <!-- Footer — minimal like GitHub -->
+        <div style="text-align: center; padding: 24px 0; color: #656d76; font-size: 12px;">
+          <p style="margin: 0 0 8px 0;">
+            <a href="https://www.itineramio.com/blog" style="color: #656d76; text-decoration: none; margin: 0 8px;">Blog</a>
+            <a href="https://www.itineramio.com/academia" style="color: #656d76; text-decoration: none; margin: 0 8px;">Academia</a>
+            <a href="https://www.itineramio.com/hub/tools" style="color: #656d76; text-decoration: none; margin: 0 8px;">Herramientas</a>
+            <a href="https://wa.me/34652656440" style="color: #656d76; text-decoration: none; margin: 0 8px;">WhatsApp</a>
           </p>
-          <p style="margin: 15px 0 5px 0;">© 2025 Itineramio. Todos los derechos reservados.</p>
+          <p style="margin: 8px 0 0 0; color: #8b949e;">&copy; 2026 Itineramio. Todos los derechos reservados.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `,
+
+  // Day 3 follow-up — "¿Ya creaste tu manual?"
+  day3FollowUp: (userName: string) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        @media only screen and (max-width: 600px) {
+          .container { padding: 12px !important; }
+          .content { padding: 24px 20px !important; }
+          .cta-btn { display: block !important; width: 100% !important; text-align: center !important; box-sizing: border-box !important; }
+        }
+      </style>
+    </head>
+    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; color: #24292f; background-color: #f6f8fa;">
+      <div class="container" style="max-width: 600px; margin: 0 auto; padding: 24px;">
+        <div style="text-align: center; padding: 16px 0 24px 0;">
+          <img src="https://www.itineramio.com/logo.png" alt="Itineramio" width="140" />
+        </div>
+        <div class="content" style="background: #ffffff; padding: 36px; border-radius: 16px; border: 1px solid #d0d7de;">
+          <h1 style="color: #24292f; font-size: 24px; font-weight: 700; margin: 0 0 16px 0;">${userName}, ¿ya creaste tu manual?</h1>
+          <p style="font-size: 15px; color: #656d76; margin-bottom: 24px;">
+            Han pasado unos dias desde que te registraste. Si aun no has creado tu primer manual digital,
+            te contamos 3 cosas que quiza no sabias:
+          </p>
+
+          <div style="background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 10px; padding: 20px; margin-bottom: 16px;">
+            <p style="margin: 0 0 4px 0; font-size: 15px; font-weight: 600; color: #24292f;">La IA lo hace por ti</p>
+            <p style="margin: 0; font-size: 14px; color: #656d76;">Solo necesitas la direccion de tu propiedad. El asistente genera todas las zonas, instrucciones y contenido automaticamente.</p>
+          </div>
+          <div style="background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 10px; padding: 20px; margin-bottom: 16px;">
+            <p style="margin: 0 0 4px 0; font-size: 15px; font-weight: 600; color: #24292f;">Se traduce solo</p>
+            <p style="margin: 0; font-size: 14px; color: #656d76;">Escribe en espanol y tus huespedes lo ven en su idioma (ingles, frances). Sin configurar nada.</p>
+          </div>
+          <div style="background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 10px; padding: 20px; margin-bottom: 24px;">
+            <p style="margin: 0 0 4px 0; font-size: 15px; font-weight: 600; color: #24292f;">QR en 1 click</p>
+            <p style="margin: 0; font-size: 14px; color: #656d76;">Genera el codigo QR, imprimelo y colocalo en tu alojamiento. El huesped escanea y ya tiene toda la info.</p>
+          </div>
+
+          <div style="text-align: center; margin: 28px 0 0 0;">
+            <a href="https://www.itineramio.com/ai-setup" class="cta-btn"
+               style="background: #8b5cf6; color: white; padding: 14px 36px; text-decoration: none; border-radius: 10px; font-weight: 600; display: inline-block; font-size: 15px;">
+              Crear mi manual ahora
+            </a>
+          </div>
+        </div>
+        <div style="text-align: center; padding: 20px 0; color: #8b949e; font-size: 12px;">
+          <p style="margin: 0;">&copy; 2026 Itineramio</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `,
+
+  // Day 7 follow-up — Tips para ser Superhost
+  day7Tips: (userName: string) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        @media only screen and (max-width: 600px) {
+          .container { padding: 12px !important; }
+          .content { padding: 24px 20px !important; }
+          .cta-btn { display: block !important; width: 100% !important; text-align: center !important; box-sizing: border-box !important; }
+        }
+      </style>
+    </head>
+    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; color: #24292f; background-color: #f6f8fa;">
+      <div class="container" style="max-width: 600px; margin: 0 auto; padding: 24px;">
+        <div style="text-align: center; padding: 16px 0 24px 0;">
+          <img src="https://www.itineramio.com/logo.png" alt="Itineramio" width="140" />
+        </div>
+        <div class="content" style="background: #ffffff; padding: 36px; border-radius: 16px; border: 1px solid #d0d7de;">
+          <h1 style="color: #24292f; font-size: 24px; font-weight: 700; margin: 0 0 8px 0;">5 consejos para un manual perfecto</h1>
+          <p style="font-size: 14px; color: #8b949e; margin: 0 0 24px 0;">Hola ${userName} — estos tips marcan la diferencia entre un manual bueno y uno excelente.</p>
+
+          <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #d8dee4;">
+            <p style="margin: 0; font-size: 15px; font-weight: 600; color: #24292f;">1. Fotos reales de tu alojamiento</p>
+            <p style="margin: 4px 0 0 0; font-size: 14px; color: #656d76;">La IA genera el texto, pero las fotos las pones tu. Un manual con fotos reales genera mucha mas confianza.</p>
+          </div>
+          <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #d8dee4;">
+            <p style="margin: 0; font-size: 15px; font-weight: 600; color: #24292f;">2. Revisa la contrasena del WiFi</p>
+            <p style="margin: 4px 0 0 0; font-size: 14px; color: #656d76;">Es la zona mas consultada. Asegurate de que la contrasena y el nombre de la red estan correctos.</p>
+          </div>
+          <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #d8dee4;">
+            <p style="margin: 0; font-size: 15px; font-weight: 600; color: #24292f;">3. Pon el QR en la puerta de entrada</p>
+            <p style="margin: 4px 0 0 0; font-size: 14px; color: #656d76;">Es lo primero que ve el huesped al llegar. Junto al QR de la propiedad, pon QR especificos en el router (WiFi) y la cocina.</p>
+          </div>
+          <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #d8dee4;">
+            <p style="margin: 0; font-size: 15px; font-weight: 600; color: #24292f;">4. Usa los Avisos para cambios temporales</p>
+            <p style="margin: 4px 0 0 0; font-size: 14px; color: #656d76;">Obras cerca, piscina en mantenimiento, un evento local... Los avisos se muestran destacados al huesped sin tocar el manual.</p>
+          </div>
+          <div style="margin-bottom: 24px;">
+            <p style="margin: 0; font-size: 15px; font-weight: 600; color: #24292f;">5. Revisa las valoraciones</p>
+            <p style="margin: 4px 0 0 0; font-size: 14px; color: #656d76;">Tus huespedes pueden valorar cada zona. Si alguna tiene nota baja, mejorala. Es feedback directo y gratuito.</p>
+          </div>
+
+          <div style="background: #0d1117; border-radius: 10px; padding: 20px; text-align: center;">
+            <p style="color: #e6edf3; margin: 0 0 4px 0; font-size: 15px; font-weight: 600;">¿Necesitas ayuda? SofIA esta disponible 24/7</p>
+            <p style="color: #8b949e; margin: 0 0 14px 0; font-size: 13px;">Tu asistente con IA en el widget de soporte del panel</p>
+            <a href="https://www.itineramio.com/main" class="cta-btn"
+               style="background: #a78bfa; color: white; padding: 10px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 14px;">
+              Ir a mi panel
+            </a>
+          </div>
+        </div>
+        <div style="text-align: center; padding: 20px 0; color: #8b949e; font-size: 12px;">
+          <p style="margin: 0;">&copy; 2026 Itineramio</p>
         </div>
       </div>
     </body>
@@ -1078,7 +1285,136 @@ ${params.prorationBreakdown}
       </div>
     </body>
     </html>
-  `
+  `,
+
+  supportTicketEscalated: (params: {
+    ticketSubject: string
+    userName?: string
+    userEmail?: string
+    reasonLabel: string
+    messagesHtml: string
+    adminUrl: string
+  }) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.5;color:#24292f;background-color:#f6f8fa;">
+      <div style="max-width:600px;margin:0 auto;padding:24px;">
+        <div style="text-align:center;padding:16px 0 24px;">
+          <img src="https://www.itineramio.com/logo.png" alt="Itineramio" width="140" />
+        </div>
+        <div style="background:#0d1117;border-radius:16px 16px 0 0;padding:32px 36px;text-align:center;">
+          <h1 style="color:#fff;margin:0 0 8px;font-size:24px;font-weight:700;">Ticket Escalado</h1>
+          <p style="color:#8b949e;margin:0;font-size:15px;">${params.reasonLabel}</p>
+        </div>
+        <div style="background:#fff;padding:32px 36px;border-radius:0 0 16px 16px;border:1px solid #d0d7de;border-top:none;">
+          <div style="background:#f6f8fa;border:1px solid #d0d7de;border-radius:10px;padding:16px;margin-bottom:24px;">
+            <p style="margin:0 0 4px;font-size:13px;color:#656d76;">Asunto</p>
+            <p style="margin:0;font-size:16px;font-weight:600;color:#24292f;">${params.ticketSubject}</p>
+            ${params.userName ? `<p style="margin:8px 0 0;font-size:13px;color:#656d76;">Usuario: <strong style="color:#24292f;">${params.userName}</strong></p>` : ''}
+            ${params.userEmail ? `<p style="margin:4px 0 0;font-size:13px;color:#656d76;">Email: <strong style="color:#24292f;">${params.userEmail}</strong></p>` : ''}
+          </div>
+          ${params.messagesHtml ? `
+          <p style="font-size:14px;font-weight:600;color:#24292f;margin:0 0 12px;">Últimos mensajes:</p>
+          ${params.messagesHtml}
+          ` : ''}
+          <div style="text-align:center;margin:28px 0 0;">
+            <a href="${params.adminUrl}" style="background:#8b5cf6;color:white;padding:14px 36px;text-decoration:none;border-radius:10px;font-weight:600;display:inline-block;font-size:15px;">
+              Ver ticket en Admin
+            </a>
+          </div>
+        </div>
+        <div style="text-align:center;padding:20px 0;color:#8b949e;font-size:12px;">
+          <p style="margin:0;">&copy; 2026 Itineramio</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `,
+
+  supportAdminReply: (params: {
+    ticketSubject: string
+    adminMessage: string
+  }) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.5;color:#24292f;background-color:#f6f8fa;">
+      <div style="max-width:600px;margin:0 auto;padding:24px;">
+        <div style="text-align:center;padding:16px 0 24px;">
+          <img src="https://www.itineramio.com/logo.png" alt="Itineramio" width="140" />
+        </div>
+        <div style="background:#0d1117;border-radius:16px 16px 0 0;padding:32px 36px;text-align:center;">
+          <h1 style="color:#fff;margin:0 0 8px;font-size:24px;font-weight:700;">Nueva respuesta</h1>
+          <p style="color:#8b949e;margin:0;font-size:15px;">Hemos respondido a tu consulta</p>
+        </div>
+        <div style="background:#fff;padding:32px 36px;border-radius:0 0 16px 16px;border:1px solid #d0d7de;border-top:none;">
+          <p style="font-size:13px;color:#656d76;margin:0 0 4px;">Asunto</p>
+          <p style="font-size:16px;font-weight:600;color:#24292f;margin:0 0 20px;">${params.ticketSubject}</p>
+          <div style="background:#f6f8fa;border:1px solid #d0d7de;border-radius:10px;padding:16px;margin-bottom:24px;">
+            <p style="margin:0 0 4px;font-size:12px;font-weight:600;color:#8b5cf6;">Equipo Itineramio</p>
+            <p style="margin:0;font-size:14px;color:#24292f;white-space:pre-wrap;">${params.adminMessage}</p>
+          </div>
+          <p style="font-size:14px;color:#656d76;text-align:center;">
+            Si necesitas algo más, responde directamente a este email o abre el chat de soporte en nuestra web.
+          </p>
+        </div>
+        <div style="text-align:center;padding:20px 0;color:#8b949e;font-size:12px;">
+          <p style="margin:0;">&copy; 2026 Itineramio</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `,
+}
+
+// --- Support Ticket Escalation Email Helper ---
+
+interface TicketEscalatedEmailParams {
+  ticketId: string
+  ticketSubject: string
+  userName?: string
+  userEmail?: string
+  reason: 'manual' | 'low_confidence'
+  recentMessages?: { sender: string; content: string }[]
+}
+
+export async function sendTicketEscalatedEmail(params: TicketEscalatedEmailParams) {
+  const { ticketId, ticketSubject, userName, userEmail, reason, recentMessages = [] } = params
+  const adminUrl = `https://www.itineramio.com/admin/support/tickets/${ticketId}`
+  const reasonLabel = reason === 'manual'
+    ? 'El usuario ha solicitado hablar con un agente'
+    : 'La IA no pudo resolver con confianza suficiente'
+
+  const messagesHtml = recentMessages.slice(-5).map(m => {
+    const senderLabel = m.sender === 'USER' ? (userName || userEmail || 'Usuario') : m.sender === 'AI' ? 'SofIA' : 'Admin'
+    const bgColor = m.sender === 'USER' ? '#ede9fe' : '#f1f5f9'
+    return `<div style="background:${bgColor};border-radius:8px;padding:10px 14px;margin-bottom:8px;">
+      <p style="margin:0 0 4px;font-size:12px;font-weight:600;color:#64748b;">${senderLabel}</p>
+      <p style="margin:0;font-size:14px;color:#1e293b;">${m.content.substring(0, 300)}</p>
+    </div>`
+  }).join('')
+
+  const html = emailTemplates.supportTicketEscalated({
+    ticketSubject,
+    userName,
+    userEmail,
+    reasonLabel,
+    messagesHtml,
+    adminUrl,
+  })
+
+  return sendEmail({
+    to: ['alejandrosatlla@gmail.com'],
+    subject: `🎫 Ticket escalado: ${ticketSubject}`,
+    html,
+  })
 }
 
 // Email queue for retry logic (to be implemented with a proper queue system)

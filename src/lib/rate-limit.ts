@@ -1,33 +1,18 @@
 /**
- * Simple in-memory rate limiting utility
- * Suitable for single-server deployments
+ * Rate limiting utility — soporta dos modos:
  *
- * For production with multiple servers, consider using Redis-based rate limiting
+ * 1. Upstash Redis (producción/serverless): Se activa cuando están configuradas
+ *    las variables UPSTASH_REDIS_REST_URL y UPSTASH_REDIS_REST_TOKEN.
+ *    Usa sliding window distribuido — funciona correctamente en Vercel con
+ *    múltiples instancias simultáneas.
+ *
+ * 2. In-memory fallback (desarrollo/single-server): Se usa cuando no hay Redis
+ *    configurado. NO es fiable en serverless (cada invocación es nueva instancia).
  */
 
-interface RateLimitRecord {
-  count: number
-  resetTime: number
-}
-
-// Store rate limit records by key
-const rateLimitStore = new Map<string, RateLimitRecord>()
-
-// Cleanup old records periodically to prevent memory leaks
-const CLEANUP_INTERVAL = 60 * 60 * 1000 // 1 hour
-let lastCleanup = Date.now()
-
-function cleanupExpiredRecords() {
-  const now = Date.now()
-  if (now - lastCleanup < CLEANUP_INTERVAL) return
-
-  for (const [key, record] of rateLimitStore.entries()) {
-    if (now > record.resetTime) {
-      rateLimitStore.delete(key)
-    }
-  }
-  lastCleanup = now
-}
+// ============================================
+// Tipos públicos (sin cambios de interfaz)
+// ============================================
 
 export interface RateLimitConfig {
   /** Maximum number of requests allowed in the window */
@@ -37,173 +22,167 @@ export interface RateLimitConfig {
 }
 
 export interface RateLimitResult {
-  /** Whether the request is allowed */
   allowed: boolean
-  /** Current request count */
   current: number
-  /** Maximum allowed requests */
   limit: number
-  /** Milliseconds until the rate limit resets */
   resetIn: number
-  /** Number of remaining requests */
   remaining: number
 }
 
-/**
- * Check if a request is allowed under rate limiting rules
- *
- * @param key - Unique identifier for the rate limit (e.g., userId, IP, or endpoint+userId)
- * @param config - Rate limit configuration
- * @returns Rate limit result with status and metadata
- */
-export function checkRateLimit(key: string, config: RateLimitConfig): RateLimitResult {
-  cleanupExpiredRecords()
+// ============================================
+// In-memory fallback
+// ============================================
 
+interface RateLimitRecord {
+  count: number
+  resetTime: number
+}
+
+const rateLimitStore = new Map<string, RateLimitRecord>()
+const CLEANUP_INTERVAL = 60 * 60 * 1000
+let lastCleanup = Date.now()
+
+function cleanupExpiredRecords() {
+  const now = Date.now()
+  if (now - lastCleanup < CLEANUP_INTERVAL) return
+  for (const [key, record] of rateLimitStore.entries()) {
+    if (now > record.resetTime) rateLimitStore.delete(key)
+  }
+  lastCleanup = now
+}
+
+function checkRateLimitInMemory(key: string, config: RateLimitConfig): RateLimitResult {
+  cleanupExpiredRecords()
   const now = Date.now()
   const record = rateLimitStore.get(key)
 
-  // No existing record or window expired - create new record
   if (!record || now > record.resetTime) {
-    rateLimitStore.set(key, {
-      count: 1,
-      resetTime: now + config.windowMs
-    })
-
-    return {
-      allowed: true,
-      current: 1,
-      limit: config.maxRequests,
-      resetIn: config.windowMs,
-      remaining: config.maxRequests - 1
-    }
+    rateLimitStore.set(key, { count: 1, resetTime: now + config.windowMs })
+    return { allowed: true, current: 1, limit: config.maxRequests, resetIn: config.windowMs, remaining: config.maxRequests - 1 }
   }
 
-  // Check if limit exceeded
   if (record.count >= config.maxRequests) {
-    return {
-      allowed: false,
-      current: record.count,
-      limit: config.maxRequests,
-      resetIn: record.resetTime - now,
-      remaining: 0
-    }
+    return { allowed: false, current: record.count, limit: config.maxRequests, resetIn: record.resetTime - now, remaining: 0 }
   }
 
-  // Increment count
   record.count++
+  return { allowed: true, current: record.count, limit: config.maxRequests, resetIn: record.resetTime - now, remaining: config.maxRequests - record.count }
+}
 
-  return {
-    allowed: true,
-    current: record.count,
-    limit: config.maxRequests,
-    resetIn: record.resetTime - now,
-    remaining: config.maxRequests - record.count
+// ============================================
+// Upstash Redis (distributed, serverless-safe)
+// ============================================
+
+let upstashRatelimit: any = null
+let upstashRedis: any = null
+
+function getUpstashClient() {
+  if (upstashRedis) return upstashRedis
+  const url = process.env.UPSTASH_REDIS_REST_URL
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN
+  if (!url || !token) return null
+
+  try {
+    // Dynamic require to avoid breaking if package not installed
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { Redis } = require('@upstash/redis')
+    upstashRedis = new Redis({ url, token })
+    return upstashRedis
+  } catch {
+    return null
   }
 }
 
+async function checkRateLimitUpstash(key: string, config: RateLimitConfig): Promise<RateLimitResult | null> {
+  const redis = getUpstashClient()
+  if (!redis) return null
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { Ratelimit } = require('@upstash/ratelimit')
+    if (!upstashRatelimit) {
+      upstashRatelimit = new Map()
+    }
+
+    const cacheKey = `${config.maxRequests}:${config.windowMs}`
+    if (!upstashRatelimit.has(cacheKey)) {
+      upstashRatelimit.set(cacheKey, new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(config.maxRequests, `${config.windowMs} ms`),
+        analytics: false,
+      }))
+    }
+
+    const limiter = upstashRatelimit.get(cacheKey)
+    const result = await limiter.limit(key)
+
+    return {
+      allowed: result.success,
+      current: config.maxRequests - result.remaining,
+      limit: result.limit,
+      resetIn: result.reset - Date.now(),
+      remaining: result.remaining,
+    }
+  } catch {
+    // Redis error — degrade gracefully to in-memory
+    return null
+  }
+}
+
+// ============================================
+// API pública — compatible con código existente
+// ============================================
+
+export function checkRateLimit(key: string, config: RateLimitConfig): RateLimitResult {
+  // Sync fallback: in-memory (se usa cuando no hay Redis)
+  return checkRateLimitInMemory(key, config)
+}
+
 /**
- * Create a rate limiter with pre-configured settings
- *
- * @param config - Rate limit configuration
- * @returns Function to check rate limit
+ * Versión async — usa Redis si está configurado, in-memory si no.
+ * Preferir esta función en rutas nuevas.
  */
+export async function checkRateLimitAsync(key: string, config: RateLimitConfig): Promise<RateLimitResult> {
+  const upstashResult = await checkRateLimitUpstash(key, config)
+  if (upstashResult) return upstashResult
+  return checkRateLimitInMemory(key, config)
+}
+
 export function createRateLimiter(config: RateLimitConfig) {
   return (key: string) => checkRateLimit(key, config)
 }
 
-// Pre-configured rate limiters for common use cases
-
-/** Rate limiter for checkout/payment operations: 10 requests per minute per user */
-export const paymentRateLimiter = createRateLimiter({
-  maxRequests: 10,
-  windowMs: 60 * 1000 // 1 minute
-})
-
-/** Rate limiter for coupon validation: 20 requests per minute per user */
-export const couponRateLimiter = createRateLimiter({
-  maxRequests: 20,
-  windowMs: 60 * 1000 // 1 minute
-})
-
-/** Rate limiter for API endpoints: 100 requests per minute per user */
-export const apiRateLimiter = createRateLimiter({
-  maxRequests: 100,
-  windowMs: 60 * 1000 // 1 minute
-})
+export function createRateLimiterAsync(config: RateLimitConfig) {
+  return (key: string) => checkRateLimitAsync(key, config)
+}
 
 // ============================================
-// Gestion module rate limiters
+// Pre-configured rate limiters (sin cambios)
 // ============================================
 
-/** Rate limiter for gestion read operations: 60 requests per minute per user */
-export const gestionReadRateLimiter = createRateLimiter({
-  maxRequests: 60,
-  windowMs: 60 * 1000 // 1 minute
-})
+export const paymentRateLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60 * 1000 })
+export const couponRateLimiter = createRateLimiter({ maxRequests: 20, windowMs: 60 * 1000 })
+export const apiRateLimiter = createRateLimiter({ maxRequests: 100, windowMs: 60 * 1000 })
+export const gestionReadRateLimiter = createRateLimiter({ maxRequests: 60, windowMs: 60 * 1000 })
+export const gestionWriteRateLimiter = createRateLimiter({ maxRequests: 30, windowMs: 60 * 1000 })
+export const gestionImportRateLimiter = createRateLimiter({ maxRequests: 5, windowMs: 60 * 60 * 1000 })
+export const gestionLiquidationRateLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60 * 60 * 1000 })
+export const gestionPdfRateLimiter = createRateLimiter({ maxRequests: 20, windowMs: 60 * 60 * 1000 })
+export const translationRateLimiter = createRateLimiter({ maxRequests: 30, windowMs: 60 * 60 * 1000 })
+export const publicApiRateLimiter = createRateLimiter({ maxRequests: 60, windowMs: 60 * 1000 })
+export const webhookRateLimiter = createRateLimiter({ maxRequests: 30, windowMs: 60 * 1000 })
 
-/** Rate limiter for gestion write operations: 30 requests per minute per user */
-export const gestionWriteRateLimiter = createRateLimiter({
-  maxRequests: 30,
-  windowMs: 60 * 1000 // 1 minute
-})
+// Async versions — recomendadas para rutas nuevas
+export const paymentRateLimiterAsync = createRateLimiterAsync({ maxRequests: 10, windowMs: 60 * 1000 })
+export const gestionImportRateLimiterAsync = createRateLimiterAsync({ maxRequests: 5, windowMs: 60 * 60 * 1000 })
+export const gestionLiquidationRateLimiterAsync = createRateLimiterAsync({ maxRequests: 10, windowMs: 60 * 60 * 1000 })
 
-/** Rate limiter for CSV import: 5 imports per hour per user */
-export const gestionImportRateLimiter = createRateLimiter({
-  maxRequests: 5,
-  windowMs: 60 * 60 * 1000 // 1 hour
-})
-
-/** Rate limiter for liquidation generation: 10 per hour per user */
-export const gestionLiquidationRateLimiter = createRateLimiter({
-  maxRequests: 10,
-  windowMs: 60 * 60 * 1000 // 1 hour
-})
-
-/** Rate limiter for PDF generation: 20 per hour per user */
-export const gestionPdfRateLimiter = createRateLimiter({
-  maxRequests: 20,
-  windowMs: 60 * 60 * 1000 // 1 hour
-})
-
-/** Rate limiter for AI translation: 30 translations per hour per user */
-export const translationRateLimiter = createRateLimiter({
-  maxRequests: 30,
-  windowMs: 60 * 60 * 1000 // 1 hour
-})
-
-// ============================================
-// Public API v1 rate limiters
-// ============================================
-
-/** Rate limiter for public API endpoints: 60 requests per minute per API key */
-export const publicApiRateLimiter = createRateLimiter({
-  maxRequests: 60,
-  windowMs: 60 * 1000 // 1 minute
-})
-
-/** Rate limiter for webhook ingestion: 30 requests per minute per API key */
-export const webhookRateLimiter = createRateLimiter({
-  maxRequests: 30,
-  windowMs: 60 * 1000 // 1 minute
-})
-
-/**
- * Get client identifier from request for rate limiting
- * Uses user ID if authenticated, falls back to IP address
- */
-export function getRateLimitKey(
-  request: Request,
-  userId?: string | null,
-  prefix?: string
-): string {
+export function getRateLimitKey(request: Request, userId?: string | null, prefix?: string): string {
   if (userId) {
     return prefix ? `${prefix}:user:${userId}` : `user:${userId}`
   }
-
-  // Extract IP from headers
   const forwarded = request.headers.get('x-forwarded-for')
   const realIp = request.headers.get('x-real-ip')
   const ip = forwarded?.split(',')[0]?.trim() || realIp || 'unknown'
-
   return prefix ? `${prefix}:ip:${ip}` : `ip:${ip}`
 }

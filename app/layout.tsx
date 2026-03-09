@@ -17,6 +17,7 @@ import { LoadingProvider } from '../src/components/providers/LoadingProvider'
 import { ExitIntentPopup } from '../src/components/marketing/ExitIntentPopup'
 import { PWASafeArea } from '../src/components/pwa/PWASafeArea'
 import NextTopLoader from 'nextjs-toploader'
+import { SupportWidgetLazy } from '../src/components/support/SupportWidgetLazy'
 
 // Validate environment variables on startup
 if (typeof window === 'undefined') {
@@ -286,6 +287,11 @@ export default function RootLayout({
             </Providers>
           </I18nProvider>
         </ErrorBoundary>
+
+        {/* Help Center Support Widget */}
+        <Suspense fallback={null}>
+          <SupportWidgetLazy />
+        </Suspense>
 
         {/* Vercel Analytics */}
         <Analytics />

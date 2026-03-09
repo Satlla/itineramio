@@ -114,6 +114,69 @@ export async function GET(
       // Notes might not be JSON, that's OK
     }
 
+    // Resolve incomeReceiver and commission rate
+    // Chain: stored value > reservation billingUnit/group > owner's billingUnit/group > owner's billingConfig
+    let resolvedIncomeReceiver = liquidation.incomeReceiver
+    let commissionRate: number | undefined
+
+    const firstRes = liquidation.reservations[0]
+    let configSource: any = null
+
+    // Try from reservation's billing unit/group
+    if (firstRes?.billingUnit) {
+      const unit = await prisma.billingUnit.findUnique({
+        where: { id: firstRes.billingUnit.id },
+        select: { incomeReceiver: true, groupId: true, commissionType: true, commissionValue: true }
+      })
+      if (unit?.groupId) {
+        const grp = await prisma.billingUnitGroup.findUnique({
+          where: { id: unit.groupId },
+        })
+        configSource = grp || unit
+      } else {
+        configSource = unit
+      }
+    }
+
+    // Try from metadata group
+    if (!configSource && metadata.billingUnitGroupId) {
+      configSource = await prisma.billingUnitGroup.findUnique({
+        where: { id: metadata.billingUnitGroupId },
+      })
+    }
+
+    // Fallback: look up from owner's billing config
+    if (!configSource) {
+      const ownerUnit = await prisma.billingUnit.findFirst({
+        where: { ownerId: liquidation.owner.id },
+      })
+      if (ownerUnit?.groupId) {
+        const ownerGroup = await prisma.billingUnitGroup.findUnique({
+          where: { id: ownerUnit.groupId },
+        })
+        configSource = ownerGroup || ownerUnit
+      } else if (ownerUnit) {
+        configSource = ownerUnit
+      } else {
+        configSource = await prisma.propertyBillingConfig.findFirst({
+          where: { ownerId: liquidation.owner.id },
+        })
+      }
+    }
+
+    // Resolve incomeReceiver
+    if (!resolvedIncomeReceiver && configSource) {
+      resolvedIncomeReceiver = configSource.incomeReceiver || 'MANAGER'
+    }
+    if (!resolvedIncomeReceiver) {
+      resolvedIncomeReceiver = 'MANAGER'
+    }
+
+    // Resolve commission rate
+    if (configSource?.commissionType === 'PERCENTAGE') {
+      commissionRate = Number(configSource.commissionValue)
+    }
+
     // Construir datos para el generador
     const data: LiquidationData = {
       id: liquidation.id,
@@ -181,6 +244,8 @@ export async function GET(
       notes: undefined, // Don't include raw notes (contains metadata JSON)
       groupName,
       isGrouped,
+      incomeReceiver: resolvedIncomeReceiver || undefined,
+      commissionRate,
     }
 
     const html = generateLiquidationHTML(data)

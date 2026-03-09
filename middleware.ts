@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { jwtVerify } from 'jose'
 
 const protectedRoutes: string[] = [
   '/main',
@@ -17,11 +18,17 @@ const authRoutes = [
   '/register'
 ]
 
-const adminAuthRoutes = [
-  '/admin/login'
-]
+async function verifyJWT(token: string, secret: string): Promise<boolean> {
+  try {
+    const key = new TextEncoder().encode(secret)
+    await jwtVerify(token, key)
+    return true
+  } catch {
+    return false
+  }
+}
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get('auth-token')?.value
 
@@ -34,8 +41,17 @@ export function middleware(request: NextRequest) {
   if (pathname.startsWith('/admin')) {
     const adminToken = request.cookies.get('admin-token')?.value
     if (!adminToken) {
-      const adminLoginUrl = new URL('/admin/login', request.url)
-      return NextResponse.redirect(adminLoginUrl)
+      return NextResponse.redirect(new URL('/admin/login', request.url))
+    }
+    // Verify admin token signature in Edge Runtime
+    const adminSecret = process.env.ADMIN_JWT_SECRET
+    if (adminSecret) {
+      const valid = await verifyJWT(adminToken, adminSecret)
+      if (!valid) {
+        const response = NextResponse.redirect(new URL('/admin/login', request.url))
+        response.cookies.delete('admin-token')
+        return response
+      }
     }
     return NextResponse.next()
   }
@@ -45,18 +61,22 @@ export function middleware(request: NextRequest) {
   if (rewriteResponse) {
     return rewriteResponse
   }
-  
-  const isProtectedRoute = protectedRoutes.some(route => 
+
+  const isProtectedRoute = protectedRoutes.some(route =>
     pathname.startsWith(route)
   )
-  
+
   const isAuthRoute = authRoutes.some(route =>
     pathname.startsWith(route)
   )
 
   // Si el usuario tiene token y está en la raíz o en /demo, redirigir a /main
   if ((pathname === '/' || pathname === '/demo') && token) {
-    return NextResponse.redirect(new URL('/main', request.url))
+    // Verify token is valid before redirecting
+    const jwtSecret = process.env.JWT_SECRET
+    if (jwtSecret && await verifyJWT(token, jwtSecret)) {
+      return NextResponse.redirect(new URL('/main', request.url))
+    }
   }
 
   if (isProtectedRoute) {
@@ -65,13 +85,28 @@ export function middleware(request: NextRequest) {
       loginUrl.searchParams.set('from', pathname)
       return NextResponse.redirect(loginUrl)
     }
-    // In Edge Runtime, we can't verify JWT properly
-    // The actual verification happens in the API routes
+    // Verify JWT signature and expiry in Edge Runtime using jose
+    const jwtSecret = process.env.JWT_SECRET
+    if (jwtSecret) {
+      const valid = await verifyJWT(token, jwtSecret)
+      if (!valid) {
+        // Token expired or invalid — clear cookie and redirect to login
+        const loginUrl = new URL('/login', request.url)
+        loginUrl.searchParams.set('from', pathname)
+        loginUrl.searchParams.set('expired', '1')
+        const response = NextResponse.redirect(loginUrl)
+        response.cookies.delete('auth-token')
+        return response
+      }
+    }
   }
 
   if (isAuthRoute && token) {
-    // If user has token and tries to access auth routes, redirect to main
-    return NextResponse.redirect(new URL('/main', request.url))
+    // Verify token is valid before redirecting away from auth pages
+    const jwtSecret = process.env.JWT_SECRET
+    if (jwtSecret && await verifyJWT(token, jwtSecret)) {
+      return NextResponse.redirect(new URL('/main', request.url))
+    }
   }
 
   return NextResponse.next()
@@ -155,6 +190,6 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|public|login|register|admin|guide).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|public|login|register|admin|guide|propietario).*)',
   ],
 }

@@ -1365,13 +1365,7 @@ export default function ImportarReservasPage() {
 
                 {/* Import button */}
                 <div className="mt-6 flex items-center justify-between">
-                  <div className="text-sm text-gray-500">
-                    {previewAnalysis.invalidRows > 0 && (
-                      <span className="text-red-600">
-                        {t('importReservations.analysis.invalidRows', { count: previewAnalysis.invalidRows })}
-                      </span>
-                    )}
-                  </div>
+                  <div></div>
                   <Button
                     onClick={handleImport}
                     disabled={

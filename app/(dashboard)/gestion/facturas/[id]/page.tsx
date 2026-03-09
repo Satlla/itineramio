@@ -23,7 +23,8 @@ import {
   Building2,
   CreditCard,
   Smartphone,
-  Banknote
+  Banknote,
+  Info
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useParams, useSearchParams } from 'next/navigation'
@@ -116,6 +117,7 @@ export default function InvoiceDetailPage() {
   const params = useParams()
   const searchParams = useSearchParams()
   const { t } = useTranslation('gestion')
+  const { t: tLegal } = useTranslation('legal')
   const invoiceId = params.id as string
   const showRectifyModal = searchParams.get('rectify') === 'true'
 
@@ -862,6 +864,14 @@ export default function InvoiceDetailPage() {
             </div>
           </motion.div>
 
+          {/* Billing Disclaimer */}
+          <div className="flex items-start gap-2 px-3 py-2 mb-4 bg-blue-50 border border-blue-100 rounded-lg">
+            <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-blue-600">
+              {tLegal('disclaimers.billing.short')}
+            </p>
+          </div>
+
           {/* Error Alert */}
           {error && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6">
@@ -1009,6 +1019,13 @@ export default function InvoiceDetailPage() {
                   </div>
                 </CardContent>
               </Card>
+              {/* VeriFactu Disclaimer */}
+              <div className="flex items-start gap-2 px-3 py-2 mt-2 bg-emerald-50 border border-emerald-100 rounded-lg">
+                <Info className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-emerald-600">
+                  {tLegal('disclaimers.verifactu.short')}
+                </p>
+              </div>
             </motion.div>
           )}
 
@@ -1144,6 +1161,16 @@ export default function InvoiceDetailPage() {
                         })}
                       </tbody>
                     </table>
+
+                    {/* Warning IVA no estándar */}
+                    {invoice.items.some(item => item.vatRate !== 21) && (
+                      <div className="flex items-start gap-2 px-3 py-2 mt-2 bg-amber-50 border border-amber-100 rounded-lg">
+                        <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                        <p className="text-xs text-amber-700">
+                          Tipo de IVA no estándar ({invoice.items.filter(i => i.vatRate !== 21).map(i => `${i.vatRate}%`).filter((v, idx, arr) => arr.indexOf(v) === idx).join(', ')}). Verifique que es correcto para su actividad y jurisdicción.
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Totals */}
@@ -1529,6 +1556,16 @@ export default function InvoiceDetailPage() {
                     <Plus className="w-4 h-4 mr-1" />
                     {t('invoices.rectifyModal.addLine')}
                   </Button>
+
+                  {/* Warning IVA no estándar */}
+                  {rectifyItems.some(item => item.vatRate !== 21) && (
+                    <div className="flex items-start gap-2 px-3 py-2 mt-2 bg-amber-50 border border-amber-100 rounded-lg">
+                      <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-amber-700">
+                        Tipo de IVA no estándar ({rectifyItems.filter(i => i.vatRate !== 21).map(i => `${i.vatRate}%`).filter((v, idx, arr) => arr.indexOf(v) === idx).join(', ')}). Verifique que es correcto para su actividad y jurisdicción.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 

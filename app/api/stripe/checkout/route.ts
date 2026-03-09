@@ -4,12 +4,13 @@ import { verifyToken } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getPlan, calculatePrice, type PlanCode, type BillingPeriod } from '@/config/plans'
 import { paymentRateLimiter, getRateLimitKey } from '@/lib/rate-limit'
+import { calculateProration } from '@/lib/proration-service'
 
 /**
  * POST /api/stripe/checkout
  *
  * Creates a Stripe Checkout session for subscription payment.
- * Uses dynamic pricing based on plan and billing period.
+ * ALL prices are calculated server-side. Client values for amounts are ignored.
  *
  * Rate limited: 10 requests per minute per user
  */
@@ -46,7 +47,6 @@ export async function POST(request: NextRequest) {
     const rateLimitResult = paymentRateLimiter(rateLimitKey)
 
     if (!rateLimitResult.allowed) {
-      console.log(`🚫 Rate limit exceeded for checkout: ${rateLimitKey}`)
       return NextResponse.json(
         {
           error: 'Demasiadas solicitudes. Por favor, espera un momento antes de intentarlo de nuevo.',
@@ -73,20 +73,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 })
     }
 
-    // Parse request body
+    // Parse request body — only accept plan, period, coupon code and URLs
     const body = await request.json()
     const {
       planCode,
       billingPeriod = 'MONTHLY',
       successUrl,
       cancelUrl,
-      // Proration data
-      hasProration,
-      proratedAmount,
-      originalPrice,
-      // Coupon data
-      couponCode,
-      couponDiscountAmount
+      couponCode
     } = body
 
     // Validate plan
@@ -97,33 +91,138 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get plan details and calculate price
+    // Get plan details and calculate full price SERVER-SIDE
     const plan = getPlan(planCode as PlanCode)
     const period = billingPeriod as BillingPeriod
     const fullPrice = calculatePrice(plan, period)
 
-    // Use prorated amount if available, otherwise use full price
-    let priceToCharge = hasProration && proratedAmount ? proratedAmount : fullPrice
+    // ─── Server-side proration calculation ───
+    let priceToCharge = fullPrice
+    let hasProration = false
+    let creditAmount = 0
 
-    // Apply coupon discount if available
-    if (couponDiscountAmount && couponDiscountAmount > 0) {
-      priceToCharge = Math.max(0, priceToCharge - couponDiscountAmount)
+    const activeSubscription = await prisma.userSubscription.findFirst({
+      where: {
+        userId: user.id,
+        status: 'ACTIVE',
+        endDate: { gte: new Date() }
+      },
+      include: {
+        plan: { select: { code: true, name: true, priceMonthly: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    })
+
+    if (activeSubscription?.plan && activeSubscription.endDate) {
+      // Determine current billing period from subscription duration
+      const existingDuration = activeSubscription.endDate.getTime() - activeSubscription.startDate.getTime()
+      const daysInExisting = existingDuration / (1000 * 60 * 60 * 24)
+
+      let currentBillingPeriod: 'monthly' | 'biannual' | 'annual' = 'monthly'
+      if (daysInExisting > 150 && daysInExisting < 250) {
+        currentBillingPeriod = 'biannual'
+      } else if (daysInExisting > 300) {
+        currentBillingPeriod = 'annual'
+      }
+
+      // Get actual amount paid from invoice
+      const currentMonthlyPrice = Number(activeSubscription.plan.priceMonthly)
+      let currentMonthsMultiplier = 1
+      let currentDiscountPercent = 0
+      if (currentBillingPeriod === 'biannual') { currentMonthsMultiplier = 6; currentDiscountPercent = 10 }
+      if (currentBillingPeriod === 'annual') { currentMonthsMultiplier = 12; currentDiscountPercent = 20 }
+
+      const paidInvoice = await prisma.invoice.findFirst({
+        where: { subscriptionId: activeSubscription.id, status: 'PAID' },
+        orderBy: { createdAt: 'desc' }
+      })
+
+      const theoreticalPrice = currentMonthlyPrice * currentMonthsMultiplier * (1 - currentDiscountPercent / 100)
+      const currentTotalPricePaid = paidInvoice ? Number(paidInvoice.finalAmount) : theoreticalPrice
+
+      // Map billing period for proration service
+      const newBillingPeriod = period === 'SEMESTRAL' ? 'biannual' : period === 'YEARLY' ? 'annual' : 'monthly'
+
+      const proration = calculateProration({
+        currentSubscription: {
+          planName: activeSubscription.plan.name,
+          amountPaid: currentTotalPricePaid,
+          startDate: activeSubscription.startDate,
+          endDate: activeSubscription.endDate
+        },
+        newPlan: {
+          name: plan.name,
+          priceMonthly: plan.priceMonthly,
+          billingPeriod: newBillingPeriod
+        },
+        today: new Date()
+      })
+
+      if (proration.creditAmount > 0) {
+        hasProration = true
+        creditAmount = proration.creditAmount
+        priceToCharge = proration.finalPrice
+      }
     }
 
-    console.log('💰 Stripe Checkout - Price Calculation:', {
+    // ─── Server-side coupon validation ───
+    let validatedCouponCode: string | null = null
+    let couponDiscountAmount = 0
+
+    if (couponCode && typeof couponCode === 'string' && couponCode.trim() !== '') {
+      const normalizedCode = couponCode.toUpperCase().trim()
+
+      // Look up coupon in database
+      const dbCoupon = await prisma.coupon.findUnique({
+        where: { code: normalizedCode }
+      })
+
+      if (dbCoupon && dbCoupon.isActive) {
+        const now = new Date()
+        const isDateValid = (!dbCoupon.validUntil || new Date(dbCoupon.validUntil) >= now) &&
+                           (!dbCoupon.validFrom || new Date(dbCoupon.validFrom) <= now)
+        const isUsageValid = !dbCoupon.maxUses || dbCoupon.usedCount < dbCoupon.maxUses
+
+        // Check per-user usage
+        let isUserUsageValid = true
+        if (dbCoupon.maxUsesPerUser) {
+          const userUsageCount = await prisma.couponUse.count({
+            where: { couponId: dbCoupon.id, userId: user.id }
+          })
+          isUserUsageValid = userUsageCount < dbCoupon.maxUsesPerUser
+        }
+
+        // Check plan applicability
+        const isPlanApplicable = !dbCoupon.applicableToPlans?.length || dbCoupon.applicableToPlans.includes(planCode)
+
+        if (isDateValid && isUsageValid && isUserUsageValid && isPlanApplicable) {
+          validatedCouponCode = normalizedCode
+
+          if (dbCoupon.discountPercent && Number(dbCoupon.discountPercent) > 0) {
+            couponDiscountAmount = priceToCharge * (Number(dbCoupon.discountPercent) / 100)
+          } else if (dbCoupon.discountAmount && Number(dbCoupon.discountAmount) > 0) {
+            couponDiscountAmount = Number(dbCoupon.discountAmount)
+          }
+
+          priceToCharge = Math.max(0, priceToCharge - couponDiscountAmount)
+        }
+      }
+    }
+
+    // Ensure minimum charge (Stripe requires >= €0.50 for subscriptions)
+    if (priceToCharge > 0 && priceToCharge < 0.50) {
+      priceToCharge = 0.50
+    }
+
+    console.log('💰 Stripe Checkout - Server-side calculation:', {
       planCode,
-      planName: plan.name,
       billingPeriod: period,
-      priceMonthly: plan.priceMonthly,
-      priceSemestral: plan.priceSemestral,
-      priceYearly: plan.priceYearly,
       fullPrice,
       hasProration,
-      proratedAmount,
-      couponCode: couponCode || null,
-      couponDiscountAmount: couponDiscountAmount || 0,
-      priceToCharge,
-      priceInCents: Math.round(priceToCharge * 100)
+      creditAmount: creditAmount.toFixed(2),
+      couponCode: validatedCouponCode,
+      couponDiscount: couponDiscountAmount.toFixed(2),
+      priceToCharge: priceToCharge.toFixed(2)
     })
 
     // Calculate interval for Stripe
@@ -173,17 +272,14 @@ export async function POST(request: NextRequest) {
         fullPriceEur: fullPrice.toString(),
         chargedPriceEur: priceToCharge.toString(),
         hasProration: hasProration ? 'true' : 'false',
-        // Coupon tracking
-        couponCode: couponCode || '',
-        couponDiscountAmount: couponDiscountAmount ? couponDiscountAmount.toString() : '0'
+        couponCode: validatedCouponCode || '',
+        couponDiscountAmount: couponDiscountAmount > 0 ? couponDiscountAmount.toFixed(2) : '0'
       },
       success_url: successUrl || `${request.headers.get('origin')}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: cancelUrl || `${request.headers.get('origin')}/account/plans?cancelled=true`,
       locale: 'es',
-      allow_promotion_codes: true
+      allow_promotion_codes: !validatedCouponCode // Only allow Stripe promos if no DB coupon applied
     })
-
-    console.log(`✅ Stripe checkout session created: ${session.id} for user ${user.id}`)
 
     return NextResponse.json({
       success: true,
@@ -195,13 +291,6 @@ export async function POST(request: NextRequest) {
     console.error('Error creating checkout session:', error)
 
     if (error instanceof Stripe.errors.StripeError) {
-      console.error('Stripe Error Details:', {
-        type: error.type,
-        code: error.code,
-        message: error.message,
-        param: error.param,
-        statusCode: error.statusCode
-      })
       return NextResponse.json(
         {
           error: `Error de Stripe: ${error.message}`,
@@ -213,8 +302,6 @@ export async function POST(request: NextRequest) {
     }
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    console.error('Non-Stripe error:', errorMessage)
-
     return NextResponse.json(
       { error: `Error al crear sesión de pago: ${errorMessage}` },
       { status: 500 }

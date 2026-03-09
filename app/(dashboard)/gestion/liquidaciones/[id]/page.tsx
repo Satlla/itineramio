@@ -25,6 +25,7 @@ import {
   BarChart3,
   ChevronDown,
   ChevronUp,
+  Banknote,
 } from 'lucide-react'
 import { Button, Card, CardContent, Badge } from '@/components/ui'
 import { AnimatedLoadingSpinner } from '@/components/ui/AnimatedLoadingSpinner'
@@ -284,6 +285,35 @@ export default function LiquidacionDetailPage() {
       setError('Error al crear la factura')
     } finally {
       setCreatingInvoice(false)
+    }
+  }
+
+  const handleMarkPaidCash = async () => {
+    if (!liquidation) return
+    try {
+      setUpdating(true)
+      let notesObj: Record<string, unknown> = {}
+      if (liquidation.notes) {
+        try { notesObj = JSON.parse(liquidation.notes) } catch { /* not JSON */ }
+      }
+      notesObj.paymentMethod = 'CASH'
+      const response = await fetch(`/api/gestion/liquidations/${params.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: 'PAID', notes: JSON.stringify(notesObj) })
+      })
+      if (response.ok) {
+        fetchLiquidation()
+      } else {
+        const data = await response.json()
+        setError(data.error || 'Error al marcar como pagado')
+      }
+    } catch (error) {
+      console.error('Error marking as paid cash:', error)
+      setError('Error al marcar como pagado')
+    } finally {
+      setUpdating(false)
     }
   }
 
@@ -620,12 +650,12 @@ export default function LiquidacionDetailPage() {
               </div>
               <div className={`text-2xl font-bold ${liquidation.incomeReceiver === 'OWNER' ? 'text-orange-700' : 'text-green-700'}`}>
                 {liquidation.incomeReceiver === 'OWNER'
-                  ? formatCurrency(liquidation.totals.totalCommission + (liquidation.totals.totalCommission * liquidation.stats.commissionVatRate / 100) + liquidation.totals.totalCleaning + liquidation.totals.totalExpenses)
+                  ? formatCurrency(liquidation.totals.totalCommission + liquidation.totals.totalCleaning + liquidation.totals.totalExpenses)
                   : formatCurrency(liquidation.totals.totalAmount)}
               </div>
               <p className="text-xs text-gray-500 mt-1">
                 {liquidation.incomeReceiver === 'OWNER'
-                  ? 'Gestión + IVA + limpieza + gastos'
+                  ? 'Gestión + limpieza + gastos (sin IVA)'
                   : t('settlementDetail.summary.netToTransfer')}
               </p>
             </CardContent>
@@ -772,6 +802,50 @@ export default function LiquidacionDetailPage() {
           </CardContent>
         </Card>
 
+        {/* Next step — visible when SENT */}
+        {liquidation.status === 'SENT' && !isLocked && (
+          <Card className="mb-6 border-2 border-amber-200 bg-amber-50/30">
+            <CardContent className="p-5">
+              <h3 className="font-semibold text-gray-900 mb-1 flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-amber-600" />
+                Siguiente paso — ¿Cómo se ha cobrado?
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                La liquidación está enviada. Indica cómo se realizó el cobro para cerrarla.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button
+                  variant="outline"
+                  onClick={handleMarkPaidCash}
+                  disabled={updating}
+                  className="border-amber-300 text-amber-800 hover:bg-amber-100 flex-1"
+                >
+                  {updating ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Banknote className="w-4 h-4 mr-2" />
+                  )}
+                  Cobrado en efectivo
+                  <span className="text-xs text-amber-600/70 ml-2">(sin factura numerada)</span>
+                </Button>
+                <Button
+                  onClick={handleCreateInvoice}
+                  disabled={creatingInvoice}
+                  className="bg-violet-600 hover:bg-violet-700 text-white flex-1"
+                >
+                  {creatingInvoice ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <FileText className="w-4 h-4 mr-2" />
+                  )}
+                  Emitir factura con IVA
+                  <span className="text-xs text-violet-200 ml-2">(ClientInvoice numerada)</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Full-width content */}
         <div className="space-y-6">
           {/* Reservations Table - Excel style */}
@@ -893,10 +967,9 @@ export default function LiquidacionDetailPage() {
               <div className="max-w-lg space-y-1 text-sm font-mono">
                 {liquidation.incomeReceiver === 'OWNER' ? (
                   (() => {
-                    const commissionVat = liquidation.totals.totalCommission * stats.commissionVatRate / 100
-                    const totalToPay = liquidation.totals.totalCommission + commissionVat + liquidation.totals.totalCleaning + liquidation.totals.totalExpenses
+                    const totalToPay = liquidation.totals.totalCommission + liquidation.totals.totalCleaning + liquidation.totals.totalExpenses
                     return <>
-                    {/* OWNER model: propietario cobra, paga al gestor comisión+IVA+limpieza */}
+                    {/* OWNER model: propietario cobra, paga al gestor comisión+limpieza (sin IVA en liquidación) */}
                     {stats.commissionType === 'PERCENTAGE' && (
                       <div className="flex justify-between py-1.5">
                         <span className="text-gray-600">% Comisión:</span>
@@ -921,10 +994,6 @@ export default function LiquidacionDetailPage() {
                     <div className="flex justify-between py-1.5">
                       <span className="text-gray-700">Total Gestión:</span>
                       <span className="tabular-nums">{formatCurrency(liquidation.totals.totalCommission)}</span>
-                    </div>
-                    <div className="flex justify-between py-1.5">
-                      <span className="text-gray-700">IVA ({stats.commissionVatRate}%):</span>
-                      <span className="tabular-nums">{formatCurrency(commissionVat)}</span>
                     </div>
                     {liquidation.totals.totalCleaning > 0 && (
                       <div className="flex justify-between py-1.5">

@@ -8,8 +8,6 @@ export async function POST(
   try {
     const { id: propertyId, zoneId } = await params
 
-    console.log('📊 Zone view tracking:', { propertyId, zoneId })
-
     const body = await request.json()
 
     // Get visitor info
@@ -54,86 +52,81 @@ export async function POST(
       }, { status: 404 })
     }
 
-    // Check if this IP has viewed this zone before
-    const existingView = await prisma.zoneView.findFirst({
-      where: {
-        zoneId,
-        visitorIp
-      }
-    })
+    // Use transaction to prevent race condition on uniqueVisitors count
+    const { isUniqueVisitor } = await prisma.$transaction(async (tx) => {
+      const existingView = await tx.zoneView.findFirst({
+        where: { zoneId, visitorIp }
+      })
 
-    const isUniqueVisitor = !existingView
+      const isUnique = !existingView
 
-    // Create zone view record
-    await prisma.zoneView.create({
-      data: {
-        zoneId,
-        propertyId,
-        hostId: zone.property.hostId,
-        visitorIp,
-        userAgent,
-        referrer,
-        language,
-        timezone,
-        screenWidth,
-        screenHeight,
-        timeSpent,
-        isHostView,
-        viewedAt: new Date()
-      }
-    })
+      await tx.zoneView.create({
+        data: {
+          zoneId,
+          propertyId,
+          hostId: zone.property.hostId,
+          visitorIp,
+          userAgent,
+          referrer,
+          language,
+          timezone,
+          screenWidth,
+          screenHeight,
+          timeSpent,
+          isHostView,
+          viewedAt: new Date()
+        }
+      })
 
-    // Update zone analytics
-    const zoneUpdateData: any = {
-      totalViews: { increment: 1 },
-      totalTimeSpent: { increment: timeSpent },
-      lastViewedAt: new Date(),
-      lastCalculatedAt: new Date()
-    }
-
-    if (isUniqueVisitor) {
-      zoneUpdateData.uniqueVisitors = { increment: 1 }
-    }
-
-    await prisma.zoneAnalytics.upsert({
-      where: { zoneId },
-      update: zoneUpdateData,
-      create: {
-        zoneId,
-        totalViews: 1,
-        uniqueVisitors: 1,
-        totalTimeSpent: timeSpent,
+      const zoneUpdateData: any = {
+        totalViews: { increment: 1 },
+        totalTimeSpent: { increment: timeSpent },
         lastViewedAt: new Date(),
         lastCalculatedAt: new Date()
       }
-    })
 
-    // Update zone viewCount
-    await prisma.zone.update({
-      where: { id: zoneId },
-      data: {
-        viewCount: { increment: 1 },
-        lastViewedAt: new Date()
+      if (isUnique) {
+        zoneUpdateData.uniqueVisitors = { increment: 1 }
       }
-    })
 
-    // Also update property analytics
-    await prisma.propertyAnalytics.upsert({
-      where: { propertyId },
-      update: {
-        zoneViews: { increment: 1 },
-        lastViewedAt: new Date(),
-        lastCalculatedAt: new Date()
-      },
-      create: {
-        propertyId,
-        zoneViews: 1,
-        lastViewedAt: new Date(),
-        lastCalculatedAt: new Date()
-      }
-    })
+      await tx.zoneAnalytics.upsert({
+        where: { zoneId },
+        update: zoneUpdateData,
+        create: {
+          zoneId,
+          totalViews: 1,
+          uniqueVisitors: 1,
+          totalTimeSpent: timeSpent,
+          lastViewedAt: new Date(),
+          lastCalculatedAt: new Date()
+        }
+      })
 
-    console.log('✅ Zone view tracked successfully:', { zoneId, propertyId, isUniqueVisitor })
+      await tx.zone.update({
+        where: { id: zoneId },
+        data: {
+          viewCount: { increment: 1 },
+          lastViewedAt: new Date()
+        }
+      })
+
+      await tx.propertyAnalytics.upsert({
+        where: { propertyId },
+        update: {
+          zoneViews: { increment: 1 },
+          lastViewedAt: new Date(),
+          lastCalculatedAt: new Date()
+        },
+        create: {
+          propertyId,
+          zoneViews: 1,
+          lastViewedAt: new Date(),
+          lastCalculatedAt: new Date()
+        }
+      })
+
+      return { isUniqueVisitor: isUnique }
+    })
 
     return NextResponse.json({
       success: true,

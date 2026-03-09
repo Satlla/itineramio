@@ -46,7 +46,7 @@ export class ModuleLimitsService {
       }
     })
 
-    if (userModule && userModule.isActive && userModule.status !== 'CANCELED') {
+    if (userModule && userModule.isActive && !['CANCELED', 'EXPIRED'].includes(userModule.status)) {
       const plan = userModule.subscriptionPlan
       const currentProperties = await this.countUserProperties(userId)
 
@@ -63,6 +63,36 @@ export class ModuleLimitsService {
             isTrialActive: false,
             trialEndsAt: userModule.trialEndsAt
           } as ManualesAccess
+        }
+      }
+
+      // Check if paid subscription has expired
+      if (userModule.status === 'ACTIVE' && userModule.expiresAt && new Date(userModule.expiresAt) < new Date()) {
+        return {
+          ...createDeniedAccess('MANUALES'),
+          planCode: plan?.code || null,
+          planName: plan?.name || null,
+          maxProperties: 0,
+          currentProperties,
+          canAddProperty: false
+        } as ManualesAccess
+      }
+
+      // PAST_DUE: allow 3-day grace period while Stripe retries payment
+      if (userModule.status === 'PAST_DUE') {
+        if (userModule.expiresAt) {
+          const gracePeriodEnd = new Date(userModule.expiresAt)
+          gracePeriodEnd.setDate(gracePeriodEnd.getDate() + 3)
+          if (new Date() > gracePeriodEnd) {
+            return {
+              ...createDeniedAccess('MANUALES'),
+              planCode: plan?.code || null,
+              planName: plan?.name || null,
+              maxProperties: 0,
+              currentProperties,
+              canAddProperty: false
+            } as ManualesAccess
+          }
         }
       }
 
@@ -178,8 +208,7 @@ export class ModuleLimitsService {
       }
     })
 
-    if (userModule && userModule.isActive && userModule.status !== 'CANCELED') {
-      // Check if trial has expired
+    if (userModule && userModule.isActive && !['CANCELED', 'EXPIRED'].includes(userModule.status)) {
       // Check if trial has expired (or has no end date — treat as expired)
       if (userModule.status === 'TRIAL') {
         if (!userModule.trialEndsAt || new Date(userModule.trialEndsAt) < new Date()) {
@@ -189,6 +218,22 @@ export class ModuleLimitsService {
             isTrialActive: false,
             trialEndsAt: userModule.trialEndsAt
           } as GestionAccess
+        }
+      }
+
+      // Check if paid subscription has expired
+      if (userModule.status === 'ACTIVE' && userModule.expiresAt && new Date(userModule.expiresAt) < new Date()) {
+        return { ...createDeniedAccess('GESTION'), unlimitedProperties: true } as GestionAccess
+      }
+
+      // PAST_DUE: allow 3-day grace period while Stripe retries payment
+      if (userModule.status === 'PAST_DUE') {
+        if (userModule.expiresAt) {
+          const gracePeriodEnd = new Date(userModule.expiresAt)
+          gracePeriodEnd.setDate(gracePeriodEnd.getDate() + 3)
+          if (new Date() > gracePeriodEnd) {
+            return { ...createDeniedAccess('GESTION'), unlimitedProperties: true } as GestionAccess
+          }
         }
       }
 

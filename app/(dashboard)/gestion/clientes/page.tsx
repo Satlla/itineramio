@@ -13,7 +13,11 @@ import {
   Trash2,
   Edit,
   ChevronRight,
-  Building2
+  Building2,
+  ExternalLink,
+  Send,
+  CheckCircle,
+  Copy
 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
@@ -69,6 +73,8 @@ export default function ClientesPage() {
   })
   const [saving, setSaving] = useState(false)
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [sendingLink, setSendingLink] = useState<string | null>(null)
+  const [linkSent, setLinkSent] = useState<string | null>(null)
 
   useEffect(() => {
     fetchClients()
@@ -97,17 +103,16 @@ export default function ClientesPage() {
     return `${client.firstName || ''} ${client.lastName || ''}`.trim() || t('owners.title')
   }
 
-  const validateNIF = (nif: string): boolean => {
-    if (!nif) return true
-    const nifRegex = /^[0-9]{8}[A-Za-z]$/
-    const nieRegex = /^[XYZxyz][0-9]{7}[A-Za-z]$/
-    return nifRegex.test(nif) || nieRegex.test(nif)
-  }
-
-  const validateCIF = (cif: string): boolean => {
-    if (!cif) return true
-    const cifRegex = /^[A-HJ-NP-SUVWa-hj-np-suvw][0-9]{7}[0-9A-Ja-j]$/
-    return cifRegex.test(cif)
+  const isValidSpanishTaxId = (value: string): boolean => {
+    if (!value) return true // empty is ok
+    const cleaned = value.replace(/[-\s.]/g, '').toUpperCase()
+    // NIF: 8 digits + letter
+    if (/^\d{8}[A-Z]$/.test(cleaned)) return true
+    // CIF: letter + 7 digits + letter/digit
+    if (/^[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]$/.test(cleaned)) return true
+    // NIE: X/Y/Z + 7 digits + letter
+    if (/^[XYZ]\d{7}[A-Z]$/.test(cleaned)) return true
+    return false
   }
 
   const validateIBAN = (iban: string): boolean => {
@@ -126,15 +131,9 @@ export default function ClientesPage() {
       if (!newClient.firstName.trim() || !newClient.lastName.trim()) {
         errors.firstName = t('owners.validation.nameRequired')
       }
-      if (newClient.nif && !validateNIF(newClient.nif)) {
-        errors.nif = t('owners.validation.nifInvalid')
-      }
     } else {
       if (!newClient.companyName.trim()) {
         errors.companyName = t('owners.validation.companyNameRequired')
-      }
-      if (newClient.cif && !validateCIF(newClient.cif)) {
-        errors.cif = t('owners.validation.cifInvalid')
       }
     }
 
@@ -214,6 +213,31 @@ export default function ClientesPage() {
       setFormErrors({ general: t('owners.errors.connectionError') })
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleSendPortalLink = async (clientId: string) => {
+    setSendingLink(clientId)
+    try {
+      const res = await fetch(`/api/gestion/owners/${clientId}/send-link`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ sendEmail: true })
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setLinkSent(clientId)
+        setTimeout(() => setLinkSent(null), 4000)
+        // Copy link to clipboard as bonus
+        if (data.portalUrl) {
+          navigator.clipboard.writeText(data.portalUrl).catch(() => {})
+        }
+      }
+    } catch (error) {
+      console.error('Error sending portal link:', error)
+    } finally {
+      setSendingLink(null)
     }
   }
 
@@ -477,15 +501,28 @@ export default function ClientesPage() {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-3">
-                          <div className="text-right text-sm">
+                        <div className="flex items-center gap-2">
+                          <div className="text-right text-sm mr-1">
                             <div className="text-gray-500">
                               {client.propertiesCount || 0} {t('owners.card.properties')}
                             </div>
                           </div>
                           <button
+                            onClick={() => handleSendPortalLink(client.id)}
+                            disabled={sendingLink === client.id}
+                            className={`p-2 transition-colors rounded-lg ${linkSent === client.id ? 'text-green-500 bg-green-50' : 'text-gray-400 hover:text-violet-600 hover:bg-violet-50'} disabled:opacity-50`}
+                            title="Enviar portal del propietario"
+                          >
+                            {linkSent === client.id
+                              ? <CheckCircle className="w-4 h-4" />
+                              : sendingLink === client.id
+                                ? <div className="w-4 h-4 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
+                                : <Send className="w-4 h-4" />
+                            }
+                          </button>
+                          <button
                             onClick={() => handleEditClient(client)}
-                            className="p-2 text-gray-400 hover:text-violet-600 transition-colors"
+                            className="p-2 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
                             title={t('owners.modal.edit')}
                           >
                             <Edit className="w-4 h-4" />
@@ -493,7 +530,7 @@ export default function ClientesPage() {
                           <button
                             onClick={() => handleDeleteClient(client.id)}
                             disabled={deleting === client.id}
-                            className="p-2 text-gray-400 hover:text-red-500 disabled:opacity-50 transition-colors"
+                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 disabled:opacity-50 rounded-lg transition-colors"
                             title={t('owners.confirmDelete')}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -619,11 +656,15 @@ export default function ClientesPage() {
                     type="text"
                     value={newClient.nif}
                     onChange={(e) => setNewClient({ ...newClient, nif: e.target.value.toUpperCase() })}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.nif ? 'border-red-300' : 'border-gray-300'}`}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${newClient.nif && !isValidSpanishTaxId(newClient.nif) ? 'border-amber-400' : 'border-gray-300'}`}
                     placeholder="12345678A"
                     maxLength={9}
                   />
-                  {formErrors.nif && <p className="mt-1 text-xs text-red-500">{formErrors.nif}</p>}
+                  {newClient.nif && !isValidSpanishTaxId(newClient.nif) && (
+                    <p className="text-xs text-amber-600 mt-1">
+                      {"\u26A0"} El formato del NIF/CIF no parece v\u00E1lido. Verifique que es correcto.
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div>
@@ -632,11 +673,15 @@ export default function ClientesPage() {
                     type="text"
                     value={newClient.cif}
                     onChange={(e) => setNewClient({ ...newClient, cif: e.target.value.toUpperCase() })}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.cif ? 'border-red-300' : 'border-gray-300'}`}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${newClient.cif && !isValidSpanishTaxId(newClient.cif) ? 'border-amber-400' : 'border-gray-300'}`}
                     placeholder="A12345678"
                     maxLength={9}
                   />
-                  {formErrors.cif && <p className="mt-1 text-xs text-red-500">{formErrors.cif}</p>}
+                  {newClient.cif && !isValidSpanishTaxId(newClient.cif) && (
+                    <p className="text-xs text-amber-600 mt-1">
+                      {"\u26A0"} El formato del NIF/CIF no parece v\u00E1lido. Verifique que es correcto.
+                    </p>
+                  )}
                 </div>
               )}
 

@@ -22,14 +22,12 @@ import Link from 'next/link'
 import { Card, CardContent, Button } from '../../../src/components/ui'
 import { AnimatedLoadingSpinner } from '../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardFooter } from '../../../src/components/layout/DashboardFooter'
-import { OnboardingGuide } from '../../../src/components/gestion/OnboardingGuide'
 import { useGestionDashboard } from '@/contexts/GestionDashboardContext'
 import { useTranslation } from 'react-i18next'
 
 export default function GestionDashboardPage() {
   const { t } = useTranslation('gestion')
   const { stats, onboarding, pendingActions, loading, refresh } = useGestionDashboard()
-  const [showWizard, setShowWizard] = useState(false)
   const currentYear = new Date().getFullYear()
   const currentMonth = new Date().toLocaleDateString('es-ES', { month: 'long' })
 
@@ -57,29 +55,6 @@ export default function GestionDashboardPage() {
     }
   }, [refresh])
 
-  // Check if should show wizard after data loads
-  useEffect(() => {
-    if (!loading && onboarding) {
-      // Solo mostrar wizard si es PRIMERA VEZ (sin empresa, clientes ni propiedades)
-      // Si ya tiene los 3 primeros pasos, NO mostrar automáticamente
-      const isFirstTime = !onboarding.companyConfigured && !onboarding.hasClients && !onboarding.hasConfiguredProperties
-      setShowWizard(isFirstTime)
-    }
-  }, [loading, onboarding])
-
-  const handleWizardComplete = () => {
-    setShowWizard(false)
-    refresh() // Reload stats after completing wizard
-  }
-
-  const handleWizardDismiss = () => {
-    localStorage.setItem('gestion-onboarding-dismissed', 'true')
-    setShowWizard(false)
-  }
-
-  const handleShowWizard = () => {
-    setShowWizard(true)
-  }
 
   if (loading) {
     return <AnimatedLoadingSpinner text={t('common.loading')} type="general" />
@@ -158,22 +133,6 @@ export default function GestionDashboardPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* Onboarding Guide Modal (optional, opened from widget) */}
-      {showWizard && (
-        <OnboardingGuide
-          onComplete={handleWizardComplete}
-          onDismiss={handleWizardDismiss}
-          currentProgress={{
-            hasCompany: onboarding?.companyConfigured ?? false,
-            hasClients: onboarding?.hasClients ?? false,
-            hasConfiguredProperties: onboarding?.hasConfiguredProperties ?? false,
-            hasReservations: (stats?.yearlyReservations ?? 0) > 0,
-            hasExpenses: (stats?.totalExpenses ?? 0) > 0,
-            hasInvoices: (stats?.totalInvoices ?? 0) > 0
-          }}
-          isFirstTime={!onboarding?.companyConfigured && !onboarding?.hasClients && !onboarding?.hasConfiguredProperties}
-        />
-      )}
 
       <main className="flex-1">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6">

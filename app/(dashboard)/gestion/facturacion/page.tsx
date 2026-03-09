@@ -21,6 +21,7 @@ import { Button, Card, CardContent, Badge } from '../../../../src/components/ui'
 import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardFooter } from '../../../../src/components/layout/DashboardFooter'
 import { useTranslation } from 'react-i18next'
+import { Info } from 'lucide-react'
 
 interface PropertyStats {
   id: string
@@ -50,6 +51,7 @@ interface PropertyStats {
 
 export default function FacturacionPage() {
   const { t } = useTranslation('gestion')
+  const { t: tLegal } = useTranslation('legal')
   const [loading, setLoading] = useState(true)
   const [properties, setProperties] = useState<PropertyStats[]>([])
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
@@ -149,6 +151,14 @@ export default function FacturacionPage() {
               </div>
             </div>
           </motion.div>
+
+          {/* Billing Disclaimer */}
+          <div className="flex items-start gap-2 px-3 py-2 mb-4 bg-blue-50 border border-blue-100 rounded-lg">
+            <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-blue-600">
+              {tLegal('disclaimers.billing.short')}
+            </p>
+          </div>
 
           {/* Totals */}
           {filteredProperties.length > 0 && (

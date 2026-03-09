@@ -150,7 +150,7 @@
     },
     "howToConnect": {
       "title": "Comment se connecter :",
-      "step1": "Ouvrez les paramètres WiFi sur votre appareil",
+      "step1": "Ouvrez les paramètrès WiFi sur votre appareil",
       "step2": "Cherchez le réseau :",
       "step3": "Entrez le mot de passe exactement comme indiqué",
       "step4": "C'est fait ! Vous êtes connecté"
@@ -192,7 +192,7 @@
       "contact": "Contact"
     },
     "urlLabel": "URL ou texte",
-    "urlPlaceholder": "https://www.itineramio.com/manual/votre-propriete",
+    "urlPlaceholder": "https://www.itineramio.com/manual/votre-propriété",
     "urlHint": "Entrez n'importe quelle URL, texte, numéro de téléphone ou réseau WiFi",
     "colorLabel": "Couleur du QR",
     "generateButton": "Générer le Code QR",
@@ -309,8 +309,8 @@
         "dustFurniture": "Dépoussiérer les meubles",
         "cleanTV": "Nettoyer la TV et les écrans",
         "checkRemotes": "Vérifier les télécommandes",
-        "cleanWindowsInside": "Nettoyer les fenêtres côté intérieur",
-        "cleanWindowTracks": "Nettoyer les rails des fenêtres",
+        "cleanWindowsInside": "Nettoyer les fenêtrès côté intérieur",
+        "cleanWindowTracks": "Nettoyer les rails des fenêtrès",
         "cleanBlinds": "Nettoyer les stores",
         "cleanCurtains": "Nettoyer les rideaux si nécessaire",
         "emptyTrash": "Vider les poubelles"

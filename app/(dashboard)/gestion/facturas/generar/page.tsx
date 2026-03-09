@@ -11,7 +11,8 @@ import {
   CheckCircle,
   AlertCircle,
   Building2,
-  User
+  User,
+  AlertTriangle
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -421,6 +422,14 @@ function GenerarFacturaContent() {
                   <span className="text-gray-600">{t('invoices.generate.vatRate', { rate: vatRate })}</span>
                   <span>{formatCurrency(vatAmount)}</span>
                 </div>
+                {vatRate !== 21 && (
+                  <div className="flex items-start gap-2 px-3 py-2 mt-1 bg-amber-50 border border-amber-100 rounded-lg">
+                    <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-amber-700">
+                      Tipo de IVA no estándar ({vatRate}%). Verifique que es correcto para su actividad y jurisdicción.
+                    </p>
+                  </div>
+                )}
                 {retentionRate > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">{t('invoices.generate.retentionRate', { rate: retentionRate })}</span>

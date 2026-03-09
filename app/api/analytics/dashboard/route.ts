@@ -49,16 +49,6 @@ export async function GET(request: NextRequest) {
       }))
     }
 
-    console.log('🏠 Properties found for user:', userId, 'count:', properties.length)
-    if (properties.length > 0) {
-      console.log('🏠 First property:', {
-        id: properties[0].id,
-        name: properties[0].name,
-        type: properties[0].type,
-        status: properties[0].status
-      })
-    }
-
     // Calculate aggregated stats
     let totalViews = 0
     let totalZonesViewed = 0
@@ -83,22 +73,51 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      // Process zones
-      property.zones.forEach((zone: any) => {
-        // For now, skip zone analytics since zone_analytics table doesn't exist
-        // This can be implemented later when proper analytics tables are created
-      })
+      // Add zone views from property analytics
+      if (property.analytics) {
+        totalZonesViewed += property.analytics.zoneViews || 0
+      }
     })
 
     // Calculate average rating from property analytics
     const avgRating = totalRatings > 0 ? totalRatingSum / totalRatings : 0
 
+    // Calculate timeSavedMinutes from ZoneAnalytics
+    const propertyIds = properties.map(p => p.id)
+    if (propertyIds.length > 0) {
+      const agg = await prisma.zoneAnalytics.aggregate({
+        where: { zone: { propertyId: { in: propertyIds } } },
+        _sum: { timeSavedMinutes: true }
+      })
+      totalTimeSavedMinutes = agg._sum.timeSavedMinutes || 0
+    }
+
     // Get recent activity (last 30 days)
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-    // Skip recent events for now to avoid complexity
-    const recentEvents: any[] = []
+    // Get recent property views
+    let recentActivity: any[] = []
+    if (propertyIds.length > 0) {
+      const recentViews = await prisma.propertyView.findMany({
+        where: { propertyId: { in: propertyIds } },
+        take: 5,
+        orderBy: { viewedAt: 'desc' },
+        include: { property: { select: { name: true } } }
+      })
+      recentActivity = recentViews.map(view => {
+        const propertyName = typeof view.property.name === 'string'
+          ? view.property.name
+          : (view.property.name as any)?.es || (view.property.name as any)?.en || 'Property'
+        return {
+          type: 'property_view',
+          propertyName,
+          propertyId: view.propertyId,
+          timestamp: view.viewedAt.toISOString(),
+          visitorIp: view.visitorIp
+        }
+      })
+    }
 
     // Get top performing properties (or all if less than 5)
     const topProperties = properties
@@ -182,10 +201,8 @@ export async function GET(request: NextRequest) {
         createdAt: property.createdAt.toISOString(),
         updatedAt: property.updatedAt.toISOString()
       })),
-      recentActivity: []
+      recentActivity
     }
-
-    console.log('📊 Sending response with allProperties count:', responseData.allProperties.length)
 
     return NextResponse.json({
       success: true,

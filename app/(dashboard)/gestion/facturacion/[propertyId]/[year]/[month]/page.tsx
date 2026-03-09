@@ -23,7 +23,8 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  RefreshCw
+  RefreshCw,
+  Info
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button, Card, CardContent, Badge } from '../../../../../../../src/components/ui'
@@ -136,6 +137,7 @@ function formatDateTimeES(dateStr: string): string {
 
 export default function MonthInvoicePage() {
   const { t } = useTranslation('gestion')
+  const { t: tLegal } = useTranslation('legal')
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -1528,6 +1530,14 @@ export default function MonthInvoicePage() {
               </div>
             </div>
           </motion.div>
+
+          {/* Billing Disclaimer */}
+          <div className="flex items-start gap-2 px-3 py-2 mb-4 bg-blue-50 border border-blue-100 rounded-lg">
+            <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-blue-600">
+              {tLegal('disclaimers.billing.short')}
+            </p>
+          </div>
 
           {/* Invoice Editor */}
           <motion.div

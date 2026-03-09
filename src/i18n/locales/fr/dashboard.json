@@ -39,7 +39,7 @@
     "videosTitle": "Vidéos",
     "totalViews": "Vues totales",
     "averageRating": "Note moyenne",
-    "active": "Activé",
+    "active": "Active",
     "inactive": "Inactive",
     "published": "Publiée",
     "unpublished": "Non publiée",
@@ -326,11 +326,11 @@
     "zoneCopied": "Zone copiée",
     "zoneCopiedMessage": "Zone copiée avec succès vers {{count}} propriété",
     "zoneCopiedMessagePlural": "Zone copiée avec succès vers {{count}} propriétés",
-    "partialCopy": "Copié partielle",
+    "partialCopy": "Copie partielle",
     "partialCopyMessage": "Zone copiée vers {{success}} propriétés, {{failed}} ont échoué",
-    "errorCopying": "Erreur lors de la copié",
-    "errorCopyingMessage": "Erreur lors de la copié de la zone vers {{count}} propriété",
-    "errorCopyingMessagePlural": "Erreur lors de la copié de la zone vers {{count}} propriétés",
+    "errorCopying": "Erreur lors de la copie",
+    "errorCopyingMessage": "Erreur lors de la copie de la zone vers {{count}} propriété",
+    "errorCopyingMessagePlural": "Erreur lors de la copie de la zone vers {{count}} propriétés",
     "propertyDeleted": "Propriété supprimée",
     "propertyDeletedMessage": "\"{{name}}\" a été supprimée définitivement",
     "errorDeleting": "Erreur lors de la suppression",
@@ -649,7 +649,7 @@
       "activatePlan": "Activez votre plan pour continuer",
       "viewFeatures": "Voir les fonctionnalités",
       "viewPlans": "Voir les plans →",
-      "closeBar": "Fermer la barré"
+      "closeBar": "Fermer la barre"
     },
     "countdown": {
       "activateSubscription": "Activez votre abonnement",

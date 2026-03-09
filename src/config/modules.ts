@@ -13,7 +13,7 @@
 
 export type ModuleCode = 'MANUALES' | 'GESTION'
 
-export type ModuleStatus = 'ACTIVE' | 'CANCELED' | 'TRIAL' | 'EXPIRED'
+export type ModuleStatus = 'ACTIVE' | 'CANCELED' | 'TRIAL' | 'EXPIRED' | 'PAST_DUE'
 
 export interface Module {
   code: ModuleCode

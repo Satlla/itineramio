@@ -76,6 +76,7 @@ export async function POST(
     let monthlyFeeVat = new Decimal(21)
     let useBillingUnits = false
     let targetBillingUnitIds: string[] = []
+    let incomeReceiver = liquidation.incomeReceiver || 'MANAGER'
 
     // Resolve billing config based on mode
     if (mode === 'GROUP' && billingUnitGroupId) {
@@ -91,6 +92,7 @@ export async function POST(
         cleaningValue = group.cleaningValue
         monthlyFee = group.monthlyFee
         monthlyFeeVat = group.monthlyFeeVat
+        incomeReceiver = group.incomeReceiver || 'MANAGER'
         targetBillingUnitIds = group.billingUnits.map((u) => u.id)
         useBillingUnits = true
       }
@@ -107,6 +109,7 @@ export async function POST(
         cleaningValue = firstUnit.cleaningValue
         monthlyFee = firstUnit.monthlyFee
         monthlyFeeVat = firstUnit.monthlyFeeVat
+        incomeReceiver = firstUnit.incomeReceiver || 'MANAGER'
         targetBillingUnitIds = units.map((u) => u.id)
         useBillingUnits = true
       }
@@ -184,6 +187,7 @@ export async function POST(
           cleaningValue = firstConfig.cleaningValue
           monthlyFee = firstConfig.monthlyFee
           monthlyFeeVat = firstConfig.monthlyFeeVat
+          incomeReceiver = firstConfig.incomeReceiver || 'MANAGER'
         }
       }
 
@@ -195,7 +199,7 @@ export async function POST(
             id: true, name: true,
             commissionType: true, commissionValue: true, commissionVat: true,
             cleaningType: true, cleaningValue: true, cleaningVatIncluded: true,
-            monthlyFee: true, monthlyFeeVat: true,
+            monthlyFee: true, monthlyFeeVat: true, incomeReceiver: true,
           },
         })
         if (ownerUnits.length > 0) {
@@ -234,6 +238,7 @@ export async function POST(
             cleaningValue = firstUnit.cleaningValue
             monthlyFee = firstUnit.monthlyFee
             monthlyFeeVat = firstUnit.monthlyFeeVat
+            incomeReceiver = firstUnit.incomeReceiver || 'MANAGER'
             useBillingUnits = true
             targetBillingUnitIds = ownerUnitIds
           }
@@ -367,6 +372,7 @@ export async function POST(
         totalCleaning,
         totalExpenses,
         totalAmount,
+        incomeReceiver,
       },
     })
 

@@ -33,7 +33,11 @@ import {
   Video,
   UserCog,
   Layers,
-  Target
+  Target,
+  HeadphonesIcon,
+  Ticket,
+  BookOpen,
+  Sparkles
 } from 'lucide-react'
 
 // Navigation structure organized by function with permissions
@@ -96,6 +100,19 @@ const buildNavigationSections = (t: (key: string) => string) => [
     ]
   },
   {
+    id: 'soporte',
+    title: t('admin.nav.support'),
+    color: 'teal',
+    collapsible: true,
+    items: [
+      { name: t('admin.nav.supportDashboard'), href: '/admin/support', icon: HeadphonesIcon, permissions: ['marketing.view'] },
+      { name: t('admin.nav.supportTickets'), href: '/admin/support/tickets', icon: Ticket, permissions: ['marketing.view'] },
+      { name: t('admin.nav.supportArticles'), href: '/admin/support/articles', icon: BookOpen, permissions: ['marketing.view'] },
+      { name: t('admin.nav.supportUpdates'), href: '/admin/support/product-updates', icon: Sparkles, permissions: ['marketing.view'] },
+      { name: t('admin.nav.supportFaq'), href: '/admin/support/faq', icon: HelpCircle, permissions: ['marketing.view'] },
+    ]
+  },
+  {
     id: 'sistema',
     title: t('admin.nav.system'),
     color: 'slate',
@@ -136,6 +153,7 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
     marketing: false,
+    soporte: false,
     sistema: true,
     academia: true,
   })
@@ -380,6 +398,7 @@ export default function AdminLayout({
                     violet: { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-600', icon: 'text-violet-600' },
                     slate: { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-600', icon: 'text-slate-600' },
                     purple: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-600', icon: 'text-purple-600' },
+                    teal: { bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-600', icon: 'text-teal-600' },
                   }
                   const colors = colorClasses[section.color] || colorClasses.gray
 

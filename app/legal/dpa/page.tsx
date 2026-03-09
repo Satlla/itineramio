@@ -142,6 +142,13 @@ export default function DPAPage() {
             <p className="text-gray-700 text-sm">
               {t('dpa.section2.conflict')}
             </p>
+
+            <div className="mt-4 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg">
+              <h3 className="font-semibold text-gray-900 mb-2">{t('dpa.section2.guestDataRoles.title')}</h3>
+              <p className="text-sm text-gray-700">
+                {t('dpa.section2.guestDataRoles.description')}
+              </p>
+            </div>
           </section>
 
           <section id="alcance">

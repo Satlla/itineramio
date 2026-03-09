@@ -38,53 +38,52 @@ export async function POST(
       }, { status: 404 })
     }
 
-    // Check if this IP has visited this property before
-    const existingView = await prisma.propertyView.findFirst({
-      where: {
-        propertyId,
-        visitorIp
-      }
-    })
+    // Use transaction to prevent race condition on uniqueVisitors count
+    const { isUniqueVisitor } = await prisma.$transaction(async (tx) => {
+      const existingView = await tx.propertyView.findFirst({
+        where: { propertyId, visitorIp }
+      })
 
-    const isUniqueVisitor = !existingView
+      const isUnique = !existingView
 
-    // Create view record
-    await prisma.propertyView.create({
-      data: {
-        propertyId,
-        hostId: property.hostId,
-        visitorIp,
-        userAgent,
-        referrer,
-        language,
-        timezone,
-        screenWidth,
-        screenHeight,
-        viewedAt: new Date()
-      }
-    })
+      await tx.propertyView.create({
+        data: {
+          propertyId,
+          hostId: property.hostId,
+          visitorIp,
+          userAgent,
+          referrer,
+          language,
+          timezone,
+          screenWidth,
+          screenHeight,
+          viewedAt: new Date()
+        }
+      })
 
-    // Update property analytics
-    const updateData: any = {
-      totalViews: { increment: 1 },
-      lastViewedAt: new Date(),
-      lastCalculatedAt: new Date()
-    }
-
-    if (isUniqueVisitor) {
-      updateData.uniqueVisitors = { increment: 1 }
-    }
-
-    await prisma.propertyAnalytics.upsert({
-      where: { propertyId },
-      update: updateData,
-      create: {
-        propertyId,
-        totalViews: 1,
-        uniqueVisitors: 1,
+      const updateData: any = {
+        totalViews: { increment: 1 },
         lastViewedAt: new Date(),
         lastCalculatedAt: new Date()
       }
+
+      if (isUnique) {
+        updateData.uniqueVisitors = { increment: 1 }
+      }
+
+      await tx.propertyAnalytics.upsert({
+        where: { propertyId },
+        update: updateData,
+        create: {
+          propertyId,
+          totalViews: 1,
+          uniqueVisitors: 1,
+          lastViewedAt: new Date(),
+          lastCalculatedAt: new Date()
+        }
+      })
+
+      return { isUniqueVisitor: isUnique }
     })
 
     // Update daily stats (async, don't wait)

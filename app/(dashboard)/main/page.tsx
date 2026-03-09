@@ -382,6 +382,7 @@ export default function DashboardPage(): JSX.Element {
 
   // Handlers for first property onboarding
   const handleStartFirstPropertyTour = () => {
+    localStorage.setItem('hasSeenFirstPropertyOnboarding', 'true')
     setShowFirstPropertyNotification(false)
     // Show spotlight on the "Add Property" button
     setSpotlight(true, 'add-property-button')

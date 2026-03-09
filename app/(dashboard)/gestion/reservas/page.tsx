@@ -35,12 +35,15 @@ import {
   FileSpreadsheet,
   AlertTriangle,
   Settings2,
-  ArrowLeft
+  ArrowLeft,
+  List,
+  LayoutGrid
 } from 'lucide-react'
 import { Button, Card, CardContent, Badge } from '../../../../src/components/ui'
 import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardFooter } from '../../../../src/components/layout/DashboardFooter'
 import { SimpleColumnMapper, type SimpleMapping } from '../../../../src/components/gestion/reservas/SimpleColumnMapper'
+import { ReservationsCalendar } from '../../../../src/components/gestion/reservas/ReservationsCalendar'
 
 interface Property {
   id: string
@@ -142,6 +145,9 @@ export default function ReservasPage() {
   const [properties, setProperties] = useState<Property[]>([])
   const [billingUnits, setBillingUnits] = useState<BillingUnit[]>([])
   const [totals, setTotals] = useState({ count: 0, earnings: 0, nights: 0, confirmed: 0 })
+
+  // View mode
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
 
   // Filters
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
@@ -771,7 +777,7 @@ export default function ReservasPage() {
   })
 
   // Selectable reservations (not liquidated)
-  const selectableReservations = filteredReservations.filter(r => !r.liquidation)
+  const selectableReservations = filteredReservations
 
   const toggleSelectAll = () => {
     if (selectedIds.size === selectableReservations.length) {
@@ -809,7 +815,7 @@ export default function ReservasPage() {
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 {selectedIds.size > 0 && (
                   <Button
                     variant="outline"
@@ -820,6 +826,25 @@ export default function ReservasPage() {
                     {t('common.delete')} ({selectedIds.size})
                   </Button>
                 )}
+
+                {/* View mode toggle */}
+                <div className="flex rounded-xl border border-gray-200 overflow-hidden">
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`px-3 py-2 text-sm flex items-center gap-1.5 transition-colors ${viewMode === 'list' ? 'bg-violet-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+                  >
+                    <List className="w-4 h-4" />
+                    <span className="hidden sm:inline">Lista</span>
+                  </button>
+                  <button
+                    onClick={() => setViewMode('calendar')}
+                    className={`px-3 py-2 text-sm flex items-center gap-1.5 transition-colors ${viewMode === 'calendar' ? 'bg-violet-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                    <span className="hidden sm:inline">Calendario</span>
+                  </button>
+                </div>
+
                 <Link href="/gestion/reservas/importar">
                   <Button
                     variant="outline"
@@ -979,7 +1004,25 @@ export default function ReservasPage() {
             </Card>
           </motion.div>
 
+          {/* Calendar View */}
+          {viewMode === 'calendar' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="mb-6"
+            >
+              <ReservationsCalendar
+                reservations={filteredReservations as any}
+                onReservationClick={openReservationDetail as any}
+                selectedYear={selectedYear}
+                selectedMonth={selectedMonth}
+              />
+            </motion.div>
+          )}
+
           {/* Reservations List */}
+          {viewMode === 'list' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -995,7 +1038,7 @@ export default function ReservasPage() {
                     onChange={toggleSelectAll}
                     className="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
                   />
-                  {t('common.selectAll')} ({selectableReservations.length} {t('common.notSettled')})
+                  {t('common.selectAll')} ({selectableReservations.length})
                 </label>
                 {selectedIds.size > 0 && (
                   <span className="text-xs text-violet-600 font-medium">
@@ -1044,21 +1087,16 @@ export default function ReservasPage() {
                       >
                         <CardContent className="p-4 sm:p-5">
                           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                            {/* Checkbox for selection (only if not liquidated) */}
-                            {!reservation.liquidation && (
-                              <div className="hidden sm:flex items-center">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedIds.has(reservation.id)}
-                                  onChange={() => {}}
-                                  onClick={(e) => toggleSelectReservation(reservation.id, e)}
-                                  className="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500 cursor-pointer"
-                                />
-                              </div>
-                            )}
-                            {reservation.liquidation && (
-                              <div className="hidden sm:flex items-center w-4" />
-                            )}
+                            {/* Checkbox for selection */}
+                            <div className="hidden sm:flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={selectedIds.has(reservation.id)}
+                                onChange={() => {}}
+                                onClick={(e) => toggleSelectReservation(reservation.id, e)}
+                                className="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500 cursor-pointer"
+                              />
+                            </div>
                             {/* Property Image or Placeholder */}
                             {(() => {
                               const propInfo = getPropertyInfo(reservation)
@@ -1143,6 +1181,7 @@ export default function ReservasPage() {
               </div>
             )}
           </motion.div>
+          )}
         </div>
       </main>
 

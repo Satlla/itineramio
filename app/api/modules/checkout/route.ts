@@ -15,7 +15,8 @@ type BillingPeriod = 'MONTHLY' | 'SEMESTRAL' | 'YEARLY'
 
 /**
  * POST /api/modules/checkout
- * Crear sesión de checkout de Stripe para suscripción a módulo
+ * Crear sesión de checkout de Stripe para suscripción a módulo.
+ * ALL prices are calculated server-side. Client values for amounts are ignored.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -69,13 +70,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Parse request body
+    // Parse request body — only accept module, period and coupon code
     const body = await request.json()
     const {
       moduleCode,
       billingPeriod = 'MONTHLY',
-      couponCode,
-      amount // Pre-calculated amount with discounts
+      couponCode
     } = body
 
     // Validate module (accept GESTION and FACTURAMIO as the same)
@@ -95,15 +95,51 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Calculate price
+    // ─── Calculate price ALWAYS server-side ───
     const period = billingPeriod as BillingPeriod
-    let priceToCharge = amount
+    const months = period === 'MONTHLY' ? 1 : period === 'SEMESTRAL' ? 6 : 12
+    const discount = period === 'MONTHLY' ? 0 : period === 'SEMESTRAL' ? 0.1 : 0.2
+    let priceToCharge = module.basePriceMonthly * months * (1 - discount)
 
-    // If no amount provided, calculate from module config
-    if (!priceToCharge) {
-      const months = period === 'MONTHLY' ? 1 : period === 'SEMESTRAL' ? 6 : 12
-      const discount = period === 'MONTHLY' ? 0 : period === 'SEMESTRAL' ? 0.1 : 0.2
-      priceToCharge = module.basePriceMonthly * months * (1 - discount)
+    // ─── Server-side coupon validation ───
+    let validatedCouponCode: string | null = null
+
+    if (couponCode && typeof couponCode === 'string' && couponCode.trim() !== '') {
+      const normalizedCode = couponCode.toUpperCase().trim()
+
+      const dbCoupon = await prisma.coupon.findUnique({
+        where: { code: normalizedCode }
+      })
+
+      if (dbCoupon && dbCoupon.isActive) {
+        const now = new Date()
+        const isDateValid = (!dbCoupon.validUntil || new Date(dbCoupon.validUntil) >= now) &&
+                           (!dbCoupon.validFrom || new Date(dbCoupon.validFrom) <= now)
+        const isUsageValid = !dbCoupon.maxUses || dbCoupon.usedCount < dbCoupon.maxUses
+
+        let isUserUsageValid = true
+        if (dbCoupon.maxUsesPerUser) {
+          const userUsageCount = await prisma.couponUse.count({
+            where: { couponId: dbCoupon.id, userId: user.id }
+          })
+          isUserUsageValid = userUsageCount < dbCoupon.maxUsesPerUser
+        }
+
+        if (isDateValid && isUsageValid && isUserUsageValid) {
+          validatedCouponCode = normalizedCode
+
+          if (dbCoupon.discountPercent && Number(dbCoupon.discountPercent) > 0) {
+            priceToCharge = priceToCharge * (1 - Number(dbCoupon.discountPercent) / 100)
+          } else if (dbCoupon.discountAmount && Number(dbCoupon.discountAmount) > 0) {
+            priceToCharge = Math.max(0, priceToCharge - Number(dbCoupon.discountAmount))
+          }
+        }
+      }
+    }
+
+    // Ensure minimum charge
+    if (priceToCharge > 0 && priceToCharge < 0.50) {
+      priceToCharge = 0.50
     }
 
     // Calculate Stripe interval
@@ -118,12 +154,14 @@ export async function POST(request: NextRequest) {
       interval = 'year'
     }
 
-    console.log('💰 Module Checkout:', {
+    console.log('💰 Module Checkout - Server-side calculation:', {
       moduleCode: normalizedModuleCode,
-      moduleName: module.name,
       billingPeriod: period,
-      priceToCharge,
-      couponCode: couponCode || 'none'
+      basePrice: module.basePriceMonthly,
+      months,
+      discount: `${discount * 100}%`,
+      couponCode: validatedCouponCode,
+      priceToCharge: priceToCharge.toFixed(2)
     })
 
     // Create Stripe Checkout session
@@ -155,16 +193,14 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         moduleCode: module.code,
         billingPeriod: period,
-        couponCode: couponCode || '',
+        couponCode: validatedCouponCode || '',
         isModuleSubscription: 'true'
       },
       success_url: `${request.headers.get('origin')}/gestion?activated=true`,
       cancel_url: `${request.headers.get('origin')}/account/modules/gestion?cancelled=true`,
       locale: 'es',
-      allow_promotion_codes: true
+      allow_promotion_codes: !validatedCouponCode
     })
-
-    console.log(`✅ Module checkout session created: ${session.id}`)
 
     return NextResponse.json({
       success: true,

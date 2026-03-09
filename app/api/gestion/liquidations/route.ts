@@ -247,6 +247,7 @@ export async function POST(request: NextRequest) {
     let monthlyFeeVat = new Decimal(21)
     let useBillingUnits = false
     let targetBillingUnitIds: string[] = []
+    let incomeReceiver = 'MANAGER' // Default: manager collects income
 
     // Handle GROUP mode
     if (mode === 'GROUP' && billingUnitGroupId) {
@@ -272,6 +273,7 @@ export async function POST(request: NextRequest) {
       cleaningValue = group.cleaningValue
       monthlyFee = group.monthlyFee
       monthlyFeeVat = group.monthlyFeeVat
+      incomeReceiver = group.incomeReceiver || 'MANAGER'
 
       targetBillingUnitIds = group.billingUnits.map(u => u.id)
       useBillingUnits = true
@@ -303,6 +305,7 @@ export async function POST(request: NextRequest) {
       cleaningValue = firstUnit.cleaningValue
       monthlyFee = firstUnit.monthlyFee
       monthlyFeeVat = firstUnit.monthlyFeeVat
+      incomeReceiver = firstUnit.incomeReceiver || 'MANAGER'
 
       targetBillingUnitIds = units.map(u => u.id)
       useBillingUnits = true
@@ -451,6 +454,7 @@ export async function POST(request: NextRequest) {
           cleaningValue = firstUnit.cleaningValue
           monthlyFee = firstUnit.monthlyFee
           monthlyFeeVat = firstUnit.monthlyFeeVat
+          incomeReceiver = firstUnit.incomeReceiver || 'MANAGER'
         }
       } else if (billingConfigs.length > 0) {
         const firstConfig = billingConfigs[0]
@@ -461,6 +465,7 @@ export async function POST(request: NextRequest) {
         cleaningValue = firstConfig.cleaningValue
         monthlyFee = firstConfig.monthlyFee
         monthlyFeeVat = firstConfig.monthlyFeeVat
+        incomeReceiver = firstConfig.incomeReceiver || 'MANAGER'
       }
     }
 
@@ -573,6 +578,7 @@ export async function POST(request: NextRequest) {
         totalCleaning,
         totalExpenses,
         totalAmount,
+        incomeReceiver,
         status: 'DRAFT',
         notes: JSON.stringify(metadata),
       },

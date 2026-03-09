@@ -552,18 +552,72 @@ export async function getAdvancedAnalytics(
       : 0
   }
 
-  // TODO: Implement user journey and period comparison
+  // Calculate peak hours from property_views
+  let peakHours: UserJourneyMetrics['peakHours'] = []
+  try {
+    const viewsByHour = await prisma.$queryRaw`
+      SELECT
+        EXTRACT(HOUR FROM "viewedAt") as hour,
+        COUNT(*) as count
+      FROM property_views
+      WHERE "propertyId" = ${propertyId}
+        AND "viewedAt" >= ${startDate}
+        AND "viewedAt" <= ${endDate}
+      GROUP BY EXTRACT(HOUR FROM "viewedAt")
+      ORDER BY hour
+    ` as { hour: number; count: bigint }[]
+
+    const totalHourViews = viewsByHour.reduce((sum, h) => sum + Number(h.count), 0)
+    peakHours = viewsByHour.map(h => ({
+      hour: Number(h.hour),
+      count: Number(h.count),
+      percentage: totalHourViews > 0 ? Math.round((Number(h.count) / totalHourViews) * 100) : 0
+    }))
+  } catch {
+    // Fallback if raw query fails
+  }
+
   const userJourney: UserJourneyMetrics = {
-    topPaths: [],
+    topPaths: [], // Requires session reconstruction — future feature
     avgZonesPerSession: zonesPerSession,
     completionRate: engagement.completionRate,
     deepEngagement: engagement.deepEngagement,
-    peakHours: []
+    peakHours
   }
 
+  // Calculate period comparison (current vs previous period of same length)
+  const periodLength = endDate.getTime() - startDate.getTime()
+  const previousStart = new Date(startDate.getTime() - periodLength)
+  const previousEnd = new Date(startDate.getTime())
+
+  const [prevZoneViews, prevRatings] = await Promise.all([
+    prisma.zoneView.count({
+      where: {
+        propertyId,
+        viewedAt: { gte: previousStart, lte: previousEnd }
+      }
+    }),
+    prisma.zoneRating.findMany({
+      where: {
+        zone: { propertyId },
+        createdAt: { gte: previousStart, lte: previousEnd }
+      },
+      select: { overallRating: true }
+    })
+  ])
+
+  const prevAvgRating = prevRatings.length > 0
+    ? prevRatings.reduce((sum, r) => sum + r.overallRating, 0) / prevRatings.length
+    : 0
+
+  const calcChange = (current: number, previous: number) =>
+    previous > 0 ? Math.round(((current - previous) / previous) * 100) : (current > 0 ? 100 : 0)
+
+  const currentRating = property?.analytics?.overallRating || 0
+
   const periodComparison = {
-    views: { current: totalViews, previous: 0, change: 0 },
-    rating: { current: property?.analytics?.overallRating || 0, previous: 0, change: 0 },
+    views: { current: totalViews, previous: prevZoneViews, change: calcChange(totalViews, prevZoneViews) },
+    rating: { current: currentRating, previous: prevAvgRating, change: calcChange(currentRating, prevAvgRating) },
     engagement: { current: engagement.completionRate, previous: 0, change: 0 }
   }
 

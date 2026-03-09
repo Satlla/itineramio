@@ -714,7 +714,11 @@
         "item2": "La Política de Privacidad",
         "item3": "Cualquier contrato de suscripción vigente entre las partes"
       },
-      "conflict": "En caso de conflicto entre este DPA y otros documentos, prevaleceran las disposiciones de este DPA en lo relativo al tratamiento de datos personales."
+      "conflict": "En caso de conflicto entre este DPA y otros documentos, prevaleceran las disposiciones de este DPA en lo relativo al tratamiento de datos personales.",
+      "guestDataRoles": {
+        "title": "Roles en Relación con los Datos de Huéspedes",
+        "description": "En relación con los datos de huéspedes recopilados a través de los manuales digitales, evaluaciones y chatbot: el usuario (gestor/anfitrión) actúa como Responsable del Tratamiento conforme al artículo 4.7 del RGPD, siendo el único responsable de obtener el consentimiento necesario y cumplir con la normativa de protección de datos. Itineramio actúa exclusivamente como Encargado del Tratamiento conforme al artículo 4.8 del RGPD, procesando dichos datos únicamente según las instrucciones del usuario."
+      }
     },
     "section3": {
       "title": "3. Alcance y Naturaleza del Tratamiento",
@@ -1402,6 +1406,39 @@
       "legalEmail": "Email legal",
       "generalEmail": "Email general",
       "address": "Dirección"
+    }
+  },
+  "disclaimers": {
+    "title": "Exención de responsabilidad",
+    "billing": {
+      "title": "Facturación e impuestos",
+      "text": "Itineramio proporciona herramientas de facturación como ayuda a la gestión. Los cálculos de IVA, IRPF y demás impuestos son orientativos. El usuario es el único responsable de la correctitud fiscal de sus facturas, de la verificación de sus obligaciones tributarias y del cumplimiento de la normativa vigente. Itineramio NO es un asesor fiscal ni contable y NO se responsabiliza de errores en los importes, tipos impositivos o datos fiscales introducidos por el usuario.",
+      "short": "Los cálculos fiscales son orientativos. El usuario es responsable de su correctitud."
+    },
+    "verifactu": {
+      "title": "VeriFactu y AEAT",
+      "text": "La funcionalidad VeriFactu facilita el envío de facturas a la AEAT conforme al RD 1007/2023. El correcto cumplimiento de dicha normativa es responsabilidad exclusiva del usuario. Itineramio actúa como herramienta intermediaria y no garantiza la aceptación de las facturas por parte de la AEAT. El usuario debe verificar el estado de sus envíos y consultar con su asesor fiscal ante cualquier duda.",
+      "short": "VeriFactu es una herramienta de ayuda. El cumplimiento normativo es responsabilidad del usuario."
+    },
+    "ai": {
+      "title": "Contenido generado por inteligencia artificial",
+      "text": "El contenido generado por inteligencia artificial, incluyendo manuales de propiedad, traducciones automáticas y respuestas del chatbot, puede contener errores, inexactitudes o información incompleta. El usuario es responsable de revisar y verificar todo el contenido generado antes de su publicación o uso. Itineramio no se responsabiliza de decisiones tomadas por huéspedes o terceros basándose en información generada por IA.",
+      "short": "El contenido generado por IA puede contener errores. Revíselo antes de publicar."
+    },
+    "guestSafety": {
+      "title": "Seguridad de huéspedes",
+      "text": "Itineramio es una plataforma de documentación y gestión. No verificamos, controlamos ni garantizamos la exactitud de la información sobre seguridad, emergencias, equipamiento o procedimientos proporcionada por los usuarios en sus manuales digitales. El usuario asume la responsabilidad total sobre la información facilitada a sus huéspedes y sobre las condiciones de seguridad de sus propiedades.",
+      "short": "El usuario es responsable de la información de seguridad facilitada a los huéspedes."
+    },
+    "thirdParty": {
+      "title": "Servicios de terceros",
+      "text": "Itineramio integra servicios de terceros como Stripe (pagos), Anthropic (inteligencia artificial), Google (mapas y localización), Airbnb, Booking.com y otros. Estos servicios operan bajo sus propias políticas y condiciones, fuera de nuestro control. No garantizamos su disponibilidad, seguridad ni correcto funcionamiento y no asumimos responsabilidad alguna por incidencias, pérdidas de datos o interrupciones derivadas de dichos servicios externos.",
+      "short": "No nos responsabilizamos del funcionamiento de servicios externos integrados."
+    },
+    "forceMajeure": {
+      "title": "Fuerza mayor",
+      "text": "Ninguna de las partes será responsable por el incumplimiento de sus obligaciones cuando dicho incumplimiento se deba a causas fuera de su control razonable, incluyendo pero no limitado a: desastres naturales, pandemias, acciones gubernamentales, fallos de infraestructura, ataques informáticos, interrupciones de servicios de terceros o cualquier otra circunstancia de fuerza mayor conforme a la legislación aplicable.",
+      "short": "No somos responsables ante circunstancias de fuerza mayor."
     }
   }
 }

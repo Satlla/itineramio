@@ -43,7 +43,14 @@ export async function GET(
         reservations: {
           include: {
             billingConfig: {
-              include: {
+              select: {
+                id: true,
+                incomeReceiver: true,
+                commissionType: true,
+                commissionValue: true,
+                commissionVat: true,
+                cleaningType: true,
+                cleaningValue: true,
                 property: {
                   select: { id: true, name: true },
                 },
@@ -59,6 +66,7 @@ export async function GET(
                 cleaningType: true,
                 cleaningValue: true,
                 groupId: true,
+                incomeReceiver: true,
               },
             },
           },
@@ -72,6 +80,9 @@ export async function GET(
                   select: { id: true, name: true },
                 },
               },
+            },
+            billingUnit: {
+              select: { id: true, name: true },
             },
           },
           orderBy: { date: 'asc' },
@@ -97,24 +108,55 @@ export async function GET(
       : []
     const groupMap = new Map(groups.map(g => [g.id, g]))
 
+    // If reservations have no billing config, look up from owner directly (old liquidations)
+    const hasResBillingConfig = liquidation.reservations.some(r => r.billingUnit || r.billingConfig)
+    let ownerFallbackConfig: any = null
+    if (!hasResBillingConfig) {
+      const ownerUnit = await prisma.billingUnit.findFirst({
+        where: { ownerId: liquidation.owner.id },
+        select: {
+          incomeReceiver: true,
+          commissionType: true,
+          commissionValue: true,
+          commissionVat: true,
+          cleaningType: true,
+          cleaningValue: true,
+          groupId: true,
+        },
+      })
+      if (ownerUnit?.groupId) {
+        const ownerGroup = await prisma.billingUnitGroup.findUnique({
+          where: { id: ownerUnit.groupId },
+        })
+        ownerFallbackConfig = ownerGroup || ownerUnit
+      } else if (ownerUnit) {
+        ownerFallbackConfig = ownerUnit
+      } else {
+        ownerFallbackConfig = await prisma.propertyBillingConfig.findFirst({
+          where: { ownerId: liquidation.owner.id },
+        })
+      }
+    }
+
     // Calculate per-reservation breakdown
     const enrichedReservations = liquidation.reservations.map((r) => {
       const hostEarnings = Number(r.hostEarnings)
       const nights = r.nights || 1
 
-      // Resolve config: Commission from Group > Unit; Cleaning from Unit (if set) > Group
+      // Resolve config: Group > Unit > BillingConfig (legacy) > Owner fallback
       const unit = r.billingUnit
       const group = unit?.groupId ? groupMap.get(unit.groupId) : null
+      const legacyConfig = r.billingConfig
 
-      // Commission: group takes precedence (same management fee for all units)
-      const commissionSource = group || unit
+      // Commission: group > unit > billingConfig > owner fallback
+      const commissionSource = group || unit || legacyConfig || ownerFallbackConfig
       const commissionType = commissionSource?.commissionType || 'PERCENTAGE'
       const commissionValue = Number(commissionSource?.commissionValue || 0)
       const commissionVatRate = Number(commissionSource?.commissionVat || 21)
 
-      // Cleaning: unit takes precedence if it has a value > 0, otherwise group
+      // Cleaning: unit (if value > 0) > group > billingConfig > owner fallback
       const unitCleaningValue = Number(unit?.cleaningValue || 0)
-      const cleaningSource = unitCleaningValue > 0 ? unit : (group || unit)
+      const cleaningSource = unitCleaningValue > 0 ? unit : (group || unit || legacyConfig || ownerFallbackConfig)
       const cleaningType = cleaningSource?.cleaningType || 'FIXED_PER_RESERVATION'
       const cleaningValue = Number(cleaningSource?.cleaningValue || 0)
 
@@ -163,16 +205,31 @@ export async function GET(
     const totalNights = liquidation.reservations.reduce((sum, r) => sum + r.nights, 0)
     const occupancyRate = Math.min(Math.round((totalNights / daysInMonth) * 1000) / 10, 100)
 
-    // Get first config for summary display (they should all match for same owner)
+    // Summary config resolution: group > unit > billingConfig > owner fallback
     const firstUnit = liquidation.reservations[0]?.billingUnit
     const firstGroup = firstUnit?.groupId ? groupMap.get(firstUnit.groupId) : null
-    const summaryConfig = firstGroup || firstUnit
+    const firstBillingConfig = liquidation.reservations[0]?.billingConfig
+    const summaryConfig = firstGroup || firstUnit || firstBillingConfig || ownerFallbackConfig
+    const summaryCommissionType = summaryConfig?.commissionType || 'PERCENTAGE'
+    const summaryCommissionValue = Number(summaryConfig?.commissionValue || 0)
+    const summaryCommissionVatRate = Number(summaryConfig?.commissionVat || 21)
+    const summaryCleaningType = summaryConfig?.cleaningType || 'FIXED_PER_RESERVATION'
+    const summaryCleaningValue = Number(summaryConfig?.cleaningValue || 0)
 
     const ownerType = liquidation.owner.type
-    // Use owner's retentionRate if set, otherwise default (15% for EMPRESA, 0% for PERSONA_FISICA)
     const retentionRate = liquidation.owner.retentionRate !== null
       ? Number(liquidation.owner.retentionRate)
       : (ownerType === 'EMPRESA' ? 15 : 0)
+
+    // Resolve incomeReceiver: stored > group > unit > billingConfig > owner fallback > default
+    let incomeReceiver = liquidation.incomeReceiver
+    if (!incomeReceiver) {
+      incomeReceiver = (firstGroup as any)?.incomeReceiver
+        || firstUnit?.incomeReceiver
+        || (firstBillingConfig as any)?.incomeReceiver
+        || ownerFallbackConfig?.incomeReceiver
+        || 'MANAGER'
+    }
 
     // Obtener configuración del gestor para datos de factura
     const managerConfig = await prisma.userInvoiceConfig.findUnique({
@@ -215,19 +272,21 @@ export async function GET(
           daysInMonth,
           totalNights,
           occupancyRate,
-          commissionType: summaryConfig?.commissionType || 'PERCENTAGE',
-          commissionValue: Number(summaryConfig?.commissionValue || 0),
-          commissionVatRate: Number(summaryConfig?.commissionVat || 21),
-          cleaningType: summaryConfig?.cleaningType || 'FIXED_PER_RESERVATION',
-          cleaningValue: Number(summaryConfig?.cleaningValue || 0),
+          commissionType: summaryCommissionType,
+          commissionValue: summaryCommissionValue,
+          commissionVatRate: summaryCommissionVatRate,
+          cleaningType: summaryCleaningType,
+          cleaningValue: summaryCleaningValue,
           ownerType,
           retentionRate,
         },
+        incomeReceiver,
         invoiceId: liquidation.invoiceId,
         invoiceNumber: liquidation.invoiceNumber,
         invoiceDate: liquidation.invoiceDate?.toISOString(),
         notes: liquidation.notes,
         pdfUrl: liquidation.pdfUrl,
+        paidAt: liquidation.paidAt?.toISOString(),
         createdAt: liquidation.createdAt.toISOString(),
         updatedAt: liquidation.updatedAt.toISOString(),
         reservations: enrichedReservations,
@@ -238,7 +297,7 @@ export async function GET(
           category: e.category,
           amount: Number(e.amount),
           vatAmount: Number(e.vatAmount),
-          property: e.billingConfig?.property?.name || 'N/A',
+          property: e.billingUnit?.name || e.billingConfig?.property?.name || 'N/A',
         })),
       },
       managerConfig: managerConfig ? {
@@ -293,7 +352,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { status, notes } = body
+    const { status, notes, paymentMethod } = body
 
     // Check if liquidation is linked to an invoice (locked)
     if (liquidation.invoiceId && status) {
@@ -303,11 +362,11 @@ export async function PUT(
       )
     }
 
-    // Validar transiciones de estado (DRAFT -> SENT -> CANCELLED)
-    // Note: Payment is tracked on the invoice, not the liquidation
+    // Validar transiciones de estado
     const validTransitions: Record<string, string[]> = {
-      DRAFT: ['SENT', 'CANCELLED'],
-      SENT: ['CANCELLED'],
+      DRAFT: ['SENT', 'PAID', 'CANCELLED'],
+      SENT: ['PAID', 'CANCELLED'],
+      PAID: [],
       CANCELLED: [],
     }
 
@@ -322,8 +381,23 @@ export async function PUT(
 
     const updateData: any = {}
 
-    if (status) updateData.status = status
-    if (notes !== undefined) updateData.notes = notes
+    if (status) {
+      updateData.status = status
+      if (status === 'PAID') {
+        updateData.paidAt = new Date()
+      }
+    }
+    if (notes !== undefined) {
+      updateData.notes = notes
+    } else if (paymentMethod !== undefined) {
+      // Merge paymentMethod into existing notes JSON
+      let notesObj: Record<string, unknown> = {}
+      if (liquidation.notes) {
+        try { notesObj = JSON.parse(liquidation.notes) } catch { /* not JSON */ }
+      }
+      notesObj.paymentMethod = paymentMethod
+      updateData.notes = JSON.stringify(notesObj)
+    }
 
     const updated = await prisma.liquidation.update({
       where: { id },

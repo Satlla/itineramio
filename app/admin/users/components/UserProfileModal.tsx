@@ -122,7 +122,7 @@ interface UserProfile {
 export default function UserProfileModal({ userId, isOpen, onClose }: UserProfileModalProps) {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'overview' | 'properties' | 'calls' | 'notes'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'properties' | 'calls' | 'notes' | 'conversations'>('overview')
   const [showCallModal, setShowCallModal] = useState(false)
   const [showNoteModal, setShowNoteModal] = useState(false)
   const [showChangePlanModal, setShowChangePlanModal] = useState(false)
@@ -133,6 +133,9 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
   const [notes, setNotes] = useState<any[]>([])
   const [loadingCalls, setLoadingCalls] = useState(false)
   const [loadingNotes, setLoadingNotes] = useState(false)
+  const [conversations, setConversations] = useState<any[]>([])
+  const [loadingConversations, setLoadingConversations] = useState(false)
+  const [expandedTicket, setExpandedTicket] = useState<string | null>(null)
   const [impersonating, setImpersonating] = useState(false)
 
   useEffect(() => {
@@ -147,6 +150,9 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
     }
     if (activeTab === 'notes' && userId && notes.length === 0) {
       fetchNotes()
+    }
+    if (activeTab === 'conversations' && userId && conversations.length === 0) {
+      fetchConversations()
     }
   }, [activeTab, userId])
 
@@ -207,6 +213,26 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
       console.error('Error fetching notes:', error)
     } finally {
       setLoadingNotes(false)
+    }
+  }
+
+  const fetchConversations = async () => {
+    if (!userId) return
+
+    try {
+      setLoadingConversations(true)
+      const response = await fetch(`/api/admin/support/tickets?userId=${userId}&includeMessages=true&limit=50`, {
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setConversations(data.tickets)
+      }
+    } catch (error) {
+      console.error('Error fetching conversations:', error)
+    } finally {
+      setLoadingConversations(false)
     }
   }
 
@@ -438,7 +464,8 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
                   { id: 'overview', label: 'Resumen', count: null },
                   { id: 'properties', label: 'Propiedades', count: user.properties.length },
                   { id: 'calls', label: 'Llamadas', count: user.recentCallLogs.length },
-                  { id: 'notes', label: 'Notas', count: user.recentNotes.length }
+                  { id: 'notes', label: 'Notas', count: user.recentNotes.length },
+                  { id: 'conversations', label: 'Conversaciones', count: null }
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -738,6 +765,107 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
                             </div>
                           )}
                           <span className="text-sm text-gray-500">Por {note.admin.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'conversations' && (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">Conversaciones de soporte ({conversations.length})</h3>
+                  </div>
+                  {loadingConversations ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="animate-spin w-6 h-6 border-2 border-red-600 border-t-transparent rounded-full"></div>
+                    </div>
+                  ) : conversations.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <MessageSquare className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                      <p className="text-sm">Este usuario no tiene conversaciones de soporte</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {conversations.map((ticket) => (
+                        <div key={ticket.id} className="border rounded-lg overflow-hidden">
+                          {/* Ticket header */}
+                          <button
+                            onClick={() => setExpandedTicket(expandedTicket === ticket.id ? null : ticket.id)}
+                            className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
+                          >
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                  ticket.status === 'OPEN' ? 'bg-green-100 text-green-700' :
+                                  ticket.status === 'WAITING_ADMIN' ? 'bg-yellow-100 text-yellow-700' :
+                                  ticket.status === 'RESOLVED' ? 'bg-blue-100 text-blue-700' :
+                                  'bg-gray-100 text-gray-700'
+                                }`}>
+                                  {ticket.status === 'OPEN' ? 'Abierto' :
+                                   ticket.status === 'WAITING_ADMIN' ? 'Esperando admin' :
+                                   ticket.status === 'RESOLVED' ? 'Resuelto' :
+                                   ticket.status === 'CLOSED' ? 'Cerrado' : ticket.status}
+                                </span>
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                  ticket.priority === 'HIGH' ? 'bg-red-100 text-red-700' :
+                                  ticket.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
+                                  'bg-gray-100 text-gray-600'
+                                }`}>
+                                  {ticket.priority}
+                                </span>
+                                <span className="text-xs text-gray-400">
+                                  {ticket._count?.messages || ticket.messages?.length || 0} mensajes
+                                </span>
+                              </div>
+                              <h4 className="font-medium text-sm truncate">{ticket.subject}</h4>
+                              <p className="text-xs text-gray-500 mt-0.5">
+                                {formatDate(ticket.createdAt)}
+                                {ticket.lastMessageAt && ticket.lastMessageAt !== ticket.createdAt && (
+                                  <> · Último msg: {formatDate(ticket.lastMessageAt)}</>
+                                )}
+                              </p>
+                            </div>
+                            <svg className={`w-4 h-4 text-gray-400 transition-transform ${expandedTicket === ticket.id ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </button>
+
+                          {/* Expanded messages */}
+                          {expandedTicket === ticket.id && ticket.messages && (
+                            <div className="border-t bg-gray-50 px-4 py-3 space-y-2 max-h-80 overflow-y-auto">
+                              {ticket.messages.map((msg: any) => (
+                                <div
+                                  key={msg.id}
+                                  className={`flex ${msg.sender === 'USER' ? 'justify-start' : 'justify-end'}`}
+                                >
+                                  <div className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
+                                    msg.sender === 'USER'
+                                      ? 'bg-white border border-gray-200 text-gray-800'
+                                      : msg.sender === 'AI'
+                                      ? 'bg-violet-100 text-violet-900'
+                                      : msg.isInternal
+                                      ? 'bg-yellow-50 border border-yellow-200 text-yellow-900'
+                                      : 'bg-red-100 text-red-900'
+                                  }`}>
+                                    <div className="flex items-center gap-1.5 mb-0.5">
+                                      <span className="text-[10px] font-bold uppercase opacity-70">
+                                        {msg.sender === 'USER' ? 'Usuario' :
+                                         msg.sender === 'AI' ? 'SofIA' :
+                                         msg.admin?.name || 'Admin'}
+                                        {msg.isInternal && ' (nota interna)'}
+                                      </span>
+                                      <span className="text-[10px] opacity-50">
+                                        {new Date(msg.createdAt).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                                      </span>
+                                    </div>
+                                    <p className="whitespace-pre-wrap text-xs leading-relaxed">{msg.content}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>

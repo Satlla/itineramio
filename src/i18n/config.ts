@@ -13,6 +13,7 @@ import esAccount from './locales/es/account.json'
 import esLegal from './locales/es/legal.json'
 import esGestion from './locales/es/gestion.json'
 import esAiSetup from './locales/es/ai-setup.json'
+import esSupport from './locales/es/support.json'
 
 // Import English translations
 import enCommon from './locales/en/common.json'
@@ -26,6 +27,7 @@ import enAccount from './locales/en/account.json'
 import enLegal from './locales/en/legal.json'
 import enGestion from './locales/en/gestion.json'
 import enAiSetup from './locales/en/ai-setup.json'
+import enSupport from './locales/en/support.json'
 
 // Import French translations
 import frCommon from './locales/fr/common.json'
@@ -39,6 +41,7 @@ import frAccount from './locales/fr/account.json'
 import frLegal from './locales/fr/legal.json'
 import frGestion from './locales/fr/gestion.json'
 import frAiSetup from './locales/fr/ai-setup.json'
+import frSupport from './locales/fr/support.json'
 
 const resources = {
   es: {
@@ -52,7 +55,8 @@ const resources = {
     account: esAccount,
     legal: esLegal,
     gestion: esGestion,
-    'ai-setup': esAiSetup
+    'ai-setup': esAiSetup,
+    support: esSupport
   },
   en: {
     common: enCommon,
@@ -65,7 +69,8 @@ const resources = {
     account: enAccount,
     legal: enLegal,
     gestion: enGestion,
-    'ai-setup': enAiSetup
+    'ai-setup': enAiSetup,
+    support: enSupport
   },
   fr: {
     common: frCommon,
@@ -78,7 +83,8 @@ const resources = {
     account: frAccount,
     legal: frLegal,
     gestion: frGestion,
-    'ai-setup': frAiSetup
+    'ai-setup': frAiSetup,
+    support: frSupport
   }
 }
 
@@ -89,7 +95,7 @@ i18n
     lng: 'es',
     fallbackLng: 'es',
     defaultNS: 'common',
-    ns: ['common', 'landing', 'auth', 'dashboard', 'property', 'tools', 'zones', 'account', 'legal', 'gestion', 'ai-setup'],
+    ns: ['common', 'landing', 'auth', 'dashboard', 'property', 'tools', 'zones', 'account', 'legal', 'gestion', 'ai-setup', 'support'],
     debug: false,
     interpolation: {
       escapeValue: false

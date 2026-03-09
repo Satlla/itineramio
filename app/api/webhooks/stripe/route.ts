@@ -130,7 +130,6 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
   const isModuleSubscription = session.metadata?.isModuleSubscription === 'true'
   const billingPeriod = session.metadata?.billingPeriod
   const couponCode = session.metadata?.couponCode
-  const couponDiscountAmount = session.metadata?.couponDiscountAmount
 
   // Handle module subscription (GESTION, etc.)
   if (isModuleSubscription && moduleCode && userId) {
@@ -176,9 +175,10 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
 
     console.log(`✅ Module ${normalizedModuleCode} activated for user ${userId}`)
 
-    // Record coupon if used
+    // Record coupon if used — use fullPriceEur from metadata + Stripe's amount_total
     if (couponCode && couponCode.trim() !== '') {
-      await recordCouponUsage(couponCode, userId, session.id, couponDiscountAmount, session.amount_total)
+      const fullPriceEur = session.metadata?.fullPriceEur || null
+      await recordCouponUsage(couponCode, userId, session.id, fullPriceEur, session.amount_total)
     }
 
     return
@@ -194,8 +194,7 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
     userId,
     planCode,
     billingPeriod,
-    couponCode: couponCode || 'none',
-    couponDiscountAmount: couponDiscountAmount || '0'
+    couponCode: couponCode || 'none'
   })
 
   // Get subscription details from Stripe
@@ -250,50 +249,62 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
 
   console.log(`✅ Subscription created: ${userSubscription.id} for user ${userId}`)
 
-  // Record coupon usage if a coupon was applied
+  // Record coupon usage if a coupon was applied — use fullPriceEur + Stripe's amount_total
   if (couponCode && couponCode.trim() !== '') {
-    await recordCouponUsage(couponCode, userId, session.id, couponDiscountAmount, session.amount_total)
+    const fullPriceEur = session.metadata?.fullPriceEur || null
+    await recordCouponUsage(couponCode, userId, session.id, fullPriceEur, session.amount_total)
   }
 }
 
 /**
  * Helper to record coupon usage
+ * Uses Stripe's amount_total as source of truth for the actual amount charged
  */
 async function recordCouponUsage(
   couponCode: string,
   userId: string,
   sessionId: string,
-  discountAmount?: string | null,
+  fullPriceEur?: string | null,
   amountTotal?: number | null
 ) {
   try {
-    console.log(`🎟️ Recording coupon usage: ${couponCode}`)
-
     const coupon = await prisma.coupon.findUnique({
       where: { code: couponCode.toUpperCase() }
     })
 
-    if (coupon) {
-      await prisma.couponUse.create({
-        data: {
-          couponId: coupon.id,
-          userId,
-          orderId: sessionId,
-          discountApplied: discountAmount ? parseFloat(discountAmount) : 0,
-          originalAmount: amountTotal ? amountTotal / 100 : 0,
-          finalAmount: amountTotal ? amountTotal / 100 : 0
-        }
-      })
-
-      await prisma.coupon.update({
-        where: { id: coupon.id },
-        data: { usedCount: { increment: 1 } }
-      })
-
-      console.log(`✅ Coupon usage recorded: ${couponCode} for user ${userId}`)
-    } else {
+    if (!coupon) {
       console.log(`⚠️ Coupon not found in database: ${couponCode}`)
+      return
     }
+
+    // Revalidate coupon limits before recording
+    if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
+      console.log(`⚠️ Coupon ${couponCode} exceeded max uses (${coupon.usedCount}/${coupon.maxUses})`)
+      return
+    }
+
+    // Calculate discount from Stripe's actual charge vs full price
+    const fullPrice = fullPriceEur ? parseFloat(fullPriceEur) : 0
+    const actualCharged = amountTotal ? amountTotal / 100 : 0
+    const actualDiscount = fullPrice > 0 ? Math.max(0, fullPrice - actualCharged) : 0
+
+    await prisma.couponUse.create({
+      data: {
+        couponId: coupon.id,
+        userId,
+        orderId: sessionId,
+        discountApplied: actualDiscount,
+        originalAmount: fullPrice,
+        finalAmount: actualCharged
+      }
+    })
+
+    await prisma.coupon.update({
+      where: { id: coupon.id },
+      data: { usedCount: { increment: 1 } }
+    })
+
+    console.log(`✅ Coupon ${couponCode} recorded: €${fullPrice} → €${actualCharged} (discount: €${actualDiscount.toFixed(2)})`)
   } catch (couponError) {
     console.error('Error recording coupon usage:', couponError)
   }

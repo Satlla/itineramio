@@ -477,7 +477,13 @@
       "academy": "Academia",
       "academyLeads": "Leads",
       "quizLeads": "Quiz Leads",
-      "academyUsers": "Usuarios"
+      "academyUsers": "Usuarios",
+      "support": "Soporte",
+      "supportDashboard": "Panel Soporte",
+      "supportTickets": "Tickets",
+      "supportArticles": "Artículos Ayuda",
+      "supportUpdates": "Novedades",
+      "supportFaq": "FAQ Soporte"
     },
     "dashboard": {
       "errorLoading": "Error al cargar datos",
