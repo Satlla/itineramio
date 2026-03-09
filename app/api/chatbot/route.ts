@@ -59,9 +59,6 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // TEMP: Restrict chatbot to specific host emails during beta
-    const ALLOWED_HOST_EMAILS = ['alejandrosatlla@gmail.com', 'colaboracionesbnb@gmail.com'];
-
     // Get property and zone(s) context
     let property: any;
     let zones: any[] = [];
@@ -137,12 +134,8 @@ export async function POST(request: NextRequest) {
       zones = property.zones;
     }
 
-    // TEMP: Block chatbot for non-allowed hosts during beta (allow demo properties)
-    if (!property.isDemoPreview && !ALLOWED_HOST_EMAILS.includes(property.host?.email?.toLowerCase())) {
-      return NextResponse.json({
-        error: 'Chatbot not available for this property'
-      }, { status: 403 });
-    }
+    // Build media index once — used for all code paths
+    const mediaIndex = buildMediaIndex(zones, language);
 
     // Check if OpenAI API key is configured
     const openaiApiKey = process.env.OPENAI_API_KEY;
@@ -150,7 +143,7 @@ export async function POST(request: NextRequest) {
       // Fallback to rule-based responses if no OpenAI
       const zone = zones[0] || null;
       const response = generateFallbackResponse(message, property, zone, language);
-      const media = detectRelevantMedia(message, response, zones, language);
+      const media = extractMediaFromAiResponse(response, mediaIndex);
       const recommendations = detectRelevantRecommendations(message, response, zones, language);
       return NextResponse.json({
         response,
@@ -262,7 +255,7 @@ export async function POST(request: NextRequest) {
             }
 
             // After stream completes, send media + recommendation cards and finish
-            const media = detectRelevantMedia(message, fullResponse, zones, language);
+            const media = extractMediaFromAiResponse(fullResponse, mediaIndex);
             const recommendations = detectRelevantRecommendations(message, fullResponse, zones, language);
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({
               done: true,
@@ -322,7 +315,7 @@ export async function POST(request: NextRequest) {
       console.error('OpenAI API error:', openaiError);
       const zone = zones[0] || null;
       const response = generateFallbackResponse(message, property, zone, language);
-      const media = detectRelevantMedia(message, response, zones, language);
+      const media = extractMediaFromAiResponse(response, mediaIndex);
       const recommendations = detectRelevantRecommendations(message, response, zones, language);
       return NextResponse.json({
         response,
@@ -340,26 +333,43 @@ export async function POST(request: NextRequest) {
 }
 
 // ========================================
-// MEDIA DETECTION
+// MEDIA DETECTION — derived from AI response URLs
 // ========================================
 
-// Synonyms/related words for common zone topics (multilingual)
-const ZONE_SYNONYMS: Record<string, string[]> = {
-  'check in': ['entrar', 'entrada', 'llegar', 'llegada', 'acceso', 'acceder', 'enter', 'arrival', 'arrive', 'access', 'key', 'llave', 'código', 'code', 'puerta', 'door', 'portal', 'arrivée', 'entrer', 'accès', 'clé', 'porte'],
-  'check out': ['salir', 'salida', 'dejar', 'leave', 'leaving', 'departure', 'checkout', 'sortie', 'partir', 'quitter'],
-  'wifi': ['internet', 'wifi', 'contraseña', 'password', 'red', 'network', 'conexión', 'connection', 'réseau', 'mot de passe'],
-  'parking': ['aparcar', 'coche', 'garaje', 'garage', 'car', 'park', 'voiture', 'garer', 'estacionamiento'],
-  'climatización': ['aire', 'calefacción', 'heating', 'cooling', 'temperature', 'temperatura', 'frío', 'calor', 'cold', 'hot', 'chauffage', 'climatisation', 'ac', 'aire acondicionado'],
-  'cocina': ['cocinar', 'cook', 'kitchen', 'horno', 'oven', 'microondas', 'microwave', 'vitrocerámica', 'cuisiner', 'cuisine', 'four'],
-  'vitrocerámica': ['vitro', 'cocina', 'placa', 'hob', 'stove', 'cooktop', 'cocinar', 'cook', 'plaque'],
-  'microondas': ['microwave', 'calentar', 'heat', 'warm', 'micro', 'réchauffer'],
-  'lavadora': ['lavar', 'ropa', 'wash', 'laundry', 'washing', 'clothes', 'linge', 'laver', 'machine'],
-  'basura': ['reciclar', 'reciclaje', 'trash', 'garbage', 'recycling', 'waste', 'bin', 'poubelle', 'déchet', 'recycler'],
-  'recomendaciones': ['restaurante', 'comer', 'restaurant', 'eat', 'food', 'visitar', 'visit', 'actividad', 'activity', 'manger', 'activité', 'café', 'coffee', 'bar', 'playa', 'beach', 'museo', 'museum', 'tapas', 'cenar', 'almorzar', 'desayunar', 'brunch'],
-  'emergencia': ['emergencia', 'emergency', 'urgencia', 'urgence', 'policía', 'police', 'hospital', 'teléfono', 'phone', 'ambulancia', 'ambulance'],
-  'normas': ['regla', 'rule', 'norma', 'ruido', 'noise', 'prohibido', 'forbidden', 'règle', 'bruit', 'interdit'],
-  'transporte': ['metro', 'bus', 'taxi', 'tren', 'train', 'transport', 'llegar', 'aéroport', 'airport', 'aeropuerto'],
-};
+function buildMediaIndex(zones: any[], language: string): Map<string, { type: 'IMAGE' | 'VIDEO'; url: string; caption: string }> {
+  const index = new Map<string, { type: 'IMAGE' | 'VIDEO'; url: string; caption: string }>();
+  for (const zone of zones) {
+    if (zone.type === 'RECOMMENDATIONS') continue;
+    const zoneName = getLocalizedText(zone.name, language);
+    for (const step of (zone.steps || [])) {
+      const content = step.content as any;
+      if (!content?.mediaUrl) continue;
+      const stepType = (step.type || '').toUpperCase();
+      if (stepType !== 'IMAGE' && stepType !== 'VIDEO') continue;
+      index.set(content.mediaUrl, {
+        type: stepType as 'IMAGE' | 'VIDEO',
+        url: content.mediaUrl,
+        caption: getLocalizedText(step.title, language) || zoneName
+      });
+    }
+  }
+  return index;
+}
+
+function extractMediaFromAiResponse(
+  aiResponse: string,
+  mediaIndex: Map<string, { type: 'IMAGE' | 'VIDEO'; url: string; caption: string }>
+): MediaItem[] {
+  const media: MediaItem[] = [];
+  mediaIndex.forEach((meta, url) => {
+    if (media.length >= 3) return;
+    if (meta.type !== 'VIDEO') return;
+    if (aiResponse.includes(url)) {
+      media.push({ type: 'VIDEO', url: meta.url, caption: meta.caption });
+    }
+  });
+  return media;
+}
 
 // Synonyms for recommendation categories
 const RECOMMENDATION_SYNONYMS: Record<string, string[]> = {
@@ -380,58 +390,6 @@ function getKeywords(text: string): string[] {
     .replace(/[-_/\\.,;:!?()]/g, ' ')
     .split(/\s+/)
     .filter(w => w.length >= 3);
-}
-
-function detectRelevantMedia(userMessage: string, aiResponse: string, zones: any[], language: string): MediaItem[] {
-  const media: MediaItem[] = [];
-  const userKeywords = new Set(getKeywords(userMessage));
-
-  for (const zone of zones) {
-    // Skip RECOMMENDATIONS zones — they don't have step media
-    if (zone.type === 'RECOMMENDATIONS') continue;
-
-    const zoneName = getLocalizedText(zone.name, language);
-    const zoneNameLower = zoneName.toLowerCase();
-    const zoneKeywords = getKeywords(zoneName);
-
-    // Check if this zone matches the user's question (by zone name or synonyms)
-    let zoneMatchesQuery = zoneKeywords.some(w => userKeywords.has(w));
-
-    if (!zoneMatchesQuery) {
-      for (const [key, synonyms] of Object.entries(ZONE_SYNONYMS)) {
-        if (zoneNameLower.includes(key) || key.includes(zoneNameLower)) {
-          // Require at least 2 synonym matches OR one exact zone name match to avoid false positives
-          const matchCount = synonyms.filter(s => userKeywords.has(s)).length;
-          if (matchCount >= 1) {
-            zoneMatchesQuery = true;
-            break;
-          }
-        }
-      }
-    }
-
-    // Only show media from the matched zone — don't cross-match step titles against unrelated zones
-    if (!zoneMatchesQuery) continue;
-
-    for (const step of (zone.steps || [])) {
-      const content = step.content as any;
-      if (!content || !content.mediaUrl) continue;
-      const stepType = (step.type || '').toUpperCase();
-      if (stepType !== 'IMAGE' && stepType !== 'VIDEO') continue;
-
-      const stepTitle = getLocalizedText(step.title, language);
-
-      media.push({
-        type: stepType === 'VIDEO' ? 'VIDEO' : 'IMAGE',
-        url: content.mediaUrl,
-        caption: stepTitle || zoneName
-      });
-
-      if (media.length >= 3) return media;
-    }
-  }
-
-  return media;
 }
 
 interface RecommendationCard {
@@ -1004,7 +962,7 @@ ${EMERGENCY_KNOWLEDGE}
 CRITICAL RULES:
 1. LANGUAGE: Detect the language the user writes in and ALWAYS respond in that SAME language.
 2. ANSWER FROM DATA: Your answers MUST come from the knowledge base above. Quote specific details (names, codes, locations, times).
-3. MEDIA: When a step has 📷 (image) or 📹 (video), ALWAYS include it in your answer using markdown: ![description](url) for images, [🎬 Ver vídeo](url) for videos.
+3. MEDIA: When your answer references a step that has 📷 (image) or 📹 (video), you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Ver vídeo](url). ONLY include media from the specific steps relevant to the question — do NOT dump all media from a zone.
 4. RECOMMENDATIONS: When mentioning places (restaurants, cafés, etc.), list them with name, distance and rating if available.
 5. STYLE: Be friendly and direct. Use **bold** for key info. Use bullet lists. Max 3 short paragraphs.
 6. HONESTY: If the info isn't in your knowledge base, say so and suggest contacting the host.
@@ -1071,7 +1029,7 @@ ${EMERGENCY_KNOWLEDGE}
 CRITICAL RULES:
 1. LANGUAGE: Detect the language the user writes in and ALWAYS respond in that SAME language.
 2. ANSWER FROM DATA: Your answers MUST come from the knowledge base above. Quote specific details (WiFi name, codes, locations, times, step-by-step instructions).
-3. MEDIA: When a step has 📷 (image) or 📹 (video), ALWAYS include it in your answer using markdown: ![description](url) for images, [🎬 Ver vídeo](url) for videos. This is very important — guests need visual guides.
+3. MEDIA: When your answer references a step that has 📷 (image) or 📹 (video), you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Ver vídeo](url). ONLY include media from the specific steps relevant to the question — do NOT dump all media from a zone.
 4. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions, etc., list the actual places from the manual with their name, rating (★), distance, and walk time.
 5. SEARCH ALL ZONES: Look through ALL zones to find the most relevant information for each question.
 6. STYLE: Be friendly and direct like a WhatsApp chat. Use **bold** for key info. Use bullet lists with -. Max 3 short paragraphs. Use emojis sparingly (📍🏠✅☕🍽️).
