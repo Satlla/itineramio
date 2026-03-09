@@ -2,16 +2,27 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../src/lib/prisma'
 import { getAuthUser } from '../../../src/lib/auth'
 
+const ADMIN_EMAIL = 'alejandrosatlla@gmail.com'
+
 // GET /api/city-guides?city=Alicante
 // List published city guides, VERIFIED first. No auth required.
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const city = searchParams.get('city')
+    const all = searchParams.get('all') === 'true'
 
-    const where: Record<string, unknown> = {
-      status: { in: ['PUBLISHED', 'VERIFIED'] },
+    // `all=true` only allowed for admin
+    let isAdmin = false
+    if (all) {
+      const user = await getAuthUser(request)
+      isAdmin = user?.email === ADMIN_EMAIL
     }
+
+    const where: Record<string, unknown> = isAdmin
+      ? {}
+      : { status: { in: ['PUBLISHED', 'VERIFIED'] } }
+
     if (city) {
       where.city = { contains: city, mode: 'insensitive' }
     }
@@ -70,6 +81,9 @@ export async function POST(request: NextRequest) {
     const user = await getAuthUser(request)
     if (!user) {
       return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 })
+    }
+    if (user.email !== ADMIN_EMAIL) {
+      return NextResponse.json({ success: false, error: 'Solo los administradores pueden crear guías' }, { status: 403 })
     }
 
     const body = await request.json()
