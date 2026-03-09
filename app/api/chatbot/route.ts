@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { after } from 'next/server';
 import { prisma } from '../../../src/lib/prisma';
-import { checkRateLimit, getRateLimitKey } from '../../../src/lib/rate-limit';
+import { checkRateLimit, checkRateLimitAsync, getRateLimitKey } from '../../../src/lib/rate-limit';
+import { sendEmail } from '../../../src/lib/email-improved';
 
 // Production: allow up to 60s for DB queries + OpenAI streaming
 export const maxDuration = 60;
@@ -18,28 +19,84 @@ interface MediaItem {
   caption?: string
 }
 
+// Burst: 20 msg/min — prevents spam floods
 const CHATBOT_RATE_LIMIT = {
   maxRequests: 20,
-  windowMs: 60 * 1000 // 1 minute
+  windowMs: 60 * 1000
 };
+// Hourly: 60 msg/hour — normal guest usage ceiling
+const CHATBOT_HOURLY_LIMIT = {
+  maxRequests: 60,
+  windowMs: 60 * 60 * 1000
+};
+// Daily: 150 msg/day — triggers admin alert on breach
+const CHATBOT_DAILY_LIMIT = {
+  maxRequests: 150,
+  windowMs: 24 * 60 * 60 * 1000
+};
+
+async function notifyAbuse(ip: string, propertyId: string, limitType: 'hourly' | 'daily', count: number) {
+  try {
+    await sendEmail({
+      to: ['alejandrosatlla@gmail.com'],
+      subject: `⚠️ Uso excesivo del chatbot — límite ${limitType === 'hourly' ? 'horario' : 'diario'} superado`,
+      html: `
+        <h2>Alerta de uso excesivo del chatbot</h2>
+        <p>Un usuario ha superado el límite <strong>${limitType === 'hourly' ? 'horario (60 msg/h)' : 'diario (150 msg/día)'}</strong>.</p>
+        <table style="border-collapse:collapse;width:100%">
+          <tr><td style="padding:8px;border:1px solid #ddd"><strong>IP</strong></td><td style="padding:8px;border:1px solid #ddd">${ip}</td></tr>
+          <tr><td style="padding:8px;border:1px solid #ddd"><strong>Propiedad</strong></td><td style="padding:8px;border:1px solid #ddd">${propertyId}</td></tr>
+          <tr><td style="padding:8px;border:1px solid #ddd"><strong>Mensajes enviados</strong></td><td style="padding:8px;border:1px solid #ddd">${count}</td></tr>
+          <tr><td style="padding:8px;border:1px solid #ddd"><strong>Fecha/hora</strong></td><td style="padding:8px;border:1px solid #ddd">${new Date().toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })}</td></tr>
+        </table>
+        <p>El usuario ha recibido un mensaje informándole del límite alcanzado.</p>
+      `
+    });
+  } catch {
+    // Non-critical — don't break the request if email fails
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
-    // Rate limiting by IP
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
     const rateLimitKey = getRateLimitKey(request, null, 'chatbot');
-    const rateLimitResult = checkRateLimit(rateLimitKey, CHATBOT_RATE_LIMIT);
 
-    if (!rateLimitResult.allowed) {
+    // 1. Burst check (sync, fast)
+    const burstResult = checkRateLimit(rateLimitKey, CHATBOT_RATE_LIMIT);
+    if (!burstResult.allowed) {
       return NextResponse.json({
         error: 'Too many requests. Please wait a moment before sending another message.'
       }, {
         status: 429,
         headers: {
-          'Retry-After': String(Math.ceil(rateLimitResult.resetIn / 1000)),
-          'X-RateLimit-Limit': String(rateLimitResult.limit),
-          'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+          'Retry-After': String(Math.ceil(burstResult.resetIn / 1000)),
+          'X-RateLimit-Limit': String(burstResult.limit),
+          'X-RateLimit-Remaining': String(burstResult.remaining),
         }
       });
+    }
+
+    // 2. Hourly check (async, Redis-backed)
+    const hourlyResult = await checkRateLimitAsync(`${rateLimitKey}:hourly`, CHATBOT_HOURLY_LIMIT);
+    if (!hourlyResult.allowed) {
+      const { propertyId = 'unknown' } = await request.clone().json().catch(() => ({}));
+      after(() => notifyAbuse(ip, propertyId, 'hourly', hourlyResult.current));
+      return NextResponse.json({
+        error: 'Has enviado demasiados mensajes esta hora. Por favor, contacta directamente con el anfitrión o vuelve a intentarlo más tarde.',
+        limitType: 'hourly'
+      }, { status: 429 });
+    }
+
+    // 3. Daily check (async, Redis-backed)
+    const dailyResult = await checkRateLimitAsync(`${rateLimitKey}:daily`, CHATBOT_DAILY_LIMIT);
+    if (!dailyResult.allowed) {
+      const { propertyId = 'unknown' } = await request.clone().json().catch(() => ({}));
+      after(() => notifyAbuse(ip, propertyId, 'daily', dailyResult.current));
+      return NextResponse.json({
+        error: 'Has alcanzado el límite de mensajes por hoy. Por favor, contacta directamente con el anfitrión.',
+        limitType: 'daily'
+      }, { status: 429 });
     }
 
     const {

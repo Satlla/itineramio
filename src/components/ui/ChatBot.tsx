@@ -77,7 +77,8 @@ const i18n: Record<string, Record<string, string>> = {
     typing: 'Escribiendo...',
     errorMessage: 'Lo siento, hubo un error técnico. Por favor, intenta de nuevo o contacta directamente al anfitrión.',
     errorBanner: 'Lo siento, hubo un error al procesar tu consulta. Por favor, intenta de nuevo.',
-    rateLimited: 'Has enviado demasiados mensajes. Por favor, espera un momento antes de enviar otro.',
+    rateLimited: 'Has enviado demasiados mensajes esta hora. Por favor, espera un momento o contacta directamente con el anfitrión.',
+    rateLimitedDaily: 'Has alcanzado el límite de mensajes por hoy. Por favor, contacta directamente con el anfitrión.',
     faqTitle: 'Preguntas frecuentes:',
     contactWhatsApp: 'Contactar por WhatsApp',
     faq1q: '¿Cómo puedo contactar al anfitrión?',
@@ -450,7 +451,8 @@ export default function ChatBot({
       })
 
       if (response.status === 429) {
-        throw new Error('rate_limited')
+        const errData = await response.json().catch(() => ({}))
+        throw new Error(errData.limitType === 'daily' ? 'rate_limited_daily' : 'rate_limited')
       }
 
       if (!response.ok) {
@@ -554,9 +556,10 @@ export default function ChatBot({
       // If user got partial content before abort/error, keep it instead of showing error
       const isAbort = error?.name === 'AbortError'
       const isRateLimited = error?.message === 'rate_limited'
+      const isRateLimitedDaily = error?.message === 'rate_limited_daily'
 
       // Check if we already have a streamed partial response
-      const hasPartialResponse = !isRateLimited && messages.some(m =>
+      const hasPartialResponse = !isRateLimited && !isRateLimitedDaily && messages.some(m =>
         !m.typing && m.role === 'assistant' && m.content.length > 20
       )
 
@@ -564,15 +567,16 @@ export default function ChatBot({
         // Partial content exists — just remove typing indicator, don't add error
         setMessages(prev => prev.filter(m => !m.typing))
       } else {
-        setError(isRateLimited ? t('rateLimited', lang) : t('errorBanner', lang))
+        const errMsg = isRateLimitedDaily ? t('rateLimitedDaily', lang) : isRateLimited ? t('rateLimited', lang) : t('errorBanner', lang)
+        const chatMsg = isRateLimitedDaily ? t('rateLimitedDaily', lang) : isRateLimited ? t('rateLimited', lang) : t('errorMessage', lang)
+        setError(errMsg)
 
-        // Remove typing indicator and add error message
         setMessages(prev => {
           const filtered = prev.filter(m => !m.typing)
           const errorMsg: Message = {
             id: Date.now().toString(),
             role: 'assistant',
-            content: isRateLimited ? t('rateLimited', lang) : t('errorMessage', lang),
+            content: chatMsg,
             timestamp: new Date()
           }
           return [...filtered, errorMsg]
@@ -697,13 +701,16 @@ export default function ChatBot({
         }
       }).catch((error: any) => {
         const isRateLimited = error?.message === 'rate_limited'
-        setError(isRateLimited ? t('rateLimited', lang) : t('errorBanner', lang))
+        const isRateLimitedDaily = error?.message === 'rate_limited_daily'
+        const errMsg = isRateLimitedDaily ? t('rateLimitedDaily', lang) : isRateLimited ? t('rateLimited', lang) : t('errorBanner', lang)
+        const chatMsg = isRateLimitedDaily ? t('rateLimitedDaily', lang) : isRateLimited ? t('rateLimited', lang) : t('errorMessage', lang)
+        setError(errMsg)
         setMessages(prev => {
           const filtered = prev.filter(m => !m.typing)
           return [...filtered, {
             id: Date.now().toString(),
             role: 'assistant' as const,
-            content: isRateLimited ? t('rateLimited', lang) : t('errorMessage', lang),
+            content: chatMsg,
             timestamp: new Date()
           }]
         })
