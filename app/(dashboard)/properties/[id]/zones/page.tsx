@@ -52,6 +52,7 @@ import { createBatchZones } from '../../../../../src/utils/createBatchZones'
 import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsencialesModal'
 import { CopyZoneToPropertyModal } from '../../../../../src/components/ui/CopyZoneToPropertyModal'
 import { ImportRecommendationsModal } from '../../../../../src/components/ui/ImportRecommendationsModal'
+import { CopyRecommendationsModal } from '../../../../../src/components/ui/CopyRecommendationsModal'
 import ZoneQRDesigner from '../../../../../src/components/zones/ZoneQRDesigner'
 import { EvaluationsModal } from '../../../../../src/components/ui/EvaluationsModal'
 // GenerateRecommendationsModal removed — replaced by "Añadir lugar" flow
@@ -166,6 +167,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   // Import recommendations modal state
   const [showImportModal, setShowImportModal] = useState(false)
+
+  // Copy recommendations to other properties modal state
+  const [showCopyRecommendationsModal, setShowCopyRecommendationsModal] = useState(false)
   
   // Essential zones modal state
   const [showEssentialZonesModal, setShowEssentialZonesModal] = useState(false)
@@ -3267,6 +3271,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     Importar
                   </Button>
                   <Button
+                    onClick={() => setShowCopyRecommendationsModal(true)}
+                    variant="outline"
+                    className="border-violet-200 text-violet-700 hover:bg-violet-50"
+                  >
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copiar a otras
+                  </Button>
+                  <Button
                     onClick={() => setShowCreateForm(true)}
                     variant="outline"
                     className="border-violet-200 text-violet-700 hover:bg-violet-50"
@@ -4255,6 +4267,21 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             type: 'success',
             title: 'Recomendaciones importadas',
             message: 'Las recomendaciones se han importado correctamente',
+            read: false
+          })
+        }}
+      />
+
+      <CopyRecommendationsModal
+        isOpen={showCopyRecommendationsModal}
+        sourcePropertyId={id}
+        sourcePropertyName={propertyName || ''}
+        onClose={() => setShowCopyRecommendationsModal(false)}
+        onCopied={() => {
+          addNotification({
+            type: 'success',
+            title: 'Recomendaciones copiadas',
+            message: 'Los lugares se han copiado a las propiedades seleccionadas',
             read: false
           })
         }}
