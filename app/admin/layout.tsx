@@ -37,7 +37,8 @@ import {
   HeadphonesIcon,
   Ticket,
   BookOpen,
-  Sparkles
+  Sparkles,
+  Map
 } from 'lucide-react'
 
 // Navigation structure organized by function with permissions
@@ -97,6 +98,7 @@ const buildNavigationSections = (t: (key: string) => string) => [
       { name: t('admin.nav.blog'), href: '/admin/blog', icon: FileText, permissions: ['marketing.view'] },
       { name: t('admin.nav.faq'), href: '/admin/faq', icon: HelpCircle, permissions: ['marketing.view'] },
       { name: t('admin.nav.hostProfiles'), href: '/admin/host-profiles', icon: UsersRound, permissions: ['marketing.view'] },
+      { name: 'Guías de ciudad', href: '/admin/city-guides', icon: Map, permissions: ['marketing.view'] },
     ]
   },
   {
