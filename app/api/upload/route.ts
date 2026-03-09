@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { createHash } from 'crypto'
 import { prisma } from '../../../src/lib/prisma'
 import { verifyToken } from '../../../src/lib/auth'
+import { getAdminUser } from '../../../src/lib/admin-auth'
 
 // Helper function to safely extract text from multilingual objects
 function getTextSafely(value: any, fallback: string = '') {
@@ -63,18 +64,22 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🔥 Upload endpoint called')
     
-    // Check authentication
+    // Check authentication — accept either regular user token or admin token
     const token = request.cookies.get('auth-token')?.value
-    if (!token) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    const adminUser = await getAdminUser(request)
+
+    let userId: string | null = null
+    if (token) {
+      try {
+        const decoded = verifyToken(token)
+        userId = decoded.userId
+      } catch {
+        // invalid token, try admin below
+      }
     }
 
-    let userId: string
-    try {
-      const decoded = verifyToken(token)
-      userId = decoded.userId
-    } catch (error) {
-      return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
+    if (!userId && !adminUser) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
     
     const data = await request.formData()
@@ -134,8 +139,8 @@ export async function POST(request: NextRequest) {
       }, { status: 500 })
     }
 
-    // Check for duplicates unless explicitly skipped
-    if (!skipDuplicateCheck) {
+    // Check for duplicates unless explicitly skipped (skip for admin uploads)
+    if (!skipDuplicateCheck && userId) {
       const existingMedia = await prisma.mediaLibrary.findFirst({
         where: {
           userId: userId,
@@ -246,54 +251,51 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Save to media library with hash - check for existing first
-    try {
-      const mediaType = file.type.startsWith('image/') ? 'image' : 'video'
-      
-      // Check if an item with this hash already exists
-      const existingMediaByHash = await prisma.mediaLibrary.findFirst({
-        where: {
-          userId: userId,
-          hash: fileHash
-        }
-      })
+    // Save to media library with hash - check for existing first (skip for admin uploads)
+    if (userId) {
+      try {
+        const mediaType = file.type.startsWith('image/') ? 'image' : 'video'
 
-      if (existingMediaByHash) {
-        console.log('📝 Found existing media with same hash, updating usage count')
-        // Update the existing item instead of creating a new one
-        await prisma.mediaLibrary.update({
-          where: { id: existingMediaByHash.id },
-          data: {
-            usageCount: { increment: 1 },
-            lastUsedAt: new Date()
-          }
-        })
-      } else {
-        // Create new media entry
-        // Strip _compressed suffix from originalName for duplicate detection
-        const cleanOriginalName = file.name.replace(/_compressed(\.[^.]+)$/, '$1')
-
-        const mediaLibraryItem = await prisma.mediaLibrary.create({
-          data: {
+        // Check if an item with this hash already exists
+        const existingMediaByHash = await prisma.mediaLibrary.findFirst({
+          where: {
             userId: userId,
-            type: mediaType,
-            url: fileUrl,
-            filename: uniqueFilename,
-            originalName: cleanOriginalName,
-            mimeType: file.type,
-            size: file.size,
-            hash: fileHash,
-            usageCount: 1,
-            isPublic: false,
-            lastUsedAt: new Date()
+            hash: fileHash
           }
         })
 
-        console.log('✅ File saved to media library:', mediaLibraryItem.id)
+        if (existingMediaByHash) {
+          console.log('📝 Found existing media with same hash, updating usage count')
+          await prisma.mediaLibrary.update({
+            where: { id: existingMediaByHash.id },
+            data: {
+              usageCount: { increment: 1 },
+              lastUsedAt: new Date()
+            }
+          })
+        } else {
+          const cleanOriginalName = file.name.replace(/_compressed(\.[^.]+)$/, '$1')
+          const mediaLibraryItem = await prisma.mediaLibrary.create({
+            data: {
+              userId: userId,
+              type: mediaType,
+              url: fileUrl,
+              filename: uniqueFilename,
+              originalName: cleanOriginalName,
+              mimeType: file.type,
+              size: file.size,
+              hash: fileHash,
+              usageCount: 1,
+              isPublic: false,
+              lastUsedAt: new Date()
+            }
+          })
+          console.log('✅ File saved to media library:', mediaLibraryItem.id)
+        }
+      } catch (mediaError) {
+        console.error('⚠️ Error saving to media library:', mediaError)
+        // Continue anyway, the file was uploaded successfully
       }
-    } catch (mediaError) {
-      console.error('⚠️ Error saving to media library:', mediaError)
-      // Continue anyway, the file was uploaded successfully
     }
 
     return NextResponse.json({ 

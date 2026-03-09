@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
 import { getAuthUser } from '../../../../../src/lib/auth'
+import { getAdminUser } from '../../../../../src/lib/admin-auth'
+
+const ADMIN_EMAIL = 'alejandrosatlla@gmail.com'
 
 // POST /api/city-guides/[id]/places
-// Add a place to the guide. Auth required, only author.
+// Add a place to the guide. Auth required, only author or admin.
 // Body: { placeId, category, description?, order? }
 export async function POST(
   request: NextRequest,
@@ -13,7 +16,8 @@ export async function POST(
     const { id } = await params
 
     const user = await getAuthUser(request)
-    if (!user) {
+    const adminUser = await getAdminUser(request)
+    if (!user && !adminUser) {
       return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 })
     }
 
@@ -26,7 +30,8 @@ export async function POST(
       return NextResponse.json({ success: false, error: 'Guía no encontrada' }, { status: 404 })
     }
 
-    if (guide.authorId !== user.userId) {
+    const isAdmin = !!adminUser || user?.email === ADMIN_EMAIL
+    if (!isAdmin && guide.authorId !== user?.userId) {
       return NextResponse.json({ success: false, error: 'Acceso denegado' }, { status: 403 })
     }
 
@@ -125,7 +130,7 @@ export async function POST(
 }
 
 // DELETE /api/city-guides/[id]/places
-// Remove a place. Auth required, only author.
+// Remove a place. Auth required, only author or admin.
 // Body: { placeId }
 export async function DELETE(
   request: NextRequest,
@@ -135,7 +140,8 @@ export async function DELETE(
     const { id } = await params
 
     const user = await getAuthUser(request)
-    if (!user) {
+    const adminUser = await getAdminUser(request)
+    if (!user && !adminUser) {
       return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 })
     }
 
@@ -148,7 +154,8 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: 'Guía no encontrada' }, { status: 404 })
     }
 
-    if (guide.authorId !== user.userId) {
+    const isAdmin = !!adminUser || user?.email === ADMIN_EMAIL
+    if (!isAdmin && guide.authorId !== user?.userId) {
       return NextResponse.json({ success: false, error: 'Acceso denegado' }, { status: 403 })
     }
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
 import { getAuthUser } from '../../../../src/lib/auth'
+import { getAdminUser } from '../../../../src/lib/admin-auth'
 
 const ADMIN_EMAIL = 'alejandrosatlla@gmail.com'
 
@@ -13,6 +14,7 @@ export async function GET(
   try {
     const { id } = await params
     const user = await getAuthUser(request)
+    const adminUser = await getAdminUser(request)
 
     const guide = await prisma.cityGuide.findUnique({
       where: { id },
@@ -58,9 +60,9 @@ export async function GET(
       })
     }
 
-    const isOwner = user
+    const isOwner = !!adminUser || (user
       ? guide.authorId === user.userId || user.email === ADMIN_EMAIL
-      : false
+      : false)
 
     return NextResponse.json({
       success: true,

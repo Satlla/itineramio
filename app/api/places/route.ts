@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAuth } from '../../../src/lib/auth'
+import { getAuthUser } from '../../../src/lib/auth'
+import { getAdminUser } from '../../../src/lib/admin-auth'
 import { prisma } from '../../../src/lib/prisma'
 
 /**
@@ -9,8 +10,11 @@ import { prisma } from '../../../src/lib/prisma'
  */
 export async function POST(request: NextRequest) {
   try {
-    const authResult = await requireAuth(request)
-    if (authResult instanceof Response) return authResult
+    const user = await getAuthUser(request)
+    const admin = await getAdminUser(request)
+    if (!user && !admin) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 })
+    }
 
     const body = await request.json()
     const { googlePlaceId, name, address, latitude, longitude, rating, photoUrl, types } = body
