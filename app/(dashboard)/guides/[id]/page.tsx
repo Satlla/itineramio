@@ -159,7 +159,7 @@ function AddPlacePanel({
         { credentials: 'include' }
       )
       const data = await res.json()
-      setResults(data.results || data.places || [])
+      setResults(data.data || data.results || data.places || [])
     } catch {
       setError('Error buscando lugares')
     } finally {
@@ -176,19 +176,40 @@ function AddPlacePanel({
     setAdding(true)
     setError('')
     try {
+      // 1. Save place to DB (find or create)
+      const placeRes = await fetch('/api/places', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          googlePlaceId: selected.googlePlaceId,
+          name: selected.name,
+          address: selected.address,
+          latitude: selected.lat,
+          longitude: selected.lng,
+          rating: selected.rating,
+          photoUrl: selected.photoUrl,
+          types: selected.types,
+        }),
+      })
+      const placeData = await placeRes.json()
+      if (!placeRes.ok) throw new Error(placeData.error || 'Error al guardar el lugar')
+      const dbPlaceId = placeData.id
+
+      // 2. Add to guide
       const res = await fetch(`/api/city-guides/${guideId}/places`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          placeId: selected.placeId,
+          placeId: dbPlaceId,
           category,
           description: description.trim() || null,
         }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Error al añadir lugar')
-      onAdded(data.guidePlace || data)
+      onAdded(data.data || data.guidePlace || data)
       setSelected(null)
       setQuery('')
       setResults([])
