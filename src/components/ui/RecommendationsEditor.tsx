@@ -72,6 +72,7 @@ interface ZoneInfo {
   id: string
   name: string
   iconId: string
+  type?: string
   recommendationCategory?: string
   recommendationsCount?: number
 }
@@ -858,6 +859,15 @@ export function RecommendationsEditor({
 
       {/* Content */}
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+        {/* City guides banner — only for RECOMMENDATIONS zones */}
+        {propertyCity && zone?.type === 'RECOMMENDATIONS' && (
+          <CityGuidesBanner
+            city={propertyCity}
+            propertyId={propertyId}
+            onImported={onUpdate}
+          />
+        )}
+
         {/* Search bar */}
         <div className="mb-4 sm:mb-6">
           <PlaceSearchInput

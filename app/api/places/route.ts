@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
           rating: rating ?? null,
           photoUrl: photoUrl ?? null,
           types: types ?? [],
+          lastFetchedAt: new Date(),
         },
       })
     }

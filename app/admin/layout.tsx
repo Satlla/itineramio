@@ -242,12 +242,13 @@ export default function AdminLayout({
       if (response.ok) {
         const data = await response.json()
         setPendingRequests(data.count)
+      } else if (response.status === 401) {
+        // Token expired — redirect to login
+        router.push('/admin/login')
       } else {
-        // Silently fail - not critical
         setPendingRequests(0)
       }
     } catch (error) {
-      // Silently fail - notification badge not critical for admin functionality
       setPendingRequests(0)
     }
   }

@@ -34,7 +34,6 @@ import { ZoneStaticSuggestions } from '../../../../../src/components/ui/ZoneStat
 import { ZoneInspirationModal } from '../../../../../src/components/ui/ZoneInspirationModal'
 import { StepEditor, Step } from '../../../../../src/components/ui/StepEditor'
 import { RecommendationsEditor } from '../../../../../src/components/ui/RecommendationsEditor'
-import { CityGuidesBanner } from '../../../../../src/components/ui/CityGuidesBanner'
 import { MobileZoneToast } from '../../../../../src/components/ui/MobileZoneToast'
 import { cn } from '../../../../../src/lib/utils'
 import { useRouter } from 'next/navigation'
@@ -53,7 +52,6 @@ import { createBatchZones } from '../../../../../src/utils/createBatchZones'
 import { ZonasEsencialesModal } from '../../../../../src/components/ui/ZonasEsencialesModal'
 import { CopyZoneToPropertyModal } from '../../../../../src/components/ui/CopyZoneToPropertyModal'
 import { ImportRecommendationsModal } from '../../../../../src/components/ui/ImportRecommendationsModal'
-import { CopyRecommendationsModal } from '../../../../../src/components/ui/CopyRecommendationsModal'
 import ZoneQRDesigner from '../../../../../src/components/zones/ZoneQRDesigner'
 import { EvaluationsModal } from '../../../../../src/components/ui/EvaluationsModal'
 // GenerateRecommendationsModal removed — replaced by "Añadir lugar" flow
@@ -169,9 +167,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   // Import recommendations modal state
   const [showImportModal, setShowImportModal] = useState(false)
 
-  // Copy recommendations to other properties modal state
-  const [showCopyRecommendationsModal, setShowCopyRecommendationsModal] = useState(false)
-  
   // Essential zones modal state
   const [showEssentialZonesModal, setShowEssentialZonesModal] = useState(false)
   const [hasShownEssentialZones, setHasShownEssentialZones] = useState(false)

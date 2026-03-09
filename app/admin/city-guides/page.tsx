@@ -382,7 +382,7 @@ export default function AdminCityGuidesPage() {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <Link href={`/guides/${guide.id}`} target="_blank">
+                  <Link href={`/admin/city-guides/${guide.id}`}>
                     <button className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-400 hover:text-violet-400 hover:bg-violet-500/10 transition-colors" title="Gestionar lugares">
                       <Eye className="w-4 h-4" />
                     </button>
