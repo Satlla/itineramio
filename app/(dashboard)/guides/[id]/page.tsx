@@ -479,7 +479,7 @@ export default function GuideDetailPage() {
         return
       }
       const data = await res.json()
-      const g: CityGuide = data.guide || data
+      const g: CityGuide = data.data || data.guide || data
       if (!g.isOwner) {
         router.replace('/guides')
         return

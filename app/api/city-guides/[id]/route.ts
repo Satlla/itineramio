@@ -5,13 +5,14 @@ import { getAuthUser } from '../../../../src/lib/auth'
 const ADMIN_EMAIL = 'alejandrosatlla@gmail.com'
 
 // GET /api/city-guides/[id]
-// Get single guide with all places grouped by category. No auth required.
+// Get single guide with all places grouped by category. Auth optional (for isOwner).
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params
+    const user = await getAuthUser(request)
 
     const guide = await prisma.cityGuide.findUnique({
       where: { id },
@@ -57,6 +58,10 @@ export async function GET(
       })
     }
 
+    const isOwner = user
+      ? guide.authorId === user.userId || user.email === ADMIN_EMAIL
+      : false
+
     return NextResponse.json({
       success: true,
       data: {
@@ -70,6 +75,7 @@ export async function GET(
         version: guide.version,
         subscriberCount: guide.subscriberCount,
         author: guide.author,
+        isOwner,
         _count: guide._count,
         placesByCategory,
       },

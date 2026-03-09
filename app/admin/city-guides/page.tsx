@@ -66,9 +66,30 @@ function GuideFormModal({
     country: guide?.country ?? 'ES',
     description: guide?.description ?? '',
     status: guide?.status ?? 'DRAFT',
+    coverImage: (guide as any)?.coverImage ?? '',
   })
   const [submitting, setSubmitting] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
   const [error, setError] = useState('')
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingImage(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', 'city-guide-cover')
+      const res = await fetch('/api/upload', { method: 'POST', body: formData, credentials: 'include' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Error al subir imagen')
+      setForm((f) => ({ ...f, coverImage: data.url || data.mediaUrl || data.blobUrl }))
+    } catch (e: any) {
+      setError(e.message)
+    } finally {
+      setUploadingImage(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -195,6 +216,35 @@ function GuideFormModal({
               rows={3}
               className="w-full bg-[#1a1a2e] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-violet-500/50 transition-colors resize-none"
             />
+          </div>
+
+          {/* Cover image */}
+          <div>
+            <label className="block text-xs text-zinc-400 font-medium uppercase tracking-wide mb-1.5">Imagen de portada</label>
+            {form.coverImage ? (
+              <div className="relative rounded-xl overflow-hidden mb-2 h-28">
+                <img src={form.coverImage} alt="Portada" className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, coverImage: '' }))}
+                  className="absolute top-2 right-2 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center h-24 border border-dashed border-white/20 rounded-xl cursor-pointer hover:border-violet-500/50 hover:bg-violet-500/5 transition-colors">
+                {uploadingImage ? (
+                  <Loader2 className="w-5 h-5 text-violet-400 animate-spin" />
+                ) : (
+                  <>
+                    <span className="text-zinc-500 text-xs">Subir foto</span>
+                    <span className="text-zinc-600 text-[11px] mt-0.5">JPG, PNG — máx 5MB</span>
+                  </>
+                )}
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploadingImage} />
+              </label>
+            )}
           </div>
 
           {error && (
