@@ -201,23 +201,41 @@ export function ChatTab({ isLoggedIn }: ChatTabProps) {
           </div>
         </div>
 
-        {/* Previous tickets link (subtle, only if logged in and has tickets) */}
-        {isLoggedIn && tickets.length > 0 && (
-          <div className="mt-3 pt-3 border-t border-gray-100">
-            <p className="text-[11px] text-gray-400 mb-1.5">Conversaciones anteriores</p>
-            <div className="space-y-1">
-              {tickets.slice(0, 3).map((ticket) => (
-                <button
-                  key={ticket.id}
-                  onClick={() => loadTicket(ticket.id)}
-                  className="w-full text-left text-xs text-gray-500 hover:text-violet-600 truncate py-1 transition-colors"
-                >
-                  {ticket.subject}
-                </button>
-              ))}
+        {/* Tickets abiertos (solo usuarios registrados) */}
+        {isLoggedIn && tickets.length > 0 && (() => {
+          const openTickets = tickets.filter(t => t.status === 'OPEN' || t.status === 'WAITING_ADMIN')
+          const display = openTickets.length > 0 ? openTickets : tickets.slice(0, 3)
+          return (
+            <div className="mt-3 pt-3 border-t border-gray-100">
+              <p className="text-[11px] text-gray-400 mb-1.5 font-medium uppercase tracking-wide">
+                {openTickets.length > 0 ? 'Tickets abiertos' : 'Conversaciones anteriores'}
+              </p>
+              <div className="space-y-0.5">
+                {display.slice(0, 4).map((ticket) => (
+                  <button
+                    key={ticket.id}
+                    onClick={() => loadTicket(ticket.id)}
+                    className="w-full text-left flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-violet-50 transition-colors group"
+                  >
+                    <span className={`shrink-0 w-2 h-2 rounded-full ${
+                      ticket.status === 'OPEN' ? 'bg-green-400' :
+                      ticket.status === 'WAITING_ADMIN' ? 'bg-amber-400' :
+                      'bg-gray-300'
+                    }`} />
+                    <span className="flex-1 text-xs text-gray-600 group-hover:text-violet-700 truncate">
+                      {ticket.subject}
+                    </span>
+                    {(ticket as any)._count?.messages > 0 && (
+                      <span className="shrink-0 text-[10px] text-gray-400 group-hover:text-violet-500">
+                        {(ticket as any)._count.messages}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )
+        })()}
       </div>
 
       {/* Input always visible at bottom */}
