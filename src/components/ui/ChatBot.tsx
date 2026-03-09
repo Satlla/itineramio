@@ -60,7 +60,6 @@ interface ChatBotProps {
   }
   className?: string
   isDemoMode?: boolean
-  isLoggedIn?: boolean
 }
 
 interface FAQ {
@@ -205,7 +204,6 @@ export default function ChatBot({
   hostContact,
   className = '',
   isDemoMode = false,
-  isLoggedIn = false,
 }: ChatBotProps) {
   const [isEnabled, setIsEnabled] = useState<boolean | null>(null)
   const [isOpen, setIsOpen] = useState(false)
@@ -226,14 +224,6 @@ export default function ChatBot({
   const [showEmailOverlay, setShowEmailOverlay] = useState(false)
   const [emailCollected, setEmailCollected] = useState(false)
   const [emailDismissed, setEmailDismissed] = useState(false)
-  const [isUserLoggedIn, setIsUserLoggedIn] = useState(isLoggedIn)
-
-  // Detect auth-token cookie client-side to skip email collection for logged-in users
-  useEffect(() => {
-    if (!isLoggedIn) {
-      setIsUserLoggedIn(document.cookie.split(';').some(c => c.trim().startsWith('auth-token=')))
-    }
-  }, [isLoggedIn])
   // emailInput, nameInput, emailSubmitting, emailError, emailSuccess moved to ChatEmailOverlay
 
   // Session tracking — restore from localStorage if available
@@ -328,9 +318,9 @@ export default function ChatBot({
     }
   }, [messages, isDemoMode, showDemoBanner])
 
-  // Show email overlay after 3 user messages (skip in demo mode and when user is logged in)
+  // Show email overlay after 3 user messages (skip in demo mode)
   useEffect(() => {
-    if (!isDemoMode && !isUserLoggedIn && userMessageCountRef.current >= 3 && !emailCollected && !emailDismissed && !showEmailOverlay) {
+    if (!isDemoMode && userMessageCountRef.current >= 3 && !emailCollected && !emailDismissed && !showEmailOverlay) {
       setShowEmailOverlay(true)
     }
   }, [messages, emailCollected, emailDismissed, showEmailOverlay, isDemoMode])
@@ -1019,29 +1009,28 @@ export default function ChatBot({
                     )}
                   </AnimatePresence>
 
+                  {/* Email Collection Banner (non-blocking) */}
+                  <AnimatePresence>
+                    {showEmailOverlay && !emailCollected && (
+                      <ChatEmailOverlay
+                        propertyId={propertyId}
+                        sessionId={sessionIdRef.current}
+                        lang={lang}
+                        translations={{
+                          success: t('emailSuccess', lang),
+                          prompt: t('emailPrompt', lang),
+                          emailPlaceholder: t('emailPlaceholder', lang),
+                          namePlaceholder: t('namePlaceholder', lang),
+                          error: t('emailError', lang),
+                          submit: t('emailSubmit', lang),
+                          skip: t('emailSkip', lang),
+                        }}
+                        onCollected={() => { setEmailCollected(true); setShowEmailOverlay(false) }}
+                        onDismiss={() => { setEmailDismissed(true); setShowEmailOverlay(false) }}
+                      />
+                    )}
+                  </AnimatePresence>
                 </div>
-
-                {/* Email Collection Banner (non-blocking) — outside scroll area to avoid overlapping send button */}
-                <AnimatePresence>
-                  {showEmailOverlay && !emailCollected && (
-                    <ChatEmailOverlay
-                      propertyId={propertyId}
-                      sessionId={sessionIdRef.current}
-                      lang={lang}
-                      translations={{
-                        success: t('emailSuccess', lang),
-                        prompt: t('emailPrompt', lang),
-                        emailPlaceholder: t('emailPlaceholder', lang),
-                        namePlaceholder: t('namePlaceholder', lang),
-                        error: t('emailError', lang),
-                        submit: t('emailSubmit', lang),
-                        skip: t('emailSkip', lang),
-                      }}
-                      onCollected={() => { setEmailCollected(true); setShowEmailOverlay(false) }}
-                      onDismiss={() => { setEmailDismissed(true); setShowEmailOverlay(false) }}
-                    />
-                  )}
-                </AnimatePresence>
 
                 {/* Input */}
                 <ChatInput
