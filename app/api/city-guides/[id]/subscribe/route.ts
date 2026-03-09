@@ -155,7 +155,7 @@ export async function POST(
     }
 
     const body = await request.json()
-    const { propertyId } = body
+    const { propertyId, categories } = body
 
     if (!propertyId) {
       return NextResponse.json({ success: false, error: 'El campo propertyId es obligatorio' }, { status: 400 })
@@ -197,38 +197,28 @@ export async function POST(
       return NextResponse.json({ success: false, error: 'Acceso denegado' }, { status: 403 })
     }
 
-    // Create subscription (or error if already exists)
-    let subscription
-    try {
-      subscription = await prisma.propertyGuideSubscription.create({
-        data: {
-          guideId: id,
-          propertyId,
-          userId: user.userId,
-          status: 'ACTIVE',
-          lastSeenVersion: 1,
-        },
-      })
-    } catch (err: unknown) {
-      if (
-        err &&
-        typeof err === 'object' &&
-        'code' in err &&
-        (err as { code: string }).code === 'P2002'
-      ) {
-        return NextResponse.json(
-          { success: false, error: 'Esta propiedad ya está suscrita a esta guía' },
-          { status: 409 }
-        )
-      }
-      throw err
-    }
+    // Create or update subscription (idempotent — re-importing is fine)
+    const subscription = await prisma.propertyGuideSubscription.upsert({
+      where: { guideId_propertyId: { guideId: id, propertyId } },
+      create: {
+        guideId: id,
+        propertyId,
+        userId: user.userId,
+        status: 'ACTIVE',
+        lastSeenVersion: 1,
+      },
+      update: { status: 'ACTIVE' },
+    })
 
-    // Import all current guide places into property recommendation zones
-    // Property does not store lat/lng directly — pass null (distance will be skipped)
+    // Filter by requested categories (or import all if not specified)
+    const placesToImport = categories && (categories as string[]).length > 0
+      ? guide.places.filter(gp => (categories as string[]).includes(gp.category))
+      : guide.places
+
+    // Import guide places into property recommendation zones
     const importedCount = await importPlacesToProperty(
       propertyId,
-      guide.places.map((gp) => ({
+      placesToImport.map((gp) => ({
         placeId: gp.placeId,
         category: gp.category,
         description: gp.description,
