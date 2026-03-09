@@ -42,6 +42,7 @@ import { getZonesSlugUrl } from '../../../src/components/navigation/slug-link'
 import { useTranslation } from 'react-i18next'
 import { useOnboarding } from '../../../src/contexts/OnboardingContext'
 import { Spotlight } from '../../../src/components/ui/Spotlight'
+import { CityGuidesBanner } from '../../../src/components/ui/CityGuidesBanner'
 
 interface Property {
   id: string
@@ -1000,11 +1001,20 @@ export default function DashboardPage(): JSX.Element {
                           </div>
                         </div>
                       </CardContent>
+                      {property.city && (
+                        <div className="px-4 sm:px-6 pb-4 -mt-1" onClick={(e) => e.stopPropagation()}>
+                          <CityGuidesBanner
+                            city={property.city}
+                            propertyId={property.id}
+                            onImported={() => {}}
+                          />
+                        </div>
+                      )}
                     </Card>
                   ))}
                 </div>
               )}
-              
+
               {/* Ver todas button below properties */}
               {!loading && properties.length > 3 && (
                 <div className="mt-6 text-center">
