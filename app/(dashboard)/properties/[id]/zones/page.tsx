@@ -3264,22 +3264,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     Añadir lugar
                   </Button>
                   <Button
-                    onClick={() => setShowImportModal(true)}
-                    variant="outline"
-                    className="border-violet-200 text-violet-700 hover:bg-violet-50"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Importar
-                  </Button>
-                  <Button
-                    onClick={() => setShowCopyRecommendationsModal(true)}
-                    variant="outline"
-                    className="border-violet-200 text-violet-700 hover:bg-violet-50"
-                  >
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copiar a otras
-                  </Button>
-                  <Button
                     onClick={() => setShowCreateForm(true)}
                     variant="outline"
                     className="border-violet-200 text-violet-700 hover:bg-violet-50"
@@ -3296,20 +3280,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   </Button>
                 </div>
               </div>
-            </div>
-          )}
-          {/* City guides banner — visible when guides exist for this city */}
-          {propertyCity && (
-            <div className="mb-4">
-              <CityGuidesBanner
-                city={propertyCity}
-                propertyId={id}
-                onImported={async () => {
-                  const res = await fetch(`/api/properties/${id}/zones`)
-                  const result = await res.json()
-                  if (result.success) setZones(transformZonesFromApi(result.data, id))
-                }}
-              />
             </div>
           )}
 
@@ -4288,20 +4258,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         }}
       />
 
-      <CopyRecommendationsModal
-        isOpen={showCopyRecommendationsModal}
-        sourcePropertyId={id}
-        sourcePropertyName={propertyName || ''}
-        onClose={() => setShowCopyRecommendationsModal(false)}
-        onCopied={() => {
-          addNotification({
-            type: 'success',
-            title: 'Recomendaciones copiadas',
-            message: 'Los lugares se han copiado a las propiedades seleccionadas',
-            read: false
-          })
-        }}
-      />
 
       {/* Evaluations Modal */}
       {evaluationsModalOpen && (
