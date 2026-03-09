@@ -18,7 +18,8 @@ import {
   Receipt,
   Layers,
   Image,
-  Briefcase
+  Briefcase,
+  Map
 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
@@ -72,6 +73,12 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
       href: "/gestion",
       description: t('sidebar.gestionDesc'),
       mobileOnly: true
+    },
+    {
+      icon: <Map className="w-5 h-5" />,
+      label: 'Guías de ciudad',
+      href: "/guides",
+      description: 'Descubre y añade lugares a tus propiedades'
     },
     {
       icon: <Image className="w-5 h-5" />,
