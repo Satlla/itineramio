@@ -47,15 +47,15 @@ export async function PATCH(
     const description = typeof body.description === 'string' && body.description.trim()
       ? body.description.trim()
       : null
-    const mustTry = typeof body.mustTry === 'string' && body.mustTry.trim()
-      ? body.mustTry.trim()
+    const highlight = typeof body.highlight === 'string' && body.highlight.trim()
+      ? body.highlight.trim()
       : null
-    const bookingUrl = typeof body.bookingUrl === 'string' && body.bookingUrl.trim()
-      ? body.bookingUrl.trim()
+    const externalUrl = typeof body.externalUrl === 'string' && body.externalUrl.trim()
+      ? body.externalUrl.trim()
       : null
     const tags = Array.isArray(body.tags) ? body.tags.filter(Boolean) : undefined
 
-    const updateData: any = { description, mustTry, bookingUrl }
+    const updateData: any = { description, highlight, externalUrl }
     if (tags !== undefined) updateData.tags = tags
 
     const updated = await prisma.cityGuidePlace.update({

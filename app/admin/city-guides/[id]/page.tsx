@@ -4,19 +4,19 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  ArrowLeft, MapPin, Trash2, Loader2, CheckCircle, Plus, ChevronDown, Star, Globe, Search,
-  MessageSquare, Pencil, X, Check, ExternalLink, Tag, ChevronLeft, ChevronRight, Utensils, Clock
+  ArrowLeft, MapPin, Trash2, Loader2, CheckCircle, Plus, ChevronDown, Star, Globe,
+  MessageSquare, Pencil, X, Check, ExternalLink, Tag, ChevronLeft, ChevronRight, Utensils
 } from 'lucide-react'
 import Link from 'next/link'
 import { PlaceSearchInput, PlaceSearchResult } from '../../../../src/components/ui/PlaceSearchInput'
-import { CATEGORIES } from '../../../../src/lib/recommendations/categories'
+import { CATEGORIES, CATEGORY_GROUPS, getCategoryById } from '../../../../src/lib/recommendations/categories'
 
 interface GuidePlace {
   id: string
   category: string
   description?: string | null
-  mustTry?: string | null
-  bookingUrl?: string | null
+  highlight?: string | null
+  externalUrl?: string | null
   tags?: string[] | null
   place: {
     id: string
@@ -41,22 +41,11 @@ interface Guide {
   places: GuidePlace[]
 }
 
-const CATEGORY_OPTIONS = CATEGORIES.map(c => ({ id: c.id, label: c.label }))
-
-const AVAILABLE_TAGS = [
-  { id: 'terraza', label: '☀️ Terraza' },
-  { id: 'vistas', label: '🌅 Vistas' },
-  { id: 'para_ninos', label: '👶 Para niños' },
-  { id: 'vegetariano', label: '🥗 Vegetariano' },
-  { id: 'sin_gluten', label: '🌾 Sin gluten' },
-  { id: 'instagrameable', label: '📸 Instagrameable' },
-  { id: 'reserva_recomendada', label: '📅 Reserva recomendada' },
-  { id: 'romantico', label: '🕯️ Romántico' },
-  { id: 'economico', label: '💶 Económico' },
-  { id: 'parking', label: '🅿️ Parking' },
-  { id: 'pet_friendly', label: '🐶 Pet friendly' },
-  { id: 'solo_efectivo', label: '💵 Solo efectivo' },
-]
+// Group categories by their group id for the grouped select
+const CATEGORIES_BY_GROUP = CATEGORY_GROUPS.map(group => ({
+  ...group,
+  categories: CATEGORIES.filter(c => c.group === group.id),
+})).filter(g => g.categories.length > 0)
 
 function priceLabel(level: number | null | undefined) {
   if (level == null) return null
@@ -98,24 +87,25 @@ function PhotoCarousel({ urls, name }: { urls: string[]; name: string }) {
   )
 }
 
-function TagPicker({ selected, onChange }: { selected: string[]; onChange: (tags: string[]) => void }) {
+function TagPicker({ selected, onChange, availableTags }: { selected: string[]; onChange: (tags: string[]) => void; availableTags: string[] }) {
   const toggle = (id: string) => {
     onChange(selected.includes(id) ? selected.filter(t => t !== id) : [...selected, id])
   }
+  if (!availableTags.length) return null
   return (
     <div className="flex flex-wrap gap-1.5 mt-1">
-      {AVAILABLE_TAGS.map(tag => (
+      {availableTags.map(tagId => (
         <button
-          key={tag.id}
+          key={tagId}
           type="button"
-          onClick={() => toggle(tag.id)}
+          onClick={() => toggle(tagId)}
           className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
-            selected.includes(tag.id)
+            selected.includes(tagId)
               ? 'bg-violet-100 border-violet-300 text-violet-700'
               : 'bg-white border-gray-200 text-gray-500 hover:border-violet-200 hover:text-violet-600'
           }`}
         >
-          {tag.label}
+          {tagId.replace(/_/g, ' ')}
         </button>
       ))}
     </div>
@@ -128,20 +118,20 @@ export default function AdminGuideDetailPage() {
 
   const [guide, setGuide] = useState<Guide | null>(null)
   const [loading, setLoading] = useState(true)
-  const [selectedCategory, setSelectedCategory] = useState(CATEGORY_OPTIONS[0]?.id ?? 'restaurant')
+  const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0]?.id ?? 'restaurant')
   const [adding, setAdding] = useState(false)
   const [removingId, setRemovingId] = useState<string | null>(null)
   const [toast, setToast] = useState('')
   const [savedPlaceId, setSavedPlaceId] = useState<string | null>(null)
   const [pendingPlace, setPendingPlace] = useState<PlaceSearchResult | null>(null)
   const [pendingDescription, setPendingDescription] = useState('')
-  const [pendingMustTry, setPendingMustTry] = useState('')
-  const [pendingBookingUrl, setPendingBookingUrl] = useState('')
+  const [pendingHighlight, setPendingHighlight] = useState('')
+  const [pendingExternalUrl, setPendingExternalUrl] = useState('')
   const [pendingTags, setPendingTags] = useState<string[]>([])
 
   // Edit state per place
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [editForm, setEditForm] = useState({ description: '', mustTry: '', bookingUrl: '', tags: [] as string[] })
+  const [editForm, setEditForm] = useState({ description: '', highlight: '', externalUrl: '', tags: [] as string[] })
   const [savingEditId, setSavingEditId] = useState<string | null>(null)
 
   const showToast = (msg: string) => {
@@ -170,8 +160,8 @@ export default function AdminGuideDetailPage() {
   const handleSelect = (result: PlaceSearchResult) => {
     setPendingPlace(result)
     setPendingDescription('')
-    setPendingMustTry('')
-    setPendingBookingUrl('')
+    setPendingHighlight('')
+    setPendingExternalUrl('')
     setPendingTags([])
   }
 
@@ -209,8 +199,8 @@ export default function AdminGuideDetailPage() {
           placeId,
           category: selectedCategory,
           description: pendingDescription.trim() || null,
-          mustTry: pendingMustTry.trim() || null,
-          bookingUrl: pendingBookingUrl.trim() || null,
+          highlight: pendingHighlight.trim() || null,
+          externalUrl: pendingExternalUrl.trim() || null,
           tags: pendingTags,
         }),
       })
@@ -222,8 +212,8 @@ export default function AdminGuideDetailPage() {
       showToast(`"${pendingPlace.name}" añadido a la guía`)
       setPendingPlace(null)
       setPendingDescription('')
-      setPendingMustTry('')
-      setPendingBookingUrl('')
+      setPendingHighlight('')
+      setPendingExternalUrl('')
       setPendingTags([])
       fetchGuide()
     } catch (e: any) {
@@ -237,8 +227,8 @@ export default function AdminGuideDetailPage() {
     setEditingId(gp.id)
     setEditForm({
       description: gp.description ?? '',
-      mustTry: gp.mustTry ?? '',
-      bookingUrl: gp.bookingUrl ?? '',
+      highlight: gp.highlight ?? '',
+      externalUrl: gp.externalUrl ?? '',
       tags: gp.tags ?? [],
     })
   }
@@ -252,8 +242,8 @@ export default function AdminGuideDetailPage() {
         credentials: 'include',
         body: JSON.stringify({
           description: editForm.description.trim() || null,
-          mustTry: editForm.mustTry.trim() || null,
-          bookingUrl: editForm.bookingUrl.trim() || null,
+          highlight: editForm.highlight.trim() || null,
+          externalUrl: editForm.externalUrl.trim() || null,
           tags: editForm.tags,
         }),
       })
@@ -264,8 +254,8 @@ export default function AdminGuideDetailPage() {
           p.id === gp.id ? {
             ...p,
             description: editForm.description.trim() || null,
-            mustTry: editForm.mustTry.trim() || null,
-            bookingUrl: editForm.bookingUrl.trim() || null,
+            highlight: editForm.highlight.trim() || null,
+            externalUrl: editForm.externalUrl.trim() || null,
             tags: editForm.tags,
           } : p
         )
@@ -306,7 +296,7 @@ export default function AdminGuideDetailPage() {
     return acc
   }, {})
 
-  const getCatLabel = (id: string) => CATEGORY_OPTIONS.find(c => c.id === id)?.label ?? id
+  const getCatLabel = (id: string) => getCategoryById(id)?.label ?? id
 
   if (loading) {
     return (
@@ -369,11 +359,15 @@ export default function AdminGuideDetailPage() {
             <div className="relative max-w-xs">
               <select
                 value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                onChange={(e) => { setSelectedCategory(e.target.value); setPendingTags([]) }}
                 className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 appearance-none focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-transparent bg-white"
               >
-                {CATEGORY_OPTIONS.map(c => (
-                  <option key={c.id} value={c.id}>{c.label}</option>
+                {CATEGORIES_BY_GROUP.map(group => (
+                  <optgroup key={group.id} label={`${group.emoji} ${group.label}`}>
+                    {group.categories.map(c => (
+                      <option key={c.id} value={c.id}>{c.label}</option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -427,7 +421,7 @@ export default function AdminGuideDetailPage() {
                   </div>
                 </div>
                 <button
-                  onClick={() => { setPendingPlace(null); setPendingDescription(''); setPendingMustTry(''); setPendingBookingUrl(''); setPendingTags([]) }}
+                  onClick={() => { setPendingPlace(null); setPendingDescription(''); setPendingHighlight(''); setPendingExternalUrl(''); setPendingTags([]) }}
                   className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors shrink-0"
                 >
                   <X className="w-4 h-4" />
@@ -436,65 +430,82 @@ export default function AdminGuideDetailPage() {
 
               {/* Extra fields */}
               <div className="px-4 py-4 space-y-4">
+                {(() => {
+                  const catConfig = getCategoryById(selectedCategory)
+                  const highlightLabel = catConfig?.highlightLabel
+                  const highlightPlaceholder = catConfig?.highlightPlaceholder ?? ''
+                  const extUrlLabel = catConfig?.externalUrlLabel
+                  const extUrlPlaceholder = catConfig?.externalUrlPlaceholder ?? 'https://...'
+                  const catTags = catConfig?.tags ?? []
+                  return (
+                    <>
+                      {/* Description */}
+                      <div>
+                        <label className="flex items-center gap-1.5 text-xs font-semibold text-violet-700 uppercase tracking-wide mb-1.5">
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          Recomendación personal <span className="text-gray-400 font-normal normal-case">(opcional)</span>
+                        </label>
+                        <textarea
+                          value={pendingDescription}
+                          onChange={(e) => setPendingDescription(e.target.value)}
+                          placeholder="Tu recomendación personal para los huéspedes..."
+                          rows={2}
+                          className="w-full text-sm border border-violet-200 rounded-xl px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-300 resize-none bg-white"
+                        />
+                      </div>
 
-                {/* Description */}
-                <div>
-                  <label className="flex items-center gap-1.5 text-xs font-semibold text-violet-700 uppercase tracking-wide mb-1.5">
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    Recomendación personal <span className="text-gray-400 font-normal normal-case">(opcional)</span>
-                  </label>
-                  <textarea
-                    value={pendingDescription}
-                    onChange={(e) => setPendingDescription(e.target.value)}
-                    placeholder="Ej: El mejor arroz de Alicante. Pide el arroz a banda y la ensalada de la casa. Solo con reserva en temporada alta."
-                    rows={2}
-                    className="w-full text-sm border border-violet-200 rounded-xl px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-300 resize-none bg-white"
-                  />
-                </div>
+                      {/* Highlight (dynamic label) */}
+                      {highlightLabel && (
+                        <div>
+                          <label className="flex items-center gap-1.5 text-xs font-semibold text-orange-600 uppercase tracking-wide mb-1.5">
+                            <Utensils className="w-3.5 h-3.5" />
+                            {highlightLabel} <span className="text-gray-400 font-normal normal-case">(opcional)</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={pendingHighlight}
+                            onChange={(e) => setPendingHighlight(e.target.value)}
+                            placeholder={highlightPlaceholder}
+                            className="w-full text-sm border border-orange-200 rounded-xl px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-200 bg-white"
+                          />
+                        </div>
+                      )}
 
-                {/* Must Try */}
-                <div>
-                  <label className="flex items-center gap-1.5 text-xs font-semibold text-orange-600 uppercase tracking-wide mb-1.5">
-                    <Utensils className="w-3.5 h-3.5" />
-                    Qué pedir / qué probar <span className="text-gray-400 font-normal normal-case">(opcional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={pendingMustTry}
-                    onChange={(e) => setPendingMustTry(e.target.value)}
-                    placeholder="Ej: Arroz a banda, la ensalada de la casa"
-                    className="w-full text-sm border border-orange-200 rounded-xl px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-200 bg-white"
-                  />
-                </div>
+                      {/* External URL (dynamic label) */}
+                      {extUrlLabel && (
+                        <div>
+                          <label className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-1.5">
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            {extUrlLabel} <span className="text-gray-400 font-normal normal-case">(opcional)</span>
+                          </label>
+                          <input
+                            type="url"
+                            value={pendingExternalUrl}
+                            onChange={(e) => setPendingExternalUrl(e.target.value)}
+                            placeholder={extUrlPlaceholder}
+                            className="w-full text-sm border border-emerald-200 rounded-xl px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 bg-white"
+                          />
+                        </div>
+                      )}
 
-                {/* Booking URL */}
-                <div>
-                  <label className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-1.5">
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    Link de reserva <span className="text-gray-400 font-normal normal-case">(opcional)</span>
-                  </label>
-                  <input
-                    type="url"
-                    value={pendingBookingUrl}
-                    onChange={(e) => setPendingBookingUrl(e.target.value)}
-                    placeholder="https://www.thefork.es/..."
-                    className="w-full text-sm border border-emerald-200 rounded-xl px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 bg-white"
-                  />
-                </div>
-
-                {/* Tags */}
-                <div>
-                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-                    <Tag className="w-3.5 h-3.5" />
-                    Etiquetas <span className="text-gray-400 font-normal normal-case">(opcional)</span>
-                  </label>
-                  <TagPicker selected={pendingTags} onChange={setPendingTags} />
-                </div>
+                      {/* Tags (dynamic per category) */}
+                      {catTags.length > 0 && (
+                        <div>
+                          <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                            <Tag className="w-3.5 h-3.5" />
+                            Etiquetas <span className="text-gray-400 font-normal normal-case">(opcional)</span>
+                          </label>
+                          <TagPicker selected={pendingTags} onChange={setPendingTags} availableTags={catTags} />
+                        </div>
+                      )}
+                    </>
+                  )
+                })()}
               </div>
 
               <div className="flex items-center gap-2 px-4 pb-4">
                 <button
-                  onClick={() => { setPendingPlace(null); setPendingDescription(''); setPendingMustTry(''); setPendingBookingUrl(''); setPendingTags([]) }}
+                  onClick={() => { setPendingPlace(null); setPendingDescription(''); setPendingHighlight(''); setPendingExternalUrl(''); setPendingTags([]) }}
                   className="flex-1 px-3 py-2 rounded-xl border border-gray-200 text-gray-500 hover:text-gray-700 text-sm transition-colors"
                 >
                   Cancelar
@@ -589,31 +600,33 @@ export default function AdminGuideDetailPage() {
                                     <p className="text-xs text-gray-600 leading-relaxed">{gp.description}</p>
                                   </div>
                                 )}
-                                {gp.mustTry && (
+                                {gp.highlight && (
                                   <div className="flex items-start gap-1.5">
                                     <Utensils className="w-3 h-3 text-orange-400 mt-0.5 shrink-0" />
-                                    <p className="text-xs text-orange-700 bg-orange-50 px-2 py-0.5 rounded-md">{gp.mustTry}</p>
+                                    <p className="text-xs text-orange-700 bg-orange-50 px-2 py-0.5 rounded-md">
+                                      {getCategoryById(gp.category)?.highlightLabel && (
+                                        <span className="font-semibold mr-1">{getCategoryById(gp.category)?.highlightLabel}:</span>
+                                      )}
+                                      {gp.highlight}
+                                    </p>
                                   </div>
                                 )}
-                                {gp.bookingUrl && (
+                                {gp.externalUrl && (
                                   <a
-                                    href={gp.bookingUrl}
+                                    href={gp.externalUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700"
                                   >
                                     <ExternalLink className="w-3 h-3" />
-                                    Reservar
+                                    {getCategoryById(gp.category)?.externalUrlLabel ?? 'Ver más'}
                                   </a>
                                 )}
                                 {gp.tags && gp.tags.length > 0 && (
                                   <div className="flex flex-wrap gap-1">
-                                    {gp.tags.map(tag => {
-                                      const t = AVAILABLE_TAGS.find(t => t.id === tag)
-                                      return t ? (
-                                        <span key={tag} className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">{t.label}</span>
-                                      ) : null
-                                    })}
+                                    {gp.tags.map(tag => (
+                                      <span key={tag} className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">{tag.replace(/_/g, ' ')}</span>
+                                    ))}
                                   </div>
                                 )}
                               </div>
@@ -622,53 +635,72 @@ export default function AdminGuideDetailPage() {
                             {/* Edit form */}
                             {isEditing && (
                               <div className="mt-3 space-y-3 border-t border-gray-100 pt-3">
-                                <div>
-                                  <label className="flex items-center gap-1 text-xs font-medium text-violet-700 mb-1">
-                                    <MessageSquare className="w-3 h-3" /> Recomendación
-                                  </label>
-                                  <textarea
-                                    value={editForm.description}
-                                    onChange={(e) => setEditForm(f => ({ ...f, description: e.target.value }))}
-                                    rows={2}
-                                    placeholder="Tu recomendación personal..."
-                                    autoFocus
-                                    className="w-full text-sm border border-violet-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-300 resize-none bg-white"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="flex items-center gap-1 text-xs font-medium text-orange-600 mb-1">
-                                    <Utensils className="w-3 h-3" /> Qué pedir
-                                  </label>
-                                  <input
-                                    type="text"
-                                    value={editForm.mustTry}
-                                    onChange={(e) => setEditForm(f => ({ ...f, mustTry: e.target.value }))}
-                                    placeholder="Ej: Arroz a banda"
-                                    className="w-full text-sm border border-orange-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-200 bg-white"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="flex items-center gap-1 text-xs font-medium text-emerald-700 mb-1">
-                                    <ExternalLink className="w-3 h-3" /> Link de reserva
-                                  </label>
-                                  <input
-                                    type="url"
-                                    value={editForm.bookingUrl}
-                                    onChange={(e) => setEditForm(f => ({ ...f, bookingUrl: e.target.value }))}
-                                    placeholder="https://..."
-                                    className="w-full text-sm border border-emerald-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-200 bg-white"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="flex items-center gap-1 text-xs font-medium text-gray-600 mb-1">
-                                    <Tag className="w-3 h-3" /> Etiquetas
-                                  </label>
-                                  <TagPicker
-                                    selected={editForm.tags}
-                                    onChange={(tags) => setEditForm(f => ({ ...f, tags }))}
-                                  />
-                                </div>
-                                <div className="flex items-center gap-2">
+                                {(() => {
+                                  const catConfig = getCategoryById(gp.category)
+                                  const highlightLabel = catConfig?.highlightLabel
+                                  const highlightPlaceholder = catConfig?.highlightPlaceholder ?? ''
+                                  const extUrlLabel = catConfig?.externalUrlLabel
+                                  const extUrlPlaceholder = catConfig?.externalUrlPlaceholder ?? 'https://...'
+                                  const catTags = catConfig?.tags ?? []
+                                  return (
+                                    <>
+                                      <div>
+                                        <label className="flex items-center gap-1 text-xs font-medium text-violet-700 mb-1">
+                                          <MessageSquare className="w-3 h-3" /> Recomendación
+                                        </label>
+                                        <textarea
+                                          value={editForm.description}
+                                          onChange={(e) => setEditForm(f => ({ ...f, description: e.target.value }))}
+                                          rows={2}
+                                          placeholder="Tu recomendación personal..."
+                                          autoFocus
+                                          className="w-full text-sm border border-violet-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-300 resize-none bg-white"
+                                        />
+                                      </div>
+                                      {highlightLabel && (
+                                        <div>
+                                          <label className="flex items-center gap-1 text-xs font-medium text-orange-600 mb-1">
+                                            <Utensils className="w-3 h-3" /> {highlightLabel}
+                                          </label>
+                                          <input
+                                            type="text"
+                                            value={editForm.highlight}
+                                            onChange={(e) => setEditForm(f => ({ ...f, highlight: e.target.value }))}
+                                            placeholder={highlightPlaceholder}
+                                            className="w-full text-sm border border-orange-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-200 bg-white"
+                                          />
+                                        </div>
+                                      )}
+                                      {extUrlLabel && (
+                                        <div>
+                                          <label className="flex items-center gap-1 text-xs font-medium text-emerald-700 mb-1">
+                                            <ExternalLink className="w-3 h-3" /> {extUrlLabel}
+                                          </label>
+                                          <input
+                                            type="url"
+                                            value={editForm.externalUrl}
+                                            onChange={(e) => setEditForm(f => ({ ...f, externalUrl: e.target.value }))}
+                                            placeholder={extUrlPlaceholder}
+                                            className="w-full text-sm border border-emerald-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-200 bg-white"
+                                          />
+                                        </div>
+                                      )}
+                                      {catTags.length > 0 && (
+                                        <div>
+                                          <label className="flex items-center gap-1 text-xs font-medium text-gray-600 mb-1">
+                                            <Tag className="w-3 h-3" /> Etiquetas
+                                          </label>
+                                          <TagPicker
+                                            selected={editForm.tags}
+                                            onChange={(tags) => setEditForm(f => ({ ...f, tags }))}
+                                            availableTags={catTags}
+                                          />
+                                        </div>
+                                      )}
+                                    </>
+                                  )
+                                })()}
+                              <div className="flex items-center gap-2">
                                   <button
                                     onClick={() => setEditingId(null)}
                                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-gray-500 hover:text-gray-700 border border-gray-200 hover:bg-gray-50 transition-colors"
