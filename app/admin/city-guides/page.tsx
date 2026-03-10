@@ -15,6 +15,7 @@ import {
   ChevronDown,
   CheckCircle,
   Eye,
+  ImageIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -278,6 +279,8 @@ export default function AdminCityGuidesPage() {
   const [editingGuide, setEditingGuide] = useState<CityGuide | undefined>()
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [toast, setToast] = useState('')
+  const [backfilling, setBackfilling] = useState(false)
+  const [backfillStatus, setBackfillStatus] = useState('')
 
   const showToast = (msg: string) => {
     setToast(msg)
@@ -322,6 +325,38 @@ export default function AdminCityGuidesPage() {
     showToast(editingGuide ? 'Guía actualizada' : 'Guía creada correctamente')
   }
 
+  const handleBackfillPhotos = async () => {
+    if (!confirm('¿Actualizar fotos de todos los lugares existentes? Esto hace llamadas a Google API (coste ~$0.017/lugar).')) return
+    setBackfilling(true)
+    let offset = 0
+    let totalProcessed = 0
+
+    try {
+      while (true) {
+        setBackfillStatus(`Procesando... (${totalProcessed} actualizados)`)
+        const res = await fetch('/api/admin/places/backfill-photos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ offset }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'Error')
+
+        totalProcessed += data.processed
+        if (data.done) break
+        offset = data.nextOffset
+      }
+      showToast(`✅ ${totalProcessed} lugares actualizados con fotos`)
+      setBackfillStatus('')
+    } catch (e: any) {
+      showToast(`Error: ${e.message}`)
+      setBackfillStatus('')
+    } finally {
+      setBackfilling(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#070710] text-white p-6">
       <div className="max-w-5xl mx-auto">
@@ -336,13 +371,24 @@ export default function AdminCityGuidesPage() {
               <p className="text-zinc-500 text-sm">Gestiona las guías oficiales de Itineramio</p>
             </div>
           </div>
-          <button
-            onClick={() => { setEditingGuide(undefined); setShowForm(true) }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Nueva guía
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleBackfillPhotos}
+              disabled={backfilling}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-white/10 text-zinc-400 hover:text-white hover:border-white/20 text-sm transition-colors disabled:opacity-50"
+              title="Actualizar fotos de lugares existentes"
+            >
+              {backfilling ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
+              {backfilling ? backfillStatus || 'Actualizando...' : 'Actualizar fotos'}
+            </button>
+            <button
+              onClick={() => { setEditingGuide(undefined); setShowForm(true) }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Nueva guía
+            </button>
+          </div>
         </div>
 
         {/* List */}
