@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, MapPin, Trash2, Loader2, CheckCircle, Plus, ChevronDown, Star, Globe, Search,
-  MessageSquare, Pencil, X, Check
+  MessageSquare, Pencil, X, Check, ExternalLink, Tag, ChevronLeft, ChevronRight, Utensils, Clock
 } from 'lucide-react'
 import Link from 'next/link'
 import { PlaceSearchInput, PlaceSearchResult } from '../../../../src/components/ui/PlaceSearchInput'
@@ -15,12 +15,17 @@ interface GuidePlace {
   id: string
   category: string
   description?: string | null
+  mustTry?: string | null
+  bookingUrl?: string | null
+  tags?: string[] | null
   place: {
     id: string
     name: string
     address: string
     rating?: number | null
+    priceLevel?: number | null
     photoUrl?: string | null
+    photoUrls?: string[] | null
   }
 }
 
@@ -38,6 +43,85 @@ interface Guide {
 
 const CATEGORY_OPTIONS = CATEGORIES.map(c => ({ id: c.id, label: c.label }))
 
+const AVAILABLE_TAGS = [
+  { id: 'terraza', label: '☀️ Terraza' },
+  { id: 'vistas', label: '🌅 Vistas' },
+  { id: 'para_ninos', label: '👶 Para niños' },
+  { id: 'vegetariano', label: '🥗 Vegetariano' },
+  { id: 'sin_gluten', label: '🌾 Sin gluten' },
+  { id: 'instagrameable', label: '📸 Instagrameable' },
+  { id: 'reserva_recomendada', label: '📅 Reserva recomendada' },
+  { id: 'romantico', label: '🕯️ Romántico' },
+  { id: 'economico', label: '💶 Económico' },
+  { id: 'parking', label: '🅿️ Parking' },
+  { id: 'pet_friendly', label: '🐶 Pet friendly' },
+  { id: 'solo_efectivo', label: '💵 Solo efectivo' },
+]
+
+function priceLabel(level: number | null | undefined) {
+  if (level == null) return null
+  return ['Gratis', '$', '$$', '$$$', '$$$$'][level] ?? null
+}
+
+function PhotoCarousel({ urls, name }: { urls: string[]; name: string }) {
+  const [idx, setIdx] = useState(0)
+  if (!urls.length) return (
+    <div className="w-12 h-12 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
+      <MapPin className="w-4 h-4 text-violet-400" />
+    </div>
+  )
+  return (
+    <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 group">
+      <img src={urls[idx]} alt={name} className="w-full h-full object-cover" />
+      {urls.length > 1 && (
+        <>
+          <button
+            onClick={(e) => { e.stopPropagation(); setIdx(i => (i - 1 + urls.length) % urls.length) }}
+            className="absolute left-0 top-0 bottom-0 w-4 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <ChevronLeft className="w-2.5 h-2.5 text-white" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); setIdx(i => (i + 1) % urls.length) }}
+            className="absolute right-0 top-0 bottom-0 w-4 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <ChevronRight className="w-2.5 h-2.5 text-white" />
+          </button>
+          <div className="absolute bottom-0.5 left-0 right-0 flex justify-center gap-0.5">
+            {urls.map((_, i) => (
+              <div key={i} className={`w-1 h-1 rounded-full ${i === idx ? 'bg-white' : 'bg-white/40'}`} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+function TagPicker({ selected, onChange }: { selected: string[]; onChange: (tags: string[]) => void }) {
+  const toggle = (id: string) => {
+    onChange(selected.includes(id) ? selected.filter(t => t !== id) : [...selected, id])
+  }
+  return (
+    <div className="flex flex-wrap gap-1.5 mt-1">
+      {AVAILABLE_TAGS.map(tag => (
+        <button
+          key={tag.id}
+          type="button"
+          onClick={() => toggle(tag.id)}
+          className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+            selected.includes(tag.id)
+              ? 'bg-violet-100 border-violet-300 text-violet-700'
+              : 'bg-white border-gray-200 text-gray-500 hover:border-violet-200 hover:text-violet-600'
+          }`}
+        >
+          {tag.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export default function AdminGuideDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
@@ -51,9 +135,14 @@ export default function AdminGuideDetailPage() {
   const [savedPlaceId, setSavedPlaceId] = useState<string | null>(null)
   const [pendingPlace, setPendingPlace] = useState<PlaceSearchResult | null>(null)
   const [pendingDescription, setPendingDescription] = useState('')
-  const [editingDescriptionId, setEditingDescriptionId] = useState<string | null>(null)
-  const [editingDescriptionText, setEditingDescriptionText] = useState('')
-  const [savingDescriptionId, setSavingDescriptionId] = useState<string | null>(null)
+  const [pendingMustTry, setPendingMustTry] = useState('')
+  const [pendingBookingUrl, setPendingBookingUrl] = useState('')
+  const [pendingTags, setPendingTags] = useState<string[]>([])
+
+  // Edit state per place
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState({ description: '', mustTry: '', bookingUrl: '', tags: [] as string[] })
+  const [savingEditId, setSavingEditId] = useState<string | null>(null)
 
   const showToast = (msg: string) => {
     setToast(msg)
@@ -67,7 +156,6 @@ export default function AdminGuideDetailPage() {
       const data = await res.json()
       if (!res.ok) { router.replace('/admin/city-guides'); return }
       const g = data.data || data
-      // Flatten placesByCategory into places array
       const places: GuidePlace[] = Object.values(g.placesByCategory || {}).flat() as GuidePlace[]
       setGuide({ ...g, places })
     } catch {
@@ -82,13 +170,15 @@ export default function AdminGuideDetailPage() {
   const handleSelect = (result: PlaceSearchResult) => {
     setPendingPlace(result)
     setPendingDescription('')
+    setPendingMustTry('')
+    setPendingBookingUrl('')
+    setPendingTags([])
   }
 
   const handleConfirmAdd = async () => {
     if (!guide || !pendingPlace) return
     setAdding(true)
     try {
-      // 1. Save place to DB
       const placeRes = await fetch('/api/places', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -101,6 +191,8 @@ export default function AdminGuideDetailPage() {
           longitude: pendingPlace.lng,
           rating: pendingPlace.rating,
           photoUrl: pendingPlace.photoUrl,
+          photoUrls: pendingPlace.photoUrls,
+          priceLevel: pendingPlace.priceLevel,
           types: pendingPlace.types,
           source: 'GOOGLE',
         }),
@@ -109,7 +201,6 @@ export default function AdminGuideDetailPage() {
       if (!placeRes.ok) throw new Error(placeData.error || 'Error al guardar el lugar')
       const placeId = placeData.id || placeData.place?.id || placeData.data?.id
 
-      // 2. Add to guide with description
       const addRes = await fetch(`/api/city-guides/${id}/places`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -118,6 +209,9 @@ export default function AdminGuideDetailPage() {
           placeId,
           category: selectedCategory,
           description: pendingDescription.trim() || null,
+          mustTry: pendingMustTry.trim() || null,
+          bookingUrl: pendingBookingUrl.trim() || null,
+          tags: pendingTags,
         }),
       })
       const addData = await addRes.json()
@@ -128,6 +222,9 @@ export default function AdminGuideDetailPage() {
       showToast(`"${pendingPlace.name}" añadido a la guía`)
       setPendingPlace(null)
       setPendingDescription('')
+      setPendingMustTry('')
+      setPendingBookingUrl('')
+      setPendingTags([])
       fetchGuide()
     } catch (e: any) {
       showToast(e.message)
@@ -136,28 +233,49 @@ export default function AdminGuideDetailPage() {
     }
   }
 
-  const handleSaveDescription = async (guidePlace: GuidePlace) => {
-    setSavingDescriptionId(guidePlace.id)
+  const startEdit = (gp: GuidePlace) => {
+    setEditingId(gp.id)
+    setEditForm({
+      description: gp.description ?? '',
+      mustTry: gp.mustTry ?? '',
+      bookingUrl: gp.bookingUrl ?? '',
+      tags: gp.tags ?? [],
+    })
+  }
+
+  const handleSaveEdit = async (gp: GuidePlace) => {
+    setSavingEditId(gp.id)
     try {
-      const res = await fetch(`/api/city-guides/${id}/places/${guidePlace.id}/description`, {
+      const res = await fetch(`/api/city-guides/${id}/places/${gp.id}/description`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ description: editingDescriptionText.trim() || null }),
+        body: JSON.stringify({
+          description: editForm.description.trim() || null,
+          mustTry: editForm.mustTry.trim() || null,
+          bookingUrl: editForm.bookingUrl.trim() || null,
+          tags: editForm.tags,
+        }),
       })
       if (!res.ok) throw new Error()
       setGuide(prev => prev ? {
         ...prev,
         places: prev.places.map(p =>
-          p.id === guidePlace.id ? { ...p, description: editingDescriptionText.trim() || null } : p
+          p.id === gp.id ? {
+            ...p,
+            description: editForm.description.trim() || null,
+            mustTry: editForm.mustTry.trim() || null,
+            bookingUrl: editForm.bookingUrl.trim() || null,
+            tags: editForm.tags,
+          } : p
         )
       } : prev)
-      setEditingDescriptionId(null)
-      showToast('Recomendación guardada')
+      setEditingId(null)
+      showToast('Lugar actualizado')
     } catch {
-      showToast('Error al guardar la recomendación')
+      showToast('Error al guardar')
     } finally {
-      setSavingDescriptionId(null)
+      setSavingEditId(null)
     }
   }
 
@@ -181,7 +299,6 @@ export default function AdminGuideDetailPage() {
     }
   }
 
-  // Group by category
   const grouped = (guide?.places ?? []).reduce<Record<string, GuidePlace[]>>((acc, gp) => {
     const cat = gp.category || 'other'
     if (!acc[cat]) acc[cat] = []
@@ -205,11 +322,7 @@ export default function AdminGuideDetailPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-3xl mx-auto px-4 py-8">
 
-        {/* Back */}
-        <Link
-          href="/admin/city-guides"
-          className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-800 text-sm mb-6 transition-colors"
-        >
+        <Link href="/admin/city-guides" className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-800 text-sm mb-6 transition-colors">
           <ArrowLeft className="w-4 h-4" />
           Volver a guías
         </Link>
@@ -251,11 +364,8 @@ export default function AdminGuideDetailPage() {
             Añadir lugar
           </h2>
 
-          {/* Category selector */}
           <div className="mb-3">
-            <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">
-              Categoría
-            </label>
+            <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">Categoría</label>
             <div className="relative max-w-xs">
               <select
                 value={selectedCategory}
@@ -270,7 +380,6 @@ export default function AdminGuideDetailPage() {
             </div>
           </div>
 
-          {/* Search */}
           {!pendingPlace && (
             <PlaceSearchInput
               propertyLat={null}
@@ -281,52 +390,111 @@ export default function AdminGuideDetailPage() {
             />
           )}
 
-          {/* Pending place confirmation card */}
           {pendingPlace && (
-            <div className="mt-3 border border-violet-200 rounded-xl overflow-hidden bg-violet-50/50">
+            <div className="mt-3 border border-violet-200 rounded-xl overflow-hidden bg-violet-50/30">
               {/* Place header */}
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-violet-100">
-                {pendingPlace.photoUrl ? (
-                  <img src={pendingPlace.photoUrl} alt={pendingPlace.name} className="w-10 h-10 rounded-lg object-cover shrink-0" />
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-violet-100 bg-white">
+                {pendingPlace.photoUrls?.length ? (
+                  <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0">
+                    <img src={pendingPlace.photoUrls[0]} alt={pendingPlace.name} className="w-full h-full object-cover" />
+                    {pendingPlace.photoUrls.length > 1 && (
+                      <div className="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] px-1 rounded">
+                        +{pendingPlace.photoUrls.length - 1}
+                      </div>
+                    )}
+                  </div>
                 ) : (
-                  <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center shrink-0">
-                    <MapPin className="w-4 h-4 text-violet-500" />
+                  <div className="w-14 h-14 rounded-xl bg-violet-100 flex items-center justify-center shrink-0">
+                    <MapPin className="w-5 h-5 text-violet-500" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 truncate">{pendingPlace.name}</p>
+                  <p className="text-sm font-semibold text-gray-900">{pendingPlace.name}</p>
                   <p className="text-xs text-gray-400 truncate">{pendingPlace.address}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    {pendingPlace.rating && (
+                      <span className="flex items-center gap-0.5 text-xs text-amber-600">
+                        <Star className="w-3 h-3 fill-amber-400" />
+                        {pendingPlace.rating.toFixed(1)}
+                      </span>
+                    )}
+                    {priceLabel(pendingPlace.priceLevel) && (
+                      <span className="text-xs text-gray-500 font-medium">{priceLabel(pendingPlace.priceLevel)}</span>
+                    )}
+                    {pendingPlace.photoUrls?.length > 1 && (
+                      <span className="text-xs text-violet-600">{pendingPlace.photoUrls.length} fotos</span>
+                    )}
+                  </div>
                 </div>
                 <button
-                  onClick={() => { setPendingPlace(null); setPendingDescription('') }}
-                  className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-white transition-colors shrink-0"
+                  onClick={() => { setPendingPlace(null); setPendingDescription(''); setPendingMustTry(''); setPendingBookingUrl(''); setPendingTags([]) }}
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors shrink-0"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Description textarea */}
-              <div className="px-4 py-3">
-                <label className="flex items-center gap-1.5 text-xs font-semibold text-violet-700 uppercase tracking-wide mb-2">
-                  <MessageSquare className="w-3.5 h-3.5" />
-                  Tu recomendación personal (opcional)
-                </label>
-                <textarea
-                  value={pendingDescription}
-                  onChange={(e) => setPendingDescription(e.target.value)}
-                  placeholder="Ej: Aquí te comes el mejor arroz de Alicante. Pide el arroz a banda y la ensalada de la casa. Solo con reserva en temporada alta."
-                  rows={3}
-                  className="w-full text-sm border border-violet-200 rounded-xl px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-transparent resize-none bg-white"
-                />
-                <p className="text-xs text-gray-400 mt-1.5">
-                  Este texto aparecerá en la tarjeta del lugar cuando el huésped abra la guía.
-                </p>
+              {/* Extra fields */}
+              <div className="px-4 py-4 space-y-4">
+
+                {/* Description */}
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-violet-700 uppercase tracking-wide mb-1.5">
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    Recomendación personal <span className="text-gray-400 font-normal normal-case">(opcional)</span>
+                  </label>
+                  <textarea
+                    value={pendingDescription}
+                    onChange={(e) => setPendingDescription(e.target.value)}
+                    placeholder="Ej: El mejor arroz de Alicante. Pide el arroz a banda y la ensalada de la casa. Solo con reserva en temporada alta."
+                    rows={2}
+                    className="w-full text-sm border border-violet-200 rounded-xl px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-300 resize-none bg-white"
+                  />
+                </div>
+
+                {/* Must Try */}
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-orange-600 uppercase tracking-wide mb-1.5">
+                    <Utensils className="w-3.5 h-3.5" />
+                    Qué pedir / qué probar <span className="text-gray-400 font-normal normal-case">(opcional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={pendingMustTry}
+                    onChange={(e) => setPendingMustTry(e.target.value)}
+                    placeholder="Ej: Arroz a banda, la ensalada de la casa"
+                    className="w-full text-sm border border-orange-200 rounded-xl px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-200 bg-white"
+                  />
+                </div>
+
+                {/* Booking URL */}
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-1.5">
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    Link de reserva <span className="text-gray-400 font-normal normal-case">(opcional)</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={pendingBookingUrl}
+                    onChange={(e) => setPendingBookingUrl(e.target.value)}
+                    placeholder="https://www.thefork.es/..."
+                    className="w-full text-sm border border-emerald-200 rounded-xl px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 bg-white"
+                  />
+                </div>
+
+                {/* Tags */}
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
+                    <Tag className="w-3.5 h-3.5" />
+                    Etiquetas <span className="text-gray-400 font-normal normal-case">(opcional)</span>
+                  </label>
+                  <TagPicker selected={pendingTags} onChange={setPendingTags} />
+                </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex items-center gap-2 px-4 pb-3">
+              <div className="flex items-center gap-2 px-4 pb-4">
                 <button
-                  onClick={() => { setPendingPlace(null); setPendingDescription('') }}
+                  onClick={() => { setPendingPlace(null); setPendingDescription(''); setPendingMustTry(''); setPendingBookingUrl(''); setPendingTags([]) }}
                   className="flex-1 px-3 py-2 rounded-xl border border-gray-200 text-gray-500 hover:text-gray-700 text-sm transition-colors"
                 >
                   Cancelar
@@ -364,105 +532,165 @@ export default function AdminGuideDetailPage() {
                 <div key={cat}>
                   <div className="px-6 py-2 bg-gray-50 border-b border-gray-100">
                     <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                      {getCatLabel(cat)}
+                      {getCatLabel(cat)} ({places.length})
                     </span>
                   </div>
-                  {places.map((gp) => (
-                    <div
-                      key={gp.id}
-                      className="px-6 py-3.5 border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        {gp.place.photoUrl ? (
-                          <img
-                            src={gp.place.photoUrl}
-                            alt={gp.place.name}
-                            className="w-10 h-10 rounded-lg object-cover shrink-0"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
-                            <MapPin className="w-4 h-4 text-violet-400" />
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">{gp.place.name}</p>
-                          <p className="text-xs text-gray-400 truncate">{gp.place.address}</p>
-                        </div>
-                        {gp.place.rating && (
-                          <span className="flex items-center gap-0.5 text-xs text-amber-500 shrink-0">
-                            <Star className="w-3 h-3 fill-amber-400" />
-                            {gp.place.rating}
-                          </span>
-                        )}
-                        <button
-                          onClick={() => {
-                            setEditingDescriptionId(gp.id)
-                            setEditingDescriptionText(gp.description ?? '')
-                          }}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-violet-500 hover:bg-violet-50 transition-colors shrink-0"
-                          title="Añadir recomendación"
-                        >
-                          <MessageSquare className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => handleRemove(gp)}
-                          disabled={removingId === gp.id}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors shrink-0"
-                        >
-                          {removingId === gp.id
-                            ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            : <Trash2 className="w-3.5 h-3.5" />
-                          }
-                        </button>
-                      </div>
+                  {places.map((gp) => {
+                    const photos = (gp.place.photoUrls as string[] | null) || (gp.place.photoUrl ? [gp.place.photoUrl] : [])
+                    const isEditing = editingId === gp.id
+                    return (
+                      <div key={gp.id} className="px-6 py-4 border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                        <div className="flex items-start gap-3">
+                          <PhotoCarousel urls={photos} name={gp.place.name} />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="text-sm font-semibold text-gray-900 truncate">{gp.place.name}</p>
+                                <p className="text-xs text-gray-400 truncate">{gp.place.address}</p>
+                                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                                  {gp.place.rating && (
+                                    <span className="flex items-center gap-0.5 text-xs text-amber-600">
+                                      <Star className="w-3 h-3 fill-amber-400" />
+                                      {gp.place.rating.toFixed(1)}
+                                    </span>
+                                  )}
+                                  {priceLabel(gp.place.priceLevel) && (
+                                    <span className="text-xs text-gray-500 font-medium">{priceLabel(gp.place.priceLevel)}</span>
+                                  )}
+                                  {photos.length > 1 && (
+                                    <span className="text-xs text-violet-500">{photos.length} fotos</span>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  onClick={() => isEditing ? setEditingId(null) : startEdit(gp)}
+                                  className={`w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${isEditing ? 'text-violet-600 bg-violet-50' : 'text-gray-300 hover:text-violet-500 hover:bg-violet-50'}`}
+                                  title="Editar"
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => handleRemove(gp)}
+                                  disabled={removingId === gp.id}
+                                  className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors"
+                                >
+                                  {removingId === gp.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                                </button>
+                              </div>
+                            </div>
 
-                      {/* Description display / edit */}
-                      {editingDescriptionId === gp.id ? (
-                        <div className="mt-2.5 ml-[52px]">
-                          <textarea
-                            value={editingDescriptionText}
-                            onChange={(e) => setEditingDescriptionText(e.target.value)}
-                            placeholder="Ej: Aquí te comes el mejor arroz de Alicante. Pide el arroz a banda, no te arrepentirás."
-                            rows={2}
-                            autoFocus
-                            className="w-full text-sm border border-violet-200 rounded-xl px-3 py-2 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-300 resize-none bg-white mt-1"
-                          />
-                          <div className="flex items-center gap-2 mt-1.5">
-                            <button
-                              onClick={() => setEditingDescriptionId(null)}
-                              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs text-gray-500 hover:text-gray-700 border border-gray-200 hover:bg-gray-50 transition-colors"
-                            >
-                              <X className="w-3 h-3" /> Cancelar
-                            </button>
-                            <button
-                              onClick={() => handleSaveDescription(gp)}
-                              disabled={savingDescriptionId === gp.id}
-                              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 transition-colors"
-                            >
-                              {savingDescriptionId === gp.id
-                                ? <Loader2 className="w-3 h-3 animate-spin" />
-                                : <Check className="w-3 h-3" />
-                              }
-                              Guardar
-                            </button>
+                            {/* Display badges (not editing) */}
+                            {!isEditing && (
+                              <div className="mt-2 space-y-1.5">
+                                {gp.description && (
+                                  <div className="flex items-start gap-1.5">
+                                    <MessageSquare className="w-3 h-3 text-violet-400 mt-0.5 shrink-0" />
+                                    <p className="text-xs text-gray-600 leading-relaxed">{gp.description}</p>
+                                  </div>
+                                )}
+                                {gp.mustTry && (
+                                  <div className="flex items-start gap-1.5">
+                                    <Utensils className="w-3 h-3 text-orange-400 mt-0.5 shrink-0" />
+                                    <p className="text-xs text-orange-700 bg-orange-50 px-2 py-0.5 rounded-md">{gp.mustTry}</p>
+                                  </div>
+                                )}
+                                {gp.bookingUrl && (
+                                  <a
+                                    href={gp.bookingUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700"
+                                  >
+                                    <ExternalLink className="w-3 h-3" />
+                                    Reservar
+                                  </a>
+                                )}
+                                {gp.tags && gp.tags.length > 0 && (
+                                  <div className="flex flex-wrap gap-1">
+                                    {gp.tags.map(tag => {
+                                      const t = AVAILABLE_TAGS.find(t => t.id === tag)
+                                      return t ? (
+                                        <span key={tag} className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">{t.label}</span>
+                                      ) : null
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Edit form */}
+                            {isEditing && (
+                              <div className="mt-3 space-y-3 border-t border-gray-100 pt-3">
+                                <div>
+                                  <label className="flex items-center gap-1 text-xs font-medium text-violet-700 mb-1">
+                                    <MessageSquare className="w-3 h-3" /> Recomendación
+                                  </label>
+                                  <textarea
+                                    value={editForm.description}
+                                    onChange={(e) => setEditForm(f => ({ ...f, description: e.target.value }))}
+                                    rows={2}
+                                    placeholder="Tu recomendación personal..."
+                                    autoFocus
+                                    className="w-full text-sm border border-violet-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-300 resize-none bg-white"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="flex items-center gap-1 text-xs font-medium text-orange-600 mb-1">
+                                    <Utensils className="w-3 h-3" /> Qué pedir
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={editForm.mustTry}
+                                    onChange={(e) => setEditForm(f => ({ ...f, mustTry: e.target.value }))}
+                                    placeholder="Ej: Arroz a banda"
+                                    className="w-full text-sm border border-orange-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-200 bg-white"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="flex items-center gap-1 text-xs font-medium text-emerald-700 mb-1">
+                                    <ExternalLink className="w-3 h-3" /> Link de reserva
+                                  </label>
+                                  <input
+                                    type="url"
+                                    value={editForm.bookingUrl}
+                                    onChange={(e) => setEditForm(f => ({ ...f, bookingUrl: e.target.value }))}
+                                    placeholder="https://..."
+                                    className="w-full text-sm border border-emerald-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-200 bg-white"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="flex items-center gap-1 text-xs font-medium text-gray-600 mb-1">
+                                    <Tag className="w-3 h-3" /> Etiquetas
+                                  </label>
+                                  <TagPicker
+                                    selected={editForm.tags}
+                                    onChange={(tags) => setEditForm(f => ({ ...f, tags }))}
+                                  />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() => setEditingId(null)}
+                                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-gray-500 hover:text-gray-700 border border-gray-200 hover:bg-gray-50 transition-colors"
+                                  >
+                                    <X className="w-3 h-3" /> Cancelar
+                                  </button>
+                                  <button
+                                    onClick={() => handleSaveEdit(gp)}
+                                    disabled={savingEditId === gp.id}
+                                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 transition-colors"
+                                  >
+                                    {savingEditId === gp.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                                    Guardar
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
-                      ) : gp.description ? (
-                        <div
-                          className="mt-2 ml-[52px] flex items-start gap-2 cursor-pointer group"
-                          onClick={() => {
-                            setEditingDescriptionId(gp.id)
-                            setEditingDescriptionText(gp.description ?? '')
-                          }}
-                        >
-                          <MessageSquare className="w-3.5 h-3.5 text-violet-400 mt-0.5 shrink-0" />
-                          <p className="text-xs text-violet-700 bg-violet-50 border border-violet-100 rounded-lg px-2.5 py-1.5 leading-relaxed group-hover:border-violet-300 transition-colors">
-                            {gp.description}
-                          </p>
-                        </div>
-                      ) : null}
-                    </div>
-                  ))}
+                      </div>
+                    )
+                  })}
                 </div>
               ))}
             </div>
@@ -470,7 +698,6 @@ export default function AdminGuideDetailPage() {
         </div>
       </div>
 
-      {/* Toast */}
       <AnimatePresence>
         {toast && (
           <motion.div

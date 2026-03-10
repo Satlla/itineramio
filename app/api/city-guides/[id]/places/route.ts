@@ -36,7 +36,7 @@ export async function POST(
     }
 
     const body = await request.json()
-    const { placeId, category, description, order } = body
+    const { placeId, category, description, mustTry, bookingUrl, tags, order } = body
 
     if (!placeId || !category) {
       return NextResponse.json(
@@ -71,6 +71,9 @@ export async function POST(
           placeId,
           category,
           description: description || null,
+          mustTry: mustTry || null,
+          bookingUrl: bookingUrl || null,
+          tags: tags || [],
           order: nextOrder,
           addedInVersion: newVersion,
         },
@@ -81,7 +84,9 @@ export async function POST(
               name: true,
               address: true,
               photoUrl: true,
+              photoUrls: true,
               rating: true,
+              priceLevel: true,
               latitude: true,
               longitude: true,
               types: true,

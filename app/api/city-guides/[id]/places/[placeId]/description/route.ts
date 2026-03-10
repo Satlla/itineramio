@@ -47,10 +47,20 @@ export async function PATCH(
     const description = typeof body.description === 'string' && body.description.trim()
       ? body.description.trim()
       : null
+    const mustTry = typeof body.mustTry === 'string' && body.mustTry.trim()
+      ? body.mustTry.trim()
+      : null
+    const bookingUrl = typeof body.bookingUrl === 'string' && body.bookingUrl.trim()
+      ? body.bookingUrl.trim()
+      : null
+    const tags = Array.isArray(body.tags) ? body.tags.filter(Boolean) : undefined
+
+    const updateData: any = { description, mustTry, bookingUrl }
+    if (tags !== undefined) updateData.tags = tags
 
     const updated = await prisma.cityGuidePlace.update({
       where: { id: placeId },
-      data: { description },
+      data: updateData,
     })
 
     return NextResponse.json({ success: true, data: updated })

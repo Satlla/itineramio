@@ -12,6 +12,9 @@ export interface PlaceSearchResult {
   lng: number
   rating: number | null
   photoUrl: string | null
+  photoUrls: string[]
+  priceLevel: number | null
+  openNow: boolean | null
   types: string[]
 }
 

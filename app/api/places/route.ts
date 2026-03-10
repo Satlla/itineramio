@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { googlePlaceId, name, address, latitude, longitude, rating, photoUrl, types } = body
+    const { googlePlaceId, name, address, latitude, longitude, rating, photoUrl, photoUrls, priceLevel, types } = body
 
     if (!name || !address || latitude == null || longitude == null) {
       return NextResponse.json(
@@ -42,9 +42,17 @@ export async function POST(request: NextRequest) {
           longitude,
           rating: rating ?? null,
           photoUrl: photoUrl ?? null,
+          photoUrls: photoUrls ?? [],
+          priceLevel: priceLevel ?? null,
           types: types ?? [],
           lastFetchedAt: new Date(),
         },
+      })
+    } else if (photoUrls?.length && !(place as any).photoUrls?.length) {
+      // Update photo URLs if place already exists but lacks them
+      place = await prisma.place.update({
+        where: { id: place.id },
+        data: { photoUrls, photoUrl: photoUrl ?? place.photoUrl },
       })
     }
 

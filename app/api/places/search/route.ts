@@ -44,18 +44,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Error en búsqueda de Google Places' }, { status: 502 })
     }
 
-    const results = (data.results || []).slice(0, 8).map((r: any) => ({
-      googlePlaceId: r.place_id,
-      name: r.name,
-      address: r.formatted_address,
-      lat: r.geometry?.location?.lat,
-      lng: r.geometry?.location?.lng,
-      rating: r.rating || null,
-      photoUrl: r.photos?.[0]
-        ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${r.photos[0].photo_reference}&key=${GOOGLE_MAPS_API_KEY}`
-        : null,
-      types: r.types || [],
-    }))
+    const results = (data.results || []).slice(0, 8).map((r: any) => {
+      const photoRefs: string[] = (r.photos || []).slice(0, 5).map((p: any) => p.photo_reference)
+      const photoUrls = photoRefs.map(
+        (ref) => `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${ref}&key=${GOOGLE_MAPS_API_KEY}`
+      )
+      return {
+        googlePlaceId: r.place_id,
+        name: r.name,
+        address: r.formatted_address,
+        lat: r.geometry?.location?.lat,
+        lng: r.geometry?.location?.lng,
+        rating: r.rating || null,
+        photoUrl: photoUrls[0] || null,
+        photoUrls,
+        priceLevel: r.price_level ?? null,
+        openNow: r.opening_hours?.open_now ?? null,
+        types: r.types || [],
+      }
+    })
 
     return NextResponse.json({ success: true, data: results })
   } catch (error) {

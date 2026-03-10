@@ -97,6 +97,7 @@ model User {
   productUpdateReads      ProductUpdateRead[]
   cityGuides              CityGuide[]
   guideSubscriptions      PropertyGuideSubscription[] @relation("GuideSubscriptions")
+  metaIntegration         MetaIntegration?
 
   @@map("users")
 }
@@ -2970,6 +2971,7 @@ model Place {
   phone           String?
   website         String?
   photoUrl        String?
+  photoUrls       Json?            // Array of photo URLs from Google (up to 5)
   rating          Float?
   priceLevel      Int?
   types           Json?
@@ -3067,6 +3069,9 @@ model CityGuidePlace {
   place          Place     @relation(fields: [placeId], references: [id])
   category       String    // 'restaurant' | 'cafe' | 'museum' etc.
   description    String?
+  mustTry        String?   // "Qué pedir / qué probar"
+  bookingUrl     String?   // Link de reserva (TheFork, Covermanager, etc.)
+  tags           Json?     // String[] — ["terraza", "vegetariano", "instagrameable", ...]
   addedInVersion Int       @default(1)
   order          Int       @default(0)
   createdAt      DateTime  @default(now())
@@ -3435,4 +3440,22 @@ model FrequentQuestion {
   @@index([frequency])
   @@index([category])
   @@map("frequent_questions")
+}
+
+model MetaIntegration {
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  accessToken    String    // encrypted
+  adAccountId    String    // e.g. "act_123456789"
+  adAccountName  String?
+  pageId         String?
+  pageName       String?
+  tokenExpiresAt DateTime?
+  isActive       Boolean   @default(true)
+  lastSyncAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("meta_integrations")
 }
