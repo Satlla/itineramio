@@ -1203,7 +1203,6 @@ function DemoPageInner() {
                     onChange={setStep2Data}
                     onNext={() => setWizardStep(3)}
                     onBack={() => setWizardStep(1)}
-                    checkInMethod={step1Data.checkInMethod}
                     hasParking={step1Data.hasParking}
                   />
                 )}

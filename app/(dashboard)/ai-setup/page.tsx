@@ -533,7 +533,6 @@ export default function AISetupPage() {
                 onChange={setStep2Data}
                 onNext={() => setCurrentStep(3)}
                 onBack={() => setCurrentStep(1)}
-                checkInMethod={step1Data.checkInMethod}
                 hasParking={step1Data.hasParking}
               />
             )}

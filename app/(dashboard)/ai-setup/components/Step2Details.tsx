@@ -4,17 +4,13 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Key,
   Droplets,
   LogOut,
   Car,
   Package,
   ChevronRight,
   ArrowLeft,
-  MapPin,
   Clock,
-  Lock,
-  Star,
 } from 'lucide-react'
 
 export interface Step2Data {
@@ -80,7 +76,6 @@ interface Step2DetailsProps {
   onChange: (data: Step2Data) => void
   onNext: () => void
   onBack: () => void
-  checkInMethod: string
   hasParking: string
 }
 
@@ -123,7 +118,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   return <label className="block text-sm font-medium text-gray-300">{children}</label>
 }
 
-export default function Step2Details({ data, onChange, onNext, onBack, checkInMethod, hasParking }: Step2DetailsProps) {
+export default function Step2Details({ data, onChange, onNext, onBack, hasParking }: Step2DetailsProps) {
   const { t } = useTranslation('ai-setup')
   const update = (partial: Partial<Step2Data>) => {
     onChange({ ...data, ...partial })
@@ -160,104 +155,6 @@ export default function Step2Details({ data, onChange, onNext, onBack, checkInMe
         <p className="text-gray-400 text-sm sm:text-base">{t('step2.subtitle')}</p>
       </div>
 
-      {/* ============ ACCESS SECTION ============ */}
-      <Section icon={Key} title={t('step2.access.title')}>
-        {checkInMethod === 'lockbox' && (
-          <>
-            <div className="space-y-2">
-              <FieldLabel>{t('step2.access.lockboxCode')}</FieldLabel>
-              <input
-                type="text"
-                value={data.lockboxCode}
-                onChange={(e) => update({ lockboxCode: e.target.value })}
-                placeholder={t('step2.access.lockboxCodePlaceholder')}
-                className={inputClass}
-              />
-            </div>
-            <div className="space-y-2">
-              <FieldLabel>{t('step2.access.lockboxLocation')}</FieldLabel>
-              <input
-                type="text"
-                value={data.lockboxLocation}
-                onChange={(e) => update({ lockboxLocation: e.target.value })}
-                placeholder={t('step2.access.lockboxLocationPlaceholder')}
-                className={inputClass}
-              />
-            </div>
-          </>
-        )}
-
-        {checkInMethod === 'code' && (
-          <>
-            <div className="space-y-2">
-              <FieldLabel>{t('step2.access.doorCode')}</FieldLabel>
-              <input
-                type="text"
-                value={data.doorCode}
-                onChange={(e) => update({ doorCode: e.target.value })}
-                placeholder={t('step2.access.doorCodePlaceholder')}
-                className={inputClass}
-              />
-            </div>
-            <div className="space-y-2">
-              <FieldLabel>{t('step2.access.codeChanges')}</FieldLabel>
-              <div className="flex gap-3">
-                <OptionButton selected={data.codeChangesPerReservation} onClick={() => update({ codeChangesPerReservation: true })}>
-                  {t('step2.access.codeChangesYes')}
-                </OptionButton>
-                <OptionButton selected={!data.codeChangesPerReservation} onClick={() => update({ codeChangesPerReservation: false })}>
-                  {t('step2.access.codeChangesNo')}
-                </OptionButton>
-              </div>
-            </div>
-          </>
-        )}
-
-        {(checkInMethod === 'key' || checkInMethod === 'in-person') && (
-          <>
-            <div className="space-y-2">
-              <FieldLabel>{t('step2.access.meetingPoint')}</FieldLabel>
-              <input
-                type="text"
-                value={data.meetingPoint}
-                onChange={(e) => update({ meetingPoint: e.target.value })}
-                placeholder={t('step2.access.meetingPointPlaceholder')}
-                className={inputClass}
-              />
-            </div>
-            <div className="space-y-2">
-              <FieldLabel>{t('step2.access.latePlan')}</FieldLabel>
-              <div className="grid grid-cols-2 gap-3">
-                <OptionButton selected={data.latePlan === 'call'} onClick={() => update({ latePlan: 'call' })}>
-                  {t('step2.access.latePlanCall')}
-                </OptionButton>
-                <OptionButton selected={data.latePlan === 'lockbox_backup'} onClick={() => update({ latePlan: 'lockbox_backup' })}>
-                  {t('step2.access.latePlanLockbox')}
-                </OptionButton>
-                <OptionButton selected={data.latePlan === 'neighbor'} onClick={() => update({ latePlan: 'neighbor' })}>
-                  {t('step2.access.latePlanNeighbor')}
-                </OptionButton>
-                <OptionButton selected={data.latePlan === 'other'} onClick={() => update({ latePlan: 'other' })}>
-                  {t('step2.access.latePlanOther')}
-                </OptionButton>
-              </div>
-              {(data.latePlan === 'lockbox_backup' || data.latePlan === 'neighbor' || data.latePlan === 'other') && (
-                <input
-                  type="text"
-                  value={data.latePlanDetails}
-                  onChange={(e) => update({ latePlanDetails: e.target.value })}
-                  placeholder={
-                    data.latePlan === 'lockbox_backup' ? t('step2.access.latePlanLockboxPlaceholder')
-                    : data.latePlan === 'neighbor' ? t('step2.access.latePlanNeighborPlaceholder')
-                    : t('step2.access.latePlanOtherPlaceholder')
-                  }
-                  className={inputClass}
-                />
-              )}
-            </div>
-          </>
-        )}
-      </Section>
 
       {/* ============ HOT WATER ============ */}
       <Section icon={Droplets} title={t('step2.hotWater.title')}>
@@ -280,19 +177,6 @@ export default function Step2Details({ data, onChange, onNext, onBack, checkInMe
         </div>
       </Section>
 
-      {/* ============ ELECTRICAL PANEL ============ */}
-      <Section icon={Lock} title={t('step2.electrical.title')}>
-        <div className="space-y-2">
-          <FieldLabel>{t('step2.electrical.location')}</FieldLabel>
-          <input
-            type="text"
-            value={data.electricalPanelLocation}
-            onChange={(e) => update({ electricalPanelLocation: e.target.value })}
-            placeholder={t('step2.electrical.locationPlaceholder')}
-            className={inputClass}
-          />
-        </div>
-      </Section>
 
       {/* ============ SUPPORT HOURS ============ */}
       <Section icon={Clock} title={t('step2.support.title')}>
@@ -340,20 +224,6 @@ export default function Step2Details({ data, onChange, onNext, onBack, checkInMe
         </div>
       </Section>
 
-      {/* ============ RECOMMENDATIONS ============ */}
-      <Section icon={Star} title={t('step2.recommendations.title')}>
-        <div className="space-y-2">
-          <FieldLabel>{t('step2.recommendations.label')}</FieldLabel>
-          <textarea
-            value={data.recommendations}
-            onChange={(e) => update({ recommendations: e.target.value })}
-            placeholder={t('step2.recommendations.placeholder')}
-            rows={3}
-            className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm resize-none"
-          />
-          <p className="text-xs text-gray-500">{t('step2.recommendations.hint')}</p>
-        </div>
-      </Section>
 
       {/* ============ PARKING (conditional) ============ */}
       <AnimatePresence>
