@@ -3069,9 +3069,9 @@ model CityGuidePlace {
   place          Place     @relation(fields: [placeId], references: [id])
   category       String    // 'restaurant' | 'cafe' | 'museum' etc.
   description    String?
-  mustTry        String?   // "Qué pedir / qué probar"
-  bookingUrl     String?   // Link de reserva (TheFork, Covermanager, etc.)
-  tags           Json?     // String[] — ["terraza", "vegetariano", "instagrameable", ...]
+  highlight      String?   // Campo genérico: "qué no perderse", "qué pedir", "mejor zona"...
+  externalUrl    String?   // Link útil: reservar, entradas, web oficial...
+  tags           Json?     // String[] — etiquetas específicas por categoría
   addedInVersion Int       @default(1)
   order          Int       @default(0)
   createdAt      DateTime  @default(now())
