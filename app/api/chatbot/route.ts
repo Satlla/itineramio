@@ -916,18 +916,12 @@ function buildIntelligenceSection(property: any): string {
     if (o.terrace?.has) lines.push(`- Terraza: sí${o.terrace.furniture ? ' — ' + o.terrace.furniture : ''}`);
   }
 
-  // Neighborhood
+  // Neighborhood (solo info específica del alojamiento — lo demás va en guía de lugar)
   if (intel.neighborhood) {
     const n = intel.neighborhood;
     if (n.publicTransport) lines.push(`- Transporte: ${n.publicTransport}`);
     if (n.taxiApp) lines.push(`- Taxi: ${n.taxiApp}`);
-    if (n.nearestRestaurant) lines.push(`- Restaurante: ${n.nearestRestaurant}`);
-    if (n.nearestCafe) lines.push(`- Café: ${n.nearestCafe}`);
-    if (n.nearestATM) lines.push(`- Cajero: ${n.nearestATM}`);
-    if (n.nearestBeach) lines.push(`- Playa: ${n.nearestBeach}`);
-    if (n.nightlifeArea) lines.push(`- Ocio nocturno: ${n.nightlifeArea}`);
-    if (n.bestViewpoint) lines.push(`- Mirador: ${n.bestViewpoint}`);
-    if (n.walkingTips) lines.push(`- Tips: ${n.walkingTips}`);
+    if (n.walkingTips) lines.push(`- Tips zona: ${n.walkingTips}`);
   }
 
   // Children
@@ -1156,5 +1150,4 @@ function generateFallbackResponse(message: string, property: any, zone: any | nu
 }
 
 function logChatInteraction(propertyId: string, zoneId: string | null, userMessage: string, aiResponse: string) {
-  console.log(`[ChatBot] Property: ${propertyId}${zoneId ? `, Zone: ${zoneId}` : ''}, Query: ${userMessage.substring(0, 80)}, ResponseLen: ${aiResponse.length}`);
 }

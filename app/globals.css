@@ -492,3 +492,72 @@ html.pwa-standalone::before {
     animation: shimmer 2s infinite;
   }
 }
+
+/* ============================================
+   CHATBOT MARKDOWN RENDERING
+   Necesario porque @tailwindcss/typography no está instalado
+   ============================================ */
+.chatbot-markdown {
+  font-size: 13px;
+  line-height: 1.6;
+  color: inherit;
+}
+
+.chatbot-markdown strong,
+.chatbot-markdown b {
+  font-weight: 700;
+  color: #111827;
+}
+
+.chatbot-markdown em,
+.chatbot-markdown i {
+  font-style: italic;
+}
+
+.chatbot-markdown p {
+  margin: 0 0 0.4rem 0;
+}
+
+.chatbot-markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.chatbot-markdown ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin: 0.35rem 0;
+}
+
+.chatbot-markdown ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+  margin: 0.35rem 0;
+}
+
+.chatbot-markdown li {
+  margin: 0.15rem 0;
+}
+
+.chatbot-markdown a {
+  color: #6366f1;
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+.chatbot-markdown a:hover {
+  color: #4338ca;
+}
+
+.chatbot-markdown code {
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 12px;
+  font-family: monospace;
+}
+
+.chatbot-markdown hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 0.5rem 0;
+}

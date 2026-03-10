@@ -174,18 +174,9 @@ export interface PropertyIntelligence {
   }
 
   neighborhood?: {
-    nearestATM?: string
-    nearestPharmacy?: string
-    nearestRestaurant?: string
-    nearestCafe?: string
-    nearestBeach?: string
     publicTransport?: string
     taxiApp?: string
-    bikeRental?: string
     walkingTips?: string
-    dangerousAreas?: string
-    nightlifeArea?: string
-    bestViewpoint?: string
   }
 
   children?: {

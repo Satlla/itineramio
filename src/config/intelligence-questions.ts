@@ -669,20 +669,13 @@ export const INTELLIGENCE_SECTIONS: SectionDef[] = [
   {
     id: 'neighborhood',
     title: 'Barrio',
-    subtitle: 'Transporte, restaurantes, tips',
+    subtitle: 'Transporte y tips específicos del alojamiento',
     icon: 'MapPin',
     questions: [
       { id: 'neighborhood.publicTransport', label: 'Transporte público', type: 'textarea', placeholder: 'Ej: Parada bus L5 a 200m, metro L3 a 500m', path: 'neighborhood.publicTransport', priority: 'useful',
         chatbotTip: 'Podrá dar indicaciones de transporte' },
       { id: 'neighborhood.taxiApp', label: 'App de taxi recomendada', type: 'text', placeholder: 'Ej: Cabify o FreeNow funcionan bien aquí', path: 'neighborhood.taxiApp', priority: 'useful' },
-      { id: 'neighborhood.nearestRestaurant', label: 'Restaurante recomendado', type: 'text', placeholder: 'Ej: La Pepita, tapas excelentes, a 100m', path: 'neighborhood.nearestRestaurant', priority: 'useful' },
-      { id: 'neighborhood.nearestCafe', label: 'Cafetería recomendada', type: 'text', placeholder: 'Ej: Café Central, buen desayuno, esquina', path: 'neighborhood.nearestCafe', priority: 'useful' },
-      { id: 'neighborhood.nearestATM', label: 'Cajero más cercano', type: 'text', placeholder: 'Ej: CaixaBank, 150m dirección playa', path: 'neighborhood.nearestATM', priority: 'useful' },
-      { id: 'neighborhood.nearestBeach', label: 'Playa más cercana', type: 'text', placeholder: 'Ej: Playa de la Barceloneta, 10 min andando', path: 'neighborhood.nearestBeach', priority: 'useful' },
-      { id: 'neighborhood.bikeRental', label: 'Alquiler de bicicletas', type: 'text', placeholder: 'Ej: Bicing (app), estación a 50m', path: 'neighborhood.bikeRental', priority: 'useful' },
-      { id: 'neighborhood.walkingTips', label: 'Tips para caminar', type: 'textarea', placeholder: 'Ej: La zona es muy segura. Cuidado con carteristas en Las Ramblas.', path: 'neighborhood.walkingTips', priority: 'useful' },
-      { id: 'neighborhood.nightlifeArea', label: 'Zona de ocio nocturno', type: 'text', placeholder: 'Ej: Calle Enrique Granados, 15 min andando', path: 'neighborhood.nightlifeArea', priority: 'useful' },
-      { id: 'neighborhood.bestViewpoint', label: 'Mejor mirador', type: 'text', placeholder: 'Ej: Bunkers del Carmel, 20 min en bus', path: 'neighborhood.bestViewpoint', priority: 'useful' },
+      { id: 'neighborhood.walkingTips', label: 'Tips de zona (seguridad, consejos)', type: 'textarea', placeholder: 'Ej: La zona es muy tranquila. Evitar aparcar en Calle X por las noches.', path: 'neighborhood.walkingTips', priority: 'useful' },
     ],
   },
 

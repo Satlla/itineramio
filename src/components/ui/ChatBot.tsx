@@ -764,12 +764,13 @@ export default function ChatBot({
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
-              whileHover={{ scale: 1.1 }}
+              whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleOpen}
-              className="relative w-14 h-14 bg-black text-white rounded-2xl shadow-xl hover:shadow-2xl hover:bg-gray-800 transition-all duration-300 flex items-center justify-center"
+              className="relative w-14 h-14 rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)', boxShadow: '0 8px 24px rgba(99,102,241,0.4)' }}
             >
-              <MessageCircle className="w-6 h-6" />
+              <MessageCircle className="w-6 h-6 text-white" />
             </motion.button>
             {/* Demo tooltip badge */}
             {isDemoMode && !isOpen && (
@@ -810,39 +811,48 @@ export default function ChatBot({
             initial={{ opacity: 0, y: 100, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.8 }}
-            className={`fixed bg-white z-50 overflow-hidden flex flex-col
+            className={`fixed z-50 overflow-hidden flex flex-col
               max-sm:inset-0 max-sm:rounded-none
-              sm:rounded-2xl sm:shadow-2xl sm:border sm:border-gray-100
+              sm:rounded-2xl sm:shadow-2xl sm:border sm:border-gray-200
               ${isMinimized
                 ? 'sm:w-[380px] sm:h-16'
-                : 'sm:w-[380px] sm:h-[520px]'
+                : 'sm:w-[380px] sm:h-[540px]'
               } ${className || 'sm:bottom-6 sm:right-6'}`}
+            style={{ background: '#f8f9fc' }}
           >
             {/* Header */}
-            <div className="bg-black text-white px-5 py-4 flex-shrink-0">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3 min-w-0 flex-1">
-                  <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-5 h-5 text-white/80" />
+            <div className="flex-shrink-0" style={{ background: 'linear-gradient(135deg, #0f0c29 0%, #1a1040 50%, #111827 100%)' }}>
+              <div className="px-5 py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3 min-w-0 flex-1">
+                    <div className="relative flex-shrink-0">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+                        <Bot className="w-5 h-5 text-white" />
+                      </div>
+                      <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-gray-900 rounded-full" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-[10px] text-white/50 font-semibold uppercase tracking-[0.15em]">{t('header', lang)}</p>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: 'rgba(99,102,241,0.3)', color: '#a5b4fc' }}>AI</span>
+                      </div>
+                      <h3 className="font-semibold text-sm leading-snug mt-0.5 text-white line-clamp-1">{propertyName}</h3>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[10px] text-white/40 font-semibold uppercase tracking-[0.15em]">{t('header', lang)}</p>
-                    <h3 className="font-semibold text-base leading-snug mt-0.5 line-clamp-2">{propertyName}</h3>
+                  <div className="flex items-center space-x-1 flex-shrink-0 ml-3">
+                    <button
+                      onClick={handleMinimize}
+                      className="p-1.5 hover:bg-white/10 rounded-lg transition-colors hidden sm:block"
+                    >
+                      {isMinimized ? <Maximize2 className="w-4 h-4 text-white/60" /> : <Minimize2 className="w-4 h-4 text-white/60" />}
+                    </button>
+                    <button
+                      onClick={handleClose}
+                      className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                    >
+                      <X className="w-4 h-4 text-white/60" />
+                    </button>
                   </div>
-                </div>
-                <div className="flex items-center space-x-1 flex-shrink-0 ml-3">
-                  <button
-                    onClick={handleMinimize}
-                    className="p-1.5 hover:bg-white/10 rounded-lg transition-colors hidden sm:block"
-                  >
-                    {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
-                  </button>
-                  <button
-                    onClick={handleClose}
-                    className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
                 </div>
               </div>
             </div>
@@ -850,54 +860,64 @@ export default function ChatBot({
             {!isMinimized && (
               <>
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 relative min-h-0">
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 relative min-h-0" style={{ background: '#f8f9fc' }}>
                   {messages.map((message) => (
                     <div
                       key={message.id}
                       className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`flex items-start space-x-2 max-w-[80%] ${
-                          message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
+                        className={`flex items-end gap-2 max-w-[85%] ${
+                          message.role === 'user' ? 'flex-row-reverse' : ''
                         }`}
                       >
-                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                        {/* Avatar */}
+                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 mb-0.5 ${
                           message.role === 'user'
-                            ? 'bg-black text-white'
-                            : 'bg-gray-100 text-gray-500'
-                        }`}>
-                          {message.role === 'user' ? <User className="w-3 h-3" /> : <Bot className="w-3 h-3" />}
+                            ? 'bg-gray-800'
+                            : ''
+                        }`} style={message.role === 'assistant' ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}>
+                          {message.role === 'user'
+                            ? <User className="w-3 h-3 text-white" />
+                            : <Bot className="w-3 h-3 text-white" />
+                          }
                         </div>
                         <div>
                           <div
-                            className={`px-3.5 py-2.5 rounded-2xl text-[13px] leading-relaxed ${
+                            className={`px-3.5 py-2.5 text-[13px] leading-relaxed ${
                               message.role === 'user'
-                                ? 'bg-black text-white'
-                                : 'bg-gray-50 text-gray-800 border border-gray-100'
+                                ? 'bg-gray-900 text-white rounded-2xl rounded-br-md'
+                                : 'bg-white text-gray-800 rounded-2xl rounded-bl-md border border-gray-100 shadow-sm'
                             }`}
                           >
                             {message.typing ? (
-                              <div className="flex items-center space-x-1">
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                                <span>{message.content}</span>
+                              <div className="flex items-center gap-2 py-0.5">
+                                <span className="flex gap-1">
+                                  <span className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                  <span className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                  <span className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                </span>
+                                <span className="text-gray-400 text-[12px]">{message.content}</span>
                               </div>
                             ) : (
-                              <div className="chatbot-markdown prose prose-sm max-w-none">
+                              <div className="chatbot-markdown">
                                 <ReactMarkdown
                                   components={{
-                                    p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
-                                    strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+                                    p: ({ children }) => <p>{children}</p>,
+                                    strong: ({ children }) => <strong>{children}</strong>,
+                                    b: ({ children }) => <b>{children}</b>,
                                     a: ({ href, children }) => (
-                                      <a href={href} target="_blank" rel="noopener noreferrer" className="text-black underline hover:text-gray-600">
+                                      <a href={href} target="_blank" rel="noopener noreferrer">
                                         {children}
                                       </a>
                                     ),
-                                    ul: ({ children }) => <ul className="list-disc pl-4 mb-1">{children}</ul>,
-                                    ol: ({ children }) => <ol className="list-decimal pl-4 mb-1">{children}</ol>,
-                                    li: ({ children }) => <li className="mb-0.5">{children}</li>,
+                                    ul: ({ children }) => <ul>{children}</ul>,
+                                    ol: ({ children }) => <ol>{children}</ol>,
+                                    li: ({ children }) => <li>{children}</li>,
                                     img: ({ src, alt }) => (
                                       <img src={src} alt={alt || ''} loading="lazy" className="rounded-lg max-h-40 w-full object-cover my-1" />
                                     ),
+                                    hr: () => <hr />,
                                   }}
                                 >
                                   {message.content}
@@ -984,15 +1004,16 @@ export default function ChatBot({
 
                   {/* FAQ Suggestions */}
                   {showFAQs && messages.length <= 1 && (
-                    <div className="space-y-2">
-                      <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">{t('faqTitle', lang)}</p>
+                    <div className="space-y-2 mt-1">
+                      <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest pl-1">{t('faqTitle', lang)}</p>
                       {faqs.slice(0, 3).map((faq, index) => (
                         <button
                           key={index}
                           onClick={() => handleFAQClick(faq)}
-                          className="w-full text-left px-3 py-2.5 text-[13px] text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-100 transition-colors"
+                          className="w-full text-left px-3.5 py-2.5 text-[13px] text-gray-700 bg-white hover:bg-violet-50 hover:text-violet-700 hover:border-violet-200 rounded-xl border border-gray-200 shadow-sm transition-all duration-150 flex items-center gap-2.5 group"
                         >
-                          {faq.question}
+                          <span className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 text-[11px] bg-violet-50 group-hover:bg-violet-100">💬</span>
+                          <span className="flex-1">{faq.question}</span>
                         </button>
                       ))}
                     </div>
