@@ -23,10 +23,8 @@ export async function GET(request: NextRequest) {
       ? {}
       : { status: { in: ['PUBLISHED', 'VERIFIED'] } }
 
-    if (city) {
-      where.city = { contains: city, mode: 'insensitive' }
-    }
-
+    // Bidirectional city match: handles bilingual names (Alicante/Alacant, Valencia/València…)
+    // Fetch without city filter first, then filter in JS using contains both ways
     const guides = await prisma.cityGuide.findMany({
       where,
       include: {
@@ -45,14 +43,23 @@ export async function GET(request: NextRequest) {
       ],
     })
 
+    // Filter by city with bidirectional contains (handles bilingual names)
+    const filtered = city
+      ? guides.filter(g => {
+          const gc = g.city.toLowerCase()
+          const sc = city.toLowerCase()
+          return gc.includes(sc) || sc.includes(gc)
+        })
+      : guides
+
     // Re-sort: VERIFIED first, then PUBLISHED
-    const sorted = guides.sort((a, b) => {
+    const sorted = filtered.sort((a, b) => {
       if (a.status === 'VERIFIED' && b.status !== 'VERIFIED') return -1
       if (a.status !== 'VERIFIED' && b.status === 'VERIFIED') return 1
       return b.subscriberCount - a.subscriberCount
     })
 
-    const result = sorted.map((g) => ({
+    const result = (sorted as typeof guides).map((g) => ({
       id: g.id,
       title: g.title,
       description: g.description,

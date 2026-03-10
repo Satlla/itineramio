@@ -347,6 +347,7 @@ export function RecommendationsEditor({
   // Global mode state
   const [pending, setPending] = useState<PendingItem | null>(null)
   const [addedItems, setAddedItems] = useState<AddedItem[]>([])
+  const [loadingExisting, setLoadingExisting] = useState(mode === 'global')
   const [toast, setToast] = useState<string | null>(null)
 
   const sensors = useSensors(
@@ -363,6 +364,41 @@ export function RecommendationsEditor({
   // Also exclude from global mode: places in all existing zones
   // (We'd need to fetch all recs for all zones — for now just exclude pending/added)
   const globalExcludePlaceIds = pending ? [pending.result.googlePlaceId] : []
+
+  // --- Global mode: load existing recommendations on mount ---
+  useEffect(() => {
+    if (mode !== 'global') return
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/properties/${propertyId}/recommendations`, { credentials: 'include' })
+        const data = await res.json()
+        if (!data.success) return
+        const items: AddedItem[] = []
+        for (const zone of data.data as any[]) {
+          const cat = getCategoryById(zone.categoryId)
+          for (const rec of zone.recommendations) {
+            if (!rec.place) continue
+            items.push({
+              recommendationId: rec.id,
+              zoneId: zone.id,
+              name: rec.place.name,
+              address: rec.place.address,
+              rating: rec.place.rating ?? null,
+              photoUrl: rec.place.photoUrl ?? null,
+              categoryLabel: cat?.label ?? zone.categoryId,
+              categoryIcon: cat?.icon ?? 'MapPin',
+            })
+          }
+        }
+        setAddedItems(items)
+      } catch {
+        // silently ignore — not critical
+      } finally {
+        setLoadingExisting(false)
+      }
+    }
+    load()
+  }, [mode, propertyId])
 
   // --- Zone mode: fetch recommendations ---
   const fetchRecommendations = useCallback(async () => {
@@ -451,8 +487,7 @@ export function RecommendationsEditor({
       if (data.success) {
         const cat = getCategoryById(pending.categoryId)
         const catLabel = cat?.label || pending.categoryId
-        const catIcon = cat?.icon || 'MapPin'
-        setAddedItems(prev => [...prev, {
+        const newItem = {
           recommendationId: data.data.recommendation.id,
           zoneId: data.data.zone.id,
           name: pending!.result.name,
@@ -460,21 +495,29 @@ export function RecommendationsEditor({
           rating: pending!.result.rating,
           photoUrl: pending!.result.photoUrl,
           categoryLabel: catLabel,
-          categoryIcon: catIcon,
-        }])
+          categoryIcon: cat?.icon || 'MapPin',
+        }
+        // Only add to list if not already there
+        setAddedItems(prev =>
+          prev.some(i => i.recommendationId === data.data.recommendation.id)
+            ? prev
+            : [...prev, newItem]
+        )
         setPending(null)
         setHasChanges(true)
 
-        if (data.data.zoneCreated) {
-          setToast(`Zona "${catLabel}" creada`)
-          setTimeout(() => setToast(null), 3000)
+        if (data.alreadyExists) {
+          setToast(`"${pending!.result.name}" ya estaba en la lista`)
+        } else if (data.data.zoneCreated) {
+          setToast(`✓ Zona "${catLabel}" creada con el lugar`)
+        } else {
+          setToast(`✓ "${pending!.result.name}" añadido`)
         }
-
-        onUpdate()
-      } else if (res.status === 409) {
-        setToast('Este lugar ya existe en esa zona')
         setTimeout(() => setToast(null), 3000)
-        setPending(null)
+        onUpdate()
+      } else {
+        setToast(`Error: ${data.error || 'No se pudo añadir'}`)
+        setTimeout(() => setToast(null), 4000)
       }
     } catch (err) {
       console.error('Error adding recommendation:', err)
@@ -738,10 +781,15 @@ export function RecommendationsEditor({
           </AnimatePresence>
 
           {/* Added items list */}
-          {addedItems.length > 0 && (
+          {loadingExisting ? (
+            <div className="flex items-center justify-center gap-2 py-10 text-gray-400">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="text-sm">Cargando recomendaciones...</span>
+            </div>
+          ) : addedItems.length > 0 && (
             <div className="mt-6">
               <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                Añadidos ({addedItems.length})
+                Recomendaciones ({addedItems.length})
               </h3>
               <div className="space-y-2">
                 {addedItems.map((item, i) => (

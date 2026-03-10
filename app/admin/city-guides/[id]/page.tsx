@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  ArrowLeft, MapPin, Trash2, Loader2, CheckCircle, Plus, ChevronDown, Star, Globe, Search
+  ArrowLeft, MapPin, Trash2, Loader2, CheckCircle, Plus, ChevronDown, Star, Globe, Search,
+  MessageSquare, Pencil, X, Check
 } from 'lucide-react'
 import Link from 'next/link'
 import { PlaceSearchInput, PlaceSearchResult } from '../../../../src/components/ui/PlaceSearchInput'
@@ -48,6 +49,11 @@ export default function AdminGuideDetailPage() {
   const [removingId, setRemovingId] = useState<string | null>(null)
   const [toast, setToast] = useState('')
   const [savedPlaceId, setSavedPlaceId] = useState<string | null>(null)
+  const [pendingPlace, setPendingPlace] = useState<PlaceSearchResult | null>(null)
+  const [pendingDescription, setPendingDescription] = useState('')
+  const [editingDescriptionId, setEditingDescriptionId] = useState<string | null>(null)
+  const [editingDescriptionText, setEditingDescriptionText] = useState('')
+  const [savingDescriptionId, setSavingDescriptionId] = useState<string | null>(null)
 
   const showToast = (msg: string) => {
     setToast(msg)
@@ -73,8 +79,13 @@ export default function AdminGuideDetailPage() {
 
   useEffect(() => { fetchGuide() }, [fetchGuide])
 
-  const handleSelect = async (result: PlaceSearchResult) => {
-    if (!guide) return
+  const handleSelect = (result: PlaceSearchResult) => {
+    setPendingPlace(result)
+    setPendingDescription('')
+  }
+
+  const handleConfirmAdd = async () => {
+    if (!guide || !pendingPlace) return
     setAdding(true)
     try {
       // 1. Save place to DB
@@ -83,14 +94,14 @@ export default function AdminGuideDetailPage() {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          googlePlaceId: result.googlePlaceId,
-          name: result.name,
-          address: result.address,
-          latitude: result.lat,
-          longitude: result.lng,
-          rating: result.rating,
-          photoUrl: result.photoUrl,
-          types: result.types,
+          googlePlaceId: pendingPlace.googlePlaceId,
+          name: pendingPlace.name,
+          address: pendingPlace.address,
+          latitude: pendingPlace.lat,
+          longitude: pendingPlace.lng,
+          rating: pendingPlace.rating,
+          photoUrl: pendingPlace.photoUrl,
+          types: pendingPlace.types,
           source: 'GOOGLE',
         }),
       })
@@ -98,24 +109,55 @@ export default function AdminGuideDetailPage() {
       if (!placeRes.ok) throw new Error(placeData.error || 'Error al guardar el lugar')
       const placeId = placeData.id || placeData.place?.id || placeData.data?.id
 
-      // 2. Add to guide
+      // 2. Add to guide with description
       const addRes = await fetch(`/api/city-guides/${id}/places`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ placeId, category: selectedCategory }),
+        body: JSON.stringify({
+          placeId,
+          category: selectedCategory,
+          description: pendingDescription.trim() || null,
+        }),
       })
       const addData = await addRes.json()
       if (!addRes.ok) throw new Error(addData.error || 'Error al añadir el lugar')
 
-      setSavedPlaceId(result.googlePlaceId)
+      setSavedPlaceId(pendingPlace.googlePlaceId)
       setTimeout(() => setSavedPlaceId(null), 2000)
-      showToast(`"${result.name}" añadido a la guía`)
+      showToast(`"${pendingPlace.name}" añadido a la guía`)
+      setPendingPlace(null)
+      setPendingDescription('')
       fetchGuide()
     } catch (e: any) {
       showToast(e.message)
     } finally {
       setAdding(false)
+    }
+  }
+
+  const handleSaveDescription = async (guidePlace: GuidePlace) => {
+    setSavingDescriptionId(guidePlace.id)
+    try {
+      const res = await fetch(`/api/city-guides/${id}/places/${guidePlace.id}/description`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ description: editingDescriptionText.trim() || null }),
+      })
+      if (!res.ok) throw new Error()
+      setGuide(prev => prev ? {
+        ...prev,
+        places: prev.places.map(p =>
+          p.id === guidePlace.id ? { ...p, description: editingDescriptionText.trim() || null } : p
+        )
+      } : prev)
+      setEditingDescriptionId(null)
+      showToast('Recomendación guardada')
+    } catch {
+      showToast('Error al guardar la recomendación')
+    } finally {
+      setSavingDescriptionId(null)
     }
   }
 
@@ -229,18 +271,75 @@ export default function AdminGuideDetailPage() {
           </div>
 
           {/* Search */}
-          <PlaceSearchInput
-            propertyLat={null}
-            propertyLng={null}
-            onSelect={handleSelect}
-            placeholder={`Buscar lugar para añadir como ${getCatLabel(selectedCategory).toLowerCase()}...`}
-            excludePlaceIds={[]}
-          />
+          {!pendingPlace && (
+            <PlaceSearchInput
+              propertyLat={null}
+              propertyLng={null}
+              onSelect={handleSelect}
+              placeholder={`Buscar lugar para añadir como ${getCatLabel(selectedCategory).toLowerCase()}...`}
+              excludePlaceIds={[]}
+            />
+          )}
 
-          {adding && (
-            <div className="flex items-center gap-2 mt-3 text-sm text-violet-600">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Añadiendo lugar...
+          {/* Pending place confirmation card */}
+          {pendingPlace && (
+            <div className="mt-3 border border-violet-200 rounded-xl overflow-hidden bg-violet-50/50">
+              {/* Place header */}
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-violet-100">
+                {pendingPlace.photoUrl ? (
+                  <img src={pendingPlace.photoUrl} alt={pendingPlace.name} className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                ) : (
+                  <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center shrink-0">
+                    <MapPin className="w-4 h-4 text-violet-500" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{pendingPlace.name}</p>
+                  <p className="text-xs text-gray-400 truncate">{pendingPlace.address}</p>
+                </div>
+                <button
+                  onClick={() => { setPendingPlace(null); setPendingDescription('') }}
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-white transition-colors shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Description textarea */}
+              <div className="px-4 py-3">
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-violet-700 uppercase tracking-wide mb-2">
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  Tu recomendación personal (opcional)
+                </label>
+                <textarea
+                  value={pendingDescription}
+                  onChange={(e) => setPendingDescription(e.target.value)}
+                  placeholder="Ej: Aquí te comes el mejor arroz de Alicante. Pide el arroz a banda y la ensalada de la casa. Solo con reserva en temporada alta."
+                  rows={3}
+                  className="w-full text-sm border border-violet-200 rounded-xl px-3 py-2.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-transparent resize-none bg-white"
+                />
+                <p className="text-xs text-gray-400 mt-1.5">
+                  Este texto aparecerá en la tarjeta del lugar cuando el huésped abra la guía.
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-2 px-4 pb-3">
+                <button
+                  onClick={() => { setPendingPlace(null); setPendingDescription('') }}
+                  className="flex-1 px-3 py-2 rounded-xl border border-gray-200 text-gray-500 hover:text-gray-700 text-sm transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleConfirmAdd}
+                  disabled={adding}
+                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+                >
+                  {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                  Añadir a la guía
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -271,39 +370,97 @@ export default function AdminGuideDetailPage() {
                   {places.map((gp) => (
                     <div
                       key={gp.id}
-                      className="flex items-center gap-3 px-6 py-3.5 border-b border-gray-50 hover:bg-gray-50 transition-colors"
+                      className="px-6 py-3.5 border-b border-gray-50 hover:bg-gray-50/50 transition-colors"
                     >
-                      {gp.place.photoUrl ? (
-                        <img
-                          src={gp.place.photoUrl}
-                          alt={gp.place.name}
-                          className="w-10 h-10 rounded-lg object-cover shrink-0"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
-                          <MapPin className="w-4 h-4 text-violet-400" />
+                      <div className="flex items-center gap-3">
+                        {gp.place.photoUrl ? (
+                          <img
+                            src={gp.place.photoUrl}
+                            alt={gp.place.name}
+                            className="w-10 h-10 rounded-lg object-cover shrink-0"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
+                            <MapPin className="w-4 h-4 text-violet-400" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">{gp.place.name}</p>
+                          <p className="text-xs text-gray-400 truncate">{gp.place.address}</p>
                         </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{gp.place.name}</p>
-                        <p className="text-xs text-gray-400 truncate">{gp.place.address}</p>
+                        {gp.place.rating && (
+                          <span className="flex items-center gap-0.5 text-xs text-amber-500 shrink-0">
+                            <Star className="w-3 h-3 fill-amber-400" />
+                            {gp.place.rating}
+                          </span>
+                        )}
+                        <button
+                          onClick={() => {
+                            setEditingDescriptionId(gp.id)
+                            setEditingDescriptionText(gp.description ?? '')
+                          }}
+                          className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-violet-500 hover:bg-violet-50 transition-colors shrink-0"
+                          title="Añadir recomendación"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleRemove(gp)}
+                          disabled={removingId === gp.id}
+                          className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors shrink-0"
+                        >
+                          {removingId === gp.id
+                            ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            : <Trash2 className="w-3.5 h-3.5" />
+                          }
+                        </button>
                       </div>
-                      {gp.place.rating && (
-                        <span className="flex items-center gap-0.5 text-xs text-amber-500 shrink-0">
-                          <Star className="w-3 h-3 fill-amber-400" />
-                          {gp.place.rating}
-                        </span>
-                      )}
-                      <button
-                        onClick={() => handleRemove(gp)}
-                        disabled={removingId === gp.id}
-                        className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors shrink-0"
-                      >
-                        {removingId === gp.id
-                          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          : <Trash2 className="w-3.5 h-3.5" />
-                        }
-                      </button>
+
+                      {/* Description display / edit */}
+                      {editingDescriptionId === gp.id ? (
+                        <div className="mt-2.5 ml-[52px]">
+                          <textarea
+                            value={editingDescriptionText}
+                            onChange={(e) => setEditingDescriptionText(e.target.value)}
+                            placeholder="Ej: Aquí te comes el mejor arroz de Alicante. Pide el arroz a banda, no te arrepentirás."
+                            rows={2}
+                            autoFocus
+                            className="w-full text-sm border border-violet-200 rounded-xl px-3 py-2 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-300 resize-none bg-white mt-1"
+                          />
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <button
+                              onClick={() => setEditingDescriptionId(null)}
+                              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs text-gray-500 hover:text-gray-700 border border-gray-200 hover:bg-gray-50 transition-colors"
+                            >
+                              <X className="w-3 h-3" /> Cancelar
+                            </button>
+                            <button
+                              onClick={() => handleSaveDescription(gp)}
+                              disabled={savingDescriptionId === gp.id}
+                              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 transition-colors"
+                            >
+                              {savingDescriptionId === gp.id
+                                ? <Loader2 className="w-3 h-3 animate-spin" />
+                                : <Check className="w-3 h-3" />
+                              }
+                              Guardar
+                            </button>
+                          </div>
+                        </div>
+                      ) : gp.description ? (
+                        <div
+                          className="mt-2 ml-[52px] flex items-start gap-2 cursor-pointer group"
+                          onClick={() => {
+                            setEditingDescriptionId(gp.id)
+                            setEditingDescriptionText(gp.description ?? '')
+                          }}
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 text-violet-400 mt-0.5 shrink-0" />
+                          <p className="text-xs text-violet-700 bg-violet-50 border border-violet-100 rounded-lg px-2.5 py-1.5 leading-relaxed group-hover:border-violet-300 transition-colors">
+                            {gp.description}
+                          </p>
+                        </div>
+                      ) : null}
                     </div>
                   ))}
                 </div>

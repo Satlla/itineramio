@@ -71,6 +71,7 @@ export async function GET(
           latitude: rec.place.latitude,
           longitude: rec.place.longitude,
           rating: rec.place.rating,
+          photoUrl: rec.place.photoUrl,
           priceLevel: rec.place.priceLevel,
           phone: rec.place.phone,
           openingHours: rec.place.openingHours,

@@ -98,15 +98,21 @@ export async function POST(
       zoneCreated = true
     }
 
-    // 3. Check duplicate recommendation
+    // 3. Check duplicate recommendation — if exists, return it as success (idempotent)
     const existing = await prisma.recommendation.findUnique({
       where: { zoneId_placeId: { zoneId: zone.id, placeId: place.id } },
+      include: { place: true },
     })
     if (existing) {
-      return NextResponse.json(
-        { success: false, error: 'Este lugar ya está en esta zona' },
-        { status: 409 }
-      )
+      return NextResponse.json({
+        success: true,
+        alreadyExists: true,
+        data: {
+          recommendation: existing,
+          zone: { id: zone.id, name: zone.name, icon: zone.icon, recommendationCategory: zone.recommendationCategory },
+          zoneCreated: false,
+        },
+      }, { status: 200 })
     }
 
     // 4. Calculate distance
