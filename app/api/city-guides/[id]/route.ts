@@ -99,7 +99,8 @@ export async function PATCH(
     const { id } = await params
 
     const user = await getAuthUser(request)
-    if (!user) {
+    const adminUser = await getAdminUser(request)
+    if (!user && !adminUser) {
       return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 })
     }
 
@@ -112,8 +113,8 @@ export async function PATCH(
       return NextResponse.json({ success: false, error: 'Guía no encontrada' }, { status: 404 })
     }
 
-    const isAdmin = user.email === ADMIN_EMAIL
-    if (guide.authorId !== user.userId && !isAdmin) {
+    const isAdmin = !!adminUser || user?.email === ADMIN_EMAIL
+    if (guide.authorId !== user?.userId && !isAdmin) {
       return NextResponse.json({ success: false, error: 'Acceso denegado' }, { status: 403 })
     }
 
@@ -156,7 +157,8 @@ export async function DELETE(
     const { id } = await params
 
     const user = await getAuthUser(request)
-    if (!user) {
+    const adminUser = await getAdminUser(request)
+    if (!user && !adminUser) {
       return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 })
     }
 
@@ -169,8 +171,8 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: 'Guía no encontrada' }, { status: 404 })
     }
 
-    const isAdmin = user.email === ADMIN_EMAIL
-    if (guide.authorId !== user.userId && !isAdmin) {
+    const isAdmin = !!adminUser || user?.email === ADMIN_EMAIL
+    if (guide.authorId !== user?.userId && !isAdmin) {
       return NextResponse.json({ success: false, error: 'Acceso denegado' }, { status: 403 })
     }
 

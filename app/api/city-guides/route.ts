@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../src/lib/prisma'
 import { getAuthUser } from '../../../src/lib/auth'
+import { getAdminUser } from '../../../src/lib/admin-auth'
 
 const ADMIN_EMAIL = 'alejandrosatlla@gmail.com'
 
@@ -12,10 +13,12 @@ export async function GET(request: NextRequest) {
     const city = searchParams.get('city')
     const all = searchParams.get('all') === 'true'
 
+    // Try to get current user (optional — subscriptions shown when logged in)
+    const user = await getAuthUser(request)
+
     // `all=true` only allowed for admin
     let isAdmin = false
     if (all) {
-      const user = await getAuthUser(request)
       isAdmin = user?.email === ADMIN_EMAIL
     }
 
@@ -42,6 +45,30 @@ export async function GET(request: NextRequest) {
         { createdAt: 'desc' },
       ],
     })
+
+    // Load user's active subscriptions (per guide) if authenticated
+    let subscriptionsByGuide: Record<string, { propertyId: string; propertyName: string }[]> = {}
+    if (user?.userId) {
+      const userProperties = await prisma.property.findMany({
+        where: { hostId: user.userId },
+        select: { id: true, name: true },
+      })
+      const propertyIds = userProperties.map(p => p.id)
+      if (propertyIds.length > 0) {
+        const subs = await prisma.propertyGuideSubscription.findMany({
+          where: { propertyId: { in: propertyIds }, status: 'ACTIVE' },
+          select: { guideId: true, propertyId: true },
+        })
+        const propMap = Object.fromEntries(userProperties.map(p => [p.id, p.name]))
+        for (const sub of subs) {
+          if (!subscriptionsByGuide[sub.guideId]) subscriptionsByGuide[sub.guideId] = []
+          subscriptionsByGuide[sub.guideId].push({
+            propertyId: sub.propertyId,
+            propertyName: propMap[sub.propertyId] || 'Propiedad',
+          })
+        }
+      }
+    }
 
     // Filter by city with bidirectional contains (handles bilingual names)
     const filtered = city
@@ -72,6 +99,7 @@ export async function GET(request: NextRequest) {
       author: g.author,
       _count: g._count,
       placesCount: g._count.places,
+      subscriptions: subscriptionsByGuide[g.id] || [],
     }))
 
     return NextResponse.json({ success: true, data: result })
@@ -87,10 +115,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getAuthUser(request)
-    if (!user) {
+    const adminUser = await getAdminUser(request)
+    if (!user && !adminUser) {
       return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 })
     }
-    if (user.email !== ADMIN_EMAIL) {
+    if (!adminUser && user?.email !== ADMIN_EMAIL) {
       return NextResponse.json({ success: false, error: 'Solo los administradores pueden crear guías' }, { status: 403 })
     }
 
@@ -104,6 +133,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // authorId must reference User table — get from regular auth or look up by admin email
+    let authorId = user?.userId
+    if (!authorId && adminUser?.email) {
+      const dbUser = await prisma.user.findUnique({ where: { email: adminUser.email }, select: { id: true } })
+      authorId = dbUser?.id
+    }
+    if (!authorId) {
+      return NextResponse.json({ success: false, error: 'No se encontró el usuario autor' }, { status: 400 })
+    }
+
     const guide = await prisma.cityGuide.create({
       data: {
         title,
@@ -111,7 +150,7 @@ export async function POST(request: NextRequest) {
         city,
         country: country || 'ES',
         coverImage: coverImage || null,
-        authorId: user.userId,
+        authorId,
         status: 'DRAFT',
         version: 1,
         subscriberCount: 0,

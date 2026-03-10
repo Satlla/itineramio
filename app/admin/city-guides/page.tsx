@@ -80,10 +80,13 @@ function GuideFormModal({
       const formData = new FormData()
       formData.append('file', file)
       formData.append('type', 'city-guide-cover')
+      formData.append('skipDuplicateCheck', 'true')
       const res = await fetch('/api/upload', { method: 'POST', body: formData, credentials: 'include' })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Error al subir imagen')
-      setForm((f) => ({ ...f, coverImage: data.url || data.mediaUrl || data.blobUrl }))
+      const imageUrl = data.url || data.mediaUrl || data.blobUrl || data.existingMedia?.url
+      if (!imageUrl) throw new Error('No se recibió URL de la imagen')
+      setForm((f) => ({ ...f, coverImage: imageUrl }))
     } catch (e: any) {
       setError(e.message)
     } finally {
