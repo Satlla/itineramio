@@ -141,7 +141,6 @@ export async function POST(request: NextRequest) {
     // Update unified lead
     try {
       await updateLeadWithVideoCall(normalizedEmail)
-      console.log('✅ Lead updated with videoCall completion')
     } catch (leadError) {
       console.error('⚠️ Could not update lead:', leadError)
     }
@@ -241,7 +240,6 @@ export async function POST(request: NextRequest) {
           { name: 'source', value: body.source || 'direct' }
         ]
       })
-      console.log('✅ Confirmation email sent to user')
     } catch (emailError) {
       console.error('Error sending confirmation email:', emailError)
     }
@@ -306,7 +304,6 @@ export async function POST(request: NextRequest) {
 </html>
         `
       })
-      console.log('✅ Notification email sent to Alex')
     } catch (notifyError) {
       console.error('Error sending notification:', notifyError)
     }

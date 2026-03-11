@@ -9,23 +9,18 @@ export async function GET(
 ) {
   try {
     const { id: propertyId, zoneId } = await params
-    
-    console.log('🔍 SIMPLE - Getting steps for:', { propertyId, zoneId })
 
     // Check authentication
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
-      console.log('🔍 SIMPLE - Auth failed')
       return authResult
     }
     const userId = authResult.userId
-    console.log('🔍 SIMPLE - Auth OK, userId:', userId)
 
     // Set JWT claims for RLS policies
     try {
     // REMOVED: set_config doesn't work with PgBouncer in transaction mode
     // RLS is handled at application level instead
-      console.log('🔍 SIMPLE - RLS config set')
     } catch (rslError) {
       console.error('🔍 SIMPLE - RLS config failed:', rslError)
     }
@@ -38,8 +33,7 @@ export async function GET(
           hostId: userId
         }
       })
-      console.log('🔍 SIMPLE - Property check:', !!property)
-      
+
       if (!property) {
         return NextResponse.json({ error: 'Property not found' }, { status: 404 })
       }
@@ -56,8 +50,7 @@ export async function GET(
           propertyId: propertyId
         }
       })
-      console.log('🔍 SIMPLE - Zone check:', !!zone)
-      
+
       if (!zone) {
         return NextResponse.json({ error: 'Zone not found' }, { status: 404 })
       }
@@ -83,8 +76,6 @@ export async function GET(
         WHERE "zoneId" = ${zoneId}
         ORDER BY COALESCE("order", 0) ASC, id ASC
       ` as any[]
-      
-      console.log('🔍 SIMPLE - Steps found:', steps.length)
       
       return NextResponse.json({
         success: true,

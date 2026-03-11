@@ -79,9 +79,6 @@ export async function GET(
       // Property exists but has no zones - return empty array
     }
 
-    const totalSteps = zonesWithStepsRaw.reduce((sum, z) => sum + (z.steps?.length || 0), 0)
-    console.log('🔍 Zones fetched:', zonesWithStepsRaw.length, '| Steps fetched:', totalSteps)
-
     return NextResponse.json({
       success: true,
       data: zonesWithStepsRaw
@@ -107,24 +104,19 @@ export async function POST(
     const propertyId = (await params).id
     const body = await request.json()
     
-    console.log('🔴 INDIVIDUAL ZONE CREATION -> REDIRECTING TO BATCH API')
-    console.log('🔴 Original body:', JSON.stringify(body, null, 2))
-    
     // Forward auth headers
     const headers: Record<string, string> = {
       'Content-Type': 'application/json'
     }
-    
+
     const authHeader = request.headers.get('authorization')
     if (authHeader) {
       headers['Authorization'] = authHeader
-      console.log('🔴 Auth header present:', !!authHeader)
     }
-    
+
     const cookie = request.headers.get('cookie')
     if (cookie) {
       headers['Cookie'] = cookie
-      console.log('🔴 Cookie present:', !!cookie)
     }
     
     const batchPayload = {
@@ -136,8 +128,6 @@ export async function POST(
         status: body.status || 'ACTIVE'
       }]
     }
-    
-    console.log('🔴 Batch payload:', JSON.stringify(batchPayload, null, 2))
     
     // Redirect to batch API
     const batchResponse = await fetch(`${request.nextUrl.origin}/api/properties/${propertyId}/zones/batch`, {
@@ -167,7 +157,6 @@ export async function POST(
     }
     
     const batchResult = await batchResponse.json()
-    console.log('🔴 Batch result:', batchResult)
     
     if (batchResult.success && batchResult.data?.zones?.length > 0) {
       return NextResponse.json({

@@ -8,7 +8,6 @@ export async function GET(
 ) {
   try {
     const { slugOrId } = await params
-    console.log('🔍 Resolving property:', slugOrId)
     
     // First try direct ID lookup (published OR demo preview not expired)
     let property = await prisma.property.findFirst({
@@ -28,7 +27,6 @@ export async function GET(
     })
     
     if (property) {
-      console.log('🔍 Found by ID:', property.id)
       return NextResponse.json({
         success: true,
         data: { 
@@ -58,7 +56,6 @@ export async function GET(
     for (const prop of properties) {
       const propertySlug = createPropertySlug(prop)
       if (propertySlug === slugOrId) {
-        console.log('🔍 Found by slug:', prop.id, 'slug:', propertySlug)
         return NextResponse.json({
           success: true,
           data: { 
@@ -69,7 +66,6 @@ export async function GET(
       }
     }
     
-    console.log('🔍 Property not found by ID or slug')
     return NextResponse.json({
       success: false,
       error: 'Propiedad no encontrada'

@@ -152,9 +152,6 @@ export async function POST(
       const oldPlanName = user.subscriptions[0]?.plan?.name || 'Sin plan'
       
       try {
-        // Log email attempt
-        console.log(`📧 Sending plan change email to: ${user.email}`)
-        
         await sendEmail({
           to: user.email,
           subject: '🎉 Tu plan ha sido actualizado - Itineramio',
@@ -210,7 +207,6 @@ export async function POST(
           `
         })
         
-        console.log(`✅ Plan change email sent successfully to: ${user.email}`)
       } catch (emailError) {
         console.error('⚠️ Error sending email (will continue anyway):', emailError)
         // Continue even if email fails - this is not critical

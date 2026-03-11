@@ -4,7 +4,6 @@ import bcrypt from 'bcryptjs'
 import { verifyToken } from '../../../../src/lib/auth'
 
 export async function POST(request: NextRequest) {
-  console.log('=== SIMPLE UPDATE ===')
   
   try {
     // Get user
@@ -14,10 +13,8 @@ export async function POST(request: NextRequest) {
     }
 
     const decoded = verifyToken(token)
-    console.log('User ID:', decoded.userId)
     
     const body = await request.json()
-    console.log('Request body:', body)
     
     const { firstName, lastName, email, phone, password } = body
     
@@ -36,7 +33,6 @@ export async function POST(request: NextRequest) {
 
     // Check if email is changing
     const emailChanged = email !== user.email
-    console.log('Email changed:', emailChanged)
 
     if (emailChanged) {
       // Require password
@@ -70,14 +66,12 @@ export async function POST(request: NextRequest) {
       updateData.email = email
     }
 
-    console.log('Updating with:', updateData)
 
     const updatedUser = await prisma.user.update({
       where: { id: decoded.userId },
       data: updateData
     })
 
-    console.log('Updated successfully:', updatedUser.id)
 
     return NextResponse.json({ 
       success: true, 

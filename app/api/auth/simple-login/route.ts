@@ -31,8 +31,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { email, password, rememberMe = false } = body
 
-    console.log('🔐 Login attempt for:', email, '| Remember me:', rememberMe)
-
     // Find user
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
@@ -47,14 +45,6 @@ export async function POST(request: NextRequest) {
         phone: true
       }
     })
-
-    console.log('👤 User found:', user ? {
-      id: user.id,
-      email: user.email,
-      hasPassword: !!user.password,
-      emailVerified: !!user.emailVerified,
-      status: user.status
-    } : 'No user found')
 
     if (!user) {
       return NextResponse.json({ 
@@ -116,14 +106,6 @@ export async function POST(request: NextRequest) {
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax',
       maxAge: cookieMaxAge,
-      path: '/'
-    })
-
-    console.log('🍪 Cookie configured:', {
-      maxAge: `${cookieMaxAge}s (${rememberMe ? '30 days' : '24 hours'})`,
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
       path: '/'
     })
 

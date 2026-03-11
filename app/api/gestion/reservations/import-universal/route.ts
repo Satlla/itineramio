@@ -229,7 +229,6 @@ export async function POST(request: NextRequest) {
           id: created.id,
           error: verify ? undefined : 'CREATED BUT NOT FOUND ON VERIFY'
         })
-        console.log('[import-universal] Created:', created.id, verify ? 'VERIFIED' : 'NOT FOUND')
 
         results.importedCount++
       } catch (error) {
@@ -247,7 +246,6 @@ export async function POST(request: NextRequest) {
       where: { userId, importSource: 'CSV_UNIVERSAL' }
     })
     const totalCount = await prisma.reservation.count({ where: { userId } })
-    console.log(`[import-universal] Verify: ${verifyCount} CSV_UNIVERSAL, ${totalCount} total for user ${userId}`)
 
     // Log the import
     await prisma.reservationImport.create({

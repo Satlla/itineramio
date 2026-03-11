@@ -11,17 +11,12 @@ export async function POST(request: NextRequest) {
     const auth = await requireAuth(request)
     if (auth instanceof Response) return auth
 
-    console.log('🔥 Large upload endpoint called')
-    
     const data = await request.formData()
     const file: File | null = data.get('file') as unknown as File
 
     if (!file) {
-      console.log('❌ No file provided')
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
-
-    console.log(`📁 Large file details: ${file.name}, size: ${file.size}, type: ${file.type}`)
 
     // For very large files, we'll use a different strategy
     // In production, this could upload to AWS S3, Cloudinary, or another service
@@ -44,7 +39,6 @@ export async function POST(request: NextRequest) {
       const { v4: uuidv4 } = await import('uuid')
       
       const uniqueFilename = `large-${uuidv4()}-${file.name}`
-      console.log('📝 Generated large filename:', uniqueFilename)
 
       const bytes = await file.arrayBuffer()
       const buffer = Buffer.from(bytes)
@@ -61,8 +55,7 @@ export async function POST(request: NextRequest) {
         await writeFile(path, buffer)
         
         const url = `/uploads/${uniqueFilename}`
-        console.log('✅ Large file saved locally:', url)
-        
+
         return NextResponse.json({
           url: url,
           filename: uniqueFilename,
@@ -74,8 +67,6 @@ export async function POST(request: NextRequest) {
         const blob = await put(uniqueFilename, buffer, {
           access: 'public',
         })
-        
-        console.log('✅ Large file uploaded to Vercel Blob:', blob.url)
         
         return NextResponse.json({
           url: blob.url,

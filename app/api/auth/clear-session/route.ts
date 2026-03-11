@@ -9,8 +9,6 @@ export async function POST(request: NextRequest) {
     cookieStore.delete('auth-token')
     cookieStore.delete('admin-token')
 
-    console.log('✅ All auth cookies cleared')
-
     return NextResponse.json({
       success: true,
       message: 'Sesión limpiada correctamente'

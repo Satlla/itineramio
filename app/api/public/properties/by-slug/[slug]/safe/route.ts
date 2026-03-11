@@ -8,7 +8,6 @@ export async function GET(
 ) {
   try {
     const { slug } = await params
-    console.log('🔍 Safe Public Property by-slug endpoint - received slug:', slug)
     
     // Find property by slug OR by ID in a single query
     const properties = await prisma.$queryRaw`
@@ -32,7 +31,6 @@ export async function GET(
     
     const property = properties[0]
     const isDemo = !!property?.isDemoPreview
-    console.log('🔍 Safe Public Property final result found:', !!property, 'isDemo:', isDemo)
 
     if (!property) {
       return NextResponse.json({
@@ -54,7 +52,6 @@ export async function GET(
     if (!isDemo && property.hostId) {
       const moduleAccess = await checkHostManualesAccess(property.hostId)
       if (!moduleAccess.hasAccess) {
-        console.log(`🚫 Manual blocked for property ${slug} - host ${property.hostId} has no MANUALES access: ${moduleAccess.blockedReason}`)
         return NextResponse.json({
           success: false,
           error: MANUAL_BLOCKED_MESSAGE.description,
@@ -158,12 +155,6 @@ export async function GET(
       ...property,
       zones: zonesWithSteps
     }
-    
-    console.log('🔍 Safe Public Property by-slug loaded:', {
-      id: result.id,
-      name: result.name,
-      zonesCount: result.zones.length
-    })
     
     return NextResponse.json({
       success: true,

@@ -279,7 +279,6 @@ export async function POST(request: NextRequest) {
       html: htmlContent
     })
 
-    console.log(`[WiFi Card] Sent to ${normalizedEmail}`)
 
     return NextResponse.json({
       success: true,

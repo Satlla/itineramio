@@ -62,7 +62,6 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    console.log(`✅ Newsletter subscription confirmed: ${subscriber.email}`)
 
     return NextResponse.redirect(new URL('/newsletter/confirmed', request.url))
   } catch (error) {

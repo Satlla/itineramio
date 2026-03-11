@@ -237,19 +237,15 @@ const translations: Record<string, {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    console.log('[plantilla-reviews] Received body:', JSON.stringify(body))
 
     const { nombre, teléfono, email, idioma = 'es', prioridades = [], website } = body
-    console.log('[plantilla-reviews] Destructured:', { nombre, teléfono, email, idioma, hasTelefono: !!teléfono })
 
     // Honeypot check - if filled, it's a bot. Return success but do nothing.
     if (website) {
-      console.log('[plantilla-reviews] Honeypot triggered - bot detected:', email)
       return NextResponse.json({ success: true, honeypot: true })
     }
 
     if (!nombre || !teléfono || !email) {
-      console.log('[plantilla-reviews] Validation failed - missing fields')
       return NextResponse.json(
         { error: 'Todos los campos son obligatorios' },
         { status: 400 }
@@ -283,7 +279,6 @@ export async function POST(request: NextRequest) {
           }
         }
       })
-      console.log(`[Lead] Created for ${email} from plantilla-reviews with priorities: ${(prioridades as string[]).join(', ') || 'none'}`)
     } catch (dbError) {
       console.error('Error saving lead:', dbError)
     }
@@ -312,7 +307,6 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      console.log(`[EmailSubscriber] Created/updated for ${normalizedEmail} from tool_plantilla-reviews with tags: ${baseTags.join(', ')}`)
 
       // Enroll in nurturing sequences
       await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
@@ -321,7 +315,6 @@ export async function POST(request: NextRequest) {
         tags: ['tool_plantilla-reviews', 'recurso-gratuito']
       })
 
-      console.log(`[EmailSubscriber] Enrolled ${normalizedEmail} in sequences`)
     } catch (subscriberError) {
       console.error('Error creating subscriber:', subscriberError)
     }
@@ -562,10 +555,8 @@ export async function POST(request: NextRequest) {
 `
     })
 
-    console.log('[plantilla-reviews] Resend result:', JSON.stringify(emailResult, null, 2))
 
     if (emailResult.error) {
-      console.log('[plantilla-reviews] Resend error:', emailResult.error)
       console.error('Resend error:', emailResult.error)
       return NextResponse.json({
         success: false,

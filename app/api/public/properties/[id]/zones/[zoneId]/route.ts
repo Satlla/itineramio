@@ -8,7 +8,6 @@ export async function GET(
 ) {
   try {
     const { id: propertyId, zoneId } = await params
-    console.log('🔍 Public Zone endpoint - propertyId:', propertyId, 'zoneId:', zoneId)
     
     // Find the zone with exact match first, then startsWith
     let zone = await prisma.zone.findFirst({
@@ -123,11 +122,6 @@ export async function GET(
       zone = zones[0]
     }
 
-    console.log('🔍 Public Zone found:', !!zone)
-    if (zone) {
-      console.log('🔍 Zone details:', { id: zone.id, propertyId: zone.propertyId, stepsCount: zone.steps.length })
-    }
-
     if (!zone) {
       return NextResponse.json(
         {
@@ -147,7 +141,6 @@ export async function GET(
     if (property?.hostId) {
       const moduleAccess = await checkHostManualesAccess(property.hostId)
       if (!moduleAccess.hasAccess) {
-        console.log(`🚫 Zone blocked for property ${propertyId} - host ${property.hostId} has no MANUALES access: ${moduleAccess.blockedReason}`)
         return NextResponse.json({
           success: false,
           error: MANUAL_BLOCKED_MESSAGE.description,

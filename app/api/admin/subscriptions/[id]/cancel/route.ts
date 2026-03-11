@@ -44,7 +44,6 @@ export async function POST(
 
         if (immediate) {
           await stripe.subscriptions.cancel(subscription.stripeSubscriptionId)
-          console.log(`✅ Stripe subscription ${subscription.stripeSubscriptionId} canceled immediately`)
         } else {
           await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
             cancel_at_period_end: true,
@@ -53,7 +52,6 @@ export async function POST(
               cancel_reason: reason
             }
           })
-          console.log(`✅ Stripe subscription ${subscription.stripeSubscriptionId} set to cancel at period end`)
         }
       } catch (stripeError) {
         console.error('Error canceling Stripe subscription:', stripeError)

@@ -214,16 +214,6 @@ export async function POST(request: NextRequest) {
       priceToCharge = 0.50
     }
 
-    console.log('💰 Stripe Checkout - Server-side calculation:', {
-      planCode,
-      billingPeriod: period,
-      fullPrice,
-      hasProration,
-      creditAmount: creditAmount.toFixed(2),
-      couponCode: validatedCouponCode,
-      couponDiscount: couponDiscountAmount.toFixed(2),
-      priceToCharge: priceToCharge.toFixed(2)
-    })
 
     // Calculate interval for Stripe
     let intervalCount = 1

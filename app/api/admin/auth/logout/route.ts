@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🚪 Admin logout requested')
-    
     // Create response
     const response = NextResponse.json({ 
       success: true, 
@@ -28,7 +26,6 @@ export async function POST(request: NextRequest) {
       path: '/'
     })
 
-    console.log('✅ Admin logout successful (impersonation cookie también limpiado)')
     return response
 
   } catch (error) {

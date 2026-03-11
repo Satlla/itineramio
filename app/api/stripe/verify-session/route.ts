@@ -73,12 +73,6 @@ export async function POST(request: NextRequest) {
       expand: ['subscription']
     })
 
-    console.log('🔍 Verifying Stripe session:', {
-      sessionId,
-      paymentStatus: session.payment_status,
-      status: session.status,
-      userId: session.metadata?.userId
-    })
 
     // Verify the session belongs to this user
     if (session.metadata?.userId !== decoded.userId) {
@@ -117,7 +111,6 @@ export async function POST(request: NextRequest) {
     })
 
     if (existingSubscription) {
-      console.log('✅ Subscription already exists for this session')
 
       // Find the related invoice
       const existingInvoice = await prisma.invoice.findFirst({
@@ -253,11 +246,6 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log('📄 Invoice created:', {
-      invoiceNumber,
-      chargedPrice,
-      discountAmount
-    })
 
     // Update user status
     await prisma.user.update({
@@ -268,13 +256,6 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log('✅ Subscription activated via Stripe:', {
-      subscriptionId: subscription.id,
-      planCode,
-      billingPeriod,
-      endDate,
-      invoiceNumber
-    })
 
     return NextResponse.json({
       success: true,

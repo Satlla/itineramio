@@ -32,7 +32,6 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log('⭐ ZONE_RATED saved:', { propertyId, zoneId, rating })
 
     return NextResponse.json({
       success: true,

@@ -13,8 +13,6 @@ export async function GET(request: NextRequest) {
       }, { status: 400 })
     }
     
-    console.log('🔄 Redirect - Looking for property slug for ID:', oldId)
-    
     // Find the property by ID and get its slug
     const property = await prisma.property.findUnique({
       where: { id: oldId },

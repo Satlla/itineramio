@@ -22,29 +22,13 @@ export async function POST(request: NextRequest) {
       userName
     } = await request.json()
 
-    console.log('📥 Subscription request received:', {
-      planCode,
-      billingPeriod,
-      propertiesCount,
-      paymentMethod,
-      totalAmount,
-      couponCode,
-      userEmail,
-      userName,
-      paymentReference,
-      paymentProofUrl
-    })
-
     // Validate required fields
     if (!planCode || !totalAmount || !paymentMethod || !paymentProofUrl || !userEmail) {
-      console.error('❌ Missing required fields:', { planCode, totalAmount, paymentMethod, paymentProofUrl, userEmail })
       return NextResponse.json(
         { error: 'Faltan campos requeridos' },
         { status: 400 }
       )
     }
-
-    console.log('✅ Validation passed, searching for user...')
 
     // Find user by email
     const user = await prisma.user.findUnique({
@@ -53,14 +37,11 @@ export async function POST(request: NextRequest) {
     })
 
     if (!user) {
-      console.error('❌ User not found:', userEmail)
       return NextResponse.json(
         { error: 'Usuario no encontrado' },
         { status: 404 }
       )
     }
-
-    console.log('✅ User found:', user.id, user.email)
 
     // Check if user already has a pending subscription request
     const existingPendingRequest = await prisma.subscriptionRequest.findFirst({
@@ -80,7 +61,6 @@ export async function POST(request: NextRequest) {
     })
 
     if (existingPendingRequest) {
-      console.error('❌ User already has a pending subscription request:', existingPendingRequest.id)
       return NextResponse.json({
         error: 'Ya tienes una solicitud de suscripción pendiente',
         details: 'Debes esperar a que se apruebe o rechace tu solicitud actual antes de crear una nueva.',
@@ -94,8 +74,6 @@ export async function POST(request: NextRequest) {
       }, { status: 409 }) // 409 Conflict
     }
 
-    console.log('🔍 Searching for plan with code:', planCode)
-
     // Find plan by code
     const plan = await prisma.subscriptionPlan.findFirst({
       where: { code: planCode },
@@ -103,14 +81,11 @@ export async function POST(request: NextRequest) {
     })
 
     if (!plan) {
-      console.error('❌ Plan not found:', planCode)
       return NextResponse.json(
         { error: `Plan no encontrado: ${planCode}` },
         { status: 404 }
       )
     }
-
-    console.log('✅ Plan found:', plan.id, plan.name, plan.code)
 
     // Map billing period from URL format to DB format
     const billingPeriodMapping: Record<string, 'MONTHLY' | 'BIANNUAL' | 'ANNUAL'> = {
@@ -122,16 +97,6 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedBillingPeriod = billingPeriodMapping[billingPeriod] || 'MONTHLY'
-
-    console.log('📝 Creating subscription request with data:', {
-      userId: user.id,
-      planId: plan.id,
-      propertiesCount,
-      totalAmount,
-      billingPeriod: normalizedBillingPeriod,
-      paymentMethod,
-      paymentProofUrl
-    })
 
     // Preparar metadata solo si hay datos
     const metadataObj: any = {
@@ -169,8 +134,6 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log('✅ Subscription request created:', subscriptionRequest.id)
-
     // 1. NOTIFICACIÓN AL BACKOFFICE (EMAIL A ADMINS)
     try {
       // SIEMPRE enviar a estos emails como prioridad
@@ -200,7 +163,6 @@ export async function POST(request: NextRequest) {
         })
       })
 
-      console.log('✅ Email de notificación enviado a backoffice:', adminEmails)
     } catch (emailError) {
       console.error('❌ Error enviando email a backoffice:', emailError)
       // Continuar sin email - la solicitud ya fue creada
@@ -225,7 +187,6 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      console.log('✅ Notificación de campanita creada para usuario:', user.id)
     } catch (notifError) {
       console.error('❌ Error creando notificación de campanita:', notifError)
     }
@@ -249,7 +210,6 @@ export async function POST(request: NextRequest) {
         })
       })
 
-      console.log('✅ Email de confirmación enviado a usuario:', user.email)
     } catch (userEmailError) {
       console.error('❌ Error enviando email de confirmación a usuario:', userEmailError)
     }

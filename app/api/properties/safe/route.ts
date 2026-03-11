@@ -50,17 +50,13 @@ const createPropertySchema = z.object({
 
 // POST /api/properties/safe - Safe create property
 export async function POST(request: NextRequest) {
-  console.log('✅ SAFE POST /properties endpoint called')
-
   try {
     // Get authenticated user
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
-      console.log('✅ SAFE POST - Auth failed, returning 401')
       return authResult
     }
     const userId = authResult.userId
-    console.log('✅ SAFE POST - Auth success, userId:', userId)
 
     // Verificar que el usuario existe en la base de datos
     const userExists = await prisma.user.findUnique({
@@ -69,7 +65,6 @@ export async function POST(request: NextRequest) {
     })
 
     if (!userExists) {
-      console.log('✅ SAFE POST - User not found in database, returning 401')
       return NextResponse.json({
         success: false,
         error: 'Usuario no encontrado. Por favor, inicia sesión nuevamente.',
@@ -82,15 +77,13 @@ export async function POST(request: NextRequest) {
     // REMOVED: set_config doesn't work with PgBouncer in transaction mode
     // RLS is handled at application level instead
     } catch (e) {
-      console.log('✅ SAFE POST - RLS skipped:', String(e))
+      // RLS skipped
     }
 
     const body = await request.json()
-    console.log('✅ SAFE POST - Body keys:', Object.keys(body))
-    
+
     // Simplified validation - just check required fields
     if (!body.name || !body.description || !body.street || !body.city || !body.hostContactName) {
-      console.log('✅ SAFE POST - Missing required fields')
       return NextResponse.json({
         success: false,
         error: 'Faltan campos requeridos: name, description, street, city, hostContactName'
@@ -129,11 +122,8 @@ export async function POST(request: NextRequest) {
       hostContactPhoto: body.hostContactPhoto || null,
       propertySetId: body.propertySetId || null
     }
-    console.log('✅ SAFE POST - Data validated successfully')
-    
     // Generate unique slug with raw SQL
     const baseSlug = generateSimpleSlug(validatedData.name)
-    console.log('✅ SAFE POST - Generated base slug:', baseSlug)
     
     let uniqueSlug = baseSlug
     let slugSuffix = 0
@@ -156,11 +146,8 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    console.log('✅ SAFE POST - Generated unique slug:', uniqueSlug)
-    
     // Generate property ID
     const propertyId = `prop-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
-    console.log('✅ SAFE POST - Generated property ID:', propertyId)
     
     // Create property with raw SQL
     const nameTranslationsJson = validatedData.nameTranslations ? JSON.stringify(validatedData.nameTranslations) : null
@@ -208,7 +195,6 @@ export async function POST(request: NextRequest) {
       LIMIT 1
     ` as any[]
 
-    console.log('✅ SAFE POST - Property created successfully:', propertyId)
     // Note: Zones are created by the frontend using crearZonasEsenciales() with full templates
 
     return NextResponse.json({

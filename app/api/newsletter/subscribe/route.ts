@@ -135,7 +135,6 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log(`📧 New newsletter subscription pending: ${normalizedEmail} (source: ${source})`)
 
     if (isLeadMagnet) {
       // For lead magnets: set as active immediately and send the resource
@@ -147,7 +146,6 @@ export async function POST(request: NextRequest) {
       // Send the lead magnet email
       await sendLeadMagnetEmail(normalizedEmail, name || 'Anfitrión', tags)
 
-      console.log(`🎁 Lead magnet sent to: ${normalizedEmail}`)
 
       return NextResponse.json({
         success: true,
@@ -298,7 +296,6 @@ async function sendConfirmationEmail(email: string, token: string) {
     `
   })
 
-  console.log(`✉️ Confirmation email sent to: ${email}`)
 }
 
 async function sendLeadMagnetEmail(email: string, name: string, tags: string[]) {
@@ -429,7 +426,6 @@ async function sendLeadMagnetEmail(email: string, name: string, tags: string[]) 
       `
     })
 
-    console.log(`🎁 Kit Anfitrión email sent to: ${email}`)
     return
   }
 

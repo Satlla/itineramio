@@ -69,10 +69,27 @@ type SendEvent = (event: GenerationEvent) => void
 // ============================================
 
 const PREDEFINED_ZONES = [
+  // Template zones (auto-generated from wizard)
   { id: 'checkin', name: 'Check-in', icon: 'key' },
-  { id: 'garage', name: 'Parking privado', icon: 'parking' },
   { id: 'ac', name: 'Aire Acondicionado', icon: 'snowflake' },
-] as const
+  // Appliances
+  { id: 'washing_machine', name: 'Lavadora', icon: 'washing-machine' },
+  { id: 'dishwasher', name: 'Lavavajillas', icon: 'dishwasher' },
+  { id: 'coffee_machine', name: 'Cafetera', icon: 'coffee' },
+  { id: 'induction_hob', name: 'Vitrocerámica', icon: 'cooktop' },
+  { id: 'oven', name: 'Horno', icon: 'oven' },
+  { id: 'microwave', name: 'Microondas', icon: 'microwave' },
+  { id: 'television', name: 'Smart TV', icon: 'tv' },
+  { id: 'dryer', name: 'Secadora', icon: 'wind' },
+  { id: 'heater', name: 'Calefacción', icon: 'thermometer' },
+  { id: 'safe', name: 'Caja Fuerte', icon: 'lock' },
+  // Spaces
+  { id: 'pool', name: 'Piscina', icon: 'waves' },
+  { id: 'terrace', name: 'Terraza', icon: 'umbrella' },
+  { id: 'garden', name: 'Jardín', icon: 'trees' },
+  { id: 'bbq', name: 'Barbacoa', icon: 'flame' },
+  { id: 'jacuzzi', name: 'Jacuzzi', icon: 'bath' },
+]
 
 // Emoji → lucide icon mapping for custom zones
 const EMOJI_TO_ICON: Record<string, string> = {
@@ -188,10 +205,13 @@ async function buildUserMediaZones(
     const key = item.zoneId || `custom-${item.customZoneName}`
     if (!zoneGroups.has(key)) {
       const predefined = PREDEFINED_ZONES.find(z => z.id === item.zoneId)
-      const iconFromEmoji = item.customZoneIcon ? (EMOJI_TO_ICON[item.customZoneIcon] || 'zap') : 'zap'
+      // Support both old emoji values and new icon ID strings (e.g. 'shower', 'bath')
+      const iconFromCustom = item.customZoneIcon
+        ? (EMOJI_TO_ICON[item.customZoneIcon] || item.customZoneIcon || 'zap')
+        : 'zap'
       zoneGroups.set(key, {
         name: predefined?.name || item.customZoneName || 'Zona',
-        icon: predefined?.icon || iconFromEmoji,
+        icon: predefined?.icon || iconFromCustom,
         items: [],
       })
     }
@@ -294,7 +314,7 @@ async function assignMediaToSteps(
 }
 
 /**
- * Assign media from template zones (checkin, garage, ac) to matching DB zones.
+ * Assign media from template zones (checkin, ac) to matching DB zones.
  * Template zone media has a zoneId but no description — it's attached to the auto-generated zone.
  */
 async function assignTemplateZoneMedia(
@@ -304,7 +324,6 @@ async function assignTemplateZoneMedia(
   // Map template zone IDs to DB zone name patterns (ES)
   const TEMPLATE_TO_NAME: Record<string, string[]> = {
     'checkin': ['Check In', 'Check-in'],
-    'garage': ['Parking privado', 'Parking'],
     'ac': ['Aire Acondicionado', 'Aire acondicionado'],
   }
 
@@ -693,37 +712,6 @@ export async function generateManual(
       }
     }
 
-    // Parking zone (from step1/step2 data, if hasParking)
-    if (propertyInput.hasParking === 'yes') {
-      const hasParkingFromUser = userZones.some(z =>
-        z.name.es.toLowerCase().includes('parking') || z.name.es.toLowerCase().includes('garaje')
-      )
-      if (!hasParkingFromUser) {
-        const d = propertyInput.details || {} as any
-        const accessMap: Record<string, string> = {
-          remote: 'Mando a distancia (incluido con las llaves)',
-          code: `Código: **${d.parkingAccessCode || '(se enviará antes de tu llegada)'}**`,
-          card: 'Tarjeta (incluida con las llaves)',
-          key: 'Llave (incluida con las llaves)',
-        }
-        allZones.push({
-          name: { es: 'Parking privado', en: '', fr: '' },
-          icon: 'parking',
-          description: { es: 'Información del parking privado', en: '', fr: '' },
-          steps: [{
-            type: 'text',
-            title: { es: 'Parking privado', en: '', fr: '' },
-            content: {
-              es: `🚗 **Plaza número:** ${d.parkingSpotNumber || '(indicar)'}\n🏢 **Planta:** ${d.parkingFloor || '(indicar)'}\n\n**Para entrar:**\n1. ${accessMap[d.parkingAccess] || accessMap.remote}\n2. La puerta tarda unos segundos en abrirse\n3. Tu plaza está señalizada\n\n**Para salir:** Pulsa el botón de apertura interior\n\n⚠️ Cuidado con la altura si llevas SUV o furgoneta.`,
-              en: '',
-              fr: '',
-            },
-          }],
-          needsTranslation: true,
-        })
-      }
-    }
-
     // Recycling zone (always, already trilingual)
     allZones.push(buildRecyclingZone(propertyInput))
 
@@ -773,7 +761,6 @@ export async function generateManual(
       'Normas de la Casa': 'house-rules',
       'Emergencias': 'emergency-contacts',
       'Reciclaje': 'recycling',
-      'Parking privado': 'parking',
       'Aire Acondicionado': 'air-conditioning',
       'Cómo Llegar': 'directions',
       'Cómo llegar': 'directions',
@@ -796,7 +783,6 @@ export async function generateManual(
       'Normas de la Casa': 'house-rules',
       'Emergencias': 'emergency-contacts',
       'Reciclaje': 'recycling',
-      'Parking privado': 'parking',
       'Aire Acondicionado': 'air-conditioning',
       'Cómo Llegar': 'directions',
       'Cómo llegar': 'directions',
@@ -880,7 +866,7 @@ export async function generateManual(
     // ── 4.5 Assign uploaded media (images/videos) to matching zone steps ──
     await assignMediaToSteps(property.id, userZones)
 
-    // Also assign media from template zones (checkin, garage, ac)
+    // Also assign media from template zones (checkin, ac)
     await assignTemplateZoneMedia(property.id, mediaAnalysis)
 
     // ── 5. Translate ONLY zones that need it (location zones, edited zones) ──

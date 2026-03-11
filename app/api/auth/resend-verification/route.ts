@@ -31,13 +31,11 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    console.log('📧 RESEND VERIFICATION - Starting')
     const body = await request.json()
-    
+
     // Validate input
     const { email } = resendSchema.parse(body)
-    console.log('📝 Email to resend:', email)
-    
+
     // Check if user exists
     const user = await prisma.user.findUnique({
       where: { email }
@@ -62,13 +60,11 @@ export async function POST(request: NextRequest) {
     await prisma.emailVerificationToken.deleteMany({
       where: { email }
     })
-    console.log('🗑️ Deleted existing tokens')
-    
+
     // Send new verification email
     try {
       await EmailVerificationService.sendVerificationEmail(user.email, user.name)
-      console.log('✅ New verification email sent')
-      
+
       return NextResponse.json({
         message: 'Email de verificación enviado exitosamente',
         email: user.email

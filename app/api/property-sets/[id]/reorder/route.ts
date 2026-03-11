@@ -25,8 +25,6 @@ export async function PUT(
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     const userId = decoded.userId
 
-    console.log('🔄 Reordering properties in set:', propertySetId)
-    console.log('New order:', propertyOrders)
 
     // Verify the property set belongs to the user
     const propertySet = await prisma.propertySet.findFirst({
@@ -45,7 +43,6 @@ export async function PUT(
 
     // Update each property with its new order
     // TEMPORARILY DISABLED: properties.order column doesn't exist in production
-    console.log('⚠️ Property reordering is temporarily disabled - order column missing')
     
     // const updatePromises = propertyOrders.map((item: { id: string; order: number }) =>
     //   prisma.property.update({
@@ -60,7 +57,6 @@ export async function PUT(
 
     // await Promise.all(updatePromises)
 
-    console.log('✅ Properties reordered successfully')
 
     return NextResponse.json({
       success: true,

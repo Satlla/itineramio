@@ -47,7 +47,6 @@ export async function POST(request: NextRequest) {
 
     // Check if user has properties (extra security)
     if (currentUser.properties.length > 0) {
-      console.log(`User ${currentUser.id} with properties is attempting to change email`)
     }
 
     // Verify password

@@ -82,12 +82,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    console.log('📊 [BILLING-OVERVIEW] Calculated billingPeriod from duration:', {
-      userId,
-      subscriptionId: activeSubscription.id,
-      savedBillingPeriod,
-      planName: activeSubscription.plan.name
-    })
 
     // Normalize billing period
     let term = 'monthly'
@@ -105,12 +99,6 @@ export async function GET(request: NextRequest) {
       periodMultiplier = 6
     }
 
-    console.log('📊 [BILLING-OVERVIEW] Period determined from DB:', {
-      term,
-      termLabel,
-      periodMultiplier,
-      savedBillingPeriod
-    })
 
     // Build full plan name with period
     const basePlanName = activeSubscription.plan.name || 'Basic'
@@ -123,11 +111,6 @@ export async function GET(request: NextRequest) {
     if (lastInvoice?.finalAmount) {
       // Use the actual amount the user paid
       periodPrice = Number(lastInvoice.finalAmount)
-      console.log('✅ [BILLING-OVERVIEW] Using actual paid amount from invoice:', {
-        invoiceId: lastInvoice.id,
-        invoiceNumber: lastInvoice.invoiceNumber,
-        finalAmount: periodPrice
-      })
     } else {
       // Fallback: calculate from current PLANS (for subscriptions without invoices)
       const planCode = activeSubscription.plan.name?.toUpperCase() || 'BASIC'
@@ -141,10 +124,6 @@ export async function GET(request: NextRequest) {
         periodPrice = planConfig.priceMonthly
       }
 
-      console.log('⚠️  [BILLING-OVERVIEW] No invoice found, using calculated price from PLANS:', {
-        planCode,
-        periodPrice
-      })
     }
 
     return NextResponse.json({

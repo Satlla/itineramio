@@ -64,7 +64,6 @@ async function claimDemoProperty(userId: string, userEmail: string): Promise<str
       })
     }
 
-    console.log(`[claimDemoProperty] Transferred property ${propertyId} to user ${userId}`)
     return propertyId
   } catch (error) {
     console.error('[claimDemoProperty] Error:', error)

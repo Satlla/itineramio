@@ -154,15 +154,6 @@ export async function POST(request: NextRequest) {
       interval = 'year'
     }
 
-    console.log('💰 Module Checkout - Server-side calculation:', {
-      moduleCode: normalizedModuleCode,
-      billingPeriod: period,
-      basePrice: module.basePriceMonthly,
-      months,
-      discount: `${discount * 100}%`,
-      couponCode: validatedCouponCode,
-      priceToCharge: priceToCharge.toFixed(2)
-    })
 
     // Create Stripe Checkout session
     const session = await stripe.checkout.sessions.create({

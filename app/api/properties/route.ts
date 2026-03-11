@@ -109,8 +109,6 @@ const createPropertySchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('POST /api/properties - Start')
-
     // Get authenticated user
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
@@ -125,7 +123,6 @@ export async function POST(request: NextRequest) {
     })
 
     if (!userExists) {
-      console.log('POST /api/properties - User not found in database')
       return NextResponse.json({
         success: false,
         error: 'Usuario no encontrado. Por favor, inicia sesión nuevamente.',
@@ -148,18 +145,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    
-    console.log('Creating property with data:', body)
-    
+
     // Validate request data
     const validatedData = createPropertySchema.parse(body)
-    
-    console.log('Validated data:', validatedData)
-    console.log('User ID:', userId)
-    
+
     // Generate unique slug efficiently (no need to fetch all properties)
     const baseSlug = generateSlug(validatedData.name)
-    console.log('Generated base slug:', baseSlug)
     
     let uniqueSlug = baseSlug
     let slugSuffix = 0
@@ -191,10 +182,7 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    console.log('Generated unique slug:', uniqueSlug)
-
     // Generate sequential property number (ITN-XXXXX)
-    console.log('Generating property number (ITN-XXXXX)...')
     let propertyCode = 'ITN-00001' // Default if no properties exist
 
     try {
@@ -220,14 +208,12 @@ export async function POST(request: NextRequest) {
         propertyCode = generatePropertyNumber(lastNumber)
       }
 
-      console.log('Generated property code:', propertyCode)
     } catch (error) {
       console.error('Error generating property code, using default:', error)
       // If error, use default ITN-00001
     }
 
     // Create property in database
-    console.log('Attempting to create property in database...')
     const property = await prisma.property.create({
       data: {
         // Basic info
@@ -282,11 +268,8 @@ export async function POST(request: NextRequest) {
       }
     })
     
-    console.log('Property created successfully:', property.id)
-    
     // Auto-create essential zones for new properties to improve UX for new users
     try {
-      console.log('🏠 Auto-creating essential zones for new property:', property.id)
       
       const zonasEsenciales = [
         { name: 'Check In', description: 'Proceso de entrada al apartamento', icon: 'key' },
@@ -328,7 +311,6 @@ export async function POST(request: NextRequest) {
         zonesData.map((data) => prisma.zone.create({ data }))
       )
       
-      console.log('✅ Essential zones auto-created for property:', property.id)
     } catch (zoneError) {
       console.error('❌ Warning: Failed to auto-create zones for property:', property.id, zoneError)
       // Don't fail the property creation if zone creation fails
@@ -348,7 +330,6 @@ export async function POST(request: NextRequest) {
           timestamp: new Date()
         }
       })
-      console.log('📊 Property creation tracked:', property.id)
     } catch (trackError) {
       console.error('Error tracking property creation:', trackError)
       // Don't fail the request if tracking fails
@@ -401,7 +382,7 @@ export async function POST(request: NextRequest) {
       const trialResult = await autoActivateManualesTrial(userId)
       manualesTrialActivated = trialResult.activated
       if (trialResult.activated) {
-        console.log('🎉 MANUALES trial auto-activated for new user:', userId)
+        // Trial activated
       }
     } catch (trialError) {
       console.error('Error auto-activating MANUALES trial:', trialError)

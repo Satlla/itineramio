@@ -114,8 +114,6 @@ export async function POST(
       userAgent
     })
 
-    console.log(`✅ Refund processed: ${refund.id} for subscription ${id}`)
-
     return NextResponse.json({
       success: true,
       message: `Reembolso de €${(refundAmount / 100).toFixed(2)} procesado correctamente`,

@@ -8,7 +8,6 @@ export async function GET(
 ) {
   try {
     const { propertyId } = await params
-    console.log('🚀 GET public announcements for property:', propertyId)
 
     if (!propertyId) {
       return NextResponse.json(
@@ -67,8 +66,6 @@ export async function GET(
       // Return empty array if database error
       announcements = []
     }
-
-    console.log('📢 Found active announcements:', announcements.length)
 
     return NextResponse.json({
       success: true,

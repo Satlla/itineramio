@@ -49,8 +49,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         }
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
-        console.log('✅ Client upload completed:', blob.url)
-
         // Optionally save to media library
         try {
           const { userId } = JSON.parse(tokenPayload || '{}')
@@ -79,7 +77,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 lastUsedAt: new Date()
               }
             })
-            console.log('✅ Media saved to library with hash:', hash.substring(0, 16))
           }
         } catch (error) {
           console.error('⚠️ Error saving to media library:', error)

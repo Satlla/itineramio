@@ -7,8 +7,6 @@ export async function PATCH(
 ) {
   try {
     const propertyId = (await params).id
-    
-    console.log('🔄 Toggle property request:', propertyId)
 
     // Verificar que la propiedad existe (handle potential ID truncation)
     let existingProperty = await prisma.property.findFirst({
@@ -79,7 +77,6 @@ export async function PATCH(
         })
       }
 
-      console.log(`✅ Published ${zones.length} zones and their steps for property ${existingProperty.id}`)
     }
 
     return NextResponse.json({

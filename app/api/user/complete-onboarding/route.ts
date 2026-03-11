@@ -68,7 +68,6 @@ export async function POST(request: NextRequest) {
       data: { onboardingCompletedAt: new Date() }
     })
 
-    console.log(`✅ Onboarding completed for user ${decoded.userId}`)
 
     return NextResponse.json({ success: true })
   } catch (error) {

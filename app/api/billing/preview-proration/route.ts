@@ -34,7 +34,6 @@ export async function POST(request: NextRequest) {
     const rateLimitResult = paymentRateLimiter(rateLimitKey)
 
     if (!rateLimitResult.allowed) {
-      console.log(`🚫 Rate limit exceeded for proration preview: ${rateLimitKey}`)
       return NextResponse.json(
         {
           error: 'Demasiadas solicitudes. Por favor, espera un momento.'
@@ -62,10 +61,6 @@ export async function POST(request: NextRequest) {
       billingPeriod = 'MONTHLY'
     }
 
-    console.log('🎯 POST PREVIEW PRORATION REQUEST:')
-    console.log(`  planCode: "${planCode}"`)
-    console.log(`  billingPeriod: "${billingPeriod}"`)
-    console.log(`  userId: ${decoded.userId}`)
 
     if (!planCode || !billingPeriod) {
       return NextResponse.json(
@@ -107,7 +102,6 @@ export async function GET(request: NextRequest) {
     const rateLimitResult = paymentRateLimiter(rateLimitKey)
 
     if (!rateLimitResult.allowed) {
-      console.log(`🚫 Rate limit exceeded for proration preview GET: ${rateLimitKey}`)
       return NextResponse.json(
         {
           error: 'Demasiadas solicitudes. Por favor, espera un momento.'
@@ -126,10 +120,6 @@ export async function GET(request: NextRequest) {
     const planCode = searchParams.get('planCode')
     const billingPeriod = searchParams.get('billingPeriod') as 'MONTHLY' | 'BIANNUAL' | 'ANNUAL'
 
-    console.log('🎯 GET PREVIEW PRORATION REQUEST:')
-    console.log(`  planCode: "${planCode}"`)
-    console.log(`  billingPeriod: "${billingPeriod}"`)
-    console.log(`  userId: ${decoded.userId}`)
 
     if (!planCode || !billingPeriod) {
       return NextResponse.json(
@@ -252,12 +242,6 @@ async function handleProrationPreview(
       ? Number(paidInvoice.finalAmount)
       : theoreticalPrice
 
-    console.log('💰 Cálculo de precio total pagado:')
-    console.log(`  Periodo: ${currentBillingPeriod}`)
-    console.log(`  Precio mensual: €${currentMonthlyPrice}`)
-    console.log(`  Precio teórico: €${theoreticalPrice.toFixed(2)}`)
-    console.log(`  Factura encontrada: ${paidInvoice ? 'Sí' : 'No'}`)
-    console.log(`  PRECIO REAL PAGADO: €${currentTotalPricePaid.toFixed(2)}`)
 
     // Verificar si es el mismo plan y período (no permitir)
     const isSamePlan = activeSubscription.plan.code === planCode
@@ -267,12 +251,8 @@ async function handleProrationPreview(
       (currentBillingPeriod === 'annual' && billingPeriod === 'ANNUAL')
     )
 
-    console.log('🔍 Plan comparison:')
-    console.log(`  isSamePlan: ${isSamePlan} (current: ${activeSubscription.plan.code}, target: ${planCode})`)
-    console.log(`  isSamePeriod: ${isSamePeriod} (current: ${currentBillingPeriod}, target: ${billingPeriod})`)
 
     if (isSamePlan && isSamePeriod) {
-      console.log('❌ BLOCKED: Same plan and period')
       return NextResponse.json({
         error: 'Ya tienes este plan activo',
         message: `Ya estás suscrito a ${activeSubscription.plan.name} con el mismo período de facturación.`
@@ -287,12 +267,9 @@ async function handleProrationPreview(
     const newMonthlyPrice = newPlan.priceMonthly
     const isUpgrade = newMonthlyPrice > currentMonthlyPrice
 
-    console.log('🔍 Upgrade check:')
-    console.log(`  isUpgrade: ${isUpgrade} (current monthly: €${currentMonthlyPrice}, new monthly: €${newMonthlyPrice})`)
 
     // Si es DOWNGRADE, no permitir cambio inmediato
     if (!isUpgrade && activeSubscription.plan.code !== planCode) {
-      console.log('❌ BLOCKED: Downgrade detected')
       const endDateFormatted = activeSubscription.endDate
         ? new Date(activeSubscription.endDate).toLocaleDateString('es-ES', {
             day: 'numeric',
@@ -328,20 +305,9 @@ async function handleProrationPreview(
       const currentLevel = periodHierarchy[currentBillingPeriod] || 0
       const newLevel = periodHierarchy[newBillingPeriodLowercase] || 0
 
-      console.log('🔍 Periodo Debug (MISMO PLAN):')
-      console.log(`  Plan code: ${planCode}`)
-      console.log(`  billingPeriod from API: "${billingPeriod}"`)
-      console.log(`  Current period: ${currentBillingPeriod} (level: ${currentLevel})`)
-      console.log(`  New period: ${newBillingPeriodLowercase} (level: ${newLevel})`)
-      console.log(`  Is downgrade? ${newLevel < currentLevel}`)
-
-      console.log('🔍 Period hierarchy check:')
-      console.log(`  currentLevel: ${currentLevel} (${currentBillingPeriod})`)
-      console.log(`  newLevel: ${newLevel} (${newBillingPeriodLowercase})`)
 
       // Si el nuevo periodo es menor en la jerarquía, es downgrade
       if (newLevel < currentLevel) {
-        console.log('❌ BLOCKED: Period downgrade detected')
         const endDateFormatted = activeSubscription.endDate
           ? new Date(activeSubscription.endDate).toLocaleDateString('es-ES', {
               day: 'numeric',

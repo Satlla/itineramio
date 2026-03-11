@@ -168,6 +168,7 @@ export default function MonthInvoicePage() {
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [managerConfig, setManagerConfig] = useState<ManagerConfig | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [showAddItem, setShowAddItem] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   const [showSendModal, setShowSendModal] = useState(false)
@@ -242,7 +243,7 @@ export default function MonthInvoicePage() {
         setDetailLevel(newDetailLevel)
       } else {
         const data = await response.json()
-        alert(data.error || 'Error al regenerar')
+        setError(data.error || 'Error al regenerar')
       }
     } catch (err) {
       console.error('Error regenerating:', err)

@@ -13,13 +13,6 @@ export async function POST(request: NextRequest) {
   try {
     const event: ResendInboundEvent = await request.json()
 
-    console.log('📧 Email recibido:', {
-      type: event.type,
-      from: event.data.from,
-      to: event.data.to,
-      subject: event.data.subject,
-      email_id: event.data.email_id
-    })
 
     // Solo procesar eventos de email recibido
     if (event.type !== 'email.received') {
@@ -37,7 +30,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (platform === 'OTHER') {
-      console.log('⚠️ Email no es de Airbnb ni Booking, ignorando')
       return NextResponse.json({
         message: 'Email ignorado - no es de plataforma soportada',
         from: event.data.from
@@ -66,19 +58,9 @@ export async function POST(request: NextRequest) {
       )
     } else if (platform === 'BOOKING') {
       // TODO: Implementar parser de Booking
-      console.log('📋 Parser de Booking pendiente de implementar')
     }
 
     if (parsedReservation) {
-      console.log('✅ Reserva parseada:', {
-        platform: parsedReservation.platform,
-        code: parsedReservation.confirmationCode,
-        guest: parsedReservation.guestName,
-        checkIn: parsedReservation.checkIn,
-        checkOut: parsedReservation.checkOut,
-        earnings: parsedReservation.hostEarnings
-      })
-
       // TODO: Guardar en base de datos
       // TODO: Enviar notificación al usuario
       // TODO: Identificar a qué usuario pertenece por el email de destino
@@ -102,7 +84,6 @@ export async function POST(request: NextRequest) {
         }
       })
     } else {
-      console.log('⚠️ No se pudo parsear la reserva')
       return NextResponse.json({
         success: false,
         message: 'No se pudo extraer datos de la reserva',

@@ -24,15 +24,11 @@ export async function POST(request: NextRequest) {
     // REMOVED: set_config doesn't work with PgBouncer in transaction mode
     // RLS is handled at application level instead
 
-    console.log(`🧹 Starting duplicate cleanup for user ${userId}`)
-
     // Get all media items for this user
     const allMedia = await prisma.mediaLibrary.findMany({
       where: { userId },
       orderBy: { createdAt: 'asc' } // Keep the oldest ones
     })
-
-    console.log(`📚 Found ${allMedia.length} media items`)
 
     // Group by hash (real file content hash)
     const groupedByHash: { [hash: string]: typeof allMedia } = {}
@@ -60,7 +56,6 @@ export async function POST(request: NextRequest) {
     // Find hash-based duplicates (same file content)
     for (const [hash, items] of Object.entries(groupedByHash)) {
       if (items.length > 1) {
-        console.log(`🔄 Found ${items.length} items with hash ${hash}`)
         // Keep the first (oldest) item, mark others for deletion
         const [keepItem, ...deleteItems] = items
         
@@ -80,7 +75,6 @@ export async function POST(request: NextRequest) {
     // Find URL-based duplicates (exact same URL - shouldn't happen but let's clean them)
     for (const [url, items] of Object.entries(groupedByUrl)) {
       if (items.length > 1) {
-        console.log(`🔗 Found ${items.length} items with same URL ${url}`)
         // Keep the first (oldest) item, mark others for deletion
         const [keepItem, ...deleteItems] = items
         
@@ -104,8 +98,6 @@ export async function POST(request: NextRequest) {
 
     // Delete duplicates
     if (duplicatesToDelete.length > 0) {
-      console.log(`🗑️ Deleting ${duplicatesToDelete.length} duplicate items`)
-      
       const deleteResult = await prisma.mediaLibrary.deleteMany({
         where: {
           id: { in: duplicatesToDelete },
@@ -113,7 +105,6 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      console.log(`✅ Successfully deleted ${deleteResult.count} duplicates`)
     }
 
     return NextResponse.json({

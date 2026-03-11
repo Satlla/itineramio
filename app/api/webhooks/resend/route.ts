@@ -137,12 +137,6 @@ export async function POST(request: NextRequest) {
     // Parsear el payload
     const payload: ResendWebhookPayload = JSON.parse(rawBody)
 
-    console.log('📨 Resend Webhook recibido:', {
-      type: payload.type,
-      emailId: payload.data.email_id,
-      to: payload.data.to,
-      timestamp: payload.created_at
-    })
 
     const emailId = payload.data.email_id
 
@@ -168,7 +162,6 @@ export async function POST(request: NextRequest) {
             where: { id: guidebookDelivery.id },
             data: updateData,
           })
-          console.log(`✅ GuidebookDelivery ${guidebookDelivery.id} updated: ${payload.type}`)
         }
       }
     }
@@ -190,7 +183,6 @@ export async function POST(request: NextRequest) {
       const sequenceResult = await trackEmailEvent(emailId, eventType, metadata)
 
       if (sequenceResult.success) {
-        console.log('✅ Evento trackeado en sistema de secuencias')
         return NextResponse.json({
           received: true,
           tracked: 'sequence',
@@ -267,9 +259,6 @@ export async function POST(request: NextRequest) {
         }
 
         // Registrar el link clickeado (opcional: para analytics)
-        if (payload.data.click?.link) {
-          console.log(`🔗 Click detectado: ${payload.data.click.link}`)
-        }
         break
 
       case 'email.bounced':
@@ -306,7 +295,7 @@ export async function POST(request: NextRequest) {
         break
 
       default:
-        console.log(`ℹ️ Evento no manejado: ${payload.type}`)
+        break
     }
 
     // Actualizar subscriber en DB
@@ -316,10 +305,6 @@ export async function POST(request: NextRequest) {
         data: updateData
       })
 
-      console.log(`✅ Subscriber actualizado: ${recipientEmail}`, {
-        event: payload.type,
-        changes: Object.keys(updateData)
-      })
     }
 
     return NextResponse.json({

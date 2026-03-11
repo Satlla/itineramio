@@ -94,7 +94,6 @@ export async function POST(request: NextRequest) {
       path: '/'
     })
 
-    console.log(`✅ Admin login successful: ${admin.email}`)
     return response
 
   } catch (error) {

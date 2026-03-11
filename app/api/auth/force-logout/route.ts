@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🚪 Force logout requested');
-    
     // Create response with cleared cookies
     const response = NextResponse.json({ 
       success: true, 
@@ -36,8 +34,6 @@ export async function POST(request: NextRequest) {
       maxAge: 0,
       path: '/'
     });
-    
-    console.log('✅ Force logout cookies cleared');
     
     return response;
 

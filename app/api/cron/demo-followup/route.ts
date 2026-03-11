@@ -315,8 +315,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    console.log(`[DemoFollowup] Feedback: ${feedbackSent}, Chatbot: ${chatbotSent}, FOMO: ${fomoSent}, Urgency: ${urgencySent}, LastChance: ${lastChanceSent}, Errors: ${errors}`)
-
     return NextResponse.json({
       success: true,
       feedbackSent,

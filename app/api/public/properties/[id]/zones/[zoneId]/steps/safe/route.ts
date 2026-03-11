@@ -7,7 +7,6 @@ export async function GET(
 ) {
   try {
     const { id: propertyId, zoneId } = await params
-    console.log('🔍 Safe Public Steps endpoint - propertyId:', propertyId, 'zoneId:', zoneId)
     
     // First verify the property is published using raw SQL
     const properties = await prisma.$queryRaw`
@@ -135,12 +134,6 @@ export async function GET(
         linkUrl,
         thumbnail
       }
-    })
-
-    console.log('🔍 Safe Public Steps loaded:', {
-      propertyId: actualPropertyId,
-      zoneId: actualZoneId,
-      stepsCount: processedSteps.length
     })
 
     return NextResponse.json({

@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
     const rateLimitResult = couponRateLimiter(rateLimitKey)
 
     if (!rateLimitResult.allowed) {
-      console.log(`🚫 Rate limit exceeded for coupon validation: ${rateLimitKey}`)
       return NextResponse.json(
         {
           valid: false,

@@ -62,8 +62,6 @@ export const runtime = 'nodejs' // Use Node.js runtime
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔥 Upload endpoint called')
-    
     // Check authentication — accept either regular user token or admin token
     const token = request.cookies.get('auth-token')?.value
     const adminUser = await getAdminUser(request)
@@ -87,11 +85,8 @@ export async function POST(request: NextRequest) {
     const skipDuplicateCheck = data.get('skipDuplicateCheck') === 'true'
 
     if (!file) {
-      console.log('❌ No file provided')
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
-
-    console.log(`📁 File details: ${file.name}, size: ${file.size}, type: ${file.type}`)
 
     // Validate file type (check if starts with valid type to handle codec suffixes like video/webm;codecs=vp9)
     const validTypesPrefixes = [
@@ -104,7 +99,6 @@ export async function POST(request: NextRequest) {
       fileTypeBase === validType || file.type.startsWith(validType)
     )
     if (!isValidType) {
-      console.log('❌ Invalid file type:', file.type)
       return NextResponse.json({
         error: `Tipo de archivo no permitido: ${file.type}. Usa JPG, PNG, GIF, WebP, MP4, MOV o WebM.`,
         receivedType: file.type
@@ -113,7 +107,6 @@ export async function POST(request: NextRequest) {
 
     // Validate file size (50MB max - increased for video uploads)
     if (file.size > 50 * 1024 * 1024) {
-      console.log('❌ File too large:', file.size)
       return NextResponse.json({
         error: "Archivo demasiado grande. Máximo 50MB. Intenta comprimir el video o usar menor calidad.",
         maxSize: "50MB",
@@ -127,11 +120,9 @@ export async function POST(request: NextRequest) {
     let fileHash: string
 
     try {
-      console.log('🔄 Converting file to buffer for hash calculation...')
       bytes = await file.arrayBuffer()
       buffer = Buffer.from(bytes)
       fileHash = createHash('sha256').update(buffer).digest('hex')
-      console.log(`✅ Generated file hash: ${fileHash}`)
     } catch (hashError) {
       console.error('❌ Error generating file hash:', hashError)
       return NextResponse.json({
@@ -154,8 +145,6 @@ export async function POST(request: NextRequest) {
       })
 
       if (existingMedia) {
-        console.log('🔄 Duplicate file detected:', existingMedia.originalName)
-        
         // Get usage information for this media
         const usageInfo = await getMediaUsage(existingMedia.url)
         
@@ -180,34 +169,27 @@ export async function POST(request: NextRequest) {
 
     // Generate unique filename
     const uniqueFilename = `${uuidv4()}-${file.name}`
-    console.log('📝 Generated filename:', uniqueFilename)
 
     let fileUrl: string
-    
+
     // For local development, use filesystem with better error handling
     if (process.env.NODE_ENV === 'development') {
-      console.log('💻 Development mode: saving to filesystem')
       const { writeFile, mkdir } = await import('fs/promises')
       const { join } = await import('path')
       
       try {
         const uploadDir = join(process.cwd(), 'public', 'uploads')
-        
-        console.log('📂 Upload directory:', uploadDir)
-        
+
         try {
           await mkdir(uploadDir, { recursive: true })
-          console.log('✅ Directory created/verified')
         } catch (error) {
-          console.log('⚠️ Directory creation error (might already exist):', error)
+          // directory might already exist
         }
 
         const path = join(uploadDir, uniqueFilename)
-        console.log('💾 Writing file to:', path)
-        
+
         await writeFile(path, buffer)
-        console.log('✅ File written successfully')
-        
+
         fileUrl = `/uploads/${uniqueFilename}`
       } catch (devError) {
         console.error('❌ Development upload error:', devError)
@@ -218,19 +200,15 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // For production, use Vercel Blob
-      console.log('🔧 Checking Vercel Blob configuration...')
       const blobToken = process.env.BLOB_READ_WRITE_TOKEN
       if (!blobToken) {
-        console.error('❌ BLOB_READ_WRITE_TOKEN environment variable is not set')
         return NextResponse.json(
           { error: "Blob storage not configured" },
           { status: 500 }
         )
       }
-      console.log('✅ Blob token found, proceeding with upload')
 
       try {
-        console.log('📤 Uploading to Vercel Blob...')
         // Use buffer instead of file since file might be consumed after arrayBuffer()
         const blob = await put(uniqueFilename, buffer, {
           access: 'public',
@@ -238,7 +216,6 @@ export async function POST(request: NextRequest) {
           contentType: file.type,
         })
         fileUrl = blob.url
-        console.log('✅ Upload to Vercel Blob successful:', fileUrl)
       } catch (blobError) {
         console.error('❌ Error uploading to Vercel Blob:', blobError)
         return NextResponse.json(
@@ -265,7 +242,6 @@ export async function POST(request: NextRequest) {
         })
 
         if (existingMediaByHash) {
-          console.log('📝 Found existing media with same hash, updating usage count')
           await prisma.mediaLibrary.update({
             where: { id: existingMediaByHash.id },
             data: {
@@ -275,7 +251,7 @@ export async function POST(request: NextRequest) {
           })
         } else {
           const cleanOriginalName = file.name.replace(/_compressed(\.[^.]+)$/, '$1')
-          const mediaLibraryItem = await prisma.mediaLibrary.create({
+          await prisma.mediaLibrary.create({
             data: {
               userId: userId,
               type: mediaType,
@@ -290,7 +266,6 @@ export async function POST(request: NextRequest) {
               lastUsedAt: new Date()
             }
           })
-          console.log('✅ File saved to media library:', mediaLibraryItem.id)
         }
       } catch (mediaError) {
         console.error('⚠️ Error saving to media library:', mediaError)

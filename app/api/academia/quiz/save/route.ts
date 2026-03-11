@@ -175,7 +175,6 @@ export async function POST(request: NextRequest) {
           sequenceStatus: 'active'
         }
       })
-      console.log(`✅ EmailSubscriber created/updated for Soap Opera funnel: ${email} -> ${soapOperaNivel} (quiz: ${levelData.level}, score: ${score})`)
     } catch (emailSubError) {
       console.error('❌ Could not create EmailSubscriber for Soap Opera funnel:', emailSubError)
       // Don't fail the request if this fails

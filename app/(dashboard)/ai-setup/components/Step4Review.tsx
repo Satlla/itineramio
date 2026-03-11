@@ -346,33 +346,6 @@ ${step2.recyclingContainerLocation ? `\n📍 **Contenedores más cercanos:** ${s
     source: 'user',
   })
 
-  // ── PARKING ──
-  if (step1.hasParking === 'yes') {
-    const accessMap: Record<string, string> = {
-      remote: 'Mando a distancia (incluido con las llaves)',
-      code: `Código: **${step2.parkingAccessCode || '(indicar)'}**`,
-      card: 'Tarjeta (incluida con las llaves)',
-      key: 'Llave (incluida con las llaves)',
-      none: 'Acceso libre',
-    }
-    zones.push({
-      id: 'parking',
-      title: 'Parking privado',
-      iconName: 'car',
-      content: `🚗 **Plaza número:** ${step2.parkingSpotNumber || '(indicar)'}
-🏢 **Planta:** ${step2.parkingFloor || '(indicar)'}
-
-**Para entrar:**
-1. ${accessMap[step2.parkingAccess] || 'Mando a distancia'}
-2. La puerta tarda unos segundos en abrirse
-3. Tu plaza está señalizada
-
-**Para salir:** Pulsa el botón de apertura interior
-
-⚠️ Cuidado con la altura si llevas SUV o furgoneta.`,
-      source: 'user',
-    })
-  }
 
   // ── AC ──
   if (step1.hasAC) {
@@ -612,7 +585,6 @@ const iconComponents: Record<string, React.ReactNode> = {
 // Predefined zone IDs that map to built-in review zones (template-generated)
 const PREDEFINED_TO_BUILTIN: Record<string, string> = {
   'checkin': 'check-in',
-  'garage': 'parking',
   'ac': 'air-conditioning',
 }
 

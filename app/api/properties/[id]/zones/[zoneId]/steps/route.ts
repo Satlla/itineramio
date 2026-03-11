@@ -222,8 +222,6 @@ export async function POST(
       stepContent = { ...stepContent, linkUrl }
     }
 
-    console.log('📹 Creating step with content:', { type, mediaUrl, linkUrl, stepContent })
-
     // For TEXT steps, ensure title is different from content
     let stepTitle = title
     if (!title) {
@@ -273,28 +271,20 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; zoneId: string }> }
 ) {
-  console.log('🚨 PUT /steps endpoint called')
-  console.log('🚨 Request URL:', request.url)
-  console.log('🚨 Request method:', request.method)
-  
   try {
     const { id: propertyId, zoneId } = await params
-    console.log('🚨 Params:', { propertyId, zoneId })
 
     // Check authentication
     const authResult = await requireAuthOrAdmin(request)
     if (authResult instanceof Response) {
-      console.log('🚨 Auth failed')
       return authResult
     }
     const userId = authResult.userId
-    console.log('🚨 Auth success, userId:', userId)
 
     // Set JWT claims for RLS policies - with better error handling
     try {
     // REMOVED: set_config doesn't work with PgBouncer in transaction mode
     // RLS is handled at application level instead
-      console.log('🚨 RLS config set successfully')
     } catch (rslError) {
       console.error('🚨 RLS config failed:', rslError)
       // Continue anyway, some environments might not need RLS
@@ -309,23 +299,17 @@ export async function PUT(
     })
 
     if (!property) {
-      console.log('🚨 Property not found or unauthorized')
       return NextResponse.json(
         { error: 'Propiedad no encontrada o no autorizada' },
         { status: 404 }
       )
     }
-    
+
     const body = await request.json()
-    console.log('🚨 Body received:', JSON.stringify(body, null, 2))
-    
+
     const { steps } = body
-    console.log('🚨 Steps extracted:', steps)
-    console.log('🚨 Steps is array:', Array.isArray(steps))
-    console.log('🚨 Steps length:', steps?.length)
-    
+
     if (!Array.isArray(steps)) {
-      console.log('🚨 Steps is not an array')
       return NextResponse.json({
         success: false,
         error: 'Steps debe ser un array'
@@ -352,7 +336,6 @@ export async function PUT(
     }
     
     const actualZoneId = zone?.id || zoneId
-    console.log('🚨 Zone found:', !!zone, 'actualZoneId:', actualZoneId)
     
     if (!zone) {
       return NextResponse.json({
@@ -363,10 +346,9 @@ export async function PUT(
 
     // Delete all existing steps with better error handling
     try {
-      const deleteResult = await prisma.step.deleteMany({
+      await prisma.step.deleteMany({
         where: { zoneId: actualZoneId }
       })
-      console.log('🚨 Deleted steps:', deleteResult.count)
     } catch (deleteError) {
       console.error('🚨 Error deleting steps:', deleteError)
       // Continue anyway, maybe there were no steps to delete
@@ -380,8 +362,7 @@ export async function PUT(
     
     for (let i = 0; i < stepsToSave.length; i++) {
       const step = stepsToSave[i]
-      console.log(`🔍 API Processing step ${i + 1}:`, JSON.stringify(step, null, 2))
-      
+
       try {
         // Validate and prepare step data
         const stepType = (step.type || 'TEXT').toUpperCase()
@@ -436,13 +417,10 @@ export async function PUT(
           zoneId: actualZoneId
         }
         
-        console.log(`🚨 Creating step ${i + 1} with data:`, JSON.stringify(stepData, null, 2))
-        
         const createdStep = await prisma.step.create({
           data: stepData
         })
-        
-        console.log(`🚨 Step ${i + 1} created successfully:`, createdStep.id)
+
         createdSteps.push(createdStep)
         
       } catch (stepError) {
@@ -460,7 +438,6 @@ export async function PUT(
               zoneId: actualZoneId
             }
           })
-          console.log(`🚨 Fallback step ${i + 1} created:`, fallbackStep.id)
           createdSteps.push(fallbackStep)
         } catch (fallbackError) {
           console.error(`🚨 Error creating fallback step ${i + 1}:`, fallbackError)
@@ -470,7 +447,6 @@ export async function PUT(
       }
     }
 
-    console.log('🚨 All steps processed, returning success')
     return NextResponse.json({
       success: true,
       data: createdSteps,

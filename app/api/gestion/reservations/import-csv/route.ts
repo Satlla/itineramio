@@ -286,7 +286,6 @@ export async function POST(request: NextRequest) {
 
     // Detect platform from headers
     const detectedPlatform = detectPlatform(headers)
-    console.log('Detected platform:', detectedPlatform, 'Headers:', headers.slice(0, 5))
 
     // Find column indices based on platform
     let colIndices: Record<string, number>
@@ -346,8 +345,6 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log('User properties:', userProperties.map(p => ({ id: p.id, name: p.name, hasBillingConfig: !!p.billingConfig })))
-    console.log('Property ID override:', propertyIdOverride)
 
     // Get existing confirmation codes to skip duplicates
     // If propertyIdOverride is set, only check codes for that property
@@ -370,8 +367,6 @@ export async function POST(request: NextRequest) {
         )
       : new Set()
 
-    console.log('Existing confirmation codes count:', existingCodes.size)
-    console.log('Skip duplicates:', skipDuplicates)
 
     // Generate batch ID for this import (for rollback capability)
     const importBatchId = `IMP-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
@@ -455,12 +450,10 @@ export async function POST(request: NextRequest) {
 
         // Skip duplicates
         if (skipDuplicates && existingCodes.has(confirmationCode)) {
-          console.log(`Row ${rowNum}: Skipping duplicate ${confirmationCode}`)
           results.skipped++
           continue
         }
 
-        console.log(`Row ${rowNum}: Processing ${confirmationCode} for guest ${guestName}`)
 
         // Calculate nights
         const nights = colIndices.nights !== -1
@@ -479,11 +472,6 @@ export async function POST(request: NextRequest) {
 
         if (propertyIdOverride) {
           matchedProperty = userProperties.find(p => p.id === propertyIdOverride) || null
-          if (!matchedProperty) {
-            console.log(`Row ${rowNum}: Property override ${propertyIdOverride} not found in userProperties`)
-          } else {
-            console.log(`Row ${rowNum}: Using override property ${matchedProperty.name}, billingConfig: ${matchedProperty.billingConfig?.id}`)
-          }
         } else {
           // Fallback: try to match by name from CSV
           const propertyNameCol = detectedPlatform === 'BOOKING'
@@ -568,7 +556,6 @@ export async function POST(request: NextRequest) {
 
         // Skip if no billingConfigId (required field)
         if (!billingConfigId) {
-          console.log(`Row ${rowNum}: No billingConfigId. matchedProperty: ${matchedProperty?.name || 'null'}, billingConfig: ${matchedProperty?.billingConfig?.id || 'null'}`)
           results.errors.push({
             row: rowNum,
             reason: `No se encontró propiedad asociada para "${detectedPlatform === 'BOOKING' ? row[colIndices.propertyName] : row[colIndices.listingName]}"`,
@@ -687,14 +674,6 @@ export async function POST(request: NextRequest) {
       // In production, you might want to use a queue
     }
 
-    console.log('Import complete:', {
-      total: dataRows.length,
-      imported: results.imported,
-      skipped: results.skipped,
-      errors: results.errors.length,
-      importBatchId: results.importBatchId,
-      listingsFound: Array.from(results.listingsFound)
-    })
 
     // Log the import for history and rollback capability
     await prisma.reservationImport.create({

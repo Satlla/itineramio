@@ -14,7 +14,6 @@ export async function POST(request: NextRequest) {
     // Get user from token
     const token = request.cookies.get('auth-token')?.value
     if (!token) {
-      console.log('No auth token provided')
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
@@ -22,7 +21,6 @@ export async function POST(request: NextRequest) {
     try {
       decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     } catch (jwtError) {
-      console.log('Invalid JWT token:', jwtError)
       return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
     }
     
@@ -34,12 +32,9 @@ export async function POST(request: NextRequest) {
     try {
       body = await request.json()
     } catch (parseError) {
-      console.log('Failed to parse request body:', parseError)
       return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 })
     }
     
-    console.log('Update request from user:', decoded.userId)
-    console.log('Update request body:', JSON.stringify(body, null, 2))
     
     // Destructure with defaults
     const {
@@ -52,19 +47,9 @@ export async function POST(request: NextRequest) {
       profileImage = null
     } = body
 
-    console.log('Extracted fields:', {
-      firstName: typeof firstName,
-      lastName: typeof lastName,
-      email: typeof email,
-      phone: typeof phone,
-      hasPassword: !!password,
-      hasNewPassword: !!newPassword,
-      hasProfileImage: profileImage !== null
-    })
 
     // Validate required fields - be more permissive
     if (!email || typeof email !== 'string' || email.trim() === '') {
-      console.log('Missing or invalid email:', { email, type: typeof email })
       return NextResponse.json({ 
         error: 'Email es requerido'
       }, { status: 400 })
@@ -78,7 +63,6 @@ export async function POST(request: NextRequest) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     const trimmedEmail = email.trim()
     if (!emailRegex.test(trimmedEmail)) {
-      console.log('Invalid email format:', trimmedEmail)
       return NextResponse.json({ error: 'Email inválido' }, { status: 400 })
     }
 
@@ -129,7 +113,6 @@ export async function POST(request: NextRequest) {
 
     // Check if email is changing
     if (trimmedEmail !== currentUser.email) {
-      console.log('Email change detected:', { old: currentUser.email, new: trimmedEmail })
       
       // Require password for email change
       if (!password) {
@@ -151,12 +134,10 @@ export async function POST(request: NextRequest) {
       })
       
       if (existingUser) {
-        console.log('Email already taken by user:', existingUser.id)
         return NextResponse.json({ error: 'Este email ya está en uso' }, { status: 400 })
       }
       
       updateData.email = trimmedEmail
-      console.log('Email will be updated')
     }
 
     // Update password if provided

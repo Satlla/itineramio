@@ -50,7 +50,6 @@ export async function POST(
     const billingUnitGroupId = metadata.billingUnitGroupId
     const billingUnitIds = metadata.billingUnitIds
 
-    console.log('[recalculate] liquidation:', { id, ownerId: liquidation.ownerId, year: liquidation.year, month: liquidation.month, mode, billingUnitGroupId, billingUnitIds, metadata })
 
     // Unlink all current reservations and expenses
     await prisma.reservation.updateMany({
@@ -115,7 +114,6 @@ export async function POST(
       }
     }
 
-    console.log('[recalculate] billing config:', { useBillingUnits, targetBillingUnitIds, commissionType, commissionValue: commissionValue.toString() })
 
     // Get reservations based on mode
     let reservations: any[] = []
@@ -242,12 +240,10 @@ export async function POST(
             useBillingUnits = true
             targetBillingUnitIds = ownerUnitIds
           }
-          console.log('[recalculate] Legacy fallback to billingUnits:', ownerUnitIds.length, 'units, found', reservations.length, 'reservations')
         }
       }
     }
 
-    console.log('[recalculate] found reservations:', reservations.length, 'expenses:', expenses.length)
 
     // Final fallback: if no reservations found through normal config chain,
     // look for ANY reservation for this user in this period that is unlinked.
@@ -279,7 +275,6 @@ export async function POST(
         take: 100,
       })
 
-      console.log('[recalculate] final fallback found', fallbackReservations.length, 'reservations by userId+period')
 
       if (fallbackReservations.length > 0) {
         reservations = fallbackReservations

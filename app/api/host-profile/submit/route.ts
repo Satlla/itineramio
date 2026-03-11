@@ -175,7 +175,6 @@ function getDimensionLabel(dimension: Dimension): string {
 export async function POST(request: NextRequest) {
   try {
     const body: SubmitRequest = await request.json()
-    console.log('🚀 HOST PROFILE SUBMIT - START')
 
     // Validar que tenemos 45 respuestas
     if (!body.answers || body.answers.length !== 45) {
@@ -235,7 +234,6 @@ export async function POST(request: NextRequest) {
         scores: dimensionScores,
         sourceEmail: body.sourceEmail
       })
-      console.log('✅ UnifiedLead updated with quiz:', leadResult.leadId, 'score:', leadResult.score, 'status:', leadResult.status)
     } catch (leadError) {
       console.error('⚠️ Could not update unified lead:', leadError)
     }
@@ -313,7 +311,6 @@ export async function POST(request: NextRequest) {
           contentTrack: body.interests?.[0] ? `${body.interests[0]}_focused` : null,
         }
       })
-      console.log('✅ Subscriber created/updated:', subscriber?.id)
     } catch (emailSubError) {
       // No fallar la request si hay error en EmailSubscriber (tabla puede no existir aún)
       console.error('❌ Could not create EmailSubscriber:', emailSubError)
@@ -364,7 +361,6 @@ export async function POST(request: NextRequest) {
             tags: [archetype, 'test_completed']
           }
         )
-        console.log('✅ Subscriber enrolled in sequences:', sequenceEnrollment)
       } catch (seqErr) {
         console.error('Error enrolling in sequences:', seqErr)
       }

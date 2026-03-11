@@ -96,7 +96,6 @@ async function cleanupExpiredDemos() {
       where: { id: { in: propertyIds } },
     })
 
-    console.log(`[demo] Cleaned up ${expired.length} expired demo properties`)
   } catch (err) {
     console.error('[demo] Cleanup error (non-blocking):', err)
   }

@@ -7,16 +7,13 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  console.log('🚀 PUT /api/announcements/[id] - Starting...')
   
   try {
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
-      console.log('❌ Auth failed')
       return authResult
     }
     const userId = authResult.userId
-    console.log('✅ Auth success, userId:', userId)
 
     const { id } = await params
     const body = await request.json()
@@ -90,16 +87,13 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  console.log('🚀 DELETE /api/announcements/[id] - Starting...')
   
   try {
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
-      console.log('❌ Auth failed')
       return authResult
     }
     const userId = authResult.userId
-    console.log('✅ Auth success, userId:', userId)
 
     const { id } = await params
 

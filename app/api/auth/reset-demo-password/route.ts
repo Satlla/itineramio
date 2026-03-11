@@ -11,8 +11,6 @@ export async function POST(request: NextRequest) {
       return adminAuth
     }
 
-    console.log('🔑 Resetting demo password by admin:', adminAuth.adminId)
-    
     const hashedPassword = await bcrypt.hash('demo123', 10)
     
     const updatedUser = await prisma.user.update({
@@ -23,8 +21,6 @@ export async function POST(request: NextRequest) {
         emailVerified: new Date()
       }
     })
-    
-    console.log('✅ Demo password updated!')
     
     return NextResponse.json({
       success: true,

@@ -9,8 +9,6 @@ import {
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🕐 Starting trial check cron job...')
-
     // This should be protected by a cron secret in production
     const cronSecret = request.headers.get('x-cron-secret')
     if (process.env.CRON_SECRET && cronSecret !== process.env.CRON_SECRET) {
@@ -18,10 +16,8 @@ export async function GET(request: NextRequest) {
     }
 
     const now = new Date()
-    console.log('🕐 Current time:', now.toISOString())
-    
+
     // 1. Check for expired trials
-    console.log('🔍 Searching for expired trials...')
     const expiredTrials = await prisma.property.findMany({
       where: {
         status: 'TRIAL',
@@ -39,8 +35,7 @@ export async function GET(request: NextRequest) {
         }
       }
     })
-    console.log(`📊 Found ${expiredTrials.length} expired trials`)
-    
+
     // Suspend expired trials and send emails
     for (const property of expiredTrials) {
       await prisma.property.update({
@@ -71,7 +66,6 @@ export async function GET(request: NextRequest) {
           name: property.host.name,
           propertyName: property.name
         })
-        console.log(`📧 Trial expired email sent to ${property.host.email}`)
       } catch (emailError) {
         console.error('Error sending trial expiration email:', emailError)
         // Don't fail the cron job if email fails
@@ -127,7 +121,6 @@ export async function GET(request: NextRequest) {
           propertyName: property.name,
           daysRemaining
         })
-        console.log(`📧 3-day warning email sent to ${property.host.email}`)
       } catch (emailError) {
         console.error('Error sending 3-day warning email:', emailError)
       }
@@ -179,12 +172,11 @@ export async function GET(request: NextRequest) {
           name: property.host.name,
           propertyName: property.name
         })
-        console.log(`📧 24h warning email sent to ${property.host.email}`)
       } catch (emailError) {
         console.error('Error sending 24h warning email:', emailError)
       }
     }
-    
+
     // 3. Send 6h warning
     const sixHoursFromNow = new Date(now)
     sixHoursFromNow.setHours(sixHoursFromNow.getHours() + 6)

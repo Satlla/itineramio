@@ -33,7 +33,6 @@ export async function GET(request: NextRequest) {
         where: { userId }
       })
     } catch (error) {
-      console.log('BillingInfo table not available yet, using User model fallback')
     }
 
     // If not found or table doesn't exist, try legacy User fields
@@ -123,7 +122,6 @@ export async function POST(request: NextRequest) {
   try {
     const userId = getUserIdFromToken(request)
 
-    console.log('📋 Billing info POST - userId:', userId)
 
     if (!userId) {
       console.error('❌ No userId found in token')
@@ -134,7 +132,6 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    console.log('📋 Billing info POST - body:', JSON.stringify(body, null, 2))
 
     // Support both naming conventions: billingAddress and address
     const {
@@ -259,7 +256,6 @@ export async function POST(request: NextRequest) {
         }
       })
     } catch (error) {
-      console.log('BillingInfo table not available yet, using User model fallback')
       // Table doesn't exist yet, will use User model below
     }
 
@@ -299,7 +295,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log('✅ Billing info saved successfully')
     return NextResponse.json({
       success: true,
       billingInfo

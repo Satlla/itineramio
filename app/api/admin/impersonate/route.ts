@@ -44,8 +44,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('📝 Buscando usuario objetivo con ID:', userId)
-
     // Obtener el usuario a suplantar
     const targetUser = await prisma.user.findUnique({
       where: { id: userId },
@@ -64,13 +62,6 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       )
     }
-
-    console.log('✅ Usuario objetivo encontrado:', {
-      id: targetUser.id,
-      email: targetUser.email,
-      name: targetUser.name,
-      role: targetUser.role
-    })
 
     // Crear log de auditoría
     await prisma.adminAuditLog.create({
@@ -132,8 +123,6 @@ export async function POST(request: NextRequest) {
       path: '/',
       maxAge: 60 * 60 * 24 // 24 horas
     })
-
-    console.log(`✅ Admin ${admin.email} impersonating ${targetUser.email}`)
 
     return NextResponse.json({
       success: true,

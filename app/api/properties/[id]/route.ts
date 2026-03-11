@@ -136,7 +136,6 @@ export async function GET(
     
     // Try safe method as fallback
     try {
-      console.log('🔄 Attempting safe property fetch as fallback...')
       
       const safeProperties = await prisma.$queryRaw`
         SELECT 
@@ -173,8 +172,6 @@ export async function GET(
           avgRating: 0,
           zones: [] // Empty zones array for fallback
         }
-        
-        console.log('✅ Safe fallback successful')
         
         return NextResponse.json({
           success: true,

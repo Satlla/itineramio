@@ -56,7 +56,6 @@ export async function POST(
     const { id: propertyId } = await params
     const body = await request.json()
     
-    console.log('🔵 Batch zone creation started for property:', propertyId)
     
     // Validate request data
     const validatedData = batchZoneSchema.parse(body)
@@ -117,7 +116,6 @@ export async function POST(
       select: { slug: true }
     }).then(results => results.map(r => r.slug).filter(Boolean) as string[])
     
-    console.log('🔵 Existing slugs:', existingSlugs)
     
     // Prepare zones data with unique slugs
     const zonesData = validatedData.zones.map((zoneData, index) => {
@@ -149,7 +147,6 @@ export async function POST(
       }
     })
 
-    console.log('🔵 Creating', zonesData.length, 'zones in batch')
 
     // Create zones and their steps in a single transaction
     const createdZones = await prisma.$transaction(async (tx) => {
@@ -171,7 +168,6 @@ export async function POST(
               isPublished: true
             }))
           })
-          console.log(`🔵 Created ${steps.length} steps for zone "${zoneData.name}"`)
         }
 
         zones.push(zone)

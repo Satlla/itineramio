@@ -8,7 +8,6 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    console.log('🔍 Safe Property endpoint - received ID:', id)
     
     // Get authenticated user
     const authResult = await requireAuth(request)
@@ -101,29 +100,23 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  console.log('✅ SAFE PUT /properties/[id] endpoint called')
-  
   try {
     const { id } = await params
     const body = await request.json()
-    console.log('✅ SAFE PUT - Params:', { id })
-    console.log('✅ SAFE PUT - Body keys:', Object.keys(body))
-    
+
     // Get authenticated user
     const authResult = await requireAuth(request)
     if (authResult instanceof Response) {
-      console.log('✅ SAFE PUT - Auth failed')
       return authResult
     }
     const userId = authResult.userId
-    console.log('✅ SAFE PUT - Auth success, userId:', userId)
     
     // Set RLS config (ignore if fails)
     try {
     // REMOVED: set_config doesn't work with PgBouncer in transaction mode
     // RLS is handled at application level instead
     } catch (e) {
-      console.log('✅ SAFE PUT - RLS skipped:', String(e))
+      // RLS skipped
     }
     
     // Find property with raw SQL (handle potential ID truncation)
@@ -135,7 +128,6 @@ export async function PUT(
     ` as any[]
     
     if (properties.length === 0) {
-      console.log('✅ SAFE PUT - Property not found')
       return NextResponse.json({
         success: false,
         error: 'Propiedad no encontrada o no autorizada'
@@ -143,11 +135,9 @@ export async function PUT(
     }
     
     const actualPropertyId = properties[0].id
-    console.log('✅ SAFE PUT - Property found:', actualPropertyId)
-    
+
     // Handle propertySetId update specifically
     if (body.propertySetId !== undefined) {
-      console.log('✅ SAFE PUT - Updating propertySetId to:', body.propertySetId)
       
       if (body.propertySetId === null || body.propertySetId === '') {
         // Remove from property set
@@ -165,7 +155,6 @@ export async function PUT(
         ` as any[]
         
         if (propertySets.length === 0) {
-          console.log('✅ SAFE PUT - Property set not found or unauthorized')
           return NextResponse.json({
             success: false,
             error: 'Conjunto de propiedades no encontrado o no autorizado'
@@ -180,14 +169,6 @@ export async function PUT(
       }
     }
     
-    // Handle translations specifically
-    console.log('✅ SAFE PUT - Checking translations:', {
-      nameEn: body.nameEn,
-      nameFr: body.nameFr,
-      descriptionEn: body.descriptionEn,
-      descriptionFr: body.descriptionFr
-    })
-
     // Always update translations if any translation field is present in the body
     const nameTranslations: Record<string, string> = {}
     if (body.nameEn && body.nameEn.trim()) nameTranslations.en = String(body.nameEn).trim()
@@ -199,25 +180,21 @@ export async function PUT(
 
     // Update name translations
     const nameTranslationsJson = Object.keys(nameTranslations).length > 0 ? JSON.stringify(nameTranslations) : null
-    console.log('✅ SAFE PUT - nameTranslationsJson:', nameTranslationsJson)
 
     await prisma.$executeRaw`
       UPDATE properties
       SET "nameTranslations" = ${nameTranslationsJson}::jsonb, "updatedAt" = NOW()
       WHERE id = ${actualPropertyId}
     `
-    console.log('✅ SAFE PUT - Updated nameTranslations')
 
     // Update description translations
     const descriptionTranslationsJson = Object.keys(descriptionTranslations).length > 0 ? JSON.stringify(descriptionTranslations) : null
-    console.log('✅ SAFE PUT - descriptionTranslationsJson:', descriptionTranslationsJson)
 
     await prisma.$executeRaw`
       UPDATE properties
       SET "descriptionTranslations" = ${descriptionTranslationsJson}::jsonb, "updatedAt" = NOW()
       WHERE id = ${actualPropertyId}
     `
-    console.log('✅ SAFE PUT - Updated descriptionTranslations')
 
     // Handle other fields if present - using safe individual queries
     // Each field has its own parameterized query to prevent SQL injection
@@ -291,8 +268,6 @@ export async function PUT(
       SELECT * FROM properties WHERE id = ${actualPropertyId}
       LIMIT 1
     ` as any[]
-    
-    console.log('✅ SAFE PUT - Property updated successfully')
     
     return NextResponse.json({
       success: true,

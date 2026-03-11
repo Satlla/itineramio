@@ -8,7 +8,6 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    console.log('🔍 Public Property endpoint - received ID:', id)
     
     // Use raw SQL to find property safely
     let properties = await prisma.$queryRaw`
@@ -39,7 +38,6 @@ export async function GET(
     if (property.hostId) {
       const moduleAccess = await checkHostManualesAccess(property.hostId)
       if (!moduleAccess.hasAccess) {
-        console.log(`🚫 Manual blocked for property ${id} - host ${property.hostId} has no MANUALES access: ${moduleAccess.blockedReason}`)
         return NextResponse.json({
           success: false,
           error: MANUAL_BLOCKED_MESSAGE.description,
@@ -153,16 +151,6 @@ export async function GET(
       zones: zonesWithSteps
     }
     
-    console.log('🔍 Public Property found:', !!property)
-    if (property) {
-      console.log('🔍 Property details:', { 
-        id: property.id, 
-        name: property.name, 
-        zonesCount: property.zones.length,
-        isPublished: property.isPublished 
-      })
-    }
-
     const result = property
     
     return NextResponse.json({

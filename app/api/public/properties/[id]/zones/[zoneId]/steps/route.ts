@@ -7,7 +7,6 @@ export async function GET(
 ) {
   try {
     const { id: propertyId, zoneId } = await params
-    console.log('🔍 Public Steps endpoint - propertyId:', propertyId, 'zoneId:', zoneId)
     
     // First verify the property is published
     const property = await prisma.property.findFirst({

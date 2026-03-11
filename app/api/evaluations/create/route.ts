@@ -127,23 +127,9 @@ export async function POST(request: NextRequest) {
 
       // Send email notification to property owner and manager using the same system as auth emails
       try {
-        console.log('📧 ZONE EVALUATION: Starting email notification for hostId:', property.hostId)
-        console.log('📧 ZONE EVALUATION: Property data:', {
-          hostId: property.hostId,
-          hostEmail: property.host?.email,
-          hostContactEmail: property.hostContactEmail,
-          hostContactName: property.hostContactName
-        })
-        
         const hostEmail = property.host?.email
         const managerEmail = property.hostContactEmail
-        
-        console.log('📧 ZONE EVALUATION: Extracted emails:', {
-          hostEmail,
-          managerEmail,
-          areEqual: hostEmail === managerEmail
-        })
-        
+
         // Collect emails to send to (both owner and manager)
         const emailRecipients = []
         if (hostEmail) emailRecipients.push(hostEmail)
@@ -152,17 +138,13 @@ export async function POST(request: NextRequest) {
           // Resend will handle deduplication automatically
           emailRecipients.push(managerEmail)
         }
-        
-        console.log('📧 ZONE EVALUATION: Final recipients array:', emailRecipients)
-        
+
         if (emailRecipients.length > 0) {
           const zoneName = typeof zone.name === 'string' ? zone.name : (zone.name as any)?.es || 'Zona'
           const propertyName = typeof property.name === 'string' ? property.name : (property.name as any)?.es || 'Propiedad'
-          
-          console.log('📧 ZONE EVALUATION: Sending notification email to multiple recipients...')
-          
+
           // Send to all recipients at once
-          const emailResult = await sendEmail({
+          await sendEmail({
             to: emailRecipients,
             subject: `Nueva evaluación de zona: ${rating} estrellas - ${propertyName}`,
             html: emailTemplates.zoneEvaluationNotification(
@@ -172,10 +154,6 @@ export async function POST(request: NextRequest) {
               comment
             )
           })
-          
-          console.log('✅ ZONE EVALUATION: Email result:', emailResult)
-        } else {
-          console.log('📧 ZONE EVALUATION: No host or manager email available, skipping notification')
         }
       } catch (emailError) {
         console.error('❌ ZONE EVALUATION: Error sending email notification:', emailError)
@@ -275,23 +253,9 @@ export async function POST(request: NextRequest) {
 
       // Send email notification to property owner and manager using the same system as auth emails
       try {
-        console.log('📧 PROPERTY EVALUATION: Starting email notification for hostId:', property.hostId)
-        console.log('📧 PROPERTY EVALUATION: Property data:', {
-          hostId: property.hostId,
-          hostEmail: property.host?.email,
-          hostContactEmail: property.hostContactEmail,
-          hostContactName: property.hostContactName
-        })
-        
         const hostEmail = property.host?.email
         const managerEmail = property.hostContactEmail
-        
-        console.log('📧 PROPERTY EVALUATION: Extracted emails:', {
-          hostEmail,
-          managerEmail,
-          areEqual: hostEmail === managerEmail
-        })
-        
+
         // Collect emails to send to (both owner and manager)
         const emailRecipients = []
         if (hostEmail) emailRecipients.push(hostEmail)
@@ -300,16 +264,12 @@ export async function POST(request: NextRequest) {
           // Resend will handle deduplication automatically
           emailRecipients.push(managerEmail)
         }
-        
-        console.log('📧 PROPERTY EVALUATION: Final recipients array:', emailRecipients)
-        
+
         if (emailRecipients.length > 0) {
           const propertyName = typeof property.name === 'string' ? property.name : (property.name as any)?.es || 'Propiedad'
-          
-          console.log('📧 PROPERTY EVALUATION: Sending notification email to multiple recipients...')
-          
+
           // Send to all recipients at once
-          const emailResult = await sendEmail({
+          await sendEmail({
             to: emailRecipients,
             subject: `Nueva evaluación del manual: ${rating} estrellas - ${propertyName}`,
             html: emailTemplates.zoneEvaluationNotification(
@@ -319,10 +279,6 @@ export async function POST(request: NextRequest) {
               comment
             )
           })
-          
-          console.log('✅ PROPERTY EVALUATION: Email result:', emailResult)
-        } else {
-          console.log('📧 PROPERTY EVALUATION: No host or manager email available, skipping notification')
         }
       } catch (emailError) {
         console.error('❌ PROPERTY EVALUATION: Error sending email notification:', emailError)

@@ -43,6 +43,7 @@ import { useTranslation } from 'react-i18next'
 import { useOnboarding } from '../../../src/contexts/OnboardingContext'
 import { Spotlight } from '../../../src/components/ui/Spotlight'
 import { CityGuidesBanner } from '../../../src/components/ui/CityGuidesBanner'
+import { OnboardingChecklist } from '../../../src/components/ui/OnboardingChecklist'
 
 interface Property {
   id: string
@@ -639,6 +640,9 @@ export default function DashboardPage(): JSX.Element {
               </div>
             </motion.div>
           )}
+
+          {/* Onboarding Checklist */}
+          <OnboardingChecklist />
 
           {/* Stats Cards */}
           <motion.div

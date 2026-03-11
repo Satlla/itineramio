@@ -103,7 +103,6 @@ export async function GET(request: NextRequest) {
       })
 
       updated++
-      console.log(`[verifactu-cron] ${invoice.fullNumber}: ${invoice.verifactuStatus} → ${newStatus}`)
     }
 
     return NextResponse.json({

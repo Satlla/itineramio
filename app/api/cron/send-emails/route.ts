@@ -7,8 +7,6 @@ import { processScheduledEmails } from '../../../../src/lib/email-sequences'
  */
 export async function GET(req: NextRequest) {
   try {
-    console.log('[CRON] Starting email processing job...')
-
     // Verificar autorización (Vercel Cron incluye header especial)
     const authHeader = req.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
@@ -25,8 +23,6 @@ export async function GET(req: NextRequest) {
 
     // Procesar emails programados
     const result = await processScheduledEmails(100) // Procesar hasta 100 emails por ejecución
-
-    console.log('[CRON] Email processing completed:', result)
 
     return NextResponse.json({
       success: true,

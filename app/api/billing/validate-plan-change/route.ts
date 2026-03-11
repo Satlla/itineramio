@@ -24,11 +24,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { targetPlanCode, targetBillingPeriod } = body
 
-    console.log('🔍 VALIDATE PLAN CHANGE:', {
-      userId: decoded.userId,
-      targetPlanCode,
-      targetBillingPeriod
-    })
 
     if (!targetPlanCode || !targetBillingPeriod) {
       return NextResponse.json({
@@ -58,7 +53,6 @@ export async function POST(request: NextRequest) {
 
     // If no active subscription, allow any plan
     if (!activeSubscription || !activeSubscription.plan) {
-      console.log('✅ No active subscription - allow any plan')
       return NextResponse.json({
         allowed: true,
         message: 'No tienes suscripción activa. Puedes elegir cualquier plan.'
@@ -90,7 +84,6 @@ export async function POST(request: NextRequest) {
     const isSamePeriod = currentBillingPeriod === normalizedTargetPeriod
 
     if (isSamePlan && isSamePeriod) {
-      console.log('❌ Same plan and period')
       return NextResponse.json({
         allowed: false,
         message: `Ya tienes el plan ${activeSubscription.plan.name} activo con el mismo período de facturación.`
@@ -111,13 +104,6 @@ export async function POST(request: NextRequest) {
     const targetMonthlyPrice = targetPlan.priceMonthly
     const isUpgrade = targetMonthlyPrice > currentMonthlyPrice
 
-    console.log('📊 Plan comparison:', {
-      currentPlan: activeSubscription.plan.code,
-      currentPrice: currentMonthlyPrice,
-      targetPlan: targetPlanCode,
-      targetPrice: targetMonthlyPrice,
-      isUpgrade
-    })
 
     // If it's a downgrade to a different plan, don't allow immediate change
     if (!isUpgrade && !isSamePlan) {
@@ -129,7 +115,6 @@ export async function POST(request: NextRequest) {
           })
         : 'fecha no definida'
 
-      console.log('❌ Downgrade not allowed')
       return NextResponse.json({
         allowed: false,
         isDowngrade: true,
@@ -149,13 +134,6 @@ export async function POST(request: NextRequest) {
       const currentLevel = periodHierarchy[currentBillingPeriod]
       const targetLevel = periodHierarchy[normalizedTargetPeriod as keyof typeof periodHierarchy]
 
-      console.log('📊 Period comparison:', {
-        currentPeriod: currentBillingPeriod,
-        currentLevel,
-        targetPeriod: normalizedTargetPeriod,
-        targetLevel,
-        isDowngrade: targetLevel < currentLevel
-      })
 
       // If downgrading period commitment, don't allow
       if (targetLevel < currentLevel) {
@@ -167,7 +145,6 @@ export async function POST(request: NextRequest) {
             })
           : 'fecha no definida'
 
-        console.log('❌ Period downgrade not allowed')
         return NextResponse.json({
           allowed: false,
           isDowngrade: true,
@@ -178,7 +155,6 @@ export async function POST(request: NextRequest) {
     }
 
     // All validations passed
-    console.log('✅ Plan change allowed')
     return NextResponse.json({
       allowed: true,
       message: 'Cambio de plan permitido'

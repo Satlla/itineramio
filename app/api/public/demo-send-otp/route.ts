@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     const hasResend = !!process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 'test_key'
 
     if (isDev && !hasResend) {
-      console.log(`\n🔑 [DEV] Código OTP para ${normalizedEmail}: ${code}\n`)
+      // OTP code generated (dev mode, no email sent)
     } else {
       try {
         await sendEmail({

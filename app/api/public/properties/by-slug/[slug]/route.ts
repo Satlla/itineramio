@@ -7,7 +7,6 @@ export async function GET(
 ) {
   try {
     const { slug } = await params
-    console.log('🔍 Public Property by-slug endpoint - received slug:', slug)
     
     // Use raw SQL to find property safely - avoid slug field which may not exist in production
     let properties = await prisma.$queryRaw`
@@ -28,7 +27,6 @@ export async function GET(
     let property = properties[0]
     
     if (!property) {
-      console.log('🔍 Property not found by ID, no slug field available in production')
       return NextResponse.json({
         success: false,
         error: 'Propiedad no encontrada o no publicada'
@@ -138,8 +136,6 @@ export async function GET(
       ...property,
       zones: zonesWithSteps
     }
-    
-    console.log('🔍 Public Property final result found:', !!property)
     
     if (!property) {
       return NextResponse.json({

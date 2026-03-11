@@ -12,7 +12,6 @@ export async function POST(request: NextRequest) {
       return authResult
     }
     
-    console.log('🧹 Starting cleanup of fake evaluations...')
     
     // Delete fake zone ratings (test data)
     const deletedZoneRatings = await prisma.zoneRating.deleteMany({
@@ -66,11 +65,6 @@ export async function POST(request: NextRequest) {
       }
     }).catch(() => ({ count: 0 })) // Ignore if notification table doesn't exist
     
-    console.log('🧹 Cleanup completed:', {
-      deletedZoneRatings: deletedZoneRatings.count,
-      deletedReviews: deletedReviews.count,
-      deletedNotifications: deletedNotifications.count
-    })
     
     return NextResponse.json({
       success: true,

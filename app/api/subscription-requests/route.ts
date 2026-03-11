@@ -25,7 +25,6 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    console.log('📋 Subscription request body:', JSON.stringify(body, null, 2))
 
     const {
       // Support both naming conventions
@@ -52,7 +51,6 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields (paymentProofUrl is optional)
     if (!totalAmount || !paymentMethod) {
-      console.error('❌ Missing required fields:', { totalAmount, paymentMethod, body })
       return NextResponse.json(
         { error: 'Faltan campos requeridos: ' + [
           !totalAmount && 'importe total',
@@ -123,8 +121,6 @@ export async function POST(request: NextRequest) {
         hint: 'Ve a Cuenta → Facturación y completa todos los campos requeridos.'
       }, { status: 400 })
     }
-
-    console.log('✅ BILLING-DATA-VALIDATED: User has complete billing data')
 
     // Check if user already has a pending subscription request
     const existingPendingRequest = await prisma.subscriptionRequest.findFirst({

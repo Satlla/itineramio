@@ -79,7 +79,6 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log(`✅ Trial activado: ${normalizedModuleCode} para usuario ${userId}, expira ${trialEndsAt.toISOString()}`)
 
     return NextResponse.json({
       success: true,

@@ -10,8 +10,6 @@ import { render } from '@react-email/render'
  */
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔄 Starting reactivation email cron job...')
-
     // Verify cron secret
     const cronSecret = request.headers.get('x-cron-secret')
     if (process.env.CRON_SECRET && cronSecret !== process.env.CRON_SECRET) {
@@ -106,7 +104,6 @@ export async function GET(request: NextRequest) {
           })
 
           if (activeSubscription) {
-            console.log(`⏭️ Skipping ${data.host.email} - has active subscription`)
             continue
           }
 
@@ -122,7 +119,6 @@ export async function GET(request: NextRequest) {
           })
 
           if (existingEmail) {
-            console.log(`⏭️ Skipping ${data.host.email} - already received ${interval.days}d email`)
             continue
           }
 
@@ -166,8 +162,6 @@ export async function GET(request: NextRequest) {
             }
           })
 
-          console.log(`✅ Reactivation email (${interval.days}d) sent to ${data.host.email}`)
-
           if (interval.days === 3) results.sent3d++
           else if (interval.days === 7) results.sent7d++
           else if (interval.days === 14) results.sent14d++
@@ -178,8 +172,6 @@ export async function GET(request: NextRequest) {
         }
       }
     }
-
-    console.log('✅ Reactivation email cron completed:', results)
 
     return NextResponse.json({
       success: true,

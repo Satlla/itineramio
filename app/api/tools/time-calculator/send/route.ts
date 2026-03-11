@@ -376,7 +376,6 @@ export async function POST(request: NextRequest) {
       html: htmlContent
     })
 
-    console.log(`[Time Calculator] Sent results to ${normalizedEmail}: ${result.hoursPerYear}h/year lost`)
 
     // If they qualify for WELCOME20 (>= 40h/year), send discount email in 5 minutes
     if (result.hoursPerYear >= INSANE_HOURS_THRESHOLD) {
@@ -397,7 +396,6 @@ export async function POST(request: NextRequest) {
         scheduledAt: sendAt.toISOString()
       })
 
-      console.log(`[Time Calculator] Scheduled WELCOME20 email for ${normalizedEmail} at ${sendAt.toISOString()}`)
 
       // Add tag to subscriber
       await prisma.emailSubscriber.update({

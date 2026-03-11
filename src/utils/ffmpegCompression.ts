@@ -64,7 +64,36 @@ interface CompressionOptions {
   onProgress?: (message: string) => void
 }
 
+// Wrapper that races compression against a timeout
+async function compressWithTimeout(
+  file: File,
+  options: CompressionOptions,
+  timeoutMs: number
+): Promise<File> {
+  return Promise.race([
+    _doCompress(file, options),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`FFmpeg timeout after ${timeoutMs / 1000}s`)), timeoutMs)
+    ),
+  ])
+}
+
 export async function compressVideoFFmpeg(
+  file: File,
+  options: CompressionOptions = {}
+): Promise<File> {
+  const fileSizeMB = file.size / (1024 * 1024)
+
+  // If already small enough, return original
+  if (fileSizeMB <= (options.maxSizeMB ?? 5)) {
+    return file
+  }
+
+  // Race against 5-second timeout — if FFmpeg hangs (slow unpkg.com WASM download), fail fast
+  return compressWithTimeout(file, options, 5_000)
+}
+
+async function _doCompress(
   file: File,
   options: CompressionOptions = {}
 ): Promise<File> {
@@ -76,12 +105,6 @@ export async function compressVideoFFmpeg(
 
   const fileSizeMB = file.size / (1024 * 1024)
   console.log('🎬 FFmpeg compression starting:', file.name, fileSizeMB.toFixed(2), 'MB')
-
-  // If already small enough, return original
-  if (fileSizeMB <= maxSizeMB) {
-    console.log('✅ File already under size limit')
-    return file
-  }
 
   try {
     const ffmpegInstance = await initFFmpeg(onProgress)

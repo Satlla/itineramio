@@ -62,8 +62,6 @@ export async function POST(request: NextRequest) {
     })
 
     // TODO: Enviar notificación por email al equipo admin
-    console.log('📝 Nueva historia recibida:', story.id)
-
     return NextResponse.json({
       success: true,
       data: {

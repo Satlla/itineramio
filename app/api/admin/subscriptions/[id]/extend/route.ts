@@ -78,8 +78,6 @@ export async function POST(
       userAgent
     })
 
-    console.log(`✅ Subscription ${id} extended by ${days} days until ${newEndDate.toISOString()}`)
-
     return NextResponse.json({
       success: true,
       message: `Suscripción extendida ${days} días hasta ${newEndDate.toLocaleDateString('es-ES')}`,

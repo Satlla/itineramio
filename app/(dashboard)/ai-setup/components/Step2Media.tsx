@@ -34,6 +34,15 @@ import {
   Umbrella,
   Bath,
   Plus,
+  ShowerHead,
+  Bed,
+  Sofa,
+  Wifi,
+  MapPin,
+  Home,
+  Bike,
+  Wrench,
+  Info,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -58,12 +67,49 @@ const ZONE_ICON_MAP: Record<string, LucideIcon> = {
   'tree-pine': TreePine,
   'umbrella': Umbrella,
   'bath': Bath,
+  'shower': ShowerHead,
+  'shower-head': ShowerHead,
+  'bed': Bed,
+  'sofa': Sofa,
+  'wifi': Wifi,
+  'map-pin': MapPin,
+  'home': Home,
+  'bike': Bike,
+  'wrench': Wrench,
+  'info': Info,
 }
+
+// Icons available for custom zones (vector SVG, shown in picker grid)
+const CUSTOM_ZONE_ICONS: { id: string; Icon: LucideIcon; label: string }[] = [
+  { id: 'shower', Icon: ShowerHead, label: 'Ducha' },
+  { id: 'bath', Icon: Bath, label: 'Baño' },
+  { id: 'bed', Icon: Bed, label: 'Dormitorio' },
+  { id: 'sofa', Icon: Sofa, label: 'Salón' },
+  { id: 'utensils', Icon: Utensils, label: 'Cocina' },
+  { id: 'coffee', Icon: Coffee, label: 'Cafetera' },
+  { id: 'tv', Icon: Tv, label: 'TV' },
+  { id: 'wifi', Icon: Wifi, label: 'WiFi' },
+  { id: 'key', Icon: Key, label: 'Acceso' },
+  { id: 'car', Icon: Car, label: 'Parking' },
+  { id: 'waves', Icon: Waves, label: 'Piscina' },
+  { id: 'umbrella', Icon: Umbrella, label: 'Terraza' },
+  { id: 'tree-pine', Icon: TreePine, label: 'Jardín' },
+  { id: 'flame', Icon: Flame, label: 'Barbacoa' },
+  { id: 'wind', Icon: Wind, label: 'Aire' },
+  { id: 'thermometer', Icon: Thermometer, label: 'Calefacción' },
+  { id: 'snowflake', Icon: Snowflake, label: 'Nevera' },
+  { id: 'shirt', Icon: Shirt, label: 'Lavadora' },
+  { id: 'bike', Icon: Bike, label: 'Bici' },
+  { id: 'home', Icon: Home, label: 'Casa' },
+  { id: 'map-pin', Icon: MapPin, label: 'Ubicación' },
+  { id: 'info', Icon: Info, label: 'Info' },
+  { id: 'wrench', Icon: Wrench, label: 'Herramientas' },
+  { id: 'lock', Icon: Lock, label: 'Caja fuerte' },
+]
 
 export const PREDEFINED_ZONES = [
   // Template zones (auto-generated from wizard steps)
   { id: 'checkin', name: 'Check-in', lucideIcon: 'key', icon: 'key', hasTemplate: true, group: 'template' },
-  { id: 'garage', name: 'Parking privado', lucideIcon: 'car', icon: 'parking', hasTemplate: true, group: 'template' },
   { id: 'ac', name: 'Aire Acondicionado', lucideIcon: 'snowflake', icon: 'snowflake', hasTemplate: true, group: 'template' },
   // Electrodomésticos comunes
   { id: 'washing_machine', name: 'Lavadora', lucideIcon: 'shirt', icon: 'washing-machine', hasTemplate: false, group: 'appliance' },
@@ -90,11 +136,6 @@ function ZoneIcon({ iconName, className = 'w-4 h-4' }: { iconName: string; class
   return <Icon className={className} />
 }
 
-export const ZONE_EMOJIS = [
-  '🔑', '🍳', '🚿', '🛏️', '🛋️', '🌳', '🏊', '🚗', '🧺', '🌡️', '📺',
-  '☕', '🏋️', '🎮', '🧹', '🔧', '📋', '⚡', '🚰', '🏠',
-]
-
 // ── Types ──
 
 export interface MediaItem {
@@ -105,7 +146,7 @@ export interface MediaItem {
   // User-assigned zone
   zoneId?: string           // predefined zone ID
   customZoneName?: string   // name if "Create new zone"
-  customZoneIcon?: string   // emoji for custom zone
+  customZoneIcon?: string   // icon ID for custom zone (e.g. 'shower', 'bath')
   description?: string      // user description (Spanish)
 }
 
@@ -297,7 +338,7 @@ export default function Step2Media({
 
   const handleZoneChange = useCallback((id: string, value: string) => {
     if (value === CUSTOM_ZONE_VALUE) {
-      updateField(id, { zoneId: undefined, customZoneName: '', customZoneIcon: '📋' })
+      updateField(id, { zoneId: undefined, customZoneName: '', customZoneIcon: 'info' })
     } else if (value === '') {
       updateField(id, { zoneId: undefined, customZoneName: undefined, customZoneIcon: undefined })
     } else {
@@ -310,7 +351,10 @@ export default function Step2Media({
       const zone = PREDEFINED_ZONES.find(z => z.id === item.zoneId)
       if (zone) return <ZoneIcon iconName={zone.lucideIcon} className="w-4 h-4" />
     }
-    if (item.customZoneIcon) return <span className="text-sm">{item.customZoneIcon}</span>
+    if (item.customZoneIcon) {
+      const customEntry = CUSTOM_ZONE_ICONS.find(i => i.id === item.customZoneIcon)
+      if (customEntry) return <customEntry.Icon className="w-4 h-4" />
+    }
     return <ChevronDown className="w-4 h-4" />
   }
 
@@ -689,26 +733,61 @@ export default function Step2Media({
 
                         {/* Custom zone inputs */}
                         {isCustomZone && (
-                          <div className="flex gap-2">
-                            <div className="relative">
-                              <select
-                                value={item.customZoneIcon || '📋'}
-                                onChange={(e) => updateField(item.id, { customZoneIcon: e.target.value })}
-                                className="w-14 py-2 text-center text-lg bg-violet-500/10 border border-violet-500/30 rounded-lg focus:outline-none focus:border-violet-500/50 appearance-none cursor-pointer"
-                              >
-                                {ZONE_EMOJIS.map(emoji => (
-                                  <option key={emoji} value={emoji}>{emoji}</option>
-                                ))}
-                              </select>
+                          <div className="space-y-2">
+                            <div className="flex gap-2">
+                              {/* SVG Icon picker */}
+                              <div className="relative">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setOpenDropdown(openDropdown === `icon-${item.id}` ? null : `icon-${item.id}`)
+                                  }}
+                                  className="w-11 h-10 flex items-center justify-center bg-violet-500/10 border border-violet-500/30 rounded-lg hover:bg-violet-500/20 transition-colors"
+                                  title="Cambiar icono"
+                                >
+                                  {(() => {
+                                    const iconId = item.customZoneIcon || 'info'
+                                    const entry = CUSTOM_ZONE_ICONS.find(i => i.id === iconId)
+                                    return entry ? <entry.Icon className="w-5 h-5 text-violet-300" /> : <Info className="w-5 h-5 text-violet-300" />
+                                  })()}
+                                </button>
+                                {openDropdown === `icon-${item.id}` && (
+                                  <div
+                                    className="absolute left-0 top-12 z-50 bg-gray-900 border border-violet-500/30 rounded-xl shadow-2xl p-2 grid grid-cols-6 gap-1"
+                                    style={{ width: 200 }}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {CUSTOM_ZONE_ICONS.map(({ id, Icon, label }) => (
+                                      <button
+                                        key={id}
+                                        type="button"
+                                        onClick={() => {
+                                          updateField(item.id, { customZoneIcon: id })
+                                          setOpenDropdown(null)
+                                        }}
+                                        title={label}
+                                        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
+                                          (item.customZoneIcon || 'info') === id
+                                            ? 'bg-violet-600 text-white'
+                                            : 'hover:bg-violet-500/20 text-violet-300'
+                                        }`}
+                                      >
+                                        <Icon className="w-4 h-4" />
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              <input
+                                type="text"
+                                value={item.customZoneName || ''}
+                                onChange={(e) => updateField(item.id, { customZoneName: e.target.value })}
+                                placeholder={t('step3.customZonePlaceholder')}
+                                maxLength={100}
+                                className="flex-1 px-3 py-2 text-sm bg-violet-500/10 border border-violet-500/30 rounded-lg text-violet-200 placeholder-violet-400/50 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-colors"
+                              />
                             </div>
-                            <input
-                              type="text"
-                              value={item.customZoneName || ''}
-                              onChange={(e) => updateField(item.id, { customZoneName: e.target.value })}
-                              placeholder={t('step3.customZonePlaceholder')}
-                              maxLength={100}
-                              className="flex-1 px-3 py-2 text-sm bg-violet-500/10 border border-violet-500/30 rounded-lg text-violet-200 placeholder-violet-400/50 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-colors"
-                            />
                           </div>
                         )}
 

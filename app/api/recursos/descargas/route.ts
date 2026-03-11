@@ -314,7 +314,6 @@ export async function POST(request: NextRequest) {
         resourceSlug,
         sourceEmail
       })
-      console.log(`[UnifiedLead] Updated for ${normalizedEmail} - score: ${leadResult.score}, status: ${leadResult.status}`)
     } catch (leadError) {
       console.error('Error updating unified lead:', leadError)
     }
@@ -341,7 +340,6 @@ export async function POST(request: NextRequest) {
       }, { status: 500 })
     }
 
-    console.log(`[Email] Sent ${resource.emailSubject} to ${normalizedEmail}`)
 
     // Send notification for hot leads
     const isHotLead = leadResult?.status === 'hot'
@@ -396,7 +394,6 @@ export async function POST(request: NextRequest) {
             </div>
           `
         })
-        console.log(`[Notification] Hot lead alert sent for ${normalizedEmail}`)
       } catch (notifError) {
         console.error('Error sending hot lead notification:', notifError)
       }

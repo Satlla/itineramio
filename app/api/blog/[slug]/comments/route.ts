@@ -239,7 +239,6 @@ export async function POST(
 </html>
         `
       })
-      console.log('[Comment] Admin notification sent for comment:', comment.id)
     } catch (notifyError) {
       console.error('[Comment] Error sending admin notification:', notifyError)
       // Don't fail the request if admin notification fails
@@ -251,9 +250,6 @@ export async function POST(
       const verifyUrl = `${baseUrl}/api/blog/comments/verify?token=${verificationToken}`
 
       try {
-        console.log('[Comment Verification] Sending email to:', authorEmail.trim().toLowerCase())
-        console.log('[Comment Verification] Verify URL:', verifyUrl)
-
         const { data, error } = await resend.emails.send({
           from: FROM_EMAIL,
           to: [authorEmail.trim().toLowerCase()],
@@ -316,7 +312,6 @@ export async function POST(
           )
         }
 
-        console.log('[Comment Verification] Email sent successfully. ID:', data?.id)
       } catch (emailError) {
         console.error('[Comment Verification] Exception sending email:', emailError)
         // Delete the comment since we couldn't send the verification email

@@ -79,8 +79,6 @@ export async function GET(
       })
     )
     
-    console.log('🔍 Safe zones fetched:', zonesWithSteps.length)
-    
     return NextResponse.json({
       success: true,
       data: zonesWithSteps

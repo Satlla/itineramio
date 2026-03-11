@@ -42,8 +42,6 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log(`[Waitlist] New signup: ${email} for ${toolName || 'general'}`)
-
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('[Waitlist] Error:', error)

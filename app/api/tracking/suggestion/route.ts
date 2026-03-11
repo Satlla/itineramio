@@ -30,7 +30,6 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log('💡 SUGGESTION saved:', { propertyId, suggestion })
 
     return NextResponse.json({
       success: true,

@@ -45,7 +45,6 @@ async function tryClaimDemoProperty(userId: string, userEmail: string): Promise<
       })
     }
 
-    console.log(`[dashboard/init] Fallback: transferred property ${propertyId} to user ${userId}`)
     return propertyId
   } catch (error) {
     console.error('[dashboard/init] Fallback claim error:', error)

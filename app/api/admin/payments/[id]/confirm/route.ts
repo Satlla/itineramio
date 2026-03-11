@@ -61,7 +61,6 @@ export async function POST(
         months = notesData.months || 1
       } catch (e) {
         // If notes is not JSON, it's plain text - no properties to activate
-        console.log('Invoice notes is plain text, no properties to activate')
         properties = []
         months = 1
       }

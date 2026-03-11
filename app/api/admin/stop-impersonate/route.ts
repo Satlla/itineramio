@@ -49,8 +49,6 @@ export async function POST(request: NextRequest) {
     cookieStore.delete('auth-token')
     cookieStore.delete('admin-impersonation')
 
-    console.log(`✅ Admin ${impersonationData.adminEmail} terminó de suplantar a ${impersonationData.targetUserEmail}`)
-
     return NextResponse.json({
       success: true,
       message: 'Impersonation terminada',

@@ -265,7 +265,6 @@ export async function GET(request: NextRequest) {
         dateFilter: { startDate, endDate }
       }
     }
-    console.log('[pending] response:', JSON.stringify(response._debug))
     return NextResponse.json(response)
   } catch (error) {
     console.error('Error fetching pending reservations:', error)

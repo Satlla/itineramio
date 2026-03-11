@@ -49,13 +49,10 @@ function checkRateLimit(ip: string): boolean {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('🚀 REGISTER ENDPOINT - Starting registration')
     const body = await request.json()
-    console.log('📝 Registration data received:', { email: body.email, name: body.name })
 
     // 🛡️ HONEYPOT CHECK - bots fill hidden fields, humans don't
     if (body._hp || body.website) {
-      console.log('🤖 BOT DETECTED - Honeypot field filled:', { _hp: body._hp, website: body.website })
       // Return fake success to not alert the bot
       return NextResponse.json({
         success: true,
@@ -69,7 +66,6 @@ export async function POST(request: NextRequest) {
                'unknown'
 
     if (!checkRateLimit(ip)) {
-      console.log('🚫 RATE LIMITED - Too many registrations from IP:', ip)
       return NextResponse.json({
         error: 'Demasiados intentos de registro. Inténtalo de nuevo en una hora.'
       }, { status: 429 })
@@ -80,7 +76,6 @@ export async function POST(request: NextRequest) {
                                   /^[A-Z][a-z]+[A-Z][a-z]+[A-Z]/.test(body.name) ||
                                   body.name.length > 30
     if (nameHasRandomPattern) {
-      console.log('🤖 BOT DETECTED - Suspicious name pattern:', body.name)
       return NextResponse.json({
         success: true,
         message: 'Registration successful'
@@ -92,8 +87,7 @@ export async function POST(request: NextRequest) {
 
     // Validate input
     const validatedData = registerSchema.parse(body)
-    console.log('✅ Data validated successfully')
-    
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email: validatedData.email }
@@ -102,8 +96,6 @@ export async function POST(request: NextRequest) {
     if (existingUser) {
       // If user exists but is not verified and account is pending, delete it to allow re-registration
       if (!existingUser.emailVerified && existingUser.status === 'PENDING') {
-        console.log('🔄 Deleting unverified pending user to allow re-registration:', existingUser.email)
-        
         // Delete any existing verification tokens
         await prisma.emailVerificationToken.deleteMany({
           where: { email: existingUser.email }
@@ -113,8 +105,6 @@ export async function POST(request: NextRequest) {
         await prisma.user.delete({
           where: { id: existingUser.id }
         })
-        
-        console.log('✅ Unverified user deleted, proceeding with new registration')
       } else {
         // User is verified or active, don't allow re-registration
         return NextResponse.json(
@@ -164,9 +154,6 @@ export async function POST(request: NextRequest) {
       })
       if (referrer) {
         referrerId = referrer.id
-        console.log('✅ Referrer found:', validatedData.referralCode)
-      } else {
-        console.log('⚠️ Referral code not found:', validatedData.referralCode)
       }
     }
 
@@ -208,15 +195,12 @@ export async function POST(request: NextRequest) {
           description: 'Nuevo usuario referido'
         }
       })
-      console.log('✅ Affiliate transaction created for referral')
     }
-    
+
     // Send verification email - CRITICAL: must succeed for user to verify
     let emailSent = false
     try {
-      console.log('🔄 Attempting to send verification email to:', user.email)
       await EmailVerificationService.sendVerificationEmail(user.email, user.name)
-      console.log('✅ Verification email sent successfully')
       emailSent = true
     } catch (emailError) {
       console.error('🚨 CRITICAL: Error sending verification email:', emailError)
@@ -258,7 +242,6 @@ export async function POST(request: NextRequest) {
     console.error('📊 Error details:', JSON.stringify(error, null, 2))
     
     if (error instanceof z.ZodError) {
-      console.log('❌ Validation error:', error.errors)
       return NextResponse.json(
         { 
           error: 'Datos inválidos',

@@ -4,14 +4,11 @@ import { requireAuth } from '../../../../src/lib/auth'
 
 // POST /api/properties/ultra-safe - Ultra minimal property creation
 export async function POST(request: NextRequest) {
-  console.log('🟢 ULTRA SAFE POST - Starting')
-  
   try {
     // Step 1: Get body
     let body
     try {
       body = await request.json()
-      console.log('🟢 ULTRA SAFE - Body parsed successfully, keys:', Object.keys(body))
     } catch (bodyError) {
       console.error('🟢 ULTRA SAFE - Body parse error:', bodyError)
       return NextResponse.json({
@@ -25,11 +22,9 @@ export async function POST(request: NextRequest) {
     try {
       const authResult = await requireAuth(request)
       if (authResult instanceof Response) {
-        console.log('🟢 ULTRA SAFE - Auth failed')
         return authResult
       }
       userId = authResult.userId
-      console.log('🟢 ULTRA SAFE - Auth success, userId:', userId)
     } catch (authError) {
       console.error('🟢 ULTRA SAFE - Auth error:', authError)
       return NextResponse.json({
@@ -42,15 +37,12 @@ export async function POST(request: NextRequest) {
     const requiredFields = ['name', 'description', 'street', 'city', 'hostContactName']
     for (const field of requiredFields) {
       if (!body[field]) {
-        console.log('🟢 ULTRA SAFE - Missing field:', field)
         return NextResponse.json({
           success: false,
           error: `Missing required field: ${field}`
         }, { status: 400 })
       }
     }
-    console.log('🟢 ULTRA SAFE - Required fields validated')
-
     // Step 4: Generate simple slug
     let slug
     try {
@@ -59,10 +51,9 @@ export async function POST(request: NextRequest) {
         .replace(/[^a-z0-9]/g, '-')
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '')
-      
+
       if (!slug) slug = 'property'
       slug = `${slug}-${Date.now()}`
-      console.log('🟢 ULTRA SAFE - Generated slug:', slug)
     } catch (slugError) {
       console.error('🟢 ULTRA SAFE - Slug generation error:', slugError)
       slug = `property-${Date.now()}`
@@ -70,11 +61,9 @@ export async function POST(request: NextRequest) {
 
     // Step 5: Generate property ID
     const propertyId = `prop-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`
-    console.log('🟢 ULTRA SAFE - Generated property ID:', propertyId)
 
     // Step 6: Try to create property with minimal fields only
     try {
-      console.log('🟢 ULTRA SAFE - Attempting to insert property...')
       
       await prisma.$executeRaw`
         INSERT INTO properties (
@@ -128,8 +117,6 @@ export async function POST(request: NextRequest) {
         )
       `
       
-      console.log('🟢 ULTRA SAFE - Property insert successful')
-      
     } catch (insertError) {
       console.error('🟢 ULTRA SAFE - Insert error:', insertError)
       return NextResponse.json({
@@ -147,16 +134,13 @@ export async function POST(request: NextRequest) {
       ` as any[]
       
       createdProperty = result[0]
-      console.log('🟢 ULTRA SAFE - Property fetched successfully:', !!createdProperty)
-      
+
     } catch (fetchError) {
       console.error('🟢 ULTRA SAFE - Fetch error:', fetchError)
       // Don't fail here, just return basic info
       createdProperty = { id: propertyId, name: body.name }
     }
 
-    console.log('🟢 ULTRA SAFE - Success! Property created:', propertyId)
-    
     return NextResponse.json({
       success: true,
       data: createdProperty,

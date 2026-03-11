@@ -42,9 +42,7 @@ export async function POST(
     }
 
     if (subscriptionRequest.status !== 'PENDING') {
-      console.log(`❌ Subscription request ${id} already processed. Status: ${subscriptionRequest.status}`)
       const errorResponse = { error: 'Esta solicitud ya ha sido procesada' }
-      console.log('Sending error response:', errorResponse)
       return NextResponse.json(errorResponse, { status: 400 })
     }
 
@@ -232,12 +230,10 @@ export async function POST(
     let finalAmountToCharge: number = Number(subscriptionRequest.totalAmount)
 
     if (existingSubscription && existingSubscription.plan && subscriptionRequest.plan) {
-      console.log('🔄 Existing subscription found, calculating proration...')
-
       try {
         // Determine current billing period from existing subscription
         if (!existingSubscription.endDate) {
-          console.log('⚠️ Existing subscription has no end date, skipping proration')
+          // no end date, skipping proration
         } else {
           const existingDuration = existingSubscription.endDate.getTime() - existingSubscription.startDate.getTime()
           const daysInExisting = existingDuration / (1000 * 60 * 60 * 24)
@@ -277,12 +273,6 @@ export async function POST(
         // Usar precio real de factura o teórico como fallback
         const actualAmountPaid = paidInvoice ? Number(paidInvoice.finalAmount) : theoreticalPrice
 
-        console.log('💰 Precio para prorrateo:', {
-          facturaEncontrada: !!paidInvoice,
-          precioReal: actualAmountPaid,
-          precioTeorico: theoreticalPrice
-        })
-
         // Calculate proration
         prorationCalculation = calculateProration({
           currentSubscription: {
@@ -300,14 +290,6 @@ export async function POST(
         })
 
         finalAmountToCharge = prorationCalculation.finalPrice
-
-        console.log('✅ Proration calculated:', {
-          oldPlan: existingSubscription.plan.name,
-          newPlan: subscriptionRequest.plan.name,
-          creditAmount: prorationCalculation.creditAmount,
-          finalPrice: prorationCalculation.finalPrice,
-          daysRemaining: prorationCalculation.daysRemaining
-        })
 
         // Mark old subscription as REPLACED
         await prisma.userSubscription.update({

@@ -68,7 +68,6 @@ export async function POST(request: NextRequest) {
       console.warn('⚠️ Webhook signature not verified (development mode)')
     }
 
-    console.log(`📨 Stripe webhook received: ${event.type}`)
 
     // Handle different event types
     switch (event.type) {
@@ -106,7 +105,7 @@ export async function POST(request: NextRequest) {
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`)
+        break
     }
 
     return NextResponse.json({ received: true })
@@ -136,12 +135,6 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
     // Normalize FACTURAMIO to GESTION for backwards compatibility
     const normalizedModuleCode = moduleCode === 'FACTURAMIO' ? 'GESTION' : moduleCode
 
-    console.log('📦 Module subscription checkout:', {
-      userId,
-      moduleCode: normalizedModuleCode,
-      billingPeriod,
-      couponCode: couponCode || 'none'
-    })
 
     const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
 
@@ -173,7 +166,6 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
       }
     })
 
-    console.log(`✅ Module ${normalizedModuleCode} activated for user ${userId}`)
 
     // Record coupon if used — use fullPriceEur from metadata + Stripe's amount_total
     if (couponCode && couponCode.trim() !== '') {
@@ -190,12 +182,6 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
     return
   }
 
-  console.log('📦 Plan subscription checkout:', {
-    userId,
-    planCode,
-    billingPeriod,
-    couponCode: couponCode || 'none'
-  })
 
   // Get subscription details from Stripe
   const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
@@ -247,7 +233,6 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
     }
   })
 
-  console.log(`✅ Subscription created: ${userSubscription.id} for user ${userId}`)
 
   // Record coupon usage if a coupon was applied — use fullPriceEur + Stripe's amount_total
   if (couponCode && couponCode.trim() !== '') {
@@ -273,13 +258,11 @@ async function recordCouponUsage(
     })
 
     if (!coupon) {
-      console.log(`⚠️ Coupon not found in database: ${couponCode}`)
       return
     }
 
     // Revalidate coupon limits before recording
     if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
-      console.log(`⚠️ Coupon ${couponCode} exceeded max uses (${coupon.usedCount}/${coupon.maxUses})`)
       return
     }
 
@@ -304,7 +287,6 @@ async function recordCouponUsage(
       data: { usedCount: { increment: 1 } }
     })
 
-    console.log(`✅ Coupon ${couponCode} recorded: €${fullPrice} → €${actualCharged} (discount: €${actualDiscount.toFixed(2)})`)
   } catch (couponError) {
     console.error('Error recording coupon usage:', couponError)
   }
@@ -316,7 +298,6 @@ async function recordCouponUsage(
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string
 
-  console.log(`✅ Invoice paid: ${invoice.id} for customer ${customerId}`)
 
   // You could create an Invoice record here if needed
 }
@@ -328,7 +309,6 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string
   const subscriptionId = invoice.subscription as string | null
 
-  console.log(`❌ Invoice payment failed: ${invoice.id} for customer ${customerId}`)
 
   try {
     // Find user by subscription ID
@@ -363,7 +343,6 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     }
 
     if (!userId || !userEmail) {
-      console.log(`⚠️ Could not find user for failed payment. Customer: ${customerId}, Subscription: ${subscriptionId}`)
       return
     }
 
@@ -376,7 +355,6 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
       name: userName || 'Usuario',
       amount,
     })
-    console.log(`📧 Payment failed email sent to ${userEmail}`)
 
     // Create in-app notification
     await prisma.notification.create({
@@ -391,7 +369,6 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
         }
       }
     })
-    console.log(`🔔 Payment failed notification created for user ${userId}`)
   } catch (error) {
     // Don't let errors here break the webhook response
     console.error('Error handling payment failed notification:', error)
@@ -402,7 +379,6 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
  * Handle subscription updates (plan changes, cancellation requests, etc.)
  */
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-  console.log(`🔄 Subscription updated: ${subscription.id}, status: ${subscription.status}`)
 
   try {
     // Find subscription in our DB by Stripe ID
@@ -411,7 +387,6 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     })
 
     if (!userSubscription) {
-      console.log(`⚠️ No local subscription found for Stripe ID: ${subscription.id}`)
       return
     }
 
@@ -438,7 +413,6 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       }
     })
 
-    console.log(`✅ Subscription ${userSubscription.id} updated to status: ${newStatus}`)
 
     // Also update UserModule if this is a module subscription
     const userModule = await prisma.userModule.findFirst({
@@ -466,7 +440,6 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
         where: { id: userModule.id },
         data: moduleUpdate
       })
-      console.log(`✅ UserModule ${userModule.id} updated to: ${moduleUpdate.status}`)
     }
   } catch (error) {
     console.error('Error updating subscription from webhook:', error)
@@ -477,7 +450,6 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
  * Handle subscription cancellation/deletion
  */
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-  console.log(`🗑️ Subscription deleted: ${subscription.id}`)
 
   try {
     // Find subscription in our DB by Stripe ID
@@ -486,7 +458,6 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     })
 
     if (!userSubscription) {
-      console.log(`⚠️ No local subscription found for Stripe ID: ${subscription.id}`)
       return
     }
 
@@ -507,7 +478,6 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       data: { subscription: 'CANCELED' }
     })
 
-    console.log(`✅ Subscription ${userSubscription.id} marked as CANCELED`)
 
     // Also cancel UserModule if this is a module subscription
     const userModule = await prisma.userModule.findFirst({
@@ -523,7 +493,6 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
           canceledAt: new Date()
         }
       })
-      console.log(`✅ UserModule ${userModule.id} marked as CANCELED`)
     }
   } catch (error) {
     console.error('Error handling subscription deletion:', error)

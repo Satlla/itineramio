@@ -189,8 +189,6 @@ export async function POST(request: NextRequest) {
           engagementScore: 'warm'
         }
       })
-      console.log(`[EmailSubscriber] Created for ${normalizedEmail} with source ${subscriberSource}`)
-
       // Enrollar en secuencias de email automáticas
       await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
         archetype,
@@ -216,8 +214,6 @@ export async function POST(request: NextRequest) {
           sequenceStartedAt: existingSubscriber.sequenceStartedAt || new Date()
         }
       })
-      console.log(`[EmailSubscriber] Updated tags for ${normalizedEmail} with ${newTag}`)
-
       // ALWAYS try to enroll in new sequences for tools
       // The enrollment system will skip if already enrolled in a specific sequence
       await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
@@ -250,7 +246,6 @@ export async function POST(request: NextRequest) {
           downloadables: leadMagnetInfo.downloadables
         })
 
-        console.log(`[Email Sent] Lead magnet email to ${normalizedEmail} for ${source}`)
       } catch (emailError) {
         // Log error but don't fail the request
         console.error(`[Email Error] Failed to send to ${normalizedEmail}:`, emailError)
@@ -291,14 +286,9 @@ export async function POST(request: NextRequest) {
           pdfBuffer
         })
 
-        console.log(`[Email Sent] Pricing analysis PDF to ${normalizedEmail}`)
       } catch (emailError) {
         console.error(`[Email Error] Failed to send pricing PDF to ${normalizedEmail}:`, emailError)
       }
-    } else if (isOnlineTool) {
-      console.log(`[Lead Captured] ${name} <${normalizedEmail}> from online tool ${source} - sequence will handle emails`)
-    } else {
-      console.log(`[Lead Captured] ${name} <${normalizedEmail}> from ${source} (no email template)`)
     }
 
     return NextResponse.json(

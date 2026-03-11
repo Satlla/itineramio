@@ -8,7 +8,6 @@ export async function GET(
 ) {
   try {
     const { id: propertyId, zoneId } = await params
-    console.log('🔍 Safe Public Zone endpoint - propertyId:', propertyId, 'zoneId:', zoneId)
     
     // Find the zone using raw SQL
     const zones = await prisma.$queryRaw`
@@ -49,7 +48,6 @@ export async function GET(
     
     // If not found with exact match, try startsWith (for Next.js truncation)
     if (!zone) {
-      console.log('🔍 Zone not found with exact match, trying startsWith...')
       
       const zonesWithPrefix = await prisma.$queryRaw`
         SELECT
@@ -88,7 +86,6 @@ export async function GET(
       zone = zonesWithPrefix[0]
     }
 
-    console.log('🔍 Safe Public Zone found:', !!zone)
     
     if (!zone) {
       return NextResponse.json(
@@ -111,7 +108,6 @@ export async function GET(
     if (property?.hostId && !isDemoProperty) {
       const moduleAccess = await checkHostManualesAccess(property.hostId)
       if (!moduleAccess.hasAccess) {
-        console.log(`🚫 Zone blocked for property ${propertyId} - host ${property.hostId} has no MANUALES access: ${moduleAccess.blockedReason}`)
         return NextResponse.json({
           success: false,
           error: MANUAL_BLOCKED_MESSAGE.description,
@@ -160,12 +156,6 @@ export async function GET(
 
       delete processedZone.propertyName
       delete processedZone.propertyIsPublished
-
-      console.log('🔍 Safe Public Zone (RECOMMENDATIONS) loaded:', {
-        id: processedZone.id,
-        name: processedZone.name,
-        recommendationsCount: processedZone.recommendations.length
-      })
 
       return NextResponse.json({
         success: true,
@@ -227,12 +217,6 @@ export async function GET(
     // Remove the flat properties we added
     delete processedZone.propertyName
     delete processedZone.propertyIsPublished
-
-    console.log('🔍 Safe Public Zone loaded:', {
-      id: processedZone.id,
-      name: processedZone.name,
-      stepsCount: processedZone.steps.length
-    })
 
     return NextResponse.json({
       success: true,

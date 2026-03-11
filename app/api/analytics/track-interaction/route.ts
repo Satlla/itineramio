@@ -130,15 +130,6 @@ export async function POST(request: NextRequest) {
       updateDailyStats(propertyId, false, true).catch(console.error)
     }
 
-    // Log for debugging
-    if (process.env.NODE_ENV === 'development') {
-      console.log('📊 INTERACTION:', interactionType.toUpperCase(), {
-        propertyId,
-        zoneId: zoneId || null,
-        duration
-      })
-    }
-
     return NextResponse.json({
       success: true,
       message: 'Interaction tracked successfully'

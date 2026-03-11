@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
           metadata: { propertyName, propertyAddress, style, sectionsCount: sections.length }
         }
       })
-      console.log(`[Lead] Created for ${email} from checklist-limpieza`)
     } catch (dbError) {
       console.error('Error saving lead:', dbError)
     }
@@ -65,7 +64,6 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      console.log(`[EmailSubscriber] Created/updated for ${normalizedEmail} from tool_checklist-limpieza`)
 
       // Enroll in TOOL-SPECIFIC sequences (not archetype-based)
       await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
@@ -73,7 +71,6 @@ export async function POST(request: NextRequest) {
         tags: toolTags
       })
 
-      console.log(`[EmailSubscriber] Enrolled ${normalizedEmail} in sequences`)
     } catch (subscriberError) {
       console.error('Error creating subscriber:', subscriberError)
     }
@@ -117,7 +114,6 @@ export async function POST(request: NextRequest) {
         sections: sections as ChecklistSection[],
         userName: name
       })
-      console.log(`[PDF] Generated cleaning checklist PDF (${pdfBuffer.length} bytes)`)
     } catch (pdfError) {
       console.error('Error generating PDF:', pdfError)
       // Continue without PDF if generation fails
@@ -274,7 +270,6 @@ export async function POST(request: NextRequest) {
 `
     })
 
-    console.log('Resend result:', JSON.stringify(emailResult, null, 2))
 
     if (emailResult.error) {
       console.error('Resend error:', emailResult.error)

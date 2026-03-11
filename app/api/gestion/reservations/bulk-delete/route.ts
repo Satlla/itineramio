@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log('Bulk delete request:', { propertyId, deleteAll, isUnit, userId })
 
     // Build where clause based on property type
     let whereClause: any = { userId }
@@ -78,7 +77,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log('Where clause:', JSON.stringify(whereClause))
 
     // Find reservations that can be deleted
     const reservations = await prisma.reservation.findMany({
@@ -91,14 +89,12 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log('Found reservations:', reservations.length)
 
     // Check for reservations that can't be deleted (those with liquidation or invoiced)
     const inLiquidation = reservations.filter(r => r.liquidationId)
     const invoiced = reservations.filter(r => r.invoiced && !r.liquidationId)
     const deletable = reservations.filter(r => !r.liquidationId && !r.invoiced)
 
-    console.log('In liquidation:', inLiquidation.length, 'Invoiced:', invoiced.length, 'Deletable:', deletable.length)
 
     if (deletable.length === 0) {
       return NextResponse.json({

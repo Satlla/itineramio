@@ -149,8 +149,6 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     
-    console.log('🔍 Creating property set for user:', userId)
-    console.log('🔍 Property set data:', { name: body.name, type: body.type, city: body.city })
     
     // Create the property set
     const propertySet = await prisma.propertySet.create({
@@ -185,7 +183,6 @@ export async function POST(request: NextRequest) {
       }
     })
     
-    console.log('🔍 Property set created:', { id: propertySet.id, name: propertySet.name, hostId: propertySet.hostId })
     
     // If properties are selected, update them to belong to this set
     if (body.selectedProperties && body.selectedProperties.length > 0) {

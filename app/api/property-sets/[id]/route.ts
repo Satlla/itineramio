@@ -24,7 +24,6 @@ export async function GET(
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
     const userId = decoded.userId
     
-    console.log('🔍 Property Set API Debug:', { propertySetId: id, userId, token: !!token })
     
     // Set JWT claims for PostgreSQL RLS policies
     // REMOVED: set_config doesn't work with PgBouncer in transaction mode
@@ -36,7 +35,6 @@ export async function GET(
       select: { id: true, hostId: true, name: true }
     })
     
-    console.log('🔍 Property Set exists check:', propertySetExists)
     
     const propertySet = await prisma.propertySet.findFirst({
       where: {
@@ -59,7 +57,6 @@ export async function GET(
     })
     
     if (!propertySet) {
-      console.log('🔍 Property set not found with user filter, checking without filter...')
       
       // If not found with user filter, check if it exists at all
       const propertySetWithoutFilter = await prisma.propertySet.findFirst({
@@ -67,14 +64,8 @@ export async function GET(
         select: { id: true, hostId: true, name: true }
       })
       
-      console.log('🔍 Property set without filter:', propertySetWithoutFilter)
       
       if (propertySetWithoutFilter) {
-        console.log('🔍 Property set exists but belongs to different user:', {
-          propertySetHostId: propertySetWithoutFilter.hostId,
-          currentUserId: userId,
-          match: propertySetWithoutFilter.hostId === userId
-        })
         
         // If it exists but belongs to different user, return it anyway for now (TEMPORARY)
         // This should be removed once we fix the auth issue
@@ -96,7 +87,6 @@ export async function GET(
         })
         
         if (tempPropertySet) {
-          console.log('🔍 Returning property set without user check (TEMPORARY)')
           
           // Get properties for this set
           const tempProperties = await prisma.property.findMany({
@@ -189,7 +179,6 @@ export async function GET(
     
     // If no properties found with user filter, try without filter for debugging
     if (properties.length === 0) {
-      console.log('🔍 No properties found with user filter, trying without filter...')
       const propertiesWithoutFilter = await prisma.property.findMany({
         where: {
           propertySetId: id,
@@ -220,13 +209,6 @@ export async function GET(
         }
       })
       
-      console.log('🔍 Properties without user filter:', propertiesWithoutFilter.length)
-      console.log('🔍 Properties ownership check:', propertiesWithoutFilter.map(p => ({ 
-        id: p.id, 
-        name: p.name, 
-        hostId: p.hostId, 
-        isCurrentUser: p.hostId === userId 
-      })))
       
       // For now, return properties without user check (TEMPORARY FIX)
       properties = propertiesWithoutFilter.map(p => {
@@ -276,13 +258,6 @@ export async function GET(
       properties: propertiesWithZoneCount
     }
     
-    console.log('🔍 Final property set data:', {
-      id: transformedPropertySet.id,
-      name: transformedPropertySet.name,
-      propertiesCount: transformedPropertySet.propertiesCount,
-      propertiesArrayLength: transformedPropertySet.properties.length,
-      totalZones: transformedPropertySet.totalZones
-    })
     
     return NextResponse.json({
       success: true,

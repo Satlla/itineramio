@@ -53,7 +53,6 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log(`✅ Subscription ${subscriptionId} scheduled for cancellation. Reason: ${reason || 'No especificado'}`)
 
     return NextResponse.json({
       success: true,
@@ -120,7 +119,6 @@ export async function DELETE(request: NextRequest) {
       }
     })
 
-    console.log(`✅ Subscription ${subscriptionId} reactivated`)
 
     return NextResponse.json({
       success: true,

@@ -9,8 +9,6 @@ const MODULE_NAMES: Record<string, string> = {
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🕐 Starting module trial check cron job...')
-
     // Auth with cron secret
     const cronSecret = request.headers.get('x-cron-secret')
     if (process.env.CRON_SECRET && cronSecret !== process.env.CRON_SECRET) {
@@ -18,10 +16,8 @@ export async function GET(request: NextRequest) {
     }
 
     const now = new Date()
-    console.log('🕐 Current time:', now.toISOString())
 
     // Find expired module trials
-    console.log('🔍 Searching for expired module trials...')
     const expiredModules = await prisma.userModule.findMany({
       where: {
         status: 'TRIAL',
@@ -40,7 +36,6 @@ export async function GET(request: NextRequest) {
         }
       }
     })
-    console.log(`📊 Found ${expiredModules.length} expired module trials`)
 
     for (const userModule of expiredModules) {
       // Mark as expired
@@ -75,7 +70,6 @@ export async function GET(request: NextRequest) {
           name: userModule.user.name || 'Usuario',
           moduleName,
         })
-        console.log(`📧 Module trial expired email sent to ${userModule.user.email} for ${moduleName}`)
       } catch (emailError) {
         console.error('Error sending module trial expired email:', emailError)
       }

@@ -88,8 +88,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { mediaUrl, type, frames } = body
 
-    console.log('[analyze-media] Request received:', { mediaUrl, type, framesCount: frames?.length })
-
     // Validate: either frames[] or mediaUrl+type must be provided
     const hasFrames = Array.isArray(frames) && frames.length > 0
     if (!hasFrames && (!mediaUrl || !type)) {
@@ -108,28 +106,22 @@ export async function POST(request: NextRequest) {
 
     // MOCK MODE — instant fake analysis, no API cost
     if (process.env.MOCK_AI === 'true') {
-      console.log('[analyze-media] MOCK MODE — returning fake result')
       // Simulate a small delay so UI feels natural
       await new Promise(r => setTimeout(r, 800 + Math.random() * 700))
       const mockResult = getMockResult()
-      console.log('[analyze-media] MOCK result:', mockResult.room_type, '| appliances:', mockResult.appliances.length)
       return NextResponse.json({ success: true, data: mockResult })
     }
 
     let result
     if (hasFrames) {
       // Client-extracted frames (base64 data URLs) — no FFmpeg needed
-      console.log('[analyze-media] Analyzing', frames.length, 'client-extracted frames')
       result = await analyzeFrames(frames)
     } else if (type === 'video') {
-      console.log('[analyze-media] Starting server-side video analysis for:', mediaUrl)
       result = await analyzeVideo(mediaUrl)
     } else {
-      console.log('[analyze-media] Starting image analysis for:', mediaUrl)
       result = await analyzeImage(mediaUrl)
     }
 
-    console.log('[analyze-media] Analysis complete:', result.room_type, '| appliances:', result.appliances?.length || 0)
     return NextResponse.json({ success: true, data: result })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Error analyzing media'

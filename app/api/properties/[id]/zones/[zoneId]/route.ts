@@ -15,10 +15,8 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; zoneId: string }> }
 ) {
-  console.log('🔍 GET zone endpoint called')
   try {
     const { id: propertyId, zoneId } = await params
-    console.log('🔍 Received params:', { propertyId, zoneId })
 
     // Check authentication
     const token = request.cookies.get('auth-token')?.value
@@ -53,7 +51,6 @@ export async function GET(
       )
     }
 
-    console.log('🔍 Searching for zone with:', { zoneId, propertyId })
     
     // First try with the truncated zoneId to find the actual zone
     const zones = await prisma.zone.findMany({
@@ -79,13 +76,7 @@ export async function GET(
     
     const zone = zones[0] // Take the first match
 
-    console.log('🔍 Zone found:', !!zone)
-    if (zone) {
-      console.log('🔍 Zone details:', { id: zone.id, propertyId: zone.propertyId, stepsCount: zone.steps.length })
-    }
-
     if (!zone) {
-      console.log('🔍 Zone not found - returning 404')
       return NextResponse.json(
         { 
           success: false, 
@@ -214,8 +205,6 @@ export async function PUT(
       )
     }
 
-    console.log('💾 Updating zone with data:', body)
-
     // Transform iconId to icon if provided
     const updateData = { ...body }
     if (updateData.iconId) {
@@ -231,14 +220,11 @@ export async function PUT(
         try {
           const [translatedName] = await translateFields([updateData.name])
           updateData.name = translatedName
-          console.log('💾 Zone name auto-translated')
         } catch (e) {
-          console.log('💾 Zone name translation skipped:', String(e))
+          // Translation skipped
         }
       }
     }
-
-    console.log('💾 Final update data:', updateData)
 
     // Check if we should apply to property set (NEW: optional parameters)
     const applyToPropertySet = body.applyToPropertySet || false
@@ -272,7 +258,6 @@ export async function PUT(
         }
       })
 
-      console.log(`💾 Updating ${zonesToUpdate.length} zones in property set/selection`)
 
       // Update all matching zones
       for (const zoneToUpdate of zonesToUpdate) {

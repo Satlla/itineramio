@@ -142,8 +142,6 @@ export async function POST(req: NextRequest) {
             }
           }
         })
-        console.log(`[Lead] Created for ${validatedEmail} from calculadora-rentabilidad`)
-
         // TODO: Enviar email con resultados detallados usando Resend
         // await sendCalculatorResults(validatedEmail, name, result)
 

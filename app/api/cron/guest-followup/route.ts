@@ -108,8 +108,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    console.log(`[GuestFollowup] Processed: ${conversations.length}, Sent: ${sent}, Errors: ${errors}`)
-
     return NextResponse.json({
       success: true,
       processed: conversations.length,
