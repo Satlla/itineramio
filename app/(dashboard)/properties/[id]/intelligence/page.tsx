@@ -871,14 +871,15 @@ export default function IntelligencePage() {
                 </motion.span>
               )}
             </AnimatePresence>
-            {(isDirty || saveStatus === 'error') && saveStatus !== 'saving' && (
+            {(isDirty || saveStatus === 'error') && (
               <motion.button
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 onClick={handleManualSave}
-                className="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-full font-medium transition-colors flex items-center gap-1"
+                disabled={saveStatus === 'saving'}
+                className="text-xs bg-violet-600 hover:bg-violet-700 disabled:opacity-60 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-full font-medium transition-colors flex items-center gap-1"
               >
-                <Check className="w-3 h-3" /> Guardar
+                {saveStatus === 'saving' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />} Guardar
               </motion.button>
             )}
             {isAirbnb && (
@@ -987,7 +988,7 @@ export default function IntelligencePage() {
 
       {/* Sticky save bar */}
       <AnimatePresence>
-        {(isDirty || saveStatus === 'error') && saveStatus !== 'saving' && (
+        {(isDirty || saveStatus === 'error') && (
           <motion.div
             initial={{ y: 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -1003,9 +1004,10 @@ export default function IntelligencePage() {
               )}
               <button
                 onClick={handleManualSave}
-                className="bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold px-4 py-1.5 rounded-xl transition-colors flex items-center gap-1.5"
+                disabled={saveStatus === 'saving'}
+                className="bg-violet-600 hover:bg-violet-500 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-1.5 rounded-xl transition-colors flex items-center gap-1.5"
               >
-                <Check className="w-3.5 h-3.5" /> Guardar ahora
+                {saveStatus === 'saving' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />} Guardar ahora
               </button>
             </div>
           </motion.div>
