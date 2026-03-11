@@ -691,8 +691,8 @@ export default function IntelligencePage() {
     const fetchData = async () => {
       try {
         const [intelRes, propRes] = await Promise.all([
-          fetch(`/api/properties/${id}/intelligence`),
-          fetch(`/api/properties/${id}`),
+          fetch(`/api/properties/${id}/intelligence`, { credentials: 'include' }),
+          fetch(`/api/properties/${id}`, { credentials: 'include' }),
         ])
         if (intelRes.ok) {
           const data = await intelRes.json()
@@ -739,6 +739,7 @@ export default function IntelligencePage() {
         const res = await fetch(`/api/properties/${id}/intelligence`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify(patchToSend),
         })
         if (!res.ok) console.error('Error al guardar inteligencia')
