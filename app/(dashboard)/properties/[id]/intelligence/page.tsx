@@ -678,12 +678,16 @@ export default function IntelligencePage() {
   const [intel, setIntel] = useState<PropertyIntelligence>({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [isDirty, setIsDirty] = useState(false)
   const [propertyName, setPropertyName] = useState('')
   const [prevPercentage, setPrevPercentage] = useState(0)
   const [progressPulse, setProgressPulse] = useState(0)
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const savedStatusTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const pendingPatchRef = useRef<Record<string, any> | null>(null)
+  const fullIntelRef = useRef<PropertyIntelligence>({})
 
   // Load intelligence data
   useEffect(() => {
@@ -696,7 +700,9 @@ export default function IntelligencePage() {
         ])
         if (intelRes.ok) {
           const data = await intelRes.json()
-          setIntel(data.intelligence || {})
+          const loaded = data.intelligence || {}
+          setIntel(loaded)
+          fullIntelRef.current = loaded
         }
         if (propRes.ok) {
           const data = await propRes.json()
@@ -721,11 +727,49 @@ export default function IntelligencePage() {
     setPrevPercentage(completion.percentage)
   }, [completion.percentage, prevPercentage])
 
+  const showSaved = useCallback(() => {
+    setSaveStatus('saved')
+    setIsDirty(false)
+    if (savedStatusTimeoutRef.current) clearTimeout(savedStatusTimeoutRef.current)
+    savedStatusTimeoutRef.current = setTimeout(() => setSaveStatus('idle'), 2500)
+  }, [])
+
+  const doSave = useCallback(async (patch: Record<string, any>) => {
+    setSaveStatus('saving')
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/properties/${id}/intelligence`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(patch),
+      })
+      if (res.ok) {
+        showSaved()
+      } else {
+        setSaveStatus('error')
+      }
+    } catch {
+      setSaveStatus('error')
+    } finally {
+      setSaving(false)
+    }
+  }, [id, showSaved])
+
+  // Manual save — sends the full current intel
+  const handleManualSave = useCallback(async () => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    pendingPatchRef.current = null
+    await doSave(fullIntelRef.current)
+  }, [doSave])
+
   // Debounced save
   const scheduleSave = useCallback((patch: Record<string, any>) => {
     pendingPatchRef.current = pendingPatchRef.current
       ? deepMergeLocal(pendingPatchRef.current, patch)
       : patch
+    setIsDirty(true)
+    setSaveStatus('idle')
 
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
 
@@ -733,27 +777,17 @@ export default function IntelligencePage() {
       const patchToSend = pendingPatchRef.current
       pendingPatchRef.current = null
       if (!patchToSend) return
-
-      setSaving(true)
-      try {
-        const res = await fetch(`/api/properties/${id}/intelligence`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify(patchToSend),
-        })
-        if (!res.ok) console.error('Error al guardar inteligencia')
-      } catch {
-        console.error('Error de conexión al guardar inteligencia')
-      } finally {
-        setSaving(false)
-      }
-    }, 1000)
-  }, [id])
+      await doSave(patchToSend)
+    }, 1500)
+  }, [doSave])
 
   // Generic deep update of local state
   const updateIntel = useCallback((patch: Record<string, any>) => {
-    setIntel(prev => deepMergeLocal(prev, patch) as PropertyIntelligence)
+    setIntel(prev => {
+      const updated = deepMergeLocal(prev, patch) as PropertyIntelligence
+      fullIntelRef.current = updated
+      return updated
+    })
   }, [])
 
   // Dismiss unanswered question
@@ -814,14 +848,38 @@ export default function IntelligencePage() {
             )}
           </div>
           <div className="flex items-center gap-2">
-            {saving && (
-              <motion.span
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-xs text-violet-500 flex items-center gap-1 bg-violet-50 px-2 py-1 rounded-full"
+            <AnimatePresence mode="wait">
+              {saveStatus === 'saving' && (
+                <motion.span key="saving" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="text-xs text-violet-500 flex items-center gap-1 bg-violet-50 px-2 py-1 rounded-full"
+                >
+                  <Loader2 className="w-3 h-3 animate-spin" /> Guardando
+                </motion.span>
+              )}
+              {saveStatus === 'saved' && (
+                <motion.span key="saved" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+                  className="text-xs text-green-600 flex items-center gap-1 bg-green-50 px-2 py-1 rounded-full"
+                >
+                  <Check className="w-3 h-3" /> Guardado
+                </motion.span>
+              )}
+              {saveStatus === 'error' && (
+                <motion.span key="error" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="text-xs text-red-500 flex items-center gap-1 bg-red-50 px-2 py-1 rounded-full"
+                >
+                  Error al guardar
+                </motion.span>
+              )}
+            </AnimatePresence>
+            {(isDirty || saveStatus === 'error') && saveStatus !== 'saving' && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                onClick={handleManualSave}
+                className="text-xs bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-full font-medium transition-colors flex items-center gap-1"
               >
-                <Loader2 className="w-3 h-3 animate-spin" /> Guardando
-              </motion.span>
+                <Check className="w-3 h-3" /> Guardar
+              </motion.button>
             )}
             {isAirbnb && (
               <span className="text-xs bg-green-50 text-green-600 px-2.5 py-1 rounded-full font-semibold border border-green-200">
@@ -926,6 +984,33 @@ export default function IntelligencePage() {
           ))}
         </div>
       </div>
+
+      {/* Sticky save bar */}
+      <AnimatePresence>
+        {(isDirty || saveStatus === 'error') && saveStatus !== 'saving' && (
+          <motion.div
+            initial={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 80, opacity: 0 }}
+            className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-4 px-4 pointer-events-none"
+          >
+            <div className="pointer-events-auto flex items-center gap-3 bg-gray-900 text-white px-5 py-3 rounded-2xl shadow-2xl">
+              {saveStatus === 'error' && (
+                <span className="text-xs text-red-400">Error al guardar — vuelve a intentar</span>
+              )}
+              {saveStatus !== 'error' && (
+                <span className="text-xs text-gray-300">Tienes cambios sin guardar</span>
+              )}
+              <button
+                onClick={handleManualSave}
+                className="bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold px-4 py-1.5 rounded-xl transition-colors flex items-center gap-1.5"
+              >
+                <Check className="w-3.5 h-3.5" /> Guardar ahora
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
