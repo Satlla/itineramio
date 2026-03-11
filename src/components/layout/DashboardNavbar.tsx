@@ -29,7 +29,7 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
   const notificationsRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const { t } = useTranslation('dashboard')
-  const { unreadCount } = useRealNotifications()
+  const { unreadCount, markAllAsRead } = useRealNotifications()
 
   // Initialize audio context on first user interaction
   useEffect(() => {
@@ -184,7 +184,11 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
                 ref={notificationsRef}
               >
                 <button
-                  onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                  onClick={() => {
+                    const opening = !isNotificationsOpen
+                    setIsNotificationsOpen(opening)
+                    if (opening && unreadCount > 0) markAllAsRead()
+                  }}
                   className="relative p-1.5 sm:p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
                 >
                   <Bell className="w-5 h-5" />
