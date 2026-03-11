@@ -202,6 +202,11 @@ export default function RegisterPage() {
       trackSignUp({ method: 'email', userId: data.userId })
       trackGenerateLead({ source: 'landing', value: 15 })
 
+      // Track Meta Pixel CompleteRegistration (for ads algorithm optimization)
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        ;(window as any).fbq('track', 'CompleteRegistration', { value: 0, currency: 'EUR' })
+      }
+
       // Success - redirect to verification required page
       router.push(`/verify-required?email=${encodeURIComponent(formData.email)}`)
       
