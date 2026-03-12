@@ -683,12 +683,19 @@ function buildStepDescription(step: any, index: number, language: string): strin
   // Content stores text at language keys (content.es, content.en), not content.text
   const text = getLocalizedText(content, language);
 
-  let desc = `Paso ${index + 1}: ${text || title}`;
+  // For video-only steps with no text/title, use a descriptive fallback
+  const hasMedia = content && content.mediaUrl;
+  const isVideoOnly = step.type === 'VIDEO' && !text && !title;
+  const fallbackLabel = isVideoOnly
+    ? { es: 'Vídeo explicativo', en: 'Explanatory video', fr: 'Vidéo explicative' }[language] || 'Vídeo explicativo'
+    : '';
+
+  let desc = `Paso ${index + 1}: ${text || title || fallbackLabel}`;
 
   // Include actual media URL so the AI can embed it in markdown responses
-  if (content && content.mediaUrl) {
+  if (hasMedia) {
     if (step.type === 'VIDEO') {
-      desc += `\n  📹 Vídeo disponible: ${content.mediaUrl}`;
+      desc += `\n  📹 Vídeo disponible (INCLUIR en la respuesta): ${content.mediaUrl}`;
     } else if (step.type === 'IMAGE') {
       desc += `\n  📷 Imagen disponible: ![${title || 'imagen'}](${content.mediaUrl})`;
     }
@@ -1014,10 +1021,11 @@ CRITICAL RULES:
 1. LANGUAGE: Detect the language the user writes in and ALWAYS respond in that SAME language.
 2. ANSWER FROM DATA: Your answers MUST come from the knowledge base above. Quote specific details (names, codes, locations, times).
 3. MEDIA: When your answer references a step that has 📷 (image) or 📹 (video), you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Ver vídeo](url). ONLY include media from the specific steps relevant to the question — do NOT dump all media from a zone.
-4. RECOMMENDATIONS: When mentioning places (restaurants, cafés, etc.), list them with name, distance and rating if available.
-5. STYLE: Be friendly and direct. Use **bold** for key info. Use bullet lists. Max 3 short paragraphs.
-6. HONESTY: If the info isn't in your knowledge base, say so and suggest contacting the host.
-7. NEVER invent information not present in the knowledge base above.`;
+4. VIDEO STEPS: If a zone or step only has a video (📹) and no text, ALWAYS share the video link and say it explains everything visually. Example: "Aquí tienes el vídeo explicativo: [🎬 Ver vídeo](url)"
+5. RECOMMENDATIONS: When mentioning places (restaurants, cafés, etc.), list them with name, distance and rating if available.
+6. STYLE: Be friendly and direct. Use **bold** for key info. Use bullet lists. Max 3 short paragraphs.
+7. HONESTY: If the info isn't in your knowledge base, say so and suggest contacting the host.
+8. NEVER invent information not present in the knowledge base above.`;
 
   return prompt;
 }
@@ -1081,11 +1089,12 @@ CRITICAL RULES:
 1. LANGUAGE: Detect the language the user writes in and ALWAYS respond in that SAME language.
 2. ANSWER FROM DATA: Your answers MUST come from the knowledge base above. Quote specific details (WiFi name, codes, locations, times, step-by-step instructions).
 3. MEDIA: When your answer references a step that has 📷 (image) or 📹 (video), you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Ver vídeo](url). ONLY include media from the specific steps relevant to the question — do NOT dump all media from a zone.
-4. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions, etc., list the actual places from the manual with their name, rating (★), distance, and walk time.
-5. SEARCH ALL ZONES: Look through ALL zones to find the most relevant information for each question.
-6. STYLE: Be friendly and direct like a WhatsApp chat. Use **bold** for key info. Use bullet lists with -. Max 3 short paragraphs. Use emojis sparingly (📍🏠✅☕🍽️).
-7. HONESTY: If the info isn't in your knowledge base, say so and suggest contacting the host.
-8. NEVER invent information not present in the knowledge base above.`;
+4. VIDEO STEPS: If a zone or step only has a video (📹) and no text, ALWAYS share the video link and say it explains everything visually. Example: "Aquí tienes el vídeo explicativo: [🎬 Ver vídeo](url)"
+5. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions, etc., list the actual places from the manual with their name, rating (★), distance, and walk time.
+6. SEARCH ALL ZONES: Look through ALL zones to find the most relevant information for each question.
+7. STYLE: Be friendly and direct like a WhatsApp chat. Use **bold** for key info. Use bullet lists with -. Max 3 short paragraphs. Use emojis sparingly (📍🏠✅☕🍽️).
+8. HONESTY: If the info isn't in your knowledge base, say so and suggest contacting the host.
+9. NEVER invent information not present in the knowledge base above.`;
 
   return prompt;
 }
