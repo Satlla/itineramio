@@ -596,137 +596,8 @@ export default function ChatBot({
   }
 
   const handleFAQClick = (faq: FAQ) => {
-    // Send FAQ through AI instead of returning canned answer
-    setCurrentMessage(faq.question)
     setShowFAQs(false)
-    // Use a small delay so the state updates before sending
-    setTimeout(() => {
-      const fakeEvent = { key: 'Enter', shiftKey: false, preventDefault: () => {} } as React.KeyboardEvent
-      // Directly trigger sendMessage with the FAQ question
-      const userMessage: Message = {
-        id: Date.now().toString(),
-        role: 'user',
-        content: faq.question,
-        timestamp: new Date()
-      }
-      setMessages(prev => [...prev, userMessage])
-      setCurrentMessage('')
-      setIsLoading(true)
-      setError(null)
-      userMessageCountRef.current += 1
-
-      const typingMessage: Message = {
-        id: `typing-${Date.now()}`,
-        role: 'assistant',
-        content: t('typing', lang),
-        timestamp: new Date(),
-        typing: true
-      }
-      setMessages(prev => [...prev, typingMessage])
-
-      const body: Record<string, any> = {
-        message: faq.question,
-        propertyId,
-        propertyName,
-        language: lang,
-        conversationHistory: messages.filter(m => !m.typing).slice(-10).map(m => ({ role: m.role, content: m.content })),
-        sessionId: sessionIdRef.current
-      }
-      if (zoneId) body.zoneId = zoneId
-      if (zoneName) body.zoneName = zoneName
-
-      const faqController = new AbortController()
-      const faqTimeout = setTimeout(() => faqController.abort(), 55000)
-
-      fetch('/api/chatbot', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-        signal: faqController.signal,
-      }).then(async (response) => {
-        if (response.status === 429) throw new Error('rate_limited')
-        if (!response.ok) throw new Error('api_error')
-
-        const contentType = response.headers.get('content-type') || ''
-        if (contentType.includes('text/event-stream')) {
-          const reader = response.body?.getReader()
-          const decoder = new TextDecoder()
-          const streamMsgId = Date.now().toString()
-          let streamedContent = ''
-          let streamMedia: MediaItem[] | undefined
-          let streamRecommendations: RecommendationCard[] | undefined
-
-          setMessages(prev => {
-            const filtered = prev.filter(m => !m.typing)
-            return [...filtered, { id: streamMsgId, role: 'assistant' as const, content: '', timestamp: new Date() }]
-          })
-
-          if (reader) {
-            let buffer = ''
-            while (true) {
-              const { done, value } = await reader.read()
-              if (done) break
-              buffer += decoder.decode(value, { stream: true })
-              const lines = buffer.split('\n\n')
-              buffer = lines.pop() || ''
-              for (const line of lines) {
-                const dataStr = line.replace('data: ', '').trim()
-                if (!dataStr) continue
-                try {
-                  const parsed = JSON.parse(dataStr)
-                  if (parsed.token) {
-                    streamedContent += parsed.token
-                    const currentContent = streamedContent
-                    setMessages(prev => prev.map(m =>
-                      m.id === streamMsgId ? { ...m, content: currentContent } : m
-                    ))
-                  }
-                  if (parsed.done) {
-                    streamMedia = parsed.media
-                    streamRecommendations = parsed.recommendations
-                  }
-                } catch { /* skip */ }
-              }
-            }
-          }
-
-          setMessages(prev => prev.map(m =>
-            m.id === streamMsgId ? { ...m, content: streamedContent, media: streamMedia, recommendations: streamRecommendations } : m
-          ))
-        } else {
-          const data = await response.json()
-          setMessages(prev => {
-            const filtered = prev.filter(m => !m.typing)
-            return [...filtered, {
-              id: Date.now().toString(),
-              role: 'assistant' as const,
-              content: data.response,
-              timestamp: new Date(),
-              media: data.media || undefined,
-              recommendations: data.recommendations || undefined,
-            }]
-          })
-        }
-      }).catch((error: any) => {
-        const isRateLimited = error?.message === 'rate_limited'
-        const isRateLimitedDaily = error?.message === 'rate_limited_daily'
-        const errMsg = isRateLimitedDaily ? t('rateLimitedDaily', lang) : isRateLimited ? t('rateLimited', lang) : t('errorBanner', lang)
-        const chatMsg = isRateLimitedDaily ? t('rateLimitedDaily', lang) : isRateLimited ? t('rateLimited', lang) : t('errorMessage', lang)
-        setError(errMsg)
-        setMessages(prev => {
-          const filtered = prev.filter(m => !m.typing)
-          return [...filtered, {
-            id: Date.now().toString(),
-            role: 'assistant' as const,
-            content: chatMsg,
-            timestamp: new Date()
-          }]
-        })
-      }).finally(() => {
-        clearTimeout(faqTimeout)
-        setIsLoading(false)
-      })
-    }, 0)
+    sendMessage(faq.question)
   }
 
   const handleWhatsApp = () => {
@@ -824,7 +695,7 @@ export default function ChatBot({
               sm:rounded-2xl sm:shadow-2xl sm:border sm:border-gray-200
               ${isMinimized
                 ? 'sm:w-[380px] sm:h-16'
-                : 'sm:w-[380px] sm:h-[540px]'
+                : 'sm:w-[380px] sm:h-[600px]'
               } ${className || 'sm:bottom-6 sm:right-6'}`}
             style={{ background: '#f8f9fc' }}
           >
@@ -1011,10 +882,10 @@ export default function ChatBot({
                   ))}
 
                   {/* FAQ Suggestions */}
-                  {showFAQs && messages.length <= 1 && (
+                  {showFAQs && messages.length <= 1 && faqs.length > 0 && (
                     <div className="space-y-2 mt-1">
                       <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest pl-1">{t('faqTitle', lang)}</p>
-                      {faqs.slice(0, 3).map((faq, index) => (
+                      {faqs.slice(0, 2).map((faq, index) => (
                         <button
                           key={index}
                           onClick={() => handleFAQClick(faq)}
