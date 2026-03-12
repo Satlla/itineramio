@@ -28,6 +28,19 @@ const nextConfig = {
     ],
   },
   // Redirects for legacy/short URLs and 404 fixes
+  async headers() {
+    // Allow mobile app preview (Expo web on localhost) to call the API
+    const mobileOrigins = ['http://localhost:8081', 'http://127.0.0.1:8081'];
+    return mobileOrigins.map(origin => ({
+      source: '/api/:path*',
+      headers: [
+        { key: 'Access-Control-Allow-Origin', value: origin },
+        { key: 'Access-Control-Allow-Methods', value: 'GET,POST,PUT,PATCH,DELETE,OPTIONS' },
+        { key: 'Access-Control-Allow-Headers', value: 'Content-Type,Authorization' },
+        { key: 'Access-Control-Allow-Credentials', value: 'true' },
+      ],
+    }));
+  },
   async redirects() {
     return [
       // Gestion module renames
