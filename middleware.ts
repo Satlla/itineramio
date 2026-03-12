@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
 
+const MOBILE_DEV_ORIGINS = ['http://localhost:8081', 'http://127.0.0.1:8081']
+
+function addCorsHeaders(response: NextResponse, origin: string): NextResponse {
+  response.headers.set('Access-Control-Allow-Origin', origin)
+  response.headers.set('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS')
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+  response.headers.set('Access-Control-Allow-Credentials', 'true')
+  return response
+}
+
 const protectedRoutes: string[] = [
   '/main',
   '/properties',
@@ -30,6 +40,24 @@ async function verifyJWT(token: string, secret: string): Promise<boolean> {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const origin = request.headers.get('origin') ?? ''
+
+  // Handle CORS for mobile app dev (Expo web on localhost)
+  if (MOBILE_DEV_ORIGINS.includes(origin) && pathname.startsWith('/api/')) {
+    if (request.method === 'OPTIONS') {
+      return addCorsHeaders(new NextResponse(null, { status: 204 }), origin)
+    }
+    // For non-OPTIONS API requests from mobile dev, add headers and continue to the API handler
+    const res = NextResponse.next()
+    addCorsHeaders(res, origin)
+    return res
+  }
+
+  // Skip middleware for API routes (they handle their own auth)
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next()
+  }
+
   const token = request.cookies.get('auth-token')?.value
 
   // CRITICAL: Allow admin login page to bypass all checks
@@ -190,6 +218,6 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|public|login|register|admin|guide|propietario).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public).*)',
   ],
 }
