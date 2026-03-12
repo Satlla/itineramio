@@ -1668,11 +1668,9 @@ export default function ZoneGuidePage({
         currentUrl={`${window.location.origin}/guide/${propertyId}/${zoneId}`}
       />
 
-      {/* AI ChatBot */}
+      {/* AI ChatBot — full property mode so it knows all zones */}
       <ChatBot
         propertyId={propertyId}
-        zoneId={zoneId}
-        zoneName={getText(zone.name, language, 'Zona')}
         propertyName={getText(property.name, language, 'Propiedad')}
         language={language as 'es' | 'en' | 'fr'}
         hostContact={property.hostContactPhone ? {

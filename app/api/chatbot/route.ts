@@ -1052,7 +1052,7 @@ function buildPropertySystemPrompt(property: any, zones: any[], language: string
       }
     }
 
-    if ((zonesContent + zoneSection).length > 12000) {
+    if ((zonesContent + zoneSection).length > 24000) {
       zonesContent += `\n... (more zones available, content truncated)\n`;
       break;
     }
