@@ -34,6 +34,7 @@ import {
   UserCog,
   Layers,
   Target,
+  Facebook,
   HeadphonesIcon,
   Ticket,
   BookOpen,
@@ -99,6 +100,7 @@ const buildNavigationSections = (t: (key: string) => string) => [
       { name: t('admin.nav.faq'), href: '/admin/faq', icon: HelpCircle, permissions: ['marketing.view'] },
       { name: t('admin.nav.hostProfiles'), href: '/admin/host-profiles', icon: UsersRound, permissions: ['marketing.view'] },
       { name: 'Guías de ciudad', href: '/admin/city-guides', icon: Map, permissions: ['marketing.view'] },
+      { name: 'Meta Ads', href: '/admin/meta', icon: Facebook, permissions: ['marketing.view'] },
     ]
   },
   {
