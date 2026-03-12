@@ -238,6 +238,7 @@ export default function ChatBot({
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const activeControllerRef = useRef<AbortController | null>(null)
 
   const lang = language || 'es'
 
@@ -408,6 +409,12 @@ export default function ChatBot({
 
     setMessages(prev => [...prev, userMessage])
     setCurrentMessage('')
+    // Cancelar cualquier llamada anterior en curso
+    if (activeControllerRef.current) {
+      activeControllerRef.current.abort()
+      activeControllerRef.current = null
+    }
+
     setIsLoading(true)
     setError(null)
     setShowFAQs(false)
@@ -425,6 +432,7 @@ export default function ChatBot({
 
     // Abort after 55s to prevent hanging forever in production
     const controller = new AbortController()
+    activeControllerRef.current = controller
     const timeout = setTimeout(() => controller.abort(), 55000)
 
     try {
