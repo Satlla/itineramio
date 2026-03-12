@@ -240,7 +240,7 @@ export default function ChatBot({
   const inputRef = useRef<HTMLInputElement>(null)
   const activeControllerRef = useRef<AbortController | null>(null)
 
-  const lang = language || 'es'
+  const [lang, setLang] = useState<'es' | 'en' | 'fr'>(language || 'es')
 
   // Check if chatbot is enabled for this property (beta restriction)
   useEffect(() => {
@@ -676,9 +676,13 @@ export default function ChatBot({
             suggestions={t('welcomeBubbleSuggestions', lang).split('|')}
             dismissText={t('welcomeBubbleDismiss', lang)}
             headerText={t('header', lang)}
+            inputPlaceholder={t('placeholder', lang)}
+            lang={lang}
             className={className ? className.replace(/bottom-\d+/, 'bottom-40').replace(/sm:bottom-\d+/, 'sm:bottom-28') : 'bottom-40 right-4 sm:bottom-28 sm:right-6'}
             onSuggestionClick={handleWelcomeSuggestion}
             onDismiss={() => setShowWelcomeBubble(false)}
+            onCustomMessage={handleWelcomeSuggestion}
+            onLanguageChange={setLang}
           />
         )}
       </AnimatePresence>
