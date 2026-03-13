@@ -618,6 +618,20 @@ class ChatBotErrorBoundary extends Component<{ children: ReactNode }, { hasError
   static getDerivedStateFromError() { return { hasError: true } }
   componentDidCatch(e: Error, info: { componentStack: string }) {
     console.error('[ChatBot] render error caught by boundary:', e.message, '\nStack:', info.componentStack)
+    // Send error to server so it appears in Vercel logs (no DevTools needed on mobile)
+    try {
+      fetch('/api/chatbot/error-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          error: e.message,
+          stack: e.stack?.slice(0, 500),
+          componentStack: info.componentStack?.slice(0, 500),
+          ua: navigator.userAgent,
+          url: window.location.href,
+        }),
+      }).catch(() => {})
+    } catch {}
     // Auto-reset after 2s so the chat button and bubble reappear
     this._resetTimer = setTimeout(() => this.setState({ hasError: false }), 2000)
   }
