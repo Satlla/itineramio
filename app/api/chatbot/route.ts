@@ -99,6 +99,11 @@ export async function POST(request: NextRequest) {
       }, { status: 429 });
     }
 
+    // Detect iOS Safari — SSE streaming is unreliable on iOS (second message bug).
+    // Return plain JSON instead; the client already handles both response types.
+    const ua = request.headers.get('user-agent') || '';
+    const isIOS = /iPhone|iPad|iPod/i.test(ua);
+
     const {
       message,
       propertyId,
@@ -171,8 +176,116 @@ export async function POST(request: NextRequest) {
       { role: 'user', content: message.slice(0, 500) }
     ];
 
+    // Shared post-response logic (runs via after() for streaming, inline for iOS)
+    const runAfterTasks = async (fullResponse: string) => {
+      if (!fullResponse) return;
+      const isUnanswered = detectUnansweredQuestion(fullResponse, language);
+      logChatInteraction(propertyId, zoneId || null, message, fullResponse);
+      if (sessionId) {
+        await saveConversation({ propertyId, zoneId: zoneId || null, sessionId, language, userMessage: message, aiResponse: fullResponse, isUnanswered });
+      }
+      if (isUnanswered) {
+        try {
+          const prop = await prisma.property.findUnique({
+            where: { id: propertyId },
+            select: { intelligence: true, name: true, host: { select: { email: true, name: true } } }
+          });
+          const intel = (prop?.intelligence as Record<string, any>) || {};
+          const unanswered = Array.isArray(intel.unansweredQuestions) ? intel.unansweredQuestions : [];
+          const allUserMessages = [
+            ...conversationHistory.filter((m: Message) => m.role === 'user').map((m: Message) => m.content),
+            message
+          ];
+          const substantiveQuestion = [...allUserMessages].reverse().find(m => m.length > 20) || message;
+          unanswered.push({
+            question: substantiveQuestion.slice(0, 300),
+            askedAt: new Date().toISOString(),
+            askedBy: sessionId || 'guest',
+            answered: false,
+          });
+          await prisma.property.update({
+            where: { id: propertyId },
+            data: { intelligence: { ...intel, unansweredQuestions: unanswered } },
+          });
+          const hostEmail = (prop as any)?.host?.email;
+          const propertyNameText = getLocalizedText(prop?.name, language) || propertyId;
+          const hostUser = await prisma.user.findUnique({ where: { email: hostEmail || '' }, select: { id: true } });
+          if (hostUser) {
+            await prisma.notification.create({
+              data: {
+                userId: hostUser.id,
+                type: 'warning',
+                title: `❓ Pregunta sin respuesta — ${propertyNameText}`,
+                message: `"${message.slice(0, 120)}"`,
+                data: { propertyId, actionUrl: `/properties/${propertyId}/chatbot?tab=unanswered` }
+              }
+            });
+          }
+          if (hostEmail) {
+            await sendEmail({
+              to: [hostEmail],
+              subject: `❓ Pregunta sin respuesta en "${propertyNameText}"`,
+              html: `
+                <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
+                  <h2 style="color:#1a1a1a">Un huésped hizo una pregunta que el chatbot no pudo responder</h2>
+                  <p style="color:#555">Propiedad: <strong>${propertyNameText}</strong></p>
+                  <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;margin:20px 0">
+                    <p style="margin:0;font-size:16px;color:#92400e">"${substantiveQuestion.slice(0, 300)}"</p>
+                  </div>
+                  <p style="color:#555">Puedes añadir una respuesta directamente en el panel para que el chatbot la use en futuras preguntas:</p>
+                  <a href="https://www.itineramio.com/properties/${propertyId}/chatbot?tab=unanswered"
+                     style="display:inline-block;background:#7c3aed;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">
+                    Añadir respuesta →
+                  </a>
+                  <p style="color:#999;font-size:12px;margin-top:24px">Itineramio · Asistente IA</p>
+                </div>
+              `
+            });
+          }
+        } catch (e) {
+          console.error('[ChatBot] Error saving unanswered question:', e);
+        }
+      }
+    };
+
     try {
-      // Call OpenAI API with streaming + timeout
+      // iOS Safari: SSE streaming is unreliable (second message bug).
+      // Use standard JSON response instead — client handles both.
+      if (isIOS) {
+        const iosController = new AbortController();
+        const iosTimeout = setTimeout(() => iosController.abort(), 30000);
+        const iosOpenaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openaiApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages,
+            max_tokens: 1500,
+            temperature: 0.3,
+            presence_penalty: 0.1,
+            frequency_penalty: 0.1,
+            stream: false,
+          }),
+          signal: iosController.signal,
+        });
+        clearTimeout(iosTimeout);
+        if (!iosOpenaiResponse.ok) throw new Error(`OpenAI API error: ${iosOpenaiResponse.status}`);
+        const iosData = await iosOpenaiResponse.json();
+        const fullResponse = iosData.choices?.[0]?.message?.content || '';
+        const media = extractMediaFromAiResponse(fullResponse, mediaIndex);
+        const recommendations = detectRelevantRecommendations(message, fullResponse, zones, language);
+        after(() => runAfterTasks(fullResponse));
+        return NextResponse.json({
+          response: fullResponse,
+          media: media.length > 0 ? media : undefined,
+          recommendations: recommendations.length > 0 ? recommendations : undefined,
+        });
+      }
+
+      // Desktop: SSE streaming
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 30000);
 
@@ -266,87 +379,9 @@ export async function POST(request: NextRequest) {
       });
 
       // after() runs AFTER the response is sent — Vercel keeps the function alive for this
-      // Called at route handler level so AsyncLocalStorage context is available
       after(async () => {
         await streamDone; // Wait for stream to finish so fullResponse is populated
-        if (!fullResponse) return;
-        const isUnanswered = detectUnansweredQuestion(fullResponse, language);
-        logChatInteraction(propertyId, zoneId || null, message, fullResponse);
-        if (sessionId) {
-          await saveConversation({ propertyId, zoneId: zoneId || null, sessionId, language, userMessage: message, aiResponse: fullResponse, isUnanswered });
-        }
-        // Save unanswered questions to property intelligence + notify host
-        if (isUnanswered) {
-          try {
-            const prop = await prisma.property.findUnique({
-              where: { id: propertyId },
-              select: { intelligence: true, name: true, host: { select: { email: true, name: true } } }
-            });
-            const intel = (prop?.intelligence as Record<string, any>) || {};
-            const unanswered = Array.isArray(intel.unansweredQuestions) ? intel.unansweredQuestions : [];
-
-            // Find the most substantive user question — avoid saving short follow-ups like "tienes mas?"
-            const allUserMessages = [
-              ...conversationHistory.filter((m: Message) => m.role === 'user').map((m: Message) => m.content),
-              message
-            ];
-            const substantiveQuestion = [...allUserMessages].reverse().find(m => m.length > 20) || message;
-
-            unanswered.push({
-              question: substantiveQuestion.slice(0, 300),
-              askedAt: new Date().toISOString(),
-              askedBy: sessionId || 'guest',
-              answered: false,
-            });
-            await prisma.property.update({
-              where: { id: propertyId },
-              data: { intelligence: { ...intel, unansweredQuestions: unanswered } },
-            });
-
-            // Bell notification + Email host immediately
-            const hostEmail = (prop as any)?.host?.email;
-            const hostName = (prop as any)?.host?.name || 'Anfitrión';
-            const propertyNameText = getLocalizedText(prop?.name, language) || propertyId;
-
-            // Create bell notification for the host
-            const hostUser = await prisma.user.findUnique({ where: { email: hostEmail || '' }, select: { id: true } });
-            if (hostUser) {
-              await prisma.notification.create({
-                data: {
-                  userId: hostUser.id,
-                  type: 'warning',
-                  title: `❓ Pregunta sin respuesta — ${propertyNameText}`,
-                  message: `"${message.slice(0, 120)}"`,
-                  data: { propertyId, actionUrl: `/properties/${propertyId}/chatbot?tab=unanswered` }
-                }
-              });
-            }
-
-            if (hostEmail) {
-              await sendEmail({
-                to: [hostEmail],
-                subject: `❓ Pregunta sin respuesta en "${propertyNameText}"`,
-                html: `
-                  <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
-                    <h2 style="color:#1a1a1a">Un huésped hizo una pregunta que el chatbot no pudo responder</h2>
-                    <p style="color:#555">Propiedad: <strong>${propertyNameText}</strong></p>
-                    <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;margin:20px 0">
-                      <p style="margin:0;font-size:16px;color:#92400e">"${substantiveQuestion.slice(0, 300)}"</p>
-                    </div>
-                    <p style="color:#555">Puedes añadir una respuesta directamente en el panel para que el chatbot la use en futuras preguntas:</p>
-                    <a href="https://www.itineramio.com/properties/${propertyId}/chatbot?tab=unanswered"
-                       style="display:inline-block;background:#7c3aed;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">
-                      Añadir respuesta →
-                    </a>
-                    <p style="color:#999;font-size:12px;margin-top:24px">Itineramio · Asistente IA</p>
-                  </div>
-                `
-              });
-            }
-          } catch (e) {
-            console.error('[ChatBot] Error saving unanswered question:', e);
-          }
-        }
+        await runAfterTasks(fullResponse);
       });
 
       return new Response(stream, {

@@ -494,10 +494,14 @@ export default function ChatBot({
 
         if (reader) {
           let buffer = ''
+          let streamCompletedNormally = false
           try {
             while (true) {
               const { done, value } = await reader.read()
-              if (done) break
+              if (done) {
+                streamCompletedNormally = true
+                break
+              }
 
               buffer += decoder.decode(value, { stream: true })
               const lines = buffer.split('\n\n')
@@ -526,9 +530,13 @@ export default function ChatBot({
               }
             }
           } finally {
-            // Always release the reader lock — critical on iOS Safari
-            // Use try/catch because reader.cancel() can throw synchronously on iOS Safari
-            try { reader.cancel() } catch { /* ignore */ }
+            // Only cancel if stream did NOT complete normally.
+            // Calling cancel() on an already-done reader corrupts iOS Safari's
+            // internal connection state, causing the next fetch to the same
+            // endpoint to fail (the "second message bug").
+            if (!streamCompletedNormally) {
+              try { reader.cancel() } catch { /* ignore */ }
+            }
           }
         }
 
@@ -570,7 +578,7 @@ export default function ChatBot({
       }
 
     } catch (error: any) {
-      console.error('Chatbot error:', error)
+      console.error('[ChatBot] error on message:', error?.name, error?.message, error)
 
       const isAbort = error?.name === 'AbortError'
       const isRateLimited = error?.message === 'rate_limited'
