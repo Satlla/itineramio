@@ -207,41 +207,42 @@ export async function POST(request: NextRequest) {
             where: { id: propertyId },
             data: { intelligence: { ...intel, unansweredQuestions: unanswered } },
           });
-          const hostEmail = (prop as any)?.host?.email;
-          const propertyNameText = getLocalizedText(prop?.name, language) || propertyId;
-          const hostUser = await prisma.user.findUnique({ where: { email: hostEmail || '' }, select: { id: true } });
-          if (hostUser) {
-            await prisma.notification.create({
-              data: {
-                userId: hostUser.id,
-                type: 'warning',
-                title: `❓ Pregunta sin respuesta — ${propertyNameText}`,
-                message: `"${message.slice(0, 120)}"`,
-                data: { propertyId, actionUrl: `/properties/${propertyId}/chatbot?tab=unanswered` }
-              }
-            });
-          }
-          if (hostEmail) {
-            await sendEmail({
-              to: [hostEmail],
-              subject: `❓ Pregunta sin respuesta en "${propertyNameText}"`,
-              html: `
-                <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
-                  <h2 style="color:#1a1a1a">Un huésped hizo una pregunta que el chatbot no pudo responder</h2>
-                  <p style="color:#555">Propiedad: <strong>${propertyNameText}</strong></p>
-                  <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;margin:20px 0">
-                    <p style="margin:0;font-size:16px;color:#92400e">"${substantiveQuestion.slice(0, 300)}"</p>
-                  </div>
-                  <p style="color:#555">Puedes añadir una respuesta directamente en el panel para que el chatbot la use en futuras preguntas:</p>
-                  <a href="https://www.itineramio.com/properties/${propertyId}/chatbot?tab=unanswered"
-                     style="display:inline-block;background:#7c3aed;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">
-                    Añadir respuesta →
-                  </a>
-                  <p style="color:#999;font-size:12px;margin-top:24px">Itineramio · Asistente IA</p>
-                </div>
-              `
-            });
-          }
+          // TODO: Reactivar notificaciones cuando esté listo
+          // const hostEmail = (prop as any)?.host?.email;
+          // const propertyNameText = getLocalizedText(prop?.name, language) || propertyId;
+          // const hostUser = await prisma.user.findUnique({ where: { email: hostEmail || '' }, select: { id: true } });
+          // if (hostUser) {
+          //   await prisma.notification.create({
+          //     data: {
+          //       userId: hostUser.id,
+          //       type: 'warning',
+          //       title: `❓ Pregunta sin respuesta — ${propertyNameText}`,
+          //       message: `"${message.slice(0, 120)}"`,
+          //       data: { propertyId, actionUrl: `/properties/${propertyId}/chatbot?tab=unanswered` }
+          //     }
+          //   });
+          // }
+          // if (hostEmail) {
+          //   await sendEmail({
+          //     to: [hostEmail],
+          //     subject: `❓ Pregunta sin respuesta en "${propertyNameText}"`,
+          //     html: `
+          //       <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
+          //         <h2 style="color:#1a1a1a">Un huésped hizo una pregunta que el chatbot no pudo responder</h2>
+          //         <p style="color:#555">Propiedad: <strong>${propertyNameText}</strong></p>
+          //         <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;margin:20px 0">
+          //           <p style="margin:0;font-size:16px;color:#92400e">"${substantiveQuestion.slice(0, 300)}"</p>
+          //         </div>
+          //         <p style="color:#555">Puedes añadir una respuesta directamente en el panel para que el chatbot la use en futuras preguntas:</p>
+          //         <a href="https://www.itineramio.com/properties/${propertyId}/chatbot?tab=unanswered"
+          //            style="display:inline-block;background:#7c3aed;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">
+          //           Añadir respuesta →
+          //         </a>
+          //         <p style="color:#999;font-size:12px;margin-top:24px">Itineramio · Asistente IA</p>
+          //       </div>
+          //     `
+          //   });
+          // }
         } catch (e) {
           console.error('[ChatBot] Error saving unanswered question:', e);
         }
