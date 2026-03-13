@@ -435,6 +435,9 @@ export default function ChatBot({
     activeControllerRef.current = controller
     const timeout = setTimeout(() => controller.abort(), 55000)
 
+    // Tracks how much of the CURRENT message has been streamed (for error recovery)
+    let currentStreamedChars = 0
+
     try {
       const body: Record<string, any> = {
         message: userMessage.content,
@@ -486,38 +489,42 @@ export default function ChatBot({
 
         if (reader) {
           let buffer = ''
-          while (true) {
-            const { done, value } = await reader.read()
-            if (done) break
+          try {
+            while (true) {
+              const { done, value } = await reader.read()
+              if (done) break
 
-            buffer += decoder.decode(value, { stream: true })
-            const lines = buffer.split('\n\n')
-            buffer = lines.pop() || ''
+              buffer += decoder.decode(value, { stream: true })
+              const lines = buffer.split('\n\n')
+              buffer = lines.pop() || ''
 
-            for (const line of lines) {
-              const dataStr = line.replace('data: ', '').trim()
-              if (!dataStr) continue
-              try {
-                const parsed = JSON.parse(dataStr)
-                if (parsed.token) {
-                  streamedContent += parsed.token
-                  const currentContent = streamedContent
-                  setMessages(prev => prev.map(m =>
-                    m.id === streamMsgId ? { ...m, content: currentContent } : m
-                  ))
+              for (const line of lines) {
+                const dataStr = line.replace('data: ', '').trim()
+                if (!dataStr) continue
+                try {
+                  const parsed = JSON.parse(dataStr)
+                  if (parsed.token) {
+                    streamedContent += parsed.token
+                    currentStreamedChars = streamedContent.length
+                    const currentContent = streamedContent
+                    setMessages(prev => prev.map(m =>
+                      m.id === streamMsgId ? { ...m, content: currentContent } : m
+                    ))
+                  }
+                  if (parsed.done) {
+                    streamMedia = parsed.media
+                    streamRecommendations = parsed.recommendations
+                  }
+                } catch {
+                  // Skip malformed chunks
                 }
-                if (parsed.done) {
-                  streamMedia = parsed.media
-                  streamRecommendations = parsed.recommendations
-                }
-              } catch {
-                // Skip malformed chunks
               }
             }
+          } finally {
+            // Always release the reader lock — critical on iOS Safari
+            reader.cancel().catch(() => {})
           }
         }
-
-        clearTimeout(timeout)
 
         // Set final content with media and recommendations
         const finalContent = streamedContent
@@ -534,7 +541,6 @@ export default function ChatBot({
         })
       } else {
         // Non-streaming fallback response
-        clearTimeout(timeout)
         const data = await response.json()
 
         trackEvent('chatbot_interaction', {
@@ -558,20 +564,16 @@ export default function ChatBot({
       }
 
     } catch (error: any) {
-      clearTimeout(timeout)
       console.error('Chatbot error:', error)
 
-      // If user got partial content before abort/error, keep it instead of showing error
       const isAbort = error?.name === 'AbortError'
       const isRateLimited = error?.message === 'rate_limited'
       const isRateLimitedDaily = error?.message === 'rate_limited_daily'
 
-      // Check if we already have a streamed partial response
-      const hasPartialResponse = !isRateLimited && !isRateLimitedDaily && messages.some(m =>
-        !m.typing && m.role === 'assistant' && m.content.length > 20
-      )
+      // Only keep partial response if THIS message already streamed content
+      const hasPartialResponse = isAbort && currentStreamedChars > 20
 
-      if (hasPartialResponse && isAbort) {
+      if (hasPartialResponse) {
         // Partial content exists — just remove typing indicator, don't add error
         setMessages(prev => prev.filter(m => !m.typing))
       } else {
@@ -591,6 +593,8 @@ export default function ChatBot({
         })
       }
     } finally {
+      clearTimeout(timeout)
+      activeControllerRef.current = null // liberar ref siempre
       setIsLoading(false)
     }
   }
