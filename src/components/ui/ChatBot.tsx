@@ -58,6 +58,8 @@ interface ChatBotProps {
     phone: string
     email: string
   }
+  hostPhoto?: string | null
+  hostName?: string | null
   className?: string
   isDemoMode?: boolean
 }
@@ -203,6 +205,8 @@ export default function ChatBot({
   propertyName,
   language = 'es',
   hostContact,
+  hostPhoto,
+  hostName,
   className = '',
   isDemoMode = false,
 }: ChatBotProps) {
@@ -714,14 +718,24 @@ export default function ChatBot({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 min-w-0 flex-1">
                     <div className="relative flex-shrink-0">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
-                        <Bot className="w-5 h-5 text-white" />
-                      </div>
+                      {hostPhoto ? (
+                        <img
+                          src={hostPhoto}
+                          alt={hostName || propertyName}
+                          className="w-10 h-10 rounded-xl object-cover"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+                          <Bot className="w-5 h-5 text-white" />
+                        </div>
+                      )}
                       <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-gray-900 rounded-full" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
-                        <p className="text-[10px] text-white/50 font-semibold uppercase tracking-[0.15em]">{t('header', lang)}</p>
+                        <p className="text-[10px] text-white/50 font-semibold uppercase tracking-[0.15em]">
+                          {hostName ? hostName : t('header', lang)}
+                        </p>
                         <span className="text-[9px] px-1.5 py-0.5 rounded-full font-semibold" style={{ background: 'rgba(99,102,241,0.3)', color: '#a5b4fc' }}>AI</span>
                       </div>
                       <h3 className="font-semibold text-sm leading-snug mt-0.5 text-white line-clamp-1">{propertyName}</h3>
@@ -760,16 +774,21 @@ export default function ChatBot({
                         }`}
                       >
                         {/* Avatar */}
-                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 mb-0.5 ${
-                          message.role === 'user'
-                            ? 'bg-gray-800'
-                            : ''
-                        }`} style={message.role === 'assistant' ? { background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' } : {}}>
-                          {message.role === 'user'
-                            ? <User className="w-3 h-3 text-white" />
-                            : <Bot className="w-3 h-3 text-white" />
-                          }
-                        </div>
+                        {message.role === 'user' ? (
+                          <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 mb-0.5 bg-gray-800">
+                            <User className="w-3 h-3 text-white" />
+                          </div>
+                        ) : hostPhoto ? (
+                          <img
+                            src={hostPhoto}
+                            alt={hostName || propertyName}
+                            className="w-6 h-6 rounded-lg object-cover flex-shrink-0 mb-0.5"
+                          />
+                        ) : (
+                          <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 mb-0.5" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+                            <Bot className="w-3 h-3 text-white" />
+                          </div>
+                        )}
                         <div>
                           <div
                             className={`px-3.5 py-2.5 text-[13px] leading-relaxed ${

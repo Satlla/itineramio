@@ -2227,6 +2227,8 @@ export default function PropertyGuidePage() {
             phone: property.hostContactPhone,
             email: property.hostContactEmail
           } : undefined}
+          hostPhoto={property.hostContactPhoto || null}
+          hostName={property.hostContactName || null}
           className="bottom-24 right-6"
           isDemoMode={isDemoMode}
         />
