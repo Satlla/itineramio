@@ -459,6 +459,7 @@ export default function ChatBot({
         },
         body: JSON.stringify(body),
         signal: controller.signal,
+        cache: 'no-store' as RequestCache,
       })
 
       if (response.status === 429) {

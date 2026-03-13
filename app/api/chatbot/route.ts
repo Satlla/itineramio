@@ -352,8 +352,9 @@ export async function POST(request: NextRequest) {
       return new Response(stream, {
         headers: {
           'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
+          'Cache-Control': 'no-cache, no-store',
+          'Connection': 'close',
+          'X-Accel-Buffering': 'no',
         }
       });
 
