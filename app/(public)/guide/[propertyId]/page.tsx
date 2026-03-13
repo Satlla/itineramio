@@ -610,11 +610,20 @@ const trackCallClick = async (propertyId: string) => {
   }
 }
 
-// Isolated error boundary for ChatBot — if it crashes, only the chatbot disappears
+// Isolated error boundary for ChatBot — if it crashes, auto-recovers after 2s
+// Returns null temporarily so only the chatbot disappears, then remounts it
 class ChatBotErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   state = { hasError: false }
+  private _resetTimer: ReturnType<typeof setTimeout> | null = null
   static getDerivedStateFromError() { return { hasError: true } }
-  componentDidCatch(e: Error) { console.error('[ChatBot]', e) }
+  componentDidCatch(e: Error) {
+    console.error('[ChatBot] render error caught by boundary:', e)
+    // Auto-reset after 2s so the chat button and bubble reappear
+    this._resetTimer = setTimeout(() => this.setState({ hasError: false }), 2000)
+  }
+  componentWillUnmount() {
+    if (this._resetTimer) clearTimeout(this._resetTimer)
+  }
   render() { return this.state.hasError ? null : this.props.children }
 }
 

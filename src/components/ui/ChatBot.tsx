@@ -554,13 +554,21 @@ export default function ChatBot({
           response: finalContent, language: lang
         })
       } else {
-        // Non-streaming fallback response
+        // Non-streaming JSON response (iOS path or fallback)
         const data = await response.json()
+
+        // If the server returned an error JSON instead of a response, throw it
+        if (data.error && !data.response) {
+          throw new Error(data.limitType === 'daily' ? 'rate_limited_daily' : data.limitType === 'hourly' ? 'rate_limited' : 'api_error')
+        }
+
+        // Guarantee content is always a string — ReactMarkdown throws on null/undefined
+        const responseText: string = typeof data.response === 'string' ? data.response : t('errorMessage', lang)
 
         trackEvent('chatbot_interaction', {
           zoneId, propertyId, zoneName, propertyName,
           type: 'message', query: userMessage.content,
-          response: data.response, language: lang
+          response: responseText, language: lang
         })
 
         setMessages(prev => {
@@ -568,7 +576,7 @@ export default function ChatBot({
           const assistantMessage: Message = {
             id: Date.now().toString(),
             role: 'assistant',
-            content: data.response,
+            content: responseText,
             timestamp: new Date(),
             media: data.media || undefined,
             recommendations: data.recommendations || undefined,
@@ -836,7 +844,7 @@ export default function ChatBot({
                                     hr: () => <hr />,
                                   }}
                                 >
-                                  {message.content}
+                                  {typeof message.content === 'string' ? message.content : ''}
                                 </ReactMarkdown>
                               </div>
                             )}
