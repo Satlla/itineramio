@@ -3459,3 +3459,23 @@ model MetaIntegration {
 
   @@map("meta_integrations")
 }
+
+model UgcLead {
+  id        String   @id @default(cuid())
+  platform  String   // "reddit" | "youtube"
+  postId    String   @unique // ID nativo de la plataforma
+  author    String
+  title     String?
+  content   String?  @db.Text
+  url       String
+  subreddit String?
+  score     Int?     // upvotes / likes
+  comments  Int?
+  savedAt   DateTime @default(now())
+  notes     String?  @db.Text
+  status    String   @default("new") // "new" | "contacted" | "converted" | "discarded"
+
+  @@index([platform])
+  @@index([status])
+  @@map("ugc_leads")
+}
