@@ -46,7 +46,7 @@ function findFiles(globs) {
 }
 
 // Sin límite de archivos — carga todo lo que quepa en 180k chars por agente
-function readFiles(filePaths, maxChars = 180000) {
+function readFiles(filePaths, maxChars = 35000) {
   let content  = '';
   let included = 0;
   let skipped  = 0;
