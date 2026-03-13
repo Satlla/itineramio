@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Load user's active subscriptions (per guide) if authenticated
-    let subscriptionsByGuide: Record<string, { propertyId: string; propertyName: string }[]> = {}
+    let subscriptionsByGuide: Record<string, { propertyId: string; propertyName: string; status: string }[]> = {}
     if (user?.userId) {
       const userProperties = await prisma.property.findMany({
         where: { hostId: user.userId },
@@ -56,8 +56,8 @@ export async function GET(request: NextRequest) {
       const propertyIds = userProperties.map(p => p.id)
       if (propertyIds.length > 0) {
         const subs = await prisma.propertyGuideSubscription.findMany({
-          where: { propertyId: { in: propertyIds }, status: 'ACTIVE' },
-          select: { guideId: true, propertyId: true },
+          where: { propertyId: { in: propertyIds } }, // include ACTIVE + UNSUBSCRIBED
+          select: { guideId: true, propertyId: true, status: true },
         })
         const propMap = Object.fromEntries(userProperties.map(p => [p.id, p.name]))
         for (const sub of subs) {
@@ -65,6 +65,7 @@ export async function GET(request: NextRequest) {
           subscriptionsByGuide[sub.guideId].push({
             propertyId: sub.propertyId,
             propertyName: propMap[sub.propertyId] || 'Propiedad',
+            status: sub.status,
           })
         }
       }

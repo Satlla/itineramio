@@ -1,9 +1,82 @@
 import { NextRequest, NextResponse } from 'next/server'
+import crypto from 'crypto'
 import { prisma } from '../../../../../src/lib/prisma'
 import { getAuthUser } from '../../../../../src/lib/auth'
 import { getAdminUser } from '../../../../../src/lib/admin-auth'
 
 const ADMIN_EMAIL = 'alejandrosatlla@gmail.com'
+
+const CATEGORY_NAMES: Record<string, { es: string; en: string; fr: string; icon: string }> = {
+  restaurant: { es: 'Restaurantes', en: 'Restaurants', fr: 'Restaurants', icon: 'Utensils' },
+  cafe: { es: 'Cafeterías', en: 'Cafes', fr: 'Cafés', icon: 'Coffee' },
+  tourist_attraction: { es: 'Lugares de interés', en: 'Tourist Attractions', fr: 'Attractions touristiques', icon: 'Camera' },
+  park: { es: 'Parques y naturaleza', en: 'Parks & Nature', fr: 'Parcs & Nature', icon: 'Trees' },
+  beach: { es: 'Playas', en: 'Beaches', fr: 'Plages', icon: 'Waves' },
+  shopping_mall: { es: 'Compras', en: 'Shopping', fr: 'Shopping', icon: 'ShoppingBag' },
+  museum: { es: 'Museos', en: 'Museums', fr: 'Musées', icon: 'Landmark' },
+  bar: { es: 'Bares', en: 'Bars', fr: 'Bars', icon: 'Wine' },
+  pharmacy: { es: 'Farmacias', en: 'Pharmacies', fr: 'Pharmacies', icon: 'Pill' },
+  hospital: { es: 'Hospitales', en: 'Hospitals', fr: 'Hôpitaux', icon: 'Hospital' },
+  supermarket: { es: 'Supermercados', en: 'Supermarkets', fr: 'Supermarchés', icon: 'ShoppingCart' },
+  gym: { es: 'Gimnasios', en: 'Gyms', fr: 'Salles de sport', icon: 'Dumbbell' },
+}
+
+async function autoImportPlaceToProperty(
+  propertyId: string,
+  placeId: string,
+  category: string,
+  description: string | null,
+  place: { latitude: number; longitude: number }
+): Promise<void> {
+  const catInfo = CATEGORY_NAMES[category] || { es: category, en: category, fr: category, icon: 'MapPin' }
+
+  // Find or create RECOMMENDATIONS zone for this category
+  let zone = await prisma.zone.findFirst({
+    where: { propertyId, type: 'RECOMMENDATIONS', recommendationCategory: category },
+  })
+
+  if (!zone) {
+    const maxZoneOrder = await prisma.zone.aggregate({
+      where: { propertyId },
+      _max: { order: true },
+    })
+    zone = await prisma.zone.create({
+      data: {
+        propertyId,
+        name: { es: catInfo.es, en: catInfo.en, fr: catInfo.fr },
+        icon: catInfo.icon,
+        type: 'RECOMMENDATIONS',
+        recommendationCategory: category,
+        qrCode: `qr_${crypto.randomUUID()}`,
+        accessCode: crypto.randomUUID().slice(0, 8).toUpperCase(),
+        order: (maxZoneOrder._max.order ?? -1) + 1,
+        status: 'ACTIVE',
+        isPublished: true,
+      },
+    })
+  }
+
+  const maxOrder = await prisma.recommendation.aggregate({
+    where: { zoneId: zone.id },
+    _max: { order: true },
+  })
+
+  await prisma.recommendation.create({
+    data: {
+      zoneId: zone.id,
+      placeId,
+      source: 'CITY_GUIDE',
+      distanceMeters: null,
+      walkMinutes: null,
+      order: (maxOrder._max.order ?? -1) + 1,
+      description: description || null,
+    },
+  }).catch((err: unknown) => {
+    // Skip duplicate (place already in this zone)
+    if (err && typeof err === 'object' && 'code' in err && (err as { code: string }).code === 'P2002') return
+    throw err
+  })
+}
 
 // POST /api/city-guides/[id]/places
 // Add a place to the guide. Auth required, only author or admin.
@@ -100,31 +173,20 @@ export async function POST(
       }),
     ])
 
-    // Create CityGuideUpdate record
-    const guideUpdate = await prisma.cityGuideUpdate.create({
-      data: {
-        guideId: id,
-        version: newVersion,
-        addedPlaceIds: [placeId],
-        summary: `Added place in category ${category}`,
-      },
-    })
-
-    // Send GuideUpdateNotification to all ACTIVE subscribers
+    // Auto-import this place to all ACTIVE subscribed properties
     const subscriptions = await prisma.propertyGuideSubscription.findMany({
       where: { guideId: id, status: 'ACTIVE' },
-      select: { id: true },
+      select: { propertyId: true },
     })
 
-    if (subscriptions.length > 0) {
-      await prisma.guideUpdateNotification.createMany({
-        data: subscriptions.map((sub) => ({
-          subscriptionId: sub.id,
-          updateId: guideUpdate.id,
-          status: 'PENDING',
-        })),
-        skipDuplicates: true,
-      })
+    for (const sub of subscriptions) {
+      await autoImportPlaceToProperty(
+        sub.propertyId,
+        placeId,
+        category,
+        description || null,
+        { latitude: place.latitude, longitude: place.longitude }
+      )
     }
 
     return NextResponse.json({ success: true, data: guidePlace }, { status: 201 })

@@ -280,18 +280,18 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: 'Acceso denegado' }, { status: 403 })
     }
 
-    const subscription = await prisma.propertyGuideSubscription.findUnique({
+    // Upsert: set UNSUBSCRIBED whether or not a subscription already exists.
+    // This allows "No mostrar más" to work even before the user has subscribed.
+    await prisma.propertyGuideSubscription.upsert({
       where: { guideId_propertyId: { guideId: id, propertyId } },
-    })
-
-    if (!subscription) {
-      return NextResponse.json({ success: false, error: 'Suscripción no encontrada' }, { status: 404 })
-    }
-
-    // Set status to UNSUBSCRIBED — do NOT remove already-copied recommendations
-    await prisma.propertyGuideSubscription.update({
-      where: { guideId_propertyId: { guideId: id, propertyId } },
-      data: { status: 'UNSUBSCRIBED' },
+      create: {
+        guideId: id,
+        propertyId,
+        userId: user.userId,
+        status: 'UNSUBSCRIBED',
+        lastSeenVersion: 0,
+      },
+      update: { status: 'UNSUBSCRIBED' },
     })
 
     return NextResponse.json({ success: true, message: 'Suscripción cancelada correctamente' })
