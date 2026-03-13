@@ -116,80 +116,19 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Get property and zone(s) context
-    let property: any;
-    let zones: any[] = [];
-
-    if (zoneId) {
-      // Single zone mode
-      property = await prisma.property.findFirst({
-        where: { id: propertyId, deletedAt: null },
-        include: {
-          zones: {
-            where: { id: zoneId },
-            include: {
-              steps: {
-                orderBy: { id: 'asc' }
-              },
-              recommendations: {
-                include: { place: true },
-                orderBy: { order: 'asc' }
-              }
-            }
-          },
-          host: {
-            select: {
-              name: true,
-              email: true,
-              phone: true
-            }
-          }
-        }
-      });
-
-      if (!property || !property.zones.length) {
-        return NextResponse.json({
-          error: 'Propiedad o zona no encontrada'
-        }, { status: 404 });
-      }
-
-      zones = property.zones;
-    } else {
-      // Full property mode - get all published zones
-      property = await prisma.property.findFirst({
-        where: { id: propertyId, deletedAt: null },
-        include: {
-          zones: {
-            where: { status: 'ACTIVE' },
-            include: {
-              steps: {
-                orderBy: { id: 'asc' }
-              },
-              recommendations: {
-                include: { place: true },
-                orderBy: { order: 'asc' }
-              }
-            },
-            orderBy: { order: 'asc' }
-          },
-          host: {
-            select: {
-              name: true,
-              email: true,
-              phone: true
-            }
-          }
-        }
-      });
-
-      if (!property) {
-        return NextResponse.json({
-          error: 'Propiedad no encontrada'
-        }, { status: 404 });
-      }
-
-      zones = property.zones;
+    // Get property from cache (avoids DB hit on every message)
+    const property = await getCachedProperty(propertyId);
+    if (!property) {
+      return NextResponse.json({ error: 'Propiedad no encontrada' }, { status: 404 });
     }
+
+    // Select relevant zones based on message keywords (RAG-lite)
+    const allZones: any[] = property.zones;
+    const zones = zoneId
+      ? allZones.filter((z: any) => z.id === zoneId).length > 0
+        ? allZones.filter((z: any) => z.id === zoneId)
+        : rankZonesByRelevance(message, allZones, language)
+      : rankZonesByRelevance(message, allZones, language);
 
     // Build media index once — used for all code paths
     const mediaIndex = buildMediaIndex(zones, language);
@@ -209,10 +148,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Build context for OpenAI + fetch learned context in parallel
-    const systemPrompt = zoneId && zones.length === 1
-      ? buildZoneSystemPrompt(property, zones[0], language)
-      : buildPropertySystemPrompt(property, zones, language);
+    // Build context for OpenAI — always use property mode with relevant zones
+    const systemPrompt = buildPropertySystemPrompt(property, zones, language);
 
     const learnedContext = await getLearnedContext(propertyId);
     const fullSystemPrompt = learnedContext
@@ -609,6 +546,84 @@ async function saveConversation(params: {
     // Non-blocking — don't fail the chatbot response
     console.error('[ChatBot] Error saving conversation:', error);
   }
+}
+
+// ========================================
+// PROPERTY DATA CACHE — avoids DB hit on every message (5-min TTL)
+// ========================================
+
+const propertyDataCache = new Map<string, { data: any; expires: number }>();
+const PROPERTY_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+async function getCachedProperty(propertyId: string): Promise<any | null> {
+  const cached = propertyDataCache.get(propertyId);
+  if (cached && cached.expires > Date.now()) return cached.data;
+
+  const property = await prisma.property.findFirst({
+    where: { id: propertyId, deletedAt: null },
+    include: {
+      zones: {
+        where: { status: 'ACTIVE' },
+        include: {
+          steps: { orderBy: { id: 'asc' } },
+          recommendations: { include: { place: true }, orderBy: { order: 'asc' } }
+        },
+        orderBy: { order: 'asc' }
+      },
+      host: { select: { name: true, email: true, phone: true } }
+    }
+  });
+
+  if (property) {
+    propertyDataCache.set(propertyId, { data: property, expires: Date.now() + PROPERTY_CACHE_TTL });
+  }
+  return property;
+}
+
+// ========================================
+// RELEVANCE RANKING — select top zones for each question
+// ========================================
+
+function rankZonesByRelevance(message: string, zones: any[], language: string): any[] {
+  const words = message.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove accents
+    .split(/\s+/).filter(w => w.length > 2);
+
+  const ALWAYS_RELEVANT = ['wifi', 'wi-fi', 'check', 'entrada', 'salida', 'llegada', 'acceso'];
+
+  const scored = zones.map(zone => {
+    const zoneName = getLocalizedText(zone.name, language)
+      .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    let score = 0;
+
+    // Zone name keyword match = high relevance
+    for (const word of words) {
+      if (zoneName.includes(word)) score += 15;
+    }
+
+    // Step content match = medium relevance
+    for (const step of (zone.steps || [])) {
+      const content = step.content as any;
+      const title = getLocalizedText(step.title, language).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const text = getLocalizedText(content, language).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const combined = `${title} ${text}`;
+      for (const word of words) {
+        if (combined.includes(word)) score += 4;
+      }
+    }
+
+    // Always-relevant zones get a small base score
+    for (const term of ALWAYS_RELEVANT) {
+      if (zoneName.includes(term)) score += 2;
+    }
+
+    return { zone, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+
+  // Return top 6 zones — enough context, not overwhelming
+  return scored.slice(0, 6).map(s => s.zone);
 }
 
 // ========================================
