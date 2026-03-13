@@ -295,10 +295,25 @@ export async function POST(request: NextRequest) {
               data: { intelligence: { ...intel, unansweredQuestions: unanswered } },
             });
 
-            // Email host immediately
+            // Bell notification + Email host immediately
             const hostEmail = (prop as any)?.host?.email;
             const hostName = (prop as any)?.host?.name || 'Anfitrión';
             const propertyNameText = getLocalizedText(prop?.name, language) || propertyId;
+
+            // Create bell notification for the host
+            const hostUser = await prisma.user.findUnique({ where: { email: hostEmail || '' }, select: { id: true } });
+            if (hostUser) {
+              await prisma.notification.create({
+                data: {
+                  userId: hostUser.id,
+                  type: 'warning',
+                  title: `❓ Pregunta sin respuesta — ${propertyNameText}`,
+                  message: `"${message.slice(0, 120)}"`,
+                  data: { propertyId, actionUrl: `/properties/${propertyId}/chatbot` }
+                }
+              });
+            }
+
             if (hostEmail) {
               await sendEmail({
                 to: [hostEmail],
