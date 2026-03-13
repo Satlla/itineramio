@@ -46,7 +46,8 @@ export function useNotificationsImproved() {
       if (result.success && result.data) {
         const formattedNotifications = result.data.map((n: any) => ({
           ...n,
-          createdAt: new Date(n.createdAt)
+          createdAt: new Date(n.createdAt),
+          actionUrl: n.actionUrl || n.data?.actionUrl || undefined
         }))
         setNotifications(formattedNotifications)
         
