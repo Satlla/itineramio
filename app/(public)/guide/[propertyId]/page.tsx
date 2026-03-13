@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, Component, ReactNode } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft,
@@ -608,6 +608,14 @@ const trackCallClick = async (propertyId: string) => {
   } catch (error) {
     console.error('❌ Error tracking Call click:', error)
   }
+}
+
+// Isolated error boundary for ChatBot — if it crashes, only the chatbot disappears
+class ChatBotErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false }
+  static getDerivedStateFromError() { return { hasError: true } }
+  componentDidCatch(e: Error) { console.error('[ChatBot]', e) }
+  render() { return this.state.hasError ? null : this.props.children }
 }
 
 export default function PropertyGuidePage() {
@@ -2218,20 +2226,22 @@ export default function PropertyGuidePage() {
 
       {/* AI ChatBot - positioned above WhatsApp button */}
       {property && (
-        <ChatBot
-          propertyId={property.id || propertyId}
-          propertyName={getPropertyText(property.name as string, (property as any).nameTranslations, language, 'Propiedad')}
-          language={language as 'es' | 'en' | 'fr'}
-          hostContact={property.hostContactPhone ? {
-            name: property.hostContactName,
-            phone: property.hostContactPhone,
-            email: property.hostContactEmail
-          } : undefined}
-          hostPhoto={property.hostContactPhoto || null}
-          hostName={property.hostContactName || null}
-          className="bottom-24 right-6"
-          isDemoMode={isDemoMode}
-        />
+        <ChatBotErrorBoundary>
+          <ChatBot
+            propertyId={property.id || propertyId}
+            propertyName={getPropertyText(property.name as string, (property as any).nameTranslations, language, 'Propiedad')}
+            language={language as 'es' | 'en' | 'fr'}
+            hostContact={property.hostContactPhone ? {
+              name: property.hostContactName,
+              phone: property.hostContactPhone,
+              email: property.hostContactEmail
+            } : undefined}
+            hostPhoto={property.hostContactPhoto || null}
+            hostName={property.hostContactName || null}
+            className="bottom-24 right-6"
+            isDemoMode={isDemoMode}
+          />
+        </ChatBotErrorBoundary>
       )}
 
       {/* Demo mode components */}

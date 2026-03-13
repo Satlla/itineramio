@@ -527,7 +527,8 @@ export default function ChatBot({
             }
           } finally {
             // Always release the reader lock — critical on iOS Safari
-            reader.cancel().catch(() => {})
+            // Use try/catch because reader.cancel() can throw synchronously on iOS Safari
+            try { reader.cancel() } catch { /* ignore */ }
           }
         }
 
