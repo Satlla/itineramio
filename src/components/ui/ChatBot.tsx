@@ -227,11 +227,12 @@ export default function ChatBot({
   const [emailDismissed, setEmailDismissed] = useState(false)
   // emailInput, nameInput, emailSubmitting, emailError, emailSuccess moved to ChatEmailOverlay
 
-  // Session tracking — new session every time (no persistence)
+  // Session tracking — restore from localStorage if available
   const storageKey = `chatbot-${propertyId}${zoneId ? `-${zoneId}` : ''}`
   const sessionIdRef = useRef<string>('')
   if (!sessionIdRef.current) {
-    sessionIdRef.current = generateSessionId()
+    const saved = typeof window !== 'undefined' ? localStorage.getItem(`${storageKey}-session`) : null
+    sessionIdRef.current = saved || generateSessionId()
   }
   const userMessageCountRef = useRef(0)
 
@@ -252,7 +253,20 @@ export default function ChatBot({
       .catch(() => setIsEnabled(false))
   }, [propertyId])
 
-  // No message persistence — chat starts fresh every session
+  // Persist messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0 && typeof window !== 'undefined') {
+      const toSave = messages.filter(m => !m.typing).map(m => ({
+        id: m.id,
+        role: m.role,
+        content: m.content,
+        timestamp: m.timestamp,
+        media: m.media
+      }))
+      localStorage.setItem(`${storageKey}-messages`, JSON.stringify(toSave))
+      localStorage.setItem(`${storageKey}-session`, sessionIdRef.current)
+    }
+  }, [messages, storageKey])
 
   const trackEvent = async (event: string, data: any) => {
     try {
@@ -315,6 +329,27 @@ export default function ChatBot({
   }, [messages, emailCollected, emailDismissed, showEmailOverlay, isDemoMode])
 
   const initializeChat = () => {
+    // Try to restore from localStorage
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`${storageKey}-messages`)
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved) as any[]
+          if (parsed.length > 0) {
+            const restored = parsed.map((m: any) => ({
+              ...m,
+              timestamp: new Date(m.timestamp)
+            }))
+            setMessages(restored)
+            setShowFAQs(false)
+            // Restore message count for email overlay logic
+            userMessageCountRef.current = restored.filter((m: any) => m.role === 'user').length
+            return
+          }
+        } catch { /* ignore corrupt data */ }
+      }
+    }
+
     const welcomeKey = isDemoMode ? 'demoWelcome' : (zoneId && zoneName ? 'welcomeZone' : 'welcomeProperty')
     const welcomeContent = t(welcomeKey, lang, {
       propertyName,
