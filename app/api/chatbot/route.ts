@@ -1033,7 +1033,9 @@ CRITICAL RULES:
 function buildPropertySystemPrompt(property: any, zones: any[], language: string): string {
   const hostInfo = buildHostInfo(property.host, language);
 
-  // Build all zones content, truncating if too long
+  // Build all zones content — limit per zone to avoid one zone eating all context
+  const MAX_ZONE_CHARS = 3000;
+  const MAX_TOTAL_CHARS = 50000;
   let zonesContent = '';
   for (const zone of zones) {
     const zoneName = getLocalizedText(zone.name, language);
@@ -1060,8 +1062,12 @@ function buildPropertySystemPrompt(property: any, zones: any[], language: string
       }
     }
 
-    if ((zonesContent + zoneSection).length > 24000) {
-      zonesContent += `\n... (more zones available, content truncated)\n`;
+    // Truncate individual zone if it's excessively long (e.g. recommendations)
+    if (zoneSection.length > MAX_ZONE_CHARS) {
+      zoneSection = zoneSection.substring(0, MAX_ZONE_CHARS) + '\n  ...\n';
+    }
+
+    if ((zonesContent + zoneSection).length > MAX_TOTAL_CHARS) {
       break;
     }
     zonesContent += zoneSection;
