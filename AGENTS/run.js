@@ -385,14 +385,16 @@ ERRORES DEL COMPILADOR:
 ${tsOut.slice(0, 15000)}`;
 
         return new Promise((resolve) => {
-          let out = '';
           const env = { ...process.env };
           delete env.CLAUDECODE;
-          const proc = spawn('claude', ['-p', prompt], { cwd: ROOT, env });
+          const proc = spawn('claude', ['-p', '-'], { cwd: ROOT, env, stdio: ['pipe','pipe','pipe'] });
+          let out = '';
           proc.stdout.on('data', d => { out += d.toString(); });
           proc.stderr.on('data', () => {});
-          proc.on('close', () => resolve(out || '✅ Sin errores TypeScript'));
+          proc.on('close', () => resolve(out.trim() || '✅ Sin errores TypeScript'));
           proc.on('error', () => resolve('⚠️  Error ejecutando tsc'));
+          proc.stdin.write(prompt);
+          proc.stdin.end();
         });
       },
     },
@@ -443,11 +445,13 @@ function runAgent(agent) {
     const env = { ...process.env };
     delete env.CLAUDECODE;
 
-    const proc = spawn('claude', ['-p', prompt], { cwd: ROOT, env });
+    const proc = spawn('claude', ['-p', '-'], { cwd: ROOT, env, stdio: ['pipe','pipe','pipe'] });
 
     let buffer = '';
     proc.stdout.on('data', d => { buffer += d.toString(); });
     proc.stderr.on('data', () => {});
+    proc.stdin.write(prompt);
+    proc.stdin.end();
 
     proc.on('close', () => {
       const elapsed = ((Date.now() - start) / 1000).toFixed(1);
