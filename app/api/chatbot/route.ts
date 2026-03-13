@@ -275,10 +275,13 @@ export async function POST(request: NextRequest) {
         if (sessionId) {
           await saveConversation({ propertyId, zoneId: zoneId || null, sessionId, language, userMessage: message, aiResponse: fullResponse, isUnanswered });
         }
-        // Save unanswered questions to property intelligence
+        // Save unanswered questions to property intelligence + notify host
         if (isUnanswered) {
           try {
-            const prop = await prisma.property.findUnique({ where: { id: propertyId }, select: { intelligence: true } });
+            const prop = await prisma.property.findUnique({
+              where: { id: propertyId },
+              select: { intelligence: true, name: true, host: { select: { email: true, name: true } } }
+            });
             const intel = (prop?.intelligence as Record<string, any>) || {};
             const unanswered = Array.isArray(intel.unansweredQuestions) ? intel.unansweredQuestions : [];
             unanswered.push({
@@ -291,6 +294,32 @@ export async function POST(request: NextRequest) {
               where: { id: propertyId },
               data: { intelligence: { ...intel, unansweredQuestions: unanswered } },
             });
+
+            // Email host immediately
+            const hostEmail = (prop as any)?.host?.email;
+            const hostName = (prop as any)?.host?.name || 'Anfitrión';
+            const propertyNameText = getLocalizedText(prop?.name, language) || propertyId;
+            if (hostEmail) {
+              await sendEmail({
+                to: [hostEmail],
+                subject: `❓ Pregunta sin respuesta en "${propertyNameText}"`,
+                html: `
+                  <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
+                    <h2 style="color:#1a1a1a">Un huésped hizo una pregunta que el chatbot no pudo responder</h2>
+                    <p style="color:#555">Propiedad: <strong>${propertyNameText}</strong></p>
+                    <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;margin:20px 0">
+                      <p style="margin:0;font-size:16px;color:#92400e">"${message.slice(0, 300)}"</p>
+                    </div>
+                    <p style="color:#555">Puedes añadir una respuesta directamente en el panel para que el chatbot la use en futuras preguntas:</p>
+                    <a href="https://www.itineramio.com/properties/${propertyId}/chatbot"
+                       style="display:inline-block;background:#7c3aed;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">
+                      Añadir respuesta →
+                    </a>
+                    <p style="color:#999;font-size:12px;margin-top:24px">Itineramio · Asistente IA</p>
+                  </div>
+                `
+              });
+            }
           } catch (e) {
             console.error('[ChatBot] Error saving unanswered question:', e);
           }
@@ -986,6 +1015,16 @@ function buildIntelligenceSection(property: any): string {
     if (q.waterTrick) lines.push(`- Truco agua: ${q.waterTrick}`);
     if (q.noiseWarnings) lines.push(`- Ruido: ${q.noiseWarnings}`);
     if (q.otherQuirks?.length) lines.push(`- Peculiaridades: ${q.otherQuirks.join('; ')}`);
+  }
+
+  // Custom Q&A added by the host to answer questions the chatbot couldn't handle
+  if (Array.isArray(intel.customQA) && intel.customQA.length > 0) {
+    lines.push('\nRESPUESTAS PERSONALIZADAS DEL ANFITRIÓN (máxima prioridad):');
+    for (const qa of intel.customQA) {
+      if (qa.question && qa.answer) {
+        lines.push(`- P: "${qa.question}" → R: ${qa.answer}`);
+      }
+    }
   }
 
   return lines.length > 1 ? '\n' + lines.join('\n') + '\n' : '';

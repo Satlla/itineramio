@@ -13,7 +13,9 @@ import {
   Globe,
   Calendar,
   ChevronRight,
-  Trash2
+  Trash2,
+  CheckCircle,
+  Send
 } from 'lucide-react'
 import { Button } from '../../../../../src/components/ui/Button'
 import { Card, CardContent } from '../../../../../src/components/ui/Card'
@@ -304,7 +306,7 @@ export default function ChatbotDashboardPage() {
       {activeTab === 'unanswered' && (
         <UnansweredTab
           items={allUnansweredItems}
-          conversations={conversations}
+          propertyId={propertyId}
           onViewConversation={(id) => {
             const conv = conversations.find(c => c.id === id)
             if (conv) setSelectedConversation(conv)
@@ -445,17 +447,37 @@ function ConversationsTab({
 
 function UnansweredTab({
   items,
-  conversations,
+  propertyId,
   onViewConversation,
   formatDate,
   t
 }: {
   items: { question: string; conversationId: string; guestName: string | null; guestEmail: string | null; date: string; language: string }[]
-  conversations: Conversation[]
+  propertyId: string
   onViewConversation: (id: string) => void
   formatDate: (d: string) => string
   t: any
 }) {
+  const [answers, setAnswers] = useState<Record<number, string>>({})
+  const [saved, setSaved] = useState<Record<number, boolean>>({})
+  const [saving, setSaving] = useState<Record<number, boolean>>({})
+
+  const handleSave = async (idx: number, question: string) => {
+    const answer = answers[idx]?.trim()
+    if (!answer) return
+    setSaving(s => ({ ...s, [idx]: true }))
+    try {
+      await fetch(`/api/properties/${propertyId}/chatbot-qa`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, answer })
+      })
+      setSaved(s => ({ ...s, [idx]: true }))
+    } finally {
+      setSaving(s => ({ ...s, [idx]: false }))
+    }
+  }
+
   if (items.length === 0) {
     return (
       <Card className="p-8 text-center">
@@ -472,6 +494,7 @@ function UnansweredTab({
 
   return (
     <div className="space-y-3">
+      <p className="text-sm text-gray-500 mb-1">Añade una respuesta y el chatbot la usará automáticamente en futuras preguntas similares.</p>
       {items.map((item, idx) => {
         const guestDisplay = item.guestName || item.guestEmail || t('chatbot.anonymous', 'Anónimo')
         return (
@@ -482,8 +505,8 @@ function UnansweredTab({
             transition={{ duration: 0.2, delay: idx * 0.03 }}
           >
             <Card className="border-l-4 border-l-orange-400 hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <p className="text-gray-900 font-medium mb-2">
+              <CardContent className="p-4 space-y-3">
+                <p className="text-gray-900 font-medium">
                   &ldquo;{item.question}&rdquo;
                 </p>
                 <div className="flex items-center justify-between">
@@ -498,6 +521,30 @@ function UnansweredTab({
                     {t('chatbot.viewConversation', 'Ver conversación')}
                   </button>
                 </div>
+                {saved[idx] ? (
+                  <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
+                    <CheckCircle className="w-4 h-4" />
+                    Respuesta guardada — el chatbot ya la usará
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={answers[idx] || ''}
+                      onChange={e => setAnswers(a => ({ ...a, [idx]: e.target.value }))}
+                      onKeyDown={e => e.key === 'Enter' && handleSave(idx, item.question)}
+                      placeholder="Escribe la respuesta para el chatbot..."
+                      className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-violet-400"
+                    />
+                    <button
+                      onClick={() => handleSave(idx, item.question)}
+                      disabled={!answers[idx]?.trim() || saving[idx]}
+                      className="px-3 py-2 bg-violet-600 text-white rounded-lg disabled:opacity-40 hover:bg-violet-700 transition-colors"
+                    >
+                      <Send className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </motion.div>
