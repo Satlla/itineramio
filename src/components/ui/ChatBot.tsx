@@ -260,15 +260,21 @@ export default function ChatBot({
   // Persist messages to localStorage whenever they change
   useEffect(() => {
     if (messages.length > 0 && typeof window !== 'undefined') {
-      const toSave = messages.filter(m => !m.typing).map(m => ({
-        id: m.id,
-        role: m.role,
-        content: m.content,
-        timestamp: m.timestamp,
-        media: m.media
-      }))
-      localStorage.setItem(`${storageKey}-messages`, JSON.stringify(toSave))
-      localStorage.setItem(`${storageKey}-session`, sessionIdRef.current)
+      try {
+        const toSave = messages.filter(m => !m.typing).map(m => ({
+          id: m.id,
+          role: m.role,
+          content: typeof m.content === 'string' ? m.content : '',
+          timestamp: m.timestamp instanceof Date ? m.timestamp.toISOString() : String(m.timestamp),
+          media: Array.isArray(m.media) ? m.media.map(item => ({
+            type: item.type,
+            url: item.url,
+            caption: item.caption
+          })) : undefined
+        }))
+        localStorage.setItem(`${storageKey}-messages`, JSON.stringify(toSave))
+        localStorage.setItem(`${storageKey}-session`, sessionIdRef.current)
+      } catch { /* ignore serialization errors — chat history simply won't persist */ }
     }
   }, [messages, storageKey])
 
@@ -341,8 +347,11 @@ export default function ChatBot({
           const parsed = JSON.parse(saved) as any[]
           if (parsed.length > 0) {
             const restored = parsed.map((m: any) => ({
-              ...m,
-              timestamp: new Date(m.timestamp)
+              id: m.id,
+              role: m.role,
+              content: typeof m.content === 'string' ? m.content : '',
+              timestamp: new Date(m.timestamp),
+              media: m.media
             }))
             setMessages(restored)
             setShowFAQs(false)
@@ -461,7 +470,9 @@ export default function ChatBot({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify(body, (_key, value) =>
+          value instanceof Date ? value.toISOString() : value
+        ),
         signal: controller.signal,
         cache: 'no-store' as RequestCache,
       })
