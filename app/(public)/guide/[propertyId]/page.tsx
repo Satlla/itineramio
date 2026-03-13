@@ -616,8 +616,8 @@ class ChatBotErrorBoundary extends Component<{ children: ReactNode }, { hasError
   state = { hasError: false }
   private _resetTimer: ReturnType<typeof setTimeout> | null = null
   static getDerivedStateFromError() { return { hasError: true } }
-  componentDidCatch(e: Error) {
-    console.error('[ChatBot] render error caught by boundary:', e)
+  componentDidCatch(e: Error, info: { componentStack: string }) {
+    console.error('[ChatBot] render error caught by boundary:', e.message, '\nStack:', info.componentStack)
     // Auto-reset after 2s so the chat button and bubble reappear
     this._resetTimer = setTimeout(() => this.setState({ hasError: false }), 2000)
   }

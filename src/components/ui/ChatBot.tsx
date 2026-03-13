@@ -254,7 +254,7 @@ export default function ChatBot({
       body: JSON.stringify({ propertyId }),
     })
       .then(res => setIsEnabled(res.ok))
-      .catch(() => setIsEnabled(false))
+      .catch(() => setIsEnabled(true)) // Network error → optimistic: show chat anyway
   }, [propertyId])
 
   // Persist messages to localStorage whenever they change
@@ -530,13 +530,15 @@ export default function ChatBot({
               }
             }
           } finally {
-            // Only cancel if stream did NOT complete normally.
-            // Calling cancel() on an already-done reader corrupts iOS Safari's
-            // internal connection state, causing the next fetch to the same
-            // endpoint to fail (the "second message bug").
             if (!streamCompletedNormally) {
+              // Aborted/errored: cancel the stream
               try { reader.cancel() } catch { /* ignore */ }
             }
+            // Always release the reader lock so the response body can be
+            // garbage-collected and the HTTP connection returned to the pool.
+            // Skipping this on some Chrome versions keeps the connection "busy"
+            // and causes the next fetch to the same endpoint to fail.
+            try { reader.releaseLock() } catch { /* ignore */ }
           }
         }
 
