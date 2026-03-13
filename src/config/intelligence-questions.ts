@@ -555,7 +555,8 @@ export const INTELLIGENCE_SECTIONS: SectionDef[] = [
     icon: 'Wrench',
     questions: [
       { id: 'details.electricalPanelLocation', label: '¿Dónde está el cuadro eléctrico?', type: 'text', placeholder: 'Ej: entrada, detrás de la puerta, a la izquierda', path: 'details.electricalPanelLocation', priority: 'important' },
-      { id: 'details.recyclingContainerLocation', label: '¿Dónde están los contenedores de reciclaje?', type: 'text', placeholder: 'Ej: saliendo del portal, 50m a la derecha', path: 'details.recyclingContainerLocation', priority: 'important' },
+      { id: 'details.recyclingContainerLocation', label: '¿Dónde están los contenedores de basura y reciclaje?', type: 'textarea', placeholder: 'Ej: Saliendo del portal, 30m a la derecha. Amarillo (plástico), azul (papel), verde (vidrio), gris (orgánica).', path: 'details.recyclingContainerLocation', priority: 'important' },
+      { id: 'details.trashSchedule', label: 'Horario / días de sacar la basura', type: 'text', placeholder: 'Ej: Orgánica diario antes de 22h. Reciclaje L-X-V. No dejar bolsas en el rellano.', path: 'details.trashSchedule', priority: 'useful' },
       {
         id: 'details.supportHours', label: 'Horario de soporte al huésped', type: 'time-range', path: 'details.supportHoursFrom', priority: 'essential',
       },
@@ -669,12 +670,16 @@ export const INTELLIGENCE_SECTIONS: SectionDef[] = [
   {
     id: 'neighborhood',
     title: 'Barrio',
-    subtitle: 'Transporte y tips específicos del alojamiento',
+    subtitle: 'Transporte, compras y tips del barrio',
     icon: 'MapPin',
     questions: [
       { id: 'neighborhood.publicTransport', label: 'Transporte público', type: 'textarea', placeholder: 'Ej: Parada bus L5 a 200m, metro L3 a 500m', path: 'neighborhood.publicTransport', priority: 'useful',
         chatbotTip: 'Podrá dar indicaciones de transporte' },
       { id: 'neighborhood.taxiApp', label: 'App de taxi recomendada', type: 'text', placeholder: 'Ej: Cabify o FreeNow funcionan bien aquí', path: 'neighborhood.taxiApp', priority: 'useful' },
+      { id: 'neighborhood.airportTransfer', label: 'Cómo llegar al aeropuerto', type: 'textarea', placeholder: 'Ej: Taxi ~25€, 20 min. Metro L9 (parada T1/T2), 40 min, €5.15. Autobús Aerobús A1 desde Pl. Catalunya, €6.75.', path: 'neighborhood.airportTransfer', priority: 'important',
+        chatbotTip: 'Pregunta muy frecuente — evita llamadas el día del check-out' },
+      { id: 'neighborhood.nearestSupermarket', label: 'Supermercado más cercano', type: 'text', placeholder: 'Ej: Mercadona c/Mayor 8, 5 min andando. Abre L-S 9:00-21:30, D cerrado.', path: 'neighborhood.nearestSupermarket', priority: 'important' },
+      { id: 'neighborhood.supermarketSunday', label: '¿Hay alguno abierto el domingo?', type: 'text', placeholder: 'Ej: Carrefour Express c/Aragón 200, abre D 10:00-15:00', path: 'neighborhood.supermarketSunday', priority: 'useful' },
       { id: 'neighborhood.walkingTips', label: 'Tips de zona (seguridad, consejos)', type: 'textarea', placeholder: 'Ej: La zona es muy tranquila. Evitar aparcar en Calle X por las noches.', path: 'neighborhood.walkingTips', priority: 'useful' },
     ],
   },
@@ -716,19 +721,18 @@ export const INTELLIGENCE_SECTIONS: SectionDef[] = [
     ],
   },
 
-  // ========== 20. MASCOTAS Y CLIMA ==========
+  // ========== 20. MASCOTAS ==========
   {
     id: 'petsWeather',
-    title: 'Mascotas y clima',
-    subtitle: 'Veterinario, zonas perros, consejos',
+    title: 'Mascotas',
+    subtitle: 'Veterinario, tiendas, zonas para perros',
     icon: 'Dog',
     questions: [
       { id: 'petsWeather.nearestVet', label: 'Veterinario más cercano', type: 'text', placeholder: 'Ej: Clínica Veterinaria ABC, c/Mayor 10, 900 123 456', path: 'petsWeather.nearestVet', priority: 'useful' },
+      { id: 'petsWeather.petStore', label: 'Tienda de animales cercana', type: 'text', placeholder: 'Ej: Kiwoko c/Gran Vía 12, abierto hasta 21h. Venden comida, juguetes y accesorios.', path: 'petsWeather.petStore', priority: 'useful' },
       { id: 'petsWeather.dogFriendlyAreas', label: 'Zonas para pasear perros', type: 'textarea', placeholder: 'Ej: Parque del Retiro permite perros con correa. Zona canina en plaza X.', path: 'petsWeather.dogFriendlyAreas', priority: 'useful' },
       { id: 'petsWeather.petRules', label: 'Normas para mascotas', type: 'textarea', placeholder: 'Ej: Recoger excrementos. No dejar mascota sola si ladra. Manta para el sofá.', path: 'petsWeather.petRules', priority: 'useful' },
-      { id: 'petsWeather.heatAdvice', label: 'Consejo para calor', type: 'textarea', placeholder: 'Ej: En verano: persianas bajadas, AC a 24°, no abrir ventanas de noche', path: 'petsWeather.heatAdvice', priority: 'useful' },
-      { id: 'petsWeather.coldAdvice', label: 'Consejo para frío', type: 'textarea', placeholder: 'Ej: En invierno: calefacción a 21°, mantas extra en armario pasillo', path: 'petsWeather.coldAdvice', priority: 'useful' },
-      { id: 'petsWeather.rainAdvice', label: 'Consejo para lluvia', type: 'textarea', placeholder: 'Ej: Si llueve fuerte: no usar terraza, cerrar ventana del baño', path: 'petsWeather.rainAdvice', priority: 'useful' },
+      { id: 'petsWeather.petEmergency', label: 'Veterinario de urgencias 24h', type: 'text', placeholder: 'Ej: AniCura Urgencias, Av. Diagonal 100, 93 000 00 00 — abierto 24h', path: 'petsWeather.petEmergency', priority: 'useful' },
     ],
   },
 

@@ -72,6 +72,14 @@ export default function ChatbotDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [propertyName, setPropertyName] = useState('')
   const [activeTab, setActiveTab] = useState<Tab>('conversations')
+
+  // Open unanswered tab automatically if URL has ?tab=unanswered
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search)
+      if (sp.get('tab') === 'unanswered') setActiveTab('unanswered')
+    }
+  }, [])
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
   const [confirmDeleteAll, setConfirmDeleteAll] = useState(false)
   const [deleting, setDeleting] = useState(false)

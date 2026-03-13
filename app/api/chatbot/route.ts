@@ -284,8 +284,16 @@ export async function POST(request: NextRequest) {
             });
             const intel = (prop?.intelligence as Record<string, any>) || {};
             const unanswered = Array.isArray(intel.unansweredQuestions) ? intel.unansweredQuestions : [];
+
+            // Find the most substantive user question — avoid saving short follow-ups like "tienes mas?"
+            const allUserMessages = [
+              ...conversationHistory.filter((m: Message) => m.role === 'user').map((m: Message) => m.content),
+              message
+            ];
+            const substantiveQuestion = [...allUserMessages].reverse().find(m => m.length > 20) || message;
+
             unanswered.push({
-              question: message.slice(0, 300),
+              question: substantiveQuestion.slice(0, 300),
               askedAt: new Date().toISOString(),
               askedBy: sessionId || 'guest',
               answered: false,
@@ -309,7 +317,7 @@ export async function POST(request: NextRequest) {
                   type: 'warning',
                   title: `❓ Pregunta sin respuesta — ${propertyNameText}`,
                   message: `"${message.slice(0, 120)}"`,
-                  data: { propertyId, actionUrl: `/properties/${propertyId}/chatbot` }
+                  data: { propertyId, actionUrl: `/properties/${propertyId}/chatbot?tab=unanswered` }
                 }
               });
             }
@@ -323,10 +331,10 @@ export async function POST(request: NextRequest) {
                     <h2 style="color:#1a1a1a">Un huésped hizo una pregunta que el chatbot no pudo responder</h2>
                     <p style="color:#555">Propiedad: <strong>${propertyNameText}</strong></p>
                     <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;margin:20px 0">
-                      <p style="margin:0;font-size:16px;color:#92400e">"${message.slice(0, 300)}"</p>
+                      <p style="margin:0;font-size:16px;color:#92400e">"${substantiveQuestion.slice(0, 300)}"</p>
                     </div>
                     <p style="color:#555">Puedes añadir una respuesta directamente en el panel para que el chatbot la use en futuras preguntas:</p>
-                    <a href="https://www.itineramio.com/properties/${propertyId}/chatbot"
+                    <a href="https://www.itineramio.com/properties/${propertyId}/chatbot?tab=unanswered"
                        style="display:inline-block;background:#7c3aed;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">
                       Añadir respuesta →
                     </a>
@@ -597,7 +605,7 @@ async function saveConversation(params: {
 // ========================================
 
 const propertyDataCache = new Map<string, { data: any; expires: number }>();
-const PROPERTY_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const PROPERTY_CACHE_TTL = 60 * 1000; // 1 minute — keeps content fresh when host adds/removes places
 
 async function getCachedProperty(propertyId: string): Promise<any | null> {
   const cached = propertyDataCache.get(propertyId);
@@ -1091,7 +1099,7 @@ CRITICAL RULES:
 2. ANSWER FROM DATA: Your answers MUST come from the knowledge base above. Quote specific details (names, codes, locations, times).
 3. MEDIA: When your answer references a step that has 📷 (image) or 📹 (video), you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Ver vídeo](url). ONLY include media from the specific steps relevant to the question — do NOT dump all media from a zone.
 4. VIDEO STEPS: If a zone or step only has a video (📹) and no text, ALWAYS share the video link and say it explains everything visually. Example: "Aquí tienes el vídeo explicativo: [🎬 Ver vídeo](url)"
-5. RECOMMENDATIONS: When mentioning places (restaurants, cafés, etc.), list them with name, distance and rating if available.
+5. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any place category, list ALL places from that zone — every single one. Never pick just 1 or 2. Show name, rating (★), distance, and walk time for each.
 6. STYLE: Be friendly and direct. Use **bold** for key info. Use bullet lists. Max 3 short paragraphs.
 7. HONESTY: If the info isn't in your knowledge base, say so and suggest contacting the host.
 8. NEVER invent information not present in the knowledge base above.`;
@@ -1165,7 +1173,7 @@ CRITICAL RULES:
 2. ANSWER FROM DATA: Your answers MUST come from the knowledge base above. Quote specific details (WiFi name, codes, locations, times, step-by-step instructions).
 3. MEDIA: When your answer references a step that has 📷 (image) or 📹 (video), you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Ver vídeo](url). ONLY include media from the specific steps relevant to the question — do NOT dump all media from a zone.
 4. VIDEO STEPS: If a zone or step only has a video (📹) and no text, ALWAYS share the video link and say it explains everything visually. Example: "Aquí tienes el vídeo explicativo: [🎬 Ver vídeo](url)"
-5. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions, etc., list the actual places from the manual with their name, rating (★), distance, and walk time.
+5. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any category, list ALL places from that zone — every single one, not just 1 or 2. Show name, rating (★), distance, and walk time for each.
 6. SEARCH ALL ZONES: Look through ALL zones to find the most relevant information for each question.
 7. STYLE: Be friendly and direct like a WhatsApp chat. Use **bold** for key info. Use bullet lists with -. Max 3 short paragraphs. Use emojis sparingly (📍🏠✅☕🍽️).
 8. HONESTY: If the info isn't in your knowledge base, say so and suggest contacting the host.

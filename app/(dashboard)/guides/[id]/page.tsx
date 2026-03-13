@@ -17,21 +17,13 @@ import {
   Edit,
   Save,
   AlertTriangle,
-  Coffee,
-  Utensils,
-  ShoppingBag,
-  Music,
-  TreePine,
-  Camera,
-  Waves,
-  Dumbbell,
-  Heart,
   MoreHorizontal,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
 import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardFooter } from '../../../../src/components/layout/DashboardFooter'
+import { CATEGORIES as RICH_CATEGORIES, CATEGORY_GROUPS, getCategoryById } from '../../../../src/lib/recommendations/categories'
 
 // --- Types ---
 
@@ -43,11 +35,15 @@ interface Author {
 
 interface PlaceResult {
   placeId: string
+  googlePlaceId?: string
   name: string
   address: string
   latitude?: number
   longitude?: number
+  lat?: number
+  lng?: number
   rating?: number | null
+  photoUrl?: string | null
   types?: string[]
 }
 
@@ -83,23 +79,15 @@ interface CityGuide {
   isOwner: boolean
 }
 
-// --- Category config ---
+// --- Category config (rich, same as admin) ---
 
-const CATEGORIES: { id: string; label: string; icon: React.ReactNode }[] = [
-  { id: 'restaurants', label: 'Restaurantes', icon: <Utensils className="w-3.5 h-3.5" /> },
-  { id: 'cafes', label: 'Cafés', icon: <Coffee className="w-3.5 h-3.5" /> },
-  { id: 'shopping', label: 'Compras', icon: <ShoppingBag className="w-3.5 h-3.5" /> },
-  { id: 'nightlife', label: 'Ocio nocturno', icon: <Music className="w-3.5 h-3.5" /> },
-  { id: 'nature', label: 'Naturaleza', icon: <TreePine className="w-3.5 h-3.5" /> },
-  { id: 'culture', label: 'Cultura', icon: <Camera className="w-3.5 h-3.5" /> },
-  { id: 'beaches', label: 'Playas', icon: <Waves className="w-3.5 h-3.5" /> },
-  { id: 'sports', label: 'Deporte', icon: <Dumbbell className="w-3.5 h-3.5" /> },
-  { id: 'health', label: 'Salud', icon: <Heart className="w-3.5 h-3.5" /> },
-  { id: 'other', label: 'Otros', icon: <MapPin className="w-3.5 h-3.5" /> },
-]
+const CATEGORIES_BY_GROUP = CATEGORY_GROUPS.map(group => ({
+  ...group,
+  categories: RICH_CATEGORIES.filter(c => c.group === group.id),
+})).filter(g => g.categories.length > 0)
 
 function getCategoryLabel(id: string) {
-  return CATEGORIES.find((c) => c.id === id)?.label ?? id
+  return getCategoryById(id)?.label ?? id
 }
 
 // --- Status Badge ---
@@ -143,10 +131,31 @@ function AddPlacePanel({
   const [results, setResults] = useState<PlaceResult[]>([])
   const [searching, setSearching] = useState(false)
   const [selected, setSelected] = useState<PlaceResult | null>(null)
-  const [category, setCategory] = useState('restaurants')
+  const [category, setCategory] = useState('restaurant')
+  const [categorySearch, setCategorySearch] = useState('')
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
   const [description, setDescription] = useState('')
+  const [highlight, setHighlight] = useState('')
+  const [externalUrl, setExternalUrl] = useState('')
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState('')
+
+  const catConfig = getCategoryById(category)
+  const catGroup = CATEGORY_GROUPS.find(g => g.id === catConfig?.group)
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!categoryDropdownOpen) return
+    const handler = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest('[data-cat-dropdown]')) {
+        setCategoryDropdownOpen(false)
+        setCategorySearch('')
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [categoryDropdownOpen])
 
   const handleSearch = useCallback(async () => {
     if (!query.trim()) return
@@ -169,6 +178,10 @@ function AddPlacePanel({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleSearch()
+  }
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])
   }
 
   const handleAdd = async () => {
@@ -196,7 +209,7 @@ function AddPlacePanel({
       if (!placeRes.ok) throw new Error(placeData.error || 'Error al guardar el lugar')
       const dbPlaceId = placeData.id
 
-      // 2. Add to guide
+      // 2. Add to guide with full metadata
       const res = await fetch(`/api/city-guides/${guideId}/places`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -205,6 +218,9 @@ function AddPlacePanel({
           placeId: dbPlaceId,
           category,
           description: description.trim() || null,
+          highlight: highlight.trim() || null,
+          externalUrl: externalUrl.trim() || null,
+          tags: selectedTags,
         }),
       })
       const data = await res.json()
@@ -214,6 +230,9 @@ function AddPlacePanel({
       setQuery('')
       setResults([])
       setDescription('')
+      setHighlight('')
+      setExternalUrl('')
+      setSelectedTags([])
     } catch (e: any) {
       setError(e.message)
       setAdding(false)
@@ -227,10 +246,7 @@ function AddPlacePanel({
           <Plus className="w-4 h-4 text-violet-400" />
           Añadir lugar
         </h3>
-        <button
-          onClick={onClose}
-          className="w-7 h-7 flex items-center justify-center rounded-lg text-zinc-500 hover:text-white hover:bg-white/8 transition-colors"
-        >
+        <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-lg text-zinc-500 hover:text-white hover:bg-white/8 transition-colors">
           <X className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -241,7 +257,7 @@ function AddPlacePanel({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
           <input
             type="text"
-            placeholder="Buscar restaurante, museo, parque..."
+            placeholder="Buscar restaurante, museo, playa..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -286,64 +302,144 @@ function AddPlacePanel({
 
       {/* Selected place — confirm form */}
       {selected && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-4"
-        >
-          <div className="bg-violet-500/8 border border-violet-500/20 rounded-xl p-3 mb-3 flex items-start justify-between gap-2">
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mb-4 space-y-3">
+          {/* Place header */}
+          <div className="bg-violet-500/8 border border-violet-500/20 rounded-xl p-3 flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
               <p className="text-violet-300 text-sm font-medium">{selected.name}</p>
               <p className="text-zinc-500 text-xs">{selected.address}</p>
             </div>
-            <button
-              onClick={() => setSelected(null)}
-              className="text-zinc-500 hover:text-white flex-shrink-0"
-            >
+            <button onClick={() => setSelected(null)} className="text-zinc-500 hover:text-white flex-shrink-0">
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-zinc-400 font-medium uppercase tracking-wide mb-1.5">
-                Categoría
-              </label>
-              <div className="relative">
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-[#0f0f17] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm appearance-none focus:outline-none focus:border-violet-500/40 transition-colors"
-                >
-                  {CATEGORIES.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.label}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
-              </div>
+          {/* Category searchable dropdown */}
+          <div>
+            <label className="block text-xs text-zinc-400 font-medium uppercase tracking-wide mb-1.5">Categoría</label>
+            <div className="relative" data-cat-dropdown>
+              <button
+                type="button"
+                onClick={() => setCategoryDropdownOpen(o => !o)}
+                className="w-full bg-[#0f0f17] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm flex items-center justify-between gap-2 hover:border-violet-500/40 focus:outline-none"
+              >
+                <span>{catGroup?.emoji} {catConfig?.label ?? 'Seleccionar categoría'}</span>
+                <ChevronDown className="w-4 h-4 text-zinc-500 flex-shrink-0" />
+              </button>
+              {categoryDropdownOpen && (
+                <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-[#0f0f17] border border-white/10 rounded-xl shadow-xl overflow-hidden">
+                  <div className="p-2 border-b border-white/8">
+                    <input
+                      autoFocus
+                      type="text"
+                      placeholder="Buscar categoría..."
+                      value={categorySearch}
+                      onChange={(e) => setCategorySearch(e.target.value)}
+                      className="w-full bg-[#1a1a2e] border border-white/10 rounded-lg px-3 py-2 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-violet-500/40"
+                    />
+                  </div>
+                  <div className="max-h-60 overflow-y-auto">
+                    {CATEGORIES_BY_GROUP.map(group => {
+                      const filtered = group.categories.filter(c =>
+                        c.label.toLowerCase().includes(categorySearch.toLowerCase())
+                      )
+                      if (filtered.length === 0) return null
+                      return (
+                        <div key={group.id}>
+                          <div className="px-3 py-1.5 text-xs font-semibold text-zinc-500 uppercase tracking-wide bg-white/3 sticky top-0">
+                            {group.emoji} {group.label}
+                          </div>
+                          {filtered.map(c => (
+                            <button
+                              key={c.id}
+                              type="button"
+                              onClick={() => {
+                                setCategory(c.id)
+                                setSelectedTags([])
+                                setCategoryDropdownOpen(false)
+                                setCategorySearch('')
+                              }}
+                              className={`w-full text-left px-4 py-2 text-sm transition-colors ${category === c.id ? 'bg-violet-500/20 text-violet-300' : 'text-zinc-300 hover:bg-white/5 hover:text-white'}`}
+                            >
+                              {c.label}
+                            </button>
+                          ))}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
+          </div>
+
+          {/* Nota / descripción */}
+          <div>
+            <label className="block text-xs text-zinc-400 font-medium uppercase tracking-wide mb-1.5">Nota (opcional)</label>
+            <input
+              type="text"
+              placeholder="Ej: Perfecto para una cena romántica..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full bg-[#0f0f17] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-violet-500/40 transition-colors"
+            />
+          </div>
+
+          {/* Highlight — shown only if category supports it */}
+          {catConfig?.highlightLabel && (
             <div>
               <label className="block text-xs text-zinc-400 font-medium uppercase tracking-wide mb-1.5">
-                Nota (opcional)
+                {catConfig.highlightLabel}
               </label>
               <input
                 type="text"
-                placeholder="Ej: Pide la pasta trufa..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                placeholder={catConfig.highlightPlaceholder || ''}
+                value={highlight}
+                onChange={(e) => setHighlight(e.target.value)}
                 className="w-full bg-[#0f0f17] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-violet-500/40 transition-colors"
               />
             </div>
-          </div>
+          )}
+
+          {/* External URL — shown only if category supports it */}
+          {catConfig?.externalUrlLabel && (
+            <div>
+              <label className="block text-xs text-zinc-400 font-medium uppercase tracking-wide mb-1.5">
+                {catConfig.externalUrlLabel}
+              </label>
+              <input
+                type="url"
+                placeholder={catConfig.externalUrlPlaceholder || 'https://...'}
+                value={externalUrl}
+                onChange={(e) => setExternalUrl(e.target.value)}
+                className="w-full bg-[#0f0f17] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-violet-500/40 transition-colors"
+              />
+            </div>
+          )}
+
+          {/* Tags — shown only if category has tags */}
+          {catConfig?.tags && catConfig.tags.length > 0 && (
+            <div>
+              <label className="block text-xs text-zinc-400 font-medium uppercase tracking-wide mb-1.5">Etiquetas</label>
+              <div className="flex flex-wrap gap-1.5">
+                {catConfig.tags.map(tag => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => toggleTag(tag)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${selectedTags.includes(tag) ? 'bg-violet-500/30 text-violet-300 border border-violet-500/40' : 'bg-white/5 text-zinc-400 border border-white/8 hover:bg-white/10 hover:text-zinc-200'}`}
+                  >
+                    {tag.replace(/_/g, ' ')}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </motion.div>
       )}
 
       {error && (
-        <p className="text-red-400 text-sm mb-3 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
-          {error}
-        </p>
+        <p className="text-red-400 text-sm mb-3 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>
       )}
 
       {searching && results.length === 0 && (
@@ -723,7 +819,7 @@ export default function GuideDetailPage() {
               <motion.div key={cat} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-violet-400">
-                    {CATEGORIES.find((c) => c.id === cat)?.icon ?? <MapPin className="w-3.5 h-3.5" />}
+                    <MapPin className="w-3.5 h-3.5" />
                   </span>
                   <h2 className="text-sm font-semibold text-zinc-300 uppercase tracking-wide">
                     {getCategoryLabel(cat)}

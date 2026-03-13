@@ -119,6 +119,8 @@ export default function AdminGuideDetailPage() {
   const [guide, setGuide] = useState<Guide | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0]?.id ?? 'restaurant')
+  const [categorySearch, setCategorySearch] = useState('')
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
   const [adding, setAdding] = useState(false)
   const [removingId, setRemovingId] = useState<string | null>(null)
   const [toast, setToast] = useState('')
@@ -156,6 +158,19 @@ export default function AdminGuideDetailPage() {
   }, [id, router])
 
   useEffect(() => { fetchGuide() }, [fetchGuide])
+
+  useEffect(() => {
+    if (!categoryDropdownOpen) return
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('[data-category-dropdown]')) {
+        setCategoryDropdownOpen(false)
+        setCategorySearch('')
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [categoryDropdownOpen])
 
   const handleSelect = (result: PlaceSearchResult) => {
     setPendingPlace(result)
@@ -356,21 +371,69 @@ export default function AdminGuideDetailPage() {
 
           <div className="mb-3">
             <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">Categoría</label>
-            <div className="relative max-w-xs">
-              <select
-                value={selectedCategory}
-                onChange={(e) => { setSelectedCategory(e.target.value); setPendingTags([]) }}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 appearance-none focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-transparent bg-white"
+            <div className="relative max-w-xs" data-category-dropdown>
+              <button
+                type="button"
+                onClick={() => setCategoryDropdownOpen(o => !o)}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 flex items-center justify-between gap-2 bg-white hover:border-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-300"
               >
-                {CATEGORIES_BY_GROUP.map(group => (
-                  <optgroup key={group.id} label={`${group.emoji} ${group.label}`}>
-                    {group.categories.map(c => (
-                      <option key={c.id} value={c.id}>{c.label}</option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                <span>
+                  {(() => {
+                    const cat = getCategoryById(selectedCategory)
+                    const group = CATEGORY_GROUPS.find(g => g.id === cat?.group)
+                    return cat ? `${group?.emoji ?? ''} ${cat.label}` : 'Seleccionar categoría'
+                  })()}
+                </span>
+                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              </button>
+
+              {categoryDropdownOpen && (
+                <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+                  <div className="p-2 border-b border-gray-100">
+                    <input
+                      autoFocus
+                      type="text"
+                      placeholder="Buscar categoría..."
+                      value={categorySearch}
+                      onChange={(e) => setCategorySearch(e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-300"
+                    />
+                  </div>
+                  <div className="max-h-64 overflow-y-auto">
+                    {CATEGORIES_BY_GROUP.map(group => {
+                      const filtered = group.categories.filter(c =>
+                        c.label.toLowerCase().includes(categorySearch.toLowerCase())
+                      )
+                      if (filtered.length === 0) return null
+                      return (
+                        <div key={group.id}>
+                          <div className="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wide bg-gray-50 sticky top-0">
+                            {group.emoji} {group.label}
+                          </div>
+                          {filtered.map(c => (
+                            <button
+                              key={c.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedCategory(c.id)
+                                setPendingTags([])
+                                setCategoryDropdownOpen(false)
+                                setCategorySearch('')
+                              }}
+                              className={`w-full text-left px-4 py-2 text-sm hover:bg-violet-50 hover:text-violet-700 transition-colors ${selectedCategory === c.id ? 'bg-violet-50 text-violet-700 font-medium' : 'text-gray-700'}`}
+                            >
+                              {c.label}
+                            </button>
+                          ))}
+                        </div>
+                      )
+                    })}
+                    {CATEGORIES.filter(c => c.label.toLowerCase().includes(categorySearch.toLowerCase())).length === 0 && (
+                      <div className="px-4 py-3 text-sm text-gray-400 text-center">Sin resultados</div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
