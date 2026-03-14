@@ -62,18 +62,27 @@ export const runtime = 'nodejs' // Use Node.js runtime
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication — accept either regular user token or admin token
-    const token = request.cookies.get('auth-token')?.value
+    // Check authentication — accept cookie, Bearer token, or admin token
     const adminUser = await getAdminUser(request)
+    const authHeader = request.headers.get('authorization')
 
     let userId: string | null = null
-    if (token) {
+
+    // Try cookie first
+    const cookieToken = request.cookies.get('auth-token')?.value
+    if (cookieToken) {
       try {
-        const decoded = verifyToken(token)
+        const decoded = verifyToken(cookieToken)
         userId = decoded.userId
-      } catch {
-        // invalid token, try admin below
-      }
+      } catch { /* invalid cookie token */ }
+    }
+
+    // Fall back to Bearer token (mobile app)
+    if (!userId && authHeader?.startsWith('Bearer ')) {
+      try {
+        const decoded = verifyToken(authHeader.substring(7))
+        userId = decoded.userId
+      } catch { /* invalid bearer token */ }
     }
 
     if (!userId && !adminUser) {
