@@ -3024,7 +3024,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-
       {/* Copied Badge */}
       <AnimatePresence>
         {showCopiedBadge && (
