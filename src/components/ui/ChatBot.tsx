@@ -289,7 +289,7 @@ export default function ChatBot({
       await fetch('/api/admin/analytics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ event, data })
+        body: safeStringify({ event, data })
       })
     } catch (error) {
       console.error('Error tracking event:', error)
