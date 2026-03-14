@@ -99,10 +99,10 @@ export async function POST(request: NextRequest) {
       }, { status: 429 });
     }
 
-    // Detect iOS Safari — SSE streaming is unreliable on iOS (second message bug).
+    // Detect mobile browsers — SSE streaming is unreliable on mobile (second message bug).
     // Return plain JSON instead; the client already handles both response types.
     const ua = request.headers.get('user-agent') || '';
-    const isIOS = /iPhone|iPad|iPod/i.test(ua);
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
 
     const {
       message,
@@ -252,7 +252,7 @@ export async function POST(request: NextRequest) {
     try {
       // iOS Safari: SSE streaming is unreliable (second message bug).
       // Use standard JSON response instead — client handles both.
-      if (isIOS) {
+      if (isMobile) {
         const iosController = new AbortController();
         const iosTimeout = setTimeout(() => iosController.abort(), 30000);
         const iosOpenaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
