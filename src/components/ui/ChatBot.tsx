@@ -482,7 +482,11 @@ export default function ChatBot({
       }
 
       if (!response.ok) {
-        throw new Error('api_error')
+        const errBody = await response.json().catch(() => ({}))
+        const err = new Error('api_error') as Error & { serverError?: string; serverStatus?: number }
+        err.serverError = errBody.error || JSON.stringify(errBody).slice(0, 200)
+        err.serverStatus = response.status
+        throw err
       }
 
       const contentType = response.headers.get('content-type') || ''
@@ -607,6 +611,8 @@ export default function ChatBot({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             error: `sendMessage catch: ${error?.name}: ${error?.message}`,
+            serverError: error?.serverError || null,
+            serverStatus: error?.serverStatus || null,
             stack: error?.stack?.slice(0, 300),
             componentStack: 'sendMessage',
             ua: navigator.userAgent,
