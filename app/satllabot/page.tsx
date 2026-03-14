@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import {
-  AlertTriangle, ArrowDownCircle, ArrowUpCircle, Sparkles,
+  AlertTriangle, ArrowDownCircle, Sparkles,
   RefreshCw, CheckCircle, Clock, Pencil, X, CalendarDays,
   User, FileText, Send, ChevronDown, ChevronRight, ChevronLeft,
   Copy
@@ -648,14 +648,19 @@ export default function SatllaHoyPage() {
 
         {!loading && !error && data && (
           <>
-            {/* Header summary + refresh */}
-            <div className="flex items-center justify-between">
-              <p className="text-gray-400 text-xs">
-                {data.checkIns.length} llegadas · {data.checkOuts.length} salidas · {data.cleanings.length} limpiezas
-              </p>
+            {/* Stats + refresh */}
+            <div className="flex items-center gap-3">
+              <div className="flex-1 bg-green-50 border border-green-100 rounded-xl p-3 text-center">
+                <p className="text-xs text-green-600 font-medium">Check-in hoy</p>
+                <p className="text-2xl font-bold text-green-700 leading-none mt-1">{data.checkIns.length}</p>
+              </div>
+              <div className="flex-1 bg-blue-50 border border-blue-100 rounded-xl p-3 text-center">
+                <p className="text-xs text-blue-600 font-medium">Check-out hoy</p>
+                <p className="text-2xl font-bold text-blue-700 leading-none mt-1">{data.checkOuts.length}</p>
+              </div>
               <button
                 onClick={() => load(selectedDate)}
-                className="text-gray-400 hover:text-gray-700 transition-colors p-1.5 rounded-lg hover:bg-gray-100"
+                className="text-gray-400 hover:text-gray-700 transition-colors p-2 rounded-xl hover:bg-gray-100 self-stretch flex items-center"
               >
                 <RefreshCw className="h-4 w-4" />
               </button>
@@ -725,31 +730,6 @@ export default function SatllaHoyPage() {
                           <PlatformBadge plataforma={r.plataforma} />
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Section>
-
-            {/* ── Salidas ───────────────────────────────────────────── */}
-            <Section
-              id="salidas"
-              title="Salidas"
-              count={data.checkOuts.length}
-              icon={<ArrowUpCircle className="h-3.5 w-3.5" />}
-              accentClass="text-blue-600"
-              collapsed={!!collapsedSections['salidas']}
-              onToggle={() => toggleSection('salidas')}
-            >
-              {data.checkOuts.length === 0 ? (
-                <p className="text-gray-400 text-sm bg-gray-50 rounded-xl p-4 text-center">Sin salidas</p>
-              ) : (
-                <div className="space-y-2">
-                  {data.checkOuts.map((r, i) => (
-                    <div key={i} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-                      <p className="font-semibold text-gray-900 text-sm">{r.apartamento}</p>
-                      <p className="text-gray-600 text-sm mt-0.5">{r.huesped}</p>
-                      <p className="text-gray-400 text-xs mt-1">{r.noches} noches</p>
                     </div>
                   ))}
                 </div>
