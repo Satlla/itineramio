@@ -18,6 +18,19 @@ import { ChatBubble } from './chatbot/ChatBubble'
 import { ChatInput } from './chatbot/ChatInput'
 import { ChatDemoBanner } from './chatbot/ChatDemoBanner'
 
+// Serializer seguro: maneja ciclos y Dates para evitar el crash de JSON.stringify
+function safeStringify(obj: unknown): string {
+  const seen = new WeakSet()
+  return JSON.stringify(obj, (_key, value) => {
+    if (value instanceof Date) return value.toISOString()
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) return '[Circular]'
+      seen.add(value)
+    }
+    return value
+  })
+}
+
 interface MediaItem {
   type: 'IMAGE' | 'VIDEO'
   url: string
@@ -442,7 +455,10 @@ export default function ChatBot({
         propertyId,
         propertyName,
         language: lang,
-        conversationHistory: messages.filter(m => !m.typing).slice(-10).map(m => ({ role: m.role, content: m.content })),
+        conversationHistory: messages.filter(m => !m.typing).slice(-10).map(m => ({
+          role: String(m.role),
+          content: String(m.content ?? '').slice(0, 500),
+        })),
         sessionId: sessionIdRef.current
       }
 
@@ -455,9 +471,7 @@ export default function ChatBot({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(body, (_key, value) =>
-          value instanceof Date ? value.toISOString() : value
-        ),
+        body: safeStringify(body),
         signal: controller.signal,
         cache: 'no-store' as RequestCache,
       })
