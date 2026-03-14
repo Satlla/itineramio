@@ -27,54 +27,56 @@ export default function SatllaLayout({ children }: { children: React.ReactNode }
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex">
+    <div className="min-h-screen bg-white text-gray-900 flex">
       {/* Desktop sidebar (lg+) */}
-      <aside className="hidden lg:flex flex-col w-60 bg-gray-900 border-r border-gray-800 fixed inset-y-0 left-0 z-20">
-        <div className="p-4 flex items-center gap-2 border-b border-gray-800">
-          <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
+      <aside className="hidden lg:flex flex-col w-56 bg-white border-r border-gray-100 fixed inset-y-0 left-0 z-20">
+        <div className="p-4 flex items-center gap-2.5 border-b border-gray-100">
+          <div className="w-7 h-7 bg-blue-600 rounded-md flex items-center justify-center shrink-0">
             <span className="text-xs font-bold text-white">S</span>
           </div>
-          <span className="font-semibold text-white">SatllaBot</span>
+          <span className="font-semibold text-gray-900 text-sm">SatllaBot</span>
         </div>
-        <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
+        <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
           {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
             const isActive = pathname === href || (href !== '/satllabot' && pathname.startsWith(href))
             return (
               <button
                 key={href}
                 onClick={() => router.push(href)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                  isActive ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  isActive
+                    ? 'bg-gray-100 text-gray-900 font-medium'
+                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
-                <Icon className="h-5 w-5 shrink-0" />
+                <Icon className="h-4 w-4 shrink-0" />
                 {label}
               </button>
             )
           })}
         </nav>
-        <div className="p-3 border-t border-gray-800">
+        <div className="p-2 border-t border-gray-100">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors"
           >
-            <LogOut className="h-5 w-5 shrink-0" />
+            <LogOut className="h-4 w-4 shrink-0" />
             Cerrar sesión
           </button>
         </div>
       </aside>
 
       {/* Mobile top bar (< lg) */}
-      <header className="lg:hidden bg-gray-900 border-b border-gray-800 px-4 py-3 flex items-center justify-between fixed top-0 left-0 right-0 z-10">
+      <header className="lg:hidden bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between fixed top-0 left-0 right-0 z-10">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
+          <div className="w-7 h-7 bg-blue-600 rounded-md flex items-center justify-center">
             <span className="text-xs font-bold text-white">S</span>
           </div>
-          <span className="font-semibold text-white">SatllaBot</span>
+          <span className="font-semibold text-gray-900 text-sm">SatllaBot</span>
         </div>
         <button
           onClick={handleLogout}
-          className="text-gray-400 hover:text-white transition-colors p-1"
+          className="text-gray-400 hover:text-gray-900 transition-colors p-1"
           title="Cerrar sesión"
         >
           <LogOut className="h-5 w-5" />
@@ -82,12 +84,12 @@ export default function SatllaLayout({ children }: { children: React.ReactNode }
       </header>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto lg:ml-60 pt-14 lg:pt-0 pb-20 lg:pb-0">
+      <main className="flex-1 overflow-auto lg:ml-56 pt-14 lg:pt-0 pb-20 lg:pb-0 bg-white">
         {children}
       </main>
 
       {/* Mobile bottom navigation (< lg) */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 flex safe-area-pb z-10">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex safe-area-pb z-10">
         {MOBILE_NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const isActive = pathname === href || (href !== '/satllabot' && pathname.startsWith(href))
           return (
@@ -95,7 +97,7 @@ export default function SatllaLayout({ children }: { children: React.ReactNode }
               key={href}
               onClick={() => router.push(href)}
               className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs transition-colors ${
-                isActive ? 'text-blue-400' : 'text-gray-500 hover:text-gray-300'
+                isActive ? 'text-blue-600' : 'text-gray-400 hover:text-gray-700'
               }`}
             >
               <Icon className="h-5 w-5" />
