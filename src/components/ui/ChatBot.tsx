@@ -259,8 +259,8 @@ export default function ChatBot({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ propertyId }),
     })
-      .then(res => setIsEnabled(res.ok))
-      .catch(() => setIsEnabled(true)) // Network error → optimistic: show chat anyway
+      .then(res => res.json().then(data => setIsEnabled(data.enabled === true)).catch(() => setIsEnabled(false)))
+      .catch(() => setIsEnabled(false)) // Network error → hide (chatbot en modo restringido)
   }, [propertyId])
 
   // Persist messages to localStorage whenever they change
