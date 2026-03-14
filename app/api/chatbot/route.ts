@@ -779,7 +779,10 @@ function getLocalizedText(value: any, language: string): string {
     const raw = value[language] || value.es || value.en || value.fr || '';
     // Some step contents are nested: { es: { text: "...", mediaUrl: "..." } }
     if (typeof raw === 'string') return raw;
-    if (raw && typeof raw === 'object') return raw.text || raw.content || '';
+    if (raw && typeof raw === 'object') {
+      const inner = raw.text ?? raw.content ?? '';
+      return typeof inner === 'string' ? inner : '';
+    }
     return '';
   }
   return '';
@@ -1098,7 +1101,7 @@ function buildZoneSystemPrompt(property: any, zone: any, language: string): stri
   let zoneSteps = '';
   if (zone.type === 'RECOMMENDATIONS' && zone.recommendations?.length > 0) {
     zoneSteps = zone.recommendations.map((rec: any) => {
-      if (!rec.place) return '';
+      if (!rec.place || !rec.place.name) return '';
       const p = rec.place;
       let line = `- ${p.name}`;
       if (p.address) line += ` (${p.address})`;
@@ -1109,7 +1112,7 @@ function buildZoneSystemPrompt(property: any, zone: any, language: string): stri
       return line;
     }).filter(Boolean).join('\n');
   } else {
-    zoneSteps = zone.steps.map((step: any, index: number) => {
+    zoneSteps = (zone.steps || []).map((step: any, index: number) => {
       return buildStepDescription(step, index, language);
     }).join('\n');
   }
@@ -1224,7 +1227,7 @@ CRITICAL RULES:
 }
 
 function generateFallbackResponse(message: string, property: any, zone: any | null, language: string): string {
-  const lowerMessage = message.toLowerCase();
+  const lowerMessage = String(message || '').toLowerCase();
   const zoneName = zone ? getLocalizedText(zone.name, language) : '';
   const propertyName = getLocalizedText(property.name, language);
 
