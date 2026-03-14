@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
           httpOnly: true,
           secure: true,
           sameSite: 'lax',
-          maxAge: 24 * 60 * 60,
+          maxAge: 30 * 24 * 60 * 60,
           path: '/'
         })
         

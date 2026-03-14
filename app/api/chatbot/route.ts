@@ -253,8 +253,11 @@ export async function POST(request: NextRequest) {
       // iOS Safari: SSE streaming is unreliable (second message bug).
       // Use standard JSON response instead — client handles both.
       if (isMobile) {
+        // Mobile path has its own try/catch to return fallback on OpenAI failure
+        // instead of propagating to the outer 500 handler.
+        try {
         const iosController = new AbortController();
-        const iosTimeout = setTimeout(() => iosController.abort(), 30000);
+        const iosTimeout = setTimeout(() => iosController.abort(), 45000);
         const iosOpenaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -284,6 +287,13 @@ export async function POST(request: NextRequest) {
           media: media.length > 0 ? media : undefined,
           recommendations: recommendations.length > 0 ? recommendations : undefined,
         });
+        } catch (mobileError) {
+          // OpenAI failed on mobile — return a graceful fallback instead of 500
+          console.error('[ChatBot] Mobile OpenAI error:', mobileError);
+          const zone = zones[0] || null;
+          const fallback = generateFallbackResponse(message, property, zone, language);
+          return NextResponse.json({ response: fallback });
+        }
       }
 
       // Desktop: SSE streaming

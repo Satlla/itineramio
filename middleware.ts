@@ -60,6 +60,23 @@ export async function middleware(request: NextRequest) {
 
   const token = request.cookies.get('auth-token')?.value
 
+  // SATLLABOT PANEL
+  if (pathname === '/satllabot/login') return NextResponse.next()
+  if (pathname.startsWith('/satllabot')) {
+    const panelToken = request.cookies.get('satllabot-token')?.value
+    if (!panelToken) return NextResponse.redirect(new URL('/satllabot/login', request.url))
+    const panelSecret = process.env.SATLLABOT_PANEL_SECRET
+    if (panelSecret) {
+      const valid = await verifyJWT(panelToken, panelSecret)
+      if (!valid) {
+        const res = NextResponse.redirect(new URL('/satllabot/login', request.url))
+        res.cookies.delete('satllabot-token')
+        return res
+      }
+    }
+    return NextResponse.next()
+  }
+
   // CRITICAL: Allow admin login page to bypass all checks
   if (pathname === '/admin/login' || pathname.startsWith('/admin/login')) {
     return NextResponse.next()

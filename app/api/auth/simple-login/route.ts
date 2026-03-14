@@ -96,8 +96,8 @@ export async function POST(request: NextRequest) {
       token
     })
 
-    // Set cookie with appropriate duration based on rememberMe
-    const cookieMaxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24 // 30 days or 24 hours
+    // Always use 30 days — 24h sessions caused frequent unexpected logouts
+    const cookieMaxAge = 60 * 60 * 24 * 30 // 30 days
     const isProduction = process.env.NODE_ENV === 'production'
 
     // Use Next.js cookies API (NOT manual headers.set) for proper cookie handling

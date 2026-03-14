@@ -312,7 +312,7 @@ export default function ChatBot({
 
   // Show welcome bubble after 3 seconds (only once per session, only if chat not already opened)
   useEffect(() => {
-    if (isEnabled === false || isOpen) return
+    if (isEnabled !== true || isOpen) return
     const welcomeKey = `chatbot-welcome-${propertyId}`
     const alreadyShown = typeof window !== 'undefined' && sessionStorage.getItem(welcomeKey)
     if (alreadyShown) return
@@ -674,8 +674,8 @@ export default function ChatBot({
 
   const faqs = getFAQs(lang)
 
-  // Don't render chatbot if not enabled for this property
-  if (isEnabled === false) return null
+  // Don't render chatbot until explicitly enabled (null = loading, false = disabled)
+  if (isEnabled !== true) return null
 
   return (
     <>
