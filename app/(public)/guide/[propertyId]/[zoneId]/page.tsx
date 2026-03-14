@@ -977,17 +977,6 @@ export default function ZoneGuidePage({
             propertyId={propertyId}
           />
 
-          {/* Footer */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-center text-gray-500 text-xs sm:text-sm mt-8 px-4"
-          >
-            <span>
-              Powered by <ItineramioLogo size="sm" gradient className="inline-block mx-1" /> Itineramio
-            </span>
-          </motion.div>
         </main>
 
         {/* Share Modal */}
@@ -1415,16 +1404,6 @@ export default function ZoneGuidePage({
         </div>
 
         {/* Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="text-center text-gray-500 text-xs sm:text-sm mt-6 sm:mt-8 px-4"
-        >
-          <span>
-            Powered by <ItineramioLogo size="sm" gradient className="inline-block mx-1" /> Itineramio
-          </span>
-        </motion.div>
       </main>
 
       {/* Host Contact Modal */}

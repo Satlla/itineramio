@@ -17,7 +17,6 @@ import {
 import { ChatBubble } from './chatbot/ChatBubble'
 import { ChatInput } from './chatbot/ChatInput'
 import { ChatDemoBanner } from './chatbot/ChatDemoBanner'
-import { ChatEmailOverlay } from './chatbot/ChatEmailOverlay'
 
 interface MediaItem {
   type: 'IMAGE' | 'VIDEO'
@@ -225,12 +224,6 @@ export default function ChatBot({
   // Demo promotion state
   const [showDemoBanner, setShowDemoBanner] = useState(false)
 
-  // Email collection state
-  const [showEmailOverlay, setShowEmailOverlay] = useState(false)
-  const [emailCollected, setEmailCollected] = useState(false)
-  const [emailDismissed, setEmailDismissed] = useState(false)
-  // emailInput, nameInput, emailSubmitting, emailError, emailSuccess moved to ChatEmailOverlay
-
   // Session tracking — restore from localStorage if available
   const storageKey = `chatbot-${propertyId}${zoneId ? `-${zoneId}` : ''}`
   const sessionIdRef = useRef<string>('')
@@ -329,14 +322,6 @@ export default function ChatBot({
       return () => clearTimeout(timer)
     }
   }, [messages, isDemoMode, showDemoBanner])
-
-  // Show email overlay after 3 user messages (skip in demo mode and when logged in)
-  useEffect(() => {
-    const loggedIn = document.cookie.split(';').some(c => c.trim().startsWith('auth-token='))
-    if (!isDemoMode && !loggedIn && userMessageCountRef.current >= 3 && !emailCollected && !emailDismissed && !showEmailOverlay) {
-      setShowEmailOverlay(true)
-    }
-  }, [messages, emailCollected, emailDismissed, showEmailOverlay, isDemoMode])
 
   const initializeChat = () => {
     // Try to restore from localStorage
@@ -600,6 +585,21 @@ export default function ChatBot({
 
     } catch (error: any) {
       console.error('[ChatBot] error on message:', error?.name, error?.message, error)
+
+      // Remote logging for mobile debugging (no DevTools)
+      try {
+        fetch('/api/chatbot/error-log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            error: `sendMessage catch: ${error?.name}: ${error?.message}`,
+            stack: error?.stack?.slice(0, 300),
+            componentStack: 'sendMessage',
+            ua: navigator.userAgent,
+            url: window.location.href,
+          }),
+        }).catch(() => {})
+      } catch {}
 
       const isAbort = error?.name === 'AbortError'
       const isRateLimited = error?.message === 'rate_limited'
@@ -975,27 +975,6 @@ export default function ChatBot({
                     )}
                   </AnimatePresence>
 
-                  {/* Email Collection Banner (non-blocking) */}
-                  <AnimatePresence>
-                    {showEmailOverlay && !emailCollected && (
-                      <ChatEmailOverlay
-                        propertyId={propertyId}
-                        sessionId={sessionIdRef.current}
-                        lang={lang}
-                        translations={{
-                          success: t('emailSuccess', lang),
-                          prompt: t('emailPrompt', lang),
-                          emailPlaceholder: t('emailPlaceholder', lang),
-                          namePlaceholder: t('namePlaceholder', lang),
-                          error: t('emailError', lang),
-                          submit: t('emailSubmit', lang),
-                          skip: t('emailSkip', lang),
-                        }}
-                        onCollected={() => { setEmailCollected(true); setShowEmailOverlay(false) }}
-                        onDismiss={() => { setEmailDismissed(true); setShowEmailOverlay(false) }}
-                      />
-                    )}
-                  </AnimatePresence>
                 </div>
 
                 {/* Input */}
