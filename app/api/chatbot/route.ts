@@ -468,7 +468,8 @@ const RECOMMENDATION_SYNONYMS: Record<string, string[]> = {
   'parking': ['parking', 'aparcar', 'park', 'coche', 'car', 'garaje', 'garage', 'stationnement'],
 };
 
-function getKeywords(text: string): string[] {
+function getKeywords(text: unknown): string[] {
+  if (!text || typeof text !== 'string') return [];
   return text.toLowerCase()
     .replace(/[-_/\\.,;:!?()]/g, ' ')
     .split(/\s+/)
@@ -496,7 +497,7 @@ function detectRelevantRecommendations(userMessage: string, aiResponse: string, 
     if (zone.type !== 'RECOMMENDATIONS' || !zone.recommendations?.length) continue;
 
     const categoryId = zone.recommendationCategory || '';
-    const zoneName = getLocalizedText(zone.name, language).toLowerCase();
+    const zoneName = String(getLocalizedText(zone.name, language) || '').toLowerCase();
 
     // Check if user is asking about this recommendation category
     let matches = false;
@@ -519,8 +520,8 @@ function detectRelevantRecommendations(userMessage: string, aiResponse: string, 
     if (!matches) {
       for (const rec of zone.recommendations) {
         if (!rec.place) continue;
-        const placeName = rec.place.name.toLowerCase();
-        if (aiResponse.toLowerCase().includes(placeName)) {
+        const placeName = String(rec.place.name || '').toLowerCase();
+        if (String(aiResponse || '').toLowerCase().includes(placeName)) {
           matches = true;
           break;
         }
@@ -564,7 +565,7 @@ function detectRelevantRecommendations(userMessage: string, aiResponse: string, 
 // ========================================
 
 function detectUnansweredQuestion(aiResponse: string, language: string): boolean {
-  const lower = aiResponse.toLowerCase();
+  const lower = String(aiResponse || '').toLowerCase();
 
   const fallbackPhrases: Record<string, string[]> = {
     es: ['contacta al anfitrión', 'contactar al anfitrión', 'contacta directamente', 'no tengo información', 'no dispongo de esa información', 'no cuento con esa información'],
@@ -674,15 +675,14 @@ async function getCachedProperty(propertyId: string): Promise<any | null> {
 // ========================================
 
 function rankZonesByRelevance(message: string, zones: any[], language: string): any[] {
-  const words = message.toLowerCase()
+  const words = String(message || '').toLowerCase()
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove accents
     .split(/\s+/).filter(w => w.length > 2);
 
   const ALWAYS_RELEVANT = ['wifi', 'wi-fi', 'check', 'entrada', 'salida', 'llegada', 'acceso'];
 
   const scored = zones.map(zone => {
-    const zoneName = getLocalizedText(zone.name, language)
-      .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const zoneName = String(getLocalizedText(zone.name, language) || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     let score = 0;
 
     // Zone name keyword match = high relevance
@@ -693,8 +693,8 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
     // Step content match = medium relevance
     for (const step of (zone.steps || [])) {
       const content = step.content as any;
-      const title = getLocalizedText(step.title, language).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      const text = getLocalizedText(content, language).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const title = String(getLocalizedText(step.title, language) || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const text = String(getLocalizedText(content, language) || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       const combined = `${title} ${text}`;
       for (const word of words) {
         if (combined.includes(word)) score += 4;
