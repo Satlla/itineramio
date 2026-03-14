@@ -776,7 +776,11 @@ async function getLearnedContext(propertyId: string): Promise<string> {
 function getLocalizedText(value: any, language: string): string {
   if (typeof value === 'string') return value;
   if (value && typeof value === 'object') {
-    return value[language] || value.es || value.en || value.fr || '';
+    const raw = value[language] || value.es || value.en || value.fr || '';
+    // Some step contents are nested: { es: { text: "...", mediaUrl: "..." } }
+    if (typeof raw === 'string') return raw;
+    if (raw && typeof raw === 'object') return raw.text || raw.content || '';
+    return '';
   }
   return '';
 }
