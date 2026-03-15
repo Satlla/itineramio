@@ -2,28 +2,12 @@
 
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import {
-  AlertTriangle, ArrowDownCircle, Sparkles,
-  RefreshCw, CheckCircle, Clock, Pencil, X, CalendarDays,
+  Sparkles, RefreshCw, CheckCircle, Clock, Pencil, X, CalendarDays,
   User, FileText, Send, ChevronDown, ChevronRight, ChevronLeft,
   Copy
 } from 'lucide-react'
 
 // ─── Interfaces ────────────────────────────────────────────────────────────
-
-interface CheckIn {
-  apartamento: string
-  huesped: string
-  pax: number
-  noches: number
-  codigo: string
-  plataforma: string
-}
-
-interface CheckOut {
-  apartamento: string
-  huesped: string
-  noches: number
-}
 
 interface Cleaning {
   apartamento: string
@@ -44,8 +28,6 @@ interface Alert {
 
 interface TodayData {
   date: string
-  checkIns: CheckIn[]
-  checkOuts: CheckOut[]
   cleanings: Cleaning[]
   alerts: Alert[]
 }
@@ -137,13 +119,6 @@ function Badge({ estado }: { estado: string }) {
       <Clock className="h-3 w-3" />Pendiente
     </span>
   )
-}
-
-function PlatformBadge({ plataforma }: { plataforma: string }) {
-  const lower = (plataforma || '').toLowerCase()
-  if (lower.includes('airbnb')) return <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700">Airbnb</span>
-  if (lower.includes('booking')) return <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">Booking</span>
-  return <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">{plataforma || '—'}</span>
 }
 
 // ─── Section wrapper ────────────────────────────────────────────────────────
@@ -408,7 +383,7 @@ export default function SatllaHoyPage() {
   const [sending, setSending] = useState(false)
   const [sendResult, setSendResult] = useState('')
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({})
-  const [copiedCode, setCopiedCode] = useState<string | null>(null)
+  const [copiedCode, setCopiedCode] = useState<string | null>(null) // kept for future use
 
   const toggleSection = (name: string) => {
     setCollapsedSections(prev => ({ ...prev, [name]: !prev[name] }))
@@ -648,93 +623,15 @@ export default function SatllaHoyPage() {
 
         {!loading && !error && data && (
           <>
-            {/* Stats + refresh */}
-            <div className="flex items-center gap-3">
-              <div className="flex-1 bg-green-50 border border-green-100 rounded-xl p-3 text-center">
-                <p className="text-xs text-green-600 font-medium">Check-in hoy</p>
-                <p className="text-2xl font-bold text-green-700 leading-none mt-1">{data.checkIns.length}</p>
-              </div>
-              <div className="flex-1 bg-blue-50 border border-blue-100 rounded-xl p-3 text-center">
-                <p className="text-xs text-blue-600 font-medium">Check-out hoy</p>
-                <p className="text-2xl font-bold text-blue-700 leading-none mt-1">{data.checkOuts.length}</p>
-              </div>
+            {/* Refresh */}
+            <div className="flex justify-end">
               <button
                 onClick={() => load(selectedDate)}
-                className="text-gray-400 hover:text-gray-700 transition-colors p-2 rounded-xl hover:bg-gray-100 self-stretch flex items-center"
+                className="text-gray-400 hover:text-gray-700 transition-colors p-1.5 rounded-lg hover:bg-gray-100"
               >
                 <RefreshCw className="h-4 w-4" />
               </button>
             </div>
-
-            {/* ── Alertas ───────────────────────────────────────────── */}
-            {data.alerts.length > 0 && (
-              <Section
-                id="alertas"
-                title="Alertas"
-                count={data.alerts.length}
-                icon={<AlertTriangle className="h-3.5 w-3.5" />}
-                accentClass="text-orange-500"
-                collapsed={!!collapsedSections['alertas']}
-                onToggle={() => toggleSection('alertas')}
-              >
-                <div className="space-y-2">
-                  {data.alerts.map((a, i) => (
-                    <div key={i} className="bg-orange-50 border border-orange-200 rounded-xl p-3 flex items-start gap-3">
-                      <AlertTriangle className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-orange-800 font-medium text-sm">{a.apartamento}</p>
-                        <p className="text-orange-600 text-xs">{a.detail}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Section>
-            )}
-
-            {/* ── Llegadas ──────────────────────────────────────────── */}
-            <Section
-              id="llegadas"
-              title="Llegadas"
-              count={data.checkIns.length}
-              icon={<ArrowDownCircle className="h-3.5 w-3.5" />}
-              accentClass="text-green-600"
-              collapsed={!!collapsedSections['llegadas']}
-              onToggle={() => toggleSection('llegadas')}
-            >
-              {data.checkIns.length === 0 ? (
-                <p className="text-gray-400 text-sm bg-gray-50 rounded-xl p-4 text-center">Sin llegadas</p>
-              ) : (
-                <div className="space-y-2">
-                  {data.checkIns.map((r, i) => (
-                    <div key={i} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 text-sm">{r.apartamento}</p>
-                          <p className="text-gray-600 text-sm mt-0.5">{r.huesped}</p>
-                          <p className="text-gray-400 text-xs mt-1">{r.pax} pax · {r.noches} noches</p>
-                          {r.codigo && (
-                            <button
-                              onClick={() => copyCode(r.codigo)}
-                              className="mt-1.5 inline-flex items-center gap-1 font-mono text-xs text-gray-400 hover:text-gray-700 transition-colors group"
-                              title="Copiar código"
-                            >
-                              {copiedCode === r.codigo
-                                ? <CheckCircle className="h-3 w-3 text-green-500" />
-                                : <Copy className="h-3 w-3 group-hover:text-gray-600" />
-                              }
-                              {r.codigo}
-                            </button>
-                          )}
-                        </div>
-                        <div className="flex flex-col items-end gap-1.5 shrink-0">
-                          <PlatformBadge plataforma={r.plataforma} />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Section>
 
             {/* ── Limpiezas ─────────────────────────────────────────── */}
             <Section
