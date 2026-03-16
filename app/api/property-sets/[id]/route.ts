@@ -8,6 +8,15 @@ if (!JWT_SECRET) {
   throw new Error('JWT_SECRET environment variable is not set')
 }
 
+function getTokenFromRequest(request: NextRequest): string | null {
+  // Accept both cookie (web) and Authorization Bearer (mobile)
+  const cookieToken = request.cookies.get('auth-token')?.value
+  if (cookieToken) return cookieToken
+  const authHeader = request.headers.get('Authorization')
+  if (authHeader?.startsWith('Bearer ')) return authHeader.slice(7)
+  return null
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -16,7 +25,7 @@ export async function GET(
     const { id } = await params
     
     // Get user from JWT token
-    const token = request.cookies.get('auth-token')?.value
+    const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
@@ -283,7 +292,7 @@ export async function PUT(
     const body = await request.json()
 
     // Get user from JWT token
-    const token = request.cookies.get('auth-token')?.value
+    const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
@@ -363,7 +372,7 @@ export async function DELETE(
     const { id } = await params
 
     // Get user from JWT token
-    const token = request.cookies.get('auth-token')?.value
+    const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
