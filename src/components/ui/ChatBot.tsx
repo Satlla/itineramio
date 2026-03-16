@@ -450,31 +450,39 @@ export default function ChatBot({
     let currentStreamedChars = 0
 
     try {
-      const body: Record<string, any> = {
-        message: userMessage.content,
-        propertyId,
-        propertyName,
-        language: lang,
-        conversationHistory: messages.filter(m => !m.typing).slice(-10).map(m => ({
-          role: String(m.role),
-          content: String(m.content ?? '').slice(0, 500),
-        })),
-        sessionId: sessionIdRef.current
+      const buildBody = (includeHistory: boolean): Record<string, any> => {
+        const b: Record<string, any> = {
+          message: userMessage.content,
+          propertyId,
+          propertyName,
+          language: lang,
+          conversationHistory: includeHistory
+            ? messages.filter(m => !m.typing).slice(-6).map(m => ({
+                role: String(m.role),
+                content: String(m.content ?? '').slice(0, 300),
+              }))
+            : [],
+          sessionId: sessionIdRef.current
+        }
+        if (zoneId) b.zoneId = zoneId
+        if (zoneName) b.zoneName = zoneName
+        return b
       }
 
-      // Only send zoneId/zoneName when available
-      if (zoneId) body.zoneId = zoneId
-      if (zoneName) body.zoneName = zoneName
-
-      const response = await fetch('/api/chatbot', {
+      const doFetch = (body: Record<string, any>) => fetch('/api/chatbot', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: safeStringify(body),
         signal: controller.signal,
         cache: 'no-store' as RequestCache,
       })
+
+      let response = await doFetch(buildBody(true))
+
+      // 413 = request too large (connection/CDN issue) — retry without history
+      if (response.status === 413) {
+        response = await doFetch(buildBody(false))
+      }
 
       if (response.status === 429) {
         const errData = await response.json().catch(() => ({}))
