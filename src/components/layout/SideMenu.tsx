@@ -185,10 +185,10 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-gray-900 truncate text-sm sm:text-base">
+                  <h3 className="font-medium text-gray-900 truncate text-sm sm:text-base" title={user?.name}>
                     {user?.name || t('sidebar.defaultUser')}
                   </h3>
-                  <p className="text-xs sm:text-sm text-gray-500 truncate">
+                  <p className="text-xs sm:text-sm text-gray-500 truncate" title={user?.email}>
                     {user?.email || 'usuario@email.com'}
                   </p>
                 </div>
@@ -293,7 +293,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
               <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200 text-center">
                 <div className="flex items-center justify-center space-x-1.5 sm:space-x-2 mb-1.5 sm:mb-2">
                   <ItineramioLogo size="sm" gradient />
-                  <span className="text-xs sm:text-sm font-medium" style={{ color: '#484848' }}>Itineramio</span>
+                  <span className="text-xs sm:text-sm font-medium text-gray-600">Itineramio</span>
                 </div>
                 <p className="text-[10px] sm:text-xs text-gray-500">
                   Versión 2.0 • © 2025 Itineramio

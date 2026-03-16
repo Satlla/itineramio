@@ -91,6 +91,9 @@ export async function PATCH(
       where: { id: recId },
       data: {
         ...(body.description !== undefined && { description: body.description }),
+        ...(body.highlight !== undefined && { highlight: body.highlight }),
+        ...(body.externalUrl !== undefined && { externalUrl: body.externalUrl }),
+        ...(body.tags !== undefined && { tags: body.tags }),
       },
       include: { place: true },
     })

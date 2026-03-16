@@ -56,6 +56,7 @@ interface CityGuide {
 interface UserProperty {
   id: string
   name: string | Record<string, string>
+  city?: string | null
 }
 
 interface PendingNotification {
@@ -327,9 +328,31 @@ function ImportModal({
               )}
 
               {/* Properties */}
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-5 mb-3">
-                Aplicar a estas propiedades
-              </p>
+              <div className="flex items-center justify-between mt-5 mb-3">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  Aplicar a estas propiedades
+                </p>
+                {(() => {
+                  const cityProps = properties.filter(p => p.city?.toLowerCase() === guide.city.toLowerCase())
+                  if (cityProps.length <= 1) return null
+                  const allCitySelected = cityProps.every(p => selectedProperties.includes(p.id))
+                  return (
+                    <button
+                      onClick={() => {
+                        if (allCitySelected) {
+                          setSelectedProperties(prev => prev.filter(id => !cityProps.some(p => p.id === id)))
+                        } else {
+                          const cityIds = cityProps.map(p => p.id)
+                          setSelectedProperties(prev => [...new Set([...prev, ...cityIds])])
+                        }
+                      }}
+                      className="text-xs font-medium text-violet-600 hover:text-violet-700 transition-colors"
+                    >
+                      {allCitySelected ? 'Deseleccionar todos' : `Seleccionar todos en ${guide.city}`}
+                    </button>
+                  )
+                })()}
+              </div>
               {loadingProps ? (
                 <div className="flex items-center gap-2 text-sm text-gray-400 py-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -353,8 +376,9 @@ function ImportModal({
                         }`}
                       >
                         <Building2 className={`w-4 h-4 shrink-0 ${selected ? 'text-violet-500' : 'text-gray-400'}`} />
-                        <span className="flex-1 text-left text-sm font-medium text-gray-800 truncate">
-                          {getPropertyName(prop)}
+                        <span className="flex-1 text-left min-w-0">
+                          <span className="block text-sm font-medium text-gray-800 truncate">{getPropertyName(prop)}</span>
+                          {prop.city && <span className="block text-xs text-gray-400 truncate">{prop.city}</span>}
                         </span>
                         {isCurrent && (
                           <span className="text-[10px] text-violet-500 font-medium bg-violet-50 border border-violet-200 px-1.5 py-0.5 rounded-md">

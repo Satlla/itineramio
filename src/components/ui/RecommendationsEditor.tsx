@@ -17,6 +17,9 @@ import {
   X,
   Loader2,
   ChevronDown,
+  MessageSquare,
+  Utensils,
+  Tag,
 } from 'lucide-react'
 import {
   DndContext,
@@ -61,6 +64,9 @@ interface Recommendation {
   placeId: string | null
   description: string | null
   descriptionTranslations?: any
+  highlight: string | null
+  externalUrl: string | null
+  tags: any
   source: string
   distanceMeters: number | null
   walkMinutes: number | null
@@ -152,6 +158,10 @@ function suggestCategory(types: string[]): string {
 interface PendingItem {
   result: PlaceSearchResult
   categoryId: string
+  description: string
+  highlight: string
+  externalUrl: string
+  tags: string[]
   saving: boolean
 }
 
@@ -178,11 +188,14 @@ function SortableRecommendationCard({
 }: {
   rec: Recommendation
   onDelete: (id: string) => void
-  onEditDescription: (id: string, desc: string) => void
+  onEditDescription: (id: string, desc: string, highlight?: string, externalUrl?: string, tags?: string) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: rec.id })
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState(rec.description || '')
+  const [editHighlight, setEditHighlight] = useState(rec.highlight || '')
+  const [editExternalUrl, setEditExternalUrl] = useState(rec.externalUrl || '')
+  const [editTags, setEditTags] = useState(Array.isArray(rec.tags) ? rec.tags.join(', ') : '')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -200,7 +213,7 @@ function SortableRecommendationCard({
   }, [isEditing])
 
   const handleSaveDescription = () => {
-    onEditDescription(rec.id, editText)
+    onEditDescription(rec.id, editText, editHighlight, editExternalUrl, editTags)
     setIsEditing(false)
   }
 
@@ -255,7 +268,7 @@ function SortableRecommendationCard({
           )}
 
           {isEditing ? (
-            <div className="mt-2">
+            <div className="mt-2 space-y-2">
               <textarea
                 ref={textareaRef}
                 value={editText}
@@ -264,7 +277,28 @@ function SortableRecommendationCard({
                 rows={2}
                 placeholder="Descripción del lugar..."
               />
-              <div className="flex gap-1 mt-1">
+              <input
+                type="text"
+                value={editHighlight}
+                onChange={(e) => setEditHighlight(e.target.value)}
+                className="w-full text-xs text-gray-700 border border-gray-300 rounded p-2 focus:ring-1 focus:ring-violet-500 focus:border-violet-500"
+                placeholder="Plato estrella / Destacado..."
+              />
+              <input
+                type="url"
+                value={editExternalUrl}
+                onChange={(e) => setEditExternalUrl(e.target.value)}
+                className="w-full text-xs text-gray-700 border border-gray-300 rounded p-2 focus:ring-1 focus:ring-violet-500 focus:border-violet-500"
+                placeholder="URL externa (https://...)"
+              />
+              <input
+                type="text"
+                value={editTags}
+                onChange={(e) => setEditTags(e.target.value)}
+                className="w-full text-xs text-gray-700 border border-gray-300 rounded p-2 focus:ring-1 focus:ring-violet-500 focus:border-violet-500"
+                placeholder="Tags separados por coma..."
+              />
+              <div className="flex gap-1">
                 <button
                   onClick={handleSaveDescription}
                   className="text-xs px-2 py-1 bg-violet-600 text-white rounded hover:bg-violet-700 flex items-center gap-1"
@@ -272,7 +306,13 @@ function SortableRecommendationCard({
                   <Check className="w-3 h-3" /> Guardar
                 </button>
                 <button
-                  onClick={() => { setIsEditing(false); setEditText(rec.description || '') }}
+                  onClick={() => {
+                    setIsEditing(false)
+                    setEditText(rec.description || '')
+                    setEditHighlight(rec.highlight || '')
+                    setEditExternalUrl(rec.externalUrl || '')
+                    setEditTags(Array.isArray(rec.tags) ? rec.tags.join(', ') : '')
+                  }}
                   className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 flex items-center gap-1"
                 >
                   <X className="w-3 h-3" /> Cancelar
@@ -280,17 +320,44 @@ function SortableRecommendationCard({
               </div>
             </div>
           ) : (
-            rec.description && (
-              <p className="text-xs text-gray-600 mt-1 italic line-clamp-2">&ldquo;{rec.description}&rdquo;</p>
-            )
+            <div className="mt-1 space-y-0.5">
+              {rec.description && (
+                <p className="text-xs text-gray-600 italic line-clamp-2">&ldquo;{rec.description}&rdquo;</p>
+              )}
+              {rec.highlight && (
+                <p className="text-xs text-amber-600 flex items-center gap-1">
+                  <Star className="w-3 h-3 fill-amber-400 text-amber-400 flex-shrink-0" />
+                  {rec.highlight}
+                </p>
+              )}
+              {rec.externalUrl && (
+                <a href={rec.externalUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-violet-600 hover:underline flex items-center gap-1 truncate">
+                  <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                  {rec.externalUrl}
+                </a>
+              )}
+              {Array.isArray(rec.tags) && rec.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {(rec.tags as string[]).map((tag, i) => (
+                    <span key={i} className="text-[10px] px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded-full">{tag}</span>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
 
           <div className="flex items-center gap-2 mt-2">
             <button
-              onClick={() => { setIsEditing(true); setEditText(rec.description || '') }}
+              onClick={() => {
+                setIsEditing(true)
+                setEditText(rec.description || '')
+                setEditHighlight(rec.highlight || '')
+                setEditExternalUrl(rec.externalUrl || '')
+                setEditTags(Array.isArray(rec.tags) ? rec.tags.join(', ') : '')
+              }}
               className="text-xs text-gray-500 hover:text-violet-600 flex items-center gap-1"
             >
-              <Pencil className="w-3 h-3" /> Editar descripción
+              <Pencil className="w-3 h-3" /> Editar
             </button>
 
             {showDeleteConfirm ? (
@@ -456,7 +523,7 @@ export function RecommendationsEditor({
   // --- Global mode: select place → show pending card ---
   const handleGlobalSelect = (result: PlaceSearchResult) => {
     const suggested = suggestCategory(result.types)
-    setPending({ result, categoryId: suggested, saving: false })
+    setPending({ result, categoryId: suggested, description: '', highlight: '', externalUrl: '', tags: [], saving: false })
   }
 
   // --- Global mode: confirm pending → POST unified endpoint ---
@@ -479,6 +546,10 @@ export function RecommendationsEditor({
           photoUrl: pending.result.photoUrl,
           types: pending.result.types,
           categoryId: pending.categoryId,
+          description: pending.description || null,
+          highlight: pending.highlight || null,
+          externalUrl: pending.externalUrl || null,
+          tags: pending.tags.length > 0 ? pending.tags : null,
           propertyLat,
           propertyLng,
         }),
@@ -564,9 +635,10 @@ export function RecommendationsEditor({
     }
   }
 
-  // --- Zone mode: edit description ---
-  const handleEditDescription = async (recId: string, description: string) => {
+  // --- Zone mode: edit fields ---
+  const handleEditDescription = async (recId: string, description: string, highlight?: string, externalUrl?: string, tagsStr?: string) => {
     if (!zone) return
+    const tags = tagsStr ? tagsStr.split(',').map((t: string) => t.trim()).filter(Boolean) : null
     try {
       const res = await fetch(
         `/api/properties/${propertyId}/zones/${zone.id}/recommendations/${recId}`,
@@ -574,17 +646,17 @@ export function RecommendationsEditor({
           method: 'PATCH',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ description }),
+          body: JSON.stringify({ description, highlight: highlight || null, externalUrl: externalUrl || null, tags }),
         }
       )
       if (res.ok) {
         setRecommendations(prev =>
-          prev.map(r => (r.id === recId ? { ...r, description } : r))
+          prev.map(r => r.id === recId ? { ...r, description, highlight: highlight || null, externalUrl: externalUrl || null, tags: tags || null } : r)
         )
         setHasChanges(true)
       }
     } catch (err) {
-      console.error('Error editing description:', err)
+      console.error('Error editing recommendation:', err)
     }
   }
 
@@ -737,13 +809,14 @@ export function RecommendationsEditor({
                   </div>
                 )}
 
-                {/* Category + Actions */}
+                {/* Category + Extra fields + Actions */}
                 <div className="px-4 py-4">
+                  {/* Category */}
                   <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Categoría</label>
-                  <div className="relative">
+                  <div className="relative mb-4">
                     <select
                       value={pending.categoryId}
-                      onChange={(e) => setPending(prev => prev ? { ...prev, categoryId: e.target.value } : null)}
+                      onChange={(e) => setPending(prev => prev ? { ...prev, categoryId: e.target.value, tags: [] } : null)}
                       className="w-full appearance-none bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium pr-10 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors"
                     >
                       {CATEGORIES.map(cat => (
@@ -752,6 +825,100 @@ export function RecommendationsEditor({
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   </div>
+
+                  {/* Extra fields — admin-style */}
+                  {(() => {
+                    const catConfig = getCategoryById(pending.categoryId)
+                    const highlightLabel = catConfig?.highlightLabel
+                    const highlightPlaceholder = catConfig?.highlightPlaceholder ?? ''
+                    const extUrlLabel = catConfig?.externalUrlLabel
+                    const extUrlPlaceholder = catConfig?.externalUrlPlaceholder ?? 'https://...'
+                    const catTags = catConfig?.tags ?? []
+                    return (
+                      <div className="space-y-4">
+                        {/* Description */}
+                        <div>
+                          <label className="flex items-center gap-1.5 text-xs font-semibold text-violet-700 uppercase tracking-wide mb-1.5">
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            Recomendación personal <span className="text-gray-400 font-normal normal-case">(opcional)</span>
+                          </label>
+                          <textarea
+                            value={pending.description}
+                            onChange={(e) => setPending(prev => prev ? { ...prev, description: e.target.value } : null)}
+                            placeholder="Tu recomendación personal para los huéspedes..."
+                            rows={2}
+                            className="w-full text-sm border border-violet-200 rounded-xl px-3 py-2.5 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-300 resize-none"
+                          />
+                        </div>
+
+                        {/* Highlight (dynamic label per category) */}
+                        {highlightLabel && (
+                          <div>
+                            <label className="flex items-center gap-1.5 text-xs font-semibold text-orange-600 uppercase tracking-wide mb-1.5">
+                              <Utensils className="w-3.5 h-3.5" />
+                              {highlightLabel} <span className="text-gray-400 font-normal normal-case">(opcional)</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={pending.highlight}
+                              onChange={(e) => setPending(prev => prev ? { ...prev, highlight: e.target.value } : null)}
+                              placeholder={highlightPlaceholder}
+                              className="w-full text-sm border border-orange-200 rounded-xl px-3 py-2.5 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                            />
+                          </div>
+                        )}
+
+                        {/* External URL (dynamic label per category) */}
+                        {extUrlLabel && (
+                          <div>
+                            <label className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-1.5">
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              {extUrlLabel} <span className="text-gray-400 font-normal normal-case">(opcional)</span>
+                            </label>
+                            <input
+                              type="url"
+                              value={pending.externalUrl}
+                              onChange={(e) => setPending(prev => prev ? { ...prev, externalUrl: e.target.value } : null)}
+                              placeholder={extUrlPlaceholder}
+                              className="w-full text-sm border border-emerald-200 rounded-xl px-3 py-2.5 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                            />
+                          </div>
+                        )}
+
+                        {/* Tags (chip selector per category) */}
+                        {catTags.length > 0 && (
+                          <div>
+                            <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                              <Tag className="w-3.5 h-3.5" />
+                              Etiquetas <span className="text-gray-400 font-normal normal-case">(opcional)</span>
+                            </label>
+                            <div className="flex flex-wrap gap-1.5">
+                              {catTags.map(tagId => (
+                                <button
+                                  key={tagId}
+                                  type="button"
+                                  onClick={() => setPending(prev => {
+                                    if (!prev) return null
+                                    const newTags = prev.tags.includes(tagId)
+                                      ? prev.tags.filter(t => t !== tagId)
+                                      : [...prev.tags, tagId]
+                                    return { ...prev, tags: newTags }
+                                  })}
+                                  className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                                    pending.tags.includes(tagId)
+                                      ? 'bg-violet-100 border-violet-300 text-violet-700'
+                                      : 'bg-white border-gray-200 text-gray-500 hover:border-violet-200 hover:text-violet-600'
+                                  }`}
+                                >
+                                  {tagId.replace(/_/g, ' ')}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })()}
 
                   <div className="flex gap-2 mt-4">
                     <button

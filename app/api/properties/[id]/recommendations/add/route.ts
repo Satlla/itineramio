@@ -28,7 +28,7 @@ export async function POST(
     }
 
     const body = await request.json()
-    const { googlePlaceId, name, address, lat, lng, rating, photoUrl, types, categoryId, propertyLat, propertyLng } = body
+    const { googlePlaceId, name, address, lat, lng, rating, photoUrl, types, categoryId, propertyLat, propertyLng, description, highlight, externalUrl, tags } = body
 
     if (!name || !address || lat == null || lng == null || !categoryId) {
       return NextResponse.json(
@@ -134,6 +134,10 @@ export async function POST(
         zoneId: zone.id,
         placeId: place.id,
         source: 'MANUAL',
+        description: description || null,
+        highlight: highlight || null,
+        externalUrl: externalUrl || null,
+        tags: tags || null,
         distanceMeters,
         walkMinutes,
         order: (maxOrder._max.order ?? -1) + 1,

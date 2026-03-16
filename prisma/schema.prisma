@@ -1890,6 +1890,7 @@ model EmailSubscriber {
   @@index([archetype])
   @@index([source])
   @@index([status])
+  @@index([sequenceStatus])
   @@index([engagementScore])
   @@index([currentJourneyStage])
   @@index([subscribedAt])
@@ -2403,6 +2404,7 @@ model Reservation {
   @@index([checkIn])
   @@index([checkOut])
   @@index([status])
+  @@index([platform])
   @@index([liquidationId])
   @@index([invoiced])
   @@index([importBatchId])
@@ -2640,6 +2642,8 @@ model ClientInvoice {
   @@index([billingUnitGroupId])
   @@index([status])
   @@index([issueDate])
+  @@index([publicToken])
+  @@index([ownerId, status])
   @@index([ownerId, issueDate])
   @@index([verifactuStatus])
   @@map("client_invoices")
@@ -3021,6 +3025,9 @@ model Recommendation {
   place                   Place?    @relation(fields: [placeId], references: [id])
   description             String?
   descriptionTranslations Json?
+  highlight               String?
+  externalUrl             String?
+  tags                    Json?
   source                  String    @default("AUTO_NEARBY")
   distanceMeters          Int?
   walkMinutes             Int?

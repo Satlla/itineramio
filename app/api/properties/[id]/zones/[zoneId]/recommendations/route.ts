@@ -79,7 +79,7 @@ export async function POST(
     }
 
     const body = await request.json()
-    const { placeId: existingPlaceId, name, address, lat, lng, description, rating, photoUrl, types, propertyLat, propertyLng } = body
+    const { placeId: existingPlaceId, name, address, lat, lng, description, highlight, externalUrl, tags, rating, photoUrl, types, propertyLat, propertyLng } = body
 
     let place
     if (existingPlaceId) {
@@ -147,6 +147,9 @@ export async function POST(
         placeId: place.id,
         source: 'MANUAL',
         description: description || null,
+        highlight: highlight || null,
+        externalUrl: externalUrl || null,
+        tags: tags || null,
         distanceMeters,
         walkMinutes,
         order: (maxOrder._max.order ?? -1) + 1,

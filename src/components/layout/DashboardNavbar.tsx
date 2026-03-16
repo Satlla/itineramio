@@ -135,7 +135,7 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
             >
               <Link href="/main" className="flex items-center space-x-2">
                 <ItineramioLogo size="md" gradient />
-                <span className="text-base sm:text-lg md:text-xl font-bold hidden xs:block" style={{ color: '#484848' }}>
+                <span className="text-base sm:text-lg md:text-xl font-bold hidden xs:block text-gray-600">
                   Itineramio
                 </span>
               </Link>
