@@ -3,6 +3,35 @@ import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 
 /**
+ * GET /api/gestion/expenses/[id]
+ * Fetch a single expense by id
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const authResult = await requireAuth(request)
+    if (authResult instanceof Response) return authResult
+    const userId = authResult.userId
+    const { id } = await params
+
+    const expense = await prisma.propertyExpense.findFirst({
+      where: { id, userId },
+    })
+
+    if (!expense) {
+      return NextResponse.json({ error: 'Gasto no encontrado' }, { status: 404 })
+    }
+
+    return NextResponse.json({ expense })
+  } catch (error) {
+    console.error('Error fetching expense:', error)
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
+  }
+}
+
+/**
  * PUT /api/gestion/expenses/[id]
  * Update an expense
  */
