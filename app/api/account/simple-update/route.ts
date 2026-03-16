@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
 import bcrypt from 'bcryptjs'
-import { verifyToken } from '../../../../src/lib/auth'
+import { getAuthUser } from '../../../../src/lib/auth'
 
 export async function POST(request: NextRequest) {
-  
+
   try {
-    // Get user
-    const token = request.cookies.get('auth-token')?.value
-    if (!token) {
+    // Get user — acepta cookie Y Bearer token (app móvil)
+    const decoded = await getAuthUser(request)
+    if (!decoded) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
-
-    const decoded = verifyToken(token)
     
     const body = await request.json()
     
