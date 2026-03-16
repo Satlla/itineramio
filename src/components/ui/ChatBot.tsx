@@ -909,8 +909,7 @@ export default function ChatBot({
                                     <video
                                       controls
                                       preload="metadata"
-                                      playsInline
-                                      onClick={(e) => { const v = e.currentTarget; if (v.requestFullscreen) v.requestFullscreen(); else if ((v as any).webkitEnterFullscreen) (v as any).webkitEnterFullscreen(); }}
+                                      onClick={(e) => { const v = e.currentTarget; v.pause(); if ((v as any).webkitEnterFullscreen) { (v as any).webkitEnterFullscreen(); v.play() } else if (v.requestFullscreen) { v.requestFullscreen().then(() => v.play()).catch(() => {}) } }}
                                       className="w-full max-h-48"
                                     >
                                       <source src={item.url} type="video/mp4" />
