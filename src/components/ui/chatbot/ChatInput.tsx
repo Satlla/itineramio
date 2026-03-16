@@ -45,7 +45,8 @@ export function ChatInput({
           />
         </div>
         <button
-          onClick={onSend}
+          type="button"
+          onPointerDown={(e) => { e.preventDefault(); if (!isLoading && value.trim()) onSend() }}
           disabled={!value.trim() || isLoading}
           className="p-2.5 bg-black text-white rounded-xl hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
