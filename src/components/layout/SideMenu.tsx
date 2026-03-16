@@ -75,6 +75,12 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
       mobileOnly: true
     },
     {
+      icon: <Map className="w-5 h-5" />,
+      label: 'Guías de ciudad',
+      href: "/guides",
+      description: 'Importa lugares verificados a tus propiedades'
+    },
+    {
       icon: <Image className="w-5 h-5" />,
       label: t('sidebar.mediaLibrary'),
       href: "/media-library",
@@ -143,7 +149,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="fixed top-0 right-0 h-full w-[85vw] sm:w-80 max-w-sm bg-white shadow-2xl z-50 overflow-y-auto"
+            className="fixed top-0 right-0 h-full w-[85vw] sm:w-80 max-w-sm bg-white shadow-2xl z-50 overflow-y-auto overflow-x-hidden"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}

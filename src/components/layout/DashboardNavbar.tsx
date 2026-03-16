@@ -171,6 +171,13 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
                 {t('navbar.gestion')}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
               </Link>
+              <Link
+                href="/guides"
+                className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
+              >
+                Guías
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
+              </Link>
             </div>
 
             {/* Right Side - Notifications, User Profile & Menu */}
@@ -213,7 +220,7 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.2 }}
-                      className="fixed left-3 right-3 top-14 sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80 sm:max-w-sm bg-white rounded-lg shadow-2xl border border-gray-200 z-50"
+                      className="fixed left-3 right-3 top-12 sm:top-14 sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80 sm:max-w-sm bg-white rounded-lg shadow-2xl border border-gray-200 z-50"
                     >
                       <div className="p-4 border-b border-gray-200">
                         <h3 className="font-semibold text-gray-900">{t('navbar.notifications')}</h3>
