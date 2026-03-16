@@ -216,6 +216,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const [savingTranslations, setSavingTranslations] = useState(false)
   const [rawZonesData, setRawZonesData] = useState<Map<string, any>>(new Map())
 
+  // Tips panel modal state
+  const [showTipModal, setShowTipModal] = useState(false)
+  const [activeTip, setActiveTip] = useState<{ title: string; content: React.ReactNode } | null>(null)
+
   // Property Set Update Modal state
   const [showPropertySetModal, setShowPropertySetModal] = useState(false)
   const [propertySetProperties, setPropertySetProperties] = useState<Array<{ id: string; name: string }>>([])
@@ -3336,15 +3340,139 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           </AnimatePresence>
         </div>
 
-        {/* Right Section - Zone Suggestions (1/3 width on desktop, hidden on mobile) */}
+        {/* Right Section - Zone Suggestions + Tips (1/3 width on desktop, hidden on mobile) */}
         <div className="hidden lg:block lg:col-span-1 overflow-hidden">
-          <div className="lg:sticky lg:top-6 overflow-hidden">
+          <div className="lg:sticky lg:top-6 overflow-hidden space-y-4">
             <ZoneStaticSuggestions
               existingZoneNames={zones.map(z => getZoneText(z.name))}
               onCreateZone={handleCreateZoneFromTemplate}
               onViewDetails={handleViewInspirationExample}
               maxVisible={6}
             />
+            {/* Recomendaciones panel */}
+            {(() => {
+              const zoneNames = zones.map(z => getZoneText(z.name).toLowerCase())
+              const hasWifi = zoneNames.some(n => n.includes('wifi') || n.includes('wi-fi'))
+              const hasCheckin = zoneNames.some(n => n.includes('check') && n.includes('in'))
+              const hasRecs = zones.some(z => z.type === 'RECOMMENDATIONS')
+              const tips = [
+                !hasWifi && {
+                  id: 'wifi',
+                  priority: 'high',
+                  icon: <Info className="w-4 h-4 text-orange-600" />,
+                  title: 'Añade la zona WiFi',
+                  description: 'Es la más consultada. Incluye red y contraseña.',
+                  actionText: 'Crear zona WiFi',
+                  onClick: () => setShowElementSelector(true),
+                },
+                !hasCheckin && {
+                  id: 'checkin',
+                  priority: 'high',
+                  icon: <Info className="w-4 h-4 text-orange-600" />,
+                  title: 'Configura el Check-In',
+                  description: 'Explica llaves, código y pasos de entrada.',
+                  actionText: 'Crear zona Check-In',
+                  onClick: () => setShowElementSelector(true),
+                },
+                !hasRecs && {
+                  id: 'recs',
+                  priority: 'medium',
+                  icon: <Star className="w-4 h-4 text-orange-500" />,
+                  title: 'Añade recomendaciones locales',
+                  description: 'Restaurantes, actividades y secretos del barrio.',
+                  actionText: 'Añadir lugar',
+                  onClick: () => setShowGlobalRecommendations(true),
+                },
+                {
+                  id: 'share',
+                  priority: 'medium',
+                  icon: <Share2 className="w-4 h-4 text-blue-600" />,
+                  title: 'Comparte zonas por WhatsApp',
+                  description: 'Cuando un huésped pregunte por el parking, envíale sólo esa zona.',
+                  actionText: 'Ver técnica',
+                  onClick: () => {
+                    setActiveTip({
+                      title: 'Compartir zonas específicas por WhatsApp',
+                      content: (
+                        <div className="space-y-3 text-sm">
+                          <div className="bg-green-50 p-3 rounded-lg">
+                            <p className="font-medium mb-1">Ejemplo práctico</p>
+                            <p className="text-gray-700"><strong>Huésped:</strong> "¿Dónde aparco?"</p>
+                            <p className="text-gray-700 mt-1"><strong>Tú:</strong> "Aquí tienes: [enlace zona parking] 🚗"</p>
+                          </div>
+                          <div>
+                            <p className="font-medium mb-1">Cómo obtener el enlace</p>
+                            <ol className="list-decimal list-inside space-y-1 text-gray-600">
+                              <li>Haz clic en los 3 puntos de la zona</li>
+                              <li>Pulsa "Copiar enlace"</li>
+                              <li>Envíaselo al huésped</li>
+                            </ol>
+                          </div>
+                        </div>
+                      )
+                    })
+                    setShowTipModal(true)
+                  },
+                },
+                {
+                  id: 'qr',
+                  priority: 'low',
+                  icon: <Eye className="w-4 h-4 text-indigo-600" />,
+                  title: 'Coloca el QR en la entrada',
+                  description: 'Recibidor, nevera y mesita de noche son los mejores sitios.',
+                  actionText: 'Ver ubicaciones',
+                  onClick: () => {
+                    setActiveTip({
+                      title: 'Ubicaciones estratégicas para el QR',
+                      content: (
+                        <div className="space-y-2 text-sm">
+                          {[['🚪', 'Entrada/Recibidor', 'Primer contacto del huésped'], ['❄️', 'Nevera', 'Lo ven al buscar agua'], ['🛏️', 'Mesita de noche', 'Al acostarse/levantarse']].map(([emoji, lugar, motivo]) => (
+                            <div key={lugar} className="flex items-center gap-3 p-2 border border-gray-100 rounded-lg">
+                              <span className="text-lg">{emoji}</span>
+                              <div><p className="font-medium">{lugar}</p><p className="text-gray-500 text-xs">{motivo}</p></div>
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    })
+                    setShowTipModal(true)
+                  },
+                },
+              ].filter(Boolean) as any[]
+
+              if (tips.length === 0) return null
+              return (
+                <Card className="p-4">
+                  <div className="flex items-center mb-3">
+                    <Lightbulb className="w-4 h-4 text-violet-600 mr-2" />
+                    <h3 className="text-sm font-semibold text-gray-900">Recomendaciones</h3>
+                  </div>
+                  <div className="space-y-3">
+                    {tips.slice(0, 4).map((tip: any) => (
+                      <div key={tip.id} className={`p-3 rounded-lg border text-sm ${
+                        tip.priority === 'high' ? 'border-orange-200 bg-orange-50' :
+                        tip.priority === 'medium' ? 'border-blue-200 bg-blue-50' :
+                        'border-violet-200 bg-violet-50'
+                      }`}>
+                        <div className="flex items-start gap-2">
+                          <div className="flex-shrink-0 mt-0.5">{tip.icon}</div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-gray-900 text-xs mb-0.5">{tip.title}</p>
+                            <p className="text-gray-600 text-xs mb-2">{tip.description}</p>
+                            <button
+                              onClick={tip.onClick}
+                              className="text-xs font-medium text-violet-700 hover:text-violet-900 underline"
+                            >
+                              {tip.actionText} →
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )
+            })()}
           </div>
         </div>
       </div>
@@ -4415,6 +4543,26 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         propertySetProperties={propertySetProperties}
       />
 
+      {/* Tip detail modal */}
+      {showTipModal && activeTip && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[200]"
+          onClick={() => setShowTipModal(false)}
+        >
+          <div
+            className="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-base font-semibold text-gray-900">{activeTip.title}</h3>
+              <button onClick={() => setShowTipModal(false)} className="text-gray-400 hover:text-gray-600 ml-3 flex-shrink-0">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div>{activeTip.content}</div>
+          </div>
+        </div>
+      )}
 
     </div>
   )
