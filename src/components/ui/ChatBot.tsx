@@ -453,6 +453,14 @@ export default function ChatBot({
     // Tracks how much of the CURRENT message has been streamed (for error recovery)
     let currentStreamedChars = 0
 
+    const diagLog = (step: string, data?: any) => {
+      fetch('/api/chatbot/error-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: `[DIAG] ${step}`, serverError: JSON.stringify(data).slice(0, 300), componentStack: 'diag', ua: navigator.userAgent, url: window.location.href }),
+      }).catch(() => {})
+    }
+
     try {
       const body: Record<string, any> = {
         message: userMessage.content,
@@ -465,6 +473,8 @@ export default function ChatBot({
       if (zoneId) body.zoneId = zoneId
       if (zoneName) body.zoneName = zoneName
 
+      diagLog('before-fetch', { msgLen: userMessage.content.length, propertyId, msgChars: [...userMessage.content].map(c => c.charCodeAt(0)).slice(0,10) })
+
       let response = await fetch('/api/chatbot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -472,6 +482,8 @@ export default function ChatBot({
         signal: controller.signal,
         cache: 'no-store' as RequestCache,
       })
+
+      diagLog('after-fetch', { status: response.status, contentType: response.headers.get('content-type') })
 
       if (response.status === 429) {
         const errData = await response.json().catch(() => ({}))
