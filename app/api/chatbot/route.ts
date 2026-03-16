@@ -421,9 +421,10 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Chatbot API error:', error);
+    const msg = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+    console.error('Chatbot API error:', msg);
     return NextResponse.json({
-      error: 'Error interno del servidor'
+      error: msg
     }, { status: 500 });
   }
 }
