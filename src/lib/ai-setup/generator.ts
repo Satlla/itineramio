@@ -200,7 +200,6 @@ async function buildUserMediaZones(
 
   for (const item of mediaItems) {
     if (!item.zoneId && !item.customZoneName?.trim()) continue
-    if (!item.description?.trim()) continue
 
     const key = item.zoneId || `custom-${item.customZoneName}`
     if (!zoneGroups.has(key)) {
@@ -218,7 +217,7 @@ async function buildUserMediaZones(
     zoneGroups.get(key)!.items.push({
       url: item.url,
       type: item.type,
-      description: item.description,
+      description: item.description || '',
     })
   }
 
@@ -227,8 +226,8 @@ async function buildUserMediaZones(
   for (const [, group] of zoneGroups) {
     sendEvent({ type: 'status', message: `Perfeccionando zona: ${group.name}...` })
 
-    // Combine descriptions from all items in this zone
-    const combinedDesc = group.items.map(i => i.description).join('\n\n')
+    // Combine descriptions from all items in this zone (skip empty ones)
+    const combinedDesc = group.items.map(i => i.description).filter(Boolean).join('\n\n') || `Instrucciones de ${group.name}`
 
     let improved: { es: string; en: string; fr: string; nameEn: string; nameFr: string }
 
@@ -281,7 +280,7 @@ async function assignMediaToSteps(
 
   const dbZones = await prisma.zone.findMany({
     where: { propertyId },
-    include: { steps: { orderBy: { order: 'asc' }, take: 1 } },
+    include: { steps: { orderBy: { order: 'asc' } } },
     orderBy: { order: 'asc' },
   })
 
@@ -296,20 +295,45 @@ async function assignMediaToSteps(
 
     if (!dbZone || dbZone.steps.length === 0) continue
 
-    // Assign the first media item to the zone's first step
+    // Assign first media item to the zone's first (text) step
     const firstMedia = userZone.mediaItems[0]
-    const mediaType = firstMedia.type === 'video' ? 'VIDEO' : 'IMAGE'
+    const firstMediaType = firstMedia.type === 'video' ? 'VIDEO' : 'IMAGE'
     const existingContent = (dbZone.steps[0].content as any) || {}
 
     await prisma.step.update({
       where: { id: dbZone.steps[0].id },
       data: {
-        type: mediaType,
+        type: firstMediaType,
         content: { ...existingContent, mediaUrl: firstMedia.url },
       },
     })
 
-    console.log(`[generator] Assigned ${mediaType} to zone "${userZone.name.es}"`)
+    // Create additional steps for remaining media items
+    const remainingMedia = userZone.mediaItems.slice(1)
+    if (remainingMedia.length > 0) {
+      const maxOrder = dbZone.steps[dbZone.steps.length - 1]?.order ?? 0
+      const zoneName = userZone.name
+      await prisma.step.createMany({
+        data: remainingMedia.map((media, i) => ({
+          zoneId: dbZone.id,
+          type: media.type === 'video' ? 'VIDEO' : 'IMAGE',
+          title: {
+            es: zoneName.es,
+            en: zoneName.en || zoneName.es,
+            fr: zoneName.fr || zoneName.es,
+          },
+          content: {
+            es: '',
+            en: '',
+            fr: '',
+            mediaUrl: media.url,
+          },
+          order: maxOrder + 1 + i,
+        })),
+      })
+    }
+
+    console.log(`[generator] Assigned ${userZone.mediaItems.length} media item(s) to zone "${userZone.name.es}"`)
   }
 }
 
@@ -730,6 +754,22 @@ export async function generateManual(
     const locationZones = buildLocationZones(locationData, propertyInput)
     allZones.push(...locationZones)
 
+    // Shared map: zone name (ES) → review ID used by Step4Review as zone.id keys
+    const zoneNameToReviewId: Record<string, string> = {
+      'Check In': 'check-in',
+      'Check Out': 'check-out',
+      'WiFi': 'wifi',
+      'Normas de la Casa': 'house-rules',
+      'Emergencias': 'emergency-contacts',
+      'Teléfonos de interés': 'emergency-contacts',
+      'Reciclaje': 'recycling',
+      'Basura y reciclaje': 'recycling',
+      'Aire Acondicionado': 'air-conditioning',
+      'Cómo Llegar': 'directions',
+      'Cómo llegar': 'directions',
+      'Agua caliente': 'hot-water',
+    }
+
     // ── 3.5 Apply custom titles and icons from Step 4 ──
     const cTitles = propertyInput.customTitles || {}
     const cIcons = propertyInput.customIcons || {}
@@ -738,7 +778,9 @@ export async function generateManual(
       const applianceKey = Object.keys(APPLIANCE_REGISTRY).find(
         k => APPLIANCE_REGISTRY[k as CanonicalApplianceType].nameEs === zoneConfig.name.es
       )
-      const reviewZoneId = applianceKey ? `appliance-${applianceKey}` : generateSlug(zoneConfig.name.es)
+      const reviewZoneId = applianceKey
+        ? `appliance-${applianceKey}`
+        : (zoneNameToReviewId[zoneConfig.name.es] || generateSlug(zoneConfig.name.es))
 
       if (cTitles[reviewZoneId]) {
         zoneConfig.name.es = cTitles[reviewZoneId]
@@ -760,6 +802,7 @@ export async function generateManual(
       'WiFi': 'wifi',
       'Normas de la Casa': 'house-rules',
       'Emergencias': 'emergency-contacts',
+      'Teléfonos de interés': 'emergency-contacts',
       'Reciclaje': 'recycling',
       'Aire Acondicionado': 'air-conditioning',
       'Cómo Llegar': 'directions',
@@ -782,6 +825,7 @@ export async function generateManual(
       'WiFi': 'wifi',
       'Normas de la Casa': 'house-rules',
       'Emergencias': 'emergency-contacts',
+      'Teléfonos de interés': 'emergency-contacts',
       'Reciclaje': 'recycling',
       'Aire Acondicionado': 'air-conditioning',
       'Cómo Llegar': 'directions',

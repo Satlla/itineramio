@@ -17,7 +17,8 @@ import {
   CheckCircle,
   X,
   ArrowLeft,
-  Lightbulb
+  Lightbulb,
+  Library
 } from 'lucide-react'
 import { Button } from './Button'
 import { Card } from './Card'
@@ -25,6 +26,7 @@ import { Input } from './Input'
 import { Badge } from './Badge'
 import { ImageUpload } from './ImageUpload'
 import { VideoUploadSimple } from './VideoUploadSimple'
+import { MediaSelector } from './MediaSelector'
 import { MobileStepEditor as MobileStepEditorNew } from './MobileStepEditor'
 import { MobileStepEditorSimple } from './MobileStepEditorSimple'
 import { clearTextSelection } from '../../utils/clearTextSelection'
@@ -176,6 +178,7 @@ export function StepEditor({
   const [activeLanguage, setActiveLanguage] = useState<'es' | 'en' | 'fr'>('es')
   const [isAddingStep, setIsAddingStep] = useState(false)
   const [lineProgress, setLineProgress] = useState(0)
+  const [showLibraryFor, setShowLibraryFor] = useState<string | null>(null)
 
   function createNewStep(order: number): Step {
     return {
@@ -500,7 +503,17 @@ export function StepEditor({
       {step.type === 'video' && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Video</label>
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-sm font-medium text-gray-700">Video</label>
+              <button
+                type="button"
+                onClick={() => setShowLibraryFor(step.id)}
+                className="flex items-center gap-1.5 text-xs text-violet-600 hover:text-violet-700 font-medium"
+              >
+                <Library className="w-3.5 h-3.5" />
+                Seleccionar de la biblioteca
+              </button>
+            </div>
             <VideoUploadSimple
               value={step.media?.url}
               onChange={(url, metadata) => {
@@ -554,6 +567,7 @@ export function StepEditor({
   )
 
   return (
+    <>
     <div className="fixed inset-0 bg-gray-50 z-[200] overflow-y-auto">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
@@ -1025,9 +1039,19 @@ export function StepEditor({
                         {steps[activeStep].type === 'video' && (
                           <div className="space-y-4">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Subir video
-                              </label>
+                              <div className="flex items-center justify-between mb-2">
+                                <label className="block text-sm font-medium text-gray-700">
+                                  Subir video
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={() => setShowLibraryFor(steps[activeStep].id)}
+                                  className="flex items-center gap-1 text-xs text-violet-600 hover:text-violet-700 font-medium"
+                                >
+                                  <Library className="w-3.5 h-3.5" />
+                                  De la biblioteca
+                                </button>
+                              </div>
                               <VideoUploadSimple
                                 value={steps[activeStep].media?.url}
                                 onChange={(url, metadata) => {
@@ -1290,5 +1314,26 @@ export function StepEditor({
       )}
 
     </div>
+
+    {/* Media Library Selector */}
+    <MediaSelector
+      type="video"
+      isOpen={showLibraryFor !== null}
+      onClose={() => setShowLibraryFor(null)}
+      onSelect={(media) => {
+        const stepId = showLibraryFor
+        if (stepId) {
+          updateStep(stepId, {
+            media: {
+              url: media.url,
+              thumbnail: media.thumbnailUrl,
+              title: 'Video de biblioteca'
+            }
+          })
+        }
+        setShowLibraryFor(null)
+      }}
+    />
+    </>
   )
 }

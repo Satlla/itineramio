@@ -290,7 +290,7 @@ Si persiste el problema, contáctanos.`,
   const urgencyPhone = step2.emergencyPhone || step1.hostContactPhone
   zones.push({
     id: 'emergency-contacts',
-    title: 'Contacto y emergencias',
+    title: 'Teléfonos de interés',
     iconName: 'phone',
     content: `👤 **Anfitrión:** ${step1.hostContactName || '(nombre)'}
 📱 **WhatsApp/Tel:** ${step1.hostContactPhone || '(teléfono)'}
@@ -766,16 +766,16 @@ export default function Step4Review({
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 mb-4"
+          className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-500/20 rounded-full px-4 py-1.5 mb-4"
         >
-          <Check className="w-4 h-4 text-emerald-400" />
-          <span className="text-sm text-emerald-300 font-medium">Ya casi está</span>
+          <Check className="w-4 h-4 text-emerald-600" />
+          <span className="text-sm text-emerald-700 font-medium">Ya casi está</span>
         </motion.div>
         <motion.h2
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-2xl sm:text-3xl font-bold text-white mb-3"
+          className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3"
         >
           Tu manual está listo para revisar
         </motion.h2>
@@ -784,8 +784,8 @@ export default function Step4Review({
       {/* Stats */}
       <div className="flex items-center justify-center gap-4 text-sm">
         <span className="text-violet-400 font-medium">{enabledCount} {t('step4.sections')}</span>
-        <div className="w-px h-4 bg-gray-700" />
-        <span className="text-gray-400">{t('step4.languages')}</span>
+        <div className="w-px h-4 bg-gray-200" />
+        <span className="text-gray-500">{t('step4.languages')}</span>
       </div>
 
       {/* Info banner — detailed instructions */}
@@ -795,24 +795,24 @@ export default function Step4Review({
         transition={{ delay: 0.3 }}
         className="bg-gradient-to-br from-violet-500/5 to-blue-500/5 border border-violet-500/20 rounded-xl p-5 space-y-3"
       >
-        <div className="flex items-center gap-2 text-violet-300">
+        <div className="flex items-center gap-2 text-violet-700">
           <Sparkles className="w-4 h-4" />
           <span className="text-sm font-semibold">Hemos creado tu manual con IA</span>
         </div>
-        <p className="text-sm text-gray-300 leading-relaxed">
+        <p className="text-sm text-gray-600 leading-relaxed">
           Todas las zonas ya tienen contenido generado. Revísalas y edita lo que necesites antes de generar el manual definitivo.
         </p>
-        <ul className="text-sm text-gray-400 space-y-1.5">
+        <ul className="text-sm text-gray-500 space-y-1.5">
           <li className="flex items-start gap-2">
-            <Check className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
-            <span>El contenido <strong className="text-violet-300">se traducirá automáticamente</strong> a inglés y francés</span>
+            <Check className="w-3.5 h-3.5 text-emerald-600 mt-0.5 flex-shrink-0" />
+            <span>El contenido <strong className="text-violet-700">se traducirá automáticamente</strong> a inglés y francés</span>
           </li>
           <li className="flex items-start gap-2">
-            <Check className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
-            <span>Comprueba datos clave: <strong className="text-gray-300">dirección, contenedor de basura más cercano, indicaciones de llegada</strong></span>
+            <Check className="w-3.5 h-3.5 text-emerald-600 mt-0.5 flex-shrink-0" />
+            <span>Comprueba datos clave: <strong className="text-gray-600">dirección, contenedor de basura más cercano, indicaciones de llegada</strong></span>
           </li>
           <li className="flex items-start gap-2">
-            <Check className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+            <Check className="w-3.5 h-3.5 text-emerald-600 mt-0.5 flex-shrink-0" />
             <span>Después de generar podrás seguir editando, añadir más vídeos y pasos dentro de cada zona</span>
           </li>
         </ul>
@@ -836,10 +836,10 @@ export default function Step4Review({
               transition={{ delay: index * 0.03 }}
               className={`rounded-xl border transition-all duration-200 overflow-hidden ${
                 isDisabled
-                  ? 'bg-gray-900/30 border-gray-800/50 opacity-40'
+                  ? 'bg-gray-50 border-gray-200 opacity-40'
                   : isEditing
-                  ? 'bg-gray-900/90 border-violet-600/50'
-                  : 'bg-gray-900/80 border-gray-800 hover:border-gray-700'
+                  ? 'bg-white border-violet-600/50'
+                  : 'bg-white border-gray-200 hover:border-gray-300'
               }`}
             >
               {/* Card header */}
@@ -854,7 +854,7 @@ export default function Step4Review({
                   className={`w-6 h-6 rounded-md border flex-shrink-0 flex items-center justify-center transition-all ${
                     !isDisabled
                       ? 'bg-violet-600/20 border-violet-500 text-violet-400'
-                      : 'bg-gray-800 border-gray-700'
+                      : 'bg-gray-100 border-gray-200'
                   }`}
                 >
                   {!isDisabled && <Check className="w-3.5 h-3.5" />}
@@ -878,7 +878,7 @@ export default function Step4Review({
                   {/* Icon picker dropdown */}
                   {iconPickerZone === zone.id && (
                     <div
-                      className="absolute top-8 left-0 z-50 bg-gray-900 border border-gray-700 rounded-xl p-2 shadow-xl grid grid-cols-5 gap-1 w-[200px]"
+                      className="absolute top-8 left-0 z-50 bg-white border border-gray-200 rounded-xl p-2 shadow-xl grid grid-cols-5 gap-1 w-[200px]"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {ICON_OPTIONS.map((iconName) => (
@@ -891,8 +891,8 @@ export default function Step4Review({
                           }}
                           className={`p-1.5 rounded-lg transition-colors ${
                             (customIcons[zone.id] || zone.iconName) === iconName
-                              ? 'bg-violet-600/30 text-violet-300'
-                              : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                              ? 'bg-violet-50 text-violet-700'
+                              : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                           }`}
                           title={iconName}
                         >
@@ -913,11 +913,11 @@ export default function Step4Review({
                     onKeyDown={(e) => { if (e.key === 'Enter') setEditingTitle(null) }}
                     onClick={(e) => e.stopPropagation()}
                     autoFocus
-                    className="flex-1 font-medium text-white bg-gray-800 border border-violet-500/50 rounded px-2 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-violet-500/30"
+                    className="flex-1 font-medium text-gray-900 bg-white border border-violet-500/50 rounded px-2 py-0.5 text-sm focus:outline-none focus:ring-1 focus:ring-violet-500/30"
                   />
                 ) : (
                   <span
-                    className={`font-medium flex-1 ${isDisabled ? 'text-gray-600' : 'text-white'} ${!isDisabled ? 'cursor-text hover:text-violet-200' : ''}`}
+                    className={`font-medium flex-1 ${isDisabled ? 'text-gray-400' : 'text-gray-900'} ${!isDisabled ? 'cursor-text hover:text-violet-700' : ''}`}
                     onClick={(e) => {
                       if (!isDisabled) {
                         e.stopPropagation()
@@ -935,21 +935,21 @@ export default function Step4Review({
                   <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin" />
                 )}
                 {zone.source === 'auto' && !locationDataLoading && (
-                  <span className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full font-medium">{t('step4.badges.auto')}</span>
+                  <span className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">{t('step4.badges.auto')}</span>
                 )}
                 {zone.source === 'media' && (
-                  <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-medium">{t('step4.badges.ai')}</span>
+                  <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-medium">{t('step4.badges.ai')}</span>
                 )}
                 {justSaved === zone.id && (
-                  <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full font-medium animate-pulse">{t('step4.badges.saved')}</span>
+                  <span className="text-[10px] bg-green-50 text-green-700 px-2 py-0.5 rounded-full font-medium animate-pulse">{t('step4.badges.saved')}</span>
                 )}
                 {isEdited && !isDisabled && justSaved !== zone.id && (
-                  <span className="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full font-medium">{t('step4.badges.edited')}</span>
+                  <span className="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-medium">{t('step4.badges.edited')}</span>
                 )}
 
                 {/* Media indicator */}
                 {zoneMedia.length > 0 && !isDisabled && (
-                  <div className="flex items-center gap-1 text-gray-500">
+                  <div className="flex items-center gap-1 text-gray-400">
                     {zoneMedia.some(m => m.type === 'video')
                       ? <Play className="w-3.5 h-3.5" />
                       : <ImageIcon className="w-3.5 h-3.5" />
@@ -963,7 +963,7 @@ export default function Step4Review({
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); startEdit(zone.id, content) }}
-                    className="flex items-center gap-1 px-2 py-1 rounded-md text-xs text-gray-400 hover:text-violet-300 hover:bg-violet-500/10 transition-colors"
+                    className="flex items-center gap-1 px-2 py-1 rounded-md text-xs text-gray-500 hover:text-violet-700 hover:bg-violet-500/10 transition-colors"
                   >
                     <Pencil className="w-3 h-3" />
                     <span className="hidden sm:inline">Editar</span>
@@ -972,7 +972,7 @@ export default function Step4Review({
 
                 {/* Chevron */}
                 {!isEditing && (
-                  <div className={`text-gray-500 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
+                  <div className={`text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
                     <ChevronDown className="w-4 h-4" />
                   </div>
                 )}
@@ -992,7 +992,7 @@ export default function Step4Review({
                     {zoneMedia.length > 0 && (
                       <div className="px-4 pb-3 flex gap-2 overflow-x-auto">
                         {zoneMedia.map((m) => (
-                          <div key={m.id} className={`relative flex-shrink-0 rounded-lg overflow-hidden border border-gray-700 ${
+                          <div key={m.id} className={`relative flex-shrink-0 rounded-lg overflow-hidden border border-gray-200 ${
                             m.type === 'video' ? 'w-full max-w-md' : 'w-20 h-20'
                           }`}>
                             {m.type === 'video' ? (
@@ -1001,7 +1001,7 @@ export default function Step4Review({
                                 controls
                                 playsInline
                                 preload="metadata"
-                                className="w-full rounded-lg max-h-52 bg-gray-800"
+                                className="w-full rounded-lg max-h-52 bg-gray-100"
                               />
                             ) : (
                               <img src={m.url} alt="" className="w-full h-full object-cover" />
@@ -1012,20 +1012,20 @@ export default function Step4Review({
                     )}
 
                     {/* Content area */}
-                    <div className="border-t border-gray-800/50">
+                    <div className="border-t border-gray-100">
                       {isEditing ? (
                         /* Editing mode */
                         <div className="p-4 space-y-3">
                           <textarea
                             value={editBuffer}
                             onChange={(e) => setEditBuffer(e.target.value)}
-                            className="w-full min-h-[200px] sm:min-h-[300px] bg-gray-950 border border-gray-700 rounded-lg p-3 text-sm text-gray-200 font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-violet-500 resize-y"
+                            className="w-full min-h-[200px] sm:min-h-[300px] bg-white border border-gray-200 rounded-lg p-3 text-sm text-gray-900 font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-violet-500 resize-y"
                           />
                           <div className="flex gap-2 justify-end">
                             <button
                               type="button"
                               onClick={cancelEdit}
-                              className="px-4 py-2 rounded-lg border border-gray-700 text-gray-400 text-sm hover:bg-gray-800 transition-colors flex items-center gap-1.5"
+                              className="px-4 py-2 rounded-lg border border-gray-200 text-gray-500 text-sm hover:bg-gray-100 transition-colors flex items-center gap-1.5"
                             >
                               <X className="w-3.5 h-3.5" />
                               {t('step4.cancel')}
@@ -1043,11 +1043,11 @@ export default function Step4Review({
                       ) : (
                         /* Preview mode */
                         <div className="p-4">
-                          <div className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">
+                          <div className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
                             {content.split('\n').map((line, i) => {
                               // Horizontal rule
                               if (line.trim() === '---') {
-                                return <div key={i} className="border-t border-gray-800 my-3" />
+                                return <div key={i} className="border-t border-gray-200 my-3" />
                               }
                               // Escape HTML entities first to prevent XSS
                               let rendered = line
@@ -1056,9 +1056,9 @@ export default function Step4Review({
                                 .replace(/>/g, '&gt;')
                                 .replace(/"/g, '&quot;')
                               // Bold (safe now — HTML is escaped)
-                              rendered = rendered.replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>')
+                              rendered = rendered.replace(/\*\*(.+?)\*\*/g, '<strong class="text-gray-900">$1</strong>')
                               // Checkboxes
-                              rendered = rendered.replace(/^☐ /, '<span class="text-gray-500">☐</span> ')
+                              rendered = rendered.replace(/^☐ /, '<span class="text-gray-400">☐</span> ')
                               return (
                                 <div key={i} className={line === '' ? 'h-2' : ''}>
                                   <span dangerouslySetInnerHTML={{ __html: rendered }} />
@@ -1082,7 +1082,7 @@ export default function Step4Review({
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 h-12 sm:h-14 rounded-xl text-base sm:text-lg font-semibold border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+          className="flex-1 h-12 sm:h-14 rounded-xl text-base sm:text-lg font-semibold border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="hidden sm:inline">{t('step4.previous')}</span>

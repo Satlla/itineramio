@@ -774,7 +774,7 @@ export default function ChatBot({
           >
             {/* Header */}
             <div className="flex-shrink-0" style={{ background: 'linear-gradient(135deg, #0f0c29 0%, #1a1040 50%, #111827 100%)' }}>
-              <div className="px-5 py-4">
+              <div className="px-5 py-4" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top, 1rem))' }}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 min-w-0 flex-1">
                     <div className="relative flex-shrink-0">
@@ -909,7 +909,7 @@ export default function ChatBot({
                                     <video
                                       controls
                                       preload="metadata"
-                                      onClick={(e) => { const v = e.currentTarget; v.pause(); if ((v as any).webkitEnterFullscreen) { (v as any).webkitEnterFullscreen(); v.play() } else if (v.requestFullscreen) { v.requestFullscreen().then(() => v.play()).catch(() => {}) } }}
+                                      playsInline
                                       className="w-full max-h-48"
                                     >
                                       <source src={item.url} type="video/mp4" />

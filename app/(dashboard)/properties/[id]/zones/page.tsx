@@ -583,8 +583,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           }
           
           setZones(transformedZones)
-          setIsLoadingZones(false)
-          
+
           // Don't show welcome modal for properties that already have zones
           
           // REMOVED: No longer showing welcome modal for existing zones
@@ -648,8 +647,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         }
       } catch (error) {
         console.error('Error fetching data:', error)
-        setIsLoadingZones(false)
       } finally {
+        setIsLoadingZones(false)
         hasFetchedDataRef.current = true
         isFetchingDataRef.current = false
       }

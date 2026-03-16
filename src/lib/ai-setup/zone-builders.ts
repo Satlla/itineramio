@@ -589,9 +589,9 @@ export function buildEmergencyZone(
 
   if (!template) {
     return {
-      name: { es: 'Emergencias', en: 'Emergencies', fr: 'Urgences' },
+      name: { es: 'Teléfonos de interés', en: 'Useful Numbers', fr: 'Numéros utiles' },
       icon: 'phone',
-      description: { es: 'Contactos y teléfonos de emergencia', en: 'Emergency contacts', fr: "Contacts d'urgence" },
+      description: { es: 'Contactos y teléfonos de interés', en: 'Useful contacts and numbers', fr: 'Contacts et numéros utiles' },
       steps: [
         {
           type: 'text',
@@ -630,9 +630,9 @@ export function buildEmergencyZone(
 
   const result = templateToZoneConfig(
     template,
-    { es: 'Emergencias', en: 'Emergencies', fr: 'Urgences' },
+    { es: 'Teléfonos de interés', en: 'Useful Numbers', fr: 'Numéros utiles' },
     'phone',
-    { es: 'Contactos y teléfonos de emergencia', en: 'Emergency contacts', fr: "Contacts d'urgence" },
+    { es: 'Contactos y teléfonos de interés', en: 'Useful contacts and numbers', fr: 'Contacts et numéros utiles' },
     vars,
   )
 
