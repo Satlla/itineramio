@@ -50,7 +50,8 @@
       "key": "Key handover",
       "lockbox": "Lockbox / Key safe",
       "code": "Access code",
-      "inPerson": "In person"
+      "inPerson": "In person",
+      "app": "Mobile app"
     },
     "checkInInstructions": "Check-in instructions",
     "checkInInstructionsPlaceholder": "Describe step by step how the guest enters. E.g.: When you arrive at the building entrance, press button 3B. Take the elevator to the 3rd floor. The apartment door is the first one on the left...",

@@ -50,7 +50,8 @@
       "key": "Remise des clés en main propre",
       "lockbox": "Boîte à clés",
       "code": "Code d'accès",
-      "inPerson": "En personne"
+      "inPerson": "En personne",
+      "app": "Application mobile"
     },
     "checkInInstructions": "Instructions d'arrivée",
     "checkInInstructionsPlaceholder": "Décrivez étape par étape comment le voyageur entre. Ex : En arrivant à l'entrée de l'immeuble, appuyez sur le bouton 3B. Prenez l'ascenseur jusqu'au 3ème étage. La porte de l'appartement est la première à gauche...",

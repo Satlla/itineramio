@@ -50,7 +50,8 @@
       "key": "Llave en mano",
       "lockbox": "Lockbox / Cajetín",
       "code": "Código de acceso",
-      "inPerson": "En persona"
+      "inPerson": "En persona",
+      "app": "App móvil"
     },
     "checkInInstructions": "Instrucciones de check-in",
     "checkInInstructionsPlaceholder": "Describe paso a paso cómo entra el huésped. Ej: Al llegar al portal, pulsa el botón 3B. Sube por el ascensor al 3º. La puerta del apartamento es la primera a la izquierda...",

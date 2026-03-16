@@ -227,6 +227,10 @@ export function buildCheckInZone(input: PropertyInput): TrilingualZoneConfig {
     accessEs = `🔢 **Cerradura con código:**\nEl código de acceso **se enviará antes de tu llegada**. Introdúcelo en el teclado de la puerta.${codeNote}`
     accessEn = `🔢 **Code lock:**\nThe access code **will be sent before arrival**. Enter it on the door keypad.${d.codeChangesPerReservation ? '\n📲 Code is sent with each reservation.' : ''}`
     accessFr = `🔢 **Serrure à code:**\nLe code d'accès **sera envoyé avant l'arrivée**. Entrez-le sur le clavier de la porte.${d.codeChangesPerReservation ? '\n📲 Le code est envoyé avec chaque réservation.' : ''}`
+  } else if (input.checkInMethod === 'app') {
+    accessEs = `📱 **Acceso por app móvil:**\nDescarga la app del alojamiento y sigue los pasos para hacer el check-in. Recibirás la llave digital directamente en tu móvil antes de la llegada.`
+    accessEn = `📱 **Mobile app access:**\nDownload the accommodation app and follow the steps to check in. You'll receive your digital key directly on your phone before arrival.`
+    accessFr = `📱 **Accès par application mobile:**\nTéléchargez l'application du logement et suivez les étapes pour faire le check-in. Vous recevrez la clé numérique directement sur votre téléphone avant l'arrivée.`
   } else {
     accessEs = `🤝 **Recepción en persona:**\nNos vemos en: **${d.meetingPoint || 'el portal del edificio'}**\n📲 Confirma tu hora de llegada por WhatsApp.`
     accessEn = `🤝 **In-person greeting:**\nWe'll meet at: **${d.meetingPoint || 'the building entrance'}**\n📲 Confirm your arrival time via WhatsApp.`
@@ -305,6 +309,11 @@ export function buildFallbackCheckIn(input: PropertyInput): TrilingualZoneConfig
         es: 'El anfitrión te recibirá en persona para entregarte las llaves.',
         en: 'The host will greet you in person to hand over the keys.',
         fr: "L'hôte vous accueillera en personne pour vous remettre les clés.",
+      },
+      app: {
+        es: 'El acceso se realiza mediante app móvil. Recibirás la llave digital en tu teléfono antes de la llegada.',
+        en: 'Access is via mobile app. You will receive your digital key on your phone before arrival.',
+        fr: "L'accès se fait via une application mobile. Vous recevrez la clé numérique sur votre téléphone avant l'arrivée.",
       },
     }
     const m = methods[input.checkInMethod] || methods['in-person']

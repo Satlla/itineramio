@@ -60,7 +60,7 @@ export interface Step1Data {
   wifiPassword: string
   // Check-in/out
   checkInTime: string
-  checkInMethod: 'key' | 'lockbox' | 'code' | 'in-person'
+  checkInMethod: 'key' | 'lockbox' | 'code' | 'in-person' | 'app'
   checkInInstructions: string
   checkOutTime: string
   // Amenities
@@ -154,6 +154,7 @@ export default function Step1Address({ data, onChange, onNext, uploadEndpoint, o
     { value: 'lockbox' as const, label: t('step1.methods.lockbox') },
     { value: 'code' as const, label: t('step1.methods.code') },
     { value: 'in-person' as const, label: t('step1.methods.inPerson') },
+    { value: 'app' as const, label: t('step1.methods.app') },
   ]
 
   const parkingOptions = [
