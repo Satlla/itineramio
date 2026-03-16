@@ -282,20 +282,17 @@ export async function POST(request: NextRequest) {
         const media = extractMediaFromAiResponse(fullResponse, mediaIndex);
         const recommendations = detectRelevantRecommendations(message, fullResponse, zones, language);
         after(() => runAfterTasks(fullResponse));
-        // Connection: close forces Chrome iOS to open a fresh connection for the next
-        // message instead of reusing the current one, which causes 413 on Vercel.
-        const mobileHeaders = { 'Connection': 'close' };
         return NextResponse.json({
           response: fullResponse,
           media: media.length > 0 ? media : undefined,
           recommendations: recommendations.length > 0 ? recommendations : undefined,
-        }, { headers: mobileHeaders });
+        });
         } catch (mobileError) {
           // OpenAI failed on mobile — return a graceful fallback instead of 500
           console.error('[ChatBot] Mobile OpenAI error:', mobileError);
           const zone = zones[0] || null;
           const fallback = generateFallbackResponse(message, property, zone, language);
-          return NextResponse.json({ response: fallback }, { headers: { 'Connection': 'close' } });
+          return NextResponse.json({ response: fallback });
         }
       }
 

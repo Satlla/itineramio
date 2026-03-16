@@ -566,10 +566,6 @@ export default function ChatBot({
       } else {
         // Non-streaming JSON response (iOS path or fallback)
         const data = await response.json()
-        // Cancel the body to release the HTTP connection — same issue as SSE path:
-        // some Chrome iOS versions keep the connection "busy" after json() reads the body,
-        // causing the next fetch to the same endpoint to fail.
-        try { response.body?.cancel() } catch { /* ignore */ }
 
         // If the server returned an error JSON instead of a response, throw it
         if (data.error && !data.response) {
