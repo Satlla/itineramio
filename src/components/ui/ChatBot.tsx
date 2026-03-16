@@ -408,7 +408,11 @@ export default function ChatBot({
   }
 
   const sendMessage = async (overrideMessage?: string) => {
-    const messageText = overrideMessage || currentMessage.trim()
+    // Strip invisible/zero-width chars that iOS keyboards inject (e.g. \u200B zero-width space)
+    // These pass trim() but render as empty bubbles.
+    const messageText = (overrideMessage || currentMessage)
+      .replace(/[\u200B-\u200D\uFEFF\u00AD\u2060]/g, '')
+      .trim()
     if (!messageText || isLoading) return
 
     const userMessage: Message = {
