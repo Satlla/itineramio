@@ -6,6 +6,8 @@ export async function POST(request: NextRequest) {
     // Logs appear in Vercel Functions → Runtime Logs
     console.error('[ChatBot:ErrorBoundary]', JSON.stringify({
       error: body.error,
+      serverError: body.serverError,
+      serverStatus: body.serverStatus,
       stack: body.stack,
       componentStack: body.componentStack,
       ua: body.ua,

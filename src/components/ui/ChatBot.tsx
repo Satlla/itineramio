@@ -548,11 +548,12 @@ export default function ChatBot({
               // Aborted/errored: cancel the stream
               try { reader.cancel() } catch { /* ignore */ }
             }
-            // Always release the reader lock so the response body can be
-            // garbage-collected and the HTTP connection returned to the pool.
-            // Skipping this on some Chrome versions keeps the connection "busy"
-            // and causes the next fetch to the same endpoint to fail.
+            // Always release the reader lock AND cancel the body so the HTTP
+            // connection is fully returned to the pool. releaseLock() alone is
+            // not enough in some Chrome/Safari versions — the response.body stays
+            // "busy" and causes the next fetch to the same endpoint to fail.
             try { reader.releaseLock() } catch { /* ignore */ }
+            try { response.body?.cancel() } catch { /* ignore */ }
           }
         }
 
@@ -572,6 +573,10 @@ export default function ChatBot({
       } else {
         // Non-streaming JSON response (iOS path or fallback)
         const data = await response.json()
+        // Cancel the body to release the HTTP connection — same issue as SSE path:
+        // some Chrome iOS versions keep the connection "busy" after json() reads the body,
+        // causing the next fetch to the same endpoint to fail.
+        try { response.body?.cancel() } catch { /* ignore */ }
 
         // If the server returned an error JSON instead of a response, throw it
         if (data.error && !data.response) {
@@ -887,7 +892,7 @@ export default function ChatBot({
                           {message.media && message.media.length > 0 && (
                             <div className="mt-2 space-y-2 max-w-[280px]">
                               {message.media.map((item, idx) => (
-                                <div key={idx} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm">
+                                <div key={item.url || idx} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm">
                                   {item.type === 'IMAGE' ? (
                                     <img
                                       src={item.url}
@@ -919,7 +924,7 @@ export default function ChatBot({
                             <div className="mt-2 space-y-1.5 max-w-[300px]">
                               {message.recommendations.map((rec, idx) => (
                                 <a
-                                  key={idx}
+                                  key={rec.mapsUrl || rec.name || idx}
                                   href={rec.mapsUrl || '#'}
                                   target="_blank"
                                   rel="noopener noreferrer"
@@ -965,7 +970,7 @@ export default function ChatBot({
                       <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-widest pl-1">{t('faqTitle', lang)}</p>
                       {faqs.slice(0, 2).map((faq, index) => (
                         <button
-                          key={index}
+                          key={faq.question || index}
                           onClick={() => handleFAQClick(faq)}
                           className="w-full text-left px-3.5 py-2.5 text-[13px] text-gray-700 bg-white hover:bg-violet-50 hover:text-violet-700 hover:border-violet-200 rounded-xl border border-gray-200 shadow-sm transition-all duration-150 flex items-center gap-2.5 group"
                         >
