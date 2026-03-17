@@ -456,10 +456,9 @@ function extractMediaFromAiResponse(
 ): MediaItem[] {
   const media: MediaItem[] = [];
   mediaIndex.forEach((meta, url) => {
-    if (media.length >= 3) return;
-    if (meta.type !== 'VIDEO') return;
+    if (media.length >= 8) return;
     if (aiResponse.includes(url)) {
-      media.push({ type: 'VIDEO', url: meta.url, caption: meta.caption });
+      media.push({ type: meta.type, url: meta.url, caption: meta.caption });
     }
   });
   return media;
@@ -850,7 +849,7 @@ function buildStepDescription(step: any, index: number, language: string): strin
     if (step.type === 'VIDEO') {
       desc += `\n  📹 Vídeo disponible (INCLUIR en la respuesta): ${content.mediaUrl}`;
     } else if (step.type === 'IMAGE') {
-      desc += `\n  📷 Imagen disponible: ![${title || 'imagen'}](${content.mediaUrl})`;
+      desc += `\n  📷 Imagen disponible (INCLUIR en la respuesta): ![${title || 'imagen'}](${content.mediaUrl})`;
     }
   }
 
@@ -1183,7 +1182,7 @@ ${EMERGENCY_KNOWLEDGE}
 CRITICAL RULES:
 1. LANGUAGE: Detect the language the user writes in and ALWAYS respond in that SAME language.
 2. ANSWER FROM DATA: Your answers MUST come from the knowledge base above. Quote specific details (names, codes, locations, times).
-3. MEDIA: When your answer references a step that has 📷 (image) or 📹 (video), you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Ver vídeo](url). ONLY include media from the specific steps relevant to the question — do NOT dump all media from a zone.
+3. MEDIA: For every step you describe that has a 📷 or 📹, you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Ver vídeo](url). Include ALL images and videos from every step you mention — never skip them.
 4. VIDEO STEPS: If a zone or step only has a video (📹) and no text, ALWAYS share the video link and say it explains everything visually. Example: "Aquí tienes el vídeo explicativo: [🎬 Ver vídeo](url)"
 5. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any place category, list ALL places from that zone — every single one. Never pick just 1 or 2. Show name, rating (★), distance, and walk time for each.
 6. STYLE: Be friendly and direct. Use **bold** for key info. Use bullet lists. Max 3 short paragraphs.
@@ -1257,7 +1256,7 @@ ${EMERGENCY_KNOWLEDGE}
 CRITICAL RULES:
 1. LANGUAGE: Detect the language the user writes in and ALWAYS respond in that SAME language.
 2. ANSWER FROM DATA: Your answers MUST come from the knowledge base above. Quote specific details (WiFi name, codes, locations, times, step-by-step instructions).
-3. MEDIA: When your answer references a step that has 📷 (image) or 📹 (video), you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Ver vídeo](url). ONLY include media from the specific steps relevant to the question — do NOT dump all media from a zone.
+3. MEDIA: For every step you describe that has a 📷 or 📹, you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Ver vídeo](url). Include ALL images and videos from every step you mention — never skip them.
 4. VIDEO STEPS: If a zone or step only has a video (📹) and no text, ALWAYS share the video link and say it explains everything visually. Example: "Aquí tienes el vídeo explicativo: [🎬 Ver vídeo](url)"
 5. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any category, list ALL places from that zone — every single one, not just 1 or 2. Show name, rating (★), distance, and walk time for each.
 6. SEARCH ALL ZONES: Look through ALL zones to find the most relevant information for each question.
