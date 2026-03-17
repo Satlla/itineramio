@@ -30,21 +30,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    // Validate file type
+    // Validate file type — fall back to extension when browser sends empty/generic MIME type
     const validTypesPrefixes = [
       'image/jpeg', 'image/png', 'image/gif', 'image/webp',
       'video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v', 'video/mpeg',
-      'video/3gpp', 'video/x-msvideo', 'video/ogg'
+      'video/3gpp', 'video/x-msvideo', 'video/ogg', 'application/octet-stream',
     ]
     const fileTypeBase = file.type.split(';')[0]
-    const isValidType = validTypesPrefixes.some(validType =>
-      fileTypeBase === validType || file.type.startsWith(validType)
-    )
+    const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
+    const allowedExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'webm', 'avi', 'm4v', '3gp']
+    const isValidType = validTypesPrefixes.some(t => fileTypeBase === t || file.type.startsWith(t)) || allowedExts.includes(ext)
     if (!isValidType) {
       return NextResponse.json({
         error: `Tipo de archivo no permitido: ${file.type}. Usa JPG, PNG, GIF, WebP, MP4, MOV o WebM.`,
       }, { status: 400 })
     }
+
+    // Infer content type from extension if MIME type is missing/generic
+    const extToMime: Record<string, string> = {
+      mp4: 'video/mp4', mov: 'video/quicktime', webm: 'video/webm',
+      jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
+      gif: 'image/gif', webp: 'image/webp',
+    }
+    const effectiveContentType = (file.type && file.type !== 'application/octet-stream')
+      ? file.type
+      : (extToMime[ext] ?? 'application/octet-stream')
 
     // Validate file size (50MB max)
     if (file.size > 50 * 1024 * 1024) {
@@ -76,7 +86,7 @@ export async function POST(request: NextRequest) {
       const blob = await put(uniqueFilename, buffer, {
         access: 'public',
         token: blobToken,
-        contentType: file.type,
+        contentType: effectiveContentType,
       })
       fileUrl = blob.url
     }

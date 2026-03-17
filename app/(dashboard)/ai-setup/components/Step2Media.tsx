@@ -244,8 +244,11 @@ export default function Step2Media({
     const errors: string[] = []
 
     for (const file of Array.from(files)) {
-      const isVideo = file.type.startsWith('video/')
-      const isImage = file.type.startsWith('image/')
+      const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
+      const videoExts = ['mp4', 'mov', 'webm', 'avi', 'm4v', 'mkv', '3gp']
+      const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif']
+      const isVideo = file.type.startsWith('video/') || videoExts.includes(ext)
+      const isImage = file.type.startsWith('image/') || imageExts.includes(ext)
       if (!isVideo && !isImage) continue
 
       const maxSizeMB = isVideo ? MAX_VIDEO_SIZE_MB : MAX_IMAGE_SIZE_MB
