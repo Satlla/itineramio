@@ -489,23 +489,34 @@ export function RecommendationsEditor({
     fetchRecommendations()
   }, [fetchRecommendations])
 
-  // --- Zone mode: add recommendation directly to zone ---
-  const handleAddToZone = async (result: PlaceSearchResult) => {
-    if (!zone) return
+  // --- Zone mode: select place → show pending card (same as global) ---
+  const handleAddToZone = (result: PlaceSearchResult) => {
+    const category = zone?.recommendationCategory ?? suggestCategory(result.types)
+    setPending({ result, categoryId: category, description: '', highlight: '', externalUrl: '', tags: [], saving: false })
+  }
+
+  // --- Zone mode: confirm pending → POST to zone endpoint ---
+  const handleConfirmAddToZone = async () => {
+    if (!pending || !zone) return
+    setPending(prev => prev ? { ...prev, saving: true } : null)
     try {
       const res = await fetch(`/api/properties/${propertyId}/zones/${zone.id}/recommendations`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          googlePlaceId: result.googlePlaceId,
-          name: result.name,
-          address: result.address,
-          lat: result.lat,
-          lng: result.lng,
-          rating: result.rating,
-          photoUrl: result.photoUrl,
-          types: result.types,
+          googlePlaceId: pending.result.googlePlaceId,
+          name: pending.result.name,
+          address: pending.result.address,
+          lat: pending.result.lat,
+          lng: pending.result.lng,
+          rating: pending.result.rating,
+          photoUrl: pending.result.photoUrl,
+          types: pending.result.types,
+          description: pending.description || null,
+          highlight: pending.highlight || null,
+          externalUrl: pending.externalUrl || null,
+          tags: pending.tags.length > 0 ? pending.tags : null,
           propertyLat,
           propertyLng,
         }),
@@ -514,9 +525,17 @@ export function RecommendationsEditor({
       if (data.success) {
         setRecommendations(prev => [...prev, data.data])
         setHasChanges(true)
+        setPending(null)
+        setToast(`✓ "${pending.result.name}" añadido`)
+        setTimeout(() => setToast(null), 2500)
+      } else {
+        setToast(data.error || 'Error al añadir')
+        setTimeout(() => setToast(null), 3000)
+        setPending(prev => prev ? { ...prev, saving: false } : null)
       }
     } catch (err) {
       console.error('Error adding recommendation:', err)
+      setPending(prev => prev ? { ...prev, saving: false } : null)
     }
   }
 
@@ -1093,6 +1112,167 @@ export function RecommendationsEditor({
             excludePlaceIds={excludePlaceIds}
           />
         </div>
+
+        {/* Pending card — same UI as global mode */}
+        <AnimatePresence>
+          {pending && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-4 bg-white border-2 border-violet-200 rounded-2xl overflow-hidden shadow-lg"
+            >
+              {/* Photo / place header */}
+              {pending.result.photoUrl ? (
+                <div className="relative h-36 bg-gray-100">
+                  <img src={pending.result.photoUrl} alt={pending.result.name} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                  <button onClick={() => setPending(null)} className="absolute top-3 right-3 bg-black/40 backdrop-blur-sm text-white rounded-full p-1.5 hover:bg-black/60 transition-colors">
+                    <X className="w-4 h-4" />
+                  </button>
+                  <div className="absolute bottom-3 left-4 right-4">
+                    <h3 className="font-bold text-white text-lg leading-tight truncate">{pending.result.name}</h3>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      {pending.result.rating && (
+                        <span className="flex items-center gap-0.5 text-sm text-amber-300 font-medium">
+                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                          {pending.result.rating.toFixed(1)}
+                        </span>
+                      )}
+                      <span className="text-white/80 text-xs truncate">{pending.result.address}</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="px-4 pt-4 pb-2 flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-5 h-5 text-violet-600" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-gray-900 truncate">{pending.result.name}</h3>
+                      <div className="flex items-center gap-1.5">
+                        {pending.result.rating && (
+                          <span className="flex items-center text-xs text-amber-600 font-medium">
+                            <Star className="w-3 h-3 mr-0.5 fill-amber-400 text-amber-400" />
+                            {pending.result.rating.toFixed(1)}
+                          </span>
+                        )}
+                        <span className="text-xs text-gray-500 truncate">{pending.result.address}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <button onClick={() => setPending(null)} className="text-gray-400 hover:text-gray-600 p-1 flex-shrink-0">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
+              {/* Extra fields */}
+              <div className="px-4 py-4">
+                {(() => {
+                  const catConfig = getCategoryById(pending.categoryId)
+                  const highlightLabel = catConfig?.highlightLabel
+                  const highlightPlaceholder = catConfig?.highlightPlaceholder ?? ''
+                  const extUrlLabel = catConfig?.externalUrlLabel
+                  const extUrlPlaceholder = catConfig?.externalUrlPlaceholder ?? 'https://...'
+                  const catTags = catConfig?.tags ?? []
+                  return (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="flex items-center gap-1.5 text-xs font-semibold text-violet-700 uppercase tracking-wide mb-1.5">
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          Recomendación personal <span className="text-gray-400 font-normal normal-case">(opcional)</span>
+                        </label>
+                        <textarea
+                          value={pending.description}
+                          onChange={(e) => setPending(prev => prev ? { ...prev, description: e.target.value } : null)}
+                          placeholder="Tu recomendación personal para los huéspedes..."
+                          rows={2}
+                          className="w-full text-sm border border-violet-200 rounded-xl px-3 py-2.5 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-300 resize-none"
+                        />
+                      </div>
+                      {highlightLabel && (
+                        <div>
+                          <label className="flex items-center gap-1.5 text-xs font-semibold text-orange-600 uppercase tracking-wide mb-1.5">
+                            <Utensils className="w-3.5 h-3.5" />
+                            {highlightLabel} <span className="text-gray-400 font-normal normal-case">(opcional)</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={pending.highlight}
+                            onChange={(e) => setPending(prev => prev ? { ...prev, highlight: e.target.value } : null)}
+                            placeholder={highlightPlaceholder}
+                            className="w-full text-sm border border-orange-200 rounded-xl px-3 py-2.5 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                          />
+                        </div>
+                      )}
+                      {extUrlLabel && (
+                        <div>
+                          <label className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-1.5">
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            {extUrlLabel} <span className="text-gray-400 font-normal normal-case">(opcional)</span>
+                          </label>
+                          <input
+                            type="url"
+                            value={pending.externalUrl}
+                            onChange={(e) => setPending(prev => prev ? { ...prev, externalUrl: e.target.value } : null)}
+                            placeholder={extUrlPlaceholder}
+                            className="w-full text-sm border border-emerald-200 rounded-xl px-3 py-2.5 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                          />
+                        </div>
+                      )}
+                      {catTags.length > 0 && (
+                        <div>
+                          <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                            <Tag className="w-3.5 h-3.5" />
+                            Etiquetas <span className="text-gray-400 font-normal normal-case">(opcional)</span>
+                          </label>
+                          <div className="flex flex-wrap gap-1.5">
+                            {catTags.map(tagId => (
+                              <button
+                                key={tagId}
+                                type="button"
+                                onClick={() => setPending(prev => {
+                                  if (!prev) return null
+                                  const newTags = prev.tags.includes(tagId) ? prev.tags.filter(t => t !== tagId) : [...prev.tags, tagId]
+                                  return { ...prev, tags: newTags }
+                                })}
+                                className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                                  pending.tags.includes(tagId)
+                                    ? 'bg-violet-100 border-violet-300 text-violet-700'
+                                    : 'bg-white border-gray-200 text-gray-500 hover:border-violet-200 hover:text-violet-600'
+                                }`}
+                              >
+                                {tagId.replace(/_/g, ' ')}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
+
+                <div className="flex gap-2 mt-4">
+                  <button
+                    onClick={() => setPending(null)}
+                    className="flex-1 px-4 py-2.5 text-sm font-medium border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleConfirmAddToZone}
+                    disabled={pending.saving}
+                    className="flex-1 px-4 py-2.5 text-sm font-medium bg-violet-600 text-white rounded-xl hover:bg-violet-700 disabled:opacity-50 flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                  >
+                    {pending.saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Plus className="w-4 h-4" /> Añadir a la guía</>}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Recommendations list */}
         <div>
