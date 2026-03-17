@@ -588,6 +588,10 @@ function parseAirbnbHtml(html: string): ScrapedData {
   if (pictureUrlMatch) {
     result.profileImage = decodeHtmlEntities(pictureUrlMatch[1])
   }
+  // Fallback: use first listing photo if profileImage is still empty or broken
+  if (!result.profileImage && result.photos.length > 0) {
+    result.profileImage = result.photos[0]
+  }
 
   // ── 14. Build formatted address ──
   // <title> format: "Name - Apartamentos en alquiler en Alicante, Comunidad Valenciana, España - Airbnb"
@@ -628,6 +632,7 @@ function decodeHtmlEntities(str: string): string {
     )
     .replace(/\\n/g, '\n')
     .replace(/\\"/g, '"')
+    .replace(/\\\//g, '/')  // JSON-escaped forward slashes in URLs
 }
 
 // ============================================
