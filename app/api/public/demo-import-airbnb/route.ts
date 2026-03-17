@@ -388,11 +388,12 @@ function parseAirbnbHtml(html: string): ScrapedData {
   // ── 3. Extract listing photos (filter platform assets) ──
   if (result.photos.length === 0) {
     // Match any a0-a9.muscache.com subdomain (Airbnb uses multiple CDN shards)
-    const photoMatches = html.matchAll(/https:\/\/a\d+\.muscache\.com\/im\/pictures\/[^"'\s)\\]+/g)
+    const photoMatches = html.matchAll(/https:(?:\\\/\\\/|\/\/)a\d+\.muscache\.com\/(?:im\/)?pictures\/[^"'\s)]+/g)
     const uniquePhotos = new Set<string>()
     for (const match of photoMatches) {
       let photoUrl = match[0]
-      photoUrl = photoUrl.replace(/\?.*$/, '').replace(/\\$/, '') // Remove query params + trailing backslash
+      // Decode JSON-escaped slashes (\/ → /) and strip query params
+      photoUrl = photoUrl.replace(/\\\//g, '/').replace(/\?.*$/, '')
       if (isListingPhoto(photoUrl)) {
         uniquePhotos.add(photoUrl)
       }
@@ -586,9 +587,9 @@ function parseAirbnbHtml(html: string): ScrapedData {
   // ── 12. Extract profile image (first pictureUrl = listing main photo) ──
   const pictureUrlMatch = html.match(/"pictureUrl"\s*:\s*"([^"]+muscache\.com[^"]+)"/i)
   if (pictureUrlMatch) {
-    result.profileImage = decodeHtmlEntities(pictureUrlMatch[1])
+    result.profileImage = decodeHtmlEntities(pictureUrlMatch[1]).replace(/\\\//g, '/')
   }
-  // Fallback: use first listing photo if profileImage is still empty or broken
+  // Fallback: use first listing photo if profileImage is still empty
   if (!result.profileImage && result.photos.length > 0) {
     result.profileImage = result.photos[0]
   }
