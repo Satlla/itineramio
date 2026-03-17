@@ -387,11 +387,12 @@ function parseAirbnbHtml(html: string): ScrapedData {
 
   // ── 3. Extract listing photos (filter platform assets) ──
   if (result.photos.length === 0) {
-    const photoMatches = html.matchAll(/https:\/\/a0\.muscache\.com\/im\/pictures\/[^"'\s)]+/g)
+    // Match any a0-a9.muscache.com subdomain (Airbnb uses multiple CDN shards)
+    const photoMatches = html.matchAll(/https:\/\/a\d+\.muscache\.com\/im\/pictures\/[^"'\s)\\]+/g)
     const uniquePhotos = new Set<string>()
     for (const match of photoMatches) {
       let photoUrl = match[0]
-      photoUrl = photoUrl.replace(/\?.*$/, '') // Remove query params
+      photoUrl = photoUrl.replace(/\?.*$/, '').replace(/\\$/, '') // Remove query params + trailing backslash
       if (isListingPhoto(photoUrl)) {
         uniquePhotos.add(photoUrl)
       }
