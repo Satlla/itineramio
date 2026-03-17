@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { put } from '@vercel/blob'
+import { v4 as uuidv4 } from 'uuid'
 import { checkRateLimit, getRateLimitKey } from '../../../../src/lib/rate-limit'
 
 // ============================================
@@ -636,6 +638,34 @@ function decodeHtmlEntities(str: string): string {
     .replace(/\\\//g, '/')  // JSON-escaped forward slashes in URLs
 }
 
+// Proxy an Airbnb image through our server → Vercel Blob
+// Needed because Airbnb blocks hotlinking (checks Referer header)
+async function proxyImageToBlob(url: string): Promise<string | null> {
+  try {
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN
+    if (!blobToken || process.env.NODE_ENV === 'development') return null
+
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'Referer': 'https://www.airbnb.es/',
+      },
+      signal: AbortSignal.timeout(8000),
+    })
+    if (!res.ok) return null
+
+    const buffer = Buffer.from(await res.arrayBuffer())
+    const contentType = res.headers.get('content-type') || 'image/jpeg'
+    const ext = contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : 'jpg'
+    const filename = `demo/airbnb-${uuidv4()}.${ext}`
+
+    const blob = await put(filename, buffer, { access: 'public', token: blobToken, contentType })
+    return blob.url
+  } catch {
+    return null
+  }
+}
+
 // ============================================
 // ROUTE HANDLER
 // ============================================
@@ -680,7 +710,6 @@ export async function POST(request: NextRequest) {
     const data = await scrapeAirbnbListing(listingId)
 
     // Validate we got at least some useful data
-    // Check for 404 pages or empty results
     if (data.propertyName === '404 Page Not Found' || data.propertyName.includes('Page Not Found')) {
       return NextResponse.json(
         { success: false, error: 'El anuncio no existe o ha sido eliminado. Verifica el enlace.' },
@@ -692,6 +721,12 @@ export async function POST(request: NextRequest) {
         { success: false, error: 'No pudimos acceder al anuncio. Puede que sea privado o que Airbnb haya bloqueado la solicitud. Rellena los datos manualmente.' },
         { status: 422 }
       )
+    }
+
+    // Proxy the cover photo through Vercel Blob so Airbnb hotlinking doesn't block it
+    if (data.profileImage) {
+      const proxied = await proxyImageToBlob(data.profileImage)
+      if (proxied) data.profileImage = proxied
     }
 
     return NextResponse.json({
