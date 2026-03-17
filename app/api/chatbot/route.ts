@@ -467,16 +467,46 @@ function extractMediaFromAiResponse(
 
 // Synonyms for recommendation categories
 const RECOMMENDATION_SYNONYMS: Record<string, string[]> = {
-  'restaurant': ['restaurante', 'comer', 'eat', 'food', 'cenar', 'almorzar', 'dinner', 'lunch', 'tapas', 'comida', 'manger', 'dîner', 'déjeuner'],
-  'cafe': ['café', 'cafetería', 'coffee', 'desayuno', 'breakfast', 'brunch', 'desayunar', 'petit-déjeuner'],
-  'tourist_attraction': ['visitar', 'visit', 'turismo', 'tourism', 'ver', 'see', 'monumento', 'monument', 'museo', 'museum', 'qué ver', 'what to see', 'sightseeing', 'tourist', 'tourisme', 'attraction'],
-  'park': ['parque', 'park', 'jardín', 'garden', 'naturaleza', 'nature', 'pasear', 'walk', 'jardin'],
-  'beach': ['playa', 'beach', 'mar', 'sea', 'costa', 'coast', 'bañarse', 'swim', 'plage', 'mer'],
-  'shopping_mall': ['compras', 'shopping', 'tienda', 'shop', 'store', 'centro comercial', 'mall', 'boutique', 'magasin'],
-  'supermarket': ['supermercado', 'supermarket', 'comprar', 'buy', 'mercado', 'market', 'grocery', 'marché'],
-  'pharmacy': ['farmacia', 'pharmacy', 'medicina', 'medicine', 'pharmacie', 'médicament'],
-  'hospital': ['hospital', 'urgencias', 'emergency', 'médico', 'doctor', 'hôpital', 'urgences'],
-  'parking': ['parking', 'aparcar', 'park', 'coche', 'car', 'garaje', 'garage', 'stationnement'],
+  'restaurant': ['restaurante', 'restaurantes', 'comer', 'eat', 'food', 'cenar', 'almorzar', 'dinner', 'lunch', 'tapas', 'comida', 'manger', 'dîner', 'déjeuner'],
+  'local_cuisine': ['local', 'típico', 'típica', 'tradicional', 'autóctono', 'regional', 'cocina'],
+  'seafood': ['marisco', 'mariscos', 'pescado', 'marisquería', 'frutos del mar', 'seafood', 'fish'],
+  'grill': ['asador', 'parrilla', 'carne', 'brasa', 'grill', 'barbacoa'],
+  'vegetarian': ['vegetariano', 'vegano', 'vegan', 'vegetarian', 'plant based'],
+  'street_food': ['street food', 'food truck', 'mercado gastronómico', 'gastronomico'],
+  'ice_cream': ['helado', 'helados', 'heladería', 'pastelería', 'postre', 'ice cream', 'gelato'],
+  'bakery': ['panadería', 'pan', 'desayuno', 'bakery', 'breakfast', 'croissant'],
+  'cafe': ['café', 'cafeteria', 'cafetería', 'coffee', 'desayuno', 'breakfast', 'brunch', 'desayunar', 'petit-déjeuner'],
+  'brunch': ['brunch', 'desayuno', 'breakfast', 'brunch spot'],
+  'tea_bar': ['té', 'tetería', 'matcha', 'infusión', 'tea'],
+  'cocktail_bar': ['cócteles', 'coctelería', 'bar', 'cocktail', 'copa', 'copas', 'speakeasy'],
+  'wine_bar': ['vino', 'vinos', 'enoteca', 'bodega', 'wine', 'maridaje'],
+  'tapas_bar': ['tapas', 'pintxos', 'raciones', 'bar de tapas'],
+  'rooftop': ['rooftop', 'terraza', 'vistas', 'azotea'],
+  'pub': ['pub', 'cervecería', 'cerveza', 'beer', 'bar'],
+  'club': ['discoteca', 'club', 'nightclub', 'boliche', 'marcha', 'noche', 'fiesta'],
+  'cathedral': ['catedral', 'iglesia', 'templo', 'mezquita', 'church'],
+  'castle': ['castillo', 'fortaleza', 'castle', 'fortress'],
+  'palace': ['palacio', 'palace'],
+  'ruins': ['ruinas', 'yacimiento', 'arqueológico', 'ruins'],
+  'monument': ['monumento', 'estatua', 'escultura', 'monument'],
+  'museum': ['museo', 'museos', 'museum', 'exposición', 'exposicion'],
+  'art_gallery': ['galería', 'arte', 'gallery', 'pintura'],
+  'park': ['parque', 'parques', 'jardín', 'jardines', 'garden', 'naturaleza', 'nature', 'pasear', 'walk', 'jardin'],
+  'beach': ['playa', 'playas', 'beach', 'beaches', 'mar', 'sea', 'costa', 'coast', 'bañarse', 'swim', 'plage', 'mer'],
+  'cove': ['cala', 'calas', 'cove', 'cala escondida'],
+  'viewpoint': ['mirador', 'miradores', 'vistas', 'viewpoint'],
+  'hiking': ['senderismo', 'ruta', 'rutas', 'montaña', 'trekking', 'hiking', 'caminar'],
+  'square': ['plaza', 'plazas', 'square'],
+  'market': ['mercado', 'mercados', 'market', 'mercadillo'],
+  'neighborhood': ['barrio', 'barrios', 'neighborhood', 'quarter'],
+  'shopping_mall': ['compras', 'shopping', 'tienda', 'tiendas', 'shop', 'store', 'centro comercial', 'mall', 'boutique', 'magasin'],
+  'supermarket': ['supermercado', 'supermercados', 'supermarket', 'comprar', 'buy', 'mercado', 'market', 'grocery', 'marché'],
+  'pharmacy': ['farmacia', 'farmacias', 'pharmacy', 'medicina', 'medicine', 'pharmacie', 'médicament'],
+  'hospital': ['hospital', 'hospitales', 'urgencias', 'emergency', 'médico', 'doctor', 'hôpital', 'urgences'],
+  'parking': ['parking', 'aparcamiento', 'aparcar', 'park', 'coche', 'car', 'garaje', 'garage', 'stationnement'],
+  'water_sports': ['deportes acuáticos', 'kayak', 'paddle surf', 'buceo', 'snorkel', 'water sports'],
+  'spa': ['spa', 'bienestar', 'masaje', 'relax', 'wellness'],
+  'boat_trip': ['barco', 'excursión en barco', 'boat', 'paseo marítimo'],
 };
 
 function getKeywords(text: unknown): string[] {
@@ -502,7 +532,7 @@ interface RecommendationCard {
 function detectRelevantRecommendations(userMessage: string, aiResponse: string, zones: any[], language: string): RecommendationCard[] {
   const cards: RecommendationCard[] = [];
   const userKeywords = new Set(getKeywords(userMessage));
-  const responseKeywords = new Set(getKeywords(aiResponse));
+  const userKeywordsArr = [...userKeywords]; // precomputed for bidirectional checks
 
   for (const zone of zones) {
     if (zone.type !== 'RECOMMENDATIONS' || !zone.recommendations?.length) continue;
@@ -513,16 +543,16 @@ function detectRelevantRecommendations(userMessage: string, aiResponse: string, 
     // Check if user is asking about this recommendation category
     let matches = false;
 
-    // Direct category synonym match
+    // Direct category synonym match — bidirectional to handle plurals/variants
     const synonyms = RECOMMENDATION_SYNONYMS[categoryId] || [];
-    if (synonyms.some(s => userKeywords.has(s))) {
+    if (synonyms.some(s => userKeywords.has(s) || userKeywordsArr.some(uk => uk.includes(s) || s.includes(uk)))) {
       matches = true;
     }
 
-    // Zone name match
+    // Zone name match — bidirectional: "restaurantes" matches zone "Restaurante"
     if (!matches) {
       const zoneWords = getKeywords(zoneName);
-      if (zoneWords.some(w => userKeywords.has(w))) {
+      if (zoneWords.some(w => userKeywords.has(w) || userKeywordsArr.some(uk => uk.includes(w) || w.includes(uk)))) {
         matches = true;
       }
     }
@@ -696,9 +726,10 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
     const zoneName = String(getLocalizedText(zone.name, language) || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     let score = 0;
 
-    // Zone name keyword match = high relevance
+    // Zone name keyword match = high relevance — bidirectional handles plurals
+    // e.g. "restaurantes" matches zone "Restaurante" via word.includes(zoneName)
     for (const word of words) {
-      if (zoneName.includes(word)) score += 15;
+      if (zoneName.includes(word) || word.includes(zoneName)) score += 15;
     }
 
     // Step content match = medium relevance
