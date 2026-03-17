@@ -561,7 +561,24 @@ function detectRelevantRecommendations(userMessage: string, aiResponse: string, 
 
     if (!matches) continue;
 
-    for (const rec of zone.recommendations) {
+    // Detect proximity query — user wants places close to the apartment
+    const isNearbyQuery = /cerca|cercan|próxim|proxim|andando|caminando|walking|near\b|close\b|al lado|a pie/i.test(userMessage);
+    const NEARBY_MAX_METERS = 1500; // ~18 min walk
+
+    // Sort by distance ascending (closest first); unknowns go to the end
+    const sortedRecs = [...zone.recommendations].sort((a, b) => {
+      if (a.distanceMeters != null && b.distanceMeters != null) return a.distanceMeters - b.distanceMeters;
+      if (a.distanceMeters != null) return -1;
+      if (b.distanceMeters != null) return 1;
+      return 0;
+    });
+
+    // Filter by proximity if requested
+    const recsToShow = isNearbyQuery
+      ? sortedRecs.filter(r => r.distanceMeters == null || r.distanceMeters <= NEARBY_MAX_METERS)
+      : sortedRecs;
+
+    for (const rec of recsToShow) {
       if (!rec.place) continue;
       const p = rec.place;
       const distance = rec.distanceMeters
@@ -1249,7 +1266,7 @@ CRITICAL RULES:
 2. ANSWER FROM DATA: Your answers MUST come from the knowledge base above. Quote specific details (WiFi name, codes, locations, times, step-by-step instructions).
 3. MEDIA: For every step you describe that has a 📷 or 📹, you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Ver vídeo](url). Include ALL images and videos from every step you mention — never skip them.
 4. VIDEO STEPS: If a zone or step only has a video (📹) and no text, ALWAYS share the video link and say it explains everything visually. Example: "Aquí tienes el vídeo explicativo: [🎬 Ver vídeo](url)"
-5. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any category, list ALL places from that zone — every single one, not just 1 or 2. Show name, rating (★), distance, and walk time for each.
+5. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any category, list ALL places from that zone. Show name, rating (★), distance, and walk time for each. If the guest asks for places "cerca", "near", "close" or mentions walking distance, prioritize places with low distanceMeters/walkMinutes and only list those within ~1.5km (18 min walk).
 6. SEARCH ALL ZONES: Look through ALL zones to find the most relevant information for each question.
 7. STYLE: Be friendly and direct like a WhatsApp chat. Use **bold** for key info. Use bullet lists with -. Max 3 short paragraphs. Use emojis sparingly (📍🏠✅☕🍽️).
 8. HONESTY: If the info isn't in your knowledge base, say so and suggest contacting the host.
