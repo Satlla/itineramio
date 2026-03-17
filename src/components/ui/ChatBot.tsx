@@ -35,6 +35,8 @@ interface MediaItem {
   type: 'IMAGE' | 'VIDEO'
   url: string
   caption?: string
+  stepText?: string
+  stepIndex?: number
 }
 
 interface RecommendationCard {
@@ -893,17 +895,31 @@ export default function ChatBot({
                             )}
                           </div>
 
-                          {/* Rich Media */}
+                          {/* Rich Media — step cards with text + image/video */}
                           {message.media && message.media.length > 0 && (
                             <div className="mt-2 space-y-2 max-w-[280px]">
                               {message.media.map((item, idx) => (
-                                <div key={item.url || idx} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm">
+                                <div key={item.url || idx} className="rounded-xl overflow-hidden border border-gray-100 shadow-sm bg-white">
+                                  {/* Step header: number + instruction text */}
+                                  {(item.stepIndex != null || item.stepText) && (
+                                    <div className="px-3 pt-2.5 pb-1.5">
+                                      {item.stepIndex != null && (
+                                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-violet-100 text-violet-700 text-[10px] font-bold mr-1.5 align-middle">
+                                          {item.stepIndex}
+                                        </span>
+                                      )}
+                                      {item.stepText && (
+                                        <span className="text-[12px] text-gray-700 leading-snug">{item.stepText}</span>
+                                      )}
+                                    </div>
+                                  )}
+                                  {/* Media */}
                                   {item.type === 'IMAGE' ? (
                                     <img
                                       src={item.url}
                                       alt={item.caption || ''}
                                       loading="lazy"
-                                      className="w-full h-auto max-h-40 object-cover"
+                                      className="w-full h-auto max-h-44 object-cover"
                                     />
                                   ) : (
                                     <video
@@ -916,7 +932,8 @@ export default function ChatBot({
                                       <source src={item.url} type="video/webm" />
                                     </video>
                                   )}
-                                  {item.caption && (
+                                  {/* Caption (step title) below media */}
+                                  {item.caption && !item.stepText && (
                                     <p className="text-[11px] text-gray-500 px-2.5 py-1.5 bg-gray-50">{item.caption}</p>
                                   )}
                                 </div>

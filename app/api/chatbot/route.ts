@@ -17,6 +17,8 @@ interface MediaItem {
   type: 'IMAGE' | 'VIDEO'
   url: string
   caption?: string
+  stepText?: string  // full step instruction text shown above the media
+  stepIndex?: number // 1-based step number
 }
 
 // Burst: 20 msg/min — prevents spam floods
@@ -440,15 +442,26 @@ function collectRelevantMedia(zones: any[], language: string): MediaItem[] {
 
   const zone = zones[0];
   const items: MediaItem[] = [];
+  let stepNumber = 0;
+
   for (const step of (zone.steps || [])) {
     const content = step.content as any;
     if (!content?.mediaUrl) continue;
     const stepType = (step.type || '').toUpperCase();
     if (stepType !== 'IMAGE' && stepType !== 'VIDEO') continue;
+
+    stepNumber++;
+    const title = getLocalizedText(step.title, language) || '';
+    // Step text: prefer content text, fall back to title
+    const contentText = getLocalizedText(content, language) || '';
+    const stepText = contentText || title || undefined;
+
     items.push({
       type: stepType as 'IMAGE' | 'VIDEO',
       url: content.mediaUrl,
-      caption: getLocalizedText(step.title, language) || getLocalizedText(zone.name, language) || '',
+      caption: title || getLocalizedText(zone.name, language) || '',
+      stepText,
+      stepIndex: stepNumber,
     });
     if (items.length >= 8) break;
   }
