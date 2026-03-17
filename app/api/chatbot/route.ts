@@ -135,16 +135,13 @@ export async function POST(request: NextRequest) {
         : rankZonesByRelevance(message, allZones, language)
       : rankZonesByRelevance(message, allZones, language);
 
-    // Build media index once — used for all code paths
-    const mediaIndex = buildMediaIndex(zones, language);
-
     // Check if OpenAI API key is configured
     const openaiApiKey = process.env.OPENAI_API_KEY;
     if (!openaiApiKey) {
       // Fallback to rule-based responses if no OpenAI
       const zone = zones[0] || null;
       const response = generateFallbackResponse(message, property, zone, language);
-      const media = extractMediaFromAiResponse(response, mediaIndex);
+      const media = collectRelevantMedia(zones, language);
       const recommendations = detectRelevantRecommendations(message, response, zones, language);
       return NextResponse.json({
         response,
@@ -279,7 +276,7 @@ export async function POST(request: NextRequest) {
         if (!iosOpenaiResponse.ok) throw new Error(`OpenAI API error: ${iosOpenaiResponse.status}`);
         const iosData = await iosOpenaiResponse.json();
         const fullResponse = iosData.choices?.[0]?.message?.content || '';
-        const media = extractMediaFromAiResponse(fullResponse, mediaIndex);
+        const media = collectRelevantMedia(zones, language);
         const recommendations = detectRelevantRecommendations(message, fullResponse, zones, language);
         after(() => runAfterTasks(fullResponse));
         return NextResponse.json({
@@ -373,7 +370,7 @@ export async function POST(request: NextRequest) {
             }
 
             // After stream completes, send media + recommendation cards and finish
-            const media = extractMediaFromAiResponse(fullResponse, mediaIndex);
+            const media = collectRelevantMedia(zones, language);
             const recommendations = detectRelevantRecommendations(message, fullResponse, zones, language);
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({
               done: true,
@@ -408,7 +405,7 @@ export async function POST(request: NextRequest) {
       console.error('OpenAI API error:', openaiError);
       const zone = zones[0] || null;
       const response = generateFallbackResponse(message, property, zone, language);
-      const media = extractMediaFromAiResponse(response, mediaIndex);
+      const media = collectRelevantMedia(zones, language);
       const recommendations = detectRelevantRecommendations(message, response, zones, language);
       return NextResponse.json({
         response,
@@ -430,38 +427,32 @@ export async function POST(request: NextRequest) {
 // MEDIA DETECTION — derived from AI response URLs
 // ========================================
 
-function buildMediaIndex(zones: any[], language: string): Map<string, { type: 'IMAGE' | 'VIDEO'; url: string; caption: string }> {
-  const index = new Map<string, { type: 'IMAGE' | 'VIDEO'; url: string; caption: string }>();
-  for (const zone of zones) {
-    if (zone.type === 'RECOMMENDATIONS') continue;
-    const zoneName = getLocalizedText(zone.name, language);
-    for (const step of (zone.steps || [])) {
-      const content = step.content as any;
-      if (!content?.mediaUrl) continue;
-      const stepType = (step.type || '').toUpperCase();
-      if (stepType !== 'IMAGE' && stepType !== 'VIDEO') continue;
-      index.set(content.mediaUrl, {
-        type: stepType as 'IMAGE' | 'VIDEO',
-        url: content.mediaUrl,
-        caption: getLocalizedText(step.title, language) || zoneName
-      });
-    }
-  }
-  return index;
-}
+/**
+ * Collect media (images + videos) directly from the most relevant zone's steps.
+ * Does NOT depend on the AI including URLs in its response — always reliable.
+ *
+ * Strategy: use zones[0] if it is a standard zone (not RECOMMENDATIONS).
+ * If the top zone is a RECOMMENDATIONS zone (e.g. user asked about restaurants),
+ * there are no step-media to show, so we return [].
+ */
+function collectRelevantMedia(zones: any[], language: string): MediaItem[] {
+  if (!zones.length || zones[0].type === 'RECOMMENDATIONS') return [];
 
-function extractMediaFromAiResponse(
-  aiResponse: string,
-  mediaIndex: Map<string, { type: 'IMAGE' | 'VIDEO'; url: string; caption: string }>
-): MediaItem[] {
-  const media: MediaItem[] = [];
-  mediaIndex.forEach((meta, url) => {
-    if (media.length >= 8) return;
-    if (aiResponse.includes(url)) {
-      media.push({ type: meta.type, url: meta.url, caption: meta.caption });
-    }
-  });
-  return media;
+  const zone = zones[0];
+  const items: MediaItem[] = [];
+  for (const step of (zone.steps || [])) {
+    const content = step.content as any;
+    if (!content?.mediaUrl) continue;
+    const stepType = (step.type || '').toUpperCase();
+    if (stepType !== 'IMAGE' && stepType !== 'VIDEO') continue;
+    items.push({
+      type: stepType as 'IMAGE' | 'VIDEO',
+      url: content.mediaUrl,
+      caption: getLocalizedText(step.title, language) || getLocalizedText(zone.name, language) || '',
+    });
+    if (items.length >= 8) break;
+  }
+  return items;
 }
 
 // Synonyms for recommendation categories
