@@ -56,7 +56,6 @@ import ZoneQRDesigner from '../../../../../src/components/zones/ZoneQRDesigner'
 import { EvaluationsModal } from '../../../../../src/components/ui/EvaluationsModal'
 // GenerateRecommendationsModal removed — replaced by "Añadir lugar" flow
 import { PropertySetUpdateModal } from '../../../../../src/components/ui/PropertySetUpdateModal'
-import { LanguageCompletionModal } from '../../../../../src/components/ui/LanguageCompletionModal'
 // Removed unused imports
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { createPropertySlug, createZoneSlug, findPropertyBySlug } from '../../../../../src/lib/slugs'
@@ -190,8 +189,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const zonesContainerRef = useRef<HTMLDivElement>(null)
 
   // Language completion modal state
-  const [showLanguageModal, setShowLanguageModal] = useState(false)
-  const [completedZoneName, setCompletedZoneName] = useState('')
 
   // Recommendations modal state
 
@@ -2085,46 +2082,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         // Only validate CONTENT (not titles, since titles are optional)
         // Only show modal if user has Spanish content but missing translations
         console.log('🔍 Validating language completion for zone:', zoneName)
-        console.log('🔍 Total steps to validate:', steps.length)
-
-        const hasMissingLanguages = steps.some((step, index) => {
-          // Only check content, not titles (titles are optional)
-          const contentEs = step.content?.es?.trim()
-          const contentEn = step.content?.en?.trim()
-          const contentFr = step.content?.fr?.trim()
-
-          // Debug log
-          console.log(`📝 Step ${index + 1}:`, {
-            hasEs: !!contentEs,
-            hasEn: !!contentEn,
-            hasFr: !!contentFr
-          })
-
-          // Only flag as missing if:
-          // 1. There's Spanish content (user is actively using the zone)
-          // 2. AND both EN and FR are empty (not just one missing)
-          // This way we only suggest translations when the zone is actively used
-          // but doesn't have ANY translations yet
-          if (contentEs && !contentEn && !contentFr) {
-            console.log(`❌ Step ${index + 1}: Has ES but missing both EN and FR`)
-            return true
-          }
-
-          console.log(`✅ Step ${index + 1}: OK (has translations or no ES content)`)
-          return false
-        })
-
-        console.log('🎯 Final validation result:', {
-          hasMissingLanguages,
-          willShowModal: hasMissingLanguages
-        })
-
-        // Only show language completion modal if languages are actually missing
-        if (hasMissingLanguages) {
-          setCompletedZoneName(zoneName)
-          setShowLanguageModal(true)
-        }
-
         // Show improved success message
         const propertyCount = updatedPropertyIds.size
 
@@ -4321,12 +4278,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           'Toda la configuración de la zona'
         ] : []}
         isLoading={isDeletingZone}
-      />
-
-      <LanguageCompletionModal
-        isOpen={showLanguageModal}
-        onClose={() => setShowLanguageModal(false)}
-        zoneName={completedZoneName}
       />
 
       <DeletePropertyModal

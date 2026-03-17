@@ -266,6 +266,7 @@ export default function Step2Media({
         // Compress video before upload if > 4MB and FFmpeg is available
         let fileToUpload: File = file
         if (isVideo && file.size > 4 * 1024 * 1024 && isFFmpegSupported()) {
+          let compressionActive = true
           try {
             const quality: 'low' | 'medium' | 'high' =
               file.size > 30 * 1024 * 1024 ? 'low' :
@@ -274,10 +275,12 @@ export default function Step2Media({
             fileToUpload = await compressVideoFFmpeg(file, {
               maxSizeMB: 4,
               quality,
-              onProgress: (msg) => setCompressStatus(msg),
+              onProgress: (msg) => { if (compressionActive) setCompressStatus(msg) },
             })
+            compressionActive = false
             setCompressStatus(null)
           } catch {
+            compressionActive = false
             setCompressStatus(null)
             fileToUpload = file
           }
@@ -388,11 +391,11 @@ export default function Step2Media({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-2xl sm:text-3xl font-bold text-white"
+          className="text-2xl sm:text-3xl font-bold text-gray-900"
         >
           {t('step3.title')}
         </motion.h2>
-        <p className="text-gray-400 max-w-xl mx-auto text-sm sm:text-base">
+        <p className="text-gray-500 max-w-xl mx-auto text-sm sm:text-base">
           {t('step3.subtitleNew')}
         </p>
       </div>
@@ -406,7 +409,7 @@ export default function Step2Media({
         className={`relative border-2 border-dashed rounded-2xl p-5 sm:p-8 text-center cursor-pointer transition-all duration-300 ${
           isDragging
             ? 'border-violet-400 bg-violet-500/10'
-            : 'border-gray-700 bg-gray-900/40 hover:border-gray-600 hover:bg-gray-900/60'
+            : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-white'
         }`}
       >
         <input
@@ -426,7 +429,7 @@ export default function Step2Media({
             </div>
           )}
           <div>
-            <p className="text-base font-medium text-white">
+            <p className="text-base font-medium text-gray-900">
               {compressStatus || (uploading ? t('step3.uploading') : t('step3.dragHere'))}
             </p>
             <p className="text-sm text-gray-500 mt-1">
@@ -483,7 +486,7 @@ export default function Step2Media({
           >
             {/* Stats */}
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-gray-500">
                 {media.length} {media.length === 1 ? 'archivo' : 'archivos'}
               </p>
               <div className="flex items-center gap-3 text-xs text-gray-500">
@@ -525,7 +528,7 @@ export default function Step2Media({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-gray-900/80 border border-gray-800 rounded-xl backdrop-blur-xl"
+                    className="bg-white border border-gray-200 rounded-xl backdrop-blur-xl"
                     style={{ position: 'relative', zIndex: openDropdown === item.id ? 999 : 1 }}
                   >
                     {(() => {
@@ -646,14 +649,14 @@ export default function Step2Media({
                             <button
                               type="button"
                               onClick={() => setOpenDropdown(openDropdown === item.id ? null : item.id)}
-                              className={`w-full flex items-center gap-2 px-3 py-2 text-sm bg-gray-800/80 border rounded-lg transition-colors cursor-pointer text-left ${
+                              className={`w-full flex items-center gap-2 px-3 py-2 text-sm bg-white border rounded-lg transition-colors cursor-pointer text-left ${
                                 openDropdown === item.id
                                   ? 'border-violet-500/50 ring-1 ring-violet-500/20'
-                                  : 'border-gray-700/50 hover:border-gray-600'
+                                  : 'border-gray-200 hover:border-gray-300'
                               }`}
                             >
                               <span className="text-violet-400 flex-shrink-0">{getZoneIcon(item)}</span>
-                              <span className={`flex-1 truncate ${item.zoneId || isCustomZone ? 'text-gray-200' : 'text-gray-500'}`}>
+                              <span className={`flex-1 truncate ${item.zoneId || isCustomZone ? 'text-gray-900' : 'text-gray-500'}`}>
                                 {getZoneLabel(item)}
                               </span>
                               <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${openDropdown === item.id ? 'rotate-180' : ''}`} />
@@ -662,14 +665,14 @@ export default function Step2Media({
                             {/* Dropdown menu */}
                             {openDropdown === item.id && (
                               <div
-                                className="absolute z-50 mt-1 w-full bg-gray-900 border border-gray-700 rounded-xl shadow-2xl overflow-hidden"
+                                className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 {/* Create custom zone — always visible at top */}
                                 <button
                                   type="button"
                                   onClick={() => { handleZoneChange(item.id, CUSTOM_ZONE_VALUE); setOpenDropdown(null) }}
-                                  className="w-full flex items-center gap-2.5 px-3 py-3 text-sm font-medium text-violet-400 hover:bg-violet-500/10 transition-colors border-b border-gray-800"
+                                  className="w-full flex items-center gap-2.5 px-3 py-3 text-sm font-medium text-violet-400 hover:bg-violet-500/10 transition-colors border-b border-gray-200"
                                 >
                                   <Plus className="w-4 h-4 flex-shrink-0" />
                                   <span>{t('step3.createNewZone')}</span>
@@ -677,14 +680,14 @@ export default function Step2Media({
 
                                 <div className="max-h-64 overflow-y-auto">
                                 {/* Template zones */}
-                                <div className="px-3 py-1.5 text-[10px] text-gray-500 uppercase tracking-wider bg-gray-900/90 sticky top-0">Zonas del wizard</div>
+                                <div className="px-3 py-1.5 text-[10px] text-gray-500 uppercase tracking-wider bg-gray-50 sticky top-0">Zonas del wizard</div>
                                 {PREDEFINED_ZONES.filter(z => z.group === 'template').map(zone => (
                                   <button
                                     key={zone.id}
                                     type="button"
                                     onClick={() => { handleZoneChange(item.id, zone.id); setOpenDropdown(null) }}
                                     className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
-                                      item.zoneId === zone.id ? 'bg-violet-500/15 text-violet-300' : 'text-gray-300 hover:bg-gray-800'
+                                      item.zoneId === zone.id ? 'bg-violet-50 border-violet-500 text-violet-700' : 'text-gray-600 hover:bg-gray-100'
                                     }`}
                                   >
                                     <ZoneIcon iconName={zone.lucideIcon} className="w-4 h-4 flex-shrink-0" />
@@ -694,14 +697,14 @@ export default function Step2Media({
                                 ))}
 
                                 {/* Appliance zones */}
-                                <div className="px-3 py-1.5 text-[10px] text-gray-500 uppercase tracking-wider bg-gray-900/90 sticky top-0 border-t border-gray-800">Electrodomésticos</div>
+                                <div className="px-3 py-1.5 text-[10px] text-gray-500 uppercase tracking-wider bg-gray-50 sticky top-0 border-t border-gray-200">Electrodomésticos</div>
                                 {PREDEFINED_ZONES.filter(z => z.group === 'appliance').map(zone => (
                                   <button
                                     key={zone.id}
                                     type="button"
                                     onClick={() => { handleZoneChange(item.id, zone.id); setOpenDropdown(null) }}
                                     className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
-                                      item.zoneId === zone.id ? 'bg-violet-500/15 text-violet-300' : 'text-gray-300 hover:bg-gray-800'
+                                      item.zoneId === zone.id ? 'bg-violet-50 border-violet-500 text-violet-700' : 'text-gray-600 hover:bg-gray-100'
                                     }`}
                                   >
                                     <ZoneIcon iconName={zone.lucideIcon} className="w-4 h-4 flex-shrink-0" />
@@ -710,14 +713,14 @@ export default function Step2Media({
                                 ))}
 
                                 {/* Space zones */}
-                                <div className="px-3 py-1.5 text-[10px] text-gray-500 uppercase tracking-wider bg-gray-900/90 sticky top-0 border-t border-gray-800">Espacios</div>
+                                <div className="px-3 py-1.5 text-[10px] text-gray-500 uppercase tracking-wider bg-gray-50 sticky top-0 border-t border-gray-200">Espacios</div>
                                 {PREDEFINED_ZONES.filter(z => z.group === 'space').map(zone => (
                                   <button
                                     key={zone.id}
                                     type="button"
                                     onClick={() => { handleZoneChange(item.id, zone.id); setOpenDropdown(null) }}
                                     className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
-                                      item.zoneId === zone.id ? 'bg-violet-500/15 text-violet-300' : 'text-gray-300 hover:bg-gray-800'
+                                      item.zoneId === zone.id ? 'bg-violet-50 border-violet-500 text-violet-700' : 'text-gray-600 hover:bg-gray-100'
                                     }`}
                                   >
                                     <ZoneIcon iconName={zone.lucideIcon} className="w-4 h-4 flex-shrink-0" />
@@ -754,7 +757,7 @@ export default function Step2Media({
                                 </button>
                                 {openDropdown === `icon-${item.id}` && (
                                   <div
-                                    className="absolute left-0 top-12 z-50 bg-gray-900 border border-violet-500/30 rounded-xl shadow-2xl p-2 grid grid-cols-6 gap-1"
+                                    className="absolute left-0 top-12 z-50 bg-white border border-violet-500/30 rounded-xl shadow-2xl p-2 grid grid-cols-6 gap-1"
                                     style={{ width: 200 }}
                                     onClick={(e) => e.stopPropagation()}
                                   >
@@ -814,7 +817,7 @@ export default function Step2Media({
                             <div className="flex items-center justify-between">
                               <label className="text-xs text-gray-500 uppercase tracking-wider">
                                 {t('step3.descriptionLabel')}
-                                <span className="text-gray-600 normal-case ml-1">(opcional)</span>
+                                <span className="text-gray-400 normal-case ml-1">(opcional)</span>
                               </label>
                               {(() => {
                                 const suggestName = isCustomZone ? item.customZoneName?.trim() : selectedZone?.name
@@ -841,7 +844,7 @@ export default function Step2Media({
                               placeholder={isCustomZone ? `Ej: instrucciones de uso, ubicación, cómo funciona...` : t('step3.descriptionPlaceholder')}
                               rows={3}
                               maxLength={1000}
-                              className="w-full px-3 py-2 text-sm bg-gray-800/80 border border-gray-700/50 rounded-lg text-gray-200 placeholder-gray-600 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-colors resize-none"
+                              className="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-colors resize-none"
                             />
                             <p className="text-xs text-gray-500 flex items-center gap-1.5">
                               <Sparkles className="w-3 h-3 text-violet-400 flex-shrink-0" />
@@ -899,7 +902,7 @@ export default function Step2Media({
         <button
           type="button"
           onClick={onBack}
-          className="h-12 sm:h-14 px-4 sm:px-6 rounded-xl border border-gray-700 text-gray-300 font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+          className="h-12 sm:h-14 px-4 sm:px-6 rounded-xl border border-gray-200 text-gray-600 font-medium hover:bg-gray-100 transition-colors flex items-center gap-2"
         >
           <ChevronLeft className="w-5 h-5" />
           <span className="hidden sm:inline">{t('step3.back')}</span>
@@ -910,7 +913,7 @@ export default function Step2Media({
           disabled={uploading || (media.length > 0 && !allMediaComplete)}
           className={`flex-1 h-12 sm:h-14 rounded-xl text-base sm:text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
             uploading || (media.length > 0 && !allMediaComplete)
-              ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
               : 'bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25'
           }`}
         >

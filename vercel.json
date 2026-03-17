@@ -7,6 +7,9 @@
     "app/api/upload/route.ts": {
       "maxDuration": 60
     },
+    "app/api/upload-large/route.ts": {
+      "maxDuration": 60
+    },
     "app/api/ai-setup/generate-manual/route.ts": {
       "maxDuration": 300
     },
@@ -36,10 +39,6 @@
     {
       "path": "/api/cron/guest-followup",
       "schedule": "0 10 * * *"
-    },
-    {
-      "path": "/api/cron/verifactu-status",
-      "schedule": "0 * * * *"
     },
     {
       "path": "/api/cron/demo-followup",

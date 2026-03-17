@@ -18,6 +18,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
+    // Validate MIME type — only images and videos allowed
+    // Some mobile browsers send empty or non-standard MIME types for .mp4/.mov files,
+    // so fall back to extension-based detection when type is missing/unknown
+    const allowedTypes = [
+      'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+      'video/mp4', 'video/quicktime', 'video/webm', 'video/avi', 'video/mov',
+      'application/octet-stream', // generic binary — some browsers use this for video
+    ]
+    const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
+    const allowedExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'webm', 'avi']
+    if (!allowedTypes.includes(file.type) && !allowedExts.includes(ext)) {
+      return NextResponse.json({ error: "Tipo de archivo no permitido. Solo se permiten imágenes y vídeos." }, { status: 400 })
+    }
+
     // For very large files, we'll use a different strategy
     // In production, this could upload to AWS S3, Cloudinary, or another service
     // For now, we'll try to process smaller chunks

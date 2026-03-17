@@ -80,7 +80,7 @@ interface Step2DetailsProps {
 }
 
 // Reusable input style
-const inputClass = 'h-10 w-full rounded-lg border border-gray-700 bg-gray-900 px-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm'
+const inputClass = 'h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm'
 
 // Reusable select button
 function OptionButton({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: React.ReactNode }) {
@@ -90,8 +90,8 @@ function OptionButton({ selected, onClick, children }: { selected: boolean; onCl
       onClick={onClick}
       className={`px-4 py-2.5 rounded-lg border text-sm font-medium transition-all duration-200 ${
         selected
-          ? 'bg-violet-600/20 border-violet-500 text-white'
-          : 'bg-gray-900/60 border-gray-700 text-gray-400 hover:border-gray-600'
+          ? 'bg-violet-50 border-violet-500 text-violet-700'
+          : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
       }`}
     >
       {children}
@@ -103,7 +103,7 @@ function OptionButton({ selected, onClick, children }: { selected: boolean; onCl
 function Section({ icon: Icon, title, children }: { icon: any; title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+      <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
         <Icon className="w-5 h-5 text-violet-400" />
         {title}
       </h3>
@@ -115,7 +115,7 @@ function Section({ icon: Icon, title, children }: { icon: any; title: string; ch
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
-  return <label className="block text-sm font-medium text-gray-300">{children}</label>
+  return <label className="block text-sm font-medium text-gray-600">{children}</label>
 }
 
 export default function Step2Details({ data, onChange, onNext, onBack, hasParking }: Step2DetailsProps) {
@@ -148,11 +148,11 @@ export default function Step2Details({ data, onChange, onNext, onBack, hasParkin
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-2xl sm:text-3xl font-bold text-white mb-2"
+          className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2"
         >
           {t('step2.title')}
         </motion.h2>
-        <p className="text-gray-400 text-sm sm:text-base">{t('step2.subtitle')}</p>
+        <p className="text-gray-500 text-sm sm:text-base">{t('step2.subtitle')}</p>
       </div>
 
 
@@ -184,14 +184,18 @@ export default function Step2Details({ data, onChange, onNext, onBack, hasParkin
           <FieldLabel>{t('step2.support.hours')}</FieldLabel>
           <div className="flex items-center gap-3">
             <input
-              type="time"
+              type="text"
+              placeholder="09:00"
+              pattern="[0-9]{2}:[0-9]{2}"
               value={data.supportHoursFrom}
               onChange={(e) => update({ supportHoursFrom: e.target.value })}
               className={inputClass + ' w-28 sm:w-32'}
             />
-            <span className="text-gray-500">{t('step2.support.to')}</span>
+            <span className="text-gray-400">{t('step2.support.to')}</span>
             <input
-              type="time"
+              type="text"
+              placeholder="22:00"
+              pattern="[0-9]{2}:[0-9]{2}"
               value={data.supportHoursTo}
               onChange={(e) => update({ supportHoursTo: e.target.value })}
               className={inputClass + ' w-28 sm:w-32'}
@@ -286,7 +290,7 @@ export default function Step2Details({ data, onChange, onNext, onBack, hasParkin
       </AnimatePresence>
 
       {/* ============ CHECKOUT ============ */}
-      <div className="border-t border-gray-800 pt-2" />
+      <div className="border-t border-gray-200 pt-2" />
       <Section icon={LogOut} title={t('step2.checkout.title')}>
         {/* Checkout instructions */}
         <div className="space-y-2">
@@ -296,9 +300,9 @@ export default function Step2Details({ data, onChange, onNext, onBack, hasParkin
             onChange={(e) => update({ checkoutInstructions: e.target.value })}
             placeholder={t('step2.checkout.instructionsPlaceholder')}
             rows={4}
-            className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm resize-none"
+            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm resize-none"
           />
-          <p className="text-xs text-gray-500">{t('step2.checkout.instructionsHint')}</p>
+          <p className="text-xs text-gray-400">{t('step2.checkout.instructionsHint')}</p>
         </div>
 
         {/* Key return */}
@@ -399,9 +403,9 @@ export default function Step2Details({ data, onChange, onNext, onBack, hasParkin
       </Section>
 
       {/* ============ ITEM LOCATIONS ============ */}
-      <div className="border-t border-gray-800 pt-2" />
+      <div className="border-t border-gray-200 pt-2" />
       <Section icon={Package} title={t('step2.items.title')}>
-        <p className="text-sm text-gray-500 -mt-2">{t('step2.items.subtitle')}</p>
+        <p className="text-sm text-gray-400 -mt-2">{t('step2.items.subtitle')}</p>
         <div className="space-y-3">
           {([
             { key: 'iron' as const, label: t('step2.items.iron'), placeholder: t('step2.items.ironPlaceholder') },
@@ -418,13 +422,13 @@ export default function Step2Details({ data, onChange, onNext, onBack, hasParkin
                   onClick={() => updateItem(key, 'has', !data.items[key].has)}
                   className={`w-10 h-10 rounded-lg border flex-shrink-0 flex items-center justify-center transition-all duration-200 text-lg ${
                     data.items[key].has
-                      ? 'bg-violet-600/20 border-violet-500 text-violet-400'
-                      : 'bg-gray-900/60 border-gray-700 text-gray-600'
+                      ? 'bg-violet-50 border-violet-500 text-violet-400'
+                      : 'bg-white border-gray-200 text-gray-600'
                   }`}
                 >
                   {data.items[key].has ? '✓' : ''}
                 </button>
-                <span className={`text-sm font-medium ${data.items[key].has ? 'text-white' : 'text-gray-500'}`}>
+                <span className={`text-sm font-medium ${data.items[key].has ? 'text-gray-900' : 'text-gray-400'}`}>
                   {label}
                 </span>
               </div>
@@ -458,7 +462,7 @@ export default function Step2Details({ data, onChange, onNext, onBack, hasParkin
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 h-12 sm:h-14 rounded-xl text-base sm:text-lg font-semibold border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+          className="flex-1 h-12 sm:h-14 rounded-xl text-base sm:text-lg font-semibold border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="hidden sm:inline">{t('step2.previous')}</span>

@@ -331,6 +331,7 @@ export async function POST(request: NextRequest) {
       hostContactName: hostContactName || leadName,
       hostContactPhone: hostContactPhone || leadPhone || '',
       hostContactEmail: hostContactEmail || leadEmail,
+      details: body.intelligence?.details,
     }
 
     // 9. Build essential zones (free, template-based)

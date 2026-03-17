@@ -67,6 +67,7 @@ export function VideoUpload({
   const cameraRef = useRef<HTMLVideoElement>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const recordedChunksRef = useRef<Blob[]>([])
+  const xhrRef = useRef<XMLHttpRequest | null>(null)
   const { addNotification } = useNotifications()
 
   // Sync previewUrl with initial value
@@ -76,7 +77,7 @@ export function VideoUpload({
     }
   }, [value])
 
-  // Clean up blob URLs when component unmounts
+  // Clean up blob URLs, media streams, and in-flight XHR when component unmounts
   useEffect(() => {
     return () => {
       if (previewUrl?.startsWith('blob:')) {
@@ -84,6 +85,10 @@ export function VideoUpload({
       }
       if (mediaStream) {
         mediaStream.getTracks().forEach(track => track.stop())
+      }
+      if (xhrRef.current) {
+        xhrRef.current.abort()
+        xhrRef.current = null
       }
     }
   }, [previewUrl, mediaStream])
@@ -346,9 +351,6 @@ export function VideoUpload({
 
     // Only compress if file is larger than 4MB and FFmpeg is supported
     if (fileSizeMB > 4 && isFFmpegSupported()) {
-      console.log('🎬 Starting FFmpeg compression...')
-      console.log('📦 File size:', fileSizeMB.toFixed(2), 'MB')
-
       try {
         setIsCompressing(true)
         setUploadStage('compressing')
@@ -363,11 +365,15 @@ export function VideoUpload({
 
         const quality = fileSizeMB > 30 ? 'low' : fileSizeMB > 15 ? 'medium' : 'high'
 
+        // Flag to ignore progress callbacks from background FFmpeg after timeout/failure
+        let compressionActive = true
+
         fileToUpload = await compressVideoFFmpeg(file, {
           maxSizeMB: 4,
           quality,
           onProgress: (message) => {
-            setVideoError(message) // Show progress
+            if (!compressionActive) return
+            setVideoError(message)
             const match = message.match(/(\d+)%/)
             if (match) {
               setCompressionProgress(parseInt(match[1]))
@@ -375,8 +381,8 @@ export function VideoUpload({
           }
         })
 
+        compressionActive = false
         const finalCompressedSizeMB = fileToUpload.size / (1024 * 1024)
-        console.log('✅ FFmpeg compression complete! New size:', finalCompressedSizeMB.toFixed(2), 'MB')
         setVideoError(null)
 
         addNotification({
@@ -387,9 +393,7 @@ export function VideoUpload({
         })
 
       } catch (compressionError) {
-        console.error('❌ FFmpeg compression failed:', compressionError)
-        // Compression failed - upload original (limit is 100MB)
-        console.log('⚠️ Compression failed, uploading original:', fileSizeMB.toFixed(1), 'MB')
+        // Compression failed (timeout or CSP block) — upload original
         setVideoError(null)
         addNotification({
           type: 'warning',
@@ -400,8 +404,6 @@ export function VideoUpload({
       } finally {
         setIsCompressing(false)
       }
-    } else if (fileSizeMB > 4) {
-      console.log('📤 File under 4MB or FFmpeg not supported, uploading original')
     }
     
     // Start upload process immediately to show progress bar
@@ -455,7 +457,8 @@ export function VideoUpload({
     
     try {
       const xhr = new XMLHttpRequest()
-      
+      xhrRef.current = xhr
+
       xhr.upload.addEventListener('progress', (e) => {
         if (e.lengthComputable) {
           const progress = Math.round((e.loaded / e.total) * 100)
@@ -577,10 +580,24 @@ export function VideoUpload({
             }, 3000)
           }
         } else {
-          throw new Error('Error al subir el video')
+          let errorMsg = 'Error al subir el video'
+          try {
+            const errData = JSON.parse(xhr.responseText)
+            if (errData.error) errorMsg = errData.error
+          } catch {}
+          setVideoError(errorMsg)
+          setUploading(false)
+          setUploadSuccess(false)
+          URL.revokeObjectURL(objectUrl)
+          addNotification({
+            type: 'error',
+            title: 'Error al subir video',
+            message: errorMsg,
+            read: false
+          })
         }
       }
-      
+
       xhr.onerror = () => {
         const errorMessage = xhr.status === 413 
           ? 'El video es demasiado grande. Intenta con un video más corto o de menor calidad.'

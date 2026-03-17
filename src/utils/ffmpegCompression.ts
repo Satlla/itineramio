@@ -89,8 +89,8 @@ export async function compressVideoFFmpeg(
     return file
   }
 
-  // Race against 5-second timeout — if FFmpeg hangs (slow unpkg.com WASM download), fail fast
-  return compressWithTimeout(file, options, 5_000)
+  // Race against 90-second timeout — WASM download from unpkg.com can take 30-60s on mobile
+  return compressWithTimeout(file, options, 90_000)
 }
 
 async function _doCompress(
@@ -195,7 +195,8 @@ function getExtension(filename: string): string {
   return '.mp4'
 }
 
-// Check if FFmpeg is supported (WebAssembly support)
+// Check if FFmpeg is supported (requires WebAssembly + SharedArrayBuffer)
+// SharedArrayBuffer is disabled on iOS unless COOP/COEP headers are set
 export function isFFmpegSupported(): boolean {
-  return typeof WebAssembly !== 'undefined'
+  return typeof WebAssembly !== 'undefined' && typeof SharedArrayBuffer !== 'undefined'
 }
