@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
-import jwt from 'jsonwebtoken'
-
-const JWT_SECRET = process.env.JWT_SECRET
-
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is not set')
-}
+import { requireAuth } from '../../../../../src/lib/auth'
 
 export async function PUT(
   request: NextRequest,
@@ -15,15 +9,10 @@ export async function PUT(
   try {
     const { id: propertySetId } = await params
     const { propertyOrders } = await request.json()
-    
-    // Get user from JWT token
-    const token = request.cookies.get('auth-token')?.value
-    if (!token) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
-    const userId = decoded.userId
+    const authResult = await requireAuth(request)
+    if (authResult instanceof Response) return authResult
+    const userId = authResult.userId
 
 
     // Verify the property set belongs to the user

@@ -139,7 +139,7 @@ export async function DELETE(
       )
     }
 
-    await prisma.propertyExpense.delete({ where: { id } })
+    await prisma.propertyExpense.deleteMany({ where: { id, userId } })
 
     return NextResponse.json({ success: true })
   } catch (error) {
