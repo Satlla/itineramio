@@ -312,6 +312,17 @@ export default function ChatBot({
     }
   }, [isOpen, isMinimized])
 
+  // Listen for demo onboarding requesting to open the chatbot
+  useEffect(() => {
+    if (!isDemoMode) return
+    const handler = () => {
+      setIsOpen(true)
+      setShowWelcomeBubble(false)
+    }
+    window.addEventListener('demo:open-chatbot', handler)
+    return () => window.removeEventListener('demo:open-chatbot', handler)
+  }, [isDemoMode])
+
   // Show welcome bubble after 3 seconds (only once per session, only if chat not already opened)
   useEffect(() => {
     if (isEnabled !== true || isOpen) return

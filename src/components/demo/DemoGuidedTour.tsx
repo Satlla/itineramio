@@ -1,225 +1,226 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X } from 'lucide-react'
-
-interface TourStep {
-  targetId: string
-  title: string
-  description: string
-  position: 'top' | 'bottom' | 'left' | 'right'
-}
-
-const TOUR_STEPS: TourStep[] = [
-  {
-    targetId: 'zonas',
-    title: 'Secciones del manual',
-    description: 'Estas son las secciones de tu manual. Tus huespedes acceden escaneando un QR.',
-    position: 'top',
-  },
-  {
-    targetId: 'demo-chatbot-btn',
-    title: 'Asistente IA 24/7',
-    description: 'Tu asistente IA 24/7. Pruebalo! Pregunta lo que quieras.',
-    position: 'top',
-  },
-  {
-    targetId: 'language-selector',
-    title: '3 idiomas automaticos',
-    description: 'Tu manual funciona en espanol, ingles y frances automaticamente.',
-    position: 'bottom',
-  },
-  {
-    targetId: 'demo-register-cta',
-    title: 'Mantener tu manual',
-    description: 'Registrate para mantener tu manual activo para siempre.',
-    position: 'top',
-  },
-]
+import { X, ChevronRight, Bot, QrCode, Globe, Clock, MessageCircle, Zap } from 'lucide-react'
 
 interface DemoGuidedTourProps {
   isActive: boolean
 }
 
+const SLIDES = [
+  {
+    emoji: '🏠',
+    tag: 'Tu manual ya está activo',
+    title: 'Esto es lo que ven tus huéspedes',
+    bullets: [
+      { icon: QrCode, text: 'Acceden escaneando el QR de la habitación' },
+      { icon: Globe, text: 'En español, inglés y francés automáticamente' },
+      { icon: Clock, text: 'Check-in, WiFi, checkout — todo en segundos' },
+    ],
+    stat: { number: '4h', label: 'menos de gestión cada semana en Airbnb' },
+    cta: 'Ver cómo funciona el asistente',
+  },
+  {
+    emoji: '📱',
+    tag: 'Cero mensajes repetitivos',
+    title: 'Preguntas que dejan de llegar a tu móvil',
+    bullets: [
+      { icon: MessageCircle, text: '¿Cuál es el código del cajetín?' },
+      { icon: MessageCircle, text: '¿A qué hora tengo que salir?' },
+      { icon: MessageCircle, text: '¿Dónde están las toallas extra?' },
+    ],
+    stat: { number: '23min', label: 'de media que tarda un huésped en leer tu guía' },
+    cta: 'Probar el asistente IA',
+  },
+  {
+    emoji: '🤖',
+    tag: 'Asistente IA 24/7 incluido',
+    title: 'Responde por ti a las 3am',
+    description:
+      'Tus huéspedes pueden preguntar cualquier cosa — el asistente conoce tu propiedad y responde en su idioma al instante.',
+    examples: [
+      '"¿Cómo enciendo el aire acondicionado?"',
+      '"¿Hay parkings cerca?"',
+      '"¿Qué restaurantes recomiendas?"',
+    ],
+    stat: { number: '0', label: 'llamadas de urgencia de noche' },
+    cta: 'Abrir el asistente ahora →',
+    isChatbotSlide: true,
+  },
+]
+
 export default function DemoGuidedTour({ isActive }: DemoGuidedTourProps) {
-  const [currentStep, setCurrentStep] = useState(-1)
-  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 })
+  const [visible, setVisible] = useState(false)
+  const [slide, setSlide] = useState(0)
   const [dismissed, setDismissed] = useState(false)
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     if (!isActive) return
-
-    // Check if tour was already completed
-    const completed = localStorage.getItem('demo-guided-tour-completed')
-    if (completed) {
+    if (localStorage.getItem('demo-onboarding-v2-done')) {
       setDismissed(true)
       return
     }
-
-    // Start tour sequence with delays
-    const stepDelays = [1000, 9000, 17000, 25000]
-    const timers: NodeJS.Timeout[] = []
-
-    stepDelays.forEach((delay, index) => {
-      const timer = setTimeout(() => {
-        if (!dismissed) {
-          setCurrentStep(index)
-          updatePosition(index)
-        }
-      }, delay)
-      timers.push(timer)
-    })
-
-    // Auto-dismiss after last step + 8s
-    const dismissTimer = setTimeout(() => {
-      handleDismiss()
-    }, 33000)
-    timers.push(dismissTimer)
-
-    return () => timers.forEach(clearTimeout)
-  }, [isActive, dismissed])
-
-  const updatePosition = (stepIndex: number) => {
-    const step = TOUR_STEPS[stepIndex]
-    if (!step) return
-
-    const target = document.getElementById(step.targetId)
-    if (!target) return
-
-    const rect = target.getBoundingClientRect()
-    const scrollTop = window.scrollY
-
-    let top = 0
-    let left = 0
-
-    switch (step.position) {
-      case 'top':
-        top = rect.top + scrollTop - 12
-        left = rect.left + rect.width / 2
-        break
-      case 'bottom':
-        top = rect.bottom + scrollTop + 12
-        left = rect.left + rect.width / 2
-        break
-      case 'left':
-        top = rect.top + scrollTop + rect.height / 2
-        left = rect.left - 12
-        break
-      case 'right':
-        top = rect.top + scrollTop + rect.height / 2
-        left = rect.right + 12
-        break
-    }
-
-    // Clamp left to stay within viewport (tooltip is w-72 = 288px)
-    const tooltipWidth = 288
-    const viewportWidth = window.innerWidth
-    const padding = 16
-    if (step.position === 'top' || step.position === 'bottom') {
-      // Centered tooltips: ensure they don't overflow
-      const minLeft = padding + tooltipWidth / 2
-      const maxLeft = viewportWidth - padding - tooltipWidth / 2
-      left = Math.max(minLeft, Math.min(maxLeft, left))
-    }
-
-    setTooltipPosition({ top, left })
-
-    // Scroll into view if needed
-    target.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }
+    // Show after a short delay so the guide loads first
+    const t = setTimeout(() => setVisible(true), 1200)
+    return () => clearTimeout(t)
+  }, [isActive])
 
   const handleDismiss = () => {
+    setVisible(false)
     setDismissed(true)
-    setCurrentStep(-1)
-    localStorage.setItem('demo-guided-tour-completed', 'true')
+    localStorage.setItem('demo-onboarding-v2-done', 'true')
   }
 
-  const handleNext = () => {
-    if (currentStep < TOUR_STEPS.length - 1) {
-      const next = currentStep + 1
-      setCurrentStep(next)
-      updatePosition(next)
+  const handleCTA = () => {
+    const current = SLIDES[slide]
+    if ((current as any).isChatbotSlide) {
+      handleDismiss()
+      // Open chatbot via custom event — ChatBot listens for this
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('demo:open-chatbot'))
+      }, 300)
+      return
+    }
+    if (slide < SLIDES.length - 1) {
+      setSlide(slide + 1)
     } else {
       handleDismiss()
     }
   }
 
-  if (dismissed || currentStep < 0 || currentStep >= TOUR_STEPS.length) return null
+  if (dismissed || !visible) return null
 
-  const step = TOUR_STEPS[currentStep]
+  const current = SLIDES[slide]
 
   return (
-    <>
-      {/* Semi-transparent overlay */}
-      <div
-        className="fixed inset-0 z-[80] bg-black/30"
-        onClick={handleDismiss}
-      />
+    <AnimatePresence>
+      {visible && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[90] bg-black/50 backdrop-blur-sm"
+            onClick={handleDismiss}
+          />
 
-      {/* Tooltip */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, scale: 0.9, y: step.position === 'top' ? 10 : step.position === 'bottom' ? -10 : 0 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          style={{
-            position: 'absolute',
-            top: tooltipPosition.top,
-            left: tooltipPosition.left,
-            transform: step.position === 'top' ? 'translate(-50%, -100%)'
-              : step.position === 'bottom' ? 'translate(-50%, 0)'
-              : step.position === 'left' ? 'translate(-100%, -50%)'
-              : 'translate(0, -50%)',
-            zIndex: 90,
-          }}
-          className="w-72 pointer-events-auto"
-        >
-          <div className="bg-gray-900 border border-gray-700 rounded-xl p-4 shadow-xl shadow-black/30">
-            {/* Close */}
-            <button
-              onClick={handleDismiss}
-              className="absolute top-2 right-2 p-1 rounded-lg hover:bg-gray-800 text-gray-500 hover:text-gray-300 transition-colors"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-
-            <div className="space-y-1.5 pr-6">
-              <p className="text-sm font-semibold text-white">{step.title}</p>
-              <p className="text-xs text-gray-400 leading-relaxed">{step.description}</p>
-            </div>
-
-            <div className="flex items-center justify-between mt-3">
-              <div className="flex gap-1">
-                {TOUR_STEPS.map((_, i) => (
-                  <div
-                    key={i}
-                    className={`w-1.5 h-1.5 rounded-full ${i === currentStep ? 'bg-violet-400' : 'bg-gray-700'}`}
-                  />
-                ))}
+          {/* Sheet — bottom on mobile, centered on desktop */}
+          <motion.div
+            initial={{ opacity: 0, y: '100%' }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: '100%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+            className="fixed bottom-0 left-0 right-0 z-[91] sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:right-auto sm:w-[440px] sm:-translate-x-1/2 sm:-translate-y-1/2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden">
+              {/* Handle (mobile only) */}
+              <div className="flex justify-center pt-3 sm:hidden">
+                <div className="w-10 h-1 rounded-full bg-gray-200" />
               </div>
-              <button
-                onClick={handleNext}
-                className="text-xs font-medium text-violet-400 hover:text-violet-300 transition-colors"
-              >
-                {currentStep < TOUR_STEPS.length - 1 ? 'Siguiente' : 'Entendido'}
-              </button>
-            </div>
 
-            {/* Arrow */}
-            <div
-              className={`absolute w-3 h-3 bg-gray-900 border border-gray-700 rotate-45 ${
-                step.position === 'top' ? 'bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 border-t-0 border-l-0'
-                : step.position === 'bottom' ? 'top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 border-b-0 border-r-0'
-                : step.position === 'left' ? 'right-0 top-1/2 translate-x-1/2 -translate-y-1/2 border-b-0 border-l-0'
-                : 'left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 border-t-0 border-r-0'
-              }`}
-            />
-          </div>
-        </motion.div>
-      </AnimatePresence>
-    </>
+              {/* Close */}
+              <button
+                onClick={handleDismiss}
+                className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 text-gray-400 transition-colors z-10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="px-6 pt-4 pb-6 sm:pt-6">
+                {/* Tag */}
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-100 text-violet-700 text-xs font-semibold">
+                    <Zap className="w-3 h-3" />
+                    {current.tag}
+                  </span>
+                </div>
+
+                {/* Emoji + Title */}
+                <div className="flex items-start gap-4 mb-5">
+                  <span className="text-4xl leading-none">{current.emoji}</span>
+                  <h2 className="text-xl font-bold text-gray-900 leading-snug">
+                    {current.title}
+                  </h2>
+                </div>
+
+                {/* Content */}
+                {'bullets' in current && current.bullets && (
+                  <ul className="space-y-3 mb-5">
+                    {current.bullets.map((b, i) => (
+                      <li key={i} className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center flex-shrink-0">
+                          <b.icon className="w-4 h-4 text-violet-600" />
+                        </div>
+                        <span className="text-sm text-gray-700 font-medium">{b.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {'description' in current && current.description && (
+                  <p className="text-sm text-gray-600 leading-relaxed mb-4">
+                    {current.description}
+                  </p>
+                )}
+
+                {'examples' in current && current.examples && (
+                  <div className="space-y-2 mb-5">
+                    {current.examples.map((ex, i) => (
+                      <div key={i} className="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2.5">
+                        <Bot className="w-3.5 h-3.5 text-violet-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 italic">{ex}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Stat */}
+                <div className="flex items-center gap-3 bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-100 rounded-2xl px-4 py-3 mb-6">
+                  <span className="text-3xl font-black text-violet-600">{current.stat.number}</span>
+                  <span className="text-sm text-gray-600 leading-tight">{current.stat.label}</span>
+                </div>
+
+                {/* CTA */}
+                <button
+                  onClick={handleCTA}
+                  className="w-full h-13 py-3.5 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold text-base flex items-center justify-center gap-2 shadow-lg shadow-violet-500/30 active:scale-[0.98] transition-transform"
+                >
+                  {(current as any).isChatbotSlide
+                    ? <><Bot className="w-5 h-5" />{current.cta}</>
+                    : <>{current.cta}<ChevronRight className="w-5 h-5" /></>
+                  }
+                </button>
+
+                {/* Skip + Dots */}
+                <div className="flex items-center justify-between mt-4">
+                  <button
+                    onClick={handleDismiss}
+                    className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    Saltar tour
+                  </button>
+                  <div className="flex gap-1.5">
+                    {SLIDES.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSlide(i)}
+                        className={`rounded-full transition-all duration-200 ${
+                          i === slide
+                            ? 'w-5 h-1.5 bg-violet-500'
+                            : 'w-1.5 h-1.5 bg-gray-200'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   )
 }
