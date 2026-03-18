@@ -296,46 +296,67 @@ export default function Step2Media({
         let mediaUrl: string
 
         if (clientUpload) {
-          // Client-side upload: browser → Vercel Blob directly (no serverless body limit)
-          // Vercel's onUploadProgress doesn't fire reliably in all browsers (no supportsRequestStreams
-          // in Safari/Firefox). We run a simulated progress that approaches 90%, then jumps to 100%
-          // when the upload resolves. Real progress events override the fake ones if they DO fire.
+          // Manual client-side upload: bypasses @vercel/blob/client entirely.
+          // Flow: 1) POST our server → get clientToken
+          //       2) XHR PUT → vercel.com/api/blob with real XHR upload progress
+          //       3) Parse blob URL from response
           setUploadProgress(0)
 
-          // Estimate: ~1.5 MB/s → approach 90% asymptotically over that duration
-          const estimatedMs = Math.max(2000, (fileToUpload.size / (1.5 * 1024 * 1024)) * 1000)
-          const intervalMs = 250
-          const totalSteps = estimatedMs / intervalMs
-          let step = 0
-          let lastRealPct = 0
-          const fakeTimer = setInterval(() => {
-            step++
-            const fakePct = Math.round(90 * (1 - Math.exp(-4 * step / totalSteps)))
-            setUploadProgress(p => Math.max(p ?? 0, Math.max(lastRealPct, fakePct)))
-          }, intervalMs)
-
-          try {
-            const { upload } = await import('@vercel/blob/client')
-            const blob = await upload(fileToUpload.name, fileToUpload, {
-              access: 'public',
-              handleUploadUrl: uploadEndpoint,
-              onUploadProgress: ({ percentage }) => {
-                if (percentage > 0) {
-                  lastRealPct = Math.round(percentage)
-                  setUploadProgress(lastRealPct)
-                }
-              },
-            })
-            clearInterval(fakeTimer)
-            setUploadProgress(100)
-            await new Promise(r => setTimeout(r, 350))
-            setUploadProgress(null)
-            mediaUrl = blob.url
-          } catch (e) {
-            clearInterval(fakeTimer)
-            setUploadProgress(null)
-            throw e
+          // Step 1 — get client token
+          const tokenRes = await fetch(uploadEndpoint, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              type: 'blob.generate-client-token',
+              payload: { pathname: fileToUpload.name, multipart: false },
+            }),
+          })
+          if (!tokenRes.ok) {
+            const err = await tokenRes.json().catch(() => ({}))
+            throw new Error((err as any).error || `Token error ${tokenRes.status}`)
           }
+          const tokenData = await tokenRes.json()
+          const clientToken: string = tokenData.clientToken
+          if (!clientToken) throw new Error('No client token recibido')
+
+          // Step 2 — XHR PUT with real upload progress
+          const blobUrl = await new Promise<string>((resolve, reject) => {
+            const xhr = new XMLHttpRequest()
+            const uploadUrl = `https://vercel.com/api/blob/?pathname=${encodeURIComponent(fileToUpload.name)}`
+            xhr.open('PUT', uploadUrl, true)
+            xhr.setRequestHeader('Authorization', `Bearer ${clientToken}`)
+            xhr.setRequestHeader('x-api-version', '12')
+            xhr.setRequestHeader('x-vercel-blob-access', 'public')
+            xhr.setRequestHeader('x-add-random-suffix', '1')
+
+            xhr.upload.addEventListener('progress', (e) => {
+              if (e.lengthComputable && e.total > 0) {
+                setUploadProgress(Math.min(99, Math.round((e.loaded / e.total) * 100)))
+              }
+            })
+
+            xhr.onload = () => {
+              if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                  const data = JSON.parse(xhr.responseText)
+                  if (data.url) { resolve(data.url) }
+                  else { reject(new Error(`Sin URL en respuesta: ${xhr.responseText}`)) }
+                } catch {
+                  reject(new Error(`Respuesta inválida: ${xhr.responseText}`))
+                }
+              } else {
+                reject(new Error(`Upload ${xhr.status}: ${xhr.responseText}`))
+              }
+            }
+            xhr.onerror = () => reject(new Error('Error de red en la subida'))
+            xhr.onabort = () => reject(new Error('Subida cancelada'))
+            xhr.send(fileToUpload)
+          })
+
+          setUploadProgress(100)
+          await new Promise(r => setTimeout(r, 350))
+          setUploadProgress(null)
+          mediaUrl = blobUrl
         } else {
           const formData = new FormData()
           formData.append('file', fileToUpload)
