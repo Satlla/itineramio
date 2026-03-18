@@ -64,7 +64,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
             >
               <Link href="/" className="flex items-center space-x-2">
                 <ItineramioLogo size="md" gradient />
-                <span className="text-xl font-bold" style={{ color: '#484848' }}>
+                <span className="text-xl font-bold text-gray-600">
                   Itineramio
                 </span>
               </Link>
@@ -223,12 +223,17 @@ export function Navbar({ transparent = false }: NavbarProps) {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-              className="fixed top-0 right-0 bottom-0 w-80 bg-white shadow-2xl z-50 lg:hidden"
+              className="fixed top-0 right-0 bottom-0 w-[85vw] max-w-[320px] bg-white shadow-2xl z-50 lg:hidden overflow-y-auto overflow-x-hidden"
+              style={{
+                paddingTop: 'env(safe-area-inset-top, 0px)',
+                paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+                paddingRight: 'env(safe-area-inset-right, 0px)',
+              }}
             >
               <div className="flex items-center justify-between p-6 border-b">
                 <div className="flex items-center space-x-2">
                   <ItineramioLogo size="md" />
-                  <span className="text-xl font-bold" style={{ color: '#484848' }}>
+                  <span className="text-xl font-bold text-gray-600">
                     Itineramio
                   </span>
                 </div>

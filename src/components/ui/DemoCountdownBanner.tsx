@@ -165,8 +165,8 @@ export default function DemoCountdownBanner({ expiresAt, couponCode, leadEmail, 
     setTimeout(() => setCopiedCoupon(false), 2000)
   }, [couponCode])
 
-  const timerColor = urgencyLevel === 'critical' ? 'text-red-400' : urgencyLevel === 'warning' ? 'text-orange-400' : 'text-green-400'
-  const timerBg = urgencyLevel === 'critical' ? 'bg-red-500/10 border-red-500/30' : urgencyLevel === 'warning' ? 'bg-orange-500/10 border-orange-500/30' : 'bg-green-500/10 border-green-500/30'
+  const timerColor = urgencyLevel === 'critical' ? 'text-red-700' : urgencyLevel === 'warning' ? 'text-orange-700' : 'text-green-700'
+  const timerBg = urgencyLevel === 'critical' ? 'bg-red-50 border-red-200' : urgencyLevel === 'warning' ? 'bg-orange-50 border-orange-200' : 'bg-white border-gray-200'
 
   // Expired overlay
   if (urgencyLevel === 'expired') {
@@ -227,7 +227,7 @@ export default function DemoCountdownBanner({ expiresAt, couponCode, leadEmail, 
               <span>{formatTime(secondsLeft)}</span>
             </div>
             <span className="text-xs text-gray-400 hidden sm:inline">{tr.demoManual} · {tr.expiresIn} {Math.ceil(secondsLeft / 60)} {tr.minutes}</span>
-            <div className="hidden md:flex items-center gap-1.5 text-xs text-orange-300">
+            <div className="hidden md:flex items-center gap-1.5 text-xs text-orange-600">
               <Flame className="w-3 h-3" />
               <span className="font-semibold">{spotsRemaining} {tr.spotsLeft}</span>
             </div>
@@ -240,7 +240,7 @@ export default function DemoCountdownBanner({ expiresAt, couponCode, leadEmail, 
             >
               {tr.registerNow}
             </Link>
-            <button onClick={() => setDismissed(true)} className="text-gray-500 hover:text-gray-300 p-1">
+            <button onClick={() => setDismissed(true)} className="text-gray-500 hover:text-gray-700 p-1">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -303,8 +303,8 @@ export default function DemoCountdownBanner({ expiresAt, couponCode, leadEmail, 
           >
             <div className={`flex items-center gap-3 p-4 rounded-xl border shadow-lg ${
               urgencyLevel === 'critical'
-                ? 'bg-red-500/20 border-red-500/40 text-red-200'
-                : 'bg-orange-500/20 border-orange-500/40 text-orange-200'
+                ? 'bg-red-50 border-red-300 text-red-700'
+                : 'bg-orange-50 border-orange-300 text-orange-700'
             }`}>
               <AlertTriangle className="w-5 h-5 flex-shrink-0" />
               <div>

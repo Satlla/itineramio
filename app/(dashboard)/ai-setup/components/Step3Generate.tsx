@@ -250,16 +250,16 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
         transition={{ duration: 0.5 }}
         className="max-w-2xl mx-auto"
       >
-        <div className="bg-gray-900/80 border border-gray-800 rounded-2xl overflow-hidden backdrop-blur-xl">
+        <div className="bg-white/80 border border-gray-200 rounded-2xl overflow-hidden backdrop-blur-xl">
           {/* Header */}
-          <div className="p-6 sm:p-8 text-center space-y-3 border-b border-gray-800/50">
+          <div className="p-6 sm:p-8 text-center space-y-3 border-b border-gray-200/50">
             <div className="w-16 h-16 mx-auto rounded-full bg-violet-500/20 flex items-center justify-center">
               <Sparkles className="w-8 h-8 text-violet-400" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-white">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
               {t('step5.confirmTitle')}
             </h2>
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-500 text-sm">
               {t('step5.confirmSubtitle')}
             </p>
           </div>
@@ -280,7 +280,7 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
               <div className="flex items-start gap-3 p-3 rounded-xl bg-violet-500/5 border border-violet-500/20">
                 <CheckCircle className="w-5 h-5 text-violet-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-violet-300">
+                  <p className="text-sm font-medium text-violet-700">
                     {t('step5.userZones', { count: userZoneNames.length })}
                   </p>
                   <p className="text-xs text-gray-500 mt-0.5">{userZoneNames.join(', ')}</p>
@@ -292,7 +292,7 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
             <div className="flex items-start gap-3 p-3 rounded-xl bg-blue-500/5 border border-blue-500/20">
               <Heart className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-blue-300">{t('step5.nearbyServices')}</p>
+                <p className="text-sm font-medium text-blue-700">{t('step5.nearbyServices')}</p>
                 <p className="text-xs text-gray-500 mt-0.5">{t('step5.nearbyServicesList')}</p>
               </div>
             </div>
@@ -301,15 +301,15 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
             <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20">
               <MapPin className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-amber-300">{t('step5.directions')}</p>
+                <p className="text-sm font-medium text-amber-700">{t('step5.directions')}</p>
                 <p className="text-xs text-gray-500 mt-0.5">{t('step5.directionsList')}</p>
               </div>
             </div>
 
             {/* AI actions */}
-            <div className="mt-6 p-4 rounded-xl bg-gray-800/50 border border-gray-700/50 space-y-2">
-              <p className="text-sm font-medium text-gray-300">{t('step5.aiWillDo')}</p>
-              <ul className="space-y-1.5 text-sm text-gray-400">
+            <div className="mt-6 p-4 rounded-xl bg-gray-50 border border-gray-200 space-y-2">
+              <p className="text-sm font-medium text-gray-600">{t('step5.aiWillDo')}</p>
+              <ul className="space-y-1.5 text-sm text-gray-500">
                 <li className="flex items-center gap-2">
                   <Sparkles className="w-3.5 h-3.5 text-violet-400 flex-shrink-0" />
                   {t('step5.aiAction1')}
@@ -332,7 +332,7 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
               <button
                 type="button"
                 onClick={onBack}
-                className="flex-1 h-12 sm:h-14 rounded-xl text-base font-semibold border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                className="flex-1 h-12 sm:h-14 rounded-xl text-base font-semibold border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
               >
                 {t('step5.cancel')}
               </button>
@@ -385,14 +385,14 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
         </motion.div>
 
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
             {isComplete
               ? t('step5.complete')
               : error
               ? t('step5.error')
               : t('step5.creating')}
           </h2>
-          <p className="text-gray-400 mt-2 text-sm sm:text-base">
+          <p className="text-gray-500 mt-2 text-sm sm:text-base">
             {isComplete
               ? t('step5.statsFormat', { zones: stats.zones, steps: stats.steps, languages: stats.languages, time: stats.time })
               : error
@@ -404,24 +404,24 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
 
       {/* Progress stats bar */}
       <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-sm">
-        <div className="flex items-center gap-2 text-gray-400">
+        <div className="flex items-center gap-2 text-gray-500">
           <Globe className="w-4 h-4" />
           <span>ES &#10003;</span>
           <span>EN {translations.en !== undefined ? (translations.en >= 100 ? '✓' : '...') : ''}</span>
           <span>FR {translations.fr !== undefined ? (translations.fr >= 100 ? '✓' : '...') : ''}</span>
         </div>
-        <div className="w-px h-4 bg-gray-700 hidden sm:block" />
-        <div className="flex items-center gap-2 text-gray-400">
+        <div className="w-px h-4 bg-gray-200 hidden sm:block" />
+        <div className="flex items-center gap-2 text-gray-500">
           <Layers className="w-4 h-4" />
           <span>{zones.length} {t('step5.zones')}</span>
         </div>
-        <div className="w-px h-4 bg-gray-700 hidden sm:block" />
-        <div className="flex items-center gap-2 text-gray-400">
+        <div className="w-px h-4 bg-gray-200 hidden sm:block" />
+        <div className="flex items-center gap-2 text-gray-500">
           <ListChecks className="w-4 h-4" />
           <span>{totalSteps} {t('step5.steps')}</span>
         </div>
-        <div className="w-px h-4 bg-gray-700 hidden sm:block" />
-        <div className="flex items-center gap-2 text-gray-400">
+        <div className="w-px h-4 bg-gray-200 hidden sm:block" />
+        <div className="flex items-center gap-2 text-gray-500">
           <Clock className="w-4 h-4" />
           <span>{stats?.time || elapsed}s</span>
         </div>
@@ -430,7 +430,7 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
       {/* Zone cards */}
       <div
         ref={scrollRef}
-        className="max-h-[50vh] overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent"
+        className="max-h-[50vh] overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
       >
         <AnimatePresence>
           {zones.map((zone, index) => (
@@ -444,17 +444,17 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
                 stiffness: 200,
                 delay: 0.05,
               }}
-              className="bg-gray-900/80 backdrop-blur-xl border border-gray-800 rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4"
+              className="bg-white backdrop-blur-xl border border-gray-200 rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4"
             >
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-violet-600/20 flex items-center justify-center text-lg sm:text-xl flex-shrink-0">
                 {iconMap[zone.icon] || '📋'}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-white font-semibold truncate text-sm sm:text-base">{zone.name}</h3>
+                <h3 className="text-gray-900 font-semibold truncate text-sm sm:text-base">{zone.name}</h3>
                 <p className="text-gray-500 text-xs sm:text-sm truncate">{zone.description}</p>
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-                <span className="text-[10px] sm:text-xs text-gray-500">{zone.stepsCount}</span>
+                <span className="text-[10px] sm:text-xs text-gray-400">{zone.stepsCount}</span>
                 <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
               </div>
             </motion.div>
@@ -469,7 +469,7 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
             className="flex items-center justify-center py-4 gap-3"
           >
             <Loader2 className="w-5 h-5 text-violet-400 animate-spin" />
-            <span className="text-sm text-gray-500">{t('step5.generatingNext')}</span>
+            <span className="text-sm text-gray-400">{t('step5.generatingNext')}</span>
           </motion.div>
         )}
       </div>
@@ -516,8 +516,8 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
           {upgradeRequired && (
             <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-5 text-center space-y-3">
               <Crown className="w-8 h-8 text-amber-400 mx-auto" />
-              <p className="text-amber-200 font-medium">{t('step5.upgrade.title')}</p>
-              <p className="text-sm text-gray-400">{t('step5.upgrade.subtitle')}</p>
+              <p className="text-amber-700 font-medium">{t('step5.upgrade.title')}</p>
+              <p className="text-sm text-gray-500">{t('step5.upgrade.subtitle')}</p>
               <button
                 type="button"
                 onClick={() => router.push('/account/plans')}
@@ -533,7 +533,7 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
               <button
                 type="button"
                 onClick={() => setRetryCount(c => c + 1)}
-                className="flex-1 h-14 rounded-xl text-lg font-semibold border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                className="flex-1 h-14 rounded-xl text-lg font-semibold border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
               >
                 {t('step5.retry')}
               </button>
@@ -541,7 +541,7 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
             <button
               type="button"
               onClick={() => router.push('/properties')}
-              className={`${upgradeRequired ? 'w-full' : 'flex-1'} h-14 rounded-xl text-lg font-semibold bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors flex items-center justify-center gap-2`}
+              className={`${upgradeRequired ? 'w-full' : 'flex-1'} h-14 rounded-xl text-lg font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors flex items-center justify-center gap-2`}
             >
               {t('step5.backToProperties')}
             </button>

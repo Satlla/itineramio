@@ -62,8 +62,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Verify all reservations have billing config
+    const reservationsWithoutConfig = reservations.filter(r => !r.billingConfig)
+    if (reservationsWithoutConfig.length > 0) {
+      return NextResponse.json(
+        { error: 'Algunas reservas no tienen configuración de facturación. Configura el propietario y comisión antes de facturar.' },
+        { status: 400 }
+      )
+    }
+
     // Verify all reservations belong to the same owner
-    const ownerIds = new Set(reservations.map(r => r.billingConfig.ownerId))
+    const ownerIds = new Set(reservations.map(r => r.billingConfig!.ownerId))
     if (ownerIds.size > 1) {
       return NextResponse.json(
         { error: 'Todas las reservas deben pertenecer al mismo propietario' },
@@ -71,7 +80,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const ownerId = reservations[0].billingConfig.ownerId
+    const ownerId = reservations[0].billingConfig!.ownerId
     if (!ownerId) {
       return NextResponse.json(
         { error: 'Las reservas no tienen propietario asignado' },
@@ -80,7 +89,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the billing config for commission info
-    const billingConfig = reservations[0].billingConfig
+    const billingConfig = reservations[0].billingConfig!
     const owner = billingConfig.owner
     const commissionValue = Number(billingConfig.commissionValue) || 0
     const commissionVat = Number(billingConfig.commissionVat) || 21
@@ -128,7 +137,7 @@ export async function POST(request: NextRequest) {
         const roundedVat = Math.round(lineVat * 100) / 100
 
         return {
-          concept: `Comisión gestión ${r.billingConfig.property.name}`,
+          concept: `Comisión gestión ${r.billingConfig!.property.name}`,
           description: `${r.guestName} - ${checkIn.toLocaleDateString('es-ES')} al ${checkOut.toLocaleDateString('es-ES')} (${r.nights} noches)`,
           quantity: 1,
           unitPrice: roundedBase,

@@ -53,7 +53,7 @@ export function Globe3D() {
   }
 
   return (
-    <div className="relative w-[500px] h-[500px] mx-auto">
+    <div className="relative w-full max-w-[500px] aspect-square mx-auto overflow-hidden">
       {/* Globe Background */}
       <div className="absolute inset-0 rounded-full bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 shadow-2xl border-2 border-white/20">
         {/* Luminous Grid Lines */}

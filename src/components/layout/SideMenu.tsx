@@ -149,7 +149,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="fixed top-0 right-0 h-full w-[85vw] sm:w-80 max-w-sm bg-white shadow-2xl z-50 overflow-y-auto overflow-x-hidden"
+            className="fixed top-0 right-0 h-full w-[85vw] sm:w-80 max-w-sm bg-white shadow-2xl z-[110] overflow-y-auto overflow-x-hidden"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}

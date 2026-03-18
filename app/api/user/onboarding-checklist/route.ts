@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     prisma.chatbotConversation.count({ where: { property: { hostId: userId } } }),
     prisma.property.findFirst({
       where: { hostId: userId },
-      select: { id: true, intelligence: true, isActive: true },
+      select: { id: true, intelligence: true, isPublished: true },
       orderBy: { createdAt: 'asc' },
     }),
     prisma.user.findUnique({
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
       label: '🌍 Publica tu guía',
       description: 'Tu guía estará disponible en el idioma de cada huésped automáticamente',
       href: propertyId ? `/properties/${propertyId}/zones` : '/properties',
-      completed: !!firstProperty?.isActive,
+      completed: !!firstProperty?.isPublished,
       badge: null,
     },
   ]

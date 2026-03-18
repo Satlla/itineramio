@@ -56,30 +56,9 @@ export async function POST(request: NextRequest) {
     const couponCode = code.toUpperCase().trim()
 
     // 1. Check in database first
-    const dbCoupon = await prisma.$queryRaw<Array<{
-      id: string
-      code: string
-      name: string
-      description: string | null
-      type: string
-      discountPercent: number | null
-      discountAmount: number | null
-      freeMonths: number | null
-      maxUses: number | null
-      usedCount: number
-      maxUsesPerUser: number | null
-      validFrom: Date | null
-      validUntil: Date | null
-      applicableToPlans: string[]
-      isActive: boolean
-    }>>`
-      SELECT * FROM coupons
-      WHERE code = ${couponCode}
-      AND "isActive" = true
-      LIMIT 1
-    `
-
-    const coupon = dbCoupon.length > 0 ? dbCoupon[0] : null
+    const coupon = await prisma.coupon.findFirst({
+      where: { code: couponCode, isActive: true }
+    })
 
     if (!coupon) {
       // Try to validate in Stripe as promotion code
@@ -92,7 +71,8 @@ export async function POST(request: NextRequest) {
 
         if (promoCodes.data.length > 0) {
           const promoCode = promoCodes.data[0]
-          const couponId = typeof promoCode.coupon === 'string' ? promoCode.coupon : promoCode.coupon.id
+          const rawCoupon = (promoCode as unknown as { coupon: string | { id: string } }).coupon
+          const couponId = typeof rawCoupon === 'string' ? rawCoupon : rawCoupon.id
           const stripeCoupon = await stripe.coupons.retrieve(couponId)
 
           return NextResponse.json({

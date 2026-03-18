@@ -162,7 +162,7 @@ export default function DemoExitIntent({
                 </span>
               </Link>
 
-              <p className="text-xs text-gray-600 text-center">
+              <p className="text-xs text-gray-400 text-center">
                 20% de descuento con tu cupon exclusivo
               </p>
             </div>

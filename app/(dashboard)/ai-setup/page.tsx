@@ -432,19 +432,17 @@ export default function AISetupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950">
-      {/* Background gradient */}
-      <div className="fixed inset-0 bg-gradient-to-br from-violet-950/30 via-gray-950 to-purple-950/20 pointer-events-none" />
-
+    <div className="min-h-screen bg-gray-50">
       {/* Content */}
       <div className="relative z-10">
         {/* Top bar */}
-        <div className="border-b border-gray-800/50 bg-gray-950/80 backdrop-blur-xl">
+        <div className="border-b border-gray-200 bg-white/80 backdrop-blur-xl">
           <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
             <button
               type="button"
               onClick={() => currentStep > 1 ? setCurrentStep(s => s - 1) : router.push('/properties')}
-              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+              aria-label={currentStep > 1 ? 'Paso anterior' : 'Mis propiedades'}
+              className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               <span className="hidden sm:inline">
@@ -454,8 +452,8 @@ export default function AISetupPage() {
 
             {/* Logo / title */}
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-violet-400" />
-              <span className="text-white font-semibold text-sm sm:text-base">{t('topBar.aiCreation')}</span>
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-violet-600" />
+              <span className="text-gray-900 font-semibold text-sm sm:text-base">{t('topBar.aiCreation')}</span>
             </div>
 
             {/* Step indicator */}
@@ -465,10 +463,10 @@ export default function AISetupPage() {
                   key={step.number}
                   className={`flex items-center gap-0.5 ${
                     step.number === currentStep
-                      ? 'text-white'
+                      ? 'text-gray-900'
                       : step.number < currentStep
-                      ? 'text-violet-400'
-                      : 'text-gray-600'
+                      ? 'text-violet-600'
+                      : 'text-gray-400'
                   }`}
                 >
                   <div
@@ -476,15 +474,15 @@ export default function AISetupPage() {
                       step.number === currentStep
                         ? 'bg-violet-600 text-white'
                         : step.number < currentStep
-                        ? 'bg-violet-600/30 text-violet-400'
-                        : 'bg-gray-800 text-gray-600'
+                        ? 'bg-violet-100 text-violet-600'
+                        : 'bg-gray-100 text-gray-400'
                     }`}
                   >
                     {step.number < currentStep ? '✓' : step.number}
                   </div>
                   <span className="text-[10px] hidden xl:inline">{step.label}</span>
                   {step.number < STEPS.length && (
-                    <div className={`w-4 sm:w-5 h-px ${step.number < currentStep ? 'bg-violet-500' : 'bg-gray-700'}`} />
+                    <div className={`w-4 sm:w-5 h-px ${step.number < currentStep ? 'bg-violet-500' : 'bg-gray-200'}`} />
                   )}
                 </div>
               ))}
@@ -498,13 +496,13 @@ export default function AISetupPage() {
             <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex items-center gap-4">
               <Crown className="w-6 h-6 text-amber-400 flex-shrink-0" />
               <div className="flex-1">
-                <p className="text-amber-200 font-medium text-sm">{planLimitWarning}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{t('planLimit.exploreNote')}</p>
+                <p className="text-amber-700 font-medium text-sm">{planLimitWarning}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{t('planLimit.exploreNote')}</p>
               </div>
               <button
                 type="button"
                 onClick={() => router.push('/account/plans')}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition-colors flex-shrink-0"
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-amber-100 text-amber-600 hover:bg-amber-500/30 transition-colors flex-shrink-0"
               >
                 {t('planLimit.upgradePlan')}
               </button>

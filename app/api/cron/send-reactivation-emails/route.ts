@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
           },
           _count: {
             select: {
-              analytics: true
+              propertyViews: true
             }
           }
         }
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
 
       for (const property of expiredProperties) {
         const existing = hostMap.get(property.hostId)
-        const views = property._count?.analytics || 0
+        const views = property._count?.propertyViews || 0
 
         if (existing) {
           existing.totalViews += views

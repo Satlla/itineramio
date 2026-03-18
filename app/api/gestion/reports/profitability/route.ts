@@ -100,6 +100,7 @@ export async function GET(request: NextRequest) {
     const rows: any[] = []
 
     for (const r of reservations) {
+      if (!r.billingConfig) continue
       const property = r.billingConfig.property
       const owner = r.billingConfig.owner
       const commissionValue = Number(r.billingConfig.commissionValue) || 0

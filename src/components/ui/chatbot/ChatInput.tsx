@@ -29,7 +29,7 @@ export function ChatInput({
   whatsAppLabel,
 }: ChatInputProps) {
   return (
-    <div className="border-t border-gray-100 px-4 py-3">
+    <div className="border-t border-gray-100 px-4 pt-3 pb-3" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))' }}>
       <div className="flex items-center space-x-2">
         <div className="flex-1 relative">
           <input
@@ -41,7 +41,7 @@ export function ChatInput({
             onKeyDown={onKeyDown}
             placeholder={placeholder}
             disabled={isLoading}
-            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black/5 focus:border-gray-300 text-sm disabled:opacity-50 transition-colors placeholder:text-gray-400"
+            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black/5 focus:border-gray-300 text-base sm:text-sm disabled:opacity-50 transition-colors placeholder:text-gray-400"
           />
         </div>
         <button
