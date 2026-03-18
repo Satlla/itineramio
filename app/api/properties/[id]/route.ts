@@ -61,50 +61,21 @@ export async function GET(
     }
     userId = authResult.userId
 
-    // OPTIMIZED: Single query to get property with zones and step counts
-    const result = await prisma.$queryRaw`
-      SELECT
-        p.id, p.name, p.slug, p.description, p.type,
-        p.street, p.city, p.state, p.country, p."postalCode",
-        p.bedrooms, p.bathrooms, p."maxGuests", p."squareMeters",
-        p."profileImage", p."hostContactName", p."hostContactPhone",
-        p."hostContactEmail", p."hostContactLanguage", p."hostContactPhoto",
-        p.status, p."isPublished", p."propertySetId", p."hostId",
-        p."createdAt", p."updatedAt", p."publishedAt",
-        p."propertyCode",
-        COALESCE(
-          json_agg(
-            json_build_object(
-              'id', z.id,
-              'name', z.name,
-              'slug', z.slug,
-              'icon', z.icon,
-              'description', z.description,
-              'color', z.color,
-              'status', z.status,
-              'isPublished', z."isPublished",
-              'propertyId', z."propertyId",
-              'createdAt', z."createdAt",
-              'updatedAt', z."updatedAt",
-              'publishedAt', z."publishedAt",
-              'stepsCount', COALESCE(sc.steps_count, 0)
-            ) ORDER BY z.id ASC
-          ) FILTER (WHERE z.id IS NOT NULL),
-          '[]'::json
-        ) as zones
-      FROM properties p
-      LEFT JOIN zones z ON z."propertyId" = p.id
-      LEFT JOIN (
-        SELECT "zoneId", COUNT(*)::integer as steps_count
-        FROM steps
-        GROUP BY "zoneId"
-      ) sc ON sc."zoneId" = z.id
-      WHERE p.id LIKE ${id + '%'} AND p."hostId" = ${userId} AND p."deletedAt" IS NULL
-      GROUP BY p.id
-      LIMIT 1
-    ` as any[]
-
-    const property = result[0]
+    const property = await prisma.property.findFirst({
+      where: {
+        id,
+        hostId: userId,
+        deletedAt: null
+      },
+      include: {
+        zones: {
+          include: {
+            _count: { select: { steps: true } }
+          },
+          orderBy: { id: 'asc' }
+        }
+      }
+    })
 
     if (!property) {
       return NextResponse.json({
@@ -113,10 +84,16 @@ export async function GET(
       }, { status: 404 })
     }
 
-    // Transform data
+    const { zones, ...propertyRest } = property
+    const transformedZones = zones.map(({ _count, ...zone }) => ({
+      ...zone,
+      stepsCount: _count.steps
+    }))
+
     const transformedProperty = {
-      ...property,
-      zonesCount: property.zones?.length || 0,
+      ...propertyRest,
+      zones: transformedZones,
+      zonesCount: transformedZones.length,
       totalViews: 0,
       avgRating: 0
     }
@@ -125,64 +102,10 @@ export async function GET(
       success: true,
       data: transformedProperty
     })
-    
+
   } catch (error) {
     console.error('Error fetching property:', error)
-    console.error('Error details:', {
-      propertyId: id,
-      userId,
-      error: error instanceof Error ? error.message : 'Unknown error'
-    })
-    
-    // Try safe method as fallback
-    try {
-      
-      const safeProperties = await prisma.$queryRaw`
-        SELECT 
-          id, name, slug, description, type,
-          street, city, state, country, "postalCode",
-          bedrooms, bathrooms, "maxGuests", "squareMeters",
-          "profileImage", "hostContactName", "hostContactPhone",
-          "hostContactEmail", "hostContactLanguage", "hostContactPhoto",
-          status, "isPublished", "propertySetId", "hostId",
-          "createdAt", "updatedAt", "publishedAt"
-        FROM properties
-        WHERE id LIKE ${id + '%'}
-          AND "hostId" = ${userId}
-          AND "deletedAt" IS NULL
-        LIMIT 1
-      ` as any[]
-      
-      const safeProperty = safeProperties[0]
-      
-      if (safeProperty) {
-        // Get zones count safely
-        const zonesCount = await prisma.$queryRaw`
-          SELECT COUNT(*) as count
-          FROM zones
-          WHERE "propertyId" = ${safeProperty.id}
-        ` as any[]
-        
-        const count = Number(zonesCount[0]?.count || 0)
-        
-        const fallbackResult = {
-          ...safeProperty,
-          zonesCount: count,
-          totalViews: 0,
-          avgRating: 0,
-          zones: [] // Empty zones array for fallback
-        }
-        
-        return NextResponse.json({
-          success: true,
-          data: fallbackResult,
-          fallback: true
-        })
-      }
-    } catch (fallbackError) {
-      console.error('Fallback also failed:', fallbackError)
-    }
-    
+
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor',

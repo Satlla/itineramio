@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { ChevronDown, ChevronRight, ArrowDownCircle, ArrowUpCircle, Sparkles, AlertTriangle, RefreshCw } from 'lucide-react'
+import { ChevronDown, ChevronRight, ArrowDownCircle, ArrowUpCircle, Sparkles, RefreshCw } from 'lucide-react'
 
 interface DayData {
   date: string
@@ -12,7 +12,6 @@ interface DayData {
   checkIns: Array<{ apartamento: string; huesped: string; pax: number; noches: number; plataforma: string }>
   checkOuts: Array<{ apartamento: string; huesped: string; noches: number }>
   cleanings: Array<{ apartamento: string; asignado: string; estado: string; huesped: string; huespedes: string; notas: string }>
-  alerts: Array<{ type: string; apartamento: string; detail: string }>
 }
 
 const DAY_NAMES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
@@ -49,8 +48,7 @@ function DayCard({ day }: { day: DayData }) {
             {day.checkInsCount > 0 && <span className="text-green-400 flex items-center gap-0.5"><ArrowDownCircle className="h-3 w-3" />{day.checkInsCount}</span>}
             {day.checkOutsCount > 0 && <span className="text-blue-400 flex items-center gap-0.5"><ArrowUpCircle className="h-3 w-3" />{day.checkOutsCount}</span>}
             {day.cleaningsCount > 0 && <span className="text-purple-400 flex items-center gap-0.5"><Sparkles className="h-3 w-3" />{day.cleaningsCount}</span>}
-            {day.alertsCount > 0 && <span className="text-orange-400 flex items-center gap-0.5"><AlertTriangle className="h-3 w-3" />{day.alertsCount}</span>}
-          </div>
+            </div>
         </div>
         {total > 0 ? (
           open ? <ChevronDown className="h-4 w-4 text-gray-400" /> : <ChevronRight className="h-4 w-4 text-gray-400" />
@@ -61,17 +59,6 @@ function DayCard({ day }: { day: DayData }) {
 
       {open && total > 0 && (
         <div className="border-t border-gray-800 p-4 space-y-3">
-          {day.alerts.length > 0 && (
-            <div className="space-y-1.5">
-              <p className="text-xs font-semibold text-orange-400 uppercase tracking-wide">Alertas</p>
-              {day.alerts.map((a, i) => (
-                <div key={i} className="flex items-start gap-2 text-sm">
-                  <AlertTriangle className="h-3.5 w-3.5 text-orange-400 shrink-0 mt-0.5" />
-                  <span className="text-orange-200">{a.apartamento}: <span className="text-orange-300">{a.detail}</span></span>
-                </div>
-              ))}
-            </div>
-          )}
           {day.checkIns.length > 0 && (
             <div className="space-y-1.5">
               <p className="text-xs font-semibold text-green-400 uppercase tracking-wide">Llegadas</p>
@@ -157,18 +144,11 @@ export default function SatllaSemanaPage() {
     )
   }
 
-  const totalAlerts = days.reduce((s, d) => s + d.alertsCount, 0)
-
   return (
     <div className="p-4 space-y-3 max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-1">
         <div>
           <h2 className="text-xl font-bold text-white">Esta semana</h2>
-          {totalAlerts > 0 && (
-            <p className="text-orange-400 text-sm flex items-center gap-1 mt-0.5">
-              <AlertTriangle className="h-3.5 w-3.5" /> {totalAlerts} alerta{totalAlerts !== 1 ? 's' : ''}
-            </p>
-          )}
         </div>
         <button onClick={load} className="text-gray-400 hover:text-white transition-colors p-2">
           <RefreshCw className="h-5 w-5" />

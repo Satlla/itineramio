@@ -24,6 +24,7 @@ import {
 import { SimpleColumnMapper, ListingMapper, type ListingInfo, type ListingMapping, type BillingUnitOption } from '@/components/gestion/reservas'
 import type { ColumnMapping, ImportConfig, ImportTemplate } from '@/types/import'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { AnimatedLoadingSpinner } from '@/components/ui/AnimatedLoadingSpinner'
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -771,6 +772,10 @@ export default function ImportarReservasPage() {
     link.href = URL.createObjectURL(blob)
     link.download = 'plantilla_reservas_airbnb.csv'
     link.click()
+  }
+
+  if (loadingProperties) {
+    return <AnimatedLoadingSpinner text="Cargando propiedades..." type="properties" />
   }
 
   return (

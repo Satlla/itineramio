@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { checkRateLimitAsync } from '@/lib/rate-limit'
 
 /**
  * GET /api/public/invoices/[token]
@@ -11,6 +12,13 @@ export async function GET(
 ) {
   try {
     const { token } = await params
+
+    // Rate limit: 20 requests/minute per IP to prevent token enumeration
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown'
+    const { allowed } = await checkRateLimitAsync(`public-invoice:${ip}`, { maxRequests: 20, windowMs: 60_000 })
+    if (!allowed) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes' }, { status: 429 })
+    }
 
     if (!token || token.length < 32) {
       return NextResponse.json(

@@ -20,6 +20,10 @@ import {
   MessageSquare,
   Utensils,
   Tag,
+  Sparkles,
+  Bell,
+  Info,
+  ChevronRight,
 } from 'lucide-react'
 import {
   DndContext,
@@ -152,6 +156,22 @@ function suggestCategory(types: string[]): string {
   }
   return 'restaurant' // default fallback
 }
+
+// --- Category inspiration chips (shown in global mode to guide the user) ---
+const INSPIRATION_CHIPS = [
+  { emoji: '🍽️', label: 'Restaurantes',     query: 'restaurante',    categoryId: 'restaurant' },
+  { emoji: '☕', label: 'Cafeterías',        query: 'cafetería café',  categoryId: 'cafe' },
+  { emoji: '🛒', label: 'Supermercado',      query: 'supermercado',   categoryId: 'supermarket' },
+  { emoji: '💊', label: 'Farmacia',          query: 'farmacia',       categoryId: 'pharmacy' },
+  { emoji: '🏛️', label: 'Monumentos',        query: 'monumento',      categoryId: 'tourist_attraction' },
+  { emoji: '🌿', label: 'Parques',           query: 'parque',         categoryId: 'park' },
+  { emoji: '🍸', label: 'Bares',             query: 'bar',            categoryId: 'bar' },
+  { emoji: '🌊', label: 'Playas',            query: 'playa',          categoryId: 'beach' },
+  { emoji: '🛍️', label: 'Compras',           query: 'tiendas',        categoryId: 'shopping_mall' },
+  { emoji: '🚌', label: 'Transporte',        query: 'parada bus metro', categoryId: 'transit_station' },
+  { emoji: '🏧', label: 'Cajero',            query: 'cajero automático', categoryId: 'atm' },
+  { emoji: '🎨', label: 'Arte & Cultura',    query: 'museo galería',  categoryId: 'museum' },
+]
 
 // --- Pending item (selected but not yet saved) ---
 
@@ -416,6 +436,8 @@ export function RecommendationsEditor({
   const [addedItems, setAddedItems] = useState<AddedItem[]>([])
   const [loadingExisting, setLoadingExisting] = useState(mode === 'global')
   const [toast, setToast] = useState<string | null>(null)
+  // Category chip → pre-fill search; key forces PlaceSearchInput remount
+  const [searchSeed, setSearchSeed] = useState<{ key: string; query: string }>({ key: '', query: '' })
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -733,15 +755,15 @@ export function RecommendationsEditor({
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-lg sm:text-xl font-semibold text-gray-900">Añadir recomendación</h1>
-              <p className="text-gray-500 text-xs sm:text-sm">Busca un lugar y selecciona su categoría</p>
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-900">Añadir lugar</h1>
+              <p className="text-gray-500 text-xs sm:text-sm">Elige una categoría o busca directamente</p>
             </div>
           </div>
         </div>
 
         {/* Content */}
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-          {/* City guides banner */}
+          {/* City guides banner — import or update notifications */}
           {propertyCity && (
             <CityGuidesBanner
               city={propertyCity}
@@ -750,13 +772,57 @@ export function RecommendationsEditor({
             />
           )}
 
+          {/* Inspiration chips — ideas of what to add */}
+          {!pending && (
+            <div className="mb-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="w-4 h-4 text-violet-500" />
+                <h2 className="text-sm font-semibold text-gray-700">Ideas de lugares para añadir</h2>
+              </div>
+              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                {INSPIRATION_CHIPS.map(chip => {
+                  const isCovered = existingZones.some(z =>
+                    z.recommendationCategory === chip.categoryId ||
+                    addedItems.some(a => a.categoryLabel === chip.label)
+                  )
+                  return (
+                    <button
+                      key={chip.categoryId}
+                      onClick={() => setSearchSeed({ key: chip.categoryId + Date.now(), query: chip.query })}
+                      className={`flex flex-col items-center gap-1 p-2.5 rounded-xl border text-center transition-all ${
+                        isCovered
+                          ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                          : 'bg-white border-gray-100 hover:border-violet-300 hover:bg-violet-50 text-gray-600 hover:text-violet-700'
+                      }`}
+                    >
+                      <span className="text-xl leading-none">{chip.emoji}</span>
+                      <span className="text-[11px] font-medium leading-tight">{chip.label}</span>
+                      {isCovered && <span className="text-[10px] text-emerald-600 font-medium">✓</span>}
+                    </button>
+                  )
+                })}
+              </div>
+              {/* Auto-update info */}
+              {propertyCity && (
+                <div className="mt-3 flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-xl px-3 py-2.5">
+                  <Info className="w-3.5 h-3.5 text-blue-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-blue-700">
+                    Si importas la <strong>Guía de {propertyCity}</strong>, Itineramio te avisará cuando se añadan nuevos lugares para que puedas aceptarlos con un clic.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Search */}
           <PlaceSearchInput
+            key={searchSeed.key}
             propertyLat={propertyLat}
             propertyLng={propertyLng}
             onSelect={handleGlobalSelect}
             placeholder="Buscar restaurante, farmacia, gasolinera..."
             excludePlaceIds={globalExcludePlaceIds}
+            initialQuery={searchSeed.query}
           />
 
           {/* Pending card */}
@@ -972,10 +1038,10 @@ export function RecommendationsEditor({
               <Loader2 className="w-5 h-5 animate-spin" />
               <span className="text-sm">Cargando recomendaciones...</span>
             </div>
-          ) : addedItems.length > 0 && (
+          ) : addedItems.length > 0 ? (
             <div className="mt-6">
               <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                Recomendaciones ({addedItems.length})
+                Lugares añadidos ({addedItems.length})
               </h3>
               <div className="space-y-2">
                 {addedItems.map((item, i) => (
@@ -1031,6 +1097,12 @@ export function RecommendationsEditor({
                   </motion.div>
                 ))}
               </div>
+            </div>
+          ) : !pending && !loadingExisting && (
+            <div className="mt-8 text-center py-8 text-gray-400">
+              <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+              <p className="text-sm">Aún no has añadido ningún lugar</p>
+              <p className="text-xs mt-1">Usa las categorías de arriba o busca directamente</p>
             </div>
           )}
         </div>

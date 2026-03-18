@@ -24,6 +24,7 @@ interface PlaceSearchInputProps {
   onSelect: (result: PlaceSearchResult) => void
   placeholder?: string
   excludePlaceIds?: string[]
+  initialQuery?: string
 }
 
 export function PlaceSearchInput({
@@ -32,8 +33,9 @@ export function PlaceSearchInput({
   onSelect,
   placeholder = 'Buscar lugar en Google Places...',
   excludePlaceIds = [],
+  initialQuery = '',
 }: PlaceSearchInputProps) {
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(initialQuery)
   const [results, setResults] = useState<PlaceSearchResult[]>([])
   const [searching, setSearching] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
@@ -76,6 +78,13 @@ export function PlaceSearchInput({
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
   }, [query, propertyLat, propertyLng])
+
+  // Auto-focus + trigger search when initialQuery is set (e.g. from category chip)
+  useEffect(() => {
+    if (initialQuery) {
+      inputRef.current?.focus()
+    }
+  }, [initialQuery])
 
   // Close dropdown on outside click
   useEffect(() => {

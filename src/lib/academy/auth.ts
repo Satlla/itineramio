@@ -27,7 +27,7 @@ export async function createToken(payload: AcademyJWTPayload): Promise<string> {
 export async function verifyToken(token: string): Promise<AcademyJWTPayload | null> {
   try {
     const verified = await jwtVerify(token, JWT_SECRET)
-    return verified.payload as AcademyJWTPayload
+    return verified.payload as unknown as AcademyJWTPayload
   } catch (error) {
     return null
   }

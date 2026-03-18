@@ -233,11 +233,11 @@ export default function AnalyticsPage() {
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Pie
-                        data={properties.slice(0, 5)}
+                        data={properties.slice(0, 5) as any[]}
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }) => `${name}: ${Number((percent || 0) * 100).toFixed(0)}%`}
+                        label={({ name, percent }) => `${name}: ${Number(((percent as number) || 0) * 100).toFixed(0)}%`}
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="views"

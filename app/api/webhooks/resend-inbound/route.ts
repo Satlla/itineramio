@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { parseAirbnbEmail } from '@/lib/reservations/parsers/airbnb-parser'
+import { parseBookingEmail } from '@/lib/reservations/parsers/booking-parser'
 import { ParsedReservation, ResendInboundEvent } from '@/lib/reservations/types'
 
 // Resend API para obtener contenido del email
@@ -57,7 +58,11 @@ export async function POST(request: NextRequest) {
         emailContent.text || ''
       )
     } else if (platform === 'BOOKING') {
-      // TODO: Implementar parser de Booking
+      parsedReservation = parseBookingEmail(
+        event.data.subject,
+        emailContent.html || '',
+        emailContent.text || ''
+      )
     }
 
     if (parsedReservation) {

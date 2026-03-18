@@ -297,15 +297,45 @@ export default function Step2Media({
 
         if (clientUpload) {
           // Client-side upload: browser → Vercel Blob directly (no serverless body limit)
+          // Vercel's onUploadProgress doesn't fire reliably in all browsers (no supportsRequestStreams
+          // in Safari/Firefox). We run a simulated progress that approaches 90%, then jumps to 100%
+          // when the upload resolves. Real progress events override the fake ones if they DO fire.
           setUploadProgress(0)
-          const { upload } = await import('@vercel/blob/client')
-          const blob = await upload(fileToUpload.name, fileToUpload, {
-            access: 'public',
-            handleUploadUrl: uploadEndpoint,
-            onUploadProgress: ({ percentage }) => setUploadProgress(Math.round(percentage)),
-          })
-          setUploadProgress(null)
-          mediaUrl = blob.url
+
+          // Estimate: ~1.5 MB/s → approach 90% asymptotically over that duration
+          const estimatedMs = Math.max(2000, (fileToUpload.size / (1.5 * 1024 * 1024)) * 1000)
+          const intervalMs = 250
+          const totalSteps = estimatedMs / intervalMs
+          let step = 0
+          let lastRealPct = 0
+          const fakeTimer = setInterval(() => {
+            step++
+            const fakePct = Math.round(90 * (1 - Math.exp(-4 * step / totalSteps)))
+            setUploadProgress(p => Math.max(p ?? 0, Math.max(lastRealPct, fakePct)))
+          }, intervalMs)
+
+          try {
+            const { upload } = await import('@vercel/blob/client')
+            const blob = await upload(fileToUpload.name, fileToUpload, {
+              access: 'public',
+              handleUploadUrl: uploadEndpoint,
+              onUploadProgress: ({ percentage }) => {
+                if (percentage > 0) {
+                  lastRealPct = Math.round(percentage)
+                  setUploadProgress(lastRealPct)
+                }
+              },
+            })
+            clearInterval(fakeTimer)
+            setUploadProgress(100)
+            await new Promise(r => setTimeout(r, 350))
+            setUploadProgress(null)
+            mediaUrl = blob.url
+          } catch (e) {
+            clearInterval(fakeTimer)
+            setUploadProgress(null)
+            throw e
+          }
         } else {
           const formData = new FormData()
           formData.append('file', fileToUpload)
@@ -348,6 +378,7 @@ export default function Step2Media({
       } catch {
         errors.push(t('step3.errors.uploadError', { name: file.name }))
         setCompressStatus(null)
+        setUploadProgress(null)
       }
     }
 

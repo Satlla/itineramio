@@ -9,24 +9,28 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
-  // Rate limit: 30 uploads per IP per 24h
   const isDev = process.env.NODE_ENV === 'development'
-  const rateLimitKey = getRateLimitKey(request, null, 'demo-upload')
-  const rateCheck = checkRateLimit(rateLimitKey, {
-    maxRequests: isDev ? 200 : 30,
-    windowMs: 24 * 60 * 60 * 1000,
-  })
-  if (!rateCheck.allowed) {
-    return NextResponse.json(
-      { error: 'Has alcanzado el límite de uploads de demo. Vuelve mañana.' },
-      { status: 429 }
-    )
-  }
-
   const contentType = request.headers.get('content-type') || ''
 
+  // Rate limit — skip for Vercel's own blob.upload-completed callbacks (they carry x-vercel-signature).
+  // If the callback is rate-limited Vercel never ACKs the upload and the browser hangs indefinitely.
+  const isVercelCallback = !!request.headers.get('x-vercel-signature')
+  if (!isVercelCallback) {
+    const rateLimitKey = getRateLimitKey(request, null, 'demo-upload')
+    const rateCheck = checkRateLimit(rateLimitKey, {
+      maxRequests: isDev ? 200 : 30,
+      windowMs: 24 * 60 * 60 * 1000,
+    })
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Has alcanzado el límite de uploads de demo. Vuelve mañana.' },
+        { status: 429 }
+      )
+    }
+  }
+
   // ── Client-side upload (videos): browser → Vercel Blob directly ──
-  // Handles token generation + upload-completed callback
+  // Handles token generation (browser → us) + upload-completed callback (Vercel → us)
   if (contentType.includes('application/json')) {
     try {
       const body = (await request.json()) as HandleUploadBody

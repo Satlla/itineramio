@@ -72,40 +72,42 @@ export async function GET(request: NextRequest) {
 
     const total = await prisma.mediaLibrary.count({ where })
 
-    // For each media item, find where it's being used
-    const itemsWithUsage = await Promise.all(
-      mediaItems.map(async (item) => {
-        // Find steps that use this media URL
-        const usageSteps = await prisma.step.findMany({
+    // Batch-fetch all steps that use any of the media URLs (avoids N+1)
+    const allUrls = mediaItems.map(item => item.url)
+    const allUsageSteps = allUrls.length > 0
+      ? await prisma.step.findMany({
           where: {
-            OR: [
-              {
-                content: {
-                  path: ['mediaUrl'],
-                  equals: item.url
-                }
-              },
-              {
-                content: {
-                  path: ['thumbnail'],
-                  equals: item.url
-                }
-              }
-            ]
+            OR: allUrls.flatMap(url => [
+              { content: { path: ['mediaUrl'], equals: url } },
+              { content: { path: ['thumbnail'], equals: url } }
+            ])
           },
           include: {
             zones: {
               include: {
                 property: {
-                  select: {
-                    id: true,
-                    name: true
-                  }
+                  select: { id: true, name: true }
                 }
               }
             }
           }
         })
+      : []
+
+    // Group steps by their media URL for O(1) lookup
+    const stepsByUrl = new Map<string, typeof allUsageSteps>()
+    for (const step of allUsageSteps) {
+      const content = step.content as any
+      const url = content?.mediaUrl || content?.thumbnail
+      if (url) {
+        if (!stepsByUrl.has(url)) stepsByUrl.set(url, [])
+        stepsByUrl.get(url)!.push(step)
+      }
+    }
+
+    // For each media item, find where it's being used
+    const itemsWithUsage = mediaItems.map((item) => {
+        const usageSteps = stepsByUrl.get(item.url) || []
 
         // Transform usage data
         const usage = usageSteps
@@ -148,7 +150,6 @@ export async function GET(request: NextRequest) {
           usage: usage
         }
       })
-    )
 
     return NextResponse.json({
       success: true,

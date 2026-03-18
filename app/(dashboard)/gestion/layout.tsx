@@ -212,7 +212,7 @@ function GestionLayoutInner({
     return pathname.startsWith(href)
   }
 
-  const getBadgeCount = (badgeKey?: 'unliquidatedReservations' | 'draftInvoices' | 'unpaidInvoices') => {
+  const getBadgeCount = (badgeKey?: 'unliquidatedReservations' | 'pendingLiquidations' | 'draftInvoices' | 'unpaidInvoices') => {
     if (!badgeKey || !pendingActions) return 0
     return pendingActions[badgeKey] || 0
   }

@@ -1,9 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { checkRateLimitAsync, getRateLimitKey } from '@/lib/rate-limit'
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || ''
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 20 IA requests per IP per hour
+    const rateLimitKey = getRateLimitKey(request, null, 'ai-suggest-zone')
+    const rateCheck = await checkRateLimitAsync(rateLimitKey, {
+      maxRequests: 20,
+      windowMs: 60 * 60 * 1000,
+    })
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Demasiadas peticiones. Vuelve a intentarlo más tarde.' },
+        { status: 429 }
+      )
+    }
+
     const { zoneName } = await request.json()
 
     if (!zoneName || typeof zoneName !== 'string' || zoneName.trim().length < 2) {

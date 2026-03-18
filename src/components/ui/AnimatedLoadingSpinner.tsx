@@ -72,7 +72,7 @@ export function AnimatedLoadingSpinner({
   const IconComponent = currentIcon.icon
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
+    <div role="status" aria-label="Cargando" className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
       <div className="text-center">
         {/* Animated Icon Container */}
         <div className="relative w-24 h-24 mx-auto mb-8">

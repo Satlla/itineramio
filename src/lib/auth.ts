@@ -91,7 +91,26 @@ export async function requireAuthOrAdmin(request: NextRequest): Promise<JWTPaylo
         })
         
         if (property) {
-          // Crear un JWTPayload simulado del propietario para el admin
+          // Log audit: admin accessing property as host (read-only bypass)
+          await prisma.adminAuditLog.create({
+            data: {
+              adminId: admin.adminId,
+              adminName: admin.email,
+              adminEmail: admin.email,
+              targetUserId: property.hostId,
+              targetUserEmail: property.host.email,
+              targetUserName: property.host.email,
+              action: 'ADMIN_PROPERTY_ACCESS',
+              ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+              userAgent: request.headers.get('user-agent') || 'unknown',
+              metadata: {
+                propertyId,
+                path: url.pathname,
+                timestamp: new Date().toISOString()
+              }
+            }
+          }).catch(() => { /* no bloquear si falla el log */ })
+
           return {
             userId: property.hostId,
             email: property.host.email,

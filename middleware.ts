@@ -235,6 +235,6 @@ function handleSlugRewrite(request: NextRequest): NextResponse | null {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!_next/static|_next/image|favicon.ico|favicon.svg|apple-touch-icon.png|manifest.json|robots.txt|sitemap.xml|og-image.jpg|splash-screen.png|logo.png|public).*)',
   ],
 }

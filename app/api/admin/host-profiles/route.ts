@@ -43,41 +43,47 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const profiles = await prisma.hostProfileTest.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        createdAt: true,
-        email: true,
-        name: true,
-        gender: true,
-        archetype: true,
-        topStrength: true,
-        criticalGap: true,
-        scoreHospitalidad: true,
-        scoreComunicacion: true,
-        scoreOperativa: true,
-        scoreCrisis: true,
-        scoreData: true,
-        scoreLimites: true,
-        scoreMkt: true,
-        scoreBalance: true,
-        emailConsent: true,
-        shareConsent: true
-      }
-    })
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
+    const limit = export_format === 'csv' ? 5000 : Math.min(parseInt(searchParams.get('limit') || '100'), 500)
+    const skip = export_format === 'csv' ? 0 : (page - 1) * limit
 
-    // Enriquecer con datos de EmailSubscriber (funnel tracking)
-    const enrichedProfiles = await Promise.all(
-      profiles.map(async (profile) => {
-        if (!profile.email) {
-          return { ...profile, subscriber: null }
+    const [profiles, total] = await Promise.all([
+      prisma.hostProfileTest.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip,
+        select: {
+          id: true,
+          createdAt: true,
+          email: true,
+          name: true,
+          gender: true,
+          archetype: true,
+          topStrength: true,
+          criticalGap: true,
+          scoreHospitalidad: true,
+          scoreComunicacion: true,
+          scoreOperativa: true,
+          scoreCrisis: true,
+          scoreData: true,
+          scoreLimites: true,
+          scoreMkt: true,
+          scoreBalance: true,
+          emailConsent: true,
+          shareConsent: true
         }
+      }),
+      prisma.hostProfileTest.count({ where })
+    ])
 
-        const subscriber = await prisma.emailSubscriber.findUnique({
-          where: { email: profile.email },
+    // Enriquecer con datos de EmailSubscriber (funnel tracking) — batch lookup, no N+1
+    const emails = profiles.map(p => p.email).filter(Boolean) as string[]
+    const subscribers = emails.length > 0
+      ? await prisma.emailSubscriber.findMany({
+          where: { email: { in: emails } },
           select: {
+            email: true,
             engagementScore: true,
             currentJourneyStage: true,
             emailsSent: true,
@@ -94,10 +100,13 @@ export async function GET(request: NextRequest) {
             clickRate: true,
           }
         })
+      : []
+    const subscriberByEmail = new Map(subscribers.map(s => [s.email, s]))
 
-        return { ...profile, subscriber }
-      })
-    )
+    const enrichedProfiles = profiles.map(profile => ({
+      ...profile,
+      subscriber: profile.email ? (subscriberByEmail.get(profile.email) ?? null) : null
+    }))
 
     // CSV Export
     if (export_format === 'csv') {
@@ -174,7 +183,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       profiles: enrichedProfiles,
-      stats
+      stats,
+      pagination: { total, page, limit, pages: Math.ceil(total / limit) }
     })
 
   } catch (error) {

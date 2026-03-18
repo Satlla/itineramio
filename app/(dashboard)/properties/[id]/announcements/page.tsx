@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { AnimatedLoadingSpinner } from '../../../../../src/components/ui/AnimatedLoadingSpinner'
 import { 
   Plus, 
   ArrowLeft, 
@@ -637,16 +638,8 @@ export default function PropertyAnnouncementsPage() {
   }
 
   // Wait for propertyId to be available
-  if (!propertyId) {
-    return (
-      <div className="min-h-screen bg-white" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
-          </div>
-        </div>
-      </div>
-    )
+  if (!propertyId || loading) {
+    return <AnimatedLoadingSpinner type="general" />
   }
 
   return (

@@ -706,7 +706,7 @@ export default function IntelligencePage() {
         }
         if (propRes.ok) {
           const data = await propRes.json()
-          setPropertyName(data.name || data.property?.name || '')
+          setPropertyName(data.data?.name || '')
         }
       } catch (err) {
         console.error('[intelligence] Load error:', err)

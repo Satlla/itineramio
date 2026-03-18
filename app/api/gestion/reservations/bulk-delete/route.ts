@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
+import { checkRateLimitAsync, getRateLimitKey } from '@/lib/rate-limit'
 
 /**
  * POST /api/gestion/reservations/bulk-delete
@@ -13,6 +14,19 @@ export async function POST(request: NextRequest) {
       return authResult
     }
     const userId = authResult.userId
+
+    // Rate limit: 10 operaciones de borrado masivo por hora por usuario
+    const rateLimitKey = getRateLimitKey(request, userId, 'bulk-delete')
+    const rateCheck = await checkRateLimitAsync(rateLimitKey, {
+      maxRequests: 10,
+      windowMs: 60 * 60 * 1000,
+    })
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Demasiadas operaciones de borrado. Espera antes de continuar.' },
+        { status: 429 }
+      )
+    }
 
     const body = await request.json()
     const { propertyId, year, month, deleteAll, isUnit } = body

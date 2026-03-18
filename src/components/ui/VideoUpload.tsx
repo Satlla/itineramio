@@ -6,7 +6,7 @@ import { Button } from './Button'
 import { MediaSelector } from './MediaSelector'
 import { DuplicateMediaModal } from './DuplicateMediaModal'
 import { useNotifications } from '../../hooks/useNotifications'
-import { compressVideoFFmpeg, isFFmpegSupported } from '../../utils/ffmpegCompression'
+import { compressVideoFFmpeg, isFFmpegSupported, preloadFFmpeg } from '../../utils/ffmpegCompression'
 
 interface VideoUploadProps {
   value?: string
@@ -69,6 +69,11 @@ export function VideoUpload({
   const recordedChunksRef = useRef<Blob[]>([])
   const xhrRef = useRef<XMLHttpRequest | null>(null)
   const { addNotification } = useNotifications()
+
+  // Pre-load FFmpeg WASM on mount so it's ready when user selects a file
+  useEffect(() => {
+    preloadFFmpeg()
+  }, [])
 
   // Sync previewUrl with initial value
   useEffect(() => {

@@ -55,6 +55,7 @@ export async function GET(request: NextRequest) {
 
     const reservations = await prisma.reservation.findMany({
       where,
+      take: 200,
       orderBy: { checkIn: 'desc' },
       include: {
         billingUnit: {
@@ -284,136 +285,144 @@ export async function POST(request: NextRequest) {
     const managerAmount = (earnings - cleaning) * commissionPct
     const ownerAmount = earnings - managerAmount
 
-    // === GUEST CRM: Find or create guest ===
-    let guestId: string | null = null
-    let existingGuest = null
+    // === GUEST CRM: Find or create guest (atomic transaction to prevent duplicates) ===
+    const { reservation, isReturningGuest, existingGuestData } = await prisma.$transaction(async (tx) => {
+      let guestId: string | null = null
+      let existingGuest = null
 
-    // First, try to find by email if provided
-    if (guestEmail) {
-      existingGuest = await prisma.guest.findFirst({
-        where: { userId, email: guestEmail }
-      })
-    }
+      // First, try to find by email if provided
+      if (guestEmail) {
+        existingGuest = await tx.guest.findFirst({
+          where: { userId, email: guestEmail }
+        })
+      }
 
-    // If not found by email, try to find by exact name match
-    if (!existingGuest && guestName) {
-      existingGuest = await prisma.guest.findFirst({
-        where: {
-          userId,
-          name: { equals: guestName, mode: 'insensitive' },
-          email: null // Only match if no email (to avoid wrong matches)
-        }
-      })
-    }
-
-    if (existingGuest) {
-      guestId = existingGuest.id
-      // Update guest info if we have more data
-      await prisma.guest.update({
-        where: { id: existingGuest.id },
-        data: {
-          phone: guestPhone || existingGuest.phone,
-          country: guestCountry || existingGuest.country,
-          email: guestEmail || existingGuest.email
-        }
-      })
-    } else {
-      // Create new guest
-      const newGuest = await prisma.guest.create({
-        data: {
-          userId,
-          name: guestName,
-          email: guestEmail || null,
-          phone: guestPhone || null,
-          country: guestCountry || null
-        }
-      })
-      guestId = newGuest.id
-    }
-
-    const reservation = await prisma.reservation.create({
-      data: {
-        userId,
-        billingConfigId: finalBillingConfigId,
-        billingUnitId: finalBillingUnitId, // Nuevo: BillingUnit independiente
-        guestId, // Link to guest
-        platform: platform || 'OTHER',
-        confirmationCode: finalConfirmationCode,
-        guestName,
-        guestEmail,
-        guestPhone,
-        guestCountry,
-        checkIn: checkInDate,
-        checkOut: checkOutDate,
-        nights,
-        hostEarnings: earnings,
-        roomTotal: room,
-        cleaningFee: cleaning,
-        hostServiceFee: serviceFee,
-        guestServiceFee: 0,
-        status: 'CONFIRMED',
-        importSource: 'MANUAL',
-        internalNotes,
-        ownerAmount,
-        managerAmount,
-        cleaningAmount: cleaning
-      },
-      include: {
-        billingUnit: {
-          select: {
-            id: true,
-            name: true,
-            imageUrl: true
+      // If not found by email, try to find by exact name match
+      if (!existingGuest && guestName) {
+        existingGuest = await tx.guest.findFirst({
+          where: {
+            userId,
+            name: { equals: guestName, mode: 'insensitive' },
+            email: null // Only match if no email (to avoid wrong matches)
           }
+        })
+      }
+
+      if (existingGuest) {
+        guestId = existingGuest.id
+        // Update guest info if we have more data
+        await tx.guest.update({
+          where: { id: existingGuest.id },
+          data: {
+            phone: guestPhone || existingGuest.phone,
+            country: guestCountry || existingGuest.country,
+            email: guestEmail || existingGuest.email
+          }
+        })
+      } else {
+        // Create new guest
+        const newGuest = await tx.guest.create({
+          data: {
+            userId,
+            name: guestName,
+            email: guestEmail || null,
+            phone: guestPhone || null,
+            country: guestCountry || null
+          }
+        })
+        guestId = newGuest.id
+      }
+
+      const newReservation = await tx.reservation.create({
+        data: {
+          userId,
+          billingConfigId: finalBillingConfigId,
+          billingUnitId: finalBillingUnitId, // Nuevo: BillingUnit independiente
+          guestId, // Link to guest
+          platform: platform || 'OTHER',
+          confirmationCode: finalConfirmationCode,
+          guestName,
+          guestEmail,
+          guestPhone,
+          guestCountry,
+          checkIn: checkInDate,
+          checkOut: checkOutDate,
+          nights,
+          hostEarnings: earnings,
+          roomTotal: room,
+          cleaningFee: cleaning,
+          hostServiceFee: serviceFee,
+          guestServiceFee: 0,
+          status: 'CONFIRMED',
+          importSource: 'MANUAL',
+          internalNotes,
+          ownerAmount,
+          managerAmount,
+          cleaningAmount: cleaning
         },
-        billingConfig: {
-          select: {
-            property: {
-              select: { id: true, name: true }
+        include: {
+          billingUnit: {
+            select: {
+              id: true,
+              name: true,
+              imageUrl: true
+            }
+          },
+          billingConfig: {
+            select: {
+              property: {
+                select: { id: true, name: true }
+              }
+            }
+          },
+          guest: {
+            select: {
+              id: true,
+              name: true,
+              totalStays: true,
+              notes: true
             }
           }
-        },
-        guest: {
-          select: {
-            id: true,
-            name: true,
-            totalStays: true,
-            notes: true
-          }
         }
+      })
+
+      // Update guest statistics
+      if (guestId) {
+        const guestReservations = await tx.reservation.findMany({
+          where: { guestId, status: { in: ['CONFIRMED', 'COMPLETED'] } },
+          select: { checkIn: true, nights: true, hostEarnings: true }
+        })
+
+        const totalStays = guestReservations.length
+        const totalSpent = guestReservations.reduce((sum, r) => sum + Number(r.hostEarnings), 0)
+        const totalNights = guestReservations.reduce((sum, r) => sum + r.nights, 0)
+        const dates = guestReservations.map(r => r.checkIn).sort((a, b) => a.getTime() - b.getTime())
+
+        await tx.guest.update({
+          where: { id: guestId },
+          data: {
+            totalStays,
+            totalSpent,
+            averageStay: totalStays > 0 ? totalNights / totalStays : 0,
+            firstStayAt: dates[0] || null,
+            lastStayAt: dates[dates.length - 1] || null
+          }
+        })
+      }
+
+      return {
+        reservation: newReservation,
+        isReturningGuest: !!existingGuest,
+        existingGuestData: existingGuest
       }
     })
 
-    // Update guest statistics
-    if (guestId) {
-      const guestReservations = await prisma.reservation.findMany({
-        where: { guestId, status: { in: ['CONFIRMED', 'COMPLETED'] } },
-        select: { checkIn: true, nights: true, hostEarnings: true }
-      })
-
-      const totalStays = guestReservations.length
-      const totalSpent = guestReservations.reduce((sum, r) => sum + Number(r.hostEarnings), 0)
-      const totalNights = guestReservations.reduce((sum, r) => sum + r.nights, 0)
-      const dates = guestReservations.map(r => r.checkIn).sort((a, b) => a.getTime() - b.getTime())
-
-      await prisma.guest.update({
-        where: { id: guestId },
-        data: {
-          totalStays,
-          totalSpent,
-          averageStay: totalStays > 0 ? totalNights / totalStays : 0,
-          firstStayAt: dates[0] || null,
-          lastStayAt: dates[dates.length - 1] || null
-        }
-      })
-    }
-
     return NextResponse.json({
       reservation,
-      isReturningGuest: !!existingGuest,
-      guestHistory: existingGuest ? {
-        totalStays: existingGuest.totalStays,
-        notes: existingGuest.notes
+      isReturningGuest,
+      guestHistory: existingGuestData ? {
+        totalStays: existingGuestData.totalStays,
+        notes: existingGuestData.notes
       } : null
     })
   } catch (error: any) {

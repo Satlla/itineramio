@@ -33,6 +33,15 @@ export async function POST(request: NextRequest) {
       }, { status: 401 })
     }
 
+    // Reject tokens expired more than 7 days ago
+    const nowSec = Math.floor(Date.now() / 1000)
+    if (decoded.exp && (nowSec - decoded.exp) > 7 * 24 * 60 * 60) {
+      return NextResponse.json({
+        success: false,
+        error: 'Token too old to refresh'
+      }, { status: 401 })
+    }
+
     if (!decoded || !decoded.userId) {
       return NextResponse.json({
         success: false,

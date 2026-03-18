@@ -226,8 +226,8 @@ export async function DELETE(
       )
     }
 
-    await prisma.reservation.delete({
-      where: { id }
+    await prisma.reservation.deleteMany({
+      where: { id, userId }
     })
 
     return NextResponse.json({ success: true })

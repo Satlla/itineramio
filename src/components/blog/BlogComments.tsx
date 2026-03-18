@@ -79,6 +79,7 @@ export function BlogComments({ slug }: BlogCommentsProps) {
   const loadComments = useCallback(async () => {
     try {
       const response = await fetch(`/api/blog/${slug}/comments`)
+      if (!response.ok) throw new Error(`Error ${response.status}`)
       const data = await response.json()
       setComments(data.comments || [])
     } catch (err) {

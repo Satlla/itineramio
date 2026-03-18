@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useSyncExternalStore } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 interface Notification {
   id: string
@@ -27,19 +27,13 @@ function subscribe(listener: () => void) {
   return () => listeners.delete(listener)
 }
 
-function getSnapshot() {
-  return { notifications: globalNotifications, loading: globalLoading }
-}
-
 function notifyListeners() {
   listeners.forEach(listener => listener())
 }
 
 async function fetchNotificationsGlobal(force = false) {
-  // Guard against duplicate calls (global singleton)
   if (globalIsFetching) return
 
-  // Stale-while-revalidate: serve cached data if fresh, refetch in background if stale
   const now = Date.now()
   const isStale = now - globalLastFetchedAt > STALE_TIME_MS
 
@@ -69,24 +63,94 @@ async function fetchNotificationsGlobal(force = false) {
   }
 }
 
+function mergeNewNotifications(incoming: any[]) {
+  const existingIds = new Set(globalNotifications.map(n => n.id))
+  const newOnes = incoming
+    .filter(n => !existingIds.has(n.id))
+    .map(n => ({ ...n, createdAt: new Date(n.createdAt) }))
+
+  if (newOnes.length > 0) {
+    globalNotifications = [...newOnes, ...globalNotifications]
+    notifyListeners()
+  }
+}
+
 export function useRealNotifications() {
   const [, forceUpdate] = useState({})
+  const sseRef = useRef<EventSource | null>(null)
 
   // Subscribe to global state changes
   useEffect(() => {
     const unsubscribe = subscribe(() => forceUpdate({}))
-    return unsubscribe
+    return () => { unsubscribe() }
   }, [])
 
-  // Trigger fetch on mount (uses global guard)
+  // Initial fetch
   useEffect(() => {
     fetchNotificationsGlobal()
+  }, [])
+
+  // SSE connection for real-time updates
+  useEffect(() => {
+    // Only one SSE connection globally
+    if (sseRef.current) return
+    if (typeof window === 'undefined') return
+
+    let retryTimeout: ReturnType<typeof setTimeout> | null = null
+    let retries = 0
+    const MAX_RETRIES = 3
+
+    function connect() {
+      const sse = new EventSource('/api/notifications/sse')
+      sseRef.current = sse
+
+      sse.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data)
+
+          if (data.type === 'connected') {
+            retries = 0
+            // If unread count differs from our state, refetch
+            const currentUnread = globalNotifications.filter(n => !n.read).length
+            if (data.unreadCount !== currentUnread) {
+              fetchNotificationsGlobal(true)
+            }
+          } else if (data.type === 'new_notifications' && data.notifications?.length > 0) {
+            mergeNewNotifications(data.notifications)
+          }
+          // 'ping' events are silently ignored
+        } catch {
+          // Ignore parse errors
+        }
+      }
+
+      sse.onerror = () => {
+        sse.close()
+        sseRef.current = null
+
+        if (retries < MAX_RETRIES) {
+          retries++
+          const delay = Math.min(1000 * 2 ** retries, 30_000)
+          retryTimeout = setTimeout(connect, delay)
+        }
+        // After max retries, fall back to polling via the global stale-while-revalidate
+      }
+    }
+
+    connect()
+
+    return () => {
+      if (retryTimeout) clearTimeout(retryTimeout)
+      if (sseRef.current) {
+        sseRef.current.close()
+        sseRef.current = null
+      }
+    }
   }, [])
 
   const notifications = globalNotifications
   const loading = globalLoading
 
-  // Mark specific notifications as read
   const markAsRead = useCallback(async (notificationIds: string[]) => {
     try {
       const response = await fetch('/api/notifications', {
@@ -96,7 +160,6 @@ export function useRealNotifications() {
       })
 
       if (response.ok) {
-        // Update global state
         globalNotifications = globalNotifications.map(n =>
           notificationIds.includes(n.id) ? { ...n, read: true } : n
         )
@@ -107,7 +170,6 @@ export function useRealNotifications() {
     }
   }, [])
 
-  // Mark all notifications as read
   const markAllAsRead = useCallback(async () => {
     try {
       const response = await fetch('/api/notifications', {
@@ -117,7 +179,6 @@ export function useRealNotifications() {
       })
 
       if (response.ok) {
-        // Update global state
         globalNotifications = globalNotifications.map(n => ({ ...n, read: true }))
         notifyListeners()
       }
@@ -126,9 +187,8 @@ export function useRealNotifications() {
     }
   }, [])
 
-  // Refresh notifications (useful after actions that might create new ones)
   const refreshNotifications = useCallback(() => {
-    fetchNotificationsGlobal(true) // force=true to bypass guard
+    fetchNotificationsGlobal(true)
   }, [])
 
   const unreadCount = notifications.filter(n => !n.read).length

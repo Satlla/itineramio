@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { sendEmail } from '../../../../src/lib/email'
 import { verifyToken } from '../../../../src/lib/auth'
+import { checkRateLimitAsync } from '../../../../src/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,7 +15,13 @@ export async function POST(request: NextRequest) {
     }
 
     const decoded = verifyToken(token)
-    
+
+    // Rate limit: 3 requests per user per hour
+    const { success: rlOk } = await checkRateLimitAsync(decoded.userId + ':email-change', { maxRequests: 3, windowMs: 60 * 60 * 1000 })
+    if (!rlOk) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes. Espera antes de volver a intentarlo.' }, { status: 429 })
+    }
+
     const body = await request.json()
     const { newEmail, password } = body
 

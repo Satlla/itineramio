@@ -87,7 +87,8 @@ export async function GET(request: NextRequest) {
       orderBy: [
         { issueDate: 'desc' },
         { createdAt: 'desc' }
-      ]
+      ],
+      take: 100
     })
 
     const formattedInvoices = invoices.map(inv => ({

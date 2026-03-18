@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react'
 import {
   Sparkles, RefreshCw, CheckCircle, Clock, Pencil, X, CalendarDays,
   User, FileText, Send, ChevronDown, ChevronRight, ChevronLeft,
-  Copy
+  Copy, Plus, Trash2
 } from 'lucide-react'
 
 // ─── Interfaces ────────────────────────────────────────────────────────────
@@ -20,16 +20,9 @@ interface Cleaning {
   horaFin?: string
 }
 
-interface Alert {
-  type: string
-  apartamento: string
-  detail: string
-}
-
 interface TodayData {
   date: string
   cleanings: Cleaning[]
-  alerts: Alert[]
 }
 
 interface EditState {
@@ -370,6 +363,147 @@ function EditModal({ edit, onClose, onSaved }: { edit: EditState; onClose: () =>
   )
 }
 
+// ─── Apartment list (matches satllabot config) ──────────────────────────────
+
+const APARTMENTS = [
+  'Campello', 'Rambla', 'Mercado Central', 'Ático Estación', 'Loft Industrial',
+  'Jacuzzi Luceros', 'Nook Terrace', 'Loft Terraza', 'Casa Azul', 'Quintana',
+  'San Blas', 'Acogedor 6 Pax', 'Cozy', 'Suite 104', 'Suite 102', 'Suite 103',
+  'Suite 101', 'Habitación 1', 'Habitación 2', 'Habitación 3', 'Habitación 4',
+]
+
+// ─── Add Cleaning Modal ─────────────────────────────────────────────────────
+
+function AddCleaningModal({ defaultDate, onClose, onSaved }: {
+  defaultDate: string
+  onClose: () => void
+  onSaved: () => void
+}) {
+  const [date, setDate] = useState(toInputDate(defaultDate))
+  const [shortName, setShortName] = useState('')
+  const [asignado, setAsignado] = useState('')
+  const [huesped, setHuesped] = useState('')
+  const [notas, setNotas] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  const save = async () => {
+    if (!shortName) { setError('Selecciona un apartamento'); return }
+    setSaving(true)
+    setError('')
+    try {
+      const res = await fetch('/api/satllabot/data/cleanings', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: fromInputDate(date), shortName, asignado, huesped, notas }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Error creando limpieza')
+      if (data.duplicate) throw new Error('Ya existe una limpieza para este apartamento ese día')
+      onSaved()
+      onClose()
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="w-full max-w-lg bg-white border border-gray-200 rounded-t-2xl shadow-xl p-5 space-y-4 pb-8"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold text-gray-900">Nueva limpieza</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 p-1 rounded-lg hover:bg-gray-100">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div>
+          <label className="text-xs text-gray-500 flex items-center gap-1 mb-1.5 font-medium">
+            <CalendarDays className="h-3 w-3" />Fecha
+          </label>
+          <input
+            type="date"
+            value={date}
+            onChange={e => setDate(e.target.value)}
+            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs text-gray-500 font-medium mb-1.5 block">Apartamento</label>
+          <select
+            value={shortName}
+            onChange={e => setShortName(e.target.value)}
+            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100"
+          >
+            <option value="">Seleccionar...</option>
+            {APARTMENTS.map(a => <option key={a} value={a}>{a}</option>)}
+          </select>
+        </div>
+
+        <div>
+          <label className="text-xs text-gray-500 flex items-center gap-1 mb-1.5 font-medium">
+            <User className="h-3 w-3" />Asignado a
+          </label>
+          <select
+            value={asignado}
+            onChange={e => setAsignado(e.target.value)}
+            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100"
+          >
+            <option value="">Sin asignar</option>
+            <option value="Diana">Diana (Marce)</option>
+            <option value="María">María</option>
+            <option value="Gaby">Gaby</option>
+            <option value="Diana + María">Diana + María</option>
+            <option value="Diana + Gaby">Diana + Gaby</option>
+            <option value="María + Gaby">María + Gaby</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="text-xs text-gray-500 font-medium mb-1.5 block">Huésped (opcional)</label>
+          <input
+            type="text"
+            value={huesped}
+            onChange={e => setHuesped(e.target.value)}
+            placeholder="Nombre del huésped"
+            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 placeholder:text-gray-400"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs text-gray-500 flex items-center gap-1 mb-1.5 font-medium">
+            <FileText className="h-3 w-3" />Notas
+          </label>
+          <textarea
+            value={notas}
+            onChange={e => setNotas(e.target.value)}
+            rows={2}
+            placeholder="Trona, late check-in..."
+            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-100 resize-none placeholder:text-gray-400"
+          />
+        </div>
+
+        {error && <p className="text-red-600 text-sm bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+
+        <button
+          onClick={save}
+          disabled={saving}
+          className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl py-3 font-semibold text-sm transition-colors"
+        >
+          {saving ? 'Guardando...' : 'Añadir limpieza'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main page ──────────────────────────────────────────────────────────────
 
 export default function SatllaHoyPage() {
@@ -380,6 +514,7 @@ export default function SatllaHoyPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [editState, setEditState] = useState<EditState | null>(null)
+  const [showAddModal, setShowAddModal] = useState(false)
   const [sending, setSending] = useState(false)
   const [sendResult, setSendResult] = useState('')
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({})
@@ -525,6 +660,15 @@ export default function SatllaHoyPage() {
         />
       )}
 
+      {/* Add cleaning modal */}
+      {showAddModal && (
+        <AddCleaningModal
+          defaultDate={selectedDate}
+          onClose={() => setShowAddModal(false)}
+          onSaved={() => load(selectedDate)}
+        />
+      )}
+
       {/* Week strip */}
       <div className="bg-white border-b border-gray-100 px-4 pt-4 pb-3 sticky top-0 lg:top-0 z-10">
         {/* Week navigation */}
@@ -643,16 +787,25 @@ export default function SatllaHoyPage() {
               collapsed={!!collapsedSections['limpiezas']}
               onToggle={() => toggleSection('limpiezas')}
               headerRight={
-                data.cleanings.length > 0 ? (
+                <div className="flex items-center gap-2">
                   <button
-                    onClick={() => sendToGroup(data.date)}
-                    disabled={sending}
-                    className="flex items-center gap-1.5 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
+                    onClick={() => setShowAddModal(true)}
+                    className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-xs font-medium px-2 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
                   >
-                    <Send className="h-3 w-3" />
-                    {sending ? 'Enviando...' : 'Enviar al grupo'}
+                    <Plus className="h-3.5 w-3.5" />
+                    Añadir
                   </button>
-                ) : undefined
+                  {data.cleanings.length > 0 && (
+                    <button
+                      onClick={() => sendToGroup(data.date)}
+                      disabled={sending}
+                      className="flex items-center gap-1.5 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      <Send className="h-3 w-3" />
+                      {sending ? 'Enviando...' : 'Enviar al grupo'}
+                    </button>
+                  )}
+                </div>
               }
             >
               {sendResult && (
@@ -692,13 +845,31 @@ export default function SatllaHoyPage() {
                         </div>
                         <div className="flex flex-col items-end gap-2 shrink-0">
                           <Badge estado={c.estado} />
-                          <button
-                            onClick={() => openEdit(c)}
-                            className="text-gray-400 hover:text-blue-600 transition-colors p-1 rounded-lg hover:bg-blue-50"
-                            title="Editar limpieza"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => openEdit(c)}
+                              className="text-gray-400 hover:text-blue-600 transition-colors p-1 rounded-lg hover:bg-blue-50"
+                              title="Editar limpieza"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={async () => {
+                                if (!confirm(`¿Cancelar limpieza de ${c.apartamento}?`)) return
+                                await fetch('/api/satllabot/data/cleanings', {
+                                  method: 'PATCH',
+                                  credentials: 'include',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ action: 'delete', shortName: c.apartamento, date: data.date }),
+                                })
+                                load(selectedDate)
+                              }}
+                              className="text-gray-400 hover:text-red-600 transition-colors p-1 rounded-lg hover:bg-red-50"
+                              title="Cancelar limpieza"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>

@@ -95,8 +95,9 @@ export async function POST(request: NextRequest) {
     // Establecer cookie con el token del usuario
     const cookieStore = await cookies()
 
-    // IMPORTANTE: Primero eliminar la cookie existente de admin
+    // Eliminar cookies de sesión existentes
     cookieStore.delete('auth-token')
+    cookieStore.delete('admin-token') // Invalidar sesión admin para prevenir reutilización
 
     // Ahora establecer la nueva cookie del usuario
     cookieStore.set('auth-token', userToken, {

@@ -75,7 +75,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'local_cuisine',
-    label: 'Cocina local / típica',
+    label: 'Cocina típica',
     icon: 'ChefHat',
     group: 'gastronomy',
     source: 'GOOGLE',
@@ -93,7 +93,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'seafood',
-    label: 'Marisquería / pescadería',
+    label: 'Marisquerías',
     icon: 'Fish',
     group: 'gastronomy',
     source: 'GOOGLE',
@@ -147,7 +147,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'street_food',
-    label: 'Street food / mercado gastronómico',
+    label: 'Street food',
     icon: 'Store',
     group: 'gastronomy',
     source: 'GOOGLE',
@@ -165,7 +165,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'ice_cream',
-    label: 'Heladería / pastelería',
+    label: 'Heladerías',
     icon: 'IceCream',
     group: 'gastronomy',
     source: 'GOOGLE',
@@ -235,7 +235,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'tea_bar',
-    label: 'Tetería / matcha bar',
+    label: 'Teterías',
     icon: 'LeafyGreen',
     group: 'cafe',
     source: 'GOOGLE',
@@ -271,7 +271,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'wine_bar',
-    label: 'Bar de vinos / bodega',
+    label: 'Vinos y bodegas',
     icon: 'Wine',
     group: 'nightlife',
     source: 'GOOGLE',
@@ -287,7 +287,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'tapas_bar',
-    label: 'Bar de tapas / pintxos',
+    label: 'Tapas y pintxos',
     icon: 'Utensils',
     group: 'nightlife',
     source: 'GOOGLE',
@@ -303,7 +303,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'rooftop',
-    label: 'Rooftop bar / terraza',
+    label: 'Rooftops',
     icon: 'Building2',
     group: 'nightlife',
     source: 'GOOGLE',
@@ -359,7 +359,7 @@ export const CATEGORIES: CategoryConfig[] = [
   // ═══════════════════════════════════════════
   {
     id: 'cathedral',
-    label: 'Catedral / iglesia / templo',
+    label: 'Catedrales e iglesias',
     icon: 'Church',
     group: 'heritage',
     source: 'GOOGLE',
@@ -413,7 +413,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'ruins',
-    label: 'Ruinas / yacimiento arqueológico',
+    label: 'Ruinas arqueológicas',
     icon: 'Columns',
     group: 'heritage',
     source: 'GOOGLE',
@@ -447,7 +447,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'historic_bridge',
-    label: 'Puente histórico',
+    label: 'Puentes históricos',
     icon: 'Milestone',
     group: 'heritage',
     source: 'GOOGLE',
@@ -468,7 +468,7 @@ export const CATEGORIES: CategoryConfig[] = [
   {
     id: 'museum',
     label: 'Museo',
-    icon: 'Museum',
+    icon: 'Landmark',
     group: 'culture',
     source: 'GOOGLE',
     radius: 10000,
@@ -543,7 +543,7 @@ export const CATEGORIES: CategoryConfig[] = [
   // ═══════════════════════════════════════════
   {
     id: 'park',
-    label: 'Parque / jardín',
+    label: 'Parques y jardines',
     icon: 'TreePine',
     group: 'nature',
     source: 'GOOGLE',
@@ -575,7 +575,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'cove',
-    label: 'Cala / playa escondida',
+    label: 'Calas escondidas',
     icon: 'Anchor',
     group: 'nature',
     source: 'GOOGLE',
@@ -591,7 +591,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'river_lake',
-    label: 'Río / lago / embalse',
+    label: 'Ríos y lagos',
     icon: 'Droplets',
     group: 'nature',
     source: 'GOOGLE',
@@ -623,7 +623,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'hiking',
-    label: 'Senderismo / montaña',
+    label: 'Senderismo',
     icon: 'Footprints',
     group: 'nature',
     source: 'GOOGLE',
@@ -675,7 +675,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'natural_park',
-    label: 'Parque natural / reserva',
+    label: 'Parques naturales',
     icon: 'TreeDeciduous',
     group: 'nature',
     source: 'GOOGLE',
@@ -745,7 +745,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'promenade',
-    label: 'Paseo / rambla / malecón',
+    label: 'Paseos y ramblas',
     icon: 'Footprints',
     group: 'urban',
     source: 'GOOGLE',
@@ -761,7 +761,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'port',
-    label: 'Puerto / marina',
+    label: 'Puertos y marinas',
     icon: 'Anchor',
     group: 'urban',
     source: 'GOOGLE',
@@ -799,7 +799,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'cycling',
-    label: 'Ciclismo / bicicleta',
+    label: 'Ciclismo',
     icon: 'Bike',
     group: 'activities',
     source: 'GOOGLE',
@@ -893,7 +893,7 @@ export const CATEGORIES: CategoryConfig[] = [
   // ═══════════════════════════════════════════
   {
     id: 'shopping_mall',
-    label: 'Centro comercial',
+    label: 'Centros comerciales',
     icon: 'ShoppingBag',
     group: 'shopping',
     source: 'GOOGLE',
@@ -911,7 +911,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'outlet',
-    label: 'Outlet / descuentos',
+    label: 'Outlets',
     icon: 'Tag',
     group: 'shopping',
     source: 'GOOGLE',
@@ -929,7 +929,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'local_shops',
-    label: 'Tiendas locales / boutiques',
+    label: 'Tiendas locales',
     icon: 'Store',
     group: 'shopping',
     source: 'GOOGLE',
@@ -945,7 +945,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'craft_market',
-    label: 'Mercado artesanal / feria',
+    label: 'Mercados artesanales',
     icon: 'Brush',
     group: 'shopping',
     source: 'GOOGLE',
@@ -965,8 +965,8 @@ export const CATEGORIES: CategoryConfig[] = [
   // ═══════════════════════════════════════════
   {
     id: 'theme_park',
-    label: 'Parque temático / de atracciones',
-    icon: 'Ferris Wheel',
+    label: 'Parques temáticos',
+    icon: 'FerrisWheel',
     group: 'family',
     source: 'GOOGLE',
     radius: 50000,
@@ -983,7 +983,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'zoo',
-    label: 'Zoo / acuario / granja',
+    label: 'Zoos y acuarios',
     icon: 'Rabbit',
     group: 'family',
     source: 'GOOGLE',
@@ -1001,7 +1001,7 @@ export const CATEGORIES: CategoryConfig[] = [
   },
   {
     id: 'kids_museum',
-    label: 'Museo interactivo / para niños',
+    label: 'Museos para niños',
     icon: 'Lightbulb',
     group: 'family',
     source: 'GOOGLE',
@@ -1036,7 +1036,7 @@ export const CATEGORIES: CategoryConfig[] = [
   {
     id: 'hospital',
     label: 'Hospitales y urgencias',
-    icon: 'Hospital',
+    icon: 'Cross',
     group: 'services',
     source: 'OSM',
     radius: 5000,
@@ -1103,7 +1103,7 @@ export const CATEGORIES: CategoryConfig[] = [
   {
     id: 'laundry',
     label: 'Lavanderías',
-    icon: 'WashingMachine',
+    icon: 'Shirt',
     group: 'services',
     source: 'OSM',
     radius: 2000,

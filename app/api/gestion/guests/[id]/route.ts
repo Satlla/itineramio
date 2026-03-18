@@ -157,7 +157,7 @@ export async function DELETE(
       )
     }
 
-    await prisma.guest.delete({ where: { id } })
+    await prisma.guest.deleteMany({ where: { id, userId } })
 
     return NextResponse.json({ success: true })
   } catch (error) {

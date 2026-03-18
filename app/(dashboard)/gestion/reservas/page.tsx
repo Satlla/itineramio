@@ -459,6 +459,8 @@ export default function ReservasPage() {
 
   const handleGuestNameChange = (value: string) => {
     setFormData({ ...formData, guestName: value })
+    if (guestSearchTimeout.current) clearTimeout(guestSearchTimeout.current)
+    guestSearchTimeout.current = setTimeout(() => searchGuests(value), 300)
   }
 
   const handleGuestEmailChange = (value: string) => {
@@ -831,6 +833,7 @@ export default function ReservasPage() {
                 <div className="flex rounded-xl border border-gray-200 overflow-hidden">
                   <button
                     onClick={() => setViewMode('list')}
+                    aria-label="Ver como lista"
                     className={`px-3 py-2 text-sm flex items-center gap-1.5 transition-colors ${viewMode === 'list' ? 'bg-violet-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
                   >
                     <List className="w-4 h-4" />
@@ -838,6 +841,7 @@ export default function ReservasPage() {
                   </button>
                   <button
                     onClick={() => setViewMode('calendar')}
+                    aria-label="Ver como calendario"
                     className={`px-3 py-2 text-sm flex items-center gap-1.5 transition-colors ${viewMode === 'calendar' ? 'bg-violet-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
                   >
                     <LayoutGrid className="w-4 h-4" />

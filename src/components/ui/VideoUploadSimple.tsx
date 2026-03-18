@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Upload, X, Video, CheckCircle, Loader2, AlertCircle, Copy } from 'lucide-react'
 import { Button } from './Button'
 import { upload } from '@vercel/blob/client'
-import { compressVideoFFmpeg, isFFmpegSupported } from '../../utils/ffmpegCompression'
+import { compressVideoFFmpeg, isFFmpegSupported, preloadFFmpeg } from '../../utils/ffmpegCompression'
 
 interface VideoUploadProps {
   value?: string
@@ -147,6 +147,11 @@ export function VideoUploadSimple({
       setPendingFile(null)
     }
   }
+
+  // Pre-load FFmpeg WASM on mount so it's ready when user selects a file
+  useEffect(() => {
+    preloadFFmpeg()
+  }, [])
 
   // Sync with value prop changes
   useEffect(() => {
@@ -621,7 +626,7 @@ export function VideoUploadSimple({
               <div className="flex gap-2 mt-3">
                 <Button
                   type="button"
-                  variant="primary"
+                  variant="default"
                   size="sm"
                   onClick={useExistingVideo}
                   className="text-xs"

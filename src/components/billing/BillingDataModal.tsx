@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X,
@@ -116,17 +116,26 @@ export default function BillingDataModal({ isOpen, onClose, onSaveSuccess }: Bil
   })
   const [saving, setSaving] = useState(false)
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({})
+  const fetchAbortRef = useRef<AbortController | null>(null)
 
   // Fetch existing billing data when modal opens
   useEffect(() => {
     if (isOpen) {
       fetchBillingData()
     }
+    return () => {
+      fetchAbortRef.current?.abort()
+    }
   }, [isOpen])
 
   const fetchBillingData = async () => {
+    fetchAbortRef.current?.abort()
+    fetchAbortRef.current = new AbortController()
     try {
-      const response = await fetch('/api/user/billing-info', { credentials: 'include' })
+      const response = await fetch('/api/user/billing-info', {
+        credentials: 'include',
+        signal: fetchAbortRef.current.signal
+      })
       if (response.ok) {
         const data = await response.json()
         if (data.billingInfo) {

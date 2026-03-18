@@ -8,25 +8,20 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    
-    // Use raw SQL to find property safely
-    let properties = await prisma.$queryRaw`
-      SELECT 
-        id, name, slug, description, type,
-        street, city, state, country, "postalCode",
-        bedrooms, bathrooms, "maxGuests", "squareMeters",
-        "profileImage", "hostContactName", "hostContactPhone",
-        "hostContactEmail", "hostContactLanguage", "hostContactPhoto",
-        status, "isPublished", "propertySetId", "hostId",
-        "createdAt", "updatedAt", "publishedAt"
-      FROM properties
-      WHERE id = ${id}
-        AND "isPublished" = true
-      LIMIT 1
-    ` as any[]
-    
-    let property = properties[0]
-    
+
+    let property = await prisma.property.findFirst({
+      where: { id, isPublished: true },
+      select: {
+        id: true, name: true, slug: true, description: true, type: true,
+        street: true, city: true, state: true, country: true, postalCode: true,
+        bedrooms: true, bathrooms: true, maxGuests: true, squareMeters: true,
+        profileImage: true, hostContactName: true, hostContactPhone: true,
+        hostContactEmail: true, hostContactLanguage: true, hostContactPhoto: true,
+        status: true, isPublished: true, propertySetId: true, hostId: true,
+        createdAt: true, updatedAt: true, publishedAt: true
+      }
+    })
+
     if (!property) {
       return NextResponse.json({
         success: false,

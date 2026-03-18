@@ -26,7 +26,8 @@ import {
   CheckCircle,
   MessageCircle,
   Timer,
-  Hash
+  Hash,
+  Sparkles
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -142,9 +143,10 @@ export default function DashboardPage(): JSX.Element {
       const response = await fetch('/api/dashboard/recent-activity', {
         credentials: 'include'
       })
+      if (!response.ok) return
       const result = await response.json()
 
-      if (response.ok && result.success) {
+      if (result.success) {
         // Just use the real evaluations from API
         setRecentActivity(result.activity.slice(0, 5)) // Reducir a 5 elementos
       }
@@ -167,8 +169,8 @@ export default function DashboardPage(): JSX.Element {
       ])
       
       const [analyticsResult, propertySetsResult] = await Promise.all([
-        analyticsResponse.json(),
-        propertySetsResponse.json()
+        analyticsResponse.ok ? analyticsResponse.json() : Promise.resolve({}),
+        propertySetsResponse.ok ? propertySetsResponse.json() : Promise.resolve({})
       ])
       
       // Procesar analytics data
@@ -766,6 +768,17 @@ export default function DashboardPage(): JSX.Element {
                     </motion.div>
                   )}
                   <Button
+                    asChild
+                    size="sm"
+                    variant="outline"
+                    className="border-violet-300 text-violet-700 hover:bg-violet-50 w-full sm:w-auto"
+                  >
+                    <Link href="/ai-setup" className="flex items-center justify-center">
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Crear con IA
+                    </Link>
+                  </Button>
+                  <Button
                     id="add-property-button"
                     asChild
                     size="sm"
@@ -830,6 +843,16 @@ export default function DashboardPage(): JSX.Element {
                           <Lightbulb className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-400 relative hover:scale-110 transition-transform" fill="currentColor" />
                         </div>
                       </motion.div>
+                      <Button
+                        asChild
+                        variant="outline"
+                        className="border-violet-300 text-violet-700 hover:bg-violet-50"
+                      >
+                        <Link href="/ai-setup" className="inline-flex items-center">
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Crear con IA
+                        </Link>
+                      </Button>
                       <Button
                         asChild
                         className="bg-violet-600 hover:bg-violet-700"

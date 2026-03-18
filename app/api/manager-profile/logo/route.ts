@@ -36,11 +36,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate file type (images only)
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml']
+    // Validate file type (images only — SVG excluded to prevent XSS)
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Solo se permiten imágenes (JPG, PNG, GIF, WebP, SVG)' },
+        { error: 'Solo se permiten imágenes (JPG, PNG, GIF, WebP)' },
         { status: 400 }
       )
     }

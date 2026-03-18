@@ -262,8 +262,8 @@ export async function DELETE(
     // Por ahora hacemos soft delete (isActive = false)
     if (existing._count.reservations > 0) {
       // Tiene reservas, solo desactivar
-      await prisma.billingUnit.update({
-        where: { id },
+      await prisma.billingUnit.updateMany({
+        where: { id, userId },
         data: { isActive: false }
       })
 
@@ -274,8 +274,8 @@ export async function DELETE(
     }
 
     // Sin datos, eliminar completamente
-    await prisma.billingUnit.delete({
-      where: { id }
+    await prisma.billingUnit.deleteMany({
+      where: { id, userId }
     })
 
     return NextResponse.json({

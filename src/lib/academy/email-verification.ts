@@ -210,7 +210,10 @@ export async function resendVerificationEmail(email: string): Promise<{ success:
     // Send email
     const result = await sendVerificationEmail(email, user.fullName, token)
 
-    return result
+    if (!result.success) {
+      return { success: false, error: 'Error al enviar el email de verificación' }
+    }
+    return { success: true }
   } catch (error) {
     console.error('Error resending verification email:', error)
     return {

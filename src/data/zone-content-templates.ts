@@ -54,10 +54,6 @@ export const zoneContentTemplates: Record<string, ZoneContentTemplate> = {
           es: `📍 **Dirección:** [CALLE Y NÚMERO]
 [CÓDIGO POSTAL, CIUDAD]
 
-🏢 **Identifica el edificio por:** • Fachada color [COLOR]
-• Portal nº [X]
-• [Referencia visual: ej. junto a farmacia]
-
 🔗 **Google Maps:** [ENLACE_GOOGLE_MAPS]
 🚖 **Para el taxista:** "[DIRECCIÓN SIMPLIFICADA]"
 
@@ -72,10 +68,6 @@ export const zoneContentTemplates: Record<string, ZoneContentTemplate> = {
           en: `📍 **Address:** [STREET AND NUMBER]
 [POSTAL CODE, CITY]
 
-🏢 **Identify the building by:** • [COLOR] facade
-• Entrance no. [X]
-• [Visual reference: e.g. next to pharmacy]
-
 🔗 **Google Maps:** [GOOGLE_MAPS_LINK]
 🚖 **For the taxi driver:** "[SIMPLIFIED ADDRESS]"
 
@@ -89,10 +81,6 @@ export const zoneContentTemplates: Record<string, ZoneContentTemplate> = {
 👉 [ITINERAMIO_MANUAL_URL]`,
           fr: `📍 **Adresse:** [RUE ET NUMÉRO]
 [CODE POSTAL, VILLE]
-
-🏢 **Identifiez l'immeuble par:** • Façade couleur [COULEUR]
-• Entrée nº [X]
-• [Référence visuelle: ex. à côté de la pharmacie]
 
 🔗 **Google Maps:** [LIEN_GOOGLE_MAPS]
 🚖 **Pour le chauffeur de taxi:** "[ADRESSE SIMPLIFIÉE]"

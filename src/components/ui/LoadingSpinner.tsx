@@ -7,6 +7,7 @@ interface LoadingSpinnerProps {
   text?: string
 }
 
+/** @deprecated Usar AnimatedLoadingSpinner */
 export function LoadingSpinner({ fullScreen = true, size = 'md', text }: LoadingSpinnerProps) {
   const sizeClasses = {
     sm: 'w-6 h-6 border-2',
@@ -15,7 +16,7 @@ export function LoadingSpinner({ fullScreen = true, size = 'md', text }: Loading
   }
 
   const spinner = (
-    <div className="flex flex-col items-center justify-center">
+    <div role="status" aria-label="Cargando" className="flex flex-col items-center justify-center">
       <div className={`${sizeClasses[size]} border-violet-600 border-t-transparent rounded-full animate-spin`}></div>
       {text && (
         <motion.p 

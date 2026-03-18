@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 
 interface ManualPoint {
@@ -25,32 +25,49 @@ const manualPoints: ManualPoint[] = [
 ]
 
 export function Globe3D() {
-  const [rotation, setRotation] = useState(0)
   const [hoveredPoint, setHoveredPoint] = useState<string | null>(null)
-  const intervalRef = useRef<NodeJS.Timeout>()
+  const rotationRef = useRef(0)
+  const rafRef = useRef<number>(0)
+  const lastTimeRef = useRef<number>(0)
+  // Map of pointId -> outer positioning div ref
+  const pointWrapperRefs = useRef<Map<string, HTMLDivElement>>(new Map())
 
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setRotation(prev => prev + 0.5)
-    }, 50)
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
-    }
+  const updatePoints = useCallback(() => {
+    const rot = rotationRef.current
+    const radius = 200
+    manualPoints.forEach((point) => {
+      const el = pointWrapperRefs.current.get(point.id)
+      if (!el) return
+      const phi = (90 - point.lat) * (Math.PI / 180)
+      const theta = (point.lng + rot) * (Math.PI / 180)
+      const x = radius * Math.sin(phi) * Math.cos(theta)
+      const y = -radius * Math.cos(phi)
+      const z = radius * Math.sin(phi) * Math.sin(theta)
+      const visible = z > -radius * 0.3
+      el.style.left = `${x + 250}px`
+      el.style.top = `${y + 250}px`
+      el.style.zIndex = String(Math.round(z + 200))
+      el.style.display = visible ? '' : 'none'
+    })
   }, [])
 
-  const convertToScreenCoords = (lat: number, lng: number, radius = 200) => {
-    const phi = (90 - lat) * (Math.PI / 180)
-    const theta = (lng + rotation) * (Math.PI / 180)
-    
-    const x = radius * Math.sin(phi) * Math.cos(theta)
-    const y = -radius * Math.cos(phi)
-    const z = radius * Math.sin(phi) * Math.sin(theta)
-    
-    return { x, y, z, visible: z > -radius * 0.3 }
-  }
+  const animate = useCallback((timestamp: number) => {
+    if (lastTimeRef.current === 0) lastTimeRef.current = timestamp
+    const elapsed = timestamp - lastTimeRef.current
+    // Throttle to ~20fps to match original feel (50ms intervals)
+    if (elapsed >= 50) {
+      rotationRef.current += (elapsed / 50) * 0.5
+      lastTimeRef.current = timestamp
+      updatePoints()
+    }
+    rafRef.current = requestAnimationFrame(animate)
+  }, [updatePoints])
+
+  useEffect(() => {
+    updatePoints()
+    rafRef.current = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [animate, updatePoints])
 
   return (
     <div className="relative w-full max-w-[500px] aspect-square mx-auto overflow-hidden">
@@ -68,46 +85,43 @@ export function Globe3D() {
               <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="0.8"/>
             </pattern>
           </defs>
-          
+
           {/* World grid overlay */}
-          <circle 
-            cx="250" 
-            cy="250" 
-            r="240" 
-            fill="url(#worldGrid)" 
+          <circle
+            cx="250"
+            cy="250"
+            r="240"
+            fill="url(#worldGrid)"
             className="opacity-60"
           />
-          
+
           {/* Center luminous glow */}
-          <circle 
-            cx="250" 
-            cy="250" 
-            r="240" 
-            fill="url(#centerGlow)" 
+          <circle
+            cx="250"
+            cy="250"
+            r="240"
+            fill="url(#centerGlow)"
           />
-          
-          {/* Latitude lines */}
-          {[-60, -30, 0, 30, 60].map((lat, i) => {
-            const y = 250 + (lat * 240) / 90
-            return (
-              <ellipse
-                key={`lat-${i}`}
-                cx="250"
-                cy="250"
-                rx={240 * Math.cos((lat * Math.PI) / 180)}
-                ry="0"
-                stroke="rgba(255,255,255,0.2)"
-                strokeWidth="1"
-                fill="none"
-                transform={`translate(0, ${lat * 2.67})`}
-              />
-            )
-          })}
-          
-          {/* Longitude lines */}
-          {Array.from({ length: 12 }, (_, i) => {
-            const angle = (i * 30) - rotation * 0.5
-            return (
+
+          {/* Latitude lines — static, no rotation needed */}
+          {[-60, -30, 0, 30, 60].map((lat, i) => (
+            <ellipse
+              key={`lat-${i}`}
+              cx="250"
+              cy="250"
+              rx={240 * Math.cos((lat * Math.PI) / 180)}
+              ry="0"
+              stroke="rgba(255,255,255,0.2)"
+              strokeWidth="1"
+              fill="none"
+              transform={`translate(0, ${lat * 2.67})`}
+            />
+          ))}
+
+          {/* Longitude lines — CSS animation instead of JS state (zero re-renders) */}
+          {/* Full 360° in 72s (original was 10deg/s * 0.5 = 5deg/s → 72s/revolution) */}
+          <g style={{ transformOrigin: '250px 250px', animation: 'globeRotate 72s linear infinite' }}>
+            {Array.from({ length: 12 }, (_, i) => (
               <ellipse
                 key={`lng-${i}`}
                 cx="250"
@@ -117,174 +131,107 @@ export function Globe3D() {
                 stroke="rgba(255,255,255,0.2)"
                 strokeWidth="1"
                 fill="none"
-                transform={`rotate(${angle} 250 250)`}
+                transform={`rotate(${i * 30} 250 250)`}
               />
-            )
-          })}
+            ))}
+          </g>
         </svg>
 
-        {/* Enhanced Continents with luminous borders */}
-        <div className="absolute inset-0">
+        {/* Continents — CSS animation (180s = 10deg/s * 0.2) */}
+        <div
+          className="absolute inset-0"
+          style={{ animation: 'globeRotate 180s linear infinite', transformOrigin: 'center' }}
+        >
           {/* Europe */}
-          <div 
+          <div
             className="absolute w-12 h-8 bg-white/10 rounded border border-white/30 shadow-lg"
-            style={{
-              top: '38%',
-              left: '52%',
-              transform: `rotate(${rotation * 0.2}deg)`,
-              boxShadow: '0 0 10px rgba(255,255,255,0.3)'
-            }}
+            style={{ top: '38%', left: '52%', boxShadow: '0 0 10px rgba(255,255,255,0.3)' }}
           />
           {/* North America */}
-          <div 
+          <div
             className="absolute w-16 h-20 bg-white/10 rounded border border-white/30 shadow-lg"
-            style={{
-              top: '25%',
-              left: '18%',
-              transform: `rotate(${rotation * 0.2}deg)`,
-              boxShadow: '0 0 10px rgba(255,255,255,0.3)'
-            }}
+            style={{ top: '25%', left: '18%', boxShadow: '0 0 10px rgba(255,255,255,0.3)' }}
           />
           {/* Asia */}
-          <div 
+          <div
             className="absolute w-20 h-16 bg-white/10 rounded border border-white/30 shadow-lg"
-            style={{
-              top: '28%',
-              left: '62%',
-              transform: `rotate(${rotation * 0.2}deg)`,
-              boxShadow: '0 0 10px rgba(255,255,255,0.3)'
-            }}
+            style={{ top: '28%', left: '62%', boxShadow: '0 0 10px rgba(255,255,255,0.3)' }}
           />
           {/* Africa */}
-          <div 
+          <div
             className="absolute w-10 h-16 bg-white/10 rounded border border-white/30 shadow-lg"
-            style={{
-              top: '45%',
-              left: '48%',
-              transform: `rotate(${rotation * 0.2}deg)`,
-              boxShadow: '0 0 10px rgba(255,255,255,0.3)'
-            }}
+            style={{ top: '45%', left: '48%', boxShadow: '0 0 10px rgba(255,255,255,0.3)' }}
           />
           {/* South America */}
-          <div 
+          <div
             className="absolute w-8 h-18 bg-white/10 rounded border border-white/30 shadow-lg"
-            style={{
-              top: '55%',
-              left: '28%',
-              transform: `rotate(${rotation * 0.2}deg)`,
-              boxShadow: '0 0 10px rgba(255,255,255,0.3)'
-            }}
+            style={{ top: '55%', left: '28%', boxShadow: '0 0 10px rgba(255,255,255,0.3)' }}
           />
           {/* Australia */}
-          <div 
+          <div
             className="absolute w-8 h-6 bg-white/10 rounded border border-white/30 shadow-lg"
-            style={{
-              top: '65%',
-              left: '72%',
-              transform: `rotate(${rotation * 0.2}deg)`,
-              boxShadow: '0 0 10px rgba(255,255,255,0.3)'
-            }}
+            style={{ top: '65%', left: '72%', boxShadow: '0 0 10px rgba(255,255,255,0.3)' }}
           />
         </div>
       </div>
 
-      {/* Manual Creation Points */}
+      {/* Points — positioned via DOM refs in RAF loop (zero React re-renders) */}
       <div className="absolute inset-0">
-        {manualPoints.map((point) => {
-          const coords = convertToScreenCoords(point.lat, point.lng)
-          
-          if (!coords.visible) return null
-
-          return (
+        {manualPoints.map((point) => (
+          <div
+            key={point.id}
+            ref={(el) => {
+              if (el) pointWrapperRefs.current.set(point.id, el)
+              else pointWrapperRefs.current.delete(point.id)
+            }}
+            className="absolute"
+            style={{ left: 250, top: 250 }}
+          >
             <motion.div
-              key={point.id}
-              className="absolute"
-              style={{
-                left: coords.x + 250,
-                top: coords.y + 250,
-                zIndex: Math.round(coords.z + 200)
-              }}
               initial={{ scale: 0 }}
-              animate={{ 
-                scale: hoveredPoint === point.id ? 1.5 : 1,
-                opacity: coords.visible ? 1 : 0
-              }}
+              animate={{ scale: hoveredPoint === point.id ? 1.5 : 1 }}
               transition={{ duration: 0.3 }}
               onHoverStart={() => setHoveredPoint(point.id)}
               onHoverEnd={() => setHoveredPoint(null)}
             >
-              {/* Point Glow - Enhanced */}
+              {/* Point Glow */}
               <div className={`absolute inset-0 w-6 h-6 rounded-full blur-md ${
                 point.isActive ? 'bg-violet-400' : 'bg-blue-400'
               }`} />
-              
-              {/* Point Core - Enhanced */}
+
+              {/* Point Core */}
               <div className={`relative w-6 h-6 rounded-full ${
                 point.isActive ? 'bg-violet-500' : 'bg-blue-500'
               } shadow-xl border-2 border-white`} style={{
-                boxShadow: point.isActive 
-                  ? '0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4)' 
+                boxShadow: point.isActive
+                  ? '0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.4)'
                   : '0 0 15px rgba(59, 130, 246, 0.6)'
               }}>
-                {/* Enhanced Pulsing Animation */}
                 {point.isActive && (
                   <>
                     <motion.div
                       className="absolute inset-0 rounded-full bg-violet-400"
-                      animate={{
-                        scale: [1, 3, 1],
-                        opacity: [0.8, 0, 0.8]
-                      }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: Math.random() * 2
-                      }}
+                      animate={{ scale: [1, 3, 1], opacity: [0.8, 0, 0.8] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: Math.random() * 2 }}
                     />
-                    
-                    {/* Secondary pulse for layered effect */}
                     <motion.div
                       className="absolute inset-0 rounded-full bg-white"
-                      animate={{
-                        scale: [1, 2.5, 1],
-                        opacity: [0.6, 0, 0.6]
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: Math.random() * 2 + 0.5
-                      }}
+                      animate={{ scale: [1, 2.5, 1], opacity: [0.6, 0, 0.6] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: Math.random() * 2 + 0.5 }}
                     />
                   </>
                 )}
               </div>
 
-              {/* Manual transmission beams */}
               {point.isActive && (
                 <motion.div
                   className="absolute inset-0 w-1 h-16 bg-gradient-to-t from-violet-500 to-transparent rounded-full"
-                  style={{
-                    left: '50%',
-                    top: '-60px',
-                    transform: 'translateX(-50%)',
-                    opacity: 0.7
-                  }}
-                  animate={{
-                    opacity: [0, 0.8, 0],
-                    scaleY: [0, 1, 0]
-                  }}
-                  transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: Math.random() * 3
-                  }}
+                  style={{ left: '50%', top: '-60px', transform: 'translateX(-50%)', opacity: 0.7 }}
+                  animate={{ opacity: [0, 0.8, 0], scaleY: [0, 1, 0] }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "easeInOut", delay: Math.random() * 3 }}
                 />
               )}
 
-              {/* Tooltip */}
               {hoveredPoint === point.id && (
                 <motion.div
                   className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-3 py-1 rounded text-sm whitespace-nowrap backdrop-blur-sm"
@@ -297,24 +244,20 @@ export function Globe3D() {
                 </motion.div>
               )}
             </motion.div>
-          )
-        })}
+          </div>
+        ))}
       </div>
 
-      {/* Enhanced Orbital Rings */}
+      {/* Orbital Rings — CSS animations only */}
       <motion.div
         className="absolute inset-2 border-2 border-violet-400/40 rounded-full shadow-lg"
-        style={{
-          boxShadow: '0 0 20px rgba(139, 92, 246, 0.3), inset 0 0 20px rgba(139, 92, 246, 0.1)'
-        }}
+        style={{ boxShadow: '0 0 20px rgba(139, 92, 246, 0.3), inset 0 0 20px rgba(139, 92, 246, 0.1)' }}
         animate={{ rotate: 360 }}
         transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
       />
       <motion.div
         className="absolute inset-6 border border-blue-400/30 rounded-full shadow-lg"
-        style={{
-          boxShadow: '0 0 15px rgba(59, 130, 246, 0.3)'
-        }}
+        style={{ boxShadow: '0 0 15px rgba(59, 130, 246, 0.3)' }}
         animate={{ rotate: -360 }}
         transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
       />
@@ -324,9 +267,9 @@ export function Globe3D() {
         transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
       />
 
-      {/* Enhanced Center Glow */}
+      {/* Center Glow */}
       <div className="absolute inset-0 rounded-full bg-gradient-radial from-white/10 via-violet-500/10 to-transparent" />
-      
+
       {/* Stats Overlay */}
       <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-center">
         <motion.div
@@ -338,6 +281,14 @@ export function Globe3D() {
         </motion.div>
         <div className="text-sm text-gray-300">Manuales creados en tiempo real</div>
       </div>
+
+      {/* Keyframes for CSS globe rotation — injected once */}
+      <style>{`
+        @keyframes globeRotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   )
 }

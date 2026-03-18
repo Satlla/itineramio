@@ -143,13 +143,12 @@ function LoginContent() {
         if (data.token) {
           try {
             localStorage.setItem('auth-token', data.token)
-            console.log('✅ Token saved to localStorage for PWA')
           } catch (e) {
-            console.warn('⚠️ Failed to save token to localStorage:', e)
+            // localStorage not available (private browsing, etc.)
           }
         }
 
-        // Smart routing based on active modules
+        // Keep spinner active during navigation — setLoading(false) intentionally omitted
         const fromUrl = searchParams.get('from')
         if (fromUrl) {
           router.push(fromUrl)
@@ -172,15 +171,14 @@ function LoginContent() {
             router.push('/main')
           }
         }
-      } else {
-        setErrors(prev => ({
-          ...prev,
-          general: t('login.errors.loginError')
-        }))
+        return
       }
-      
+
+      setErrors(prev => ({
+        ...prev,
+        general: t('login.errors.loginError')
+      }))
     } catch (error) {
-      console.error('Login error:', error)
       setErrors(prev => ({
         ...prev,
         general: t('login.errors.connectionError')
@@ -260,7 +258,7 @@ function LoginContent() {
               className="flex items-center space-x-2"
             >
               <ItineramioLogo size="md" gradient />
-              <span className="text-lg sm:text-xl font-bold" style={{ color: '#484848' }}>
+              <span className="text-lg sm:text-xl font-bold text-gray-600">
                 Itineramio
               </span>
             </motion.div>
@@ -395,6 +393,7 @@ function LoginContent() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -412,14 +411,14 @@ function LoginContent() {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 text-[#FF385C] border-gray-300 rounded focus:ring-[#FF385C]"
+                    className="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-600"
                   />
                   <span className="text-sm text-gray-600">{t('login.rememberMe')}</span>
                 </label>
 
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-[#FF385C] hover:text-[#FF385C]/80 hover:underline"
+                  className="text-sm text-violet-600 hover:text-violet-700 hover:underline"
                 >
                   {t('login.forgotPassword')}
                 </Link>
@@ -449,7 +448,7 @@ function LoginContent() {
             {/* Register Link */}
             <p className="mt-6 text-center text-sm text-gray-600">
               {t('login.noAccount')}{' '}
-              <Link href="/register" className="font-medium text-[#FF385C] hover:text-[#FF385C]/80">
+              <Link href="/register" className="font-medium text-violet-600 hover:text-violet-700">
                 {t('login.signUp')}
               </Link>
             </p>
@@ -463,7 +462,7 @@ function LoginContent() {
             className="mt-4 sm:mt-6 text-center"
           >
             <div className="bg-white/80 rounded-lg p-3 sm:p-4 text-xs sm:text-sm text-gray-600">
-              <span className="font-medium text-[#FF385C]">✨ {t('common.trialInfo')}</span>
+              <span className="font-medium text-violet-600">✨ {t('common.trialInfo')}</span>
               <span className="hidden sm:inline"> + {t('common.plansFrom')}</span>
               <span className="sm:hidden block mt-1">{t('common.plansFrom')}</span>
             </div>
