@@ -121,77 +121,17 @@ function ConfettiBurst({ active }: { active: boolean }) {
 function AnimatedOrbs() {
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none">
-      {/* Main gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-950/40 via-gray-950 to-gray-950" />
-
-      {/* Animated orbs */}
+      {/* Subtle light orbs */}
       <motion.div
-        animate={{
-          x: [0, 100, -50, 0],
-          y: [0, -80, 60, 0],
-          scale: [1, 1.2, 0.9, 1],
-        }}
+        animate={{ x: [0, 60, -30, 0], y: [0, -50, 40, 0], scale: [1, 1.2, 0.9, 1] }}
         transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-violet-600/[0.07] blur-[100px]"
+        className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-violet-200/30 blur-[120px]"
       />
       <motion.div
-        animate={{
-          x: [0, -120, 80, 0],
-          y: [0, 60, -40, 0],
-          scale: [1, 0.8, 1.3, 1],
-        }}
+        animate={{ x: [0, -80, 50, 0], y: [0, 40, -30, 0], scale: [1, 0.8, 1.2, 1] }}
         transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-1/3 -right-32 w-[600px] h-[600px] rounded-full bg-purple-600/[0.06] blur-[120px]"
+        className="absolute top-1/3 -right-32 w-[500px] h-[500px] rounded-full bg-purple-200/20 blur-[120px]"
       />
-      <motion.div
-        animate={{
-          x: [0, 60, -80, 0],
-          y: [0, -60, 80, 0],
-          scale: [1, 1.1, 0.85, 1],
-        }}
-        transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute bottom-20 left-1/4 w-[400px] h-[400px] rounded-full bg-fuchsia-600/[0.05] blur-[100px]"
-      />
-      <motion.div
-        animate={{
-          x: [0, -40, 60, 0],
-          y: [0, 40, -60, 0],
-        }}
-        transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-1/2 left-1/2 w-[300px] h-[300px] rounded-full bg-indigo-500/[0.04] blur-[80px]"
-      />
-
-      {/* Grid pattern overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: 'linear-gradient(rgba(139,92,246,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,0.3) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
-        }}
-      />
-
-      {/* Floating sparkle particles */}
-      {[...Array(6)].map((_, i) => (
-        <motion.div
-          key={i}
-          animate={{
-            y: [-20, 20, -20],
-            opacity: [0.2, 0.6, 0.2],
-            scale: [0.8, 1.2, 0.8],
-          }}
-          transition={{
-            duration: 3 + i * 0.7,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: i * 0.5,
-          }}
-          className="absolute w-1 h-1 rounded-full bg-violet-400"
-          style={{
-            left: `${15 + i * 14}%`,
-            top: `${20 + (i % 3) * 25}%`,
-          }}
-        />
-      ))}
     </div>
   )
 }
@@ -204,7 +144,7 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
   const progress = ((step - 1) / (total - 1)) * 100
 
   return (
-    <div className="relative w-full h-1.5 bg-gray-800/50 rounded-full overflow-hidden">
+    <div className="relative w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
       {/* Glow behind the bar */}
       <motion.div
         className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500"
@@ -975,7 +915,7 @@ function DemoPageInner() {
   const loadingMsg = LOADING_MESSAGES[loadingMessageIndex]
 
   return (
-    <div className="min-h-screen bg-gray-950 relative">
+    <div className="min-h-screen bg-gray-50 relative">
       {/* Animated background */}
       <AnimatedOrbs />
 
@@ -985,7 +925,7 @@ function DemoPageInner() {
       {/* Content */}
       <div className="relative z-10">
         {/* Top bar — glassmorphism */}
-        <div className="sticky top-0 z-40 border-b border-white/[0.06] bg-gray-950/60 backdrop-blur-2xl">
+        <div className="sticky top-0 z-40 border-b border-gray-200 bg-white/90 backdrop-blur-xl shadow-sm">
           <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
             <div className="flex items-center justify-between mb-2">
               <button
@@ -995,7 +935,7 @@ function DemoPageInner() {
                   if (wizardStep > 1) setWizardStep(wizardStep - 1)
                   else window.location.href = '/'
                 }}
-                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
+                className="flex items-center gap-2 text-gray-400 hover:text-gray-700 transition-colors group"
               >
                 <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
               </button>
@@ -1003,15 +943,15 @@ function DemoPageInner() {
               {/* Logo */}
               <div className="flex items-center gap-2">
                 <div className="relative">
-                  <Sparkles className="w-5 h-5 text-violet-400" />
+                  <Sparkles className="w-5 h-5 text-violet-500" />
                   <motion.div
                     className="absolute inset-0 rounded-full bg-violet-400/30 blur-md"
                     animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0.2, 0.5] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   />
                 </div>
-                <span className="text-white font-bold text-sm sm:text-base tracking-tight">itineramio</span>
-                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 text-violet-300 border border-violet-500/20">DEMO</span>
+                <span className="text-gray-900 font-bold text-sm sm:text-base tracking-tight">itineramio</span>
+                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-600 border border-violet-200">DEMO</span>
               </div>
 
               {/* Step counter */}
@@ -1039,8 +979,8 @@ function DemoPageInner() {
                           step === wizardStep
                             ? 'bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-500/30'
                             : step < wizardStep
-                            ? 'bg-violet-500/20 text-violet-400'
-                            : 'bg-gray-800/80 text-gray-600'
+                            ? 'bg-violet-100 text-violet-600'
+                            : 'bg-gray-100 text-gray-400'
                         }`}>
                           {step < wizardStep ? (
                             <CheckCircle className="w-3.5 h-3.5" />
@@ -1049,7 +989,7 @@ function DemoPageInner() {
                       </motion.div>
                       {step < 4 && (
                         <div className={`w-3 sm:w-4 h-px transition-colors duration-500 ${
-                          step < wizardStep ? 'bg-violet-500/50' : 'bg-gray-800'
+                          step < wizardStep ? 'bg-violet-400' : 'bg-gray-200'
                         }`} />
                       )}
                     </div>
@@ -1083,15 +1023,15 @@ function DemoPageInner() {
                 transition={{ delay: 0.2 }}
                 className="flex items-center justify-center gap-2 flex-wrap"
               >
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-medium">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 border border-violet-200 text-violet-700 text-xs font-medium">
                   <Zap className="w-3 h-3" />
                   {t('badge1')}
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-medium">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium">
                   <Gift className="w-3 h-3" />
                   {t('badge2')}
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-medium">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 text-xs font-medium">
                   <MessageCircle className="w-3 h-3" />
                   {t('badge3')}
                 </span>
@@ -1102,7 +1042,7 @@ function DemoPageInner() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="text-2xl sm:text-4xl font-extrabold text-white leading-tight"
+                className="text-2xl sm:text-4xl font-extrabold text-gray-900 leading-tight"
               >
                 {t('heroTitle')}
               </motion.h1>
@@ -1112,7 +1052,7 @@ function DemoPageInner() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className="text-gray-400 text-sm sm:text-base max-w-lg mx-auto"
+                className="text-gray-500 text-sm sm:text-base max-w-lg mx-auto"
               >
                 {t('heroSubtitle')}
               </motion.p>
@@ -1122,16 +1062,16 @@ function DemoPageInner() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.6 }}
-                className="inline-flex items-center gap-3 px-4 py-2.5 rounded-xl bg-orange-500/10 border border-orange-500/20"
+                className="inline-flex items-center gap-3 px-4 py-2.5 rounded-xl bg-orange-50 border border-orange-200"
               >
                 <div className="flex items-center gap-1.5">
-                  <Flame className="w-4 h-4 text-orange-400" />
-                  <span className="text-xs font-bold text-orange-300">{t('limitedOffer')}</span>
+                  <Flame className="w-4 h-4 text-orange-500" />
+                  <span className="text-xs font-bold text-orange-700">{t('limitedOffer')}</span>
                 </div>
-                <div className="h-4 w-px bg-orange-500/30" />
+                <div className="h-4 w-px bg-orange-200" />
                 <div className="flex items-center gap-2">
                   {/* Mini progress bar */}
-                  <div className="w-20 h-1.5 rounded-full bg-gray-800 overflow-hidden">
+                  <div className="w-20 h-1.5 rounded-full bg-orange-100 overflow-hidden">
                     <motion.div
                       className="h-full rounded-full bg-gradient-to-r from-orange-500 to-red-500"
                       initial={{ width: '0%' }}
@@ -1139,7 +1079,7 @@ function DemoPageInner() {
                       transition={{ duration: 1.5, delay: 0.8, ease: 'easeOut' }}
                     />
                   </div>
-                  <span className="text-xs font-mono font-bold text-orange-200">
+                  <span className="text-xs font-mono font-bold text-orange-600">
                     {spotsUsed}/{spotsTotal}
                   </span>
                 </div>
@@ -1150,7 +1090,7 @@ function DemoPageInner() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.8 }}
-                className="text-gray-600 text-xs flex items-center justify-center gap-2"
+                className="text-gray-400 text-xs flex items-center justify-center gap-2"
               >
                 <Shield className="w-3 h-3" />
                 {t('trustLine')}
@@ -1165,9 +1105,9 @@ function DemoPageInner() {
             <motion.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-2 text-xs text-gray-500"
+              className="flex items-center gap-2 text-xs text-gray-400"
             >
-              <span className="px-2 py-0.5 rounded-md bg-violet-500/10 text-violet-400 font-semibold">
+              <span className="px-2 py-0.5 rounded-md bg-violet-50 text-violet-600 font-semibold">
                 {t('step')} {wizardStep} {t('of')} 4
               </span>
               <span>{getStepLabel(wizardStep - 1)}</span>
@@ -1185,6 +1125,7 @@ function DemoPageInner() {
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: wizardStep > prevStep ? -40 : 40, scale: 0.98 }}
                 transition={{ duration: 0.35, ease: 'easeOut' }}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6"
               >
                 {wizardStep === 1 && (
                   <Step1Address
@@ -1248,7 +1189,7 @@ function DemoPageInner() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl"
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/30 backdrop-blur-sm"
             >
               <motion.div
                 initial={{ scale: 0.85, opacity: 0, y: 30 }}
@@ -1257,10 +1198,8 @@ function DemoPageInner() {
                 transition={{ type: 'spring', damping: 20, stiffness: 300 }}
                 className="relative w-full max-w-md overflow-hidden"
               >
-                {/* Glass card */}
-                <div className="relative bg-gray-900/80 backdrop-blur-2xl border border-white/[0.08] rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl shadow-violet-500/10">
-                  {/* Glow accent */}
-                  <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-60 h-60 rounded-full bg-violet-500/10 blur-[80px] pointer-events-none" />
+                {/* Card */}
+                <div className="relative bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl">
 
                   {/* Close button */}
                   <button
@@ -1272,7 +1211,7 @@ function DemoPageInner() {
                       setOtpDigits(['', '', '', '', '', ''])
                       setEmailVerificationToken(null)
                     }}
-                    className="absolute top-4 right-4 text-gray-500 hover:text-gray-300 transition-colors z-10"
+                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -1293,17 +1232,17 @@ function DemoPageInner() {
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ type: 'spring', damping: 12, delay: 0.1 }}
-                            className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 flex items-center justify-center mx-auto border border-violet-500/20"
+                            className="relative w-16 h-16 rounded-2xl bg-violet-50 flex items-center justify-center mx-auto border border-violet-200"
                           >
-                            <Gift className="w-8 h-8 text-violet-400" />
+                            <Gift className="w-8 h-8 text-violet-500" />
                             <motion.div
                               className="absolute inset-0 rounded-2xl bg-violet-500/20 blur-xl"
                               animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0, 0.3] }}
                               transition={{ duration: 2, repeat: Infinity }}
                             />
                           </motion.div>
-                          <h2 className="text-xl font-bold text-white">{t('leadTitle')}</h2>
-                          <p className="text-sm text-gray-400">{t('leadSubtitle')}</p>
+                          <h2 className="text-xl font-bold text-gray-900">{t('leadTitle')}</h2>
+                          <p className="text-sm text-gray-500">{t('leadSubtitle')}</p>
                         </div>
 
                         {/* Error */}
@@ -1311,10 +1250,10 @@ function DemoPageInner() {
                           <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-start gap-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20"
+                            className="flex items-start gap-3 p-3 rounded-xl bg-red-50 border border-red-200"
                           >
-                            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                            <p className="text-sm text-red-300">{error || otpError}</p>
+                            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                            <p className="text-sm text-red-600">{error || otpError}</p>
                           </motion.div>
                         )}
 
@@ -1323,19 +1262,19 @@ function DemoPageInner() {
                           className="relative space-y-4"
                         >
                           <div className="relative group">
-                            <User className="absolute left-3.5 top-3.5 w-4 h-4 text-gray-500 group-focus-within:text-violet-400 transition-colors" />
+                            <User className="absolute left-3.5 top-3.5 w-4 h-4 text-gray-500 group-focus-within:text-violet-500 transition-colors" />
                             <input
                               type="text"
                               required
                               value={leadData.name}
                               onChange={(e) => setLeadData(prev => ({ ...prev, name: e.target.value }))}
                               placeholder={t('leadName')}
-                              className="w-full pl-11 pr-4 py-3 bg-gray-800/50 border border-white/[0.06] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-violet-500/40 focus:ring-2 focus:ring-violet-500/10 focus:bg-gray-800/70 transition-all"
+                              className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100 focus:bg-white transition-all"
                             />
                           </div>
 
                           <div className="relative group">
-                            <Mail className={`absolute left-3.5 top-3.5 w-4 h-4 transition-colors ${emailError ? 'text-red-400' : 'text-gray-500 group-focus-within:text-violet-400'}`} />
+                            <Mail className={`absolute left-3.5 top-3.5 w-4 h-4 transition-colors ${emailError ? 'text-red-400' : 'text-gray-500 group-focus-within:text-violet-500'}`} />
                             <input
                               type="email"
                               required
@@ -1346,7 +1285,7 @@ function DemoPageInner() {
                               }}
                               onBlur={(e) => validateEmailField(e.target.value)}
                               placeholder={t('leadEmail')}
-                              className={`w-full pl-11 pr-4 py-3 bg-gray-800/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:bg-gray-800/70 transition-all ${emailError ? 'border-red-500/40 focus:border-red-500/40 focus:ring-red-500/10' : 'border-white/[0.06] focus:border-violet-500/40 focus:ring-violet-500/10'}`}
+                              className={`w-full pl-11 pr-4 py-3 bg-gray-50 border rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:bg-white transition-all ${emailError ? 'border-red-400 focus:border-red-500 focus:ring-red-100' : 'border-gray-200 focus:border-violet-500 focus:ring-violet-100'}`}
                             />
                             {emailError && (
                               <p className="mt-1.5 text-xs text-red-400 pl-1">{emailError}</p>
@@ -1354,7 +1293,7 @@ function DemoPageInner() {
                           </div>
 
                           <div className="relative group">
-                            <Phone className={`absolute left-3.5 top-3.5 w-4 h-4 transition-colors ${phoneError ? 'text-red-400' : 'text-gray-500 group-focus-within:text-violet-400'}`} />
+                            <Phone className={`absolute left-3.5 top-3.5 w-4 h-4 transition-colors ${phoneError ? 'text-red-400' : 'text-gray-500 group-focus-within:text-violet-500'}`} />
                             <input
                               type="tel"
                               required
@@ -1364,7 +1303,7 @@ function DemoPageInner() {
                                 if (phoneError) setPhoneError(null)
                               }}
                               placeholder={t('leadPhone')}
-                              className={`w-full pl-11 pr-4 py-3 bg-gray-800/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:bg-gray-800/70 transition-all ${phoneError ? 'border-red-500/40 focus:border-red-500/40 focus:ring-red-500/10' : 'border-white/[0.06] focus:border-violet-500/40 focus:ring-violet-500/10'}`}
+                              className={`w-full pl-11 pr-4 py-3 bg-gray-50 border rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:bg-white transition-all ${phoneError ? 'border-red-400 focus:border-red-500 focus:ring-red-100' : 'border-gray-200 focus:border-violet-500 focus:ring-violet-100'}`}
                             />
                             {phoneError && (
                               <p className="mt-1.5 text-xs text-red-400 pl-1">{phoneError}</p>
@@ -1375,7 +1314,7 @@ function DemoPageInner() {
                             <Turnstile
                               siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
                               onSuccess={setTurnstileToken}
-                              options={{ theme: 'dark', size: 'normal' }}
+                              options={{ theme: 'light', size: 'normal' }}
                             />
                           </div>
 
@@ -1385,15 +1324,15 @@ function DemoPageInner() {
                               initial={{ opacity: 0, x: -10 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: 0.3 }}
-                              className="flex items-center justify-center gap-2 text-xs text-orange-300 bg-orange-500/10 border border-orange-500/20 rounded-lg py-2"
+                              className="flex items-center justify-center gap-2 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded-lg py-2"
                             >
                               <Flame className="w-3.5 h-3.5" />
                               <span className="font-semibold">{t('onlyXLeft')} {spotsTotal - spotsUsed} {t('spots')}</span>
-                              <span className="text-orange-400/60">·</span>
-                              <span className="font-mono text-orange-400">{spotsUsed}/{spotsTotal}</span>
+                              <span className="text-orange-400">·</span>
+                              <span className="font-mono text-orange-600">{spotsUsed}/{spotsTotal}</span>
                             </motion.div>
 
-                            <div className="flex items-center justify-center gap-2 text-xs text-violet-300 bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 border border-violet-500/10 rounded-lg py-2.5">
+                            <div className="flex items-center justify-center gap-2 text-xs text-violet-700 bg-violet-50 border border-violet-200 rounded-lg py-2.5">
                               <Gift className="w-3.5 h-3.5" />
                               {t('discount')}
                             </div>
@@ -1447,8 +1386,8 @@ function DemoPageInner() {
                             {/* Inner glow */}
                             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-violet-500/10 to-fuchsia-500/5 blur-xl" />
                             {/* Icon container */}
-                            <div className="relative w-full h-full rounded-full bg-gradient-to-br from-gray-800/80 to-gray-900/80 border border-white/[0.08] flex items-center justify-center backdrop-blur-sm">
-                              <Shield className="w-9 h-9 text-violet-400" />
+                            <div className="relative w-full h-full rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                              <Shield className="w-9 h-9 text-violet-500" />
                             </div>
                           </motion.div>
 
@@ -1457,7 +1396,7 @@ function DemoPageInner() {
                               initial={{ opacity: 0, y: 8 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: 0.2 }}
-                              className="text-xl font-bold text-white tracking-tight"
+                              className="text-xl font-bold text-gray-900 tracking-tight"
                             >
                               Verificación
                             </motion.h2>
@@ -1473,10 +1412,10 @@ function DemoPageInner() {
                               initial={{ opacity: 0, scale: 0.95 }}
                               animate={{ opacity: 1, scale: 1 }}
                               transition={{ delay: 0.35 }}
-                              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-violet-500/10 border border-violet-500/15"
+                              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-violet-50 border border-violet-200"
                             >
-                              <Mail className="w-3.5 h-3.5 text-violet-400" />
-                              <span className="text-sm font-medium text-violet-300">{leadData.email}</span>
+                              <Mail className="w-3.5 h-3.5 text-violet-500" />
+                              <span className="text-sm font-medium text-violet-700">{leadData.email}</span>
                             </motion.div>
                           </div>
                         </div>
@@ -1486,10 +1425,10 @@ function DemoPageInner() {
                           <motion.div
                             initial={{ opacity: 0, y: -8, scale: 0.98 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
-                            className="flex items-start gap-3 p-3 rounded-xl bg-red-500/8 border border-red-500/15"
+                            className="flex items-start gap-3 p-3 rounded-xl bg-red-50 border border-red-200"
                           >
-                            <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-                            <p className="text-sm text-red-300/90">{otpError}</p>
+                            <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                            <p className="text-sm text-red-600">{otpError}</p>
                           </motion.div>
                         )}
 
@@ -1529,12 +1468,12 @@ function DemoPageInner() {
                                   onKeyDown={(e) => handleOtpKeyDown(i, e)}
                                   onFocus={() => setOtpFocusedIndex(i)}
                                   onBlur={() => setOtpFocusedIndex(-1)}
-                                  className={`relative z-10 w-11 h-14 sm:w-13 sm:h-16 text-center text-xl sm:text-2xl font-semibold rounded-xl bg-gray-800/60 border transition-all duration-200 outline-none text-white caret-violet-400 ${
+                                  className={`relative z-10 w-11 h-14 sm:w-13 sm:h-16 text-center text-xl sm:text-2xl font-semibold rounded-xl bg-gray-50 border transition-all duration-200 outline-none text-gray-900 caret-violet-500 ${
                                     digit
-                                      ? 'border-violet-500/40 bg-gray-800/80'
+                                      ? 'border-violet-500 bg-white'
                                       : otpFocusedIndex === i
-                                      ? 'border-violet-500/50 ring-2 ring-violet-500/15 bg-gray-800/70'
-                                      : 'border-white/[0.06] hover:border-white/[0.1]'
+                                      ? 'border-violet-500 ring-2 ring-violet-100 bg-white'
+                                      : 'border-gray-200 hover:border-gray-300'
                                   }`}
                                 />
                                 {/* Bottom accent line for filled digits */}
@@ -1554,7 +1493,7 @@ function DemoPageInner() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.6 }}
-                            className="text-center text-xs text-gray-600 mt-4"
+                            className="text-center text-xs text-gray-400 mt-4"
                           >
                             El código expira en 10 minutos
                           </motion.p>
@@ -1572,7 +1511,7 @@ function DemoPageInner() {
                               animate={{ rotate: 360 }}
                               transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
                             />
-                            <span className="text-sm text-gray-400">Verificando...</span>
+                            <span className="text-sm text-gray-500">Verificando...</span>
                           </motion.div>
                         )}
 
@@ -1625,24 +1564,24 @@ function DemoPageInner() {
 
         {/* Generating screen — cinematic */}
         {phase === 'generating' && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white">
             <AnimatedOrbs />
             <div className="relative z-10 text-center space-y-10 max-w-md">
               {/* Animated concentric rings */}
               <div className="relative mx-auto w-32 h-32">
                 <motion.div
-                  className="absolute inset-0 rounded-full border-2 border-violet-500/20"
-                  animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0, 0.3] }}
+                  className="absolute inset-0 rounded-full border-2 border-violet-400/50"
+                  animate={{ scale: [1, 1.4, 1], opacity: [0.6, 0, 0.6] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
                 <motion.div
-                  className="absolute inset-2 rounded-full border-2 border-purple-500/20"
-                  animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0, 0.3] }}
+                  className="absolute inset-2 rounded-full border-2 border-purple-400/50"
+                  animate={{ scale: [1, 1.3, 1], opacity: [0.6, 0, 0.6] }}
                   transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
                 />
                 <motion.div
-                  className="absolute inset-4 rounded-full border-2 border-fuchsia-500/20"
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0, 0.4] }}
+                  className="absolute inset-4 rounded-full border-2 border-fuchsia-400/50"
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.7, 0, 0.7] }}
                   transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
                 />
                 {/* Spinning gradient ring */}
@@ -1662,7 +1601,7 @@ function DemoPageInner() {
                     animate={{ scale: [1, 1.1, 1] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   >
-                    <Sparkles className="w-10 h-10 text-violet-400" />
+                    <Sparkles className="w-10 h-10 text-violet-500" />
                   </motion.div>
                 </div>
               </div>
@@ -1671,7 +1610,7 @@ function DemoPageInner() {
                 <motion.h2
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-2xl font-bold text-white"
+                  className="text-2xl font-bold text-gray-900"
                 >
                   {t('generating')}
                 </motion.h2>
@@ -1681,17 +1620,17 @@ function DemoPageInner() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="text-gray-400 text-lg"
+                    className="text-gray-600 text-lg"
                   >
                     {(loadingMsg as any)[lang] || loadingMsg.es}
                   </motion.p>
                 </AnimatePresence>
-                <p className="text-xs text-gray-600">{t('generatingSubtitle')}</p>
+                <p className="text-xs text-gray-400">{t('generatingSubtitle')}</p>
               </div>
 
               {/* Animated progress bar */}
               <div className="max-w-xs mx-auto">
-                <div className="relative w-full h-2 bg-gray-800/50 rounded-full overflow-hidden">
+                <div className="relative w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                   <motion.div
                     className="h-full rounded-full bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500"
                     initial={{ width: '5%' }}

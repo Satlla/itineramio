@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { put } from '@vercel/blob'
-import { v4 as uuidv4 } from 'uuid'
 import { checkRateLimit, getRateLimitKey } from '../../../../src/lib/rate-limit'
 
 // ============================================
@@ -638,32 +636,11 @@ function decodeHtmlEntities(str: string): string {
     .replace(/\\\//g, '/')  // JSON-escaped forward slashes in URLs
 }
 
-// Proxy an Airbnb image through our server → Vercel Blob
-// Needed because Airbnb blocks hotlinking (checks Referer header)
-async function proxyImageToBlob(url: string): Promise<string | null> {
-  try {
-    const blobToken = process.env.BLOB_READ_WRITE_TOKEN
-    if (!blobToken || process.env.NODE_ENV === 'development') return null
-
-    const res = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'Referer': 'https://www.airbnb.es/',
-      },
-      signal: AbortSignal.timeout(8000),
-    })
-    if (!res.ok) return null
-
-    const buffer = Buffer.from(await res.arrayBuffer())
-    const contentType = res.headers.get('content-type') || 'image/jpeg'
-    const ext = contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : 'jpg'
-    const filename = `demo/airbnb-${uuidv4()}.${ext}`
-
-    const blob = await put(filename, buffer, { access: 'public', token: blobToken, contentType })
-    return blob.url
-  } catch {
-    return null
-  }
+// Wrap an Airbnb image URL through our proxy route
+// Airbnb blocks hotlinking (checks Referer) — proxy adds the correct headers
+function buildProxyUrl(imageUrl: string, requestUrl: string): string {
+  const base = new URL(requestUrl)
+  return `${base.protocol}//${base.host}/api/proxy-image?url=${encodeURIComponent(imageUrl)}`
 }
 
 // ============================================
@@ -723,10 +700,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Proxy the cover photo through Vercel Blob so Airbnb hotlinking doesn't block it
+    // Route the cover photo through our proxy to avoid Airbnb hotlink blocking
     if (data.profileImage) {
-      const proxied = await proxyImageToBlob(data.profileImage)
-      if (proxied) data.profileImage = proxied
+      data.profileImage = buildProxyUrl(data.profileImage, request.url)
     }
 
     return NextResponse.json({

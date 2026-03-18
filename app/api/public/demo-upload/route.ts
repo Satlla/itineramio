@@ -56,10 +56,10 @@ export async function POST(request: NextRequest) {
       ? file.type
       : (extToMime[ext] ?? 'application/octet-stream')
 
-    // Validate file size (50MB max)
-    if (file.size > 50 * 1024 * 1024) {
+    // Validate file size (100MB max — iPhone videos can be large without FFmpeg compression on iOS)
+    if (file.size > 100 * 1024 * 1024) {
       return NextResponse.json({
-        error: 'Archivo demasiado grande. Máximo 50MB.',
+        error: 'Archivo demasiado grande. Máximo 100MB. Intenta con un video más corto.',
       }, { status: 413 })
     }
 

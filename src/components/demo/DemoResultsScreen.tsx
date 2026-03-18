@@ -38,10 +38,10 @@ function ConfettiParticle({ delay, color }: { delay: number; color: string }) {
 const CONFETTI_COLORS = ['#8b5cf6', '#a855f7', '#d946ef', '#06b6d4', '#10b981', '#f59e0b', '#ef4444']
 
 const statItems = [
-  { icon: Layers, labelKey: 'zones', color: 'text-violet-400', bgColor: 'bg-violet-500/10', borderColor: 'border-violet-500/20' },
-  { icon: Globe, labelKey: 'languages', color: 'text-cyan-400', bgColor: 'bg-cyan-500/10', borderColor: 'border-cyan-500/20' },
-  { icon: MessageCircle, labelKey: 'chatbot', color: 'text-emerald-400', bgColor: 'bg-emerald-500/10', borderColor: 'border-emerald-500/20' },
-  { icon: MapPin, labelKey: 'services', color: 'text-orange-400', bgColor: 'bg-orange-500/10', borderColor: 'border-orange-500/20' },
+  { icon: Layers, labelKey: 'zones', color: 'text-violet-600', bgColor: 'bg-violet-50', borderColor: 'border-violet-200' },
+  { icon: Globe, labelKey: 'languages', color: 'text-cyan-600', bgColor: 'bg-cyan-50', borderColor: 'border-cyan-200' },
+  { icon: MessageCircle, labelKey: 'chatbot', color: 'text-emerald-600', bgColor: 'bg-emerald-50', borderColor: 'border-emerald-200' },
+  { icon: MapPin, labelKey: 'services', color: 'text-orange-600', bgColor: 'bg-orange-50', borderColor: 'border-orange-200' },
 ]
 
 export default function DemoResultsScreen({
@@ -85,7 +85,7 @@ export default function DemoResultsScreen({
   ]
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white overflow-hidden">
       {/* Confetti */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {Array.from({ length: 40 }).map((_, i) => (
@@ -99,8 +99,8 @@ export default function DemoResultsScreen({
 
       {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-violet-500/10 blur-[120px]" />
-        <div className="absolute bottom-1/4 left-1/3 w-64 h-64 rounded-full bg-fuchsia-500/10 blur-[100px]" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-violet-200/30 blur-[120px]" />
+        <div className="absolute bottom-1/4 left-1/3 w-64 h-64 rounded-full bg-fuchsia-200/20 blur-[100px]" />
       </div>
 
       {/* Content */}
@@ -112,8 +112,8 @@ export default function DemoResultsScreen({
           transition={{ type: 'spring', damping: 12, stiffness: 200 }}
           className="relative mx-auto"
         >
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-green-500/20 flex items-center justify-center mx-auto border border-emerald-500/30">
-            <CheckCircle className="w-10 h-10 text-emerald-400" />
+          <div className="w-20 h-20 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto border border-emerald-200">
+            <CheckCircle className="w-10 h-10 text-emerald-500" />
           </div>
           <motion.div
             className="absolute inset-0 flex items-center justify-center"
@@ -132,11 +132,11 @@ export default function DemoResultsScreen({
           transition={{ delay: 0.3 }}
           className="space-y-2"
         >
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
             Tu manual digital esta listo
           </h2>
-          <p className="text-gray-400 text-sm sm:text-base">
-            Nuestra IA ha creado un manual completo para <span className="text-violet-300 font-medium">{propertyName}</span>
+          <p className="text-gray-500 text-sm sm:text-base">
+            Nuestra IA ha creado un manual completo para <span className="text-violet-600 font-medium">{propertyName}</span>
           </p>
         </motion.div>
 
@@ -159,7 +159,7 @@ export default function DemoResultsScreen({
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${stat.bgColor}`}>
                     <stat.icon className={`w-4 h-4 ${stat.color}`} />
                   </div>
-                  <span className="text-sm font-medium text-gray-200">{statValues[index]}</span>
+                  <span className="text-sm font-medium text-gray-700">{statValues[index]}</span>
                   <CheckCircle className={`w-4 h-4 ${stat.color} ml-auto`} />
                 </motion.div>
               ))}
@@ -189,14 +189,14 @@ export default function DemoResultsScreen({
               {/* Secondary CTA */}
               <button
                 onClick={onShare}
-                className="w-full py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white border border-white/[0.06] hover:border-white/[0.12] transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-xl text-sm font-medium text-gray-500 hover:text-gray-700 border border-gray-200 hover:border-gray-300 transition-all flex items-center justify-center gap-2"
               >
                 <Share2 className="w-4 h-4" />
                 Comparte con otros anfitriones
               </button>
 
               {/* Email note */}
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-gray-400">
                 Te hemos enviado un email con el enlace a tu manual
               </p>
             </motion.div>

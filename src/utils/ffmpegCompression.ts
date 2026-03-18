@@ -41,11 +41,8 @@ async function _doLoadFFmpeg(onProgress?: (message: string) => void): Promise<FF
 
   onProgress?.('Cargando compresor de video...')
 
-  // Load FFmpeg UMD core — local in dev (CORS issues with CDN), CDN in prod
-  const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost'
-  const baseURL = isLocal
-    ? `${window.location.origin}/ffmpeg`
-    : 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd'
+  // Load FFmpeg UMD core from own domain (served via /public/ffmpeg, works on all envs)
+  const baseURL = `${window.location.origin}/ffmpeg`
 
   await ffmpeg.load({
     coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
@@ -89,7 +86,7 @@ export async function compressVideoFFmpeg(
     return file
   }
 
-  // Race against 90-second timeout — WASM download from unpkg.com can take 30-60s on mobile
+  // Race against 90-second timeout — WASM loads from own CDN (<2s), encode is the bottleneck
   return compressWithTimeout(file, options, 90_000)
 }
 
@@ -119,8 +116,8 @@ async function _doCompress(
     // Calculate target bitrate based on quality
     const qualitySettings = {
       low: { crf: 32, preset: 'veryfast', scale: 480 },
-      medium: { crf: 28, preset: 'fast', scale: 720 },
-      high: { crf: 24, preset: 'medium', scale: 1080 }
+      medium: { crf: 28, preset: 'faster', scale: 720 },
+      high: { crf: 24, preset: 'faster', scale: 1080 }
     }
 
     const settings = qualitySettings[quality]
@@ -195,8 +192,19 @@ function getExtension(filename: string): string {
   return '.mp4'
 }
 
-// Check if FFmpeg is supported (requires WebAssembly + SharedArrayBuffer)
-// SharedArrayBuffer is disabled on iOS unless COOP/COEP headers are set
+// Check if FFmpeg is supported.
+// Requires WebAssembly + SharedArrayBuffer (disabled on iOS/Safari without COOP/COEP headers).
+// On iOS where SharedArrayBuffer is blocked, we skip FFmpeg entirely and upload the raw file.
 export function isFFmpegSupported(): boolean {
   return typeof WebAssembly !== 'undefined' && typeof SharedArrayBuffer !== 'undefined'
+}
+
+// Pre-load FFmpeg WASM in the background so it's ready when the user selects a file
+export async function preloadFFmpeg(): Promise<void> {
+  if (!isFFmpegSupported()) return
+  try {
+    await initFFmpeg()
+  } catch {
+    // Silent — if it fails here it will fail again during compression and be handled there
+  }
 }
