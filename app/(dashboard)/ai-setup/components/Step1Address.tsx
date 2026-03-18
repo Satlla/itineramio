@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   MapPin,
   Home,
@@ -31,6 +31,7 @@ import {
   CheckCircle,
   Link,
   AlertCircle,
+  X,
 } from 'lucide-react'
 import { AddressAutocomplete } from '../../../../src/components/ui/AddressAutocomplete'
 import { ImageUpload } from '../../../../src/components/ui/ImageUpload'
@@ -92,6 +93,7 @@ interface Step1AddressProps {
 }
 
 export default function Step1Address({ data, onChange, onNext, uploadEndpoint, onAirbnbImport, airbnbImport }: Step1AddressProps) {
+  const [showValidationModal, setShowValidationModal] = React.useState(false)
   const { t } = useTranslation('ai-setup')
   const [showErrors, setShowErrors] = React.useState(false)
   const [airbnbUrl, setAirbnbUrl] = React.useState('')
@@ -131,15 +133,29 @@ export default function Step1Address({ data, onChange, onNext, uploadEndpoint, o
   const handleNext = () => {
     if (!isValid) {
       setShowErrors(true)
-      // Scroll to first error
-      setTimeout(() => {
-        const firstError = document.querySelector('[data-error="true"]')
-        firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }, 100)
+      setShowValidationModal(true)
       return
     }
     setShowErrors(false)
     onNext()
+  }
+
+  const handleModalClose = () => {
+    setShowValidationModal(false)
+    setTimeout(() => {
+      const firstError = document.querySelector('[data-error="true"]')
+      firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 150)
+  }
+
+  const missingFieldLabels: Record<keyof typeof missingFields, string> = {
+    propertyName: 'Nombre del alojamiento',
+    street: 'Dirección',
+    propertyType: 'Tipo de alojamiento',
+    maxGuests: 'Número de huéspedes',
+    hostContactName: 'Tu nombre',
+    hostContactPhone: 'Teléfono de contacto',
+    hostContactEmail: 'Email de contacto',
   }
 
   const propertyTypes = [
@@ -182,6 +198,68 @@ export default function Step1Address({ data, onChange, onNext, uploadEndpoint, o
     data.hostContactEmail
 
   return (
+    <>
+    {/* Validation modal */}
+    <AnimatePresence>
+      {showValidationModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm"
+          onClick={(e) => { if (e.target === e.currentTarget) handleModalClose() }}
+        >
+          <motion.div
+            initial={{ y: 60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 60, opacity: 0 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="w-full sm:max-w-sm bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden"
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between p-5 pb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center flex-shrink-0">
+                  <AlertCircle className="w-5 h-5 text-red-500" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-gray-900">Faltan campos obligatorios</h3>
+                  <p className="text-xs text-gray-500 mt-0.5">Completa estos campos para continuar</p>
+                </div>
+              </div>
+              <button onClick={handleModalClose} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Missing fields list */}
+            <div className="px-5 pb-3 space-y-1.5">
+              {(Object.entries(missingFields) as [keyof typeof missingFields, boolean][])
+                .filter(([, missing]) => missing)
+                .map(([field]) => (
+                  <div key={field} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-red-50 border border-red-100">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
+                    <span className="text-sm text-red-700 font-medium">{missingFieldLabels[field]}</span>
+                  </div>
+                ))
+              }
+            </div>
+
+            {/* CTA */}
+            <div className="px-5 pb-5 pt-2">
+              <button
+                onClick={handleModalClose}
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white text-sm font-semibold hover:from-violet-500 hover:to-purple-500 transition-all"
+              >
+                Entendido, voy a completarlos
+              </button>
+            </div>
+            <div className="h-safe-area-inset-bottom sm:hidden" />
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -770,14 +848,8 @@ export default function Step1Address({ data, onChange, onNext, uploadEndpoint, o
           {t('step1.nextDetails')}
           <ChevronRight className="w-5 h-5" />
         </button>
-        {showErrors && missingCount > 0 && (
-          <p className="text-center text-sm text-red-400 mt-3">
-            {missingCount === 1
-              ? 'Falta 1 campo obligatorio por completar'
-              : `Faltan ${missingCount} campos obligatorios por completar`}
-          </p>
-        )}
       </motion.div>
     </motion.div>
+    </>
   )
 }
