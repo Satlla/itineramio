@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -424,6 +425,44 @@ function getStepLabel(index: number): string {
   const lang = getLang()
   const labels = STEP_LABELS[index]
   return (labels as any)?.[lang] || labels?.es || ''
+}
+
+// ============================================
+// LANGUAGE SWITCHER
+// ============================================
+
+const DEMO_LANGS = [
+  { code: 'es', label: 'ES', flag: '🇪🇸' },
+  { code: 'en', label: 'EN', flag: '🇬🇧' },
+  { code: 'fr', label: 'FR', flag: '🇫🇷' },
+]
+
+function DemoLangSwitcher() {
+  const { i18n } = useTranslation()
+  const current = i18n.language?.slice(0, 2) || 'es'
+
+  const handleChange = (code: string) => {
+    i18n.changeLanguage(code)
+    try { localStorage.setItem('itineramio-language', code) } catch {}
+  }
+
+  return (
+    <div className="flex items-center gap-0.5 bg-gray-100 rounded-lg p-0.5">
+      {DEMO_LANGS.map((lang) => (
+        <button
+          key={lang.code}
+          onClick={() => handleChange(lang.code)}
+          className={`px-2 py-1 rounded-md text-xs font-semibold transition-all ${
+            current === lang.code
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          {lang.flag} {lang.label}
+        </button>
+      ))}
+    </div>
+  )
 }
 
 // ============================================
@@ -954,7 +993,9 @@ function DemoPageInner() {
                 <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-600 border border-violet-200">DEMO</span>
               </div>
 
-              {/* Step counter */}
+              {/* Right side: step counter + lang switcher */}
+              <div className="flex items-center gap-2 sm:gap-3">
+              <DemoLangSwitcher />
               {phase === 'wizard' && (
                 <div className="flex items-center gap-1.5">
                   {[1, 2, 3, 4].map((step) => (
@@ -997,7 +1038,9 @@ function DemoPageInner() {
                 </div>
               )}
 
+              {/* Spacer when not in wizard phase */}
               {phase !== 'wizard' && <div />}
+              </div>
             </div>
 
             {/* Animated progress bar */}
