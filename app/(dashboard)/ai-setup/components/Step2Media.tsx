@@ -181,6 +181,7 @@ export default function Step2Media({
   const [isDragging, setIsDragging] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [compressStatus, setCompressStatus] = useState<string | null>(null)
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null)
   const [uploadErrors, setUploadErrors] = useState<string[]>([])
   const [suggestingFor, setSuggestingFor] = useState<string | null>(null)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
@@ -296,11 +297,14 @@ export default function Step2Media({
 
         if (clientUpload) {
           // Client-side upload: browser → Vercel Blob directly (no serverless body limit)
+          setUploadProgress(0)
           const { upload } = await import('@vercel/blob/client')
           const blob = await upload(fileToUpload.name, fileToUpload, {
             access: 'public',
             handleUploadUrl: uploadEndpoint,
+            onUploadProgress: ({ percentage }) => setUploadProgress(Math.round(percentage)),
           })
+          setUploadProgress(null)
           mediaUrl = blob.url
         } else {
           const formData = new FormData()
@@ -445,13 +449,21 @@ export default function Step2Media({
               <Upload className="w-7 h-7 text-violet-400" />
             </div>
           )}
-          <div>
+          <div className="w-full">
             <p className="text-base font-medium text-gray-900">
-              {compressStatus || (uploading ? t('step3.uploading') : t('step3.dragHere'))}
+              {compressStatus || (uploadProgress !== null ? `Subiendo... ${uploadProgress}%` : uploading ? t('step3.uploading') : t('step3.dragHere'))}
             </p>
             <p className="text-sm text-gray-500 mt-1">
-              {compressStatus ? t('step3.compressing') : t('step3.uploadHint')}
+              {compressStatus ? t('step3.compressing') : uploadProgress !== null ? 'Subida directa a la nube' : t('step3.uploadHint')}
             </p>
+            {uploadProgress !== null && (
+              <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
+                <div
+                  className="bg-violet-500 h-1.5 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-4 text-xs text-gray-500">
             <span className="flex items-center gap-1">
