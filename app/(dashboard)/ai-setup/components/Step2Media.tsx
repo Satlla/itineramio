@@ -156,6 +156,8 @@ interface Step2MediaProps {
   onNext: () => void
   onBack: () => void
   uploadEndpoint?: string
+  // When true, uploads go directly from browser to Vercel Blob (bypasses serverless body limit)
+  clientUpload?: boolean
 }
 
 const MAX_VIDEO_SIZE_MB = 50
@@ -173,6 +175,7 @@ export default function Step2Media({
   onNext,
   onBack,
   uploadEndpoint = '/api/upload',
+  clientUpload = false,
 }: Step2MediaProps) {
   const { t } = useTranslation('ai-setup')
   const [isDragging, setIsDragging] = useState(false)
@@ -289,36 +292,47 @@ export default function Step2Media({
           }
         }
 
-        const formData = new FormData()
-        formData.append('file', fileToUpload)
-
-        const uploadRes = await fetch(uploadEndpoint, {
-          method: 'POST',
-          body: formData,
-        })
-
-        if (!uploadRes.ok) {
-          let serverMsg = ''
-          try {
-            const errData = await uploadRes.json()
-            serverMsg = errData.error || ''
-          } catch { /* ignore */ }
-          errors.push(
-            serverMsg
-              ? `${file.name}: ${serverMsg}`
-              : t('step3.errors.uploadError', { name: file.name })
-          )
-          continue
-        }
-
-        const uploadData = await uploadRes.json()
         let mediaUrl: string
-        if (uploadData.duplicate && uploadData.existingMedia?.url) {
-          mediaUrl = uploadData.existingMedia.url
-        } else if (uploadData.url) {
-          mediaUrl = uploadData.url
+
+        if (clientUpload) {
+          // Client-side upload: browser → Vercel Blob directly (no serverless body limit)
+          const { upload } = await import('@vercel/blob/client')
+          const blob = await upload(fileToUpload.name, fileToUpload, {
+            access: 'public',
+            handleUploadUrl: uploadEndpoint,
+          })
+          mediaUrl = blob.url
         } else {
-          continue
+          const formData = new FormData()
+          formData.append('file', fileToUpload)
+
+          const uploadRes = await fetch(uploadEndpoint, {
+            method: 'POST',
+            body: formData,
+          })
+
+          if (!uploadRes.ok) {
+            let serverMsg = ''
+            try {
+              const errData = await uploadRes.json()
+              serverMsg = errData.error || ''
+            } catch { /* ignore */ }
+            errors.push(
+              serverMsg
+                ? `${file.name}: ${serverMsg}`
+                : t('step3.errors.uploadError', { name: file.name })
+            )
+            continue
+          }
+
+          const uploadData = await uploadRes.json()
+          if (uploadData.duplicate && uploadData.existingMedia?.url) {
+            mediaUrl = uploadData.existingMedia.url
+          } else if (uploadData.url) {
+            mediaUrl = uploadData.url
+          } else {
+            continue
+          }
         }
 
         updateMedia(current => [...current, {
@@ -336,7 +350,7 @@ export default function Step2Media({
     if (errors.length > 0) setUploadErrors(errors)
     setUploading(false)
     if (fileInputRef.current) fileInputRef.current.value = ''
-  }, [updateMedia, t, uploadEndpoint])
+  }, [updateMedia, t, uploadEndpoint, clientUpload])
 
   const removeMedia = useCallback((id: string) => {
     updateMedia(current => current.filter(m => m.id !== id))

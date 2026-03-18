@@ -1155,6 +1155,7 @@ function DemoPageInner() {
                     onNext={() => setWizardStep(4)}
                     onBack={() => setWizardStep(2)}
                     uploadEndpoint="/api/public/demo-upload"
+                    clientUpload={true}
                   />
                 )}
 
