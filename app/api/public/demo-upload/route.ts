@@ -46,7 +46,6 @@ export async function POST(request: NextRequest) {
             ],
             maximumSizeInBytes: 500 * 1024 * 1024, // 500MB — raw iPhone MOV files
             addRandomSuffix: true,
-            pathname: `demo/${pathname}`,
           }
         },
         onUploadCompleted: async () => {

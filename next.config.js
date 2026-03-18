@@ -165,7 +165,7 @@ const nextConfig = {
           "font-src 'self' https://fonts.gstatic.com",
           "img-src 'self' data: blob: https://*.blob.vercel-storage.com https://*.public.blob.vercel-storage.com https://images.unsplash.com https://*.muscache.com https://www.google-analytics.com https://ssl.google-analytics.com https://www.facebook.com https://www.googletagmanager.com https://tagmanager.google.com https://ssl.gstatic.com",
           // GA4 sends data to analytics.google.com + stats.g.doubleclick.net + region endpoints
-          "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://ssl.google-analytics.com https://stats.g.doubleclick.net https://region1.google-analytics.com https://region1.analytics.google.com https://www.googletagmanager.com https://maps.googleapis.com https://www.facebook.com https://connect.facebook.net https://unpkg.com blob:",
+          "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://ssl.google-analytics.com https://stats.g.doubleclick.net https://region1.google-analytics.com https://region1.analytics.google.com https://www.googletagmanager.com https://maps.googleapis.com https://www.facebook.com https://connect.facebook.net https://unpkg.com https://*.blob.vercel-storage.com blob:",
           "worker-src 'self' blob:",
           "media-src 'self' blob: https://*.public.blob.vercel-storage.com",
           "frame-src 'self' https://www.googletagmanager.com https://tagmanager.google.com https://www.youtube.com https://player.vimeo.com https://challenges.cloudflare.com https://www.facebook.com"
