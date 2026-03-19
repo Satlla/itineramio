@@ -190,6 +190,7 @@ interface PendingItem {
 interface AddedItem {
   recommendationId: string
   zoneId: string
+  googlePlaceId: string | null
   name: string
   address: string
   rating: number | null
@@ -456,9 +457,11 @@ export function RecommendationsEditor({
     .map(r => r.place?.placeId)
     .filter((id): id is string => !!id)
 
-  // Also exclude from global mode: places in all existing zones
-  // (We'd need to fetch all recs for all zones — for now just exclude pending/added)
-  const globalExcludePlaceIds = pending ? [pending.result.googlePlaceId] : []
+  // Exclude from global mode: all places already added across all zones + current pending
+  const globalExcludePlaceIds = [
+    ...addedItems.map(i => i.googlePlaceId).filter((id): id is string => !!id),
+    ...(pending ? [pending.result.googlePlaceId] : []),
+  ]
 
   // --- Global mode: load existing recommendations on mount ---
   useEffect(() => {
@@ -476,6 +479,7 @@ export function RecommendationsEditor({
             items.push({
               recommendationId: rec.id,
               zoneId: zone.id,
+              googlePlaceId: rec.place.placeId ?? null,
               name: rec.place.name,
               address: rec.place.address,
               rating: rec.place.rating ?? null,
@@ -608,6 +612,7 @@ export function RecommendationsEditor({
         const newItem = {
           recommendationId: data.data.recommendation.id,
           zoneId: data.data.zone.id,
+          googlePlaceId: pending!.result.googlePlaceId ?? null,
           name: pending!.result.name,
           address: pending!.result.address,
           rating: pending!.result.rating,
