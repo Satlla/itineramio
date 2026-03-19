@@ -320,14 +320,24 @@ export default function Step2Media({
           if (!clientToken) throw new Error('No client token recibido')
 
           // Step 2 — XHR PUT with real upload progress
+          const ext2 = fileToUpload.name.split('.').pop()?.toLowerCase() ?? ''
+          const mimeMap: Record<string, string> = {
+            mp4: 'video/mp4', mov: 'video/quicktime', webm: 'video/webm',
+            m4v: 'video/x-m4v', avi: 'video/x-msvideo', '3gp': 'video/3gpp',
+            jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
+            gif: 'image/gif', webp: 'image/webp',
+          }
+          const mimeType = mimeMap[ext2] || fileToUpload.type || 'application/octet-stream'
+
           const blobUrl = await new Promise<string>((resolve, reject) => {
             const xhr = new XMLHttpRequest()
-            const uploadUrl = `https://vercel.com/api/blob/?pathname=${encodeURIComponent(fileToUpload.name)}`
+            const params = new URLSearchParams({ pathname: fileToUpload.name })
+            const uploadUrl = `https://vercel.com/api/blob/?${params.toString()}`
             xhr.open('PUT', uploadUrl, true)
             xhr.setRequestHeader('Authorization', `Bearer ${clientToken}`)
             xhr.setRequestHeader('x-api-version', '12')
             xhr.setRequestHeader('x-vercel-blob-access', 'public')
-            xhr.setRequestHeader('x-add-random-suffix', '1')
+            xhr.setRequestHeader('x-content-type', mimeType)
 
             xhr.upload.addEventListener('progress', (e) => {
               if (e.lengthComputable && e.total > 0) {
@@ -340,15 +350,15 @@ export default function Step2Media({
                 try {
                   const data = JSON.parse(xhr.responseText)
                   if (data.url) { resolve(data.url) }
-                  else { reject(new Error(`Sin URL en respuesta: ${xhr.responseText}`)) }
+                  else { reject(new Error(`Sin URL en respuesta: ${xhr.responseText.slice(0, 200)}`)) }
                 } catch {
-                  reject(new Error(`Respuesta inválida: ${xhr.responseText}`))
+                  reject(new Error(`Respuesta inválida: ${xhr.responseText.slice(0, 200)}`))
                 }
               } else {
-                reject(new Error(`Upload ${xhr.status}: ${xhr.responseText}`))
+                reject(new Error(`[${xhr.status}] ${xhr.responseText.slice(0, 300)}`))
               }
             }
-            xhr.onerror = () => reject(new Error('Error de red en la subida'))
+            xhr.onerror = () => reject(new Error('Error de red — sin conexión o CORS'))
             xhr.onabort = () => reject(new Error('Subida cancelada'))
             xhr.send(fileToUpload)
           })
@@ -396,8 +406,9 @@ export default function Step2Media({
           type: isVideo ? 'video' : 'image',
           fileSize: fileToUpload.size,
         }])
-      } catch {
-        errors.push(t('step3.errors.uploadError', { name: file.name }))
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : ''
+        errors.push(msg ? `${file.name}: ${msg}` : t('step3.errors.uploadError', { name: file.name }))
         setCompressStatus(null)
         setUploadProgress(null)
       }
