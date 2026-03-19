@@ -45,7 +45,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { ZoneIconDisplay } from './IconSelector'
 import { PlaceSearchInput, PlaceSearchResult } from './PlaceSearchInput'
-import { CATEGORIES, getCategoryById } from '../../lib/recommendations/categories'
+import { CATEGORIES, getCategoryById, getCategoryLabel } from '../../lib/recommendations/categories'
 
 // --- Types ---
 
@@ -484,7 +484,7 @@ export function RecommendationsEditor({
               address: rec.place.address,
               rating: rec.place.rating ?? null,
               photoUrl: rec.place.photoUrl ?? null,
-              categoryLabel: cat?.label ?? zone.categoryId,
+              categoryLabel: getCategoryLabel(zone.categoryId),
               categoryIcon: cat?.icon ?? 'MapPin',
             })
           }
@@ -608,7 +608,7 @@ export function RecommendationsEditor({
       const data = await res.json()
       if (data.success) {
         const cat = getCategoryById(pending.categoryId)
-        const catLabel = cat?.label || pending.categoryId
+        const catLabel = getCategoryLabel(pending.categoryId)
         const newItem = {
           recommendationId: data.data.recommendation.id,
           zoneId: data.data.zone.id,

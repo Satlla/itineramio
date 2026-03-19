@@ -1137,6 +1137,68 @@ export function getCategoryById(id: string): CategoryConfig | undefined {
   return CATEGORIES.find(c => c.id === id)
 }
 
+/**
+ * Legacy/Google-type IDs that aren't in CATEGORIES but may be stored in the DB.
+ * Maps raw IDs to proper Spanish display labels.
+ */
+const LEGACY_LABELS: Record<string, string> = {
+  tourist_attraction: 'Qué ver',
+  bar: 'Bares',
+  night_club: 'Discotecas',
+  food: 'Restaurantes',
+  meal_delivery: 'Restaurantes',
+  meal_takeaway: 'Restaurantes',
+  lodging: 'Alojamiento',
+  point_of_interest: 'Puntos de interés',
+  establishment: 'Lugares de interés',
+  natural_feature: 'Naturaleza',
+  route: 'Rutas',
+  political: 'Lugares',
+  aquarium: 'Acuarios',
+  amusement_park: 'Parques temáticos',
+  stadium: 'Estadios',
+  zoo: 'Zoos',
+  spa: 'Spa y bienestar',
+  church: 'Iglesias',
+  campground: 'Camping',
+  hair_care: 'Peluquerías',
+  beauty_salon: 'Salones de belleza',
+  clothing_store: 'Ropa',
+  electronics_store: 'Electrónica',
+  shoe_store: 'Zapaterías',
+  department_store: 'Grandes almacenes',
+  home_goods_store: 'Hogar',
+  book_store: 'Librerías',
+  convenience_store: 'Tiendas',
+  grocery_or_supermarket: 'Supermercados',
+  doctor: 'Médicos',
+  dentist: 'Dentistas',
+  physiotherapist: 'Fisioterapeutas',
+  veterinary_care: 'Veterinarios',
+  car_rental: 'Alquiler de coches',
+  taxi_stand: 'Taxis',
+  subway_station: 'Metro',
+  train_station: 'Tren',
+  bus_station: 'Autobús',
+  airport: 'Aeropuerto',
+  art_gallery: 'Galerías de arte',
+  museum: 'Museos',
+  drugstore: 'Farmacias',
+}
+
+/**
+ * Returns a proper Spanish display label for any category ID,
+ * including legacy/Google-type IDs not present in CATEGORIES.
+ */
+export function getCategoryLabel(id: string): string {
+  if (!id) return 'Otros'
+  const cat = getCategoryById(id)
+  if (cat) return cat.label
+  if (LEGACY_LABELS[id]) return LEGACY_LABELS[id]
+  // Last resort: clean up the raw ID (e.g. "tourist_attraction" → "Tourist Attraction")
+  return id.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+}
+
 export function getCategoriesByGroup(groupId: string): CategoryConfig[] {
   return CATEGORIES.filter(c => c.group === groupId)
 }
