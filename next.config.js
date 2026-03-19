@@ -149,7 +149,7 @@ const nextConfig = {
           "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://tagmanager.google.com https://www.google-analytics.com https://ssl.google-analytics.com https://connect.facebook.net https://maps.googleapis.com",
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://tagmanager.google.com",
           "font-src 'self' https://fonts.gstatic.com",
-          "img-src 'self' data: blob: https://*.blob.vercel-storage.com https://*.public.blob.vercel-storage.com https://images.unsplash.com https://*.muscache.com https://www.google-analytics.com https://ssl.google-analytics.com https://www.facebook.com https://www.googletagmanager.com https://tagmanager.google.com https://ssl.gstatic.com https://maps.googleapis.com https://maps.gstatic.com https://streetviewpixels-pa.googleapis.com",
+          "img-src 'self' data: blob: https://*.blob.vercel-storage.com https://*.public.blob.vercel-storage.com https://images.unsplash.com https://*.muscache.com https://www.google-analytics.com https://ssl.google-analytics.com https://www.facebook.com https://www.googletagmanager.com https://tagmanager.google.com https://ssl.gstatic.com https://maps.googleapis.com https://maps.gstatic.com https://streetviewpixels-pa.googleapis.com https://*.googleusercontent.com",
           // GA4 sends data to analytics.google.com + stats.g.doubleclick.net + region endpoints
           "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://ssl.google-analytics.com https://stats.g.doubleclick.net https://region1.google-analytics.com https://region1.analytics.google.com https://www.googletagmanager.com https://maps.googleapis.com https://www.facebook.com https://connect.facebook.net https://unpkg.com https://*.blob.vercel-storage.com https://blob.vercel-storage.com https://vercel.com blob:",
           "worker-src 'self' blob:",
@@ -160,6 +160,14 @@ const nextConfig = {
     ]
 
     return [
+      {
+        // COOP+COEP for /demo — enables SharedArrayBuffer for FFmpeg WASM video compression
+        source: '/demo',
+        headers: [
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+          { key: 'Cross-Origin-Embedder-Policy', value: 'credentialless' },
+        ],
+      },
       {
         // Apply security headers to all routes
         source: '/:path*',

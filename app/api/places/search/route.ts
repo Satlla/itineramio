@@ -46,9 +46,10 @@ export async function GET(request: NextRequest) {
 
     const results = (data.results || []).slice(0, 8).map((r: any) => {
       const photoRefs: string[] = (r.photos || []).slice(0, 5).map((p: any) => p.photo_reference)
-      const photoUrls = photoRefs.map(
-        (ref) => `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${ref}&key=${GOOGLE_MAPS_API_KEY}`
-      )
+      const photoUrls = photoRefs.map((ref) => {
+        const raw = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${ref}&key=${GOOGLE_MAPS_API_KEY}`
+        return `/api/public/place-photo?url=${encodeURIComponent(raw)}`
+      })
       return {
         googlePlaceId: r.place_id,
         name: r.name,
