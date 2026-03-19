@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, MapPin, Trash2, Loader2, CheckCircle, Plus, ChevronDown, Star, Globe,
-  MessageSquare, Pencil, X, Check, ExternalLink, Tag, ChevronLeft, ChevronRight, Utensils
+  MessageSquare, Pencil, X, Check, ExternalLink, Tag, ChevronLeft, ChevronRight, Utensils, RefreshCw
 } from 'lucide-react'
 import Link from 'next/link'
 import { PlaceSearchInput, PlaceSearchResult } from '../../../../src/components/ui/PlaceSearchInput'
@@ -123,6 +123,7 @@ export default function AdminGuideDetailPage() {
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false)
   const [adding, setAdding] = useState(false)
   const [removingId, setRemovingId] = useState<string | null>(null)
+  const [syncing, setSyncing] = useState(false)
   const [toast, setToast] = useState('')
   const [savedPlaceId, setSavedPlaceId] = useState<string | null>(null)
   const [pendingPlace, setPendingPlace] = useState<PlaceSearchResult | null>(null)
@@ -340,6 +341,24 @@ export default function AdminGuideDetailPage() {
     }
   }
 
+  const handleSync = async () => {
+    if (!guide) return
+    setSyncing(true)
+    try {
+      const res = await fetch(`/api/admin/city-guides/${id}/sync`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      showToast(`${data.data.synced} lugares sincronizados en ${data.data.properties} propiedades`)
+    } catch (e: any) {
+      showToast(e.message || 'Error al sincronizar')
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   const grouped = (guide?.places ?? []).reduce<Record<string, GuidePlace[]>>((acc, gp) => {
     const cat = gp.category || 'other'
     if (!acc[cat]) acc[cat] = []
@@ -395,6 +414,14 @@ export default function AdminGuideDetailPage() {
                 </span>
               </div>
             </div>
+            <button
+              onClick={handleSync}
+              disabled={syncing}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium bg-violet-50 text-violet-700 hover:bg-violet-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
+            >
+              {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              Sincronizar
+            </button>
           </div>
         </div>
 

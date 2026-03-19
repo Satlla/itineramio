@@ -173,47 +173,52 @@ export async function POST(
       }),
     ])
 
-    // Auto-subscribe + import to all properties in the same city (case-insensitive).
-    // Skip properties that have explicitly unsubscribed.
-    const propertiesInCity = await prisma.property.findMany({
-      where: {
-        city: { equals: guide.city, mode: 'insensitive' },
-        deletedAt: null,
-      },
-      select: { id: true, hostId: true },
-    })
-
-    for (const property of propertiesInCity) {
-      // Check existing subscription
-      const existingSub = await prisma.propertyGuideSubscription.findUnique({
-        where: { guideId_propertyId: { guideId: id, propertyId: property.id } },
-        select: { status: true },
-      })
-
-      // Skip if user explicitly opted out
-      if (existingSub?.status === 'UNSUBSCRIBED') continue
-
-      // Create subscription if it doesn't exist yet
-      if (!existingSub) {
-        await prisma.propertyGuideSubscription.create({
-          data: {
-            guideId: id,
-            propertyId: property.id,
-            userId: property.hostId,
-            status: 'ACTIVE',
-            lastSeenVersion: guide.version,
+    // Auto-subscribe + import to all properties in the same city.
+    // Fire-and-forget: response is returned immediately, propagation runs in background.
+    const propagate = async () => {
+      try {
+        const propertiesInCity = await prisma.property.findMany({
+          where: {
+            city: { equals: guide.city, mode: 'insensitive' },
+            deletedAt: null,
           },
-        }).catch(() => {/* ignore race condition duplicates */})
-      }
+          select: { id: true, hostId: true },
+        })
 
-      await autoImportPlaceToProperty(
-        property.id,
-        placeId,
-        category,
-        description || null,
-        { latitude: place.latitude, longitude: place.longitude }
-      )
+        await Promise.allSettled(propertiesInCity.map(async (property) => {
+          const existingSub = await prisma.propertyGuideSubscription.findUnique({
+            where: { guideId_propertyId: { guideId: id, propertyId: property.id } },
+            select: { status: true },
+          })
+
+          if (existingSub?.status === 'UNSUBSCRIBED') return
+
+          if (!existingSub) {
+            await prisma.propertyGuideSubscription.create({
+              data: {
+                guideId: id,
+                propertyId: property.id,
+                userId: property.hostId,
+                status: 'ACTIVE',
+                lastSeenVersion: guide.version,
+              },
+            }).catch(() => {/* ignore race condition duplicates */})
+          }
+
+          await autoImportPlaceToProperty(
+            property.id,
+            placeId,
+            category,
+            description || null,
+            { latitude: place.latitude, longitude: place.longitude }
+          )
+        }))
+      } catch (err) {
+        console.error('[city-guide] Background propagation failed:', err)
+      }
     }
+
+    propagate()
 
     return NextResponse.json({ success: true, data: guidePlace }, { status: 201 })
   } catch (error) {
