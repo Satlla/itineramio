@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../../../src/lib/prisma'
 import { checkHostManualesAccess, MANUAL_BLOCKED_MESSAGE } from '../../../../../../../../src/lib/public-module-check'
 
+function proxyPhotoUrl(photoUrl: string | null | undefined): string | null {
+  if (!photoUrl) return null
+  if (!photoUrl.startsWith('https://maps.googleapis.com/maps/api/place/photo')) return photoUrl
+  return `/api/public/place-photo?url=${encodeURIComponent(photoUrl)}`
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; zoneId: string }> }
@@ -147,7 +153,7 @@ export async function GET(
             longitude: rec.place.longitude,
             phone: rec.place.phone,
             website: rec.place.website,
-            photoUrl: rec.place.photoUrl,
+            photoUrl: proxyPhotoUrl(rec.place.photoUrl),
             rating: rec.place.rating,
             openingHours: rec.place.openingHours,
           } : null,

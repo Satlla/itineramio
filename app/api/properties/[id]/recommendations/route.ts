@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '../../../../../src/lib/auth'
 import { prisma } from '../../../../../src/lib/prisma'
 
+function proxyPhotoUrl(photoUrl: string | null | undefined): string | null {
+  if (!photoUrl) return null
+  if (!photoUrl.startsWith('https://maps.googleapis.com/maps/api/place/photo')) return photoUrl
+  return `/api/public/place-photo?url=${encodeURIComponent(photoUrl)}`
+}
+
 /**
  * GET /api/properties/[id]/recommendations
  *
@@ -71,7 +77,7 @@ export async function GET(
           latitude: rec.place.latitude,
           longitude: rec.place.longitude,
           rating: rec.place.rating,
-          photoUrl: rec.place.photoUrl,
+          photoUrl: proxyPhotoUrl(rec.place.photoUrl),
           priceLevel: rec.place.priceLevel,
           phone: rec.place.phone,
           openingHours: rec.place.openingHours,
