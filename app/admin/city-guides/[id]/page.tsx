@@ -131,6 +131,10 @@ export default function AdminGuideDetailPage() {
   const [pendingExternalUrl, setPendingExternalUrl] = useState('')
   const [pendingTags, setPendingTags] = useState<string[]>([])
 
+  // Popular places (added manually by users, not yet in guide)
+  const [popularPlaces, setPopularPlaces] = useState<Array<{ placeId: string; count: number; category: string; place: { id: string; name: string; address: string; rating?: number | null; photoUrl?: string | null } | null }>>([])
+  const [addingPopularId, setAddingPopularId] = useState<string | null>(null)
+
   // Edit state per place
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState({ description: '', highlight: '', externalUrl: '', tags: [] as string[] })
@@ -158,6 +162,38 @@ export default function AdminGuideDetailPage() {
   }, [id, router])
 
   useEffect(() => { fetchGuide() }, [fetchGuide])
+
+  const fetchPopularPlaces = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/admin/city-guides/${id}/popular-places`, { credentials: 'include' })
+      const data = await res.json()
+      if (res.ok) setPopularPlaces(data.data ?? [])
+    } catch { /* silently ignore */ }
+  }, [id])
+
+  useEffect(() => { fetchPopularPlaces() }, [fetchPopularPlaces])
+
+  const handleAddPopular = async (placeId: string, category: string) => {
+    if (!guide) return
+    setAddingPopularId(placeId)
+    try {
+      const res = await fetch(`/api/city-guides/${id}/places`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ placeId, category }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      showToast('Lugar añadido a la guía')
+      fetchGuide()
+      fetchPopularPlaces()
+    } catch (e: any) {
+      showToast(e.message)
+    } finally {
+      setAddingPopularId(null)
+    }
+  }
 
   useEffect(() => {
     if (!categoryDropdownOpen) return
@@ -791,6 +827,50 @@ export default function AdminGuideDetailPage() {
             </div>
           )}
         </div>
+
+        {/* Popular places — suggested by users */}
+        {popularPlaces.length > 0 && (
+          <div className="bg-amber-50 rounded-2xl border border-amber-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-amber-200 flex items-center gap-2">
+              <span className="text-base">🔥</span>
+              <div>
+                <h2 className="text-sm font-semibold text-amber-900">Sugeridos por usuarios ({popularPlaces.length})</h2>
+                <p className="text-xs text-amber-700 mt-0.5">Lugares añadidos manualmente por usuarios en propiedades de esta ciudad, que aún no están en la guía</p>
+              </div>
+            </div>
+            <div>
+              {popularPlaces.map((p) => (
+                <div key={p.placeId} className="px-6 py-3 border-b border-amber-100 last:border-0 flex items-center gap-3">
+                  {p.place?.photoUrl ? (
+                    <img src={p.place.photoUrl} alt={p.place?.name} className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+                      <MapPin className="w-4 h-4 text-amber-400" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{p.place?.name}</p>
+                    <p className="text-xs text-gray-500 truncate">{p.place?.address}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-amber-700 font-medium">{p.count} {p.count === 1 ? 'usuario' : 'usuarios'} lo han añadido</span>
+                      <span className="text-xs text-gray-400">· {getCatLabel(p.category)}</span>
+                      {p.place?.rating && <span className="text-xs text-gray-400">· ⭐ {p.place.rating}</span>}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleAddPopular(p.placeId, p.category)}
+                    disabled={addingPopularId === p.placeId}
+                    className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white text-xs font-medium transition-colors"
+                  >
+                    {addingPopularId === p.placeId ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
+                    Añadir
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <AnimatePresence>

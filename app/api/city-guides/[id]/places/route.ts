@@ -96,7 +96,7 @@ export async function POST(
 
     const guide = await prisma.cityGuide.findUnique({
       where: { id },
-      select: { id: true, authorId: true, version: true },
+      select: { id: true, authorId: true, version: true, city: true },
     })
 
     if (!guide) {
@@ -173,15 +173,41 @@ export async function POST(
       }),
     ])
 
-    // Auto-import this place to all ACTIVE subscribed properties
-    const subscriptions = await prisma.propertyGuideSubscription.findMany({
-      where: { guideId: id, status: 'ACTIVE' },
-      select: { propertyId: true },
+    // Auto-subscribe + import to all properties in the same city (case-insensitive).
+    // Skip properties that have explicitly unsubscribed.
+    const propertiesInCity = await prisma.property.findMany({
+      where: {
+        city: { equals: guide.city, mode: 'insensitive' },
+        deletedAt: null,
+      },
+      select: { id: true, hostId: true },
     })
 
-    for (const sub of subscriptions) {
+    for (const property of propertiesInCity) {
+      // Check existing subscription
+      const existingSub = await prisma.propertyGuideSubscription.findUnique({
+        where: { guideId_propertyId: { guideId: id, propertyId: property.id } },
+        select: { status: true },
+      })
+
+      // Skip if user explicitly opted out
+      if (existingSub?.status === 'UNSUBSCRIBED') continue
+
+      // Create subscription if it doesn't exist yet
+      if (!existingSub) {
+        await prisma.propertyGuideSubscription.create({
+          data: {
+            guideId: id,
+            propertyId: property.id,
+            userId: property.hostId,
+            status: 'ACTIVE',
+            lastSeenVersion: guide.version,
+          },
+        }).catch(() => {/* ignore race condition duplicates */})
+      }
+
       await autoImportPlaceToProperty(
-        sub.propertyId,
+        property.id,
         placeId,
         category,
         description || null,
