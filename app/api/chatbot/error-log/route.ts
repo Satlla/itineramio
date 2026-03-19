@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { checkRateLimitAsync, getRateLimitKey } from '../../../src/lib/rate-limit'
+import { checkRateLimitAsync, getRateLimitKey } from '../../../../src/lib/rate-limit'
 
 // Strip control characters to prevent log injection
 function sanitize(value: unknown): string {
