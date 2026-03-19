@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '../../../../../../../src/lib/auth'
 import { prisma } from '../../../../../../../src/lib/prisma'
 
+function proxyPhotoUrl(photoUrl: string | null | undefined): string | null {
+  if (!photoUrl) return null
+  if (!photoUrl.startsWith('https://maps.googleapis.com/maps/api/place/photo')) return photoUrl
+  return `/api/public/place-photo?url=${encodeURIComponent(photoUrl)}`
+}
+
 /**
  * GET /api/properties/[id]/zones/[zoneId]/recommendations
  * List recommendations for a specific zone, ordered by `order`.
@@ -39,7 +45,15 @@ export async function GET(
       orderBy: { order: 'asc' },
     })
 
-    return NextResponse.json({ success: true, data: recs })
+    const data = recs.map(rec => ({
+      ...rec,
+      place: rec.place ? {
+        ...rec.place,
+        photoUrl: proxyPhotoUrl(rec.place.photoUrl),
+      } : null,
+    }))
+
+    return NextResponse.json({ success: true, data })
   } catch (error) {
     console.error('Error fetching zone recommendations:', error)
     return NextResponse.json({ success: false, error: 'Error al obtener recomendaciones' }, { status: 500 })
