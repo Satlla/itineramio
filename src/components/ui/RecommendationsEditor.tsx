@@ -199,7 +199,7 @@ interface AddedItem {
   deleting?: boolean
 }
 
-// --- Sortable Card (reused in zone mode) ---
+// --- Sortable Card (admin-style row) ---
 
 function SortableRecommendationCard({
   rec,
@@ -238,176 +238,182 @@ function SortableRecommendationCard({
   }
 
   return (
-    <motion.div
+    <div
       ref={setNodeRef}
       style={style}
-      layout
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: isDragging ? 0.5 : 1, y: 0 }}
-      exit={{ opacity: 0, x: -100 }}
-      className={`bg-white rounded-lg border ${isDragging ? 'shadow-xl border-violet-400' : 'border-gray-200'} p-3 mb-2`}
+      className={`border-b border-gray-50 last:border-0 transition-colors ${isDragging ? 'bg-violet-50 shadow-md' : 'hover:bg-gray-50/50'}`}
     >
-      <div className="flex items-start gap-2">
-        <div
-          {...attributes}
-          {...listeners}
-          className="cursor-grab active:cursor-grabbing p-1 mt-0.5 hover:bg-gray-100 rounded flex-shrink-0"
-        >
-          <GripVertical className="w-4 h-4 text-gray-400" />
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2">
-            <h4 className="font-medium text-gray-900 text-sm truncate">{rec.place?.name || 'Sin nombre'}</h4>
-            <div className="flex items-center gap-1 flex-shrink-0">
-              {rec.place?.rating && (
-                <span className="flex items-center text-xs text-amber-600">
-                  <Star className="w-3 h-3 mr-0.5 fill-amber-400 text-amber-400" />
-                  {(rec.place.rating as number).toFixed(1)}
-                </span>
-              )}
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                rec.source === 'MANUAL' ? 'bg-blue-50 text-blue-600' : 'bg-violet-50 text-violet-600'
-              }`}>
-                {rec.source === 'MANUAL' ? 'MANUAL' : 'AUTO'}
-              </span>
-            </div>
+      <div className="px-4 sm:px-6 py-4">
+        <div className="flex items-start gap-3">
+          {/* Drag handle */}
+          <div
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing mt-1 p-0.5 hover:bg-gray-100 rounded flex-shrink-0"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <GripVertical className="w-3.5 h-3.5 text-gray-300" />
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
-            {rec.place?.address && (
-              <span className="truncate">{rec.place.address}</span>
-            )}
-          </div>
-
-          {(rec.distanceMeters || rec.walkMinutes) && (
-            <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
-              {rec.distanceMeters && <span>{rec.distanceMeters < 1000 ? `${rec.distanceMeters}m` : `${(rec.distanceMeters / 1000).toFixed(1)}km`}</span>}
-              {rec.walkMinutes && <span>· {rec.walkMinutes} min a pie</span>}
-            </div>
-          )}
-
-          {isEditing ? (
-            <div className="mt-2 space-y-2">
-              <textarea
-                ref={textareaRef}
-                value={editText}
-                onChange={(e) => setEditText(e.target.value)}
-                className="w-full text-xs text-gray-700 border border-gray-300 rounded p-2 resize-none focus:ring-1 focus:ring-violet-500 focus:border-violet-500"
-                rows={2}
-                placeholder="Descripción del lugar..."
-              />
-              <input
-                type="text"
-                value={editHighlight}
-                onChange={(e) => setEditHighlight(e.target.value)}
-                className="w-full text-xs text-gray-700 border border-gray-300 rounded p-2 focus:ring-1 focus:ring-violet-500 focus:border-violet-500"
-                placeholder="Plato estrella / Destacado..."
-              />
-              <input
-                type="url"
-                value={editExternalUrl}
-                onChange={(e) => setEditExternalUrl(e.target.value)}
-                className="w-full text-xs text-gray-700 border border-gray-300 rounded p-2 focus:ring-1 focus:ring-violet-500 focus:border-violet-500"
-                placeholder="URL externa (https://...)"
-              />
-              <input
-                type="text"
-                value={editTags}
-                onChange={(e) => setEditTags(e.target.value)}
-                className="w-full text-xs text-gray-700 border border-gray-300 rounded p-2 focus:ring-1 focus:ring-violet-500 focus:border-violet-500"
-                placeholder="Tags separados por coma..."
-              />
-              <div className="flex gap-1">
-                <button
-                  onClick={handleSaveDescription}
-                  className="text-xs px-2 py-1 bg-violet-600 text-white rounded hover:bg-violet-700 flex items-center gap-1"
-                >
-                  <Check className="w-3 h-3" /> Guardar
-                </button>
-                <button
-                  onClick={() => {
-                    setIsEditing(false)
-                    setEditText(rec.description || '')
-                    setEditHighlight(rec.highlight || '')
-                    setEditExternalUrl(rec.externalUrl || '')
-                    setEditTags(Array.isArray(rec.tags) ? rec.tags.join(', ') : '')
-                  }}
-                  className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 flex items-center gap-1"
-                >
-                  <X className="w-3 h-3" /> Cancelar
-                </button>
-              </div>
-            </div>
+          {/* Photo */}
+          {rec.place?.photoUrl ? (
+            <img
+              src={rec.place.photoUrl as string}
+              alt={rec.place.name}
+              className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+            />
           ) : (
-            <div className="mt-1 space-y-0.5">
-              {rec.description && (
-                <p className="text-xs text-gray-600 italic line-clamp-2">&ldquo;{rec.description}&rdquo;</p>
-              )}
-              {rec.highlight && (
-                <p className="text-xs text-amber-600 flex items-center gap-1">
-                  <Star className="w-3 h-3 fill-amber-400 text-amber-400 flex-shrink-0" />
-                  {rec.highlight}
-                </p>
-              )}
-              {rec.externalUrl && (
-                <a href={rec.externalUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-violet-600 hover:underline flex items-center gap-1 truncate">
-                  <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                  {rec.externalUrl}
-                </a>
-              )}
-              {Array.isArray(rec.tags) && rec.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {(rec.tags as string[]).map((tag, i) => (
-                    <span key={i} className="text-[10px] px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded-full">{tag}</span>
-                  ))}
-                </div>
-              )}
+            <div className="w-12 h-12 rounded-lg bg-violet-50 flex items-center justify-center flex-shrink-0">
+              <MapPin className="w-4 h-4 text-violet-400" />
             </div>
           )}
 
-          <div className="flex items-center gap-2 mt-2">
-            <button
-              onClick={() => {
-                setIsEditing(true)
-                setEditText(rec.description || '')
-                setEditHighlight(rec.highlight || '')
-                setEditExternalUrl(rec.externalUrl || '')
-                setEditTags(Array.isArray(rec.tags) ? rec.tags.join(', ') : '')
-              }}
-              className="text-xs text-gray-500 hover:text-violet-600 flex items-center gap-1"
-            >
-              <Pencil className="w-3 h-3" /> Editar
-            </button>
-
-            {showDeleteConfirm ? (
-              <div className="flex items-center gap-1 ml-auto">
-                <span className="text-xs text-red-600">¿Eliminar?</span>
-                <button
-                  onClick={() => onDelete(rec.id)}
-                  className="text-xs px-2 py-0.5 bg-red-600 text-white rounded hover:bg-red-700"
-                >
-                  Sí
-                </button>
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200"
-                >
-                  No
-                </button>
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">{rec.place?.name || 'Sin nombre'}</p>
+                <p className="text-xs text-gray-400 truncate">{rec.place?.address}</p>
+                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                  {rec.place?.rating && (
+                    <span className="flex items-center gap-0.5 text-xs text-amber-600">
+                      <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                      {(rec.place.rating as number).toFixed(1)}
+                    </span>
+                  )}
+                  {(rec.distanceMeters || rec.walkMinutes) && (
+                    <span className="text-xs text-gray-400">
+                      {rec.distanceMeters && (rec.distanceMeters < 1000 ? `${rec.distanceMeters}m` : `${(rec.distanceMeters / 1000).toFixed(1)}km`)}
+                      {rec.walkMinutes && ` · ${rec.walkMinutes}min a pie`}
+                    </span>
+                  )}
+                </div>
               </div>
-            ) : (
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="text-xs text-gray-400 hover:text-red-500 ml-auto flex items-center gap-1"
-              >
-                <Trash2 className="w-3 h-3" />
-              </button>
+
+              {/* Actions */}
+              <div className="flex items-center gap-1 flex-shrink-0">
+                {!showDeleteConfirm && (
+                  <button
+                    onClick={() => {
+                      setIsEditing(e => !e)
+                      if (!isEditing) {
+                        setEditText(rec.description || '')
+                        setEditHighlight(rec.highlight || '')
+                        setEditExternalUrl(rec.externalUrl || '')
+                        setEditTags(Array.isArray(rec.tags) ? rec.tags.join(', ') : '')
+                      }
+                    }}
+                    className={`w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${isEditing ? 'text-violet-600 bg-violet-50' : 'text-gray-300 hover:text-violet-500 hover:bg-violet-50'}`}
+                    title="Editar"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                )}
+                {showDeleteConfirm ? (
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-red-600 whitespace-nowrap">¿Eliminar?</span>
+                    <button onClick={() => onDelete(rec.id)} className="text-xs px-2 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700">Sí</button>
+                    <button onClick={() => setShowDeleteConfirm(false)} className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">No</button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors"
+                    title="Eliminar"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Badges (not editing) */}
+            {!isEditing && (
+              <div className="mt-1.5 space-y-1">
+                {rec.description && (
+                  <div className="flex items-start gap-1.5">
+                    <MessageSquare className="w-3 h-3 text-violet-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-gray-600 leading-relaxed italic">{rec.description}</p>
+                  </div>
+                )}
+                {rec.highlight && (
+                  <p className="text-xs text-orange-700 bg-orange-50 inline-flex items-center gap-1 px-2 py-0.5 rounded-md">
+                    <Star className="w-3 h-3 fill-amber-400 text-amber-400 flex-shrink-0" />
+                    {rec.highlight}
+                  </p>
+                )}
+                {rec.externalUrl && (
+                  <a href={rec.externalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 truncate">
+                    <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                    {rec.externalUrl}
+                  </a>
+                )}
+                {Array.isArray(rec.tags) && rec.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {(rec.tags as string[]).map((tag, i) => (
+                      <span key={i} className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">{tag.replace(/_/g, ' ')}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Edit form */}
+            {isEditing && (
+              <div className="mt-3 space-y-3 border-t border-gray-100 pt-3">
+                <div>
+                  <label className="flex items-center gap-1 text-xs font-medium text-violet-700 mb-1">
+                    <MessageSquare className="w-3 h-3" /> Recomendación personal
+                  </label>
+                  <textarea
+                    ref={textareaRef}
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    className="w-full text-sm border border-violet-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-300 resize-none bg-white"
+                    rows={2}
+                    placeholder="Tu recomendación personal..."
+                  />
+                </div>
+                <input
+                  type="text"
+                  value={editHighlight}
+                  onChange={(e) => setEditHighlight(e.target.value)}
+                  className="w-full text-sm border border-orange-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-200 bg-white"
+                  placeholder="Plato estrella / Destacado..."
+                />
+                <input
+                  type="url"
+                  value={editExternalUrl}
+                  onChange={(e) => setEditExternalUrl(e.target.value)}
+                  className="w-full text-sm border border-emerald-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-200 bg-white"
+                  placeholder="URL externa (https://...)"
+                />
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleSaveDescription}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-white bg-violet-600 hover:bg-violet-700 transition-colors"
+                  >
+                    <Check className="w-3 h-3" /> Guardar
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsEditing(false)
+                      setEditText(rec.description || '')
+                      setEditHighlight(rec.highlight || '')
+                      setEditExternalUrl(rec.externalUrl || '')
+                      setEditTags(Array.isArray(rec.tags) ? rec.tags.join(', ') : '')
+                    }}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-gray-500 hover:text-gray-700 border border-gray-200 hover:bg-gray-50 transition-colors"
+                  >
+                    <X className="w-3 h-3" /> Cancelar
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -1040,62 +1046,74 @@ export function RecommendationsEditor({
             </div>
           ) : addedItems.length > 0 ? (
             <div className="mt-6">
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                Lugares añadidos ({addedItems.length})
-              </h3>
-              <div className="space-y-2">
-                {addedItems.map((item, i) => (
-                  <motion.div
-                    key={`${item.recommendationId}-${i}`}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: item.deleting ? 0.5 : 1, x: 0 }}
-                    exit={{ opacity: 0, x: 100 }}
-                    transition={{ delay: i * 0.05 }}
-                    className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 shadow-sm"
-                  >
-                    {/* Thumbnail or icon */}
-                    {item.photoUrl ? (
-                      <img
-                        src={item.photoUrl}
-                        alt={item.name}
-                        className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
-                        <Check className="w-5 h-5 text-green-600" />
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100">
+                  <h3 className="text-sm font-semibold text-gray-900">Lugares añadidos ({addedItems.length})</h3>
+                </div>
+                {/* Group by category, admin-style */}
+                {(() => {
+                  const grouped: Record<string, { label: string; items: { item: AddedItem; index: number }[] }> = {}
+                  addedItems.forEach((item, i) => {
+                    const key = item.categoryLabel
+                    if (!grouped[key]) grouped[key] = { label: item.categoryLabel, items: [] }
+                    grouped[key].items.push({ item, index: i })
+                  })
+                  return Object.values(grouped).map(group => (
+                    <div key={group.label}>
+                      {/* Category header */}
+                      <div className="px-6 py-2 bg-gray-50 border-b border-gray-100">
+                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                          {group.label} ({group.items.length})
+                        </span>
                       </div>
-                    )}
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-gray-900 truncate">{item.name}</span>
-                        {item.rating && (
-                          <span className="flex items-center text-xs text-amber-600 flex-shrink-0">
-                            <Star className="w-3 h-3 mr-0.5 fill-amber-400 text-amber-400" />
-                            {item.rating.toFixed(1)}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-gray-500 truncate">{item.address}</p>
+                      {group.items.map(({ item, index }) => (
+                        <motion.div
+                          key={`${item.recommendationId}-${index}`}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: item.deleting ? 0.5 : 1, x: 0 }}
+                          exit={{ opacity: 0, x: 100 }}
+                          transition={{ delay: index * 0.03 }}
+                          className="flex items-center gap-3 px-6 py-4 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
+                        >
+                          {item.photoUrl ? (
+                            <img
+                              src={item.photoUrl}
+                              alt={item.name}
+                              className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-lg bg-violet-50 flex items-center justify-center flex-shrink-0">
+                              <MapPin className="w-4 h-4 text-violet-400" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-semibold text-gray-900 truncate">{item.name}</span>
+                              {item.rating && (
+                                <span className="flex items-center text-xs text-amber-600 flex-shrink-0">
+                                  <Star className="w-3 h-3 mr-0.5 fill-amber-400 text-amber-400" />
+                                  {item.rating.toFixed(1)}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-400 truncate">{item.address}</p>
+                          </div>
+                          <button
+                            onClick={() => handleDeleteAdded(index)}
+                            disabled={item.deleting}
+                            className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-300 hover:text-red-400 hover:bg-red-50 transition-colors flex-shrink-0 disabled:opacity-50"
+                          >
+                            {item.deleting ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </button>
+                        </motion.div>
+                      ))}
                     </div>
-                    {/* Category badge */}
-                    <span className="text-[11px] font-medium px-2.5 py-1 bg-violet-50 text-violet-700 rounded-full flex-shrink-0 whitespace-nowrap">
-                      {item.categoryLabel}
-                    </span>
-                    {/* Delete button */}
-                    <button
-                      onClick={() => handleDeleteAdded(i)}
-                      disabled={item.deleting}
-                      className="p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0 disabled:opacity-50"
-                    >
-                      {item.deleting ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="w-4 h-4" />
-                      )}
-                    </button>
-                  </motion.div>
-                ))}
+                  ))
+                })()}
               </div>
             </div>
           ) : !pending && !loadingExisting && (
@@ -1347,10 +1365,14 @@ export function RecommendationsEditor({
         </AnimatePresence>
 
         {/* Recommendations list */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <MapPin className="w-4 h-4 text-gray-400" />
-            <h3 className="text-sm font-medium text-gray-700">Lugares en esta zona</h3>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-gray-900">
+              Lugares en esta zona
+            </h3>
+            {recommendations.length > 0 && (
+              <span className="text-xs text-gray-400">{recommendations.length} lugar{recommendations.length !== 1 ? 'es' : ''}</span>
+            )}
           </div>
 
           {loading ? (
@@ -1358,10 +1380,10 @@ export function RecommendationsEditor({
               <Loader2 className="w-6 h-6 text-violet-500 animate-spin" />
             </div>
           ) : recommendations.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-gray-400">
               <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-              <p className="text-sm">No hay lugares en esta zona todavía.</p>
-              <p className="text-xs mt-1">Usa la barra de búsqueda para añadir lugares.</p>
+              <p className="text-sm">No hay lugares todavía.</p>
+              <p className="text-xs mt-1">Usa la barra de búsqueda para añadir.</p>
             </div>
           ) : (
             <DndContext
@@ -1373,16 +1395,14 @@ export function RecommendationsEditor({
                 items={recommendations.map(r => r.id)}
                 strategy={verticalListSortingStrategy}
               >
-                <AnimatePresence mode="popLayout">
-                  {recommendations.map((rec) => (
-                    <SortableRecommendationCard
-                      key={rec.id}
-                      rec={rec}
-                      onDelete={handleDelete}
-                      onEditDescription={handleEditDescription}
-                    />
-                  ))}
-                </AnimatePresence>
+                {recommendations.map((rec) => (
+                  <SortableRecommendationCard
+                    key={rec.id}
+                    rec={rec}
+                    onDelete={handleDelete}
+                    onEditDescription={handleEditDescription}
+                  />
+                ))}
               </SortableContext>
             </DndContext>
           )}

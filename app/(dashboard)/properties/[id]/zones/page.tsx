@@ -3281,16 +3281,59 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 collisionDetection={closestCenter}
                 onDragEnd={handleDragEnd}
               >
-                <SortableContext 
+                <SortableContext
                   items={zones.map(zone => zone.id)}
                   strategy={verticalListSortingStrategy}
                 >
-                  {/* Desktop: 2 columns, Mobile: 1 column */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {zones.map((zone) => (
-                      <SortableZoneItem key={zone.id} zone={zone} />
-                    ))}
-                  </div>
+                  {(() => {
+                    const manualZones = zones.filter(z => z.type !== 'RECOMMENDATIONS')
+                    const recsZones = zones.filter(z => z.type === 'RECOMMENDATIONS')
+                    return (
+                      <div className="space-y-8">
+                        {/* Manual / information zones */}
+                        {manualZones.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-3 mb-4">
+                              <div className="flex items-center gap-2">
+                                <FileText className="w-4 h-4 text-blue-500" />
+                                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                                  Manual del alojamiento
+                                </h3>
+                              </div>
+                              <div className="flex-1 h-px bg-gray-200" />
+                              <span className="text-xs text-gray-400">{manualZones.length} zona{manualZones.length !== 1 ? 's' : ''}</span>
+                            </div>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                              {manualZones.map((zone) => (
+                                <SortableZoneItem key={zone.id} zone={zone} />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Recommendations zones */}
+                        {recsZones.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-3 mb-4">
+                              <div className="flex items-center gap-2">
+                                <Sparkles className="w-4 h-4 text-violet-500" />
+                                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                                  Lugares recomendados
+                                </h3>
+                              </div>
+                              <div className="flex-1 h-px bg-violet-100" />
+                              <span className="text-xs text-gray-400">{recsZones.length} categoría{recsZones.length !== 1 ? 's' : ''}</span>
+                            </div>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                              {recsZones.map((zone) => (
+                                <SortableZoneItem key={zone.id} zone={zone} />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })()}
                 </SortableContext>
               </DndContext>
             )}
