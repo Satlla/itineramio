@@ -474,7 +474,7 @@ function DemoPageInner() {
 
   // Phase & step state
   const [phase, setPhase] = useState<Phase>('wizard')
-  const [wizardStep, setWizardStepRaw] = useState(1)
+  const [wizardStep, setWizardStepRaw] = useState(3)
   const [prevStep, setPrevStep] = useState(0)
   const [confettiBurst, setConfettiBurst] = useState(0)
 
