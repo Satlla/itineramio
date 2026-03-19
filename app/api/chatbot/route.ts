@@ -1118,7 +1118,11 @@ function buildIntelligenceSection(property: any): string {
     const a = intel.accessibility;
     const parts: string[] = [];
     if (a.elevator !== undefined) parts.push(`Ascensor: ${a.elevator ? 'sí' : 'no'}`);
-    if (a.floorNumber !== undefined) parts.push(`Planta ${a.floorNumber}`);
+    if (a.floorNumber !== undefined) {
+      const floorLabels: Record<string, string> = { baja: 'Planta baja', entreplanta: 'Entreplanta' }
+      const floorStr = String(a.floorNumber)
+      parts.push(floorLabels[floorStr] ?? `Planta ${floorStr}`)
+    }
     if (a.stepsToEntrance) parts.push(`${a.stepsToEntrance} escalones`);
     if (a.wheelchairAccessible !== undefined) parts.push(`Silla ruedas: ${a.wheelchairAccessible ? 'sí' : 'no'}`);
     if (a.accessibilityNote) parts.push(a.accessibilityNote);

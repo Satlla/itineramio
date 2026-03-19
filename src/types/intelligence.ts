@@ -190,7 +190,7 @@ export interface PropertyIntelligence {
 
   accessibility?: {
     elevator?: boolean
-    floorNumber?: number
+    floorNumber?: string | number
     wheelchairAccessible?: boolean
     stepsToEntrance?: number
     accessibilityNote?: string
