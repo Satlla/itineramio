@@ -122,7 +122,7 @@ export async function GET(
               }
             }
           } catch (error) {
-            console.error('Error parsing step content:', error)
+            // ignore parse errors
           }
 
           return {
@@ -153,7 +153,6 @@ export async function GET(
       data: result
     })
   } catch (error) {
-    console.error('Error fetching public property:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al obtener la propiedad'

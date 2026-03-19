@@ -104,8 +104,6 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error fetching property:', error)
-
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor',
@@ -170,8 +168,6 @@ export async function PUT(
     })
     
   } catch (error) {
-    console.error('Error updating property:', error)
-    
     if (error instanceof z.ZodError) {
       return NextResponse.json({
         success: false,
@@ -278,8 +274,6 @@ export async function PATCH(
     })
     
   } catch (error) {
-    console.error('Error updating property:', error)
-    
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'
@@ -320,8 +314,6 @@ export async function DELETE(
     })
 
   } catch (error) {
-    console.error('Error soft-deleting property:', error)
-
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor',

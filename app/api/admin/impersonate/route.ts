@@ -56,7 +56,6 @@ export async function POST(request: NextRequest) {
     })
 
     if (!targetUser) {
-      console.error('❌ Usuario no encontrado con ID:', userId)
       return NextResponse.json(
         { error: 'Usuario no encontrado' },
         { status: 404 }
@@ -141,7 +140,6 @@ export async function POST(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error en impersonation:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

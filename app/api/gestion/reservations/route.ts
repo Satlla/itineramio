@@ -114,7 +114,6 @@ export async function GET(request: NextRequest) {
       totals
     })
   } catch (error: any) {
-    console.error('Error fetching reservations:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -426,7 +425,6 @@ export async function POST(request: NextRequest) {
       } : null
     })
   } catch (error: any) {
-    console.error('Error creating reservation:', error)
     return NextResponse.json(
       { error: 'Error al crear la reserva' },
       { status: 500 }

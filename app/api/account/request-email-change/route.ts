@@ -253,8 +253,6 @@ export async function POST(request: NextRequest) {
       })
 
     } catch (emailError) {
-      console.error('Error sending confirmation email:', emailError)
-      
       // Clean up the token if email fails
       await prisma.emailChangeToken.deleteMany({
         where: { token: changeToken }
@@ -266,8 +264,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Error requesting email change:', error)
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Error al procesar la solicitud' 
     }, { status: 500 })
   }

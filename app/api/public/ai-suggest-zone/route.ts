@@ -56,7 +56,6 @@ Responde SOLO con la descripción, sin título ni formato markdown.`,
     })
 
     if (!response.ok) {
-      console.error('[ai-suggest-zone] Anthropic API error:', response.status)
       return NextResponse.json({ error: 'AI request failed' }, { status: 500 })
     }
 
@@ -65,7 +64,6 @@ Responde SOLO con la descripción, sin título ni formato markdown.`,
 
     return NextResponse.json({ suggestion })
   } catch (error) {
-    console.error('[ai-suggest-zone] Error:', error)
     return NextResponse.json({ error: 'Failed to generate suggestion' }, { status: 500 })
   }
 }

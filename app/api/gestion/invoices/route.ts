@@ -122,7 +122,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ invoices: formattedInvoices })
   } catch (error) {
-    console.error('Error fetching invoices:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -335,7 +334,6 @@ export async function POST(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error creating invoice:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

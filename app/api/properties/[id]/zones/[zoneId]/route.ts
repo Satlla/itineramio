@@ -10,6 +10,25 @@ if (!JWT_SECRET) {
   throw new Error('JWT_SECRET environment variable is not set')
 }
 
+// Helper: extract userId from cookie or Bearer token
+function extractUserId(request: NextRequest): string | null {
+  const cookieToken = request.cookies.get('auth-token')?.value
+  if (cookieToken) {
+    try {
+      const decoded = jwt.verify(cookieToken, JWT_SECRET!) as { userId: string }
+      return decoded.userId
+    } catch { /* invalid */ }
+  }
+  const authHeader = request.headers.get('authorization')
+  if (authHeader?.startsWith('Bearer ')) {
+    try {
+      const decoded = jwt.verify(authHeader.substring(7), JWT_SECRET!) as { userId: string }
+      return decoded.userId
+    } catch { /* invalid */ }
+  }
+  return null
+}
+
 // GET /api/properties/[id]/zones/[zoneId] - Get specific zone
 export async function GET(
   request: NextRequest,
@@ -18,18 +37,10 @@ export async function GET(
   try {
     const { id: propertyId, zoneId } = await params
 
-    // Check authentication
-    const token = request.cookies.get('auth-token')?.value
-    if (!token) {
+    // Check authentication (cookie or Bearer token)
+    const userId = extractUserId(request)
+    if (!userId) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
-
-    let userId: string
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
-      userId = decoded.userId
-    } catch (error) {
-      return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
     }
 
     // Set JWT claims for RLS policies
@@ -150,18 +161,10 @@ export async function PUT(
     const { id: propertyId, zoneId } = await params
     const body = await request.json()
 
-    // Check authentication
-    const token = request.cookies.get('auth-token')?.value
-    if (!token) {
+    // Check authentication (cookie or Bearer token)
+    const userId = extractUserId(request)
+    if (!userId) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
-
-    let userId: string
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
-      userId = decoded.userId
-    } catch (error) {
-      return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
     }
 
     // Set JWT claims for RLS policies
@@ -317,18 +320,10 @@ export async function DELETE(
   try {
     const { id: propertyId, zoneId } = await params
 
-    // Check authentication
-    const token = request.cookies.get('auth-token')?.value
-    if (!token) {
+    // Check authentication (cookie or Bearer token)
+    const userId = extractUserId(request)
+    if (!userId) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
-
-    let userId: string
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
-      userId = decoded.userId
-    } catch (error) {
-      return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
     }
 
     // Set JWT claims for RLS policies

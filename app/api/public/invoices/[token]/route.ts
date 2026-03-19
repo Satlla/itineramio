@@ -128,7 +128,6 @@ export async function GET(
       } : null
     })
   } catch (error) {
-    console.error('Error fetching public invoice:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

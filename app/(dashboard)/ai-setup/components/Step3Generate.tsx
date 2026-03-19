@@ -212,6 +212,10 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
                   setStats(event.stats)
                   break
                 case 'property_id':
+                  if (!event.propertyId) {
+                    setError('Error: no se recibió ID de propiedad')
+                    return
+                  }
                   setPropertyId(event.propertyId)
                   onCompleteRef.current?.()
                   break
@@ -486,21 +490,29 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
             {propertyId ? (
               <button
                 type="button"
-                onClick={() => router.push(`/properties/${propertyId}/zones`)}
+                onClick={() => {
+                  if (!propertyId) return
+                  router.push(`/properties/${propertyId}/zones`)
+                }}
                 className="w-full h-14 rounded-xl text-lg font-semibold bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25 transition-all duration-300 flex items-center justify-center gap-2"
               >
                 {t('step5.viewManual')}
                 <ArrowRight className="w-5 h-5" />
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={() => router.push('/properties')}
-                className="w-full h-14 rounded-xl text-lg font-semibold bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25 transition-all duration-300 flex items-center justify-center gap-2"
-              >
-                {t('step5.goToProperties')}
-                <ArrowRight className="w-5 h-5" />
-              </button>
+              <div className="w-full rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-center">
+                <p className="text-red-600 text-sm font-medium">
+                  {error || 'Error: no se recibió ID de propiedad'}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => router.push('/properties')}
+                  className="mt-3 w-full h-12 rounded-xl text-base font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                >
+                  {t('step5.goToProperties')}
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
             )}
           </motion.div>
         )}

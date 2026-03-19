@@ -130,10 +130,12 @@ export default function Step1Address({ data, onChange, onNext, uploadEndpoint, o
     return 'border-gray-200'
   }
 
+  const hasAddressWithoutCoordinates = !!(data.formattedAddress && !data.lat && !data.lng)
+
   const handleNext = () => {
-    if (!isValid) {
+    if (!isValid || hasAddressWithoutCoordinates) {
       setShowErrors(true)
-      setShowValidationModal(true)
+      if (!isValid) setShowValidationModal(true)
       return
     }
     setShowErrors(false)
@@ -441,7 +443,13 @@ export default function Step1Address({ data, onChange, onNext, uploadEndpoint, o
           })}
           placeholder={t('step1.addressPlaceholder')}
         />
-        {data.formattedAddress && (!data.lat || !data.lng) && (
+        {showErrors && data.formattedAddress && !data.lat && !data.lng && (
+          <div className="flex items-center gap-2 text-red-500 text-xs mt-1">
+            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+            <span>Selecciona una dirección de la lista de sugerencias para continuar</span>
+          </div>
+        )}
+        {!showErrors && data.formattedAddress && !data.lat && !data.lng && (
           <div className="flex items-center gap-2 text-amber-400 text-xs mt-1">
             <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
             <span>{t('step1.noCoordinates')}</span>

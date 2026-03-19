@@ -146,7 +146,6 @@ export async function GET(request: NextRequest) {
           })
 
           if (error) {
-            console.error(`❌ Error sending to ${data.host.email}:`, error)
             results.errors++
             continue
           }
@@ -167,7 +166,6 @@ export async function GET(request: NextRequest) {
           else if (interval.days === 14) results.sent14d++
 
         } catch (error) {
-          console.error(`❌ Error processing ${data.host.email}:`, error)
           results.errors++
         }
       }
@@ -179,7 +177,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('❌ Reactivation cron error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

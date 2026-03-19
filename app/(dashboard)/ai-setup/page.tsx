@@ -306,7 +306,6 @@ export default function AISetupPage() {
         ).then(results => {
           const valid = results.filter(Boolean) as MediaItem[]
           if (valid.length !== mediaToRestore.length) {
-            console.warn(`[AI Setup] Filtered ${mediaToRestore.length - valid.length} stale media from draft`)
           }
           setMedia(valid)
         })
@@ -370,7 +369,7 @@ export default function AISetupPage() {
           setLocationData(data.data)
         }
       })
-      .catch(err => console.error('[ai-setup] Failed to fetch location data:', err))
+      .catch(() => {})
       .finally(() => setLocationDataLoading(false))
   }, [currentStep, locationData, locationDataLoading, step1Data.lat, step1Data.lng, step1Data.city])
 

@@ -88,8 +88,7 @@ export default function AnalyticsPage() {
       if (response.ok && result.data) {
         setData(result.data)
       }
-    } catch (error) {
-      console.error('Error fetching analytics:', error)
+    } catch {
     } finally {
       setLoading(false)
     }

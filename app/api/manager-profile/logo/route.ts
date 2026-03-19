@@ -88,8 +88,8 @@ export async function POST(request: NextRequest) {
       if (currentConfig?.logoUrl && currentConfig.logoUrl.includes('blob.vercel-storage.com')) {
         try {
           await del(currentConfig.logoUrl, { token: blobToken })
-        } catch (e) {
-          console.error('Error deleting old logo:', e)
+        } catch {
+          // ignore deletion errors
         }
       }
 
@@ -122,7 +122,6 @@ export async function POST(request: NextRequest) {
       profile: config
     })
   } catch (error) {
-    console.error('Error uploading logo:', error)
     return NextResponse.json(
       { error: 'Error al subir el logo' },
       { status: 500 }
@@ -154,8 +153,8 @@ export async function DELETE(request: NextRequest) {
         if (blobToken) {
           try {
             await del(config.logoUrl, { token: blobToken })
-          } catch (e) {
-            console.error('Error deleting logo from blob:', e)
+          } catch {
+            // ignore deletion errors
           }
         }
       }
@@ -172,7 +171,6 @@ export async function DELETE(request: NextRequest) {
       message: 'Logo eliminado'
     })
   } catch (error) {
-    console.error('Error deleting logo:', error)
     return NextResponse.json(
       { error: 'Error al eliminar el logo' },
       { status: 500 }

@@ -36,6 +36,7 @@ interface Property {
   name: string
   address: string | null
   hasBillingConfig: boolean
+  type?: string
 }
 
 interface ParsedRow {
@@ -274,7 +275,7 @@ export default function ImportarReservasPage() {
       setIsAnalyzing(true)
       try {
         const formData = new FormData()
-        formData.append('file', file)
+        if (file) formData.append('file', file)
         if (selectedPropertyId) {
           formData.append('propertyId', selectedPropertyId)
         }
@@ -601,7 +602,7 @@ export default function ImportarReservasPage() {
       } else {
         // Standard import based on detected platform
         const formData = new FormData()
-        formData.append('file', file)
+        if (file) formData.append('file', file)
         formData.append('propertyId', selectedPropertyId)
         formData.append('skipDuplicates', skipDuplicates.toString())
 

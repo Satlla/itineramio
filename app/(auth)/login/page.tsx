@@ -122,8 +122,7 @@ function LoginContent() {
       })
       
       const data = await response.json()
-      console.log('Login response:', data)
-      
+
       if (!response.ok) {
         if (data.error === 'EMAIL_NOT_VERIFIED') {
           // Redirect to verification page with email

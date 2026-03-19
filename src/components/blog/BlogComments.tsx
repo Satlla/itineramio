@@ -83,7 +83,7 @@ export function BlogComments({ slug }: BlogCommentsProps) {
       const data = await response.json()
       setComments(data.comments || [])
     } catch (err) {
-      console.error('Error loading comments:', err)
+      // load failed silently
     } finally {
       setIsLoading(false)
     }
@@ -156,7 +156,6 @@ export function BlogComments({ slug }: BlogCommentsProps) {
         loadComments()
       }
     } catch (err) {
-      console.error('Error submitting comment:', err)
       setError('Error al enviar comentario')
       setCaptcha(generateCaptcha())
       setCaptchaAnswer('')
@@ -229,7 +228,6 @@ export function BlogComments({ slug }: BlogCommentsProps) {
         loadComments()
       }
     } catch (err) {
-      console.error('Error submitting reply:', err)
       setError('Error al enviar respuesta')
       setReplyCaptcha(generateCaptcha())
       setReplyCaptchaAnswer('')

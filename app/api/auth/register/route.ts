@@ -203,8 +203,7 @@ export async function POST(request: NextRequest) {
       await EmailVerificationService.sendVerificationEmail(user.email, user.name)
       emailSent = true
     } catch (emailError) {
-      console.error('🚨 CRITICAL: Error sending verification email:', emailError)
-      console.error('📊 Error details:', JSON.stringify(emailError, null, 2))
+      console.error('CRITICAL: Error sending verification email:', emailError)
 
       // Return error to user so they know email wasn't sent
       return NextResponse.json({
@@ -237,9 +236,7 @@ export async function POST(request: NextRequest) {
     }, { status: 201 })
     
   } catch (error) {
-    console.error('🚨 Registration error:', error)
-    console.error('🔍 Error type:', error?.constructor?.name)
-    console.error('📊 Error details:', JSON.stringify(error, null, 2))
+    console.error('Registration error:', error)
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(

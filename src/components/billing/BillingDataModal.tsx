@@ -167,7 +167,7 @@ export default function BillingDataModal({ isOpen, onClose, onSaveSuccess }: Bil
         }
       }
     } catch (error) {
-      console.error('Error fetching billing data:', error)
+      // fetch failed silently
     }
   }
 
@@ -288,7 +288,6 @@ export default function BillingDataModal({ isOpen, onClose, onSaveSuccess }: Bil
         toast.error(error.error || 'Error al guardar los datos')
       }
     } catch (error) {
-      console.error('Error saving billing info:', error)
       toast.error('Error al guardar los datos')
     } finally {
       setSaving(false)

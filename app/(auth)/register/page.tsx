@@ -199,7 +199,7 @@ export default function RegisterPage() {
       }
       
       // Track GA4 sign_up conversion
-      trackSignUp({ method: 'email', userId: data.userId })
+      trackSignUp({ method: 'email', userId: data.user?.id })
       trackGenerateLead({ source: 'landing', value: 15 })
 
       // Track Meta Pixel CompleteRegistration (for ads algorithm optimization)
@@ -211,7 +211,6 @@ export default function RegisterPage() {
       router.push(`/verify-required?email=${encodeURIComponent(formData.email)}`)
       
     } catch (error) {
-      console.error('Registration error:', error)
       setErrors(prev => ({
         ...prev,
         email: t('register.errors.connectionError')

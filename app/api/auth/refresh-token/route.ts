@@ -95,7 +95,6 @@ export async function POST(request: NextRequest) {
     return response
 
   } catch (error) {
-    console.error('Error refreshing token:', error)
     return NextResponse.json({
       success: false,
       error: 'Failed to refresh token'

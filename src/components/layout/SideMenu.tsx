@@ -278,7 +278,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
                         window.location.href = '/login'
                       }
                     } catch (error) {
-                      console.error('Error logging out:', error)
+                      // logout failed silently
                     }
                   }}
                 >

@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
         request,
         onBeforeGenerateToken: async (pathname) => {
           const ext = pathname.split('.').pop()?.toLowerCase() ?? ''
-          const allowedExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'webm', 'm4v', '3gp', 'avi']
+          const allowedExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'webm', 'm4v', '3gp', 'avi', 'mkv', 'mpg', 'mpeg', 'ogv']
           if (!allowedExts.includes(ext)) {
             throw new Error(`Tipo de archivo no permitido: .${ext}`)
           }
@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
               'image/jpeg', 'image/png', 'image/gif', 'image/webp',
               'video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v',
               'video/3gpp', 'video/x-msvideo', 'application/octet-stream',
+              'video/x-matroska', 'video/mpeg', 'video/ogg',
             ],
             maximumSizeInBytes: 500 * 1024 * 1024,
             addRandomSuffix: true,

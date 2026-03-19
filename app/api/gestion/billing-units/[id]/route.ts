@@ -45,7 +45,6 @@ export async function GET(
       billingUnit
     })
   } catch (error) {
-    console.error('Error fetching billing unit:', error)
     return NextResponse.json(
       { error: 'Error al obtener la unidad de facturación' },
       { status: 500 }
@@ -205,7 +204,6 @@ export async function PATCH(
       }
     })
   } catch (error) {
-    console.error('Error updating billing unit:', error)
     return NextResponse.json(
       { error: 'Error al actualizar la unidad de facturación' },
       { status: 500 }
@@ -283,7 +281,6 @@ export async function DELETE(
       message: 'Unidad eliminada'
     })
   } catch (error) {
-    console.error('Error deleting billing unit:', error)
     return NextResponse.json(
       { error: 'Error al eliminar la unidad de facturación' },
       { status: 500 }

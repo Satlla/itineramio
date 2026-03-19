@@ -191,14 +191,10 @@ function GestionLayoutInner({
         })
 
         if (response.ok) {
-          const result = await response.json()
-          if (result.activated) {
-            console.log('🎉 GESTION trial auto-activated')
-          }
+          await response.json()
         }
-      } catch (error) {
+      } catch {
         // Silently ignore - trial activation is best-effort
-        console.error('Error auto-activating GESTION trial:', error)
       }
     }
 

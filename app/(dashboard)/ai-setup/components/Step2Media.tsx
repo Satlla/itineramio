@@ -313,6 +313,7 @@ export default function Step2Media({
             access: 'public',
             handleUploadUrl: uploadEndpoint,
             contentType: mimeType,
+            multipart: isVideo,
             onUploadProgress: ({ loaded, total, percentage }) => {
               void loaded; void total
               setUploadProgress(Math.min(99, Math.round(percentage)))

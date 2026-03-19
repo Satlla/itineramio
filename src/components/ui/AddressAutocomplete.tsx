@@ -125,6 +125,8 @@ export function AddressAutocomplete({
               state: parts[2] || parts[1] || 'Sin especificar',
               country: 'España',
               postalCode: '00000',
+              lat: undefined,
+              lng: undefined,
               formattedAddress: e.target.value
             })
           }}
@@ -138,7 +140,7 @@ export function AddressAutocomplete({
           <AlertCircle className="w-4 h-4 text-amber-500" />
         </div>
         <p className="mt-1 text-xs text-amber-600">
-          Google Maps no disponible. Introduce la dirección manualmente.
+          Sin Google Maps no podemos obtener coordenadas. La generación de IA será limitada.
         </p>
       </div>
     )

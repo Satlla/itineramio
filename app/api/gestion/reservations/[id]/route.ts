@@ -51,7 +51,6 @@ export async function GET(
 
     return NextResponse.json({ reservation })
   } catch (error) {
-    console.error('Error fetching reservation:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -177,7 +176,6 @@ export async function PUT(
 
     return NextResponse.json({ reservation })
   } catch (error) {
-    console.error('Error updating reservation:', error)
     return NextResponse.json(
       { error: 'Error al actualizar la reserva' },
       { status: 500 }
@@ -232,7 +230,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting reservation:', error)
     return NextResponse.json(
       { error: 'Error al eliminar la reserva' },
       { status: 500 }

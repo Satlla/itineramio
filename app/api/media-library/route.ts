@@ -163,7 +163,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching media library:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'
@@ -273,8 +272,6 @@ export async function POST(request: NextRequest) {
     }, { status: 201 })
 
   } catch (error) {
-    console.error('Error adding to media library:', error)
-    
     if (error instanceof z.ZodError) {
       return NextResponse.json({
         success: false,
@@ -330,7 +327,6 @@ export async function DELETE(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error deleting media:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'
@@ -378,7 +374,6 @@ export async function PATCH(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error updating media:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'

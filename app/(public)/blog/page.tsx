@@ -113,10 +113,11 @@ const categoryConfig: Record<string, { name: string; icon: any; color: string; g
 export default async function BlogPage({
   searchParams
 }: {
-  searchParams: { q?: string; category?: string }
+  searchParams: Promise<{ q?: string; category?: string }>
 }) {
-  const searchQuery = searchParams.q?.trim() || ''
-  const categoryFilter = searchParams.category || ''
+  const { q, category } = await searchParams
+  const searchQuery = q?.trim() || ''
+  const categoryFilter = category || ''
 
   // Build search filter
   const searchFilter = searchQuery

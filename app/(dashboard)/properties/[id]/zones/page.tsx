@@ -720,7 +720,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           setZones(transformZonesFromApi(zonesResult.data, id))
         }
 
-        setFormData({ name: '', description: '', iconId: '' })
+        setFormData({ name: '', nameEn: '', nameFr: '', description: '', iconId: '' })
         setShowCreateForm(false)
         setShowIconSelector(false)
 
@@ -1377,9 +1377,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         if (!element) return null
 
         return {
-          // Pass full multilingual object for name and description
-          name: element.name,
-          description: element.description,
+          // Extract Spanish string for name and description
+          name: element.name.es || '',
+          description: element.description.es || '',
           icon: element.icon,
           status: 'ACTIVE'
         }
@@ -2167,7 +2167,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           setZones(transformZonesFromApi(zonesResult.data, id))
         }
 
-        setFormData({ name: '', description: '', iconId: '' })
+        setFormData({ name: '', nameEn: '', nameFr: '', description: '', iconId: '' })
         setShowCreateForm(false)
         setShowIconSelector(false)
 

@@ -174,7 +174,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error validating coupon:', error)
     return NextResponse.json({
       valid: false,
       message: 'Error al validar el cupón'

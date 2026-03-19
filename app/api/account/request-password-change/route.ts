@@ -177,8 +177,6 @@ export async function POST(request: NextRequest) {
       })
 
     } catch (emailError) {
-      console.error('Error sending confirmation email:', emailError)
-
       // Clean up the token if email fails
       await prisma.passwordChangeToken.deleteMany({
         where: { token: changeToken }
@@ -190,9 +188,6 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Error requesting password change:', error)
-    console.error('Error details:', error instanceof Error ? error.message : error)
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack')
     return NextResponse.json({
       error: 'Error al procesar la solicitud: ' + (error instanceof Error ? error.message : 'Unknown error')
     }, { status: 500 })
