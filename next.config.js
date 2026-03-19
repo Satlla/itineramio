@@ -11,9 +11,9 @@ const nextConfig = {
   },
   experimental: {
     esmExternals: true,
-    outputFileTracingExcludes: {
-      '/api/*': ['./public/uploads/**', './public/ffmpeg/**'],
-    },
+  },
+  outputFileTracingExcludes: {
+    '/api/*': ['./public/uploads/**', './public/ffmpeg/**'],
   },
   images: {
     remotePatterns: [
