@@ -346,6 +346,11 @@ export default function ChatBot({
 
   const [lang, setLang] = useState<'es' | 'en' | 'fr'>(language || 'es')
 
+  // Sync lang when parent changes language prop
+  useEffect(() => {
+    if (language) setLang(language)
+  }, [language])
+
   // Check if chatbot is enabled for this property (beta restriction)
   useEffect(() => {
     fetch('/api/chatbot/check', {
