@@ -8,20 +8,23 @@ function parseInline(text: string, keyPrefix: string): React.ReactNode[] {
   let remaining = text
   let k = 0
   while (remaining.length > 0) {
-    // Bold **text**
-    const bold = remaining.match(/^([\s\S]*?)\*\*([^*\n]+)\*\*/)
-    if (bold) {
+    // Bold **text** — [^*]+ allows any char except asterisk (handles spaces, accents, etc.)
+    const bold = remaining.match(/^([\s\S]*?)\*\*([^*]+)\*\*/)
+    if (bold && bold[2].trim()) {
       if (bold[1]) result.push(<React.Fragment key={`${keyPrefix}-t${k++}`}>{bold[1]}</React.Fragment>)
       result.push(<strong key={`${keyPrefix}-b${k++}`} className="font-bold text-gray-900">{bold[2]}</strong>)
       remaining = remaining.slice(bold[0].length)
       continue
     }
-    // Link [text](url) — video URLs render as inline <video>, others as <a>
-    const link = remaining.match(/^([\s\S]*?)\[([^\]]+)\]\(([^)]+)\)/)
+    // Link [text](url) — greedy URL capture handles query params and tokens
+    // Uses [^)]* but stops at last ) to handle nested parens in some URLs
+    const link = remaining.match(/^([\s\S]*?)\[([^\]]+)\]\(([^)]*(?:\([^)]*\)[^)]*)*)\)/)
     if (link) {
       if (link[1]) result.push(<React.Fragment key={`${keyPrefix}-t${k++}`}>{link[1]}</React.Fragment>)
       const url = link[3]
-      const isVideo = /\.(mp4|webm|mov|m4v)([\?#]|$)/i.test(url)
+      // Detect video by path segment before query string
+      const pathPart = url.split('?')[0].split('#')[0]
+      const isVideo = /\.(mp4|webm|mov|m4v)$/i.test(pathPart)
       if (isVideo) {
         result.push(
           <video key={`${keyPrefix}-v${k++}`} src={url} controls playsInline
@@ -35,9 +38,9 @@ function parseInline(text: string, keyPrefix: string): React.ReactNode[] {
       remaining = remaining.slice(link[0].length)
       continue
     }
-    // Italic *text*
-    const italic = remaining.match(/^([\s\S]*?)\*([^*\n]+)\*/)
-    if (italic) {
+    // Italic *text* — only single asterisks, not touching bold
+    const italic = remaining.match(/^([\s\S]*?)\*([^*]+)\*/)
+    if (italic && italic[2].trim()) {
       if (italic[1]) result.push(<React.Fragment key={`${keyPrefix}-t${k++}`}>{italic[1]}</React.Fragment>)
       result.push(<em key={`${keyPrefix}-i${k++}`}>{italic[2]}</em>)
       remaining = remaining.slice(italic[0].length)
@@ -67,7 +70,7 @@ function SimpleMarkdown({ content }: { content: string }) {
         items.push(lines[i].replace(/^[-•]\s/, ''))
         i++
       }
-      nodes.push(<ul key={i} className="list-disc pl-4 my-1 space-y-0.5">{items.map((it, j) => <li key={j}>{parseInline(it, `ul-${i}-${j}`)}</li>)}</ul>)
+      nodes.push(<ul key={`ul-${i}`} className="list-disc pl-4 my-1 space-y-0.5">{items.map((it, j) => <li key={`ul-${i}-${j}-${it.slice(0,8)}`}>{parseInline(it, `ul-${i}-${j}`)}</li>)}</ul>)
       continue
     }
     // Numbered list
@@ -77,7 +80,7 @@ function SimpleMarkdown({ content }: { content: string }) {
         items.push(lines[i].replace(/^\d+\.\s/, ''))
         i++
       }
-      nodes.push(<ol key={i} className="list-decimal pl-4 my-1 space-y-0.5">{items.map((it, j) => <li key={j}>{parseInline(it, `ol-${i}-${j}`)}</li>)}</ol>)
+      nodes.push(<ol key={`ol-${i}`} className="list-decimal pl-4 my-1 space-y-0.5">{items.map((it, j) => <li key={`ol-${i}-${j}-${it.slice(0,8)}`}>{parseInline(it, `ol-${i}-${j}`)}</li>)}</ol>)
       continue
     }
     // Empty line
