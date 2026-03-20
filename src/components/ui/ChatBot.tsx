@@ -987,7 +987,9 @@ export default function ChatBot({
                                         </span>
                                       )}
                                       {item.stepText && (
-                                        <span className="text-[12px] text-gray-700 leading-snug">{item.stepText}</span>
+                                        <span className="text-[12px] text-gray-700 leading-snug">
+                                          <SimpleMarkdown content={item.stepText} />
+                                        </span>
                                       )}
                                     </div>
                                   )}
