@@ -1,7 +1,85 @@
 'use client'
 
 import React, { useState, useEffect, useRef, useMemo } from 'react'
-import ReactMarkdown from 'react-markdown'
+
+// Simple markdown renderer — replaces react-markdown to avoid Safari/v10 ESM issues
+function parseInline(text: string, keyPrefix: string): React.ReactNode[] {
+  const result: React.ReactNode[] = []
+  let remaining = text
+  let k = 0
+  while (remaining.length > 0) {
+    // Bold **text**
+    const bold = remaining.match(/^([\s\S]*?)\*\*([^*\n]+)\*\*/)
+    if (bold) {
+      if (bold[1]) result.push(<React.Fragment key={`${keyPrefix}-t${k++}`}>{bold[1]}</React.Fragment>)
+      result.push(<strong key={`${keyPrefix}-b${k++}`} className="font-bold text-gray-900">{bold[2]}</strong>)
+      remaining = remaining.slice(bold[0].length)
+      continue
+    }
+    // Link [text](url)
+    const link = remaining.match(/^([\s\S]*?)\[([^\]]+)\]\(([^)]+)\)/)
+    if (link) {
+      if (link[1]) result.push(<React.Fragment key={`${keyPrefix}-t${k++}`}>{link[1]}</React.Fragment>)
+      result.push(<a key={`${keyPrefix}-l${k++}`} href={link[3]} target="_blank" rel="noopener noreferrer" className="text-indigo-500 underline break-all">{link[2]}</a>)
+      remaining = remaining.slice(link[0].length)
+      continue
+    }
+    // Italic *text*
+    const italic = remaining.match(/^([\s\S]*?)\*([^*\n]+)\*/)
+    if (italic) {
+      if (italic[1]) result.push(<React.Fragment key={`${keyPrefix}-t${k++}`}>{italic[1]}</React.Fragment>)
+      result.push(<em key={`${keyPrefix}-i${k++}`}>{italic[2]}</em>)
+      remaining = remaining.slice(italic[0].length)
+      continue
+    }
+    result.push(<React.Fragment key={`${keyPrefix}-t${k++}`}>{remaining}</React.Fragment>)
+    break
+  }
+  return result
+}
+
+function SimpleMarkdown({ content }: { content: string }) {
+  const lines = content.split('\n')
+  const nodes: React.ReactNode[] = []
+  let i = 0
+  while (i < lines.length) {
+    const line = lines[i]
+    // HR
+    if (/^[-*_]{3,}$/.test(line.trim())) {
+      nodes.push(<hr key={i} className="border-gray-200 my-1" />)
+      i++; continue
+    }
+    // Bullet list
+    if (/^[-•]\s/.test(line)) {
+      const items: string[] = []
+      while (i < lines.length && /^[-•]\s/.test(lines[i])) {
+        items.push(lines[i].replace(/^[-•]\s/, ''))
+        i++
+      }
+      nodes.push(<ul key={i} className="list-disc pl-4 my-1 space-y-0.5">{items.map((it, j) => <li key={j}>{parseInline(it, `ul-${i}-${j}`)}</li>)}</ul>)
+      continue
+    }
+    // Numbered list
+    if (/^\d+\.\s/.test(line)) {
+      const items: string[] = []
+      while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
+        items.push(lines[i].replace(/^\d+\.\s/, ''))
+        i++
+      }
+      nodes.push(<ol key={i} className="list-decimal pl-4 my-1 space-y-0.5">{items.map((it, j) => <li key={j}>{parseInline(it, `ol-${i}-${j}`)}</li>)}</ol>)
+      continue
+    }
+    // Empty line
+    if (line.trim() === '') {
+      if (nodes.length > 0) nodes.push(<div key={`br-${i}`} className="h-1" />)
+      i++; continue
+    }
+    // Normal paragraph
+    nodes.push(<p key={i} className="mb-0.5">{parseInline(line, `p-${i}`)}</p>)
+    i++
+  }
+  return <>{nodes}</>
+}
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   MessageCircle,
@@ -294,7 +372,7 @@ export default function ChatBot({
         body: safeStringify({ event, data })
       })
     } catch (error) {
-      console.error('Error tracking event:', error)
+      // tracking error suppressed
     }
   }
 
@@ -625,8 +703,6 @@ export default function ChatBot({
       }
 
     } catch (error: any) {
-      console.error('[ChatBot] error on message:', error?.name, error?.message, error)
-
       // Remote logging for mobile debugging (no DevTools)
       try {
         fetch('/api/chatbot/error-log', {
@@ -880,28 +956,8 @@ export default function ChatBot({
                                 <span className="text-gray-400 text-[12px]">{message.content}</span>
                               </div>
                             ) : (
-                              <div className="chatbot-markdown">
-                                <ReactMarkdown
-                                  components={{
-                                    p: ({ children }) => <p>{children}</p>,
-                                    strong: ({ children }) => <strong>{children}</strong>,
-                                    b: ({ children }) => <b>{children}</b>,
-                                    a: ({ href, children }) => (
-                                      <a href={href} target="_blank" rel="noopener noreferrer">
-                                        {children}
-                                      </a>
-                                    ),
-                                    ul: ({ children }) => <ul>{children}</ul>,
-                                    ol: ({ children }) => <ol>{children}</ol>,
-                                    li: ({ children }) => <li>{children}</li>,
-                                    img: ({ src, alt }) => (
-                                      <img src={src} alt={alt || ''} loading="lazy" className="rounded-lg max-h-40 w-full object-cover my-1" />
-                                    ),
-                                    hr: () => <hr />,
-                                  }}
-                                >
-                                  {typeof message.content === 'string' ? message.content : ''}
-                                </ReactMarkdown>
+                              <div className="chatbot-markdown text-[13px] leading-relaxed">
+                                <SimpleMarkdown content={typeof message.content === 'string' ? message.content : ''} />
                               </div>
                             )}
                           </div>

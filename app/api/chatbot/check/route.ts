@@ -4,7 +4,7 @@ import { getAuthUser } from '../../../../src/lib/auth'
 
 // Chatbot deshabilitado temporalmente mientras se corrigen errores.
 // Solo visible para el admin (alejandrosatlla@gmail.com).
-const CHATBOT_ADMIN_ONLY = true
+const CHATBOT_ADMIN_ONLY = false
 const CHATBOT_ADMIN_EMAIL = 'alejandrosatlla@gmail.com'
 
 export async function POST(request: NextRequest) {

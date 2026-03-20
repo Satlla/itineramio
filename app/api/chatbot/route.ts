@@ -243,7 +243,7 @@ export async function POST(request: NextRequest) {
           //   });
           // }
         } catch (e) {
-          console.error('[ChatBot] Error saving unanswered question:', e);
+          // ignore unanswered question save errors
         }
       }
     };
@@ -288,7 +288,6 @@ export async function POST(request: NextRequest) {
         });
         } catch (mobileError) {
           // OpenAI failed on mobile — return a graceful fallback instead of 500
-          console.error('[ChatBot] Mobile OpenAI error:', mobileError);
           const zone = zones[0] || null;
           const fallback = generateFallbackResponse(message, property, zone, language);
           return NextResponse.json({ response: fallback });
@@ -404,7 +403,6 @@ export async function POST(request: NextRequest) {
       });
 
     } catch (openaiError) {
-      console.error('OpenAI API error:', openaiError);
       const zone = zones[0] || null;
       const response = generateFallbackResponse(message, property, zone, language);
       const media = collectRelevantMedia(zones, language);
@@ -418,7 +416,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     const msg = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
-    console.error('Chatbot API error:', msg);
     return NextResponse.json({
       error: msg
     }, { status: 500 });
@@ -695,7 +692,6 @@ async function saveConversation(params: {
     }
   } catch (error) {
     // Non-blocking — don't fail the chatbot response
-    console.error('[ChatBot] Error saving conversation:', error);
   }
 }
 
@@ -773,8 +769,8 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
 
   scored.sort((a, b) => b.score - a.score);
 
-  // Return top 6 zones — enough context, not overwhelming
-  return scored.slice(0, 6).map(s => s.zone);
+  // Return top 3 zones — focused context reduces zone-mixing in AI responses
+  return scored.slice(0, 3).map(s => s.zone);
 }
 
 // ========================================
@@ -1284,7 +1280,7 @@ CRITICAL RULES:
 3. MEDIA: For every step you describe that has a 📷 or 📹, you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Ver vídeo](url). Include ALL images and videos from every step you mention — never skip them.
 4. VIDEO STEPS: If a zone or step only has a video (📹) and no text, ALWAYS share the video link and say it explains everything visually. Example: "Aquí tienes el vídeo explicativo: [🎬 Ver vídeo](url)"
 5. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any category, list ALL places from that zone. Show name, rating (★), distance, and walk time for each. If the guest asks for places "cerca", "near", "close" or mentions walking distance, prioritize places with low distanceMeters/walkMinutes and only list those within ~1.5km (18 min walk).
-6. SEARCH ALL ZONES: Look through ALL zones to find the most relevant information for each question.
+6. STAY FOCUSED: Answer ONLY what was asked, using the most relevant zone. DO NOT add information from other unrelated zones. If the question is about checkout, answer only about checkout — never add kitchen, lights, or other zone info unless the guest explicitly asks about it.
 7. STYLE: Be friendly and direct like a WhatsApp chat. Use **bold** for key info. Use bullet lists with -. Max 3 short paragraphs. Use emojis sparingly (📍🏠✅☕🍽️).
 8. HONESTY: If the info isn't in your knowledge base, say so and suggest contacting the host.
 9. NEVER invent information not present in the knowledge base above.`;
