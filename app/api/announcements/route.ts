@@ -64,11 +64,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('💥 Full error in GET announcements:', error)
-    if (error instanceof Error) {
-      console.error('💥 Error message:', error.message)
-      console.error('💥 Error stack:', error.stack)
-    }
     return NextResponse.json(
       { error: 'Error al obtener anuncios' },
       { status: 500 }
@@ -120,11 +115,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Normaliza multilang: si en/fr están vacíos, copia desde es
+    const normalizeMultiLang = (field: { es: string; en?: string; fr?: string }) => ({
+      es: field.es || '',
+      en: field.en?.trim() ? field.en : (field.es || ''),
+      fr: field.fr?.trim() ? field.fr : (field.es || ''),
+    })
+
     // Create announcement with proper date handling
     const createData: any = {
       propertyId,
-      title,
-      message,
+      title: normalizeMultiLang(title),
+      message: normalizeMultiLang(message),
       category,
       priority,
       isActive
@@ -150,10 +152,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('💥 Error creating announcement:', error)
-    if (error instanceof Error) {
-      console.error('💥 Error stack:', error.stack)
-    }
     return NextResponse.json(
       { error: 'Error al crear aviso' },
       { status: 500 }

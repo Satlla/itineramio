@@ -44,11 +44,18 @@ export async function PUT(
       )
     }
 
+    // Normaliza multilang: si en/fr están vacíos, copia desde es
+    const normalizeMultiLang = (field: { es: string; en?: string; fr?: string }) => ({
+      es: field.es || '',
+      en: field.en?.trim() ? field.en : (field.es || ''),
+      fr: field.fr?.trim() ? field.fr : (field.es || ''),
+    })
+
     // Build update data object
     const updateData: any = {}
-    
-    if (title !== undefined) updateData.title = title
-    if (message !== undefined) updateData.message = message
+
+    if (title !== undefined) updateData.title = normalizeMultiLang(title)
+    if (message !== undefined) updateData.message = normalizeMultiLang(message)
     if (category !== undefined) updateData.category = category
     if (priority !== undefined) updateData.priority = priority
     if (isActive !== undefined) updateData.isActive = isActive
@@ -74,7 +81,6 @@ export async function PUT(
     })
 
   } catch (error) {
-    console.error('Error updating announcement:', error)
     return NextResponse.json(
       { error: 'Error al actualizar aviso' },
       { status: 500 }
@@ -125,7 +131,6 @@ export async function DELETE(
     })
 
   } catch (error) {
-    console.error('Error deleting announcement:', error)
     return NextResponse.json(
       { error: 'Error al eliminar aviso' },
       { status: 500 }
