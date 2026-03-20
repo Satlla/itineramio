@@ -16,11 +16,22 @@ function parseInline(text: string, keyPrefix: string): React.ReactNode[] {
       remaining = remaining.slice(bold[0].length)
       continue
     }
-    // Link [text](url)
+    // Link [text](url) — video URLs render as inline <video>, others as <a>
     const link = remaining.match(/^([\s\S]*?)\[([^\]]+)\]\(([^)]+)\)/)
     if (link) {
       if (link[1]) result.push(<React.Fragment key={`${keyPrefix}-t${k++}`}>{link[1]}</React.Fragment>)
-      result.push(<a key={`${keyPrefix}-l${k++}`} href={link[3]} target="_blank" rel="noopener noreferrer" className="text-indigo-500 underline break-all">{link[2]}</a>)
+      const url = link[3]
+      const isVideo = /\.(mp4|webm|mov|m4v)([\?#]|$)/i.test(url)
+      if (isVideo) {
+        result.push(
+          <video key={`${keyPrefix}-v${k++}`} src={url} controls playsInline
+            className="rounded-lg w-full max-h-48 mt-1 mb-1 bg-black"
+            style={{ display: 'block' }}
+          />
+        )
+      } else {
+        result.push(<a key={`${keyPrefix}-l${k++}`} href={url} target="_blank" rel="noopener noreferrer" className="text-indigo-500 underline break-all">{link[2]}</a>)
+      }
       remaining = remaining.slice(link[0].length)
       continue
     }
