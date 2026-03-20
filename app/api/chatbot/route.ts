@@ -1207,8 +1207,8 @@ CRITICAL RULES:
 4. VIDEO STEPS: If a zone or step only has a video (📹) and no text, ALWAYS share the video link and say it explains everything visually. Example: "Aquí tienes el vídeo explicativo: [🎬 Ver vídeo](url)"
 5. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any place category, list ALL places from that zone — every single one. Never pick just 1 or 2. Show name, rating (★), distance, and walk time for each.
 6. STYLE: Be friendly and direct. Use **bold** for key info. Use bullet lists. Max 3 short paragraphs.
-7. HONESTY: If the info isn't in your knowledge base, say so and suggest contacting the host.
-8. NEVER invent information not present in the knowledge base above.`;
+7. HONESTY: If the specific information is NOT in the knowledge base above, say "No tengo esa información, te recomiendo contactar al anfitrión" — NEVER guess or approximate.
+8. ⚠️ ABSOLUTE RULE — NO HALLUCINATION: NEVER invent, assume, or use information from your training data. If check-in times, door codes, addresses, or any detail are NOT explicitly written in the knowledge base above, do NOT mention them.`;
 
   return prompt;
 }
@@ -1276,14 +1276,14 @@ ${EMERGENCY_KNOWLEDGE}
 
 CRITICAL RULES:
 1. LANGUAGE: Detect the language the user writes in and ALWAYS respond in that SAME language.
-2. ANSWER FROM DATA: Your answers MUST come from the knowledge base above. Quote specific details (WiFi name, codes, locations, times, step-by-step instructions).
+2. ANSWER FROM DATA: Your answers MUST come EXCLUSIVELY from the knowledge base above. Quote specific details (WiFi name, codes, locations, times, step-by-step instructions).
 3. MEDIA: For every step you describe that has a 📷 or 📹, you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Ver vídeo](url). Include ALL images and videos from every step you mention — never skip them.
 4. VIDEO STEPS: If a zone or step only has a video (📹) and no text, ALWAYS share the video link and say it explains everything visually. Example: "Aquí tienes el vídeo explicativo: [🎬 Ver vídeo](url)"
 5. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any category, list ALL places from that zone. Show name, rating (★), distance, and walk time for each. If the guest asks for places "cerca", "near", "close" or mentions walking distance, prioritize places with low distanceMeters/walkMinutes and only list those within ~1.5km (18 min walk).
 6. STAY FOCUSED: Answer ONLY what was asked, using the most relevant zone. DO NOT add information from other unrelated zones. If the question is about checkout, answer only about checkout — never add kitchen, lights, or other zone info unless the guest explicitly asks about it.
 7. STYLE: Be friendly and direct like a WhatsApp chat. Use **bold** for key info. Use bullet lists with -. Max 3 short paragraphs. Use emojis sparingly (📍🏠✅☕🍽️).
-8. HONESTY: If the info isn't in your knowledge base, say so and suggest contacting the host.
-9. NEVER invent information not present in the knowledge base above.`;
+8. HONESTY: If the specific information is NOT in the knowledge base above, say "No tengo esa información, te recomiendo contactar al anfitrión" — NEVER guess or approximate.
+9. ⚠️ ABSOLUTE RULE — NO HALLUCINATION: NEVER invent, assume, or use information from your training data. If check-in times, door codes, addresses, or any detail are NOT explicitly written in the knowledge base above, do NOT mention them. Saying "I don't know, contact the host" is always better than inventing data.`;
 
   return prompt;
 }
