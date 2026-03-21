@@ -1,6 +1,11 @@
 export function validateEnvironmentVariables() {
   const isProduction = process.env.NODE_ENV === 'production'
 
+  // Skip during Next.js build phase — env vars are only available at runtime
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
+    return
+  }
+
   // Always validate in production, optional in development
   if (!isProduction && !process.env.VALIDATE_ENV) {
     return
