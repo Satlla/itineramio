@@ -34,7 +34,6 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error fetching academia leads:', error)
     return NextResponse.json(
       { error: 'Error al obtener los leads' },
       { status: 500 }
@@ -83,7 +82,6 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting lead:', error)
     return NextResponse.json(
       { error: 'Error al eliminar el lead' },
       { status: 500 }

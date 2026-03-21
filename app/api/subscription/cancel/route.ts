@@ -66,8 +66,7 @@ export async function POST(request: NextRequest) {
             }
           })
         }
-      } catch (stripeError) {
-        console.error('Error canceling Stripe subscription:', stripeError)
+      } catch {
         // Continuamos con la cancelación local aunque falle Stripe
         // El usuario puede contactar soporte si hay problemas
       }
@@ -107,7 +106,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error cancelando suscripción:', error)
     return NextResponse.json(
       { error: 'Error al cancelar suscripción' },
       { status: 500 }

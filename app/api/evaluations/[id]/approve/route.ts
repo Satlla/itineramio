@@ -61,7 +61,6 @@ export async function PATCH(
     })
 
   } catch (error) {
-    console.error('Error approving evaluation:', error)
     return NextResponse.json(
       { error: 'Error al aprobar la evaluación' },
       { status: 500 }

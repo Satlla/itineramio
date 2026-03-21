@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     // Guardar como "UserQuestion" con tipo especial para casos de éxito
     // En el futuro podemos crear un modelo específico "SuccessStory"
-    const story = await prisma.question.create({
+    const story = await (prisma.question as any).create({
       data: {
         question: storyTitle,
         aiResponse: JSON.stringify({
@@ -71,7 +71,6 @@ export async function POST(request: NextRequest) {
     }, { status: 201 })
 
   } catch (error) {
-    console.error('Error al guardar historia:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al guardar historia'

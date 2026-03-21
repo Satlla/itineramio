@@ -46,7 +46,6 @@ export class ICalParser {
       const events = this.extractEvents(icalContent)
       return events.map(event => this.parseEvent(event, source)).filter(Boolean) as ParsedReservation[]
     } catch (error) {
-      console.error('Error parsing iCal content:', error)
       return []
     }
   }
@@ -69,7 +68,6 @@ export class ICalParser {
       const icalContent = await response.text()
       return this.parseICalString(icalContent, source)
     } catch (error) {
-      console.error(`Error fetching iCal from ${url}:`, error)
       throw error
     }
   }
@@ -195,7 +193,6 @@ export class ICalParser {
         rawICalData: event
       }
     } catch (error) {
-      console.error('Error parsing event:', error)
       return null
     }
   }
@@ -229,7 +226,6 @@ export class ICalParser {
       
       return null
     } catch (error) {
-      console.error('Error parsing iCal date:', dateString, error)
       return null
     }
   }

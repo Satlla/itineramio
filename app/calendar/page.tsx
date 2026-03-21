@@ -79,7 +79,6 @@ export default function CalendarPage() {
         window.location.href = '/login'
       }
     } catch (error) {
-      console.error('Error checking auth:', error)
       window.location.href = '/login'
     }
   }
@@ -107,11 +106,9 @@ export default function CalendarPage() {
         const allProperties = data.propertyGroups.flatMap((group: any) => group.properties)
         setProperties(allProperties)
       } else {
-        console.error('Calendar API error:', data.error)
         setProperties([])
       }
     } catch (error) {
-      console.error('Error fetching calendar data:', error)
       setProperties([])
     } finally {
       setLoading(false)
@@ -165,7 +162,6 @@ export default function CalendarPage() {
       }
       
     } catch (error) {
-      console.error('Error syncing calendars:', error)
       alert('❌ Error durante la sincronización')
     } finally {
       setLoading(false)

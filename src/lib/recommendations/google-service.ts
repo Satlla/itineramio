@@ -85,19 +85,16 @@ export async function searchGoogle(
   try {
     const response = await fetch(url)
     if (!response.ok) {
-      console.error(`[google] Nearby search failed for ${category.id}:`, response.status)
       return []
     }
 
     const data = await response.json()
     if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-      console.error(`[google] API error for ${category.id}:`, data.status, data.error_message)
       return []
     }
 
     return parseGoogleResults(data.results || [], lat, lng, category.maxResults)
   } catch (error) {
-    console.error(`[google] Error fetching ${category.id}:`, error)
     return []
   }
 }
@@ -113,13 +110,10 @@ async function searchAICurated(
   city: string
 ): Promise<GooglePlace[]> {
   if (!ANTHROPIC_API_KEY) {
-    console.log(`[google] No ANTHROPIC_API_KEY — falling back to text search for ${category.id}`)
     return searchGoogleText(category.label, lat, lng, category)
   }
 
   const prompt = (category.aiPrompt || '').replace(/\{city\}/g, city)
-
-  console.log(`[google] AI-curated search for ${category.id} in ${city}`)
 
   try {
     // Step 1: Ask Claude for the best places
@@ -141,7 +135,6 @@ async function searchAICurated(
     })
 
     if (!response.ok) {
-      console.error(`[google] Claude API failed for ${category.id}:`, response.status)
       return searchGoogleText(category.label, lat, lng, category)
     }
 
@@ -151,12 +144,10 @@ async function searchAICurated(
     // Extract JSON array from response
     const jsonMatch = text.match(/\[[\s\S]*\]/)
     if (!jsonMatch) {
-      console.error(`[google] Could not parse Claude response for ${category.id}:`, text)
       return searchGoogleText(category.label, lat, lng, category)
     }
 
     const placeNames: string[] = JSON.parse(jsonMatch[0])
-    console.log(`[google] Claude suggested ${placeNames.length} places for ${category.id}:`, placeNames)
 
     // Step 2: For each name, use Google Find Place to get real data
     const places: GooglePlace[] = []
@@ -170,7 +161,7 @@ async function searchAICurated(
         if (place.rating && place.rating < 3.5) continue
         places.push(place)
       } catch (err) {
-        console.error(`[google] Find place failed for "${name}":`, err)
+        // findPlaceByName failed for this name, skip
       }
     }
 
@@ -185,10 +176,8 @@ async function searchAICurated(
     // Trim to maxResults after filtering
     const trimmed = places.slice(0, category.maxResults)
 
-    console.log(`[google] AI-curated found ${trimmed.length}/${placeNames.length} places for ${category.id} (${places.length - trimmed.length} filtered)`)
     return trimmed
   } catch (err) {
-    console.error(`[google] AI-curated search failed for ${category.id}:`, err)
     return searchGoogleText(category.label, lat, lng, category)
   }
 }
@@ -253,19 +242,16 @@ async function searchGoogleText(
   try {
     const response = await fetch(url)
     if (!response.ok) {
-      console.error(`[google] Text search failed for ${category.id}:`, response.status)
       return []
     }
 
     const data = await response.json()
     if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-      console.error(`[google] Text search API error for ${category.id}:`, data.status, data.error_message)
       return []
     }
 
     return parseGoogleResults(data.results || [], lat, lng, category.maxResults)
   } catch (error) {
-    console.error(`[google] Text search error for ${category.id}:`, error)
     return []
   }
 }

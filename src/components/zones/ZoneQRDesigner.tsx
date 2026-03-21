@@ -98,7 +98,7 @@ export default function ZoneQRDesigner({
         })
         setQrDataUrl(dataUrl)
       } catch (err) {
-        console.error('Error generating QR:', err)
+        // Ignore QR generation errors
       }
     }
     generateQR()
@@ -138,7 +138,7 @@ export default function ZoneQRDesigner({
       link.href = canvas.toDataURL('image/png')
       link.click()
     } catch (err) {
-      console.error('Error generating design:', err)
+      // Ignore design generation errors
     } finally {
       setIsGenerating(false)
     }

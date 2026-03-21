@@ -74,7 +74,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ exists: false })
 
   } catch (error) {
-    console.error('Error checking duplicate:', error)
     return NextResponse.json({ error: 'Error verificando archivo' }, { status: 500 })
   }
 }

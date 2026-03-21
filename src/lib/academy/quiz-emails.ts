@@ -125,13 +125,11 @@ export async function sendVerificationEmail(data: VerificationEmailData) {
     })
 
     if (error) {
-      console.error('Error sending verification email:', error)
       return { success: false, error }
     }
 
     return { success: true, data: emailData }
   } catch (error) {
-    console.error('Failed to send verification email:', error)
     return { success: false, error }
   }
 }
@@ -307,13 +305,11 @@ export async function sendQuizResultsEmail(data: QuizResultsEmailData) {
     })
 
     if (error) {
-      console.error('Error sending quiz results email:', error)
       return { success: false, error }
     }
 
     return { success: true, data: emailData }
   } catch (error) {
-    console.error('Failed to send quiz results email:', error)
     return { success: false, error }
   }
 }

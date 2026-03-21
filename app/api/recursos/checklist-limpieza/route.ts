@@ -33,8 +33,8 @@ export async function POST(request: NextRequest) {
           metadata: { propertyName, propertyAddress, style, sectionsCount: sections.length }
         }
       })
-    } catch (dbError) {
-      console.error('Error saving lead:', dbError)
+    } catch {
+      // Ignore lead save errors
     }
 
     // Create or update EmailSubscriber for tool-specific nurturing sequence
@@ -71,8 +71,8 @@ export async function POST(request: NextRequest) {
         tags: toolTags
       })
 
-    } catch (subscriberError) {
-      console.error('Error creating subscriber:', subscriberError)
+    } catch {
+      // Ignore subscriber creation errors
     }
 
     // Generate sections HTML for email (estilo limpio como reviews)
@@ -114,8 +114,7 @@ export async function POST(request: NextRequest) {
         sections: sections as ChecklistSection[],
         userName: name
       })
-    } catch (pdfError) {
-      console.error('Error generating PDF:', pdfError)
+    } catch {
       // Continue without PDF if generation fails
     }
 
@@ -272,7 +271,6 @@ export async function POST(request: NextRequest) {
 
 
     if (emailResult.error) {
-      console.error('Resend error:', emailResult.error)
       return NextResponse.json({
         success: false,
         error: emailResult.error.message || 'Error enviando email'
@@ -281,7 +279,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, emailId: emailResult.data?.id })
   } catch (error) {
-    console.error('Error generating checklist:', error)
     return NextResponse.json(
       { error: 'Error al generar el checklist' },
       { status: 500 }

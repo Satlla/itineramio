@@ -1275,5 +1275,130 @@ export const ZONE_ICONS: ZoneIcon[] = [
     icon: AccessCard,
     category: { id: 'access', name: 'Acceso y seguridad', color: 'bg-red-100 text-red-800 border-red-200' },
     color: 'text-red-600'
+  },
+
+  // =================== CHECK-IN / ACCESO DIGITAL ===================
+  {
+    id: 'checkin-online',
+    name: 'Check-in Online',
+    icon: Monitor,
+    category: { id: 'access', name: 'Acceso y seguridad', color: 'bg-red-100 text-red-800 border-red-200' },
+    color: 'text-red-600'
+  },
+  {
+    id: 'checkin-qr',
+    name: 'Check-in QR',
+    icon: QrCode,
+    category: { id: 'access', name: 'Acceso y seguridad', color: 'bg-red-100 text-red-800 border-red-200' },
+    color: 'text-red-600'
+  },
+  {
+    id: 'checkin-digital',
+    name: 'Acceso Digital',
+    icon: Fingerprint,
+    category: { id: 'access', name: 'Acceso y seguridad', color: 'bg-red-100 text-red-800 border-red-200' },
+    color: 'text-red-600'
+  },
+  {
+    id: 'checkin-app',
+    name: 'App Check-in',
+    icon: Smartphone,
+    category: { id: 'access', name: 'Acceso y seguridad', color: 'bg-red-100 text-red-800 border-red-200' },
+    color: 'text-red-600'
+  },
+  {
+    id: 'checkin-tablet',
+    name: 'Tablet Check-in',
+    icon: Tablet,
+    category: { id: 'access', name: 'Acceso y seguridad', color: 'bg-red-100 text-red-800 border-red-200' },
+    color: 'text-red-600'
+  },
+
+  // =================== COCINA COMPLETA ===================
+  {
+    id: 'vitroceramica',
+    name: 'Vitrocerámica',
+    icon: Flame,
+    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    color: 'text-orange-600'
+  },
+  {
+    id: 'horno',
+    name: 'Horno',
+    icon: Oven,
+    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    color: 'text-orange-600'
+  },
+  {
+    id: 'lavavajillas',
+    name: 'Lavavajillas',
+    icon: Dishwasher,
+    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    color: 'text-orange-600'
+  },
+  {
+    id: 'congelador',
+    name: 'Congelador',
+    icon: Freezer,
+    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    color: 'text-orange-600'
+  },
+
+  // =================== SERVICIOS EXTRA ===================
+  {
+    id: 'ascensor',
+    name: 'Ascensor',
+    icon: Elevator,
+    category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+    color: 'text-yellow-600'
+  },
+  {
+    id: 'escaleras',
+    name: 'Escaleras',
+    icon: Stairs,
+    category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+    color: 'text-yellow-600'
+  },
+  {
+    id: 'balcony',
+    name: 'Balcón',
+    icon: Balcony,
+    category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' },
+    color: 'text-green-600'
+  },
+  {
+    id: 'window',
+    name: 'Ventanas',
+    icon: Window,
+    category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+    color: 'text-yellow-600'
+  },
+  {
+    id: 'portero',
+    name: 'Portero / Intercomuni.',
+    icon: Speaker,
+    category: { id: 'access', name: 'Acceso y seguridad', color: 'bg-red-100 text-red-800 border-red-200' },
+    color: 'text-red-600'
+  },
+  {
+    id: 'hotel',
+    name: 'Hotel',
+    icon: Hotel,
+    category: { id: 'general', name: 'Información general', color: 'bg-gray-100 text-gray-800 border-gray-200' },
+    color: 'text-gray-600'
+  },
+  {
+    id: 'beach-umbrella',
+    name: 'Sombrilla playa',
+    icon: Beach,
+    category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' },
+    color: 'text-green-600'
+  },
+  {
+    id: 'snowflake',
+    name: 'Congelación / Frío',
+    icon: Snowflake,
+    category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+    color: 'text-yellow-600'
   }
 ]

@@ -54,7 +54,7 @@ export function ZoneInspirationManager({
           localStorage.setItem(`inspiration_state_${userId}`, JSON.stringify(serverState.data))
         }
       } catch (error) {
-        console.error('Error loading user inspiration state:', error)
+        // load error suppressed
       }
     }
 
@@ -99,7 +99,7 @@ export function ZoneInspirationManager({
         body: JSON.stringify(newState)
       })
     } catch (error) {
-      console.error('Error saving user inspiration state:', error)
+      // save error suppressed
     }
   }
 
@@ -147,10 +147,9 @@ export function ZoneInspirationManager({
     }
   }
 
-  const handleViewExamples = (inspiration: InspirationZone) => {
+  const handleViewExamples = (_inspiration: InspirationZone) => {
     // Open modal with detailed examples and tips
     // This could be implemented as a separate modal component
-    console.log('View examples for:', inspiration?.name)
   }
 
   // Don't render if user has disabled inspirations or doesn't have essential zones

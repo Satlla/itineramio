@@ -99,7 +99,6 @@ export async function GET() {
 
     return NextResponse.json({ slots })
   } catch (error) {
-    console.error('Error fetching available slots:', error)
     return NextResponse.json({ error: 'Error fetching slots' }, { status: 500 })
   }
 }

@@ -14,7 +14,6 @@ export async function POST(request: NextRequest) {
       message: 'Sesión limpiada correctamente'
     })
   } catch (error) {
-    console.error('❌ Error clearing session:', error)
     return NextResponse.json(
       { error: 'Error limpiando sesión' },
       { status: 500 }

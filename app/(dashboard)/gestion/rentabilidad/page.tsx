@@ -101,7 +101,6 @@ export default function RentabilidadPage() {
         setProfitability(data)
       }
     } catch (error) {
-      console.error('Error fetching dashboard data:', error)
     } finally {
       setLoading(false)
     }
@@ -127,7 +126,6 @@ export default function RentabilidadPage() {
         document.body.removeChild(a)
       }
     } catch (error) {
-      console.error('Error exporting CSV:', error)
     } finally {
       setExporting(false)
     }

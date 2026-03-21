@@ -54,8 +54,8 @@ async function fetchNotificationsGlobal(force = false) {
       globalHasFetched = true
       globalLastFetchedAt = Date.now()
     }
-  } catch (error) {
-    console.error('Error fetching notifications:', error)
+  } catch {
+    // silent
   } finally {
     globalLoading = false
     globalIsFetching = false
@@ -165,8 +165,8 @@ export function useRealNotifications() {
         )
         notifyListeners()
       }
-    } catch (error) {
-      console.error('Error marking notifications as read:', error)
+    } catch {
+      // silent
     }
   }, [])
 
@@ -182,8 +182,8 @@ export function useRealNotifications() {
         globalNotifications = globalNotifications.map(n => ({ ...n, read: true }))
         notifyListeners()
       }
-    } catch (error) {
-      console.error('Error marking all notifications as read:', error)
+    } catch {
+      // silent
     }
   }, [])
 

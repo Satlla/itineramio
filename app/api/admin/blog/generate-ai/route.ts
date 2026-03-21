@@ -37,7 +37,6 @@ export async function POST(req: NextRequest) {
       content: generatedContent
     })
   } catch (error) {
-    console.error('Error generating AI content:', error)
     return NextResponse.json(
       { error: 'Error al generar contenido' },
       { status: 500 }
@@ -101,8 +100,8 @@ El contenido debe ser específico para el mercado español (Airbnb, Booking, reg
           tags: parsed.tags || tags,
         }
       }
-    } catch (err) {
-      console.error('[blog generate-ai] Claude error, using fallback:', err)
+    } catch {
+      // Claude error, using fallback
     }
   }
 

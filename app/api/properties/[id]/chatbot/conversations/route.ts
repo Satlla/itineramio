@@ -164,7 +164,6 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error fetching chatbot conversations:', error)
     return NextResponse.json(
       { error: 'Error al obtener las conversaciones' },
       { status: 500 }
@@ -218,7 +217,6 @@ export async function DELETE(
     })
 
   } catch (error) {
-    console.error('Error deleting chatbot conversations:', error)
     return NextResponse.json(
       { error: 'Error al eliminar las conversaciones' },
       { status: 500 }

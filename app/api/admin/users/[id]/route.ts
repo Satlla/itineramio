@@ -156,7 +156,6 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error fetching user profile:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -152,7 +152,6 @@ export async function GET(
       }
     })
   } catch (error) {
-    console.error('Error fetching invoice:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -341,7 +340,7 @@ export async function PUT(
           }
         }
       })
-    })
+    }, { timeout: 10000 })
 
     return NextResponse.json({
       invoice: {
@@ -368,7 +367,6 @@ export async function PUT(
       }
     })
   } catch (error) {
-    console.error('Error updating invoice:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -422,7 +420,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting invoice:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

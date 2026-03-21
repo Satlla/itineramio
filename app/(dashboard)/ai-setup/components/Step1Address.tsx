@@ -338,11 +338,11 @@ export default function Step1Address({ data, onChange, onNext, uploadEndpoint, o
               <motion.div
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-start gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20"
+                className="flex items-start gap-2 p-3 rounded-lg bg-emerald-50 border border-emerald-200"
               >
-                <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm text-emerald-300 font-medium">
+                  <p className="text-sm text-emerald-800 font-medium">
                     {t('step1.airbnbImport.success', { defaultValue: 'Datos importados correctamente' })}
                   </p>
                   <p className="text-xs text-gray-500 mt-0.5">
@@ -357,10 +357,10 @@ export default function Step1Address({ data, onChange, onNext, uploadEndpoint, o
               <motion.div
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20"
+                className="flex items-start gap-2 p-3 rounded-lg bg-red-50 border border-red-200"
               >
-                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-300">{airbnbImport.error}</p>
+                <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-700">{airbnbImport.error}</p>
               </motion.div>
             )}
           </div>

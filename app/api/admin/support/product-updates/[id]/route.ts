@@ -73,7 +73,6 @@ export async function PUT(
 
     return NextResponse.json({ update })
   } catch (error) {
-    console.error('Error updating product update:', error)
     return NextResponse.json(
       { error: 'Error al actualizar' },
       { status: 500 }
@@ -124,7 +123,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting product update:', error)
     return NextResponse.json(
       { error: 'Error al eliminar' },
       { status: 500 }

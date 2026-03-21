@@ -125,7 +125,6 @@ export default function PropertyFacturacionPage() {
         router.push('/gestion/facturacion')
       }
     } catch (error) {
-      console.error('Error fetching property data:', error)
     } finally {
       setLoading(false)
     }

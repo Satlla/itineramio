@@ -98,8 +98,7 @@ export function TextToSpeech({ text, language = 'es', className = '', compact = 
       setIsPaused(false)
     }
 
-    utterance.onerror = (event) => {
-      console.error('Speech error:', event)
+    utterance.onerror = () => {
       setIsPlaying(false)
       setIsPaused(false)
     }

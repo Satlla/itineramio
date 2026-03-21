@@ -12,7 +12,6 @@ export async function GET() {
 
     return NextResponse.json({ questions })
   } catch (error) {
-    console.error('Error fetching frequent questions:', error)
     return NextResponse.json({ questions: [] })
   }
 }

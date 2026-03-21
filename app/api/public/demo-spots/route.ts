@@ -132,8 +132,7 @@ export async function GET() {
       remaining,
       total: TOTAL_SPOTS,
     })
-  } catch (error) {
-    console.error('[demo-spots] Error:', error)
+  } catch {
     return NextResponse.json({
       used: START_COUNT,
       remaining: TOTAL_SPOTS - START_COUNT,

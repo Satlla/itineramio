@@ -182,7 +182,6 @@ export default function LiquidacionDetailPage() {
         setError('Liquidación no encontrada')
       }
     } catch (error) {
-      console.error('Error fetching liquidation:', error)
       setError('Error al cargar la liquidación')
     } finally {
       setLoading(false)
@@ -210,7 +209,6 @@ export default function LiquidacionDetailPage() {
         setError(data.error || 'Error al actualizar')
       }
     } catch (error) {
-      console.error('Error updating liquidation:', error)
       setError('Error al actualizar la liquidación')
     } finally {
       setUpdating(false)
@@ -232,7 +230,6 @@ export default function LiquidacionDetailPage() {
         setError(data.error || 'Error al eliminar')
       }
     } catch (error) {
-      console.error('Error deleting liquidation:', error)
       setError('Error al eliminar la liquidación')
     } finally {
       setDeleting(false)
@@ -255,7 +252,6 @@ export default function LiquidacionDetailPage() {
         setError(data.error || 'Error al recalcular')
       }
     } catch (error) {
-      console.error('Error recalculating:', error)
       setError('Error al recalcular la liquidación')
     } finally {
       setRecalculating(false)
@@ -280,7 +276,6 @@ export default function LiquidacionDetailPage() {
         setError(data.error || 'Error al crear factura')
       }
     } catch (error) {
-      console.error('Error creating invoice:', error)
       setError('Error al crear la factura')
     } finally {
       setCreatingInvoice(false)
@@ -326,7 +321,6 @@ export default function LiquidacionDetailPage() {
         setError(data.error || 'Error al enviar')
       }
     } catch (error) {
-      console.error('Error sending link:', error)
       setError('Error al enviar el enlace')
     } finally {
       setSendingLink(false)

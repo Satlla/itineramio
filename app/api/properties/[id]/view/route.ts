@@ -84,10 +84,10 @@ export async function POST(
       })
 
       return { isUniqueVisitor: isUnique }
-    })
+    }, { timeout: 10000 })
 
     // Update daily stats (async, don't wait)
-    updateDailyStats(propertyId, isUniqueVisitor).catch(console.error)
+    updateDailyStats(propertyId, isUniqueVisitor).catch(() => {})
 
     return NextResponse.json({
       success: true,
@@ -96,8 +96,6 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('Error registrando vista de propiedad:', error)
-
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'
@@ -139,7 +137,7 @@ async function updateDailyStats(propertyId: string, isUniqueVisitor: boolean) {
       },
       update: updateData
     })
-  } catch (error) {
-    console.error('Error updating daily stats:', error)
+  } catch {
+    // ignore daily stats update errors
   }
 }

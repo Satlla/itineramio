@@ -119,7 +119,6 @@ export async function POST(request: NextRequest) {
       leadId: quizLead.id
     })
   } catch (error) {
-    console.error('Error saving quiz lead:', error)
     return NextResponse.json(
       { error: 'Error al guardar el resultado' },
       { status: 500 }
@@ -174,7 +173,6 @@ export async function GET(request: NextRequest) {
       }, {} as Record<string, number>)
     })
   } catch (error) {
-    console.error('Error fetching quiz leads:', error)
     return NextResponse.json(
       { error: 'Error al obtener leads' },
       { status: 500 }

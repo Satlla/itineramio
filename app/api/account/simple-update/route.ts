@@ -82,8 +82,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Update error:', error)
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Error interno: ' + (error instanceof Error ? error.message : 'Desconocido')
     }, { status: 500 })
   }

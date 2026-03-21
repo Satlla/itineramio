@@ -65,7 +65,6 @@ async function readImageAsBase64(imageUrl: string): Promise<{ base64: string; me
   }
 
   // Remote URL (Vercel Blob or other)
-  console.log('[vision] Fetching remote image:', imageUrl)
   const response = await fetch(imageUrl)
   if (!response.ok) {
     throw new Error(`Failed to fetch image (${response.status}): ${imageUrl}`)
@@ -195,7 +194,6 @@ async function callVision(
 
   if (!response.ok) {
     const errorBody = await response.text().catch(() => 'unknown')
-    console.error('[vision] Claude API error:', response.status, errorBody.slice(0, 200))
     throw new Error(`Claude Vision API error ${response.status}: ${errorBody.slice(0, 200)}`)
   }
 
@@ -205,8 +203,6 @@ async function callVision(
   if (!text) {
     throw new Error('Empty response from Claude Vision API')
   }
-
-  console.log('[vision] Raw response:', text.slice(0, 300))
 
   const jsonStr = text.replace(/```json\s*\n?/g, '').replace(/```\s*$/g, '').trim()
   const parsed = JSON.parse(jsonStr)
@@ -219,14 +215,8 @@ async function callVision(
 // ============================================
 
 export async function analyzeImage(imageUrl: string): Promise<MediaAnalysisResult> {
-  console.log('[vision] Analyzing image:', imageUrl)
-
   const img = await readImageAsBase64(imageUrl)
-  console.log('[vision] Image loaded, size:', Math.round(img.base64.length / 1024), 'KB, type:', img.mediaType)
-
   const result = await callVision([img], VISION_PROMPT)
-  console.log('[vision] Result:', result.room_type, '| appliances:', result.appliances.length)
-
   return result
 }
 
@@ -237,13 +227,11 @@ export async function analyzeImage(imageUrl: string): Promise<MediaAnalysisResul
 export async function analyzeVideo(videoUrl: string): Promise<MediaAnalysisResult> {
   // If the client already sent a thumbnail (image URL), analyze as single image
   if (videoUrl.match(/\.(jpg|jpeg|png|webp|gif)(\?|$)/i) || videoUrl.includes('thumb-')) {
-    console.log('[vision] Video thumbnail detected, analyzing as image:', videoUrl)
     return analyzeImage(videoUrl)
   }
 
   // Server-side FFmpeg extraction was removed (370MB+ binary exceeds Vercel limits).
   // Videos should be processed via client-side frame extraction (analyzeFrames).
-  console.warn('[vision] Server-side video extraction not available — use client-side frames')
   return {
     room_type: 'other',
     appliances: [],
@@ -266,8 +254,6 @@ export async function analyzeFrames(dataUrls: string[]): Promise<MediaAnalysisRe
     throw new Error('No frames provided')
   }
 
-  console.log('[vision] Analyzing', dataUrls.length, 'client-extracted frames')
-
   const images = dataUrls.map(dataUrl => {
     // Parse "data:image/jpeg;base64,/9j/4AAQ..." format
     const match = dataUrl.match(/^data:(image\/\w+);base64,(.+)$/)
@@ -282,8 +268,6 @@ export async function analyzeFrames(dataUrls: string[]): Promise<MediaAnalysisRe
 
   const prompt = images.length > 1 ? VISION_PROMPT_MULTI_FRAME : VISION_PROMPT
   const result = await callVision(images, prompt)
-
-  console.log('[vision] Frames result:', result.room_type, '| appliances:', result.appliances.length)
   return result
 }
 

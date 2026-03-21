@@ -138,7 +138,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching recent activity:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al obtener la actividad reciente'

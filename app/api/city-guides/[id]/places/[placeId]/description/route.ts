@@ -54,9 +54,13 @@ export async function PATCH(
       ? body.externalUrl.trim()
       : null
     const tags = Array.isArray(body.tags) ? body.tags.filter(Boolean) : undefined
+    const category = typeof body.category === 'string' && body.category.trim()
+      ? body.category.trim()
+      : undefined
 
     const updateData: any = { description, highlight, externalUrl }
     if (tags !== undefined) updateData.tags = tags
+    if (category !== undefined) updateData.category = category
 
     const updated = await prisma.cityGuidePlace.update({
       where: { id: placeId },
@@ -64,8 +68,10 @@ export async function PATCH(
     })
 
     return NextResponse.json({ success: true, data: updated })
-  } catch (error) {
-    console.error('Error updating place description:', error)
+  } catch (error: any) {
+    if (error?.code === 'P2002') {
+      return NextResponse.json({ success: false, error: 'Este lugar ya está en esa categoría' }, { status: 409 })
+    }
     return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }

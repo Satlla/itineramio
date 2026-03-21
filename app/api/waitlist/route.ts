@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { checkRateLimitAsync, getRateLimitKey } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
+    const rl = await checkRateLimitAsync(
+      getRateLimitKey(request, null, 'waitlist'),
+      { maxRequests: 3, windowMs: 60 * 1000 }
+    )
+    if (!rl.allowed) return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+
     const { email, source, toolName } = await request.json()
 
     if (!email) {
@@ -38,13 +45,11 @@ export async function POST(request: NextRequest) {
         email: email.toLowerCase(),
         source: source || 'waitlist',
         status: 'active',
-        guideDownloaded: toolName ? `waitlist_${toolName}` : null
       }
     })
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('[Waitlist] Error:', error)
     return NextResponse.json(
       { error: 'Error interno' },
       { status: 500 }

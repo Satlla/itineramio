@@ -61,8 +61,8 @@ export default function QuizLeadsPage() {
       const response = await fetch('/api/admin/academia/quiz-leads')
       const data = await response.json()
       setLeads(data.leads || [])
-    } catch (error) {
-      console.error('Error fetching quiz leads:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }

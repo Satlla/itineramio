@@ -71,7 +71,6 @@ export default function SeriesConfigPage() {
         setSeries(data.series || [])
       }
     } catch (err) {
-      console.error('Error fetching series:', err)
     } finally {
       setLoading(false)
     }
@@ -183,7 +182,6 @@ export default function SeriesConfigPage() {
         fetchSeries()
       }
     } catch (err) {
-      console.error('Error setting default:', err)
     } finally {
       setSaving(false)
     }

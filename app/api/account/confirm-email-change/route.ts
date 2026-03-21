@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
         </body>
         </html>
       `
-    }).catch(console.error)
+    }).catch(() => {})
 
     // Email to NEW address
     await sendEmail({
@@ -191,18 +191,17 @@ export async function POST(request: NextRequest) {
         </body>
         </html>
       `
-    }).catch(console.error)
+    }).catch(() => {})
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       message: 'Email actualizado correctamente',
       newEmail: emailChangeToken.newEmail
     })
 
   } catch (error) {
-    console.error('Error confirming email change:', error)
-    return NextResponse.json({ 
-      error: 'Error al confirmar el cambio de email' 
+    return NextResponse.json({
+      error: 'Error al confirmar el cambio de email'
     }, { status: 500 })
   }
 }

@@ -659,7 +659,6 @@ export async function POST(request: NextRequest) {
         results.imported++
 
       } catch (error: any) {
-        console.error(`Row ${rowNum} INSERT error:`, error)
         results.errors.push({
           row: rowNum,
           reason: error.message || 'Error desconocido',
@@ -711,7 +710,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error: any) {
-    console.error('Error importing CSV:', error)
     return NextResponse.json(
       { error: 'Error al procesar el archivo CSV' },
       { status: 500 }

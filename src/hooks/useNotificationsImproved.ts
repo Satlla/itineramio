@@ -55,9 +55,8 @@ export function useNotificationsImproved() {
         localStorage.setItem('itineramio_notifications', JSON.stringify(result.data))
       }
     } catch (err) {
-      console.error('Error fetching notifications:', err)
       setError('Error al cargar notificaciones')
-      
+
       // Fallback to localStorage
       const stored = localStorage.getItem('itineramio_notifications')
       if (stored) {
@@ -68,7 +67,7 @@ export function useNotificationsImproved() {
           }))
           setNotifications(parsed)
         } catch (parseError) {
-          console.error('Error parsing stored notifications:', parseError)
+          // parse error handled silently
         }
       }
     } finally {
@@ -95,7 +94,6 @@ export function useNotificationsImproved() {
         body: JSON.stringify({ notificationIds: [notificationId] })
       })
     } catch (err) {
-      console.error('Error marking notification as read:', err)
       // Revert optimistic update on error
       setNotifications(prev => 
         prev.map(n => n.id === notificationId ? { ...n, read: false } : n)
@@ -119,7 +117,6 @@ export function useNotificationsImproved() {
         body: JSON.stringify({ notificationIds: unreadIds })
       })
     } catch (err) {
-      console.error('Error marking all as read:', err)
       // Revert optimistic update on error
       fetchNotifications()
     }

@@ -100,7 +100,6 @@ export async function POST(
     })
     
   } catch (error) {
-    console.error('Error force publishing property:', error)
     return NextResponse.json({
       error: 'Failed to force publish property',
       details: error instanceof Error ? error.message : 'Unknown error'

@@ -20,10 +20,7 @@ export async function POST(request: NextRequest) {
     // Fetch directions and nearby places in parallel
     const [locationData, nearbyPlaces] = await Promise.all([
       fetchAllLocationData(lat, lng, city),
-      fetchNearbyPlaces(lat, lng, undefined, city).catch(err => {
-        console.error('[location-data] Error fetching nearby places:', err)
-        return []
-      }),
+      fetchNearbyPlaces(lat, lng, undefined, city).catch(() => []),
     ])
 
     return NextResponse.json({
@@ -34,7 +31,6 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('[location-data] Error:', error)
     return NextResponse.json(
       {
         success: false,

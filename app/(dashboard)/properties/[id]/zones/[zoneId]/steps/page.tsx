@@ -106,7 +106,6 @@ const fetchZoneData = async (propertyId: string, zoneId: string) => {
     }
     throw new Error(result.error || 'Error fetching zone')
   } catch (error) {
-    console.error('Error fetching zone:', error)
     return null
   }
 }
@@ -115,11 +114,9 @@ const fetchStepsData = async (propertyId: string, zoneId: string) => {
   try {
     const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps/safe`)
     const result = await response.json()
-    
+
     if (result.success) {
-      console.log('🔍 Raw steps from API:', result.data)
       return result.data.map((step: any, index: number) => {
-        console.log(`📝 Processing step ${index}:`, step)
         // Extract media information from content if it exists
         let media = undefined
         let cleanContent = step.content || { es: '', en: '' }
@@ -149,34 +146,18 @@ const fetchStepsData = async (propertyId: string, zoneId: string) => {
     }
     return []
   } catch (error) {
-    console.error('Error fetching steps:', error)
     return []
   }
 }
 
 const saveStepsData = async (propertyId: string, zoneId: string, steps: Step[]) => {
   try {
-    console.log('🚀 Starting saveStepsData with steps:', steps.length)
-    
     const stepsForAPI = steps.map((step, index) => {
-      console.log(`📝 Processing step ${index + 1}:`, {
-        id: step.id,
-        type: step.type,
-        hasMedia: !!step.media,
-        mediaUrl: step.media?.url,
-        contentMediaUrl: step.content?.mediaUrl,
-        title: step.title
-      })
-      
       // Prepare content object that includes media URLs
       let contentData = step.content || {}
-      
+
       // If step has media (video/image), include mediaUrl in content
       if (step.media?.url) {
-        console.log(`🎬 Step ${index + 1} has media, adding to content:`, {
-          url: step.media.url,
-          thumbnail: step.media.thumbnail
-        })
         contentData = {
           ...contentData,
           mediaUrl: step.media.url,
@@ -184,16 +165,13 @@ const saveStepsData = async (propertyId: string, zoneId: string, steps: Step[]) 
           // Removed title to prevent overwriting description
         }
       } else if (step.content?.mediaUrl) {
-        console.log(`📹 Step ${index + 1} has content.mediaUrl, preserving:`, step.content.mediaUrl)
         // Ensure mediaUrl from content is preserved
         contentData = {
           ...contentData,
           mediaUrl: step.content.mediaUrl
         }
-      } else {
-        console.log(`❌ Step ${index + 1} has no media URL`)
       }
-      
+
       const apiStep = {
         type: step.type?.toLowerCase() || 'text',
         title: step.title,
@@ -201,12 +179,9 @@ const saveStepsData = async (propertyId: string, zoneId: string, steps: Step[]) 
         order: index + 1,
         status: step.isPublished ? 'ACTIVE' : 'DRAFT'
       }
-      
-      console.log(`✅ Step ${index + 1} prepared for API:`, apiStep)
+
       return apiStep
     })
-    
-    console.log('💾 Final steps payload for API:', JSON.stringify(stepsForAPI, null, 2))
 
     const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps/safe`, {
       method: 'PUT',
@@ -219,7 +194,6 @@ const saveStepsData = async (propertyId: string, zoneId: string, steps: Step[]) 
     const result = await response.json()
     return result.success
   } catch (error) {
-    console.error('Error saving steps:', error)
     return false
   }
 }
@@ -262,10 +236,9 @@ export default function ZoneStepsPage({
       if (zoneData) {
         setZone(zoneData)
       }
-      console.log('📥 Loaded steps from API:', stepsData)
       setSteps(stepsData)
     } catch (error) {
-      console.error('Error loading data:', error)
+      // error loading data
     } finally {
       setLoading(false)
     }
@@ -277,14 +250,10 @@ export default function ZoneStepsPage({
     setSaving(true)
     try {
       const success = await saveStepsData(propertyId, zoneId, steps)
-      if (success) {
-        // Show success message or update UI
-        console.log('Steps saved successfully')
-      } else {
+      if (!success) {
         alert(t('stepsPage.errorSavingSteps'))
       }
     } catch (error) {
-      console.error('Error saving:', error)
       alert(t('stepsPage.errorSavingSteps'))
     } finally {
       setSaving(false)
@@ -346,28 +315,20 @@ export default function ZoneStepsPage({
       isPublished: false
     }
 
-    console.log('🆕 Creating new step:', { 
-      step: newStep, 
-      hasMedia: !!formData.media,
-      mediaUrl: formData.media?.url,
-      contentMediaUrl: (formData.content as any)?.mediaUrl
-    })
     setSteps([...steps, newStep])
     resetForm()
   }
 
   const handleEditStep = (step: Step) => {
-    console.log('✏️ Editing step:', step)
     setEditingStep(step)
-    
+
     // Ensure we have the complete step data including media
     const formDataToSet = {
       title: step.title,
       content: step.content || {},
       media: step.media
     }
-    
-    console.log('📝 Setting form data for editing:', formDataToSet)
+
     setFormData(formDataToSet)
     setNewStepType(step.type)
     setShowCreateForm(true)
@@ -393,24 +354,15 @@ export default function ZoneStepsPage({
       
       setSteps(updatedSteps)
 
-      console.log('📝 Updating step:', { 
-        stepId: editingStep.id, 
-        hasMedia: !!formData.media,
-        mediaUrl: formData.media?.url,
-        contentMediaUrl: (formData.content as any)?.mediaUrl
-      })
-
       // Save automatically to database
       const success = await saveStepsData(propertyId, zoneId, updatedSteps)
-      
+
       if (success) {
-        console.log('✅ Step updated and saved successfully')
         resetForm()
       } else {
         alert(t('stepsPage.errorSavingStep'))
       }
     } catch (error) {
-      console.error('Error updating step:', error)
       alert(t('stepsPage.errorSavingStep'))
     } finally {
       setSaving(false)
@@ -656,8 +608,6 @@ export default function ZoneStepsPage({
               <VideoUpload
                 value={editingStep?.media?.url || editingStep?.content?.mediaUrl || ''}
                 onChange={(videoUrl, metadata) => {
-                  console.log('🎬 VideoUpload onChange called:', { videoUrl, metadata })
-                  
                   if (videoUrl && metadata) {
                     const newFormData = {
                       ...formData,
@@ -673,7 +623,6 @@ export default function ZoneStepsPage({
                         title: 'Video subido'
                       }
                     }
-                    console.log('📝 Setting form data with video and media:', newFormData)
                     setFormData(newFormData)
                   } else {
                     // Clear media
@@ -687,7 +636,6 @@ export default function ZoneStepsPage({
                       },
                       media: undefined
                     }
-                    console.log('🗑️ Clearing video from form data:', newFormData)
                     setFormData(newFormData)
                   }
                 }}

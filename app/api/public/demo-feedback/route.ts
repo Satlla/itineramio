@@ -69,7 +69,6 @@ export async function POST(request: NextRequest) {
       couponCode: (metadata.couponCode as string) || null,
     })
   } catch (error) {
-    console.error('[DemoFeedback] Error:', error)
     return NextResponse.json(
       { error: 'Error al guardar feedback.' },
       { status: 500 }

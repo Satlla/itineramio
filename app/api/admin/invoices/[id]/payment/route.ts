@@ -107,7 +107,6 @@ export async function POST(
       });
       
     } catch (emailError) {
-      console.error('Error sending payment emails:', emailError);
       // Don't fail the payment process if email fails
     }
 
@@ -137,7 +136,6 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error('Error marking invoice as paid:', error);
     return NextResponse.json({ 
       success: false, 
       error: 'Internal server error' 

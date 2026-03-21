@@ -226,7 +226,6 @@ export default function IntegracionesPage() {
       }
       await fetchOwners()
     } catch (error) {
-      console.error('Error fetching integration:', error)
     } finally {
       setLoading(false)
     }
@@ -240,7 +239,6 @@ export default function IntegracionesPage() {
         setOwners(data.owners || [])
       }
     } catch (error) {
-      console.error('Error fetching owners:', error)
     }
   }
 
@@ -278,7 +276,6 @@ export default function IntegracionesPage() {
         }))
       }
     } catch (error) {
-      console.error('Error detecting properties:', error)
     }
   }
 

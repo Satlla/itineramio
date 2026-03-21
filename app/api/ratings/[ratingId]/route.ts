@@ -21,7 +21,7 @@ export async function GET(
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = jwt.verify(token, JWT_SECRET!) as unknown as { userId: string }
     const userId = decoded.userId
 
     // Get rating and verify ownership
@@ -55,7 +55,6 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error fetching rating:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'
@@ -77,7 +76,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = jwt.verify(token, JWT_SECRET!) as unknown as { userId: string }
     const userId = decoded.userId
 
     // Verify rating belongs to user's property
@@ -132,7 +131,6 @@ export async function PATCH(
     })
 
   } catch (error) {
-    console.error('Error updating rating:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'

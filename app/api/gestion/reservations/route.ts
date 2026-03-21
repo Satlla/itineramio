@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
-import { Prisma } from '@prisma/client'
+import { Prisma, ReservationStatus, ReservationPlatform } from '@prisma/client'
 
 /**
  * GET /api/gestion/reservations
@@ -34,13 +34,13 @@ export async function GET(request: NextRequest) {
     // Validar y filtrar por status
     const validStatuses = ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED', 'NO_SHOW']
     if (status && validStatuses.includes(status)) {
-      where.status = status
+      where.status = status as ReservationStatus
     }
 
     // Validar y filtrar por platform
     const validPlatforms = ['AIRBNB', 'BOOKING', 'VRBO', 'DIRECT', 'OTHER']
     if (platform && validPlatforms.includes(platform)) {
-      where.platform = platform
+      where.platform = platform as ReservationPlatform
     }
 
     // Filter by billingUnit (nuevo) o billingConfig (legacy)
@@ -291,8 +291,8 @@ export async function POST(request: NextRequest) {
 
       // First, try to find by email if provided
       if (guestEmail) {
-        existingGuest = await tx.guest.findFirst({
-          where: { userId, email: guestEmail }
+        existingGuest = await tx.guest.findUnique({
+          where: { userId_email: { userId, email: guestEmail } }
         })
       }
 
@@ -414,7 +414,7 @@ export async function POST(request: NextRequest) {
         isReturningGuest: !!existingGuest,
         existingGuestData: existingGuest
       }
-    })
+    }, { timeout: 10000 })
 
     return NextResponse.json({
       reservation,

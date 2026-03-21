@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     // Verify token signature (allow expired tokens for refresh)
     let decoded: any
     try {
-      decoded = jwt.verify(currentToken, JWT_SECRET, { ignoreExpiration: true })
+      decoded = jwt.verify(currentToken, JWT_SECRET as string, { ignoreExpiration: true })
     } catch (error) {
       // Token signature invalid - reject
       return NextResponse.json({

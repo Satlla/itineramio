@@ -55,7 +55,6 @@ export async function POST(request: NextRequest) {
       redirectTo: '/admin/users'
     })
   } catch (error) {
-    console.error('Error deteniendo impersonation:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

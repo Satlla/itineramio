@@ -45,7 +45,6 @@ export function AddressAutocomplete({
   // Load Google Maps script (singleton pattern to prevent multiple loads)
   useEffect(() => {
     if (!apiKey) {
-      console.warn('⚠️ Google Maps API key not found. Using fallback input.')
       setScriptError(true)
       return
     }
@@ -53,7 +52,6 @@ export function AddressAutocomplete({
     if (typeof window !== 'undefined') {
       // Check if Google Maps is already loaded
       if (window.google && window.google.maps && window.google.maps.places) {
-        console.log('✅ Google Maps already loaded')
         setIsScriptLoaded(true)
         return
       }
@@ -64,12 +62,9 @@ export function AddressAutocomplete({
       )
 
       if (existingScript) {
-        console.log('⏳ Google Maps script already loading, waiting...')
-
         // Wait for existing script to load
         const checkLoaded = setInterval(() => {
           if (window.google && window.google.maps && window.google.maps.places) {
-            console.log('✅ Google Maps loaded from existing script')
             setIsScriptLoaded(true)
             clearInterval(checkLoaded)
           }
@@ -79,7 +74,6 @@ export function AddressAutocomplete({
         setTimeout(() => {
           clearInterval(checkLoaded)
           if (!window.google || !window.google.maps) {
-            console.error('❌ Timeout loading Google Maps')
             setScriptError(true)
           }
         }, 10000)
@@ -88,19 +82,16 @@ export function AddressAutocomplete({
       }
 
       // Load script for the first time
-      console.log('📍 Loading Google Maps API for the first time...')
       const script = document.createElement('script')
       script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=es`
       script.async = true
       script.defer = true
 
       script.onload = () => {
-        console.log('✅ Google Maps API loaded successfully')
         setIsScriptLoaded(true)
       }
 
       script.onerror = () => {
-        console.error('❌ Failed to load Google Maps API. Using fallback input.')
         setScriptError(true)
       }
 
@@ -283,19 +274,9 @@ function AddressAutocompleteWithGoogle({
           formattedAddress: place.formatted_address
         }
 
-        console.log('📍 Dirección seleccionada:', addressData)
-        console.log('📍 Componentes encontrados:', {
-          street: !!fullStreet,
-          city: !!city,
-          state: !!state,
-          country: !!country,
-          postalCode: !!postalCode
-        })
-
         onChange(addressData)
       }
     } catch (error) {
-      console.error('❌ Error al obtener geocode:', error)
       // Fallback: parse manually from description
       const parts = description.split(',').map(p => p.trim())
       const fallbackData = {
@@ -306,7 +287,6 @@ function AddressAutocompleteWithGoogle({
         postalCode: '00000',
         formattedAddress: description
       }
-      console.log('⚠️ Usando datos fallback:', fallbackData)
       onChange(fallbackData)
     }
   }

@@ -50,7 +50,6 @@ export async function POST(request: NextRequest) {
       accessToken = decryptToken(integration.accessToken)
       refreshToken = decryptToken(integration.refreshToken)
     } catch (error) {
-      console.error('Failed to decrypt Gmail tokens:', error)
       return NextResponse.json(
         { error: 'Error de seguridad. Reconecta Gmail.' },
         { status: 500 }
@@ -72,7 +71,6 @@ export async function POST(request: NextRequest) {
           },
         })
       } catch (error) {
-        console.error('Failed to refresh Gmail token:', error)
         await prisma.gmailIntegration.update({
           where: { id: integration.id },
           data: {
@@ -122,7 +120,7 @@ export async function POST(request: NextRequest) {
         if (!fullMessage.payload) continue
 
         // Parse headers
-        const headers = parseEmailHeaders(fullMessage.payload.headers || [])
+        const headers = parseEmailHeaders((fullMessage.payload.headers || []) as any)
         const subject = headers['subject'] || ''
         const fromEmail = headers['from'] || ''
         const dateStr = headers['date']
@@ -153,7 +151,6 @@ export async function POST(request: NextRequest) {
           results.parsed++
         }
       } catch (error) {
-        console.error(`Error processing message ${message.id}:`, error)
         results.errors++
       }
     }
@@ -172,7 +169,6 @@ export async function POST(request: NextRequest) {
       results,
     })
   } catch (error) {
-    console.error('Error syncing Gmail:', error)
     return NextResponse.json(
       { error: 'Error al sincronizar emails' },
       { status: 500 }
@@ -247,7 +243,6 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(total / limit),
     })
   } catch (error) {
-    console.error('Error fetching synced emails:', error)
     return NextResponse.json(
       { error: 'Error al obtener emails' },
       { status: 500 }

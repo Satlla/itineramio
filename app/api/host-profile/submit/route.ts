@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import { Archetype, Dimension } from '@/data/hostProfileQuestions'
 import { sendWelcomeTestEmail } from '@/lib/resend'
 import { notifyHostProfileTestCompleted } from '@/lib/notifications/admin-notifications'
@@ -207,7 +208,7 @@ export async function POST(request: NextRequest) {
         email: normalizedEmail,
         name: body.name || null,
         gender: body.gender || null,
-        answers: body.answers,
+        answers: body.answers as unknown as Prisma.InputJsonValue,
         scoreHospitalidad: dimensionScores.HOSPITALIDAD,
         scoreComunicacion: dimensionScores.COMUNICACION,
         scoreOperativa: dimensionScores.OPERATIVA,
@@ -234,8 +235,8 @@ export async function POST(request: NextRequest) {
         scores: dimensionScores,
         sourceEmail: body.sourceEmail
       })
-    } catch (leadError) {
-      console.error('⚠️ Could not update unified lead:', leadError)
+    } catch {
+      // Ignore lead update errors
     }
 
     // Determinar nivel basado en arquetipo (para SOAP OPERA sequence)
@@ -311,9 +312,8 @@ export async function POST(request: NextRequest) {
           contentTrack: body.interests?.[0] ? `${body.interests[0]}_focused` : null,
         }
       })
-    } catch (emailSubError) {
+    } catch {
       // No fallar la request si hay error en EmailSubscriber (tabla puede no existir aún)
-      console.error('❌ Could not create EmailSubscriber:', emailSubError)
       subscriber = null
     }
 
@@ -345,7 +345,6 @@ export async function POST(request: NextRequest) {
     } catch (err) {
       // No fallar la request si hay error enviando email
       emailError = err instanceof Error ? err.message : 'Unknown error'
-      console.error('Error sending welcome email:', err)
     }
 
     // Inscribir en secuencias de email automatizadas
@@ -361,8 +360,8 @@ export async function POST(request: NextRequest) {
             tags: [archetype, 'test_completed']
           }
         )
-      } catch (seqErr) {
-        console.error('Error enrolling in sequences:', seqErr)
+      } catch {
+        // Ignore sequence enrollment errors
       }
     }
 
@@ -372,9 +371,7 @@ export async function POST(request: NextRequest) {
       name: body.name,
       archetype,
       score: Object.values(dimensionScores).reduce((a, b) => a + b, 0)
-    }).catch(error => {
-      console.error('Failed to send admin notification:', error)
-    })
+    }).catch(() => {})
 
     return NextResponse.json({
       success: true,
@@ -394,7 +391,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error processing test:', error)
     return NextResponse.json(
       { error: 'Error al procesar el test' },
       { status: 500 }

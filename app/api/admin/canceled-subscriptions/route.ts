@@ -78,7 +78,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching canceled subscriptions:', error)
     return NextResponse.json(
       { error: 'Error al obtener suscripciones canceladas' },
       { status: 500 }

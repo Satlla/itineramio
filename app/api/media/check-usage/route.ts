@@ -111,8 +111,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error checking media usage:', error)
-    
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Error checking media usage'

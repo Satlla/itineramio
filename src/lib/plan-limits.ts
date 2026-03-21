@@ -107,7 +107,6 @@ export class PlanLimitsService {
       }
 
     } catch (error) {
-      console.error('Error checking plan limits:', error)
       // Fallback to safe limits
       return {
         maxProperties: 0,

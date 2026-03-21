@@ -161,14 +161,10 @@ export function StepEditor({
     if (editingStepId && initialSteps.length > 0) {
       // Special case: if adding new step, focus on the last step (the new one)
       if (editingStepId === 'NEW_STEP_FOCUS') {
-        console.log('🎯 StepEditor: Focusing on new step at index:', initialSteps.length - 1)
         return initialSteps.length - 1
       }
-      
+
       const stepIndex = initialSteps.findIndex(step => step.id === editingStepId)
-      console.log('🎯 StepEditor: Looking for step with ID:', editingStepId)
-      console.log('🎯 StepEditor: Steps IDs:', initialSteps.map(s => s.id))
-      console.log('🎯 StepEditor: Found at index:', stepIndex)
       return stepIndex >= 0 ? stepIndex : 0
     }
     return 0
@@ -275,11 +271,9 @@ export function StepEditor({
   }
 
   const updateStep = (stepId: string, updates: Partial<Step>) => {
-    console.log('🔄 updateStep called:', stepId, updates)
-    const updatedSteps = steps.map(step => 
+    const updatedSteps = steps.map(step =>
       step.id === stepId ? { ...step, ...updates } : step
     )
-    console.log('🔄 Updated steps:', updatedSteps)
     setSteps(updatedSteps)
   }
 
@@ -517,7 +511,6 @@ export function StepEditor({
             <VideoUploadSimple
               value={step.media?.url}
               onChange={(url, metadata) => {
-                console.log('📹 Video onChange called:', { stepId: step.id, url, metadata })
                 if (url) {
                   updateStep(step.id, {
                     media: {
@@ -601,9 +594,6 @@ export function StepEditor({
               type="button"
               onClick={(e) => {
                 e.preventDefault()
-                console.log('💾 Desktop Save button clicked')
-                console.log('💾 Steps to save:', steps)
-                console.log('💾 Steps with media:', steps.filter(s => s.media?.url))
                 onSave(steps)
               }}
               className="bg-gray-900 hover:bg-gray-800 text-white"
@@ -1055,7 +1045,6 @@ export function StepEditor({
                               <VideoUploadSimple
                                 value={steps[activeStep].media?.url}
                                 onChange={(url, metadata) => {
-                                  console.log('📹 Mobile Video onChange called:', { stepId: steps[activeStep].id, url, metadata })
                                   if (url) {
                                     updateStep(steps[activeStep].id, {
                                       media: {

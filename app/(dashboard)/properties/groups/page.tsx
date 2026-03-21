@@ -55,7 +55,7 @@ export default function PropertySetsPage() {
         setPropertySets(result.data)
       }
     } catch (error) {
-      console.error('Error fetching property sets:', error)
+      // error fetching property sets
     } finally {
       setLoading(false)
     }

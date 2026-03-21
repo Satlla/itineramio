@@ -142,7 +142,7 @@ export default function ArticlePage() {
         } : null)
       }
     } catch (error) {
-      console.error('Error al votar:', error)
+      // vote error silenced
     }
   }
 

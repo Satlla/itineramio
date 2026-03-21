@@ -180,7 +180,7 @@ export default function ResultCard({
 
       onDownload?.()
     } catch (error) {
-      console.error('Error downloading card:', error)
+      // download error handled silently
     }
   }
 

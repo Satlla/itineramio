@@ -68,7 +68,7 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
       oscillator.start(audioContext.currentTime)
       oscillator.stop(audioContext.currentTime + 0.1)
     } catch (error) {
-      console.error('Error playing notification sound:', error)
+      // Ignore audio errors
     }
   }
 
@@ -91,7 +91,6 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
   useEffect(() => {
     // Only play sound if count increased and this is not the initial load
     if (previousUnreadCount >= 0 && unreadCount > previousUnreadCount) {
-      console.log('🔔 Playing notification sound - new notifications:', unreadCount)
       playNotificationSound()
     }
     setPreviousUnreadCount(unreadCount)

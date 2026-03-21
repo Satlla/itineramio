@@ -76,7 +76,7 @@ export default function ZoneQRPage() {
         setQrDataUrls(qrMap)
       }
     } catch (error) {
-      console.error('Error fetching zones:', error)
+      // error fetching zones
     } finally {
       setLoading(false)
     }
@@ -95,7 +95,6 @@ export default function ZoneQRPage() {
       })
       return qrDataUrl
     } catch (error) {
-      console.error('Error generating QR code:', error)
       return ''
     }
   }
@@ -132,10 +131,10 @@ export default function ZoneQRPage() {
           })
         })
       } catch (trackError) {
-        console.error('Error tracking QR download:', trackError)
+        // error tracking QR download
       }
     } catch (error) {
-      console.error('Error downloading QR:', error)
+      // error downloading QR
     } finally {
       setGeneratingQR(null)
     }
@@ -147,7 +146,7 @@ export default function ZoneQRPage() {
       await navigator.clipboard.writeText(url)
       // You could add a toast notification here
     } catch (error) {
-      console.error('Error copying URL:', error)
+      // error copying URL
     }
   }
 

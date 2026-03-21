@@ -50,7 +50,6 @@ async function getMediaUsage(mediaUrl: string) {
       stepId: step.id
     }))
   } catch (error) {
-    console.error('Error getting media usage:', error)
     return []
   }
 }
@@ -89,6 +88,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
     
+    // Reject oversized requests early (before parsing the body)
+    const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
+    const contentLength = request.headers.get('content-length')
+    if (contentLength && parseInt(contentLength) > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: 'File too large. Maximum 50MB.' }, { status: 413 })
+    }
+
     const data = await request.formData()
     const file: File | null = data.get('file') as unknown as File
     const skipDuplicateCheck = data.get('skipDuplicateCheck') === 'true'
@@ -133,7 +139,6 @@ export async function POST(request: NextRequest) {
       buffer = Buffer.from(bytes)
       fileHash = createHash('sha256').update(buffer).digest('hex')
     } catch (hashError) {
-      console.error('❌ Error generating file hash:', hashError)
       return NextResponse.json({
         error: `Error procesando archivo: ${hashError instanceof Error ? hashError.message : 'Error desconocido'}. Intenta con una imagen más pequeña.`,
       }, { status: 500 })
@@ -201,7 +206,6 @@ export async function POST(request: NextRequest) {
 
         fileUrl = `/uploads/${uniqueFilename}`
       } catch (devError) {
-        console.error('❌ Development upload error:', devError)
         return NextResponse.json(
           { error: `Development upload failed: ${devError instanceof Error ? devError.message : 'Unknown error'}` },
           { status: 500 }
@@ -226,7 +230,6 @@ export async function POST(request: NextRequest) {
         })
         fileUrl = blob.url
       } catch (blobError) {
-        console.error('❌ Error uploading to Vercel Blob:', blobError)
         return NextResponse.json(
           {
             error: `Error al subir archivo: ${blobError instanceof Error ? blobError.message : 'Error desconocido'}. Intenta nuevamente o usa una imagen más pequeña.`,
@@ -277,7 +280,6 @@ export async function POST(request: NextRequest) {
           })
         }
       } catch (mediaError) {
-        console.error('⚠️ Error saving to media library:', mediaError)
         // Continue anyway, the file was uploaded successfully
       }
     }
@@ -289,8 +291,6 @@ export async function POST(request: NextRequest) {
       hash: fileHash
     })
   } catch (error) {
-    console.error('Error uploading file:', error)
-    
     // Provide more specific error messages
     if (error instanceof Error) {
       return NextResponse.json(

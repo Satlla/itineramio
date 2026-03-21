@@ -119,7 +119,6 @@ export async function searchOsm(
     clearTimeout(timeout)
 
     if (!response.ok) {
-      console.error(`[osm] Overpass API error for ${category.id}:`, response.status)
       return []
     }
 
@@ -171,11 +170,6 @@ export async function searchOsm(
     places.sort((a, b) => a.distanceMeters - b.distanceMeters)
     return places.slice(0, category.maxResults)
   } catch (error: any) {
-    if (error?.name === 'AbortError') {
-      console.error(`[osm] Overpass API timeout for ${category.id} (8s)`)
-    } else {
-      console.error(`[osm] Error fetching ${category.id}:`, error)
-    }
     return []
   }
 }

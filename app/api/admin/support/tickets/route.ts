@@ -94,7 +94,6 @@ export async function GET(req: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error fetching admin support tickets:', error)
     return NextResponse.json(
       { error: 'Error al obtener tickets' },
       { status: 500 }

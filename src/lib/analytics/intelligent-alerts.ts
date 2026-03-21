@@ -385,7 +385,6 @@ async function sendAlertEmail(
 
     return result.success
   } catch (error) {
-    console.error('Error sending alert email:', error)
     return false
   }
 }
@@ -486,6 +485,5 @@ export async function runDailyAlertsCheck(): Promise<{
     }
   }
 
-  console.log('📬 Daily alerts check complete:', results)
   return results
 }

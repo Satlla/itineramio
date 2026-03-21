@@ -132,13 +132,11 @@ export async function sendVerificationEmail(email: string, fullName: string, tok
     })
 
     if (error) {
-      console.error('Error sending verification email:', error)
       return { success: false, error }
     }
 
     return { success: true, data }
   } catch (error) {
-    console.error('Failed to send verification email:', error)
     return { success: false, error }
   }
 }
@@ -176,7 +174,6 @@ export async function verifyEmailToken(token: string): Promise<{ success: boolea
       userId: user.id
     }
   } catch (error) {
-    console.error('Error verifying email token:', error)
     return {
       success: false,
       error: 'Error al verificar el email'
@@ -215,7 +212,6 @@ export async function resendVerificationEmail(email: string): Promise<{ success:
     }
     return { success: true }
   } catch (error) {
-    console.error('Error resending verification email:', error)
     return {
       success: false,
       error: 'Error al reenviar el email de verificación'

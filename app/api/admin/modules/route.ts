@@ -181,7 +181,6 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error fetching modules:', error)
     return NextResponse.json(
       { success: false, error: 'Error interno del servidor' },
       { status: 500 }
@@ -280,7 +279,6 @@ export async function POST(request: NextRequest) {
       message: `Módulo ${moduleType} activado para ${user.name}`
     })
   } catch (error) {
-    console.error('Error activating module:', error)
     return NextResponse.json(
       { success: false, error: 'Error interno del servidor' },
       { status: 500 }
@@ -396,7 +394,6 @@ export async function DELETE(request: NextRequest) {
       actions
     })
   } catch (error) {
-    console.error('Error deactivating module:', error)
     return NextResponse.json(
       { success: false, error: 'Error interno del servidor' },
       { status: 500 }

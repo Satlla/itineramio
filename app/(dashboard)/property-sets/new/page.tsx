@@ -142,10 +142,9 @@ function NewPropertySetPageContent() {
           setAvailableProperties(result.data)
         }
       } catch (error) {
-        console.error('Error fetching properties:', error)
       }
     }
-    
+
     fetchProperties()
   }, [])
 
@@ -184,12 +183,10 @@ function NewPropertySetPageContent() {
             setSelectedProperties(selectedIds)
             setValue('selectedProperties', selectedIds)
           } else {
-            console.error('Error loading property set:', result.error)
             alert('Error al cargar los datos del conjunto')
             router.push('/properties')
           }
         } catch (error) {
-          console.error('Error loading property set:', error)
           alert('Error al cargar los datos del conjunto')
           router.push('/properties')
         } finally {
@@ -225,12 +222,9 @@ function NewPropertySetPageContent() {
         throw new Error(result.error || `Error al ${isEditing ? 'actualizar' : 'crear'} el conjunto`)
       }
       
-      console.log(`Conjunto ${isEditing ? 'actualizado' : 'creado'} exitosamente:`, result.data)
-      
       // Clear saved data and redirect
       handleSuccessfulSubmit()
     } catch (error) {
-      console.error(`Error ${isEditing ? 'actualizando' : 'creando'} conjunto:`, error)
       alert(`Error al ${isEditing ? 'actualizar' : 'crear'} el conjunto. Por favor, inténtalo de nuevo.`)
     } finally {
       setIsSubmitting(false)

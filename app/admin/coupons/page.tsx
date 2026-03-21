@@ -97,8 +97,8 @@ export default function CouponsAdminPage() {
         const data = await response.json()
         setCoupons(data.coupons || [])
       }
-    } catch (error) {
-      console.error('Error fetching coupons:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }
@@ -119,8 +119,8 @@ export default function CouponsAdminPage() {
             : coupon
         ))
       }
-    } catch (error) {
-      console.error('Error toggling coupon:', error)
+    } catch {
+      // ignore toggle error
     }
   }
 
@@ -150,10 +150,9 @@ export default function CouponsAdminPage() {
         }
         setDeletingCoupon(null)
       } else {
-        console.error('Error deleting coupon:', data.error)
+        // ignore delete error
       }
-    } catch (error) {
-      console.error('Error deleting coupon:', error)
+    } catch {
     } finally {
       setDeleting(false)
     }
@@ -191,8 +190,7 @@ export default function CouponsAdminPage() {
       } else {
         setCreateError(data.error || 'Error al crear el cupón')
       }
-    } catch (error) {
-      console.error('Error creating coupon:', error)
+    } catch {
       setCreateError('Error de conexión')
     } finally {
       setCreating(false)

@@ -65,7 +65,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.redirect(new URL('/newsletter/confirmed', request.url))
   } catch (error) {
-    console.error('Newsletter confirmation error:', error)
     return NextResponse.redirect(new URL('/newsletter/error?reason=server-error', request.url))
   }
 }

@@ -84,7 +84,6 @@ export async function GET(
       data: zonesWithSteps
     })
   } catch (error) {
-    console.error('Error fetching zones (safe):', error)
     return NextResponse.json(
       { 
         success: false, 

@@ -62,7 +62,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.redirect(redirectUrl.toString())
   } catch (error) {
-    console.error('Error verifying comment:', error)
     return redirectWithMessage('error', 'Error al verificar el comentario')
   }
 }

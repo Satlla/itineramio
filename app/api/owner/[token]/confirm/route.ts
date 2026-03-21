@@ -101,7 +101,6 @@ export async function POST(
 
     return NextResponse.json({ success: true, confirmedAt })
   } catch (error) {
-    console.error('Error confirming liquidation:', error)
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

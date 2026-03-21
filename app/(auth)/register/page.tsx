@@ -78,7 +78,8 @@ export default function RegisterPage() {
     phone: '',
     password: '',
     confirmPassword: '',
-    terms: ''
+    terms: '',
+    general: ''
   })
 
   const passwordRequirements = [
@@ -95,7 +96,8 @@ export default function RegisterPage() {
       phone: '',
       password: '',
       confirmPassword: '',
-      terms: ''
+      terms: '',
+      general: ''
     }
 
     // Validate name
@@ -192,7 +194,7 @@ export default function RegisterPage() {
           // Show general error
           setErrors(prev => ({
             ...prev,
-            email: data.error || t('register.errors.registrationError')
+            general: data.error || t('register.errors.registrationError')
           }))
         }
         return
@@ -213,7 +215,7 @@ export default function RegisterPage() {
     } catch (error) {
       setErrors(prev => ({
         ...prev,
-        email: t('register.errors.connectionError')
+        general: t('register.errors.connectionError')
       }))
     } finally {
       setLoading(false)
@@ -365,6 +367,16 @@ export default function RegisterPage() {
               </motion.div>
             )}
 
+            {/* General Error */}
+            {errors.general && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                <div className="flex items-center space-x-2">
+                  <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <span className="text-sm text-red-700">{errors.general}</span>
+                </div>
+              </div>
+            )}
+
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name */}
@@ -456,6 +468,7 @@ export default function RegisterPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}

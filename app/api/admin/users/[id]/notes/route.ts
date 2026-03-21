@@ -46,11 +46,10 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error fetching user notes:', error)
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Error al obtener las notas del usuario' 
+      {
+        success: false,
+        error: 'Error al obtener las notas del usuario'
       },
       { status: 500 }
     )
@@ -133,11 +132,10 @@ export async function POST(
     }, { status: 201 })
 
   } catch (error) {
-    console.error('Error creating user note:', error)
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Error al crear la nota del usuario' 
+      {
+        success: false,
+        error: 'Error al crear la nota del usuario'
       },
       { status: 500 }
     )

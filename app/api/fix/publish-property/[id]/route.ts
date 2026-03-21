@@ -75,7 +75,6 @@ export async function POST(
     })
     
   } catch (error) {
-    console.error('Error force publishing:', error)
     return NextResponse.json({
       error: 'Failed to force publish property'
     }, { status: 500 })

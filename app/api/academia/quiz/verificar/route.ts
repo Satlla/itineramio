@@ -93,17 +93,13 @@ export async function GET(request: NextRequest) {
       totalQuestions: quizQuestions.length,
       correctAnswers: correctCount,
       timeElapsed: lead.timeElapsed
-    }).catch(error => {
-      console.error('Failed to send quiz results email after verification:', error)
-    })
+    }).catch(() => {})
 
     // Send admin notification (async, don't block response)
     notifyQuizEmailVerified({
       email: lead.email,
       fullName: lead.fullName
-    }).catch(error => {
-      console.error('Failed to send admin notification:', error)
-    })
+    }).catch(() => {})
 
     return NextResponse.json({
       success: true,
@@ -118,7 +114,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Email verification error:', error)
     return NextResponse.json(
       { error: 'Error al verificar el email' },
       { status: 500 }

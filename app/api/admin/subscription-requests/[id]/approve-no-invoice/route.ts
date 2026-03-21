@@ -195,8 +195,7 @@ export async function POST(
         ipAddress,
         userAgent,
       })
-    } catch (logError) {
-      console.warn('⚠️ Could not create admin activity log:', logError)
+    } catch {
       // Continue without logging - subscription already approved
     }
 
@@ -215,8 +214,7 @@ export async function POST(
           dashboardUrl: `${process.env.NEXTAUTH_URL || 'https://www.itineramio.com'}/main`
         })
       })
-    } catch (emailError) {
-      console.error('Error sending approval email:', emailError)
+    } catch {
       // Continue without email - subscription still approved
     }
 
@@ -228,9 +226,7 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('Error approving subscription request without invoice:', error)
     const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
-    console.error('Error details:', errorMessage)
     return NextResponse.json(
       {
         error: 'Error al aprobar la solicitud',

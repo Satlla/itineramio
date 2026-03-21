@@ -35,10 +35,8 @@ export async function createNotification({
       }
     })
     
-    console.log('✅ Notification created:', notification.id)
     return notification
   } catch (error) {
-    console.error('❌ Error creating notification:', error)
     throw error
   }
 }
@@ -54,7 +52,6 @@ export async function getUserNotifications(userId: string, limit = 50) {
     
     return notifications
   } catch (error) {
-    console.error('❌ Error fetching notifications:', error)
     return []
   }
 }
@@ -72,7 +69,6 @@ export async function markNotificationsAsRead(userId: string, notificationIds: s
     
     return result.count
   } catch (error) {
-    console.error('❌ Error marking notifications as read:', error)
     throw error
   }
 }
@@ -90,7 +86,6 @@ export async function markAllNotificationsAsRead(userId: string) {
     
     return result.count
   } catch (error) {
-    console.error('❌ Error marking all notifications as read:', error)
     throw error
   }
 }
@@ -107,10 +102,8 @@ export async function deleteOldNotifications(daysToKeep = 30) {
       }
     })
     
-    console.log(`🧹 Deleted ${result.count} old notifications`)
     return result.count
   } catch (error) {
-    console.error('❌ Error deleting old notifications:', error)
     throw error
   }
 }

@@ -125,8 +125,7 @@ export default function NewBlogPostPage() {
       }))
 
       alert('✨ ¡Artículo generado con IA!\n\nAhora puedes:\n• Editar el contenido\n• Corregir lo que necesites\n• Añadir tu toque personal\n• Ver el preview\n• Guardar cuando estés listo')
-    } catch (error) {
-      console.error('Error generating content:', error)
+    } catch {
       alert('Error al generar contenido con IA. Por favor, inténtalo de nuevo.')
     } finally {
       setGeneratingAI(false)
@@ -160,8 +159,7 @@ export default function NewBlogPostPage() {
         const error = await response.json()
         alert(`Error: ${error.error}`)
       }
-    } catch (error) {
-      console.error('Error creating post:', error)
+    } catch {
       alert('Error al crear el artículo')
     } finally {
       setLoading(false)

@@ -115,8 +115,8 @@ export default function AdminConsultasPage() {
         const data = await blockedRes.json()
         setBlockedSlots(data.blockedSlots || [])
       }
-    } catch (error) {
-      console.error('Error fetching data:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }
@@ -138,8 +138,8 @@ export default function AdminConsultasPage() {
           setSelectedBooking(prev => prev ? { ...prev, status: newStatus } : null)
         }
       }
-    } catch (error) {
-      console.error('Error updating status:', error)
+    } catch {
+      // ignore update error
     }
   }
 
@@ -160,8 +160,8 @@ export default function AdminConsultasPage() {
         setSelectedBooking(prev => prev ? { ...prev, adminNotes: notesValue } : null)
         setEditingNotes(false)
       }
-    } catch (error) {
-      console.error('Error saving notes:', error)
+    } catch {
+      // ignore save error
     } finally {
       setSavingNotes(false)
     }
@@ -181,8 +181,8 @@ export default function AdminConsultasPage() {
         const data = await res.json()
         setBlockedSlots(prev => [...prev, data.blockedSlot])
       }
-    } catch (error) {
-      console.error('Error blocking day:', error)
+    } catch {
+      // ignore block day error
     } finally {
       setSavingBlock(false)
     }
@@ -202,8 +202,8 @@ export default function AdminConsultasPage() {
         const data = await res.json()
         setBlockedSlots(prev => [...prev, data.blockedSlot])
       }
-    } catch (error) {
-      console.error('Error blocking slot:', error)
+    } catch {
+      // ignore block slot error
     } finally {
       setSavingBlock(false)
     }
@@ -219,8 +219,8 @@ export default function AdminConsultasPage() {
       if (res.ok) {
         setBlockedSlots(prev => prev.filter(s => s.id !== slotId))
       }
-    } catch (error) {
-      console.error('Error unblocking slot:', error)
+    } catch {
+      // ignore unblock error
     }
   }
 
@@ -243,8 +243,8 @@ export default function AdminConsultasPage() {
       setBlockedSlots(prev => [...prev, ...newSlots])
       setSelectedDates(new Set())
       setBlockReason('')
-    } catch (error) {
-      console.error('Error blocking days:', error)
+    } catch {
+      // ignore block days error
     } finally {
       setSavingBlock(false)
     }
@@ -268,8 +268,8 @@ export default function AdminConsultasPage() {
       await Promise.all(promises)
       setBlockedSlots(prev => prev.filter(s => !slotsToUnblock.find(u => u.id === s.id)))
       setSelectedDates(new Set())
-    } catch (error) {
-      console.error('Error unblocking days:', error)
+    } catch {
+      // ignore unblock days error
     } finally {
       setSavingBlock(false)
     }

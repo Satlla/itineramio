@@ -75,7 +75,6 @@ export default function SubscriptionSuccessPage() {
         setVerificationError(data.error || data.message || t('subscriptionSuccess.stripe.verifyError'))
       }
     } catch (error) {
-      console.error('Error verifying Stripe payment:', error)
       setVerificationError(t('subscriptionSuccess.stripe.connectionError'))
     } finally {
       setVerifying(false)

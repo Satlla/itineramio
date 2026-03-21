@@ -43,7 +43,6 @@ export async function PUT(
     })
 
   } catch (error) {
-    console.error('Error updating FAQ submission:', error)
     return NextResponse.json(
       { error: 'Error al actualizar la pregunta' },
       { status: 500 }
@@ -75,7 +74,6 @@ export async function DELETE(
     })
 
   } catch (error) {
-    console.error('Error deleting FAQ submission:', error)
     return NextResponse.json(
       { error: 'Error al eliminar la pregunta' },
       { status: 500 }

@@ -108,7 +108,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, data: result })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Error analyzing media'
-    console.error('[demo-analyze-media] Error:', errorMessage)
     return NextResponse.json(
       { success: false, error: errorMessage },
       { status: 500 }

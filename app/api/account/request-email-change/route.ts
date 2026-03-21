@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const decoded = verifyToken(token)
 
     // Rate limit: 3 requests per user per hour
-    const { success: rlOk } = await checkRateLimitAsync(decoded.userId + ':email-change', { maxRequests: 3, windowMs: 60 * 60 * 1000 })
+    const { allowed: rlOk } = await checkRateLimitAsync(decoded.userId + ':email-change', { maxRequests: 3, windowMs: 60 * 60 * 1000 })
     if (!rlOk) {
       return NextResponse.json({ error: 'Demasiadas solicitudes. Espera antes de volver a intentarlo.' }, { status: 429 })
     }

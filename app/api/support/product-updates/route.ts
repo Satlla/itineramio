@@ -10,7 +10,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ updates })
   } catch (error) {
-    console.error('Error fetching product updates:', error)
     return NextResponse.json(
       { error: 'Error al obtener actualizaciones' },
       { status: 500 }

@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
       id: log.id,
       fecha: log.createdAt.toISOString(),
       fecha_local: log.createdAt.toLocaleString('es-ES'),
-      admin_id: log.adminUserId,
+      admin_id: log.adminId,
       admin_nombre: log.admin?.name || 'N/A',
       admin_email: log.admin?.email || 'N/A',
       accion: log.action,
@@ -157,8 +157,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error exporting logs:', error);
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Error interno del servidor' 
     }, { status: 500 });
   }

@@ -123,8 +123,8 @@ export async function GET(
             }
           }
         }
-      } catch (error) {
-        console.error('Error parsing step content:', error)
+      } catch {
+        // ignore step content parse error
       }
 
       return {
@@ -141,7 +141,6 @@ export async function GET(
       data: processedSteps
     })
   } catch (error) {
-    console.error('Error fetching safe public steps:', error)
     return NextResponse.json(
       { 
         success: false, 

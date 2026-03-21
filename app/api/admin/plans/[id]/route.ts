@@ -77,10 +77,9 @@ export async function PATCH(
     });
 
   } catch (error) {
-    console.error('Error updating plan:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Internal server error' 
+    return NextResponse.json({
+      success: false,
+      error: 'Internal server error'
     }, { status: 500 });
   }
 }
@@ -150,10 +149,9 @@ export async function DELETE(
     });
 
   } catch (error) {
-    console.error('Error deleting plan:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Internal server error' 
+    return NextResponse.json({
+      success: false,
+      error: 'Internal server error'
     }, { status: 500 });
   }
 }

@@ -120,7 +120,6 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Error fetching liquidations:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -617,7 +616,6 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Error generating liquidation:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

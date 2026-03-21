@@ -34,7 +34,6 @@ export async function GET(req: NextRequest) {
       totalCount,
     })
   } catch (error) {
-    console.error('Error fetching ticket stats:', error)
     return NextResponse.json(
       { error: 'Error al obtener estadísticas' },
       { status: 500 }

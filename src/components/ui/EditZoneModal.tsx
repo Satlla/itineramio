@@ -59,7 +59,6 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
 
   useEffect(() => {
     if (zone) {
-      console.log('🔧 Initializing modal with zone:', { name: zone.name, icon: zone.icon })
       setFormData({
         nameEs: getLanguageValue(zone.name, 'es'),
         nameEn: getLanguageValue(zone.name, 'en'),
@@ -83,13 +82,11 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
       // Fetch property information
       const propertyResponse = await fetch(`/api/properties/${propertyId}`)
       if (!propertyResponse.ok) {
-        console.error('Failed to fetch property info')
         return
       }
 
       const propertyData = await propertyResponse.json()
       if (!propertyData.success || !propertyData.data) {
-        console.error('Invalid property data')
         return
       }
 
@@ -98,19 +95,16 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
 
       // Check if property belongs to a property set
       if (property.propertySetId) {
-        console.log('🔗 Property belongs to set:', property.propertySetId)
         setPropertySetId(property.propertySetId)
 
         // Fetch property set data
         const setResponse = await fetch(`/api/property-sets/${property.propertySetId}`)
         if (!setResponse.ok) {
-          console.error('Failed to fetch property set info')
           return
         }
 
         const setData = await setResponse.json()
         if (setData.success && setData.data && setData.data.properties) {
-          console.log('🔗 Property set has', setData.data.properties.length, 'properties')
           setPropertySetProperties(
             setData.data.properties.map((p: any) => ({
               id: p.id,
@@ -119,12 +113,11 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
           )
         }
       } else {
-        console.log('🏠 Property is not in a set')
         setPropertySetId(null)
         setPropertySetProperties([])
       }
     } catch (error) {
-      console.error('Error fetching property set info:', error)
+      // fetch error suppressed
     } finally {
       setLoadingPropertySet(false)
     }
@@ -158,22 +151,10 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
   const handleSave = async () => {
     if (!zone || !formData.nameEs.trim()) return
 
-    console.log('🔍 SAVE DEBUG:', {
-      propertySetId,
-      propertySetPropertiesLength: propertySetProperties.length,
-      propertySetProperties,
-      shouldShowModal: propertySetId && propertySetProperties.length > 1
-    })
-
     // If property is in a set and has more than 1 property, show the PropertySetUpdateModal
     if (propertySetId && propertySetProperties.length > 1) {
-      console.log('🔗 Property is in a set, showing PropertySetUpdateModal')
       setShowPropertySetModal(true)
     } else {
-      console.log('⚠️ Not showing modal. Reason:', {
-        noPropertySetId: !propertySetId,
-        notEnoughProperties: propertySetProperties.length <= 1
-      })
       // Otherwise, save directly
       await performSave('single')
     }
@@ -203,13 +184,6 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
         fr: formData.nameFr.trim() || formData.nameEs.trim()  // Fallback to Spanish
       }
 
-      console.log('💾 Saving zone with data:', {
-        name: multilingualName,
-        icon: formData.icon,
-        scope,
-        selectedPropertyIds
-      })
-
       const body: any = {
         name: multilingualName,
         icon: formData.icon
@@ -231,16 +205,12 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
       })
 
       if (response.ok) {
-        const result = await response.json()
-        console.log('✅ Zone saved successfully', result.updatedCount ? `(${result.updatedCount} zones updated)` : '')
         onSuccess?.()
         onClose()
       } else {
-        console.error('❌ Error response:', response.status)
         alert(t('modals.editZone.errorSaving'))
       }
     } catch (error) {
-      console.error('Error saving zone:', error)
       alert(t('modals.editZone.errorSaving'))
     } finally {
       setSaving(false)
@@ -248,7 +218,6 @@ export function EditZoneModal({ isOpen, onClose, zone, propertyId, onSuccess }: 
   }
 
   const handleIconSelect = (iconId: string) => {
-    console.log('🎨 Icon selected:', iconId)
     setFormData(prev => ({ ...prev, icon: iconId }))
     setShowIconSelector(false)
   }

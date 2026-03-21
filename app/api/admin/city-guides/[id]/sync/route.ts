@@ -171,7 +171,6 @@ export async function POST(
       },
     })
   } catch (error) {
-    console.error('[sync] City guide sync failed:', error)
     return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }

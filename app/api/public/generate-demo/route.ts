@@ -38,7 +38,6 @@ async function verifyTurnstile(token: string): Promise<boolean> {
     // If Turnstile secret is not configured, skip verification gracefully.
     // The demo flow already has rate limiting (IP + email), OTP verification,
     // and disposable email blocking as anti-abuse measures.
-    console.warn('[demo] TURNSTILE_SECRET_KEY not configured, skipping verification')
     return true
   }
 
@@ -53,8 +52,7 @@ async function verifyTurnstile(token: string): Promise<boolean> {
     })
     const data = await response.json()
     return data.success === true
-  } catch (error) {
-    console.error('[demo] Turnstile verification error:', error)
+  } catch {
     return false
   }
 }
@@ -96,8 +94,8 @@ async function cleanupExpiredDemos() {
       where: { id: { in: propertyIds } },
     })
 
-  } catch (err) {
-    console.error('[demo] Cleanup error (non-blocking):', err)
+  } catch {
+    // non-blocking cleanup error ignored
   }
 }
 
@@ -239,7 +237,7 @@ export async function POST(request: NextRequest) {
           { status: 403 }
         )
       }
-      console.warn('[demo] emailVerificationToken not provided, skipping (dev mode)')
+      // emailVerificationToken not provided, skipping (dev mode)
     } else {
       const isTokenValid = verifyDemoVerificationToken(emailVerificationToken, normalizedEmail)
       if (!isTokenValid) {
@@ -446,8 +444,8 @@ export async function POST(request: NextRequest) {
         propertyInput.lng,
         propertyInput.city,
       )
-    } catch (err) {
-      console.error('[demo] Location data fetch failed (non-blocking):', err)
+    } catch {
+      // non-blocking location data fetch error ignored
     }
 
     // 11. Build location zones (directions)
@@ -693,8 +691,8 @@ export async function POST(request: NextRequest) {
           DEMO_CATEGORY_IDS,
           propertyInput.city,
         )
-      } catch (err) {
-        console.error('[demo] Recommendation generation failed (non-blocking):', err)
+      } catch {
+        // non-blocking recommendation generation error ignored
       }
     }
 
@@ -724,8 +722,8 @@ export async function POST(request: NextRequest) {
           zonesCount: filteredZones.length,
         }),
       })
-    } catch (emailErr) {
-      console.error('[demo] Confirmation email failed (non-blocking):', emailErr)
+    } catch {
+      // non-blocking email error ignored
     }
 
     // 16. Return response
@@ -737,7 +735,6 @@ export async function POST(request: NextRequest) {
       couponExpiresAt: couponExpiresAt.toISOString(),
     })
   } catch (error) {
-    console.error('[demo] Generation error:', error)
     const message = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
       { error: 'Error al generar el demo. Inténtalo de nuevo.', details: message },

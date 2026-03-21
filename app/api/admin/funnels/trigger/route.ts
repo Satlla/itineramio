@@ -211,7 +211,6 @@ export async function POST(request: NextRequest) {
     })
 
     if (result.error) {
-      console.error('Error sending email:', result.error)
       return NextResponse.json(
         { error: 'Error al enviar email' },
         { status: 500 }
@@ -266,7 +265,6 @@ export async function POST(request: NextRequest) {
       emailId: result.data?.id
     })
   } catch (error) {
-    console.error('Error triggering funnel:', error)
     return NextResponse.json(
       { error: 'Error al lanzar embudo' },
       { status: 500 }

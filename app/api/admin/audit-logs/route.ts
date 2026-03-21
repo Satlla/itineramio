@@ -62,7 +62,6 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error fetching audit logs:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

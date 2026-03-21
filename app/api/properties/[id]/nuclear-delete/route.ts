@@ -35,8 +35,6 @@ export async function DELETE(
     })
 
   } catch (error) {
-    console.error('Error soft-deleting property:', error)
-
     return NextResponse.json({
       success: false,
       error: 'Error al eliminar la propiedad',

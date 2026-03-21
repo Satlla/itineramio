@@ -2,10 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
 import { sendEmail, emailTemplates } from '../../../../src/lib/email-improved'
 import { createNotification } from '../../../../src/lib/notifications'
+import { checkRateLimitAsync, getRateLimitKey } from '../../../../src/lib/rate-limit'
 
 // POST /api/evaluations/create - Create evaluation (from public widget)
 export async function POST(request: NextRequest) {
   try {
+    const rateLimitResult = await checkRateLimitAsync(
+      getRateLimitKey(request, null, 'eval-create'),
+      { maxRequests: 10, windowMs: 60 * 1000 }
+    )
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+    }
+
     const body = await request.json()
     const { 
       propertyId, 
@@ -122,7 +131,7 @@ export async function POST(request: NextRequest) {
           }
         })
       } catch (notificationError) {
-        console.warn('Could not create notification:', notificationError)
+        // ignore notification errors
       }
 
       // Send email notification to property owner and manager using the same system as auth emails
@@ -156,8 +165,6 @@ export async function POST(request: NextRequest) {
           })
         }
       } catch (emailError) {
-        console.error('❌ ZONE EVALUATION: Error sending email notification:', emailError)
-        console.error('📊 Email error details:', JSON.stringify(emailError, null, 2))
         // Continue without email - evaluation still saved
       }
 
@@ -248,7 +255,7 @@ export async function POST(request: NextRequest) {
           }
         })
       } catch (notificationError) {
-        console.warn('Could not create notification:', notificationError)
+        // ignore notification errors
       }
 
       // Send email notification to property owner and manager using the same system as auth emails
@@ -281,8 +288,6 @@ export async function POST(request: NextRequest) {
           })
         }
       } catch (emailError) {
-        console.error('❌ PROPERTY EVALUATION: Error sending email notification:', emailError)
-        console.error('📊 Email error details:', JSON.stringify(emailError, null, 2))
         // Continue without email - evaluation still saved
       }
 
@@ -323,7 +328,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error creating evaluation:', error)
     return NextResponse.json(
       { error: 'Error al enviar la evaluación' },
       { status: 500 }

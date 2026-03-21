@@ -79,7 +79,7 @@ export function MediaSelector({
         setMediaItems(data.items || [])
       }
     } catch (error) {
-      console.error('Error fetching media:', error)
+      // fetch error suppressed
     } finally {
       setLoading(false)
     }

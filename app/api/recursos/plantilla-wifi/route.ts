@@ -40,8 +40,8 @@ export async function POST(request: NextRequest) {
           // Note: We don't store the password for security
         }
       })
-    } catch (dbError) {
-      console.error('Error saving lead:', dbError)
+    } catch {
+      // Ignore lead save errors
     }
 
     // Create or update EmailSubscriber for nurturing sequence
@@ -73,8 +73,8 @@ export async function POST(request: NextRequest) {
         tags: ['plantilla-wifi', 'recurso-gratuito']
       })
 
-    } catch (subscriberError) {
-      console.error('Error creating subscriber:', subscriberError)
+    } catch {
+      // Ignore subscriber creation errors
     }
 
     // Send email
@@ -249,7 +249,6 @@ export async function POST(request: NextRequest) {
 
 
     if (emailResult.error) {
-      console.error('Resend error:', emailResult.error)
       return NextResponse.json({
         success: false,
         error: emailResult.error.message || 'Error enviando email'
@@ -258,7 +257,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, emailId: emailResult.data?.id })
   } catch (error) {
-    console.error('Error generating template:', error)
     return NextResponse.json(
       { error: 'Error al generar la plantilla' },
       { status: 500 }

@@ -27,7 +27,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ authUrl })
   } catch (error) {
-    console.error('Error initiating Gmail auth:', error)
     return NextResponse.json(
       { error: 'Error al iniciar autenticación' },
       { status: 500 }

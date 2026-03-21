@@ -16,7 +16,6 @@ export async function GET(
     }, { status: 503 })
     
   } catch (error) {
-    console.error('Error:', error)
     return NextResponse.json({
       error: 'Internal server error'
     }, { status: 500 })
@@ -38,7 +37,6 @@ export async function POST(
     }, { status: 503 })
     
   } catch (error) {
-    console.error('Error:', error)
     return NextResponse.json({
       error: 'Internal server error'
     }, { status: 500 })
@@ -60,7 +58,6 @@ export async function PUT(
     }, { status: 503 })
     
   } catch (error) {
-    console.error('Error:', error)
     return NextResponse.json({
       error: 'Internal server error'
     }, { status: 500 })
@@ -82,7 +79,6 @@ export async function DELETE(
     }, { status: 503 })
     
   } catch (error) {
-    console.error('Error:', error)
     return NextResponse.json({
       error: 'Internal server error'
     }, { status: 500 })

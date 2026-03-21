@@ -39,7 +39,6 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error fetching alerts:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor',
@@ -90,7 +89,6 @@ export async function POST(request: NextRequest) {
       results
     })
   } catch (error) {
-    console.error('Error processing alerts:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor',

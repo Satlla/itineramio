@@ -80,7 +80,7 @@ export class InvoiceGenerator {
         }
       }
     } catch (error) {
-      console.error('Error loading company settings:', error)
+      // ignore, use defaults
     }
 
     // Default settings if none found
@@ -136,7 +136,7 @@ export class InvoiceGenerator {
           properties = notesData.properties || []
         }
       } catch (e) {
-        console.error('Error parsing invoice notes:', e)
+        // ignore parse error
       }
 
       return {
@@ -163,7 +163,6 @@ export class InvoiceGenerator {
         properties
       }
     } catch (error) {
-      console.error('Error fetching invoice data:', error)
       return null
     }
   }

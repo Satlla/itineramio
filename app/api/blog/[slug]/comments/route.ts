@@ -46,7 +46,6 @@ export async function GET(
       total: comments.length
     })
   } catch (error) {
-    console.error('Error fetching comments:', error)
     return NextResponse.json(
       { error: 'Error al cargar comentarios' },
       { status: 500 }
@@ -145,7 +144,7 @@ export async function POST(
 
     // Check if user is the blog post author
     const user = await getAuthUser(request)
-    const isAuthor = user?.id === post.authorId
+    const isAuthor = user?.userId === post.authorId
 
     // Simple spam detection - rate limiting
     const recentComments = await prisma.blogComment.count({
@@ -206,7 +205,7 @@ export async function POST(
         from: FROM_EMAIL,
         to: ADMIN_EMAILS,
         subject: `💬 Nuevo comentario en: ${post.title.substring(0, 50)}...`,
-        reply_to: authorEmail.trim().toLowerCase(),
+        replyTo: authorEmail.trim().toLowerCase(),
         html: `
 <!DOCTYPE html>
 <html>
@@ -240,7 +239,6 @@ export async function POST(
         `
       })
     } catch (notifyError) {
-      console.error('[Comment] Error sending admin notification:', notifyError)
       // Don't fail the request if admin notification fails
     }
 
@@ -254,7 +252,7 @@ export async function POST(
           from: FROM_EMAIL,
           to: [authorEmail.trim().toLowerCase()],
           subject: 'Verifica tu comentario en Itineramio',
-          reply_to: REPLY_TO_EMAIL,
+          replyTo: REPLY_TO_EMAIL,
           html: `
 <!DOCTYPE html>
 <html>
@@ -303,7 +301,6 @@ export async function POST(
         })
 
         if (error) {
-          console.error('[Comment Verification] Resend API error:', error)
           // Delete the comment since we couldn't send the verification email
           await prisma.blogComment.delete({ where: { id: comment.id } })
           return NextResponse.json(
@@ -313,7 +310,6 @@ export async function POST(
         }
 
       } catch (emailError) {
-        console.error('[Comment Verification] Exception sending email:', emailError)
         // Delete the comment since we couldn't send the verification email
         await prisma.blogComment.delete({ where: { id: comment.id } })
         return NextResponse.json(
@@ -360,7 +356,6 @@ export async function POST(
       message: 'Te hemos enviado un email para verificar tu comentario. Revisa tu bandeja de entrada.'
     })
   } catch (error) {
-    console.error('Error creating comment:', error)
     return NextResponse.json(
       { error: 'Error al crear comentario' },
       { status: 500 }

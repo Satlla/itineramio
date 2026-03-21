@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import { Decimal } from '@prisma/client/runtime/library'
+import { ReservationType } from '@prisma/client'
 import {
   matchProperty,
   extractPropertyNameFromSubject
@@ -265,7 +266,7 @@ export async function POST(request: NextRequest) {
       const code = data.confirmationCode
 
       // Detect property name
-      let propertyName = data?.propertyName || extractPropertyNameFromSubject(email.subject)
+      let propertyName = data?.propertyName || extractPropertyNameFromSubject(email.subject || '')
 
       // Find billing config
       let billingConfigId: string | null = null
@@ -300,16 +301,20 @@ export async function POST(request: NextRequest) {
               data: {
                 hostId: userId,
                 name: propertyName,
-                propertyType: 'APARTMENT',
+                type: 'APARTMENT',
                 maxGuests: 4,
                 bedrooms: 1,
-                beds: 1,
                 bathrooms: 1,
-                address: '',
                 city: '',
+                state: '',
+                street: '',
                 country: 'España',
-                isActive: true,
-              }
+                postalCode: '',
+                description: '',
+                hostContactName: '',
+                hostContactPhone: '',
+                hostContactEmail: '',
+              } as any
             })
 
             const newConfig = await prisma.propertyBillingConfig.create({
@@ -344,7 +349,6 @@ export async function POST(request: NextRequest) {
             results.propertiesCreated++
             results.aliasesAdded.push(`NUEVA PROPIEDAD: ${propertyName}`)
           } catch (createError) {
-            console.error(`Error creating property ${propertyName}:`, createError)
           }
         }
       }
@@ -481,7 +485,7 @@ export async function POST(request: NextRequest) {
             hostEarnings: new Decimal(hostEarnings),
             currency: mergedData.currency || 'EUR',
             status: hasCancellation ? 'CANCELLED' : 'CONFIRMED',
-            type: hasReimbursement ? 'ADJUSTMENT' : 'BOOKING',
+            type: (hasReimbursement ? 'ADJUSTMENT' : 'BOOKING') as ReservationType,
             importSource: 'EMAIL',
             rawEmailData: JSON.stringify(group.emails.map(e => ({
               id: e.id, subject: e.subject, emailType: e.emailType, receivedAt: e.receivedAt
@@ -504,7 +508,6 @@ export async function POST(request: NextRequest) {
         if (hasCancellation) results.cancelled++
 
       } catch (error) {
-        console.error(`Error processing ${confirmationCode}:`, error)
         for (const email of group.emails) {
           await prisma.gmailSyncedEmail.update({
             where: { id: email.id },
@@ -520,7 +523,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, results })
   } catch (error) {
-    console.error('Error in process-all:', error)
     return NextResponse.json({ error: 'Error al procesar emails' }, { status: 500 })
   }
 }

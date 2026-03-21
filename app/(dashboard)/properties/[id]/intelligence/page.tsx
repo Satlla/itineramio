@@ -709,7 +709,7 @@ export default function IntelligencePage() {
           setPropertyName(data.data?.name || '')
         }
       } catch (err) {
-        console.error('[intelligence] Load error:', err)
+        // load error
       } finally {
         setLoading(false)
       }

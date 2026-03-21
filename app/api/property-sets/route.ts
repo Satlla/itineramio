@@ -125,8 +125,6 @@ export async function GET(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('Error fetching property sets:', error)
-    
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'
@@ -203,8 +201,6 @@ export async function POST(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('Error creating property set:', error)
-    
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'

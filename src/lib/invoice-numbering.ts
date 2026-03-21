@@ -87,7 +87,7 @@ export async function getNextInvoiceNumber(seriesId: string): Promise<NextNumber
       fullNumber,
       seriesId: series.id
     }
-  })
+  }, { timeout: 10000 })
 
   return result
 }

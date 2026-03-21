@@ -49,7 +49,6 @@ export async function GET(
     return NextResponse.json(invoice)
 
   } catch (error) {
-    console.error('Error fetching invoice:', error)
     return NextResponse.json(
       { error: 'Error al obtener factura' },
       { status: 500 }

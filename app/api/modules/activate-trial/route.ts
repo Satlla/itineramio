@@ -92,7 +92,6 @@ export async function POST(request: NextRequest) {
       message: `Período de prueba de ${trialDays} días activado`
     })
   } catch (error) {
-    console.error('Error activating trial:', error)
     return NextResponse.json(
       { success: false, error: 'Error interno del servidor' },
       { status: 500 }

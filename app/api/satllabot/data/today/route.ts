@@ -11,7 +11,6 @@ export async function GET(request: NextRequest) {
   const date = searchParams.get('date') || ''
 
   if (!process.env.SATLLABOT_API_URL) {
-    console.error('[satllabot/today] SATLLABOT_API_URL no configurado')
     return NextResponse.json({ error: 'SATLLABOT_API_URL no configurado en Vercel' }, { status: 500 })
   }
 

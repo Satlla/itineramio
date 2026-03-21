@@ -104,7 +104,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ expenses: formattedExpenses })
   } catch (error) {
-    console.error('Error fetching expenses:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -230,7 +229,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ expense })
   } catch (error) {
-    console.error('Error creating expense:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

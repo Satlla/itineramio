@@ -66,8 +66,8 @@ export default function AdminPropertiesPage() {
         setProperties(data.properties)
         setTotalPages(data.pagination.totalPages)
       }
-    } catch (error) {
-      console.error('Error fetching properties:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }

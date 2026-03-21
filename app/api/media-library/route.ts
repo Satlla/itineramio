@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = jwt.verify(token, JWT_SECRET!) as unknown as { userId: string }
     const userId = decoded.userId
 
     // Set JWT claims for PostgreSQL RLS policies
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = jwt.verify(token, JWT_SECRET!) as unknown as { userId: string }
     const userId = decoded.userId
 
     // Set JWT claims for PostgreSQL RLS policies
@@ -296,7 +296,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = jwt.verify(token, JWT_SECRET!) as unknown as { userId: string }
     const userId = decoded.userId
 
     // Set JWT claims for PostgreSQL RLS policies
@@ -343,7 +343,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = jwt.verify(token, JWT_SECRET!) as unknown as { userId: string }
     const userId = decoded.userId
 
     // Set JWT claims for PostgreSQL RLS policies

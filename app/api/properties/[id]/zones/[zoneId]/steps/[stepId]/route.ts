@@ -24,7 +24,7 @@ export async function GET(
 
     let userId: string
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+      const decoded = jwt.verify(token, JWT_SECRET!) as unknown as { userId: string }
       userId = decoded.userId
     } catch (error) {
       return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
@@ -87,7 +87,6 @@ export async function GET(
       data: step
     })
   } catch (error) {
-    console.error('Error fetching step:', error)
     return NextResponse.json(
       { 
         success: false, 
@@ -178,11 +177,10 @@ export async function PUT(
     })
 
   } catch (error) {
-    console.error('Error updating step:', error)
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Error al actualizar el paso' 
+      {
+        success: false,
+        error: 'Error al actualizar el paso'
       },
       { status: 500 }
     )
@@ -229,7 +227,6 @@ export async function DELETE(
     })
 
   } catch (error) {
-    console.error('Error deleting step:', error)
     return NextResponse.json(
       { 
         success: false, 

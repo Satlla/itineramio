@@ -196,7 +196,6 @@ export default function NewArticlePage() {
         router.push(`/admin/marketing/knowledge/${data.data.id}`)
       }
     } catch (error) {
-      console.error('Error guardando artículo:', error)
       alert(error instanceof Error ? error.message : 'Error al guardar el artículo')
     } finally {
       setIsSaving(false)

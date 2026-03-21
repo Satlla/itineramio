@@ -36,29 +36,23 @@ export default function AdminPropertyManagementPage() {
 
   const fetchProperties = async () => {
     try {
-      console.log('🔍 Fetching properties...')
       const response = await fetch('/api/admin/properties')
-      console.log('📡 Response status:', response.status)
-      
+
       if (response.ok) {
         const data = await response.json()
-        console.log('📊 Properties data:', data)
         setProperties(data.properties || [])
       } else if (response.status === 401) {
         // Not authenticated as admin - redirect to admin login
-        console.log('🔐 Not authenticated as admin, redirecting to login')
         window.location.href = '/admin/login'
         return
       } else {
         const errorText = await response.text()
-        console.error('❌ Error response:', errorText)
-        setMessage({ 
-          type: 'error', 
+        setMessage({
+          type: 'error',
           text: `Error fetching properties: ${response.status} - ${errorText}`
         })
       }
     } catch (error) {
-      console.error('🚨 Network error:', error)
       setMessage({ type: 'error', text: 'Network error fetching properties' })
     } finally {
       setLoading(false)
@@ -68,7 +62,6 @@ export default function AdminPropertyManagementPage() {
   const handleAction = async () => {
     if (!selectedProperty || !actionType) return
 
-    console.log(`🎯 Starting ${actionType} for property:`, selectedProperty.id)
     setActionLoading(selectedProperty.id)
     setMessage(null)
     
@@ -101,9 +94,6 @@ export default function AdminPropertyManagementPage() {
           break
       }
 
-      console.log('📡 Making request to:', endpoint)
-      console.log('📦 With body:', body)
-
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -112,10 +102,8 @@ export default function AdminPropertyManagementPage() {
         body: JSON.stringify(body)
       })
       
-      console.log('📨 Response status:', response.status)
       const data = await response.json()
-      console.log('📄 Response data:', data)
-      
+
       if (response.ok) {
         setMessage({ type: 'success', text: data.message })
         setSelectedProperty(null)
@@ -129,7 +117,6 @@ export default function AdminPropertyManagementPage() {
         await fetchProperties() // Refresh the list
       } else if (response.status === 401) {
         // Not authenticated as admin - redirect to admin login
-        console.log('🔐 Admin authentication required, redirecting to login')
         window.location.href = '/admin/login'
         return
       } else {
@@ -139,7 +126,6 @@ export default function AdminPropertyManagementPage() {
         })
       }
     } catch (error: any) {
-      console.error('🚨 Action error:', error)
       setMessage({ type: 'error', text: `Network error: ${error.message}` })
     } finally {
       setActionLoading(null)
@@ -147,7 +133,6 @@ export default function AdminPropertyManagementPage() {
   }
 
   const openModal = (property: Property, action: 'activate' | 'activate-invoice' | 'deactivate') => {
-    console.log(`🎯 Opening ${action} modal for:`, property.name)
     setSelectedProperty(property)
     setActionType(action)
     setFormData({

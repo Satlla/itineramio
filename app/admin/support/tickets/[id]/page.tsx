@@ -153,9 +153,8 @@ export default function TicketDetailPage() {
       } else {
         setError('Error al cargar el ticket')
       }
-    } catch (err) {
+    } catch {
       setError('Error de conexion')
-      console.error('Error fetching ticket:', err)
     } finally {
       setLoading(false)
     }
@@ -185,8 +184,7 @@ export default function TicketDetailPage() {
         const errData = await res.json().catch(() => ({}))
         alert(errData.error || 'Error al enviar el mensaje')
       }
-    } catch (err) {
-      console.error('Error sending reply:', err)
+    } catch {
       alert('Error de conexion')
     } finally {
       setSending(false)
@@ -218,8 +216,7 @@ export default function TicketDetailPage() {
         const errData = await res.json().catch(() => ({}))
         alert(errData.error || 'Error al actualizar')
       }
-    } catch (err) {
-      console.error('Error saving metadata:', err)
+    } catch {
       alert('Error de conexion')
     } finally {
       setSaving(false)

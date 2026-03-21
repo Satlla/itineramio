@@ -106,8 +106,8 @@ export default function AdminFunnelsPage() {
         const data = await response.json()
         setLeads(data.leads || [])
       }
-    } catch (error) {
-      console.error('Error fetching leads:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }
@@ -138,8 +138,7 @@ export default function AdminFunnelsPage() {
         const data = await response.json()
         alert(data.error || 'Error al agregar lead')
       }
-    } catch (error) {
-      console.error('Error adding lead:', error)
+    } catch {
       alert('Error al agregar lead')
     } finally {
       setAddingLead(false)
@@ -166,8 +165,7 @@ export default function AdminFunnelsPage() {
         const data = await response.json()
         alert(data.error || 'Error al lanzar embudo')
       }
-    } catch (error) {
-      console.error('Error triggering funnel:', error)
+    } catch {
       alert('Error al lanzar embudo')
     } finally {
       setTriggeringFunnel(null)
@@ -189,8 +187,7 @@ export default function AdminFunnelsPage() {
         const data = await response.json()
         alert(data.error || 'Error al eliminar lead')
       }
-    } catch (error) {
-      console.error('Error deleting lead:', error)
+    } catch {
       alert('Error al eliminar lead')
     } finally {
       setDeleting(false)
@@ -198,7 +195,7 @@ export default function AdminFunnelsPage() {
   }
 
   const themes = getAllThemes()
-  const themeColors: Record<FunnelTheme, string> = {
+  const themeColors: Record<string, string> = {
     'reservas': 'bg-emerald-100 text-emerald-800 border-emerald-200',
     'gestión-huéspedes': 'bg-blue-100 text-blue-800 border-blue-200',
     'limpieza': 'bg-green-100 text-green-800 border-green-200',

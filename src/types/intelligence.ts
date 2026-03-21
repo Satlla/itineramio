@@ -18,6 +18,10 @@ export interface PropertyIntelligence {
     quietHoursEnd?: string
     noParking?: boolean
     additionalRules?: string
+    allowsBabies?: boolean
+    hasCrib?: boolean
+    hasHighChair?: boolean
+    hasBabyBath?: boolean
   }
 
   // Checkout tasks
@@ -212,6 +216,13 @@ export interface PropertyIntelligence {
     lightSwitch?: string
     waterTrick?: string
     otherQuirks?: string[]
+  }
+
+  // Registro obligatorio de viajeros (Partee / SES.hospedajes)
+  guestRegistration?: {
+    required: boolean
+    url: string
+    message?: string
   }
 
   // Preguntas sin respuesta del chatbot

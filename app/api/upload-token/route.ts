@@ -59,7 +59,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             const mediaType = blob.contentType?.startsWith('image/') ? 'image' : 'video'
 
             // Generate hash from URL + size (can't access file content in callback)
-            const hashSource = `${blob.url}-${blob.size}-${Date.now()}`
+            const hashSource = `${blob.url}-${(blob as any).size}-${Date.now()}`
             const hash = createHash('sha256').update(hashSource).digest('hex')
 
             await prisma.mediaLibrary.create({
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 filename: blob.pathname,
                 originalName: blob.pathname.split('/').pop() || blob.pathname,
                 mimeType: blob.contentType || 'application/octet-stream',
-                size: blob.size,
+                size: (blob as any).size,
                 hash: hash,
                 usageCount: 1,
                 isPublic: false,
@@ -79,7 +79,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             })
           }
         } catch (error) {
-          console.error('⚠️ Error saving to media library:', error)
           // Don't fail the upload if media library save fails
         }
       },
@@ -87,7 +86,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json(jsonResponse)
   } catch (error) {
-    console.error('❌ Upload token error:', error)
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Error generando token de upload' },
       { status: 400 }

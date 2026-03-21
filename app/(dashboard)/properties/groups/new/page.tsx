@@ -143,7 +143,7 @@ function NewPropertySetPageContent() {
           setAvailableProperties(result.data)
         }
       } catch (error) {
-        console.error('Error fetching properties:', error)
+        // error fetching properties
       } finally {
         setLoadingProperties(false)
       }
@@ -187,12 +187,10 @@ function NewPropertySetPageContent() {
             setSelectedProperties(selectedIds)
             setValue('selectedProperties', selectedIds)
           } else {
-            console.error('Error loading property set:', result.error)
             alert(t('groups.errorLoadingSet'))
             router.push('/properties/groups')
           }
         } catch (error) {
-          console.error('Error loading property set:', error)
           alert(t('groups.errorLoadingSet'))
           router.push('/properties/groups')
         } finally {
@@ -205,7 +203,6 @@ function NewPropertySetPageContent() {
   }, [isEditing, editId, reset, router, setValue, t])
 
   const onSubmit = async (data: CreatePropertySetFormData) => {
-    console.log('📝 Form submitted with data:', data)
     setIsSubmitting(true)
 
     try {
@@ -226,29 +223,18 @@ function NewPropertySetPageContent() {
       const result = await response.json()
 
       if (!response.ok) {
-        console.error('❌ API error:', result)
         throw new Error(result.error || (isEditing ? t('groups.errorUpdating') : t('groups.errorCreating')))
       }
-
-      console.log(`✅ Conjunto ${isEditing ? 'actualizado' : 'creado'} exitosamente:`, result.data)
 
       // Clear saved data and redirect to the new property set
       clearSavedData()
       router.push(`/properties/groups/${result.data.id}`)
     } catch (error) {
-      console.error(`❌ Error ${isEditing ? 'actualizando' : 'creando'} conjunto:`, error)
       alert(isEditing ? t('groups.errorUpdating') : t('groups.errorCreating'))
     } finally {
       setIsSubmitting(false)
     }
   }
-
-  // Debug: log form errors when they change
-  useEffect(() => {
-    if (Object.keys(errors).length > 0) {
-      console.log('⚠️ Form validation errors:', errors)
-    }
-  }, [errors])
 
   // Validar campos por step
   const validateStep = (step: number): boolean => {
@@ -839,12 +825,7 @@ function NewPropertySetPageContent() {
                     type="submit"
                     disabled={isSubmitting}
                     loading={isSubmitting}
-                    onClick={() => {
-                      console.log('🔘 Submit button clicked')
-                      console.log('📋 Form values:', watchedValues)
-                      console.log('❌ Form errors:', errors)
-                      console.log('✅ Form is valid:', isValid)
-                    }}
+                    onClick={() => {}}
                   >
                     <Save className="w-4 h-4 mr-2" />
                     {isSubmitting

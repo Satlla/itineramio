@@ -51,8 +51,7 @@ export default function AdminPropertyZonesPage({ params }: { params: Promise<{ i
         }
 
         setIsAdmin(true)
-      } catch (error) {
-        console.error('Error verificando estado de admin:', error)
+      } catch {
         setError('Error verificando permisos')
         setIsAdmin(false)
       }
@@ -76,8 +75,7 @@ export default function AdminPropertyZonesPage({ params }: { params: Promise<{ i
 
         const data = await response.json()
         setProperty(data)
-      } catch (error) {
-        console.error('Error cargando propiedad:', error)
+      } catch {
         setError('No se pudo cargar la propiedad')
       } finally {
         setIsLoading(false)
@@ -120,7 +118,7 @@ export default function AdminPropertyZonesPage({ params }: { params: Promise<{ i
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <AnimatedLoadingSpinner size="lg" />
+          <AnimatedLoadingSpinner />
           <p className="mt-4 text-gray-600">Cargando propiedad...</p>
         </div>
       </div>

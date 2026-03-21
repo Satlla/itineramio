@@ -45,7 +45,6 @@ export default function CanceledSubscriptionBanner({
         setError(data.error || 'Error al reactivar la suscripción')
       }
     } catch (err) {
-      console.error('Error reactivando suscripción:', err)
       setError('Error de conexión. Por favor, intenta de nuevo.')
     } finally {
       setIsReactivating(false)

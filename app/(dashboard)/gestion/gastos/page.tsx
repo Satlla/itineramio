@@ -137,7 +137,6 @@ export default function GastosPage() {
         setBillingUnits(data.billingUnits || [])
       }
     } catch (error) {
-      console.error('Error fetching data:', error)
     } finally {
       setLoading(false)
     }
@@ -221,7 +220,6 @@ export default function GastosPage() {
         setFormError(data.error || t('expenses.errors.saveError'))
       }
     } catch (error) {
-      console.error('Error saving expense:', error)
       setFormError(t('expenses.errors.connectionError'))
     } finally {
       setSaving(false)
@@ -249,7 +247,6 @@ export default function GastosPage() {
         setExpenseToDelete(null)
       }
     } catch (error) {
-      console.error('Error deleting expense:', error)
     } finally {
       setDeleting(null)
     }

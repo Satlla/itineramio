@@ -76,8 +76,7 @@ export async function PATCH(
     });
 
   } catch (error) {
-    console.error('Error toggling user status:', error);
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: false, 
       error: 'Internal server error' 
     }, { status: 500 });

@@ -167,8 +167,6 @@ export async function crearZonasEsenciales(
   onProgress?: (current: number, total: number) => void
 ): Promise<boolean> {
   try {
-    console.log('🏠 Creando zonas esenciales básicas para:', propertyId)
-
     // First, get existing zones to avoid duplicates
     const existingResponse = await fetch(`/api/properties/${propertyId}/zones`, {
       credentials: 'include'
@@ -180,8 +178,6 @@ export async function crearZonasEsenciales(
         return name.toLowerCase()
       }) : []
 
-    console.log('Existing zones:', existingZoneNames)
-
     let createdCount = 0
     const totalZones = zonasEsenciales.length
 
@@ -191,7 +187,6 @@ export async function crearZonasEsenciales(
 
       // Skip if zone already exists
       if (existingZoneNames.includes(zoneName.toLowerCase())) {
-        console.log(`Skipping duplicate zone: ${zoneName}`)
         continue
       }
 
@@ -199,7 +194,6 @@ export async function crearZonasEsenciales(
       const contentTemplate = zona.templateId ? getZoneContentTemplate(zona.templateId) : null
 
       // Use batch API ALWAYS for reliability
-      console.log(`🚀 Creating zone "${zoneName}" via BATCH API`, contentTemplate ? `with ${contentTemplate.steps.length} template steps` : 'without template')
       const response = await fetch(`/api/properties/${propertyId}/zones/batch`, {
         method: 'POST',
         credentials: 'include',
@@ -218,35 +212,21 @@ export async function crearZonasEsenciales(
       })
 
       if (!response.ok) {
-        const errorText = await response.text()
-        console.error(`❌ Error creando zona "${zoneName}":`, response.status, errorText)
-
-        // Try to parse as JSON for more details
-        try {
-          const errorData = JSON.parse(errorText)
-          console.error('Error details:', errorData)
-        } catch (e) {
-          // Not JSON, just log the text
-        }
         continue
       }
 
       const result = await response.json()
       if (result.success && result.data?.zones?.length > 0) {
-        console.log(`✅ Zona "${zoneName}" creada via batch:`, result.data.zones[0].id)
         createdCount++
         // Call progress callback
         if (onProgress) {
           onProgress(createdCount, totalZones)
         }
-      } else {
-        console.error(`❌ Batch result failed for "${zoneName}":`, result)
       }
     }
 
     return true
   } catch (error) {
-    console.error('❌ Error creando zonas esenciales:', error)
     return false
   }
 }
@@ -268,12 +248,10 @@ export async function borrarTodasLasZonas(propertyId: string): Promise<boolean> 
         method: 'DELETE',
         credentials: 'include'
       })
-      console.log(`🗑️ Zona "${zone.name}" eliminada`)
     }
 
     return true
   } catch (error) {
-    console.error('Error borrando zonas:', error)
     return false
   }
 }

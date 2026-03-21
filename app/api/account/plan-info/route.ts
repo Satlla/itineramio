@@ -95,7 +95,6 @@ export async function GET(request: NextRequest) {
       hasActiveSubscription
     })
   } catch (error) {
-    console.error('Error fetching plan info:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

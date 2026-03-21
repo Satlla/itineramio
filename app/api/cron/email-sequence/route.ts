@@ -55,7 +55,6 @@ export async function GET(request: NextRequest) {
 
         results.day3Sent++
       } catch (err) {
-        console.error(`Error sending day3 email to ${user.email}:`, err)
         results.errors++
       }
     }
@@ -93,7 +92,6 @@ export async function GET(request: NextRequest) {
 
         results.day7Sent++
       } catch (err) {
-        console.error(`Error sending day7 email to ${user.email}:`, err)
         results.errors++
       }
     }
@@ -104,7 +102,6 @@ export async function GET(request: NextRequest) {
       processedAt: now.toISOString(),
     })
   } catch (error) {
-    console.error('Email sequence cron error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

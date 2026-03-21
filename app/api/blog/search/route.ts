@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
+import { Prisma } from '@prisma/client'
 
 // Normalize text for accent-insensitive search
 function normalizeText(text: string): string {
@@ -29,21 +30,23 @@ export async function GET(request: NextRequest) {
     const normalizedQuery = normalizeText(query)
 
     // Search in blog posts
+    const where: Prisma.BlogPostWhereInput = {
+      status: 'PUBLISHED',
+      ...(category && { category: category as Prisma.EnumBlogCategoryFilter }),
+      OR: [
+        { title: { contains: query, mode: 'insensitive' } },
+        { title: { contains: normalizedQuery, mode: 'insensitive' } },
+        { excerpt: { contains: query, mode: 'insensitive' } },
+        { excerpt: { contains: normalizedQuery, mode: 'insensitive' } },
+        { content: { contains: query, mode: 'insensitive' } },
+        { content: { contains: normalizedQuery, mode: 'insensitive' } },
+        { tags: { hasSome: [query, normalizedQuery] } },
+        { keywords: { hasSome: [query, normalizedQuery] } },
+      ]
+    }
+
     const posts = await prisma.blogPost.findMany({
-      where: {
-        status: 'PUBLISHED',
-        ...(category && { category }),
-        OR: [
-          { title: { contains: query, mode: 'insensitive' } },
-          { title: { contains: normalizedQuery, mode: 'insensitive' } },
-          { excerpt: { contains: query, mode: 'insensitive' } },
-          { excerpt: { contains: normalizedQuery, mode: 'insensitive' } },
-          { content: { contains: query, mode: 'insensitive' } },
-          { content: { contains: normalizedQuery, mode: 'insensitive' } },
-          { tags: { hasSome: [query, normalizedQuery] } },
-          { keywords: { hasSome: [query, normalizedQuery] } },
-        ]
-      },
+      where,
       select: {
         id: true,
         slug: true,
@@ -137,7 +140,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Blog search error:', error)
     return NextResponse.json(
       { error: 'Error en la búsqueda', results: [], total: 0 },
       { status: 500 }

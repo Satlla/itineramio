@@ -26,7 +26,6 @@ export async function GET(
 
     return NextResponse.json({ article })
   } catch (error) {
-    console.error('Error fetching article:', error)
     return NextResponse.json(
       { error: 'Error al obtener artículo' },
       { status: 500 }
@@ -119,7 +118,6 @@ export async function PUT(
 
     return NextResponse.json({ article })
   } catch (error) {
-    console.error('Error updating article:', error)
     return NextResponse.json(
       { error: 'Error al actualizar artículo' },
       { status: 500 }
@@ -169,7 +167,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting article:', error)
     return NextResponse.json(
       { error: 'Error al eliminar artículo' },
       { status: 500 }

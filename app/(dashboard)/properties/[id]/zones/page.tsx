@@ -354,7 +354,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               headers['Authorization'] = `Bearer ${token}`
             }
           } catch (e) {
-            console.warn('Could not access localStorage for auth token')
+            // could not access localStorage for auth token
           }
           return headers
         }
@@ -368,7 +368,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
         // If main endpoint fails, try safe endpoint
         if (!propResponse.ok || !propResult.success) {
-          console.log('Main property endpoint failed, trying safe endpoint...')
           propResponse = await fetch(`/api/properties/${id}/safe`, {
             credentials: 'include',
             headers: getAuthHeaders()
@@ -378,7 +377,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         
         // Check if property exists
         if (!propResponse.ok || !propResult.success || !propResult.data) {
-          console.error('Property not found:', id)
           addNotification({
             type: 'error',
             title: 'Propiedad no encontrada',
@@ -414,7 +412,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         // Fetch property set properties if this property belongs to a set
         if (propResult.data.propertySetId) {
           try {
-            console.log('🔗 Property belongs to set:', propResult.data.propertySetId)
             const setResponse = await fetch(`/api/property-sets/${propResult.data.propertySetId}`, {
               credentials: 'include',
               headers: getAuthHeaders()
@@ -422,24 +419,17 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             if (setResponse.ok) {
               const setData = await setResponse.json()
               if (setData.success && setData.data && setData.data.properties) {
-                console.log('🔗 Property set has', setData.data.properties.length, 'properties:', setData.data.properties.map((p: any) => p.name))
                 setPropertySetProperties(
                   setData.data.properties.map((p: any) => ({
                     id: p.id,
                     name: p.name
                   }))
                 )
-              } else {
-                console.log('⚠️ Property set data not found in response')
               }
-            } else {
-              console.log('⚠️ Failed to fetch property set data, status:', setResponse.status)
             }
           } catch (error) {
-            console.error('Error fetching property set:', error)
+            // error fetching property set
           }
-        } else {
-          console.log('🏠 Property is NOT in a set (standalone property)')
         }
 
         // Skip notifications for now to avoid 500 errors
@@ -455,7 +445,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
         // If main zones endpoint fails, try safe endpoint
         if (!zonesResponse.ok || !zonesResult.success) {
-          console.log('Main zones endpoint failed, trying safe endpoint...')
           zonesResponse = await fetch(`/api/properties/${id}/zones/safe`, {
             credentials: 'include',
             headers: getAuthHeaders()
@@ -486,13 +475,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               recommendationsCount: zone.recommendationsCount,
             }
 
-            console.log('🔄 Transformed zone on load:', {
-              id: zone.id,
-              name: zoneName,
-              originalIcon: zone.icon,
-              transformedIconId: transformedZone.iconId
-            })
-
             return transformedZone
           })
 
@@ -502,17 +484,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           const hasCreatedZonesForThisProperty = isClient && typeof window !== 'undefined' ? 
             !!window.localStorage.getItem(propertyZonesKey) : false
           
-          // Debug logging for mobile troubleshooting
-          console.log('🔍 Banner Debug Info:', {
-            isClient,
-            hasExistingZones,
-            zonesLength: transformedZones.length,
-            propertyZonesKey,
-            hasCreatedZonesForThisProperty,
-            windowExists: typeof window !== 'undefined',
-            localStorage: typeof window !== 'undefined' ? window.localStorage : null
-          })
-          
           if (isClient && !hasExistingZones && !hasCreatedZonesForThisProperty) {
             // Property has no zones and we haven't created them yet
             // Show modal immediately and create zones in background
@@ -520,15 +491,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             const hasShownWelcome = typeof window !== 'undefined' ? 
               !!window.localStorage.getItem(propertyWelcomeKey) : false
             
-            console.log('🎯 Welcome Modal Check:', {
-              propertyWelcomeKey,
-              hasShownWelcome,
-              shouldShowModal: !hasShownWelcome
-            })
-            
             if (!hasShownWelcome) {
-              // Show modal immediately with extra mobile debugging
-              console.log('📱 Showing ZonasEsencialesModal...')
               setShowZonasEsencialesModal(true)
               setIsCreatingZone(true) // Show loading state
               
@@ -539,7 +502,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   setZoneCreationProgress(0)
 
                   const success = await crearZonasEsenciales(id, (current, total) => {
-                    console.log(`📊 Progress: ${current}/${total}`)
                     setZoneCreationProgress(current)
                     setTotalZonesToCreate(total)
                   })
@@ -575,7 +537,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     }
                   }
                 } catch (error) {
-                  console.error('Error creating essential zones:', error)
+                  // error creating essential zones
                 } finally {
                   setIsCreatingZone(false) // Hide loading state
                 }
@@ -647,7 +609,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           }, 1000)
         }
       } catch (error) {
-        console.error('Error fetching data:', error)
+        // error fetching data
       } finally {
         setIsLoadingZones(false)
         hasFetchedDataRef.current = true
@@ -660,10 +622,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   const handleCreateZone = async () => {
     if (!formData.name || !formData.iconId) return
-
-    console.log('🆕 CREATE ZONE - Starting')
-    console.log('🆕 propertySetId:', propertySetId)
-    console.log('🆕 propertySetProperties.length:', propertySetProperties.length)
 
     // Check for duplicate zones
     const nameNormalized = formData.name.toLowerCase().trim();
@@ -695,30 +653,19 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
     // If property is in a set with multiple properties, show PropertySetUpdateModal
     if (propertySetId && propertySetProperties.length > 1) {
-      console.log('🔗 Property is in a set, showing PropertySetUpdateModal for CREATE')
       setPendingOperation('create')
       setPendingZoneData(zoneData)
       setShowPropertySetModal(true)
       return
     }
 
-    console.log('⚠️ NOT showing modal. Reason:', {
-      noPropertySetId: !propertySetId,
-      notEnoughProperties: propertySetProperties.length <= 1
-    })
-
     // Otherwise, create directly
     setIsCreatingZone(true)
     try {
-      const success = await createBatchZones(id, [zoneData])
+      const result = await createBatchZones(id, [zoneData])
 
-      if (success) {
-        // Refresh zones list
-        const zonesResponse = await fetch(`/api/properties/${id}/zones`)
-        const zonesResult = await zonesResponse.json()
-        if (zonesResult.success) {
-          setZones(transformZonesFromApi(zonesResult.data, id))
-        }
+      if (result?.success) {
+        const newZoneId = result?.data?.zones?.[0]?.id
 
         setFormData({ name: '', nameEn: '', nameFr: '', description: '', iconId: '' })
         setShowCreateForm(false)
@@ -730,6 +677,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           message: `La zona "${zoneData.name}" se ha creado correctamente`,
           read: false
         })
+
+        // Redirigir dentro de la zona para completarla
+        if (newZoneId) {
+          router.push(`/properties/${id}/zones/${newZoneId}`)
+          return
+        }
       } else {
         addNotification({
           type: 'error',
@@ -739,7 +692,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         })
       }
     } catch (error) {
-      console.error('Error creating zone:', error)
       addNotification({
         type: 'error',
         title: '❌ Error al crear zona',
@@ -780,7 +732,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         })
       }
     } catch (error) {
-      console.error('Error loading zone data:', error)
       setFormData({
         name: getZoneText(zone.name),
         nameEn: '',
@@ -826,13 +777,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setEditingTranslationsZoneId(zone.id)
       }
     } catch (error) {
-      console.error('Error loading zone translations:', error)
+      // error loading zone translations
     }
   }
 
   const handleSaveTranslations = async (zoneId: string) => {
     if (!zoneTranslations.es) {
-      alert('El nombre en español es obligatorio')
+      addNotification({ type: 'error', title: 'Campo obligatorio', message: 'El nombre en español es obligatorio', read: false })
       return
     }
 
@@ -874,11 +825,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         })
         setEditingTranslationsZoneId(null)
       } else {
-        alert(result.error || 'Error al guardar traducciones')
+        addNotification({ type: 'error', title: 'Error al guardar', message: result.error || 'No se pudieron guardar las traducciones.', read: false })
       }
     } catch (error) {
-      console.error('Error saving translations:', error)
-      alert('Error al guardar traducciones')
+      addNotification({ type: 'error', title: 'Error de conexión', message: 'No se pudieron guardar las traducciones.', read: false })
     } finally {
       setSavingTranslations(false)
     }
@@ -900,14 +850,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       iconId: formData.iconId
     }
 
-    console.log('🔄 Updating zone with data:', {
-      ...zoneUpdateData,
-      editingZone: editingZone.id
-    })
-
     // If property is in a set with multiple properties, show PropertySetUpdateModal
     if (propertySetId && propertySetProperties.length > 1) {
-      console.log('🔗 Property is in a set, showing PropertySetUpdateModal for UPDATE ZONE')
       setPendingOperation('update')
       setPendingZoneData({ ...zoneUpdateData, zoneId: editingZone.id, zoneName: editingZone.name })
       setPendingZoneForSave(editingZone)
@@ -943,12 +887,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        console.error('Error updating zone:', result.error)
-        alert(result.error || 'Error al actualizar la zona')
+        addNotification({ type: 'error', title: 'Error al actualizar', message: result.error || 'No se pudo actualizar la zona. Inténtalo de nuevo.', read: false })
         return
       }
-
-      console.log('✅ Zone updated successfully')
 
       // If scope is 'all' or 'selected', update matching zones in other properties
       if (scope !== 'single') {
@@ -956,8 +897,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         const propertiesToUpdate = scope === 'all'
           ? propertySetProperties.filter(p => p.id !== id)
           : propertySetProperties.filter(p => selectedPropertyIds?.includes(p.id) && p.id !== id)
-
-        console.log(`🔗 Updating zone "${currentZoneName}" in ${propertiesToUpdate.length} other properties`)
 
         for (const prop of propertiesToUpdate) {
           try {
@@ -972,7 +911,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               })
 
               if (matchingZone) {
-                console.log(`📝 Updating zone in property ${prop.name}`)
                 await fetch(`/api/properties/${prop.id}/zones/${matchingZone.id}`, {
                   method: 'PUT',
                   headers: { 'Content-Type': 'application/json' },
@@ -987,7 +925,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               }
             }
           } catch (error) {
-            console.error(`Error updating zone in property ${prop.id}:`, error)
+            // error updating zone in property
           }
         }
 
@@ -1012,16 +950,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           : z
       ))
 
-      console.log('✅ Local zones state updated')
-
       setEditingZone(null)
       setFormData({ name: '', nameEn: '', nameFr: '', description: '', iconId: '' })
       setFormNameLang('es')
       setShowCreateForm(false)
       setShowIconSelector(false)
     } catch (error) {
-      console.error('Error updating zone:', error)
-      alert('Error al actualizar la zona')
+      addNotification({ type: 'error', title: 'Error de conexión', message: 'No se pudo actualizar la zona. Inténtalo de nuevo.', read: false })
     } finally {
       setIsUpdatingZone(false)
     }
@@ -1035,25 +970,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   const handleConfirmDelete = async () => {
     if (!zoneToDelete) return
 
-    console.log('🗑️ DELETE ZONE - Starting')
-    console.log('🗑️ propertySetId:', propertySetId)
-    console.log('🗑️ propertySetProperties.length:', propertySetProperties.length)
-
     // Close the initial delete confirmation modal
     setShowDeleteModal(false)
 
     // If property is in a set with multiple properties, show PropertySetUpdateModal
     if (propertySetId && propertySetProperties.length > 1) {
-      console.log('🔗 Property is in a set, showing PropertySetUpdateModal for DELETE')
       setPendingOperation('delete')
       setShowPropertySetModal(true)
       return
     }
-
-    console.log('⚠️ NOT showing modal. Reason:', {
-      noPropertySetId: !propertySetId,
-      notEnoughProperties: propertySetProperties.length <= 1
-    })
 
     // Otherwise, delete directly
     setIsDeletingZone(true)
@@ -1087,7 +1012,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         })
         setZoneToDelete(null)
       } else {
-        console.error('Error deleting zone:', result.error)
         addNotification({
           type: 'error',
           title: '❌ Error al eliminar zona',
@@ -1096,7 +1020,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         })
       }
     } catch (error) {
-      console.error('Error deleting zone:', error)
       addNotification({
         type: 'error',
         title: '❌ Error al eliminar zona',
@@ -1192,14 +1115,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         
         setZones([...zones, newZone])
         setShowElementSelector(false)
-        
-        // Stay on zones page after creating zone
-        console.log('✅ Zone created successfully, staying on zones page')
-      } else {
-        console.error('Error applying template:', result.error)
       }
     } catch (error) {
-      console.error('Error applying template:', error)
+      // error applying template
     }
   }
 
@@ -1231,30 +1149,23 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setShowInspirationModal(false)
         setSelectedInspirationZone(null)
       } else {
-        alert('Error al crear la zona')
+        addNotification({ type: 'error', title: 'Error al crear zona', message: 'No se pudo crear la zona. Inténtalo de nuevo.', read: false })
       }
     } catch (error) {
-      console.error('Error creating zone:', error)
-      alert('Error al crear la zona')
+      addNotification({ type: 'error', title: 'Error de conexión', message: 'No se pudo crear la zona. Inténtalo de nuevo.', read: false })
     }
   }
 
   const [showPredefineModal, setShowPredefineModal] = useState(false)
 
   const handleOpenMultiSelect = () => {
-    console.log('🚀 handleOpenMultiSelect called')
-    console.log('🚀 zones.length:', zones.length)
-    console.log('🚀 hasShownEssentialZones:', hasShownEssentialZones)
-
     // Show essential zones modal when creating first zone
     if (zones.length === 0) {
-      console.log('🚀 Showing essential zones modal')
       // Initialize all zones as selected
       setSelectedEssentialZones(new Set(essentialZones.map(z => z.id)))
       setShowEssentialZonesModal(true)
       setHasShownEssentialZones(true)
     } else {
-      console.log('🚀 Showing element selector')
       setShowElementSelector(true)
     }
   }
@@ -1292,7 +1203,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       }
 
       // Use batch API for reliability
-      console.log('🚀 Using BATCH API for essential zones creation')
       const success = await createBatchZones(id, zonesToCreate)
       
       if (success) {
@@ -1337,7 +1247,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       
       setShowEssentialZonesModal(false)
     } catch (error) {
-      console.error('Error creating essential zones:', error)
       addNotification({
         type: 'error',
         title: 'Error',
@@ -1354,12 +1263,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   // Handler for deleting all essential zones if user doesn't want them (defined later)
 
   const handleSelectMultipleElements = async (selectedElementIds: string[]) => {
-    console.log('🎯 handleSelectMultipleElements called with:', selectedElementIds)
-    console.log('🎯 Number of elements selected:', selectedElementIds.length)
-    console.log('🎯 Current zones count:', zones.length)
-    
     if (selectedElementIds.length === 0) {
-      console.warn('⚠️ No elements selected')
       setShowElementSelector(false)
       return
     }
@@ -1367,7 +1271,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     setIsCreatingZone(true)
     
     // ALWAYS use batch API for reliability
-    console.log('🚀 ALWAYS using BATCH API for reliability')
     try {
       const { apartmentElements } = await import('../../../../../src/data/apartmentElements')
       
@@ -1436,7 +1339,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
       setShowElementSelector(false)
     } catch (error) {
-      console.error('Error creating zones:', error)
       addNotification({
         type: 'error',
         title: 'Error',
@@ -1523,7 +1425,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       }))
 
       // Use batch API for reliability
-      console.log('🚀 Using BATCH API for predefined zones')
       const success = await createBatchZones(id, zonesToCreate)
       
       if (success) {
@@ -1566,7 +1467,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         })
       }
     } catch (error) {
-      console.error('Error creating predefined zones:', error)
       addNotification({
         type: 'error',
         title: 'Error',
@@ -1601,7 +1501,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           color: 'bg-gray-100',
           status: 'ACTIVE'
         }
-      }).filter(zone => zone !== null)
+      }).filter((zone): zone is NonNullable<typeof zone> => zone !== null)
 
       const success = await createBatchZones(id, zonesToCreate)
 
@@ -1612,14 +1512,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         if (zonesResult.success) {
           setZones(transformZonesFromApi(zonesResult.data, id))
         }
-        
+
         setShowElementSelector(false)
       } else {
-        alert('Error al crear las zonas')
+        addNotification({ type: 'error', title: 'Error al crear zonas', message: 'No se pudieron crear las zonas. Inténtalo de nuevo.', read: false })
       }
     } catch (error) {
-      console.error('Error creating multiple zones:', error)
-      alert('Error al crear las zonas')
+      addNotification({ type: 'error', title: 'Error de conexión', message: 'No se pudieron crear las zonas. Inténtalo de nuevo.', read: false })
     } finally {
       setIsCreatingZone(false)
     }
@@ -1631,7 +1530,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       await navigator.clipboard.writeText(url)
       // URL copied successfully
     } catch (error) {
-      console.error('Failed to copy URL:', error)
+      // failed to copy URL
     }
   }
 
@@ -1686,11 +1585,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           }
         }
       } else {
-        alert('Error al crear la zona')
+        addNotification({ type: 'error', title: 'Error al crear zona', message: 'No se pudo crear la zona. Inténtalo de nuevo.', read: false })
       }
     } catch (error) {
-      console.error('Error creating zone from inspiration:', error)
-      alert('Error al crear la zona')
+      addNotification({ type: 'error', title: 'Error de conexión', message: 'No se pudo crear la zona. Inténtalo de nuevo.', read: false })
     } finally {
       setIsCreatingZone(false)
     }
@@ -1721,9 +1619,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     setIsCreatingZone(true)
     try {
       // Get content template if available
-      console.log('🔍 Template ID:', template.id)
       const contentTemplate = getZoneContentTemplate(template.id)
-      console.log('🔍 Content template found:', !!contentTemplate, contentTemplate?.steps?.length, 'steps')
 
       const zoneData = {
         name: template.name,
@@ -1762,11 +1658,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           }
         }
       } else {
-        alert('Error al crear la zona')
+        addNotification({ type: 'error', title: 'Error al crear zona', message: 'No se pudo crear la zona. Inténtalo de nuevo.', read: false })
       }
     } catch (error) {
-      console.error('Error creating zone from template:', error)
-      alert('Error al crear la zona')
+      addNotification({ type: 'error', title: 'Error de conexión', message: 'No se pudo crear la zona. Inténtalo de nuevo.', read: false })
     } finally {
       setIsCreatingZone(false)
     }
@@ -1827,11 +1722,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         
         setCurrentSteps(transformedSteps)
       } else {
-        console.error('Error loading steps:', result.error)
         setCurrentSteps([])
       }
     } catch (error) {
-      console.error('Error loading zone steps:', error)
       setCurrentSteps([])
     } finally {
       setLoadingSteps(false)
@@ -1839,16 +1732,12 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   const handleSaveSteps = async (steps: Step[]) => {
-    console.log('💾 handleSaveSteps called with', steps?.length, 'steps')
-
     if (!editingZoneForSteps) {
-      console.log('❌ No editingZoneForSteps')
       return
     }
 
     // Si la propiedad está en un conjunto con múltiples propiedades, mostrar modal
     if (propertySetId && propertySetProperties.length > 1) {
-      console.log('🔗 Showing PropertySetUpdateModal')
       setPendingOperation('update')
       setPendingStepsToSave(steps)
       setPendingZoneForSave(editingZoneForSteps)
@@ -1863,16 +1752,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
   }
 
   const performSaveSteps = async (steps: Step[], zone: Zone, scope: 'single' | 'all' | 'selected', selectedPropertyIds?: string[]) => {
-    console.log('💾 performSaveSteps called with:', steps.length, 'steps')
-    console.log('🔍 Raw steps data:', steps)
-    console.log('🎯 Scope:', scope)
-    console.log('🎯 Selected properties:', selectedPropertyIds)
-
     try {
       // Transform steps to match API expectations
       const transformedSteps = steps.map((step, index) => {
-        console.log(`📝 Processing step ${index}:`, step)
-        
         // Create base API step
         const apiStep: any = {
           type: step.type?.toUpperCase() || 'TEXT',
@@ -1883,11 +1765,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         
         // Add media URL directly to step (not in content)
         if (step.media?.url) {
-          console.log(`🎬 Step ${index} has media:`, {
-            url: step.media.url,
-            thumbnail: step.media.thumbnail,
-            title: step.media.title
-          })
           apiStep.mediaUrl = step.media.url
           if (step.media.thumbnail) {
             apiStep.thumbnail = step.media.thumbnail
@@ -1897,11 +1774,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           }
         }
         
-        console.log(`✅ Step ${index} transformed for API:`, apiStep)
         return apiStep
       })
-      
-      console.log('💾 Final payload for API:', transformedSteps)
 
       // Send debug data first
       try {
@@ -1915,10 +1789,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             timestamp: new Date().toISOString()
           })
         })
-        const debugResult = await debugResponse.json()
-        console.log('🐛 Debug response:', debugResult)
+        await debugResponse.json()
       } catch (debugError) {
-        console.log('🐛 Debug endpoint failed:', debugError)
+        // debug endpoint failed
       }
 
       // Determine which zones to update
@@ -1951,7 +1824,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               }
             }
           } catch (error) {
-            console.error(`Error fetching zones for property ${prop.id}:`, error)
+            // error fetching zones for property
           }
         }
       } else if (scope === 'selected' && selectedPropertyIds && selectedPropertyIds.length > 0) {
@@ -1977,12 +1850,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               }
             }
           } catch (error) {
-            console.error(`Error fetching zones for property ${propId}:`, error)
+            // error fetching zones for property
           }
         }
       }
-
-      console.log(`🎯 Found ${zonesToUpdate.length} existing zones`)
 
       // For properties without the zone, we need to create it first if scope is 'all' or 'selected'
       const propertiesToCheck = scope === 'all'
@@ -1997,15 +1868,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         if (!hasZone) {
           // Create the zone in this property
           try {
-            console.log(`🆕 Creating zone "${getZoneText(zone.name)}" in property ${prop.id}`)
             const createResponse = await fetch(`/api/properties/${prop.id}/zones`, {
               method: 'POST',
               credentials: 'include',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 name: zone.name,
-                icon: zone.icon || zone.iconId || '',
-                color: zone.color || 'bg-gray-100'
+                icon: (zone as any).icon || zone.iconId || '',
+                color: (zone as any).color || 'bg-gray-100'
               })
             })
 
@@ -2017,18 +1887,16 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   zoneId: createResult.data.id,
                   zoneName: createResult.data.name
                 })
-                console.log(`✅ Zone created in property ${prop.id}`)
               }
             }
           } catch (error) {
-            console.error(`❌ Error creating zone in property ${prop.id}:`, error)
+            // error creating zone in property
           }
         }
       }
 
       // Add newly created zones to the update list
       const allZonesToUpdate = [...zonesToUpdate, ...zonesCreated]
-      console.log(`🎯 Total zones to update (including newly created): ${allZonesToUpdate.length}`)
 
       // Update all zones (existing and newly created)
       let successCount = 0
@@ -2050,12 +1918,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           if (response.ok && result.success) {
             successCount++
             updatedPropertyIds.add(zoneInfo.propertyId)
-            console.log(`✅ Updated zone ${zoneInfo.zoneId} in property ${zoneInfo.propertyId}`)
-          } else {
-            console.error(`❌ Error updating zone ${zoneInfo.zoneId}:`, result.error)
           }
         } catch (error) {
-          console.error(`❌ Error updating zone ${zoneInfo.zoneId}:`, error)
+          // error updating zone
         }
       }
 
@@ -2072,43 +1937,22 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
         // Get zone name for both modal and notifications
         const zoneName = getZoneText(zone.name)
-
-        // 🚨 VALIDATION CODE START - THIS SHOULD ALWAYS APPEAR
-        console.log('🚨🚨🚨 VALIDATION CODE REACHED - zoneName:', zoneName)
-        console.log('🚨🚨🚨 Steps to validate:', steps.length)
-        console.log('🚨🚨🚨 Steps data:', JSON.stringify(steps, null, 2))
-
-        // Check if any steps are missing EN or FR content
-        // Only validate CONTENT (not titles, since titles are optional)
-        // Only show modal if user has Spanish content but missing translations
-        console.log('🔍 Validating language completion for zone:', zoneName)
-        // Show improved success message
         const propertyCount = updatedPropertyIds.size
 
-        console.log('🔔 NOTIFICATION DEBUG:')
-        console.log('🔔 successCount:', successCount)
-        console.log('🔔 propertyCount:', propertyCount)
-        console.log('🔔 zoneName:', zoneName)
-        console.log('🔔 updatedPropertyIds:', Array.from(updatedPropertyIds))
-
         if (propertyCount > 1) {
-          console.log('🔔 Showing multi-property notification')
           addNotification({
             type: 'success',
             title: '✅ Cambios guardados',
             message: `Se han guardado los cambios de "${zoneName}" en ${propertyCount} propiedades`,
             read: false
           })
-          console.log('🔔 Multi-property notification call completed')
         } else {
-          console.log('🔔 Showing single-property notification')
           addNotification({
             type: 'success',
             title: '✅ Instrucciones guardadas',
             message: 'Tus instrucciones se han guardado correctamente',
             read: false
           })
-          console.log('🔔 Single-property notification call completed')
         }
       } else {
         addNotification({
@@ -2119,7 +1963,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         })
       }
     } catch (error) {
-      console.error('Error saving steps:', error)
       addNotification({
         type: 'error',
         title: '❌ Error al guardar',
@@ -2135,8 +1978,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     scope: 'single' | 'all' | 'selected',
     selectedPropertyIds?: string[]
   ) => {
-    console.log('🆕 performCreateZone called with scope:', scope)
-
     try {
       const propertiesToCreate = scope === 'single'
         ? [{ id, name: propertyName }]
@@ -2144,18 +1985,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           ? propertySetProperties
           : propertySetProperties.filter(p => selectedPropertyIds?.includes(p.id))
 
-      console.log(`🎯 Creating zone in ${propertiesToCreate.length} properties`)
-
       let successCount = 0
       for (const prop of propertiesToCreate) {
         try {
           const success = await createBatchZones(prop.id, [zoneData])
           if (success) {
             successCount++
-            console.log(`✅ Zone created in property ${prop.id}`)
           }
         } catch (error) {
-          console.error(`❌ Error creating zone in property ${prop.id}:`, error)
+          // error creating zone in property
         }
       }
 
@@ -2171,34 +2009,24 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setShowCreateForm(false)
         setShowIconSelector(false)
 
-        // Show success message with improved text
-        console.log('🔔 CREATE NOTIFICATION DEBUG:')
-        console.log('🔔 successCount:', successCount)
-        console.log('🔔 scope:', scope)
-        console.log('🔔 zoneData.name:', zoneData.name)
-
         if (successCount > 1) {
           const message = scope === 'all'
             ? 'Se ha creado una zona nueva para todo el conjunto'
             : `Se ha creado una zona nueva para ${successCount} propiedades`
 
-          console.log('🔔 Showing multi-property creation notification:', message)
           addNotification({
             type: 'success',
             title: '✅ Zona creada con éxito',
             message: message,
             read: false
           })
-          console.log('🔔 Multi-property creation notification call completed')
         } else {
-          console.log('🔔 Showing single-property creation notification')
           addNotification({
             type: 'success',
             title: '✅ Zona creada',
             message: `La zona "${zoneData.name}" se ha creado correctamente`,
             read: false
           })
-          console.log('🔔 Single-property creation notification call completed')
         }
       } else {
         addNotification({
@@ -2209,7 +2037,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         })
       }
     } catch (error) {
-      console.error('Error creating zone:', error)
       addNotification({
         type: 'error',
         title: '❌ Error al crear zona',
@@ -2225,8 +2052,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     scope: 'single' | 'all' | 'selected',
     selectedPropertyIds?: string[]
   ) => {
-    console.log('🗑️ performDeleteZone called with scope:', scope)
-
     try {
       const zoneName = getZoneText(zone.name)
 
@@ -2258,12 +2083,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               }
             }
           } catch (error) {
-            console.error(`Error fetching zones for property ${prop.id}:`, error)
+            // error fetching zones for property
           }
         }
       }
-
-      console.log(`🎯 Deleting ${zonesToDelete.length} zones`)
 
       let successCount = 0
       for (const zoneInfo of zonesToDelete) {
@@ -2276,10 +2099,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
           if (response.ok && result.success) {
             successCount++
-            console.log(`✅ Deleted zone ${zoneInfo.zoneId} in property ${zoneInfo.propertyId}`)
           }
         } catch (error) {
-          console.error(`❌ Error deleting zone ${zoneInfo.zoneId}:`, error)
+          // error deleting zone
         }
       }
 
@@ -2301,34 +2123,24 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setShowDeleteModal(false)
         setZoneToDelete(null)
 
-        // Show success message with improved text
-        console.log('🔔 DELETE NOTIFICATION DEBUG:')
-        console.log('🔔 successCount:', successCount)
-        console.log('🔔 scope:', scope)
-        console.log('🔔 zoneName:', zoneName)
-
         if (successCount > 1) {
           const message = scope === 'all'
             ? `Se ha eliminado "${zoneName}" de todo el conjunto`
             : `Se ha eliminado "${zoneName}" de ${successCount} propiedades`
 
-          console.log('🔔 Showing multi-property deletion notification:', message)
           addNotification({
             type: 'info',
             title: '✅ Zonas eliminadas',
             message: message,
             read: false
           })
-          console.log('🔔 Multi-property deletion notification call completed')
         } else {
-          console.log('🔔 Showing single-property deletion notification')
           addNotification({
             type: 'info',
             title: '✅ Zona eliminada',
             message: `La zona "${zoneName}" ha sido eliminada correctamente`,
             read: false
           })
-          console.log('🔔 Single-property deletion notification call completed')
         }
       } else {
         addNotification({
@@ -2339,7 +2151,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         })
       }
     } catch (error) {
-      console.error('Error deleting zone:', error)
       addNotification({
         type: 'error',
         title: '❌ Error al eliminar',
@@ -2375,7 +2186,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         setShowDeletePropertyModal(false)
       }
     } catch (error) {
-      console.error('Error deleting property:', error)
       addNotification({
         type: 'error',
         title: 'Error de conexión',
@@ -2402,11 +2212,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       if (result.success) {
         setPropertyEvaluations(result.data.evaluations)
       } else {
-        console.error('Failed to fetch evaluations:', result.error)
         setPropertyEvaluations([])
       }
     } catch (error) {
-      console.error('Error fetching evaluations:', error)
       setPropertyEvaluations([])
     } finally {
       setLoadingEvaluations(false)
@@ -2436,7 +2244,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         ))
       }
     } catch (error) {
-      console.error('Error toggling evaluation visibility:', error)
+      // error toggling evaluation visibility
     }
   }
 
@@ -2444,14 +2252,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     const { active, over } = event
 
     if (active.id !== over?.id) {
-      console.log('🔄 DRAG & DROP: Iniciando reordenamiento de zonas')
-      console.log('   - Zona arrastrada:', active.id)
-      console.log('   - Posición destino:', over?.id)
-
       const oldIndex = zones.findIndex((zone) => zone.id === active.id)
       const newIndex = zones.findIndex((zone) => zone.id === over?.id)
-
-      console.log('   - Índice anterior:', oldIndex, '→ Índice nuevo:', newIndex)
 
       const newZones = arrayMove(zones, oldIndex, newIndex)
 
@@ -2466,8 +2268,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           order: index + 1
         }))
 
-        console.log('📤 Enviando nuevo orden al servidor:', zonesWithNewOrder)
-
         // Get token from localStorage for PWA fallback
         const token = typeof window !== 'undefined' ? localStorage.getItem('auth-token') : null
         const headers: Record<string, string> = {
@@ -2477,14 +2277,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         // Add Authorization header if token exists (for PWA mode)
         if (token) {
           headers['Authorization'] = `Bearer ${token}`
-          console.log('🔑 Token encontrado en localStorage')
-        } else {
-          console.log('⚠️  No se encontró token en localStorage, usando solo cookies')
         }
 
         const url = `/api/properties/${id}/zones/order`
-        console.log('🌐 URL del request:', url)
-
         const response = await fetch(url, {
           method: 'PUT',
           headers,
@@ -2492,11 +2287,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           body: JSON.stringify({ zones: zonesWithNewOrder })
         })
 
-        console.log('📥 Respuesta del servidor:', response.status, response.statusText)
-
         if (!response.ok) {
-          const errorData = await response.text()
-          console.error('❌ Error del servidor:', errorData)
+          await response.text()
 
           // Revert changes if API call fails
           setZones(zones)
@@ -2507,9 +2299,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             read: false
           })
         } else {
-          const responseData = await response.json()
-          console.log('✅ Orden actualizado correctamente:', responseData)
-
+          await response.json()
           addNotification({
             type: 'success',
             title: 'Orden actualizado',
@@ -2518,7 +2308,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           })
         }
       } catch (error) {
-        console.error('❌ Error al actualizar el orden de las zonas:', error)
         // Revert changes if there's an error
         setZones(zones)
         addNotification({
@@ -2529,7 +2318,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         })
       } finally {
         setIsReordering(false)
-        console.log('✅ Proceso de reordenamiento finalizado')
       }
     }
   }
@@ -2570,7 +2358,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             }
 
             // Go directly to zone steps editor
-            console.log('🚀 Opening steps editor for zone:', zone.id)
             setEditingZoneForSteps(zone)
             loadZoneSteps(zone.id).then(() => {
               setShowStepEditor(true)
@@ -2650,7 +2437,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                             setShowRecommendationsEditor(true)
                             return
                           }
-                          console.log('Opening steps editor for zone:', zone.id, zone)
                           setEditingZoneForSteps(zone)
                           await loadZoneSteps(zone.id)
                           setShowStepEditor(true)
@@ -2723,7 +2509,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     }
 
     return (
-      <div
+      <motion.div
         ref={setNodeRef}
         style={style}
         initial={{ opacity: 0, scale: 0.9 }}
@@ -2844,7 +2630,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
             </div>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
     )
   }
 
@@ -2853,8 +2639,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     scope: 'single' | 'all' | 'selected',
     selectedPropertyIds?: string[]
   ) => {
-    console.log('🔗 PropertySetUpdateModal confirmed with:', { scope, operation: pendingOperation })
-
     setShowPropertySetModal(false)
 
     try {
@@ -2877,7 +2661,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
         await performDeleteZone(zoneToDelete, scope, selectedPropertyIds)
       }
     } catch (error) {
-      console.error('Error in handlePropertySetConfirm:', error)
+      // error in handlePropertySetConfirm
     } finally {
       // Clear all pending states and ensure we return to zones list
       setPendingStepsToSave([])
@@ -2894,7 +2678,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
   // Handler for PropertySetUpdateModal close/cancel
   const handlePropertySetModalClose = () => {
-    console.log('🔗 PropertySetUpdateModal cancelled')
     setShowPropertySetModal(false)
     // Clear all pending states
     setPendingStepsToSave([])
@@ -2957,7 +2740,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                       window.location.reload()
                     }, 1000)
                   } else {
-                    console.error('Failed to activate property:', result.error)
                     addNotification({
                       type: 'error',
                       title: 'Error al activar',
@@ -2966,7 +2748,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                     })
                   }
                 } catch (error) {
-                  console.error('Error activating property:', error)
                   addNotification({
                     type: 'error',
                     title: 'Error',
@@ -2987,7 +2768,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       {/* Copied Badge */}
       <AnimatePresence>
         {showCopiedBadge && (
-          <div
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -2997,7 +2778,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
               <CheckCircle className="w-5 h-5" />
               <span className="font-medium">{t('propertyZones.manualCopied')}</span>
             </div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -3492,13 +3273,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       {/* Create/Edit Form Modal */}
       <AnimatePresence>
         {showCreateForm && (
-          <div
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
           >
-            <div
+            <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -3613,20 +3394,20 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   )}
                 </Button>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {showIconSelector && (
-          <div
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
           >
-            <div
+            <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -3639,8 +3420,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 }}
                 onClose={() => setShowIconSelector(false)}
               />
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -3729,7 +3510,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                         link.click()
                         document.body.removeChild(link)
                       } catch (err) {
-                        console.error('Error downloading QR:', err)
                         // Fallback: open in new tab
                         try {
                           const QRCode = (await import('qrcode')).default
@@ -3737,7 +3517,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                           const qrDataUrl = await QRCode.toDataURL(zoneUrl, { width: 600 })
                           window.open(qrDataUrl, '_blank')
                         } catch (e) {
-                          alert('No se pudo descargar el QR. Intenta de nuevo.')
+                          addNotification({ type: 'error', title: 'Error al descargar QR', message: 'No se pudo descargar el QR. Inténtalo de nuevo.', read: false })
                         }
                       }
                     }}
@@ -3762,7 +3542,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                           setTimeout(() => { btn.innerHTML = originalText }, 2000)
                         }
                       } catch (err) {
-                        console.error('Error copying URL:', err)
+                        // error copying URL
                       }
                     }}
                     className="w-full h-12"
@@ -3783,7 +3563,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                             url
                           })
                         } catch (err) {
-                          console.error('Error sharing:', err)
+                          // error sharing
                         }
                       }}
                       className="w-full h-12"
@@ -3843,13 +3623,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       {/* Property QR Modal */}
       <AnimatePresence>
         {showPropertyQRModal && (
-          <div
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
           >
-            <div
+            <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -3898,8 +3678,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -3992,14 +3772,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
       {/* Essential Zones Modal */}
       <AnimatePresence>
         {showEssentialZonesModal && (
-          <div
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
             onClick={() => setShowEssentialZonesModal(false)}
           >
-            <div
+            <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -4048,14 +3828,14 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 {essentialZones.map((zone, index) => {
                   const isSelected = selectedEssentialZones.has(zone.id)
                   return (
-                    <div
+                    <motion.div
                       key={zone.id}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
                       className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                        isSelected 
-                          ? 'border-violet-500 bg-violet-50' 
+                        isSelected
+                          ? 'border-violet-500 bg-violet-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                       onClick={() => {
@@ -4072,8 +3852,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                         <div className="flex items-center gap-3">
                           <ZoneIconDisplay iconId={zone.icon} size="sm" />
                           <div>
-                            <h4 className="font-medium text-gray-900">{typeof zone.name === 'string' ? zone.name : zone.name?.es || ''}</h4>
-                            <p className="text-sm text-gray-600">{typeof zone.description === 'string' ? zone.description : zone.description?.es || ''}</p>
+                            <h4 className="font-medium text-gray-900">{zone.name}</h4>
+                            <p className="text-sm text-gray-600">{zone.description}</p>
                           </div>
                         </div>
                         <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -4086,7 +3866,7 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                           )}
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   )
                 })}
               </div>
@@ -4153,8 +3933,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   </Button>
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -4227,13 +4007,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
       <AnimatePresence>
         {showPredefineModal && (
-          <div
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
           >
-            <div
+            <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -4277,8 +4057,8 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                   </Button>
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -4375,12 +4155,13 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
 
       {/* Evaluations Modal */}
-      {evaluationsModalOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-          onClick={closeEvaluationsModal}
-        >
+      <AnimatePresence>
+        {evaluationsModalOpen && (
           <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={closeEvaluationsModal}
+          >
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
@@ -4514,9 +4295,10 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
-      )}
+        )}
+      </AnimatePresence>
 
 
       {/* Evaluations Modal */}

@@ -91,8 +91,7 @@ export async function POST(
         ipAddress,
         userAgent,
       })
-    } catch (logError) {
-      console.warn('⚠️ Could not create admin activity log:', logError)
+    } catch {
       // Continue without logging - rejection already processed
     }
 
@@ -110,8 +109,7 @@ export async function POST(
           retryUrl: `${process.env.NEXTAUTH_URL || 'https://www.itineramio.com'}/account/plans`
         })
       })
-    } catch (emailError) {
-      console.error('Error sending rejection email:', emailError)
+    } catch {
       // Continue without email - rejection still processed
     }
 
@@ -121,7 +119,6 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('Error rejecting subscription request:', error)
     return NextResponse.json(
       { error: 'Error al rechazar la solicitud' },
       { status: 500 }

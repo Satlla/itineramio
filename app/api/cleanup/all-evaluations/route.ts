@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('Error in nuclear cleanup:', error)
     return NextResponse.json({
       error: 'Failed to perform nuclear cleanup',
       details: error instanceof Error ? error.message : 'Unknown error'

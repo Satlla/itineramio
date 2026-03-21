@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
 import { requireAdminAuth } from '../../../../../../src/lib/admin-auth'
+import { CommentStatus } from '@prisma/client'
 
 // PATCH - Update comment status (approve/reject/spam)
 export async function PATCH(
@@ -25,10 +26,10 @@ export async function PATCH(
       )
     }
 
-    const statusMap: Record<string, string> = {
-      approve: 'APPROVED',
-      reject: 'REJECTED',
-      spam: 'SPAM'
+    const statusMap: Record<string, CommentStatus> = {
+      approve: CommentStatus.APPROVED,
+      reject: CommentStatus.REJECTED,
+      spam: CommentStatus.SPAM
     }
 
     const comment = await prisma.blogComment.update({
@@ -44,7 +45,6 @@ export async function PATCH(
       }
     })
   } catch (error) {
-    console.error('Error updating comment:', error)
     return NextResponse.json(
       { error: 'Error al actualizar comentario' },
       { status: 500 }
@@ -72,7 +72,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting comment:', error)
     return NextResponse.json(
       { error: 'Error al eliminar comentario' },
       { status: 500 }

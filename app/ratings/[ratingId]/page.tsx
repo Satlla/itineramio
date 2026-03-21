@@ -48,7 +48,6 @@ export default function RatingReviewPage() {
         throw new Error(result.error || 'Error al cargar la evaluación')
       }
     } catch (error) {
-      console.error('Error fetching rating:', error)
       addNotification({
         type: 'error',
         title: 'Error',
@@ -88,7 +87,6 @@ export default function RatingReviewPage() {
         throw new Error(result.error || 'Error al procesar la acción')
       }
     } catch (error) {
-      console.error('Error processing action:', error)
       addNotification({
         type: 'error',
         title: 'Error',

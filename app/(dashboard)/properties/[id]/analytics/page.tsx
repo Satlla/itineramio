@@ -447,7 +447,6 @@ export default function PropertyAnalyticsPage({ params }: { params: Promise<{ id
           setError(result.error || t('analytics.errors.loadError'))
         }
       } catch (err) {
-        console.error('Error fetching analytics:', err)
         setError(t('analytics.errors.connectionError'))
       } finally {
         setLoading(false)

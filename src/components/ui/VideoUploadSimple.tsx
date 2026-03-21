@@ -62,7 +62,6 @@ export function VideoUploadSimple({
     const MAX_HASH_SIZE = 20 * 1024 * 1024 // 20MB - skip client hash for larger files
 
     if (file.size > MAX_HASH_SIZE) {
-      console.log('📦 File too large for client-side hash, server will check duplicates')
       return null
     }
 
@@ -83,19 +82,16 @@ export function VideoUploadSimple({
       })
 
       if (!response.ok) {
-        console.error('❌ Check duplicate API error:', response.status)
         return null
       }
 
       const data = await response.json()
-      console.log('🔍 Duplicate check by hash response:', data)
 
       if (data.exists && data.media) {
         return data.media
       }
       return null
     } catch (error) {
-      console.error('Error checking duplicate by hash:', error)
       return null
     }
   }
@@ -111,19 +107,16 @@ export function VideoUploadSimple({
       })
 
       if (!response.ok) {
-        console.error('❌ Check duplicate API error:', response.status)
         return null
       }
 
       const data = await response.json()
-      console.log('🔍 Duplicate check by name response:', data)
 
       if (data.exists && data.media) {
         return data.media
       }
       return null
     } catch (error) {
-      console.error('Error checking duplicate by name:', error)
       return null
     }
   }
@@ -156,7 +149,6 @@ export function VideoUploadSimple({
   // Sync with value prop changes
   useEffect(() => {
     if (value !== previewUrl) {
-      console.log('🔄 VideoUpload: value prop changed from', previewUrl, 'to', value)
       setPreviewUrl(value || null)
       if (value) {
         setUploadSuccess(true) // Mark as uploaded if we have a value
@@ -178,19 +170,16 @@ export function VideoUploadSimple({
       return false
     }
 
-    console.log('✅ File validated:', file.name, sizeMB.toFixed(2) + 'MB')
     setVideoError(null)
     return true
   }
 
   const uploadFile = async (file: File): Promise<string> => {
     const sizeMB = file.size / (1024 * 1024)
-    console.log('📊 File size for upload:', sizeMB.toFixed(2), 'MB, type:', file.type)
 
     // For files under 4MB, use regular upload
     // For larger files, use Vercel Blob client upload (Vercel has 4.5MB body limit)
     if (sizeMB <= 4) {
-      console.log('📤 Using regular upload for:', file.name)
       const formData = new FormData()
       formData.append('file', file)
       formData.append('type', 'video')
@@ -210,35 +199,28 @@ export function VideoUploadSimple({
             try {
               const response = JSON.parse(xhr.responseText)
               if (response.url) {
-                console.log('✅ Regular upload complete:', response.url)
                 resolve(response.url)
               } else if (response.duplicate && response.existingMedia) {
                 // Handle duplicate detection
-                console.log('🔄 Duplicate detected, using existing:', response.existingMedia.url)
                 resolve(response.existingMedia.url)
               } else {
-                console.error('❌ No URL in response:', response)
                 reject(new Error(response.error || 'No URL in response'))
               }
             } catch (e) {
-              console.error('❌ Invalid response format:', xhr.responseText)
               reject(new Error('Invalid response format'))
             }
           } else {
             // Try to parse error message
             try {
               const errorResponse = JSON.parse(xhr.responseText)
-              console.error('❌ Upload error:', errorResponse)
               reject(new Error(errorResponse.error || `Upload failed: ${xhr.status}`))
             } catch {
-              console.error('❌ Upload failed with status:', xhr.status)
               reject(new Error(`Upload failed: ${xhr.status}`))
             }
           }
         }
 
         xhr.onerror = () => {
-          console.error('❌ Network error during upload')
           reject(new Error('Network error during upload'))
         }
 
@@ -250,7 +232,6 @@ export function VideoUploadSimple({
     // For files over 4MB, use Vercel Blob client upload
     // Add timestamp to filename to avoid "blob already exists" error
     const uniqueFilename = `${Date.now()}-${file.name}`
-    console.log('📤 Using Vercel Blob client upload for large file:', uniqueFilename, sizeMB.toFixed(2), 'MB')
     try {
       const blob = await upload(uniqueFilename, file, {
         access: 'public',
@@ -258,14 +239,11 @@ export function VideoUploadSimple({
         onUploadProgress: (progressEvent) => {
           const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100)
           setUploadProgress(progress)
-          console.log(`📦 Upload progress: ${progress}%`)
         },
       })
 
-      console.log('✅ Vercel Blob upload complete:', blob.url)
       return blob.url
     } catch (blobError: unknown) {
-      console.error('❌ Vercel Blob upload failed:', blobError)
       const errorMessage = blobError instanceof Error ? blobError.message : 'Error desconocido'
       throw new Error(`Error subiendo video (${sizeMB.toFixed(1)}MB): ${errorMessage}`)
     }
@@ -306,7 +284,7 @@ export function VideoUploadSimple({
               ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
               thumbnail = canvas.toDataURL('image/jpeg', 0.8)
             } catch (e) {
-              console.warn('Could not generate thumbnail:', e)
+              // thumbnail generation failed silently
             }
           }
           
@@ -342,8 +320,6 @@ export function VideoUploadSimple({
 
   // Process upload after duplicate check
   const processUpload = async (file: File, skipDuplicateCheck: boolean = false, fileHash?: string) => {
-    console.log('📁 Processing upload:', file.name, file.type, file.size)
-
     // Show preview immediately
     const objectUrl = URL.createObjectURL(file)
     if (!value || value.startsWith('blob:')) {
@@ -358,7 +334,6 @@ export function VideoUploadSimple({
       setIsCompressing(true)
 
       try {
-        console.log('🎬 Starting FFmpeg compression...')
         fileToUpload = await compressVideoFFmpeg(file, {
           maxSizeMB: 4,
           quality: sizeMB > 30 ? 'low' : sizeMB > 15 ? 'medium' : 'high',
@@ -366,13 +341,9 @@ export function VideoUploadSimple({
             setVideoError(message) // Show progress messages
           }
         })
-        const compressedSizeMB = fileToUpload.size / (1024 * 1024)
-        console.log('✅ FFmpeg compressed to:', compressedSizeMB.toFixed(2), 'MB')
         setVideoError(null)
       } catch (error) {
-        console.error('❌ FFmpeg compression failed:', error)
         // Compression failed - upload original (limit is 100MB checked above)
-        console.log('⚠️ Uploading original file without compression:', sizeMB.toFixed(1), 'MB')
         setVideoError(null)
       } finally {
         setIsCompressing(false)
@@ -382,32 +353,19 @@ export function VideoUploadSimple({
     setUploading(true)
 
     try {
-      // Upload file
-      console.log('📤 Starting upload...')
       const videoUrl = await uploadFile(fileToUpload)
-      console.log('✅ Upload successful:', videoUrl)
-
-      // Generate metadata
       const metadata = await generateThumbnail(file)
-      console.log('📋 Metadata generated:', metadata)
 
-      // Success!
       setUploadSuccess(true)
 
       // Clean up blob URL and replace with actual URL
       URL.revokeObjectURL(objectUrl)
       setPreviewUrl(videoUrl) // Replace blob URL with actual URL
 
-      console.log('🎯 Video upload complete, calling onChange with:', videoUrl)
-
       // Notify parent
       onChange(videoUrl, metadata)
 
-      // Video uploaded successfully - log for debugging
-      console.log('✅ Video upload notification: Video subido correctamente')
-
     } catch (error) {
-      console.error('❌ Upload failed:', error)
       setVideoError(error instanceof Error ? error.message : 'Error al subir el video')
 
       // Clean up on error
@@ -423,8 +381,6 @@ export function VideoUploadSimple({
   }
 
   const handleFileSelect = async (file: File) => {
-    console.log('📁 File selected:', file.name, file.type, file.size)
-
     // Reset states
     setVideoError(null)
     setUploadSuccess(false)
@@ -454,21 +410,17 @@ export function VideoUploadSimple({
 
       if (sizeMB <= 20) {
         // Small files: use hash for accurate duplicate detection
-        console.log('🔍 Calculating file hash...')
         const hash = await calculateHash(file)
 
         if (hash) {
-          console.log('🔑 File hash:', hash.substring(0, 16) + '...')
           existingMedia = await checkDuplicateByHash(hash)
         }
       } else {
         // Large files: use name for quick duplicate check
-        console.log('🔍 Checking duplicate by name for large file...')
         existingMedia = await checkDuplicateByName(file.name)
       }
 
       if (existingMedia) {
-        console.log('🔄 Duplicate found:', existingMedia.originalName)
         setDuplicateMedia(existingMedia)
         setPendingFile(file)
         setVideoError(null)
@@ -476,11 +428,9 @@ export function VideoUploadSimple({
         return // Wait for user decision
       }
 
-      console.log('✅ No duplicate found, proceeding with upload')
       setVideoError(null)
 
     } catch (error) {
-      console.error('❌ Error checking duplicate:', error)
       // Continue with upload even if duplicate check fails
     } finally {
       setIsCheckingDuplicate(false)
@@ -586,9 +536,7 @@ export function VideoUploadSimple({
             className="w-full max-h-64 rounded-lg bg-black"
             style={{ aspectRatio: '16/9' }}
             onError={() => {
-              console.warn('❌ Video failed to load:', previewUrl)
-              if (previewUrl.startsWith('blob:')) {
-                console.warn('❌ Broken blob URL detected, clearing preview')
+              if (previewUrl && previewUrl.startsWith('blob:')) {
                 setPreviewUrl(null)
                 setVideoError('Video preview failed to load')
               }

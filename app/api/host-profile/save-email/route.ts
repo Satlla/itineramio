@@ -51,7 +51,6 @@ export async function PATCH(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error saving email:', error)
     return NextResponse.json(
       { error: 'Error al guardar email' },
       { status: 500 }

@@ -36,7 +36,6 @@ export async function POST(request: NextRequest) {
       message: 'Suggestion submitted successfully'
     })
   } catch (error) {
-    console.error('Error submitting suggestion:', error)
     return NextResponse.json(
       { error: 'Failed to submit suggestion' },
       { status: 500 }

@@ -141,8 +141,8 @@ export async function POST(request: NextRequest) {
     // Update unified lead
     try {
       await updateLeadWithVideoCall(normalizedEmail)
-    } catch (leadError) {
-      console.error('⚠️ Could not update lead:', leadError)
+    } catch {
+      // Ignore lead update errors
     }
 
     // Generate Google Meet link (placeholder - in production you'd use Google Calendar API)
@@ -240,8 +240,8 @@ export async function POST(request: NextRequest) {
           { name: 'source', value: body.source || 'direct' }
         ]
       })
-    } catch (emailError) {
-      console.error('Error sending confirmation email:', emailError)
+    } catch {
+      // Ignore email errors
     }
 
     // Send notification to admins
@@ -304,8 +304,8 @@ export async function POST(request: NextRequest) {
 </html>
         `
       })
-    } catch (notifyError) {
-      console.error('Error sending notification:', notifyError)
+    } catch {
+      // Ignore notification errors
     }
 
     return NextResponse.json({
@@ -315,7 +315,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error booking consultation:', error)
     return NextResponse.json(
       { error: 'Error al agendar la consultoría' },
       { status: 500 }

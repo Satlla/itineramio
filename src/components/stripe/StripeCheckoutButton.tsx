@@ -76,7 +76,6 @@ export function StripeCheckoutButton({
       }
 
     } catch (error) {
-      console.error('Checkout error:', error)
       toast.error(error instanceof Error ? error.message : 'Error al procesar el pago')
     } finally {
       setIsLoading(false)

@@ -55,7 +55,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error al dar de baja:', error)
     return NextResponse.json(
       { error: 'Error al procesar la baja' },
       { status: 500 }
@@ -153,7 +152,6 @@ export async function GET(request: NextRequest) {
     )
 
   } catch (error) {
-    console.error('Error en unsubscribe:', error)
     return new Response(
       '<html><body><h1>Error</h1><p>Error al procesar la baja</p></body></html>',
       { headers: { 'Content-Type': 'text/html' }, status: 500 }

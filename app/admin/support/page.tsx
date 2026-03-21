@@ -108,9 +108,8 @@ export default function SupportDashboardPage() {
         const ticketsData = await ticketsRes.json()
         setRecentTickets(ticketsData.tickets || [])
       }
-    } catch (err) {
+    } catch {
       setError('Error al cargar los datos del soporte')
-      console.error('Error fetching support data:', err)
     } finally {
       setLoading(false)
     }

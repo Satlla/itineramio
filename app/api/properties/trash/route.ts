@@ -50,7 +50,6 @@ export async function GET(request: NextRequest) {
       data
     })
   } catch (error) {
-    console.error('Error fetching trash:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al obtener la papelera'

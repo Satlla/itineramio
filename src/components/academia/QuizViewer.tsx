@@ -165,7 +165,7 @@ export default function QuizViewer({
         onComplete(data.score, data.passed)
       }
     } catch (error) {
-      console.error('Error submitting quiz:', error)
+      // submission error handled silently
     }
   }
 

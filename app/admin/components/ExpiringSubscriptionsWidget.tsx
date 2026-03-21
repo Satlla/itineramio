@@ -56,8 +56,8 @@ export default function ExpiringSubscriptionsWidget() {
         const data = await response.json()
         setData(data)
       }
-    } catch (error) {
-      console.error('Error fetching expiring subscriptions:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }

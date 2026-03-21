@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../../../src/lib/prisma'
 import { checkHostManualesAccess, MANUAL_BLOCKED_MESSAGE } from '../../../../../../../../src/lib/public-module-check'
+import { checkRateLimitAsync, getRateLimitKey } from '../../../../../../../../src/lib/rate-limit'
 
 function proxyPhotoUrl(photoUrl: string | null | undefined): string | null {
   if (!photoUrl) return null
@@ -13,6 +14,12 @@ export async function GET(
   { params }: { params: Promise<{ id: string; zoneId: string }> }
 ) {
   try {
+    const rl = await checkRateLimitAsync(
+      getRateLimitKey(request, null, 'public-zone'),
+      { maxRequests: 120, windowMs: 60 * 1000 }
+    )
+    if (!rl.allowed) return NextResponse.json({ success: false, error: 'Too many requests' }, { status: 429 })
+
     const { id: propertyId, zoneId } = await params
     
     // Find the zone using raw SQL
@@ -196,7 +203,7 @@ export async function GET(
           }
         }
       } catch (error) {
-        console.error('Error parsing step content:', error)
+        // ignore step content parse error
       }
 
       const effectiveType = (step.type === 'VIDEO' || step.type === 'IMAGE') && !mediaUrl
@@ -229,7 +236,6 @@ export async function GET(
       data: processedZone
     })
   } catch (error) {
-    console.error('Error fetching safe public zone:', error)
     return NextResponse.json(
       { 
         success: false, 

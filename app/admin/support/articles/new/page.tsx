@@ -118,8 +118,7 @@ export default function NewArticlePage() {
         const errData = await res.json().catch(() => ({}))
         setError(errData.error || 'Error al crear el articulo')
       }
-    } catch (err) {
-      console.error('Error creating article:', err)
+    } catch {
       setError('Error de conexion')
     } finally {
       setSaving(false)

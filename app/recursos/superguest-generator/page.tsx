@@ -102,7 +102,6 @@ export default function SuperGuestGeneratorPage() {
 
       setSent(true)
     } catch (err) {
-      console.error('Error sending email:', err)
       setError('Error al enviar el email. Inténtalo de nuevo.')
     } finally {
       setSending(false)

@@ -79,8 +79,7 @@ export default function NewProductUpdatePage() {
         const errData = await res.json().catch(() => ({}))
         setError(errData.error || 'Error al crear la novedad')
       }
-    } catch (err) {
-      console.error('Error creating product update:', err)
+    } catch {
       setError('Error de conexion')
     } finally {
       setSaving(false)

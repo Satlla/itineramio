@@ -98,7 +98,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       }
     }
   } catch (error) {
-    console.error('Error generating metadata:', error)
     return {
       title: 'Manual Digital - Itineramio',
       description: 'Manual digital del alojamiento con todas las instrucciones necesarias'

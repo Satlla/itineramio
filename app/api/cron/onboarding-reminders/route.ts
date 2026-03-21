@@ -86,7 +86,6 @@ export async function GET(request: NextRequest) {
       ...results
     })
   } catch (error) {
-    console.error('Error sending onboarding reminders:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

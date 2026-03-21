@@ -81,7 +81,6 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error('Error cancelling invoice:', error);
     return NextResponse.json({ 
       success: false, 
       error: 'Internal server error' 

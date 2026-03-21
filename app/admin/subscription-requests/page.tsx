@@ -652,8 +652,8 @@ export default function SubscriptionRequestsPage() {
         const data = await response.json()
         setRequests(data)
       }
-    } catch (error) {
-      console.error('Error fetching subscription requests:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }
@@ -667,8 +667,8 @@ export default function SubscriptionRequestsPage() {
         const data = await response.json()
         setCanceledSubscriptions(data.canceledSubscriptions)
       }
-    } catch (error) {
-      console.error('Error fetching canceled subscriptions:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoadingCanceled(false)
     }
@@ -721,8 +721,7 @@ export default function SubscriptionRequestsPage() {
         })
         setShowErrorModal(true)
       }
-    } catch (error) {
-      console.error('Error approving request:', error)
+    } catch {
       setModalMessage({
         title: 'Error de Conexión',
         message: 'Hubo un problema al procesar la solicitud.\nPor favor, inténtalo de nuevo.'
@@ -765,8 +764,7 @@ export default function SubscriptionRequestsPage() {
         })
         setShowErrorModal(true)
       }
-    } catch (error) {
-      console.error('Error approving request without invoice:', error)
+    } catch {
       setModalMessage({
         title: 'Error de Conexión',
         message: 'Hubo un problema al activar la suscripción.\nPor favor, inténtalo de nuevo.'
@@ -803,8 +801,7 @@ export default function SubscriptionRequestsPage() {
         })
         setShowErrorModal(true)
       }
-    } catch (error) {
-      console.error('Error rejecting request:', error)
+    } catch {
       setModalMessage({
         title: 'Error de Conexión',
         message: 'Hubo un problema al rechazar la solicitud.\nPor favor, inténtalo de nuevo.'

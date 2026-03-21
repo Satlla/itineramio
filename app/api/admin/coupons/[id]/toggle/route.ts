@@ -28,7 +28,6 @@ export async function POST(
     })
     
   } catch (error) {
-    console.error('Error toggling coupon:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

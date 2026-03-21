@@ -46,7 +46,6 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error fetching user calls:', error)
     return NextResponse.json(
       { 
         success: false, 
@@ -135,11 +134,10 @@ export async function POST(
     }, { status: 201 })
 
   } catch (error) {
-    console.error('Error creating call log:', error)
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Error al registrar la llamada' 
+      {
+        success: false,
+        error: 'Error al registrar la llamada'
       },
       { status: 500 }
     )

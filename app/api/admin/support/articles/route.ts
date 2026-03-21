@@ -18,7 +18,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ articles })
   } catch (error) {
-    console.error('Error fetching admin articles:', error)
     return NextResponse.json(
       { error: 'Error al obtener artículos' },
       { status: 500 }
@@ -96,7 +95,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ article }, { status: 201 })
   } catch (error) {
-    console.error('Error creating help article:', error)
     return NextResponse.json(
       { error: 'Error al crear artículo' },
       { status: 500 }

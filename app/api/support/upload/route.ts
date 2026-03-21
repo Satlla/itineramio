@@ -68,7 +68,6 @@ export async function POST(request: NextRequest) {
       url: blob.url,
     })
   } catch (error) {
-    console.error('Error uploading support file:', error)
     return NextResponse.json(
       { error: 'Error uploading file' },
       { status: 500 }

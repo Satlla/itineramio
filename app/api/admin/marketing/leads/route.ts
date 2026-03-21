@@ -94,7 +94,6 @@ export async function GET(req: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching leads:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al obtener leads'

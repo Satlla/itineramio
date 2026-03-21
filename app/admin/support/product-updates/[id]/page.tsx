@@ -75,9 +75,8 @@ export default function EditProductUpdatePage() {
       } else {
         setError('Error al cargar la novedad')
       }
-    } catch (err) {
+    } catch {
       setError('Error de conexion')
-      console.error('Error fetching product update:', err)
     } finally {
       setLoading(false)
     }
@@ -127,8 +126,7 @@ export default function EditProductUpdatePage() {
         const errData = await res.json().catch(() => ({}))
         setError(errData.error || 'Error al actualizar la novedad')
       }
-    } catch (err) {
-      console.error('Error updating product update:', err)
+    } catch {
       setError('Error de conexion')
     } finally {
       setSaving(false)
@@ -149,8 +147,7 @@ export default function EditProductUpdatePage() {
       } else {
         alert('Error al eliminar la novedad')
       }
-    } catch (err) {
-      console.error('Error deleting product update:', err)
+    } catch {
       alert('Error de conexion')
     } finally {
       setDeleting(false)

@@ -48,7 +48,6 @@ export function QRCodeDisplay({
       setQrCode(qrCodeData)
     } catch (err) {
       setError('Error generating QR code')
-      console.error('QR generation error:', err)
     } finally {
       setLoading(false)
     }
@@ -76,9 +75,8 @@ export function QRCodeDisplay({
             interactionType: 'qr_download'
           })
         })
-        console.log('📥 QR download tracked:', propertyId, zoneId || 'property')
       } catch (error) {
-        console.error('Error tracking QR download:', error)
+        // tracking error suppressed
       }
     }
   }
@@ -89,7 +87,7 @@ export function QRCodeDisplay({
       await navigator.clipboard.writeText(url)
       // Could add toast notification here
     } catch (err) {
-      console.error('Error copying URL:', err)
+      // clipboard error suppressed
     }
   }
 
@@ -105,7 +103,7 @@ export function QRCodeDisplay({
           text: `Check out this interactive manual: ${title}`
         })
       } catch (err) {
-        console.error('Error sharing:', err)
+        // share error suppressed
       }
     } else {
       // Fallback to copying URL

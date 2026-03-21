@@ -203,8 +203,6 @@ export async function POST(request: NextRequest) {
       await EmailVerificationService.sendVerificationEmail(user.email, user.name)
       emailSent = true
     } catch (emailError) {
-      console.error('CRITICAL: Error sending verification email:', emailError)
-
       // Return error to user so they know email wasn't sent
       return NextResponse.json({
         success: false,
@@ -219,9 +217,7 @@ export async function POST(request: NextRequest) {
       email: user.email,
       name: user.name,
       source: 'Registro directo'
-    }).catch(error => {
-      console.error('Failed to send admin notification:', error)
-    })
+    }).catch(() => {})
 
     return NextResponse.json({
       success: true,
@@ -236,8 +232,6 @@ export async function POST(request: NextRequest) {
     }, { status: 201 })
     
   } catch (error) {
-    console.error('Registration error:', error)
-    
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { 

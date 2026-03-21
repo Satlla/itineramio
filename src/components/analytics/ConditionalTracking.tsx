@@ -58,10 +58,9 @@ export function ConditionalTracking() {
       const script = document.createElement('script')
       script.async = true
       script.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`
-      script.onerror = () => console.warn('GTM script failed to load')
       document.head.appendChild(script)
     } catch (e) {
-      console.warn('Error loading GTM:', e)
+      // GTM load error ignored
     }
   }, [])
 
@@ -82,10 +81,9 @@ export function ConditionalTracking() {
       const script = document.createElement('script')
       script.async = true
       script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`
-      script.onerror = () => console.warn('GA4 script failed to load')
       document.head.appendChild(script)
     } catch (e) {
-      console.warn('Error loading GA4:', e)
+      // GA4 load error ignored
     }
   }, [])
 
@@ -109,7 +107,6 @@ export function ConditionalTracking() {
       const script = document.createElement('script')
       script.async = true
       script.src = 'https://connect.facebook.net/en_US/fbevents.js'
-      script.onerror = () => console.warn('FB Pixel script failed to load')
       document.head.appendChild(script)
 
       setTimeout(() => {
@@ -119,7 +116,7 @@ export function ConditionalTracking() {
         }
       }, 100)
     } catch (e) {
-      console.warn('Error loading FB Pixel:', e)
+      // FB Pixel load error ignored
     }
   }, [])
 

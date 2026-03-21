@@ -200,8 +200,7 @@ export async function GET(request: NextRequest) {
           publishedAt: post.publishedAt || undefined
         }
       })
-    } catch (dbError) {
-      console.error('Error buscando en blog:', dbError)
+    } catch {
       // Si falla la BD, continuamos solo con resultados estáticos
     }
 
@@ -239,7 +238,6 @@ export async function GET(request: NextRequest) {
       query
     })
   } catch (error) {
-    console.error('Search error:', error)
     return NextResponse.json(
       { error: 'Error en la búsqueda' },
       { status: 500 }

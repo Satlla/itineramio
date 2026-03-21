@@ -63,7 +63,6 @@ export async function GET(
       }
     })
   } catch (error) {
-    console.error('Error generating invoice:', error)
     return NextResponse.json(
       { error: 'Error al generar factura' },
       { status: 500 }

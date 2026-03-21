@@ -55,7 +55,6 @@ export async function PUT(
     })
     
   } catch (error) {
-    console.error('Error toggling custom plan:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

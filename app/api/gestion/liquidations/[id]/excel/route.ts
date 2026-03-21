@@ -653,7 +653,6 @@ export async function GET(
       }
     })
   } catch (error) {
-    console.error('Error exporting liquidation:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

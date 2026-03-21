@@ -35,7 +35,6 @@ export async function GET(request: NextRequest) {
       upgradeUrl: canCreateProperty ? undefined : upgradeUrl
     })
   } catch (error) {
-    console.error('Error fetching plan limits:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

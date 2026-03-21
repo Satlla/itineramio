@@ -246,7 +246,7 @@ export async function POST(
       }
 
       return invoice
-    })
+    }, { timeout: 10000 })
 
     return NextResponse.json({
       success: true,
@@ -280,7 +280,6 @@ export async function POST(
       }
     })
   } catch (error) {
-    console.error('Error creating rectifying invoice:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

@@ -18,7 +18,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(formattedPlans)
   } catch (error) {
-    console.error('Error fetching subscription plans:', error)
     return NextResponse.json(
       { error: 'Error al obtener los planes' },
       { status: 500 }
@@ -56,7 +55,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(plan)
   } catch (error) {
-    console.error('Error creating subscription plan:', error)
     return NextResponse.json(
       { error: 'Error al crear el plan' },
       { status: 500 }

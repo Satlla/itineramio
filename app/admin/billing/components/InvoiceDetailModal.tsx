@@ -124,8 +124,7 @@ export default function InvoiceDetailModal({ invoice, onClose, onUpdate }: Invoi
       } else {
         alert(data.error || 'Error al marcar como pagada')
       }
-    } catch (error) {
-      console.error('Error marking invoice as paid:', error)
+    } catch {
       alert('Error al marcar como pagada')
     } finally {
       setLoading(false)
@@ -148,8 +147,7 @@ export default function InvoiceDetailModal({ invoice, onClose, onUpdate }: Invoi
       } else {
         alert(data.error || 'Error al cancelar la factura')
       }
-    } catch (error) {
-      console.error('Error cancelling invoice:', error)
+    } catch {
       alert('Error al cancelar la factura')
     } finally {
       setLoading(false)

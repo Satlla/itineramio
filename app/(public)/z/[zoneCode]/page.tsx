@@ -96,7 +96,7 @@ export default function PublicZonePage() {
         body: JSON.stringify({ event, data })
       })
     } catch (error) {
-      console.error('Error tracking event:', error)
+      // tracking error silenced
     }
   }
 
@@ -117,7 +117,6 @@ export default function PublicZonePage() {
       const data = await response.json()
       setZone(data.data)
     } catch (error) {
-      console.error('Error fetching zone:', error)
       setError('Error al cargar la zona')
     } finally {
       setLoading(false)

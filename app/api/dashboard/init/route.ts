@@ -47,7 +47,6 @@ async function tryClaimDemoProperty(userId: string, userEmail: string): Promise<
 
     return propertyId
   } catch (error) {
-    console.error('[dashboard/init] Fallback claim error:', error)
     return null
   }
 }
@@ -148,7 +147,6 @@ export async function GET(request: NextRequest) {
       ...(demoClaimedPropertyId && { demoClaimedPropertyId })
     })
   } catch (error) {
-    console.error('Error fetching dashboard init:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

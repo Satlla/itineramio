@@ -18,9 +18,6 @@ export function useToast() {
         icon: '/favicon.ico'
       })
     } else {
-      // Fallback to console log for development
-      console.log(`Toast: ${options.title}`, options.description)
-      
       // Simple alert for now
       if (options.variant === 'destructive') {
         alert(`Error: ${options.title}\n${options.description || ''}`)

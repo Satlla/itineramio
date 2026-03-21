@@ -344,9 +344,7 @@ export async function POST(request: NextRequest) {
       await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
         source: 'tool_time-calculator',
         tags: ['tool_time-calculator', 'time-calculator']
-      }).catch(error => {
-        console.error('Failed to enroll subscriber in sequences:', error)
-      })
+      }).catch(() => {})
     } else {
       subscriber = existingSubscriber
       // Update tags if needed - add time-calculator and priority tags
@@ -410,7 +408,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error sending time calculator results:', error)
     return NextResponse.json(
       { error: 'Error al enviar el informe. Inténtalo de nuevo.' },
       { status: 500 }

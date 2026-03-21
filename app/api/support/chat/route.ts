@@ -85,8 +85,8 @@ async function trackFAQ(questionText: string) {
         },
       })
     }
-  } catch (err) {
-    console.error('Error tracking FAQ:', err)
+  } catch {
+    // ignore
   }
 }
 
@@ -360,15 +360,13 @@ ${articlesContext || ''}
             suggestWhatsApp = true
           }
         } else {
-          console.error('OpenAI API error:', openaiResponse.status, await openaiResponse.text())
           aiResponse = language === 'es'
             ? 'Lo siento, no puedo procesar tu consulta en este momento. Por favor, contacta con nosotros por WhatsApp al +34 652 656 440.'
             : 'Sorry, I cannot process your query right now. Please contact us via WhatsApp at +34 652 656 440.'
           aiConfidence = 0
           suggestWhatsApp = true
         }
-      } catch (err) {
-        console.error('Error calling OpenAI:', err)
+      } catch {
         aiResponse = language === 'es'
           ? 'Lo siento, ha ocurrido un error. Por favor, contacta con nosotros por WhatsApp al +34 652 656 440.'
           : 'Sorry, an error occurred. Please contact us via WhatsApp at +34 652 656 440.'
@@ -412,7 +410,7 @@ ${articlesContext || ''}
           userEmail: ticketData?.email || email || undefined,
           reason: 'low_confidence',
           recentMessages: recentMsgs.reverse(),
-        }).catch(err => console.error('Error sending auto-escalation email:', err))
+        }).catch(() => {})
       }
     }
 
@@ -429,7 +427,6 @@ ${articlesContext || ''}
       suggestWhatsApp,
     })
   } catch (error) {
-    console.error('Error in support chat:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

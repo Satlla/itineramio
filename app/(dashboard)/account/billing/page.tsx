@@ -149,7 +149,6 @@ export default function BillingPage() {
         }
       }
     } catch (error) {
-      console.error('Error loading billing data:', error)
     } finally {
       setIsLoading(false)
     }
@@ -166,7 +165,6 @@ export default function BillingPage() {
         setInvoices(data.invoices || [])
       }
     } catch (error) {
-      console.error('Error loading invoices:', error)
     }
   }
 
@@ -181,7 +179,6 @@ export default function BillingPage() {
         setSubscription(data)
       }
     } catch (error) {
-      console.error('Error loading subscription:', error)
     }
   }
 
@@ -247,7 +244,6 @@ export default function BillingPage() {
         }, 3000)
       }
     } catch (error) {
-      console.error('Error:', error)
       setErrorMessage(error instanceof Error ? error.message : t('billing.error'))
     } finally {
       setIsSubmitting(false)
@@ -358,7 +354,6 @@ export default function BillingPage() {
                       const data = await res.json()
                       if (data.url) window.location.href = data.url
                     } catch (err) {
-                      console.error('Error opening billing portal:', err)
                     }
                   }}
                   className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg text-xs sm:text-sm font-medium transition-colors"

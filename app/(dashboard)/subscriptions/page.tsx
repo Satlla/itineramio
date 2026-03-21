@@ -103,7 +103,6 @@ export default function SubscriptionsPage() {
         fetchInvoices()
       ])
     } catch (error) {
-      console.error('Error fetching data:', error)
     } finally {
       setLoading(false)
     }
@@ -119,7 +118,6 @@ export default function SubscriptionsPage() {
         setSubscriptionData(data)
       }
     } catch (error) {
-      console.error('Error fetching subscriptions:', error)
     }
   }
 
@@ -133,7 +131,6 @@ export default function SubscriptionsPage() {
         setPropertiesData(data)
       }
     } catch (error) {
-      console.error('Error fetching properties:', error)
     }
   }
 
@@ -147,7 +144,6 @@ export default function SubscriptionsPage() {
         setInvoicesData(data)
       }
     } catch (error) {
-      console.error('Error fetching invoices:', error)
     }
   }
 

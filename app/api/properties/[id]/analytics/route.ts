@@ -36,8 +36,6 @@ export async function GET(
     })
     
   } catch (error) {
-    console.error('Error fetching property analytics:', error)
-    
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'

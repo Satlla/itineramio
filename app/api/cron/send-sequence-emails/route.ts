@@ -25,7 +25,6 @@ const CRON_SECRET = process.env.CRON_SECRET
 export async function GET(request: NextRequest) {
   // In production, CRON_SECRET must be set
   if (!CRON_SECRET) {
-    console.error('CRON_SECRET not configured')
     return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
   }
 
@@ -72,7 +71,7 @@ export async function GET(request: NextRequest) {
       take: 50, // Batch de 50 para evitar rate limits
     })
 
-    for (const subscriber of day3Subscribers) {
+    await Promise.all(day3Subscribers.map(async (subscriber) => {
       try {
         await sendDay3MistakesEmail({
           email: subscriber.email,
@@ -91,10 +90,9 @@ export async function GET(request: NextRequest) {
 
         results.day3Sent++
       } catch (error) {
-        console.error(`Error sending day3 to ${subscriber.email}:`, error)
         results.errors.push(`Day3 ${subscriber.email}: ${error}`)
       }
-    }
+    }))
 
     // ========================================
     // DÍA 7: Enviar a quienes recibieron día 3 hace 4 días
@@ -116,7 +114,7 @@ export async function GET(request: NextRequest) {
       take: 50,
     })
 
-    for (const subscriber of day7Subscribers) {
+    await Promise.all(day7Subscribers.map(async (subscriber) => {
       try {
         await sendDay7CaseStudyEmail({
           email: subscriber.email,
@@ -135,10 +133,9 @@ export async function GET(request: NextRequest) {
 
         results.day7Sent++
       } catch (error) {
-        console.error(`Error sending day7 to ${subscriber.email}:`, error)
         results.errors.push(`Day7 ${subscriber.email}: ${error}`)
       }
-    }
+    }))
 
     // ========================================
     // DÍA 10: Enviar a quienes recibieron día 7 hace 3 días
@@ -159,7 +156,7 @@ export async function GET(request: NextRequest) {
       take: 50,
     })
 
-    for (const subscriber of day10Subscribers) {
+    await Promise.all(day10Subscribers.map(async (subscriber) => {
       try {
         await sendDay10TrialEmail({
           email: subscriber.email,
@@ -178,10 +175,9 @@ export async function GET(request: NextRequest) {
 
         results.day10Sent++
       } catch (error) {
-        console.error(`Error sending day10 to ${subscriber.email}:`, error)
         results.errors.push(`Day10 ${subscriber.email}: ${error}`)
       }
-    }
+    }))
 
     // ========================================
     // DÍA 14: Enviar a quienes recibieron día 10 hace 4 días
@@ -202,7 +198,7 @@ export async function GET(request: NextRequest) {
       take: 50,
     })
 
-    for (const subscriber of day14Subscribers) {
+    await Promise.all(day14Subscribers.map(async (subscriber) => {
       try {
         await sendDay14UrgencyEmail({
           email: subscriber.email,
@@ -222,10 +218,9 @@ export async function GET(request: NextRequest) {
 
         results.day14Sent++
       } catch (error) {
-        console.error(`Error sending day14 to ${subscriber.email}:`, error)
         results.errors.push(`Day14 ${subscriber.email}: ${error}`)
       }
-    }
+    }))
 
     // ========================================
     // SECUENCIA POR NIVEL (Academia Quiz)
@@ -256,9 +251,9 @@ export async function GET(request: NextRequest) {
       take: 50
     })
 
-    for (const subscriber of nivelDay1Subscribers) {
+    await Promise.all(nivelDay1Subscribers.map(async (subscriber) => {
       const nivel = extractNivel(subscriber.tags)
-      if (!nivel) continue
+      if (!nivel) return
 
       try {
         await sendNivelDay1Email({
@@ -279,10 +274,9 @@ export async function GET(request: NextRequest) {
 
         results.nivelDay1Sent++
       } catch (error) {
-        console.error(`Error sending nivel day1 to ${subscriber.email}:`, error)
         results.errors.push(`NivelDay1 ${subscriber.email}: ${error}`)
       }
-    }
+    }))
 
     // NIVEL DÍA 2: 1 día después del día 1
     const nivelDay2Subscribers = await prisma.emailSubscriber.findMany({
@@ -295,9 +289,9 @@ export async function GET(request: NextRequest) {
       take: 50
     })
 
-    for (const subscriber of nivelDay2Subscribers) {
+    await Promise.all(nivelDay2Subscribers.map(async (subscriber) => {
       const nivel = extractNivel(subscriber.tags)
-      if (!nivel) continue
+      if (!nivel) return
 
       try {
         await sendNivelDay2Email({
@@ -317,10 +311,9 @@ export async function GET(request: NextRequest) {
 
         results.nivelDay2Sent++
       } catch (error) {
-        console.error(`Error sending nivel day2 to ${subscriber.email}:`, error)
         results.errors.push(`NivelDay2 ${subscriber.email}: ${error}`)
       }
-    }
+    }))
 
     // NIVEL DÍA 3: 1 día después del día 2
     const nivelDay3Subscribers = await prisma.emailSubscriber.findMany({
@@ -333,9 +326,9 @@ export async function GET(request: NextRequest) {
       take: 50
     })
 
-    for (const subscriber of nivelDay3Subscribers) {
+    await Promise.all(nivelDay3Subscribers.map(async (subscriber) => {
       const nivel = extractNivel(subscriber.tags)
-      if (!nivel) continue
+      if (!nivel) return
 
       try {
         await sendNivelDay3Email({
@@ -355,10 +348,9 @@ export async function GET(request: NextRequest) {
 
         results.nivelDay3Sent++
       } catch (error) {
-        console.error(`Error sending nivel day3 to ${subscriber.email}:`, error)
         results.errors.push(`NivelDay3 ${subscriber.email}: ${error}`)
       }
-    }
+    }))
 
     // NIVEL DÍA 5: 2 días después del día 3
     const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000)
@@ -373,9 +365,9 @@ export async function GET(request: NextRequest) {
       take: 50
     })
 
-    for (const subscriber of nivelDay5Subscribers) {
+    await Promise.all(nivelDay5Subscribers.map(async (subscriber) => {
       const nivel = extractNivel(subscriber.tags)
-      if (!nivel) continue
+      if (!nivel) return
 
       try {
         await sendNivelDay5Email({
@@ -395,10 +387,9 @@ export async function GET(request: NextRequest) {
 
         results.nivelDay5Sent++
       } catch (error) {
-        console.error(`Error sending nivel day5 to ${subscriber.email}:`, error)
         results.errors.push(`NivelDay5 ${subscriber.email}: ${error}`)
       }
-    }
+    }))
 
     // NIVEL DÍA 7: 2 días después del día 5 - Fin de secuencia
     const nivelDay7Subscribers = await prisma.emailSubscriber.findMany({
@@ -411,9 +402,9 @@ export async function GET(request: NextRequest) {
       take: 50
     })
 
-    for (const subscriber of nivelDay7Subscribers) {
+    await Promise.all(nivelDay7Subscribers.map(async (subscriber) => {
       const nivel = extractNivel(subscriber.tags)
-      if (!nivel) continue
+      if (!nivel) return
 
       try {
         await sendNivelDay7Email({
@@ -434,10 +425,9 @@ export async function GET(request: NextRequest) {
 
         results.nivelDay7Sent++
       } catch (error) {
-        console.error(`Error sending nivel day7 to ${subscriber.email}:`, error)
         results.errors.push(`NivelDay7 ${subscriber.email}: ${error}`)
       }
-    }
+    }))
 
     // ========================================
     // Retornar resultados
@@ -455,7 +445,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error in send-sequence-emails cron:', error)
     return NextResponse.json(
       {
         success: false,

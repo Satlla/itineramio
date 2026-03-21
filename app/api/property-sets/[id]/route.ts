@@ -30,7 +30,7 @@ export async function GET(
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = jwt.verify(token, JWT_SECRET!) as unknown as { userId: string }
     const userId = decoded.userId
     
     
@@ -242,8 +242,7 @@ export async function GET(
             totalViews: 0, // Temporarily set to 0
             avgRating: 0 // Temporarily set to 0
           }
-        } catch (error) {
-          console.error('Error counting zones for property:', p.id, error)
+        } catch {
           return {
             ...p,
             zonesCount: 0,
@@ -274,8 +273,6 @@ export async function GET(
     })
     
   } catch (error) {
-    console.error('Error fetching property set:', error)
-    
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'
@@ -297,7 +294,7 @@ export async function PUT(
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = jwt.verify(token, JWT_SECRET!) as unknown as { userId: string }
     const userId = decoded.userId
     
     const propertySet = await prisma.propertySet.findFirst({
@@ -355,8 +352,6 @@ export async function PUT(
     })
     
   } catch (error) {
-    console.error('Error updating property set:', error)
-    
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'
@@ -377,7 +372,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = jwt.verify(token, JWT_SECRET!) as unknown as { userId: string }
     const userId = decoded.userId
     
     const propertySet = await prisma.propertySet.findFirst({
@@ -416,8 +411,6 @@ export async function DELETE(
     })
     
   } catch (error) {
-    console.error('Error deleting property set:', error)
-    
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'

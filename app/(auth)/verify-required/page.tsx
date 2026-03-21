@@ -52,7 +52,7 @@ function VerifyRequiredContent() {
         setResendSuccess(true)
       }
     } catch (error) {
-      console.error('Error resending verification email:', error)
+      // Ignore resend errors
     } finally {
       setIsResending(false)
     }

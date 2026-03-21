@@ -135,7 +135,6 @@ export default function QuizPage() {
       setIsValidatingEmail(false)
       setShowConfirmation(true)
     } catch (error) {
-      console.error('Email validation error:', error)
       setEmailError('Error de conexión. Por favor intenta nuevamente.')
       setIsValidatingEmail(false)
     }
@@ -212,11 +211,8 @@ export default function QuizPage() {
       })
 
       if (!saveResponse.ok) {
-        const errorData = await saveResponse.json().catch(() => ({}))
-        console.error('Error saving quiz - status:', saveResponse.status, 'data:', errorData)
+        await saveResponse.json().catch(() => ({}))
       } else {
-        console.log('✅ Quiz saved successfully')
-
         // Facebook Pixel Lead event
         fbEvents.lead({
           content_name: 'Academia Quiz',
@@ -226,7 +222,7 @@ export default function QuizPage() {
         })
       }
     } catch (error) {
-      console.error('Error saving quiz:', error)
+      // quiz save error silenced
     }
 
     // Redirigir a resultados

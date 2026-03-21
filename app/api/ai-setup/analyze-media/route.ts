@@ -126,8 +126,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Error analyzing media'
     const errorStack = error instanceof Error ? error.stack : undefined
-    console.error('[analyze-media] Error:', errorMessage)
-    if (errorStack) console.error('[analyze-media] Stack:', errorStack)
     return NextResponse.json(
       {
         success: false,

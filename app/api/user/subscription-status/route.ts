@@ -80,7 +80,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(subscriptionInfo)
   } catch (error) {
-    console.error('Error fetching subscription status:', error)
     return NextResponse.json(
       { error: 'Error al obtener estado de suscripción' },
       { status: 500 }

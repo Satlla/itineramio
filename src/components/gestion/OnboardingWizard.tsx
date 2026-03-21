@@ -160,7 +160,7 @@ export function OnboardingWizard({ onComplete, onDismiss }: OnboardingWizardProp
         }
       }
     } catch (err) {
-      console.error('Error loading data:', err)
+      // error handled silently
     }
   }
 

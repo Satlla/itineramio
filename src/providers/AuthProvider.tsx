@@ -80,10 +80,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const localToken = localStorage.getItem('auth-token')
         if (localToken) {
           headers['Authorization'] = `Bearer ${localToken}`
-          console.log('📱 Sending localStorage token via Authorization header')
         }
       } catch (e) {
-        console.warn('⚠️ Could not access localStorage:', e)
+        // Could not access localStorage
       }
 
       const response = await fetch('/api/auth/me', {
@@ -97,12 +96,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(userData.user)
       } else {
         setUser(null)
-        if (response.status !== 401) {
-          console.error('Auth check failed:', response.status)
-        }
       }
     } catch (error) {
-      console.error('Auth check error:', error)
       setUser(null)
     } finally {
       setLoading(false)
@@ -129,7 +124,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: false, error: result.error || 'Error de autenticación' }
       }
     } catch (error) {
-      console.error('Login error:', error)
       return { success: false, error: 'Error de conexión' }
     }
   }, [])
@@ -154,7 +148,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: false, error: result.error || 'Error en el registro' }
       }
     } catch (error) {
-      console.error('Register error:', error)
       return { success: false, error: 'Error de conexión' }
     }
   }, [])
@@ -166,7 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         credentials: 'include'
       })
     } catch (error) {
-      console.error('Logout error:', error)
+      // Ignore logout errors
     } finally {
       // Clear all user data from localStorage for security
       if (typeof window !== 'undefined') {
@@ -184,7 +177,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Session data
           sessionStorage.clear()
         } catch (e) {
-          console.error('Error clearing storage on logout:', e)
+          // Ignore storage clearing errors
         }
       }
       setUser(null)

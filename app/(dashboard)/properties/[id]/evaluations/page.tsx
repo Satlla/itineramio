@@ -99,7 +99,7 @@ export default function PropertyEvaluationsPage() {
         setPropertyName(result.data.name)
       }
     } catch (error) {
-      console.error('Error fetching property info:', error)
+      // error fetching property info
     }
   }
 
@@ -110,20 +110,12 @@ export default function PropertyEvaluationsPage() {
       })
       const result = await response.json()
       
-      console.log('📊 Evaluations API response:', {
-        success: result.success,
-        evaluationsCount: result.data?.evaluations?.length || 0,
-        stats: result.data?.stats
-      })
-      
       if (result.success) {
         setEvaluations(result.data.evaluations)
         setStats(result.data.stats)
-      } else {
-        console.error('❌ Failed to fetch evaluations:', result.error)
       }
     } catch (error) {
-      console.error('Error fetching evaluations:', error)
+      // error fetching evaluations
     } finally {
       setLoading(false)
     }
@@ -159,7 +151,7 @@ export default function PropertyEvaluationsPage() {
         }
       }
     } catch (error) {
-      console.error('Error toggling evaluation visibility:', error)
+      // error toggling evaluation visibility
     }
   }
 
@@ -181,7 +173,7 @@ export default function PropertyEvaluationsPage() {
         ))
       }
     } catch (error) {
-      console.error('Error approving evaluation:', error)
+      // error approving evaluation
     }
   }
 

@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
 import { checkHostManualesAccess, MANUAL_BLOCKED_MESSAGE } from '../../../../../../src/lib/public-module-check'
+import { checkRateLimitAsync, getRateLimitKey } from '../../../../../../src/lib/rate-limit'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const rl = await checkRateLimitAsync(
+      getRateLimitKey(request, null, 'public-guide'),
+      { maxRequests: 60, windowMs: 60 * 1000 }
+    )
+    if (!rl.allowed) return NextResponse.json({ success: false, error: 'Too many requests' }, { status: 429 })
+
     const { id } = await params
     
     // Get property in a single query (handles both published and demo)
@@ -19,7 +26,8 @@ export async function GET(
         "hostContactEmail", "hostContactLanguage", "hostContactPhoto",
         status, "isPublished", "propertySetId", "hostId",
         "isDemoPreview", "demoExpiresAt",
-        "createdAt", "updatedAt", "publishedAt"
+        "createdAt", "updatedAt", "publishedAt",
+        intelligence->'guestRegistration' as "guestRegistration"
       FROM properties
       WHERE id = ${id}
         AND (
@@ -152,7 +160,6 @@ export async function GET(
       data: result
     })
   } catch (error) {
-    console.error('Error fetching safe public property:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al obtener la propiedad',

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import { enrollSubscriberInSequences } from '@/lib/email-sequences'
 
 /**
@@ -150,7 +151,7 @@ export async function POST(req: NextRequest) {
             previousCalculations: existingMetadata.calculationResult
               ? [...(existingMetadata.previousCalculations as unknown[] || []), existingMetadata.calculationResult]
               : []
-          }
+          } as unknown as Prisma.InputJsonValue
         }
       })
     } else {
@@ -223,13 +224,10 @@ export async function POST(req: NextRequest) {
           archetype: 'ESTRATEGA',
           source: 'calculadora-rentabilidad',
           tags: ['calculadora-rentabilidad', 'high-intent']
-        }).catch(error => {
-          console.error('Failed to enroll calculator lead in sequences:', error)
-        })
+        }).catch(() => {})
       }
     } catch (subscriberError) {
       // No fallar si hay error con subscriber
-      console.error('Error actualizando EmailSubscriber:', subscriberError)
     }
 
     return NextResponse.json({
@@ -241,7 +239,6 @@ export async function POST(req: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error guardando profitability lead:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al guardar los datos'
@@ -335,7 +332,6 @@ export async function GET(req: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error obteniendo profitability leads:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al obtener datos'

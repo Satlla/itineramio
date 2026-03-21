@@ -60,7 +60,7 @@ export function PublicEvaluations({
         setStats(result.data.stats)
       }
     } catch (error) {
-      console.error('Error fetching public evaluations:', error)
+      // fetch error suppressed
     } finally {
       setLoading(false)
     }

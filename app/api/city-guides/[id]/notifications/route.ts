@@ -247,7 +247,6 @@ export async function GET(
 
     return NextResponse.json({ success: true, data: enriched })
   } catch (error) {
-    console.error('Error fetching guide notifications:', error)
     return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }
@@ -399,7 +398,6 @@ export async function POST(
       data: { action, importedCount },
     })
   } catch (error) {
-    console.error('Error handling guide notification:', error)
     return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }

@@ -86,7 +86,6 @@ export async function PATCH(
     })
 
   } catch (error) {
-    console.error('Error toggling property status:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'

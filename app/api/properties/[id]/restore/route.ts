@@ -33,7 +33,6 @@ export async function POST(
       message: 'Propiedad restaurada correctamente'
     })
   } catch (error) {
-    console.error('Error restoring property:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al restaurar la propiedad'

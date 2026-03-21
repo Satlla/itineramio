@@ -169,7 +169,6 @@ export default function ResultsPage() {
           setEmailSaved(true)
         }
       } catch (err) {
-        console.error('Error loading result:', err)
         setError('No se pudo cargar tu resultado. Por favor, verifica el enlace.')
       } finally {
         setLoading(false)
@@ -206,7 +205,6 @@ export default function ResultsPage() {
 
       setEmailSaved(true)
     } catch (error) {
-      console.error('Error saving email:', error)
       alert('Error al guardar tu email. Por favor intenta de nuevo.')
     } finally {
       setSavingEmail(false)
@@ -259,7 +257,7 @@ export default function ResultsPage() {
   const archetypeInfo = archetypeDescriptions[result.archetype]
   const scores = {
     HOSPITALIDAD: result.scores.scoreHospitalidad,
-    COMUNICACIÓN: result.scores.scoreComunicacion,
+    COMUNICACION: result.scores.scoreComunicacion,
     OPERATIVA: result.scores.scoreOperativa,
     CRISIS: result.scores.scoreCrisis,
     DATA: result.scores.scoreData,

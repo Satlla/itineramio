@@ -45,8 +45,8 @@ export default function AdminPricingPage() {
       if (data.success) {
         setTiers(data.tiers || [])
       }
-    } catch (error) {
-      console.error('Error fetching pricing tiers:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }
@@ -73,8 +73,7 @@ export default function AdminPricingPage() {
       } else {
         alert(data.error || 'Error al guardar')
       }
-    } catch (error) {
-      console.error('Error saving tier:', error)
+    } catch {
       alert('Error al guardar')
     } finally {
       setSaving(false)

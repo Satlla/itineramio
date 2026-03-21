@@ -20,20 +20,14 @@ export function MobileStepEditorSimple({
   onSave,
   onCancel
 }: MobileStepEditorSimpleProps) {
-  console.log('🎯 MobileStepEditorSimple mounted')
-  
   const [steps, setSteps] = useState<SimpleStep[]>([{
     id: '1',
     content: '',
     type: 'text'
   }])
 
-  useEffect(() => {
-    console.log('🎯 MobileStepEditorSimple effect - steps changed:', steps)
-  }, [steps])
 
   const handleContentChange = (index: number, content: string) => {
-    console.log(`📝 Content change for step ${index}:`, content)
     const newSteps = [...steps]
     newSteps[index].content = content
     setSteps(newSteps)
@@ -42,9 +36,7 @@ export function MobileStepEditorSimple({
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    console.log('🔴 SIMPLE SAVE CLICKED!')
-    console.log('🔴 Steps to save:', steps)
-    
+
     const formattedSteps = steps.map((step, index) => ({
       id: step.id,
       type: step.type,
@@ -56,14 +48,10 @@ export function MobileStepEditorSimple({
       order: index
     }))
     
-    console.log('🔴 Formatted steps:', formattedSteps)
-    console.log('🔴 Calling onSave function...')
-    
     try {
       onSave(formattedSteps)
-      console.log('🔴 onSave called successfully!')
     } catch (error) {
-      console.error('🔴 Error calling onSave:', error)
+      // save error suppressed
     }
   }
 
@@ -75,7 +63,6 @@ export function MobileStepEditorSimple({
             type="button"
             onClick={(e) => {
               e.preventDefault()
-              console.log('🔴 Cancel clicked')
               onCancel()
             }}
             className="text-gray-600"

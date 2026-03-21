@@ -13,7 +13,6 @@ export async function POST(request: NextRequest) {
     // Check authentication using the same method as billing-info
     const token = request.cookies.get('auth-token')?.value
     if (!token) {
-      console.error('❌ No auth token found')
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
@@ -22,8 +21,14 @@ export async function POST(request: NextRequest) {
       const authUser = verifyToken(token)
       userId = authUser.userId
     } catch (error) {
-      console.error('❌ Token verification failed:', error)
       return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
+    }
+
+    // Reject oversized requests early (before parsing the body)
+    const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
+    const contentLength = request.headers.get('content-length')
+    if (contentLength && parseInt(contentLength) > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: 'File too large. Maximum 50MB.' }, { status: 413 })
     }
 
     const data = await request.formData()
@@ -76,7 +81,6 @@ export async function POST(request: NextRequest) {
 
         fileUrl = `/uploads/payment-proofs/${uniqueFilename}`
       } catch (devError) {
-        console.error('❌ Development upload error:', devError)
         return NextResponse.json(
           {
             error: `Error al guardar el archivo: ${devError instanceof Error ? devError.message : 'Error desconocido'}`
@@ -108,8 +112,6 @@ export async function POST(request: NextRequest) {
       filename: uniqueFilename
     })
   } catch (error) {
-    console.error('❌ Error uploading file:', error)
-
     if (error instanceof Error) {
       return NextResponse.json(
         { error: `Error al subir el archivo: ${error.message}` },

@@ -12,7 +12,7 @@ interface ModuleLockedOverlayProps {
   className?: string
 }
 
-const moduleIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+const moduleIcons: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
   MANUALES: BookOpen,
   GESTION: Briefcase,
   FACTURAMIO: Briefcase  // Legacy support

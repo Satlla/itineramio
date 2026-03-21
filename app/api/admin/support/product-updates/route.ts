@@ -19,7 +19,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ updates })
   } catch (error) {
-    console.error('Error fetching admin product updates:', error)
     return NextResponse.json(
       { error: 'Error al obtener actualizaciones' },
       { status: 500 }
@@ -82,7 +81,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ update }, { status: 201 })
   } catch (error) {
-    console.error('Error creating product update:', error)
     return NextResponse.json(
       { error: 'Error al crear actualización' },
       { status: 500 }

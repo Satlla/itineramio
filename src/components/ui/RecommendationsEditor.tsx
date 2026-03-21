@@ -206,10 +206,12 @@ function SortableRecommendationCard({
   rec,
   onDelete,
   onEditDescription,
+  currentCategory,
 }: {
   rec: Recommendation
   onDelete: (id: string) => void
-  onEditDescription: (id: string, desc: string, highlight?: string, externalUrl?: string, tags?: string) => void
+  onEditDescription: (id: string, desc: string, highlight?: string, externalUrl?: string, tags?: string, categoryId?: string) => void
+  currentCategory?: string
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: rec.id })
   const [isEditing, setIsEditing] = useState(false)
@@ -217,6 +219,7 @@ function SortableRecommendationCard({
   const [editHighlight, setEditHighlight] = useState(rec.highlight || '')
   const [editExternalUrl, setEditExternalUrl] = useState(rec.externalUrl || '')
   const [editTags, setEditTags] = useState(Array.isArray(rec.tags) ? rec.tags.join(', ') : '')
+  const [editCategory, setEditCategory] = useState(currentCategory || '')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -234,7 +237,7 @@ function SortableRecommendationCard({
   }, [isEditing])
 
   const handleSaveDescription = () => {
-    onEditDescription(rec.id, editText, editHighlight, editExternalUrl, editTags)
+    onEditDescription(rec.id, editText, editHighlight, editExternalUrl, editTags, editCategory !== currentCategory ? editCategory : undefined)
     setIsEditing(false)
   }
 
@@ -302,6 +305,7 @@ function SortableRecommendationCard({
                         setEditHighlight(rec.highlight || '')
                         setEditExternalUrl(rec.externalUrl || '')
                         setEditTags(Array.isArray(rec.tags) ? rec.tags.join(', ') : '')
+                        setEditCategory(currentCategory || '')
                       }
                     }}
                     className={`w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${isEditing ? 'text-violet-600 bg-violet-50' : 'text-gray-300 hover:text-violet-500 hover:bg-violet-50'}`}
@@ -362,6 +366,25 @@ function SortableRecommendationCard({
             {/* Edit form */}
             {isEditing && (
               <div className="mt-3 space-y-3 border-t border-gray-100 pt-3">
+                {currentCategory !== undefined && (
+                  <div>
+                    <label className="flex items-center gap-1 text-xs font-medium text-gray-600 mb-1">
+                      Categoría
+                    </label>
+                    <select
+                      value={editCategory}
+                      onChange={(e) => setEditCategory(e.target.value)}
+                      className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-300 bg-white"
+                    >
+                      {CATEGORIES.map(c => (
+                        <option key={c.id} value={c.id}>{c.label}</option>
+                      ))}
+                    </select>
+                    {editCategory !== currentCategory && (
+                      <p className="text-xs text-amber-600 mt-1">⚠️ Se moverá a la categoría "{getCategoryLabel(editCategory)}"</p>
+                    )}
+                  </div>
+                )}
                 <div>
                   <label className="flex items-center gap-1 text-xs font-medium text-violet-700 mb-1">
                     <MessageSquare className="w-3 h-3" /> Recomendación personal
@@ -511,7 +534,7 @@ export function RecommendationsEditor({
         setRecommendations(data.data)
       }
     } catch (err) {
-      console.error('Error fetching recommendations:', err)
+      // fetch error suppressed
     } finally {
       setLoading(false)
     }
@@ -566,7 +589,7 @@ export function RecommendationsEditor({
         setPending(prev => prev ? { ...prev, saving: false } : null)
       }
     } catch (err) {
-      console.error('Error adding recommendation:', err)
+      // add error suppressed
       setPending(prev => prev ? { ...prev, saving: false } : null)
     }
   }
@@ -643,7 +666,7 @@ export function RecommendationsEditor({
         setTimeout(() => setToast(null), 4000)
       }
     } catch (err) {
-      console.error('Error adding recommendation:', err)
+      // add error suppressed
       setPending(prev => prev ? { ...prev, saving: false } : null)
     }
   }
@@ -665,7 +688,7 @@ export function RecommendationsEditor({
         onUpdate()
       }
     } catch (err) {
-      console.error('Error deleting recommendation:', err)
+      // delete error suppressed
       setAddedItems(prev => prev.map((it, i) => i === index ? { ...it, deleting: false } : it))
     }
   }
@@ -683,12 +706,12 @@ export function RecommendationsEditor({
         setHasChanges(true)
       }
     } catch (err) {
-      console.error('Error deleting recommendation:', err)
+      // delete error suppressed
     }
   }
 
   // --- Zone mode: edit fields ---
-  const handleEditDescription = async (recId: string, description: string, highlight?: string, externalUrl?: string, tagsStr?: string) => {
+  const handleEditDescription = async (recId: string, description: string, highlight?: string, externalUrl?: string, tagsStr?: string, categoryId?: string) => {
     if (!zone) return
     const tags = tagsStr ? tagsStr.split(',').map((t: string) => t.trim()).filter(Boolean) : null
     try {
@@ -698,17 +721,25 @@ export function RecommendationsEditor({
           method: 'PATCH',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ description, highlight: highlight || null, externalUrl: externalUrl || null, tags }),
+          body: JSON.stringify({ description, highlight: highlight || null, externalUrl: externalUrl || null, tags, ...(categoryId && { categoryId }) }),
         }
       )
       if (res.ok) {
-        setRecommendations(prev =>
-          prev.map(r => r.id === recId ? { ...r, description, highlight: highlight || null, externalUrl: externalUrl || null, tags: tags || null } : r)
-        )
-        setHasChanges(true)
+        const data = await res.json()
+        if (data.movedToZone) {
+          // Rec moved to another zone — remove from current list and trigger refresh
+          setRecommendations(prev => prev.filter(r => r.id !== recId))
+          setHasChanges(true)
+          onUpdate()
+        } else {
+          setRecommendations(prev =>
+            prev.map(r => r.id === recId ? { ...r, description, highlight: highlight || null, externalUrl: externalUrl || null, tags: tags || null } : r)
+          )
+          setHasChanges(true)
+        }
       }
     } catch (err) {
-      console.error('Error editing recommendation:', err)
+      // edit error suppressed
     }
   }
 
@@ -739,7 +770,7 @@ export function RecommendationsEditor({
         }),
       })
     } catch (err) {
-      console.error('Error persisting reorder:', err)
+      // reorder error suppressed
     }
   }
 
@@ -1406,6 +1437,7 @@ export function RecommendationsEditor({
                     rec={rec}
                     onDelete={handleDelete}
                     onEditDescription={handleEditDescription}
+                    currentCategory={zone?.recommendationCategory}
                   />
                 ))}
               </SortableContext>

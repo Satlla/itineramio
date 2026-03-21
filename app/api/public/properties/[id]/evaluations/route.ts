@@ -111,7 +111,6 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error fetching public evaluations:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al obtener evaluaciones'

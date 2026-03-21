@@ -177,8 +177,8 @@ export default function AdminLeadsPage() {
         setLeads(data.leads || [])
         setStats(data.stats || null)
       }
-    } catch (error) {
-      console.error('Error fetching leads:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }

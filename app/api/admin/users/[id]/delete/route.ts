@@ -142,8 +142,7 @@ export async function DELETE(
     })
     
   } catch (error) {
-    console.error('Error deleting user:', error)
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: false, 
       error: 'Error deleting user. Some related data may prevent deletion.' 
     }, { status: 500 })

@@ -129,19 +129,6 @@ export default function PropertyPlanSelectorV3({
   const finalPriceWithoutIVA = calculatePriceWithoutIVA(finalPrice)
   const finalIVA = calculateIVA(finalPriceWithoutIVA)
 
-  // Debug logging
-  console.log('💰 Price Calculation:', {
-    hasProration: prorationData?.hasProration,
-    prorationCredit,
-    basePriceWithIVA,
-    periodDiscount,
-    priceAfterPeriodDiscount,
-    couponDiscount,
-    priceAfterCoupon,
-    finalPrice,
-    prorationData
-  })
-
   // Check proration when plan or billing period changes
   useEffect(() => {
     if (currentPlan?.hasActiveSubscription) {
@@ -155,12 +142,6 @@ export default function PropertyPlanSelectorV3({
 
   const fetchProrationPreview = async () => {
     try {
-      console.log('🔄 Fetching proration preview:', {
-        targetPlanCode: requiredPlan.code,
-        targetBillingPeriod: billingPeriod,
-        currentPlan: currentPlan?.code
-      })
-
       const response = await fetch('/api/billing/preview-proration', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -173,15 +154,12 @@ export default function PropertyPlanSelectorV3({
       const data = await response.json()
 
       if (response.ok) {
-        console.log('✅ Proration data received:', data)
         setProrationData(data)
       } else {
-        console.log('❌ Proration error:', data)
         // Si es error de "mismo plan", limpiar prorrateo
         setProrationData(null)
       }
     } catch (error) {
-      console.error('Error fetching proration preview:', error)
       setProrationData(null)
     }
   }

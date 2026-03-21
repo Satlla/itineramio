@@ -98,14 +98,10 @@ export const WelcomeTestEmail: React.FC<WelcomeTestEmailProps> = ({
     ? generateDownloadToken(subscriberId, info.slug)
     : null
 
-  console.log('📧 Welcome email - subscriberId:', subscriberId, 'token:', downloadToken ? 'generated' : 'null')
-
   // URL de descarga con token o landing normal
   const downloadUrl = downloadToken
     ? `${baseUrl}/recursos/${info.slug}/download?token=${downloadToken}`
     : `${baseUrl}/recursos/${info.slug}`
-
-  console.log('📧 Welcome email - downloadUrl:', downloadUrl)
 
   // Texto adaptado por género
   const welcomeText = genderWord('bienvenido', gender as Gender)

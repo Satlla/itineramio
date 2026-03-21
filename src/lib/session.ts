@@ -13,7 +13,6 @@ export async function getSession(): Promise<JWTPayload | null> {
     const decoded = verifyToken(token)
     return decoded
   } catch (error) {
-    console.error('Session verification error:', error)
     return null
   }
 }

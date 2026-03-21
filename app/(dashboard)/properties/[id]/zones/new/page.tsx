@@ -114,7 +114,7 @@ export default function NewZonePage() {
         setPropertyName(result.data.name)
       }
     } catch (error) {
-      console.error('Error fetching property:', error)
+      // error fetching property
     }
   }
 
@@ -138,7 +138,6 @@ export default function NewZonePage() {
       // Redirect to the property edit page
       router.push(`/properties/${propertyId}/zones`)
     } catch (error) {
-      console.error('Error creating zone:', error)
       alert(t('errorCreatingZone'))
     } finally {
       setIsSubmitting(false)

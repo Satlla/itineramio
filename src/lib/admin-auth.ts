@@ -178,7 +178,6 @@ export async function createActivityLog(data: ActivityLogData) {
       }
     })
   } catch (error) {
-    console.error('Error creating activity log:', error)
     return null
   }
 }

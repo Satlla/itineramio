@@ -5,7 +5,8 @@ import { useParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, MapPin, Trash2, Loader2, CheckCircle, Plus, ChevronDown, Star, Globe,
-  MessageSquare, Pencil, X, Check, ExternalLink, Tag, ChevronLeft, ChevronRight, Utensils, RefreshCw
+  MessageSquare, Pencil, X, Check, ExternalLink, Tag, ChevronLeft, ChevronRight, Utensils, RefreshCw,
+  FolderPlus
 } from 'lucide-react'
 import Link from 'next/link'
 import { PlaceSearchInput, PlaceSearchResult } from '../../../../src/components/ui/PlaceSearchInput'
@@ -138,8 +139,16 @@ export default function AdminGuideDetailPage() {
 
   // Edit state per place
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [editForm, setEditForm] = useState({ description: '', highlight: '', externalUrl: '', tags: [] as string[] })
+  const [editForm, setEditForm] = useState({ description: '', highlight: '', externalUrl: '', tags: [] as string[], category: '' })
   const [savingEditId, setSavingEditId] = useState<string | null>(null)
+
+  // Copy-to-category state (add same place to a second category)
+  const [copyingToId, setCopyingToId] = useState<string | null>(null)
+  const [copyTargetCategory, setCopyTargetCategory] = useState<Record<string, string>>({})
+  const [copyingId, setCopyingId] = useState<string | null>(null)
+
+  // Popular places category overrides
+  const [popularCategoryOverrides, setPopularCategoryOverrides] = useState<Record<string, string>>({})
 
   const showToast = (msg: string) => {
     setToast(msg)
@@ -282,6 +291,7 @@ export default function AdminGuideDetailPage() {
       highlight: gp.highlight ?? '',
       externalUrl: gp.externalUrl ?? '',
       tags: gp.tags ?? [],
+      category: gp.category,
     })
   }
 
@@ -297,6 +307,7 @@ export default function AdminGuideDetailPage() {
           highlight: editForm.highlight.trim() || null,
           externalUrl: editForm.externalUrl.trim() || null,
           tags: editForm.tags,
+          category: editForm.category,
         }),
       })
       if (!res.ok) throw new Error()
@@ -309,6 +320,7 @@ export default function AdminGuideDetailPage() {
             highlight: editForm.highlight.trim() || null,
             externalUrl: editForm.externalUrl.trim() || null,
             tags: editForm.tags,
+            category: editForm.category,
           } : p
         )
       } : prev)
@@ -329,7 +341,7 @@ export default function AdminGuideDetailPage() {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ placeId: guidePlace.place.id }),
+        body: JSON.stringify({ guidePlaceId: guidePlace.id }),
       })
       if (!res.ok) throw new Error()
       setGuide(prev => prev ? { ...prev, places: prev.places.filter(p => p.id !== guidePlace.id) } : prev)
@@ -356,6 +368,28 @@ export default function AdminGuideDetailPage() {
       showToast(e.message || 'Error al sincronizar')
     } finally {
       setSyncing(false)
+    }
+  }
+
+  const handleCopyToCategory = async (gp: GuidePlace, targetCategory: string) => {
+    if (!guide || !targetCategory) return
+    setCopyingId(gp.id)
+    try {
+      const res = await fetch(`/api/city-guides/${id}/places`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ placeId: gp.place.id, category: targetCategory }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Error al añadir')
+      showToast(`"${gp.place.name}" añadido también en ${getCatLabel(targetCategory)}`)
+      setCopyingToId(null)
+      fetchGuide()
+    } catch (e: any) {
+      showToast(e.message || 'Error al añadir en otra categoría')
+    } finally {
+      setCopyingId(null)
     }
   }
 
@@ -685,6 +719,9 @@ export default function AdminGuideDetailPage() {
                                 <p className="text-sm font-semibold text-gray-900 truncate">{gp.place.name}</p>
                                 <p className="text-xs text-gray-400 truncate">{gp.place.address}</p>
                                 <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                                  <span className="text-xs px-1.5 py-0.5 bg-violet-50 text-violet-600 border border-violet-100 rounded-md font-medium">
+                                    {getCatLabel(gp.category)}
+                                  </span>
                                   {gp.place.rating && (
                                     <span className="flex items-center gap-0.5 text-xs text-amber-600">
                                       <Star className="w-3 h-3 fill-amber-400" />
@@ -703,9 +740,26 @@ export default function AdminGuideDetailPage() {
                                 <button
                                   onClick={() => isEditing ? setEditingId(null) : startEdit(gp)}
                                   className={`w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${isEditing ? 'text-violet-600 bg-violet-50' : 'text-gray-300 hover:text-violet-500 hover:bg-violet-50'}`}
-                                  title="Editar"
+                                  title="Editar (incluye cambio de categoría)"
                                 >
                                   <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    if (copyingToId === gp.id) {
+                                      setCopyingToId(null)
+                                    } else {
+                                      setCopyingToId(gp.id)
+                                      // Pre-select first category not already used by this place
+                                      const usedCats = guide?.places.filter(p => p.place.id === gp.place.id).map(p => p.category) ?? []
+                                      const firstFree = CATEGORIES.find(c => !usedCats.includes(c.id))
+                                      if (firstFree) setCopyTargetCategory(prev => ({ ...prev, [gp.id]: firstFree.id }))
+                                    }
+                                  }}
+                                  className={`w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${copyingToId === gp.id ? 'text-emerald-600 bg-emerald-50' : 'text-gray-300 hover:text-emerald-500 hover:bg-emerald-50'}`}
+                                  title="Añadir también en otra categoría"
+                                >
+                                  <FolderPlus className="w-3.5 h-3.5" />
                                 </button>
                                 <button
                                   onClick={() => handleRemove(gp)}
@@ -758,18 +812,80 @@ export default function AdminGuideDetailPage() {
                               </div>
                             )}
 
+                            {/* Copy-to-category panel */}
+                            {copyingToId === gp.id && !isEditing && (() => {
+                              const usedCats = guide?.places.filter(p => p.place.id === gp.place.id).map(p => p.category) ?? []
+                              const targetCat = copyTargetCategory[gp.id] || ''
+                              return (
+                                <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2">
+                                  <p className="text-xs font-semibold text-emerald-700">Añadir también en otra categoría</p>
+                                  <select
+                                    value={targetCat}
+                                    onChange={(e) => setCopyTargetCategory(prev => ({ ...prev, [gp.id]: e.target.value }))}
+                                    className="w-full text-sm border border-emerald-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white"
+                                  >
+                                    <option value="">Seleccionar categoría...</option>
+                                    {CATEGORIES_BY_GROUP.map(group => (
+                                      <optgroup key={group.id} label={`${group.emoji} ${group.label}`}>
+                                        {group.categories.map(c => (
+                                          <option key={c.id} value={c.id} disabled={usedCats.includes(c.id)}>
+                                            {c.label}{usedCats.includes(c.id) ? ' (ya añadido)' : ''}
+                                          </option>
+                                        ))}
+                                      </optgroup>
+                                    ))}
+                                  </select>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => setCopyingToId(null)}
+                                      className="flex-1 px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 text-xs hover:bg-gray-50 transition-colors"
+                                    >
+                                      Cancelar
+                                    </button>
+                                    <button
+                                      onClick={() => handleCopyToCategory(gp, targetCat)}
+                                      disabled={!targetCat || usedCats.includes(targetCat) || copyingId === gp.id}
+                                      className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-medium transition-colors"
+                                    >
+                                      {copyingId === gp.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
+                                      Añadir también
+                                    </button>
+                                  </div>
+                                </div>
+                              )
+                            })()}
+
                             {/* Edit form */}
                             {isEditing && (
                               <div className="mt-3 space-y-3 border-t border-gray-100 pt-3">
                                 {(() => {
-                                  const catConfig = getCategoryById(gp.category)
-                                  const highlightLabel = catConfig?.highlightLabel
-                                  const highlightPlaceholder = catConfig?.highlightPlaceholder ?? ''
-                                  const extUrlLabel = catConfig?.externalUrlLabel
-                                  const extUrlPlaceholder = catConfig?.externalUrlPlaceholder ?? 'https://...'
-                                  const catTags = catConfig?.tags ?? []
+                                  const editCatConfig = getCategoryById(editForm.category || gp.category)
+                                  const highlightLabel = editCatConfig?.highlightLabel
+                                  const highlightPlaceholder = editCatConfig?.highlightPlaceholder ?? ''
+                                  const extUrlLabel = editCatConfig?.externalUrlLabel
+                                  const extUrlPlaceholder = editCatConfig?.externalUrlPlaceholder ?? 'https://...'
+                                  const catTags = editCatConfig?.tags ?? []
                                   return (
                                     <>
+                                      {/* Category selector */}
+                                      <div>
+                                        <label className="flex items-center gap-1 text-xs font-medium text-gray-600 mb-1">
+                                          Categoría
+                                        </label>
+                                        <select
+                                          value={editForm.category}
+                                          onChange={(e) => setEditForm(f => ({ ...f, category: e.target.value, tags: [] }))}
+                                          className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-300 bg-white"
+                                        >
+                                          {CATEGORIES_BY_GROUP.map(group => (
+                                            <optgroup key={group.id} label={`${group.emoji} ${group.label}`}>
+                                              {group.categories.map(c => (
+                                                <option key={c.id} value={c.id}>{c.label}</option>
+                                              ))}
+                                            </optgroup>
+                                          ))}
+                                        </select>
+                                      </div>
                                       <div>
                                         <label className="flex items-center gap-1 text-xs font-medium text-violet-700 mb-1">
                                           <MessageSquare className="w-3 h-3" /> Recomendación
@@ -878,15 +994,30 @@ export default function AdminGuideDetailPage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">{p.place?.name}</p>
                     <p className="text-xs text-gray-500 truncate">{p.place?.address}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                       <span className="text-xs text-amber-700 font-medium">{p.count} {p.count === 1 ? 'usuario' : 'usuarios'} lo han añadido</span>
-                      <span className="text-xs text-gray-400">· {getCatLabel(p.category)}</span>
                       {p.place?.rating && <span className="text-xs text-gray-400">· ⭐ {p.place.rating}</span>}
+                    </div>
+                    <div className="mt-1.5">
+                      <select
+                        value={popularCategoryOverrides[p.placeId] ?? p.category}
+                        onChange={(e) => setPopularCategoryOverrides(prev => ({ ...prev, [p.placeId]: e.target.value }))}
+                        className="text-xs border border-amber-200 rounded-lg px-2 py-1 bg-white text-amber-800 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {CATEGORIES_BY_GROUP.map(group => (
+                          <optgroup key={group.id} label={`${group.emoji} ${group.label}`}>
+                            {group.categories.map(c => (
+                              <option key={c.id} value={c.id}>{c.label}</option>
+                            ))}
+                          </optgroup>
+                        ))}
+                      </select>
                     </div>
                   </div>
                   <button
                     type="button"
-                    onClick={() => handleAddPopular(p.placeId, p.category)}
+                    onClick={() => handleAddPopular(p.placeId, popularCategoryOverrides[p.placeId] ?? p.category)}
                     disabled={addingPopularId === p.placeId}
                     className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white text-xs font-medium transition-colors"
                   >

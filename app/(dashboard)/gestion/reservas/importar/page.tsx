@@ -159,7 +159,6 @@ export default function ImportarReservasPage() {
           setSavedTemplates(data.templates || [])
         }
       } catch (error) {
-        console.error('Error fetching import templates:', error)
       }
     }
     fetchTemplates()
@@ -238,7 +237,6 @@ export default function ImportarReservasPage() {
           setProperties([...legacyProps, ...billingUnits])
         }
       } catch (error) {
-        console.error('Error fetching properties:', error)
       } finally {
         setLoadingProperties(false)
       }
@@ -256,7 +254,6 @@ export default function ImportarReservasPage() {
           setImportHistory(data.imports || [])
         }
       } catch (error) {
-        console.error('Error fetching history:', error)
       }
     }
     fetchHistory()
@@ -307,7 +304,6 @@ export default function ImportarReservasPage() {
           }
         }
       } catch (error) {
-        console.error('Error analyzing file:', error)
       } finally {
         setIsAnalyzing(false)
       }
@@ -502,7 +498,6 @@ export default function ImportarReservasPage() {
         setSavedTemplates(prev => prev.filter(t => t.id !== templateId))
       }
     } catch (error) {
-      console.error('Error deleting template:', error)
     }
   }
 
@@ -625,7 +620,6 @@ export default function ImportarReservasPage() {
       }
 
       const data = await response.json()
-      console.log('[import] DEBUG response:', JSON.stringify(data._debug, null, 2))
       setImportResult(data.results)
 
       // Show success modal and toast when reservations were imported

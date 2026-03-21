@@ -21,7 +21,7 @@ export async function POST(
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = jwt.verify(token, JWT_SECRET!) as unknown as { userId: string }
     const userId = decoded.userId
     
     // Set JWT claims for PostgreSQL RLS policies
@@ -90,8 +90,6 @@ export async function POST(
     })
     
   } catch (error) {
-    console.error('Error publishing property:', error)
-    
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Error al publicar la propiedad'

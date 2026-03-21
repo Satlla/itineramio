@@ -40,7 +40,7 @@ export default function ConsultaPage() {
           setSlots(data.slots || [])
         }
       } catch (err) {
-        console.error('Error fetching slots:', err)
+        // slots fetch error silenced
       } finally {
         setLoadingSlots(false)
       }

@@ -193,7 +193,6 @@ export default function PaymentMethodModal({ isOpen, onClose, planDetails }: Pay
           }
           return
         } catch (error) {
-          console.error('Stripe checkout error:', error)
           toast.error('Error al conectar con Stripe')
           setProcessing(false)
           return
@@ -288,7 +287,6 @@ export default function PaymentMethodModal({ isOpen, onClose, planDetails }: Pay
         }
       }
     } catch (error) {
-      console.error('Error:', error)
       toast.error('Error al procesar el pago')
     } finally {
       setProcessing(false)

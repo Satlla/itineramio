@@ -13,6 +13,7 @@ export interface JWTPayload {
   userId: string
   email: string
   role: string
+  isAdmin?: boolean
   iat?: number
   exp?: number
 }
@@ -130,7 +131,15 @@ export async function requireAdmin(request: NextRequest): Promise<JWTPayload | R
     return userOrResponse
   }
 
-  // Check if user is admin in database
+  // Fast path: isAdmin is embedded in the JWT payload (no DB query needed)
+  if (typeof userOrResponse.isAdmin === 'boolean') {
+    if (!userOrResponse.isAdmin) {
+      return createAuthResponse('Acceso denegado. Se requieren permisos de administrador', 403)
+    }
+    return userOrResponse
+  }
+
+  // Fallback: older tokens without isAdmin field — check DB once and tolerate the cost
   const user = await prisma.user.findUnique({
     where: { id: userOrResponse.userId },
     select: { isAdmin: true }

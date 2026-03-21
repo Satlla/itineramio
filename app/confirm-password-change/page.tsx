@@ -51,7 +51,6 @@ function ConfirmPasswordChangeContent() {
         setMessage(data.error || 'Error al confirmar el cambio de contraseña')
       }
     } catch (error) {
-      console.error('Error:', error)
       setStatus('error')
       setMessage('Error de conexión. Por favor, intenta nuevamente.')
     }

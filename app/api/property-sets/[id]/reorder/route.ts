@@ -53,8 +53,6 @@ export async function PUT(
     })
 
   } catch (error) {
-    console.error('💥 Error reordering properties:', error)
-    
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Error desconocido'

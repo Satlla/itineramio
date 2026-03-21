@@ -120,7 +120,7 @@ export default function PropertyPlanSelector({
         setProrationData(data)
       }
     } catch (error) {
-      console.error('Error fetching proration preview:', error)
+      // proration fetch error handled silently
     }
   }
 

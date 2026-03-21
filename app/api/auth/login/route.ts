@@ -48,7 +48,8 @@ export async function POST(request: NextRequest) {
         emailVerified: true,
         status: true,
         avatar: true,
-        phone: true
+        phone: true,
+        isAdmin: true
       }
     })
 
@@ -81,7 +82,8 @@ export async function POST(request: NextRequest) {
     const token = signToken({
       userId: user.id,
       email: user.email,
-      role: 'HOST'
+      role: 'HOST',
+      isAdmin: user.isAdmin ?? false
     })
 
     const userResponse = {
@@ -121,7 +123,6 @@ export async function POST(request: NextRequest) {
 
     return response
   } catch (error) {
-    console.error('Login error:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'

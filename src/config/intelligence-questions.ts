@@ -210,6 +210,10 @@ export const INTELLIGENCE_SECTIONS: SectionDef[] = [
       { id: 'houseRules.noParties', label: '¿Se permiten fiestas?', type: 'yesno', path: 'houseRules.noParties', priority: 'essential', airbnbMapped: true },
       { id: 'houseRules.quietHours', label: 'Horario de silencio', type: 'time-range', path: 'houseRules.quietHoursStart', priority: 'essential', airbnbMapped: true },
       { id: 'houseRules.additionalRules', label: 'Reglas adicionales', type: 'textarea', placeholder: 'Ej: No tender ropa en el balcón, no usar altavoces...', path: 'houseRules.additionalRules', priority: 'important' },
+      { id: 'houseRules.allowsBabies', label: '¿Se admiten bebés / niños pequeños?', type: 'yesno', path: 'houseRules.allowsBabies', priority: 'important' },
+      { id: 'houseRules.hasCrib', label: '¿Hay cuna disponible?', type: 'yesno', path: 'houseRules.hasCrib', priority: 'important' },
+      { id: 'houseRules.hasHighChair', label: '¿Hay trona (silla alta) disponible?', type: 'yesno', path: 'houseRules.hasHighChair', priority: 'important' },
+      { id: 'houseRules.hasBabyBath', label: '¿Hay bañera de bebé disponible?', type: 'yesno', path: 'houseRules.hasBabyBath', priority: 'useful' },
     ],
   },
 
@@ -761,7 +765,42 @@ export const INTELLIGENCE_SECTIONS: SectionDef[] = [
     ],
   },
 
-  // ========== 22. PECULIARIDADES ==========
+  // ========== 22. REGISTRO OBLIGATORIO DE VIAJEROS ==========
+  {
+    id: 'guestRegistration',
+    title: 'Registro obligatorio de viajeros',
+    subtitle: 'España: Partee, SES.hospedajes u otras plataformas',
+    icon: 'ShieldCheck',
+    questions: [
+      {
+        id: 'guestRegistration.required',
+        label: '¿Requerir registro antes de ver el manual?',
+        type: 'yesno',
+        path: 'guestRegistration.required',
+        priority: 'important',
+      },
+      {
+        id: 'guestRegistration.url',
+        label: 'Enlace de registro (Partee u otro)',
+        type: 'text',
+        path: 'guestRegistration.url',
+        placeholder: 'https://app.partee.es/#/...',
+        priority: 'important',
+        showIf: { path: 'guestRegistration.required', value: true },
+      },
+      {
+        id: 'guestRegistration.message',
+        label: 'Mensaje personalizado (opcional)',
+        type: 'textarea',
+        path: 'guestRegistration.message',
+        placeholder: 'De acuerdo con las normas del alojamiento...',
+        priority: 'useful',
+        showIf: { path: 'guestRegistration.required', value: true },
+      },
+    ],
+  },
+
+  // ========== 23. PECULIARIDADES ==========
   {
     id: 'quirks',
     title: 'Peculiaridades',

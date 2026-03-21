@@ -154,7 +154,6 @@ export async function POST(request: NextRequest) {
       configCreated: billingConfigId.startsWith('pending-')
     })
   } catch (error) {
-    console.error('Error linking property:', error)
     return NextResponse.json(
       { error: 'Error al vincular propiedad' },
       { status: 500 }

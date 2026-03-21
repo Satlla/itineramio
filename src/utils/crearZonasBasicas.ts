@@ -11,7 +11,6 @@ export async function crearZonasBasicas(propertyId: string): Promise<boolean> {
 
   try {
     // Use batch API for reliability
-    console.log('🚀 Using BATCH API for basic zones creation')
     const zonesToCreate = zonas.map(zona => ({
       name: zona.name,
       description: zona.description,
@@ -22,7 +21,6 @@ export async function crearZonasBasicas(propertyId: string): Promise<boolean> {
     const success = await createBatchZones(propertyId, zonesToCreate)
     return success
   } catch (error) {
-    console.error('❌ Error creating basic zones:', error)
     return false
   }
 }

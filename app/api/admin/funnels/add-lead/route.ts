@@ -96,7 +96,6 @@ export async function POST(request: NextRequest) {
       message: 'Lead creado correctamente'
     })
   } catch (error) {
-    console.error('Error adding lead:', error)
     return NextResponse.json(
       { error: 'Error al añadir lead' },
       { status: 500 }

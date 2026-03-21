@@ -31,7 +31,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ authors })
   } catch (error) {
-    console.error('Error fetching authors:', error)
     return NextResponse.json(
       { error: 'Error al cargar autores' },
       { status: 500 }

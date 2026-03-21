@@ -90,7 +90,6 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('Error extending subscription:', error)
     return NextResponse.json(
       { error: 'Error al extender suscripción' },
       { status: 500 }

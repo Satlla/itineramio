@@ -34,7 +34,6 @@ export async function getCouponStatus(couponId: string): Promise<CouponStatus | 
       isValid: coupon.valid && (remaining === -1 || remaining > 0)
     }
   } catch (error) {
-    console.error('Error getting coupon status:', error)
     return null
   }
 }

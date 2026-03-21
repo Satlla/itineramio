@@ -41,8 +41,8 @@ export async function POST(request: NextRequest) {
           }
         }
       })
-    } catch (dbError) {
-      console.error('Error saving lead:', dbError)
+    } catch {
+      // Ignore lead save errors
     }
 
     // Create or update EmailSubscriber for nurturing sequence
@@ -76,8 +76,8 @@ export async function POST(request: NextRequest) {
         tags: baseTags
       })
 
-    } catch (subscriberError) {
-      console.error('Error creating subscriber:', subscriberError)
+    } catch {
+      // Ignore subscriber creation errors
     }
 
     // Prepare attachment based on format
@@ -213,7 +213,6 @@ export async function POST(request: NextRequest) {
 
 
     if (emailResult.error) {
-      console.error('Resend error:', emailResult.error)
       return NextResponse.json({
         success: false,
         error: emailResult.error.message || 'Error enviando email'
@@ -226,7 +225,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error processing superguest request:', error)
     return NextResponse.json(
       { error: 'Error al procesar la solicitud' },
       { status: 500 }

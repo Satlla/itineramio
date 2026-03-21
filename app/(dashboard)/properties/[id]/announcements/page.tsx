@@ -224,33 +224,23 @@ export default function PropertyAnnouncementsPage() {
         // Fetch property set properties if this property belongs to a set
         if (data.data.propertySetId) {
           try {
-            console.log('🔗 Property belongs to set:', data.data.propertySetId)
             const setResponse = await fetch(`/api/property-sets/${data.data.propertySetId}`)
             if (setResponse.ok) {
               const setData = await setResponse.json()
               if (setData.success && setData.data && setData.data.properties) {
-                console.log('🔗 Property set has', setData.data.properties.length, 'properties:', setData.data.properties.map((p: any) => p.name))
                 setPropertySetProperties(
                   setData.data.properties.map((p: any) => ({
                     id: p.id,
                     name: p.name
                   }))
                 )
-              } else {
-                console.log('⚠️ Property set data not found in response')
               }
-            } else {
-              console.log('⚠️ Failed to fetch property set data, status:', setResponse.status)
             }
-          } catch (error) {
-            console.error('Error fetching property set:', error)
+          } catch {
           }
-        } else {
-          console.log('🏠 Property is NOT in a set (standalone property)')
         }
       }
-    } catch (error) {
-      console.error('Error loading property:', error)
+    } catch {
     }
   }
 
@@ -273,8 +263,7 @@ export default function PropertyAnnouncementsPage() {
       } else {
         addNotification({ title: 'Error', message: t('announcements.notifications.loadError'), type: 'error', read: false })
       }
-    } catch (error) {
-      console.error('Error loading announcements:', error)
+    } catch {
       addNotification({ title: 'Error', message: t('announcements.notifications.loadError'), type: 'error', read: false })
     } finally {
       setLoading(false)
@@ -292,20 +281,14 @@ export default function PropertyAnnouncementsPage() {
       return
     }
 
-    console.log('📢 CREATE ANNOUNCEMENT - Starting')
-    console.log('📢 propertySetId:', propertySetId)
-    console.log('📢 propertySetProperties.length:', propertySetProperties.length)
-
     // If property is in a set with multiple properties, show PropertySetUpdateModal
     if (propertySetId && propertySetProperties.length > 1) {
-      console.log('🔗 Property is in a set, showing PropertySetUpdateModal for CREATE')
       setPendingOperation('create')
       setPendingAnnouncementData(formData)
       setShowPropertySetModal(true)
       return
     }
 
-    console.log('⚠️ NOT showing modal. Creating directly.')
     await performCreateAnnouncement('single')
   }
 
@@ -315,20 +298,14 @@ export default function PropertyAnnouncementsPage() {
       return
     }
 
-    console.log('📢 UPDATE ANNOUNCEMENT - Starting')
-    console.log('📢 propertySetId:', propertySetId)
-    console.log('📢 propertySetProperties.length:', propertySetProperties.length)
-
     // If property is in a set with multiple properties, show PropertySetUpdateModal
     if (propertySetId && propertySetProperties.length > 1) {
-      console.log('🔗 Property is in a set, showing PropertySetUpdateModal for UPDATE')
       setPendingOperation('update')
       setPendingAnnouncementData({ ...formData, announcementId: editingAnnouncement.id })
       setShowPropertySetModal(true)
       return
     }
 
-    console.log('⚠️ NOT showing modal. Updating directly.')
     await performUpdateAnnouncement('single')
   }
 
@@ -337,20 +314,14 @@ export default function PropertyAnnouncementsPage() {
       return
     }
 
-    console.log('📢 DELETE ANNOUNCEMENT - Starting')
-    console.log('📢 propertySetId:', propertySetId)
-    console.log('📢 propertySetProperties.length:', propertySetProperties.length)
-
     // If property is in a set with multiple properties, show PropertySetUpdateModal
     if (propertySetId && propertySetProperties.length > 1) {
-      console.log('🔗 Property is in a set, showing PropertySetUpdateModal for DELETE')
       setPendingOperation('delete')
       setAnnouncementToDelete(id)
       setShowPropertySetModal(true)
       return
     }
 
-    console.log('⚠️ NOT showing modal. Deleting directly.')
     await performDeleteAnnouncement('single', [id])
   }
 
@@ -382,8 +353,7 @@ export default function PropertyAnnouncementsPage() {
         const data = await response.json()
         addNotification({ title: 'Error', message: data.error || t('announcements.notifications.toggleError'), type: 'error', read: false })
       }
-    } catch (error) {
-      console.error('Error toggling announcement:', error)
+    } catch {
       addNotification({ title: 'Error', message: t('announcements.notifications.toggleError'), type: 'error', read: false })
     } finally {
       setAnnouncementToToggle(null)
@@ -414,8 +384,7 @@ export default function PropertyAnnouncementsPage() {
           if (localToken) {
             headers['Authorization'] = `Bearer ${localToken}`
           }
-        } catch (e) {
-          console.warn('⚠️ Could not access localStorage:', e)
+        } catch {
         }
 
         const response = await fetch('/api/announcements', {

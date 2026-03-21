@@ -58,7 +58,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, id: place.id, place })
   } catch (error) {
-    console.error('Error creating place:', error)
     return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }

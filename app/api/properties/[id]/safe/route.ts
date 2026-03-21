@@ -85,8 +85,6 @@ export async function GET(
     })
     
   } catch (error) {
-    console.error('Error fetching property (safe):', error)
-    
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor',
@@ -276,7 +274,6 @@ export async function PUT(
     })
     
   } catch (error) {
-    console.error('✅ SAFE PUT - Error:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al actualizar la propiedad'

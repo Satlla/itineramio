@@ -316,11 +316,11 @@ export default function TouchStayComparisonPage() {
                       {category.items.map((item) => (
                         <tr
                           key={item.name}
-                          className={item.highlight ? 'bg-violet-50/50' : 'hover:bg-gray-50'}
+                          className={('highlight' in item && item.highlight) ? 'bg-violet-50/50' : 'hover:bg-gray-50'}
                         >
                           <td className="px-6 py-4">
                             <div className="flex items-start gap-3">
-                              {item.highlight && (
+                              {'highlight' in item && item.highlight && (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-violet-100 text-violet-700">
                                   Exclusivo
                                 </span>

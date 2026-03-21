@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 import {
   scheduleOnboardingSequence,
   sendLeadMagnetEmail,
@@ -8,8 +8,6 @@ import {
 import { getLeadMagnetBySlug } from '@/data/lead-magnets'
 import { notifyEmailSubscriber } from '@/lib/notifications/admin-notifications'
 import { enrollSubscriberInSequences } from '@/lib/email-sequences'
-
-const prisma = new PrismaClient()
 
 /**
  * POST /api/email/subscribe
@@ -55,7 +53,7 @@ export async function POST(request: NextRequest) {
     const normalizedEmail = email.toLowerCase().trim()
 
     // Verificar si ya existe el suscriptor
-    const existing = await prisma.emailSubscriber.findFirst({
+    const existing = await prisma.emailSubscriber.findUnique({
       where: { email: normalizedEmail }
     })
 
@@ -145,8 +143,8 @@ export async function POST(request: NextRequest) {
       source,
       downloadedGuide: source === 'lead_magnet',
       leadMagnetSlug: metadata.leadMagnetSlug || undefined
-    }).catch(error => {
-      console.error('Failed to send admin notification:', error)
+    }).catch(() => {
+      // Ignore notification errors
     })
 
     // Enviar email correspondiente según el source
@@ -174,8 +172,7 @@ export async function POST(request: NextRequest) {
       archetype,
       source,
       tags: allTags
-    }).catch(error => {
-      console.error('Failed to enroll subscriber in sequences:', error)
+    }).catch(() => {
       // No bloqueamos la respuesta si falla el enrollment
     })
 
@@ -191,7 +188,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error al suscribir email:', error)
     return NextResponse.json(
       { error: 'Error al procesar suscripción' },
       { status: 500 }
@@ -218,7 +214,7 @@ export async function GET(request: NextRequest) {
 
     const normalizedEmail = email.toLowerCase().trim()
 
-    const subscriber = await prisma.emailSubscriber.findFirst({
+    const subscriber = await prisma.emailSubscriber.findUnique({
       where: { email: normalizedEmail },
       select: {
         id: true,
@@ -247,7 +243,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error al consultar suscripción:', error)
     return NextResponse.json(
       { error: 'Error al consultar suscripción' },
       { status: 500 }

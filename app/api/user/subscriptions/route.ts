@@ -119,7 +119,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching user subscriptions:', error)
     return NextResponse.json(
       { error: 'Error al obtener las suscripciones' },
       { status: 500 }

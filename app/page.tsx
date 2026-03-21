@@ -332,7 +332,7 @@ export default function LandingPage() {
           }
         }
       } catch (error) {
-        console.error('Auth check failed:', error)
+        // auth check error silenced
       }
     }
     checkAuth()

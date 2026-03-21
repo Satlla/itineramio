@@ -16,7 +16,7 @@ export async function GET(
 
     // Rate limit: 5 requests per minute per IP
     const rlKey = getRateLimitKey(request, null, 'invoice-pdf')
-    const { success: rlOk } = await checkRateLimitAsync(rlKey, { maxRequests: 5, windowMs: 60 * 1000 })
+    const { allowed: rlOk } = await checkRateLimitAsync(rlKey, { maxRequests: 5, windowMs: 60 * 1000 })
     if (!rlOk) {
       return NextResponse.json({ error: 'Demasiadas solicitudes' }, { status: 429 })
     }

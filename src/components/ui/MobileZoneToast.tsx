@@ -135,7 +135,6 @@ export function MobileZoneToast({
                           <Button
                             onClick={() => {
                               // Aquí se puede mostrar más detalles si es necesario
-                              console.log('Ver detalles:', template)
                             }}
                             variant="outline"
                             size="sm"
@@ -261,7 +260,6 @@ export function MobileZoneToast({
                         <Button
                           onClick={() => {
                             // Aquí se puede mostrar más detalles si es necesario
-                            console.log('Ver detalles:', template)
                           }}
                           variant="outline"
                           size="sm"

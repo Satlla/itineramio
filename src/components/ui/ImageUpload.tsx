@@ -48,7 +48,6 @@ export function ImageUpload({
     if (value) {
       // If the value is a blob URL, clear it and notify parent
       if (value.startsWith('blob:')) {
-        console.warn('Blob URL detected, clearing:', value)
         onChange(null)
         setPreviewUrl(null)
         return
@@ -153,7 +152,6 @@ export function ImageUpload({
   }
 
   const uploadFile = async (file: File, skipDuplicateCheck = false) => {
-    console.log('🚀 ImageUpload: Starting upload for file:', file.name, 'variant:', variant)
     try {
       // Clean up previous blob URL if exists
       if (previewUrl && previewUrl.startsWith('blob:')) {
@@ -170,22 +168,17 @@ export function ImageUpload({
         formData.append('skipDuplicateCheck', 'true')
       }
       
-      console.log(`🌐 ImageUpload: Making fetch request to ${uploadEndpoint}`)
       const response = await fetch(uploadEndpoint, {
         method: 'POST',
         body: formData
       })
       
-      console.log('📡 ImageUpload: Response status:', response.status, response.statusText)
-      
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('❌ ImageUpload: Response not ok:', errorText)
         throw new Error(`Upload failed: ${response.status} - ${errorText}`)
       }
-      
+
       const result = await response.json()
-      console.log('📄 ImageUpload: Response data:', result)
       
       // Handle duplicate detection
       if (result.duplicate) {
@@ -198,18 +191,13 @@ export function ImageUpload({
       
       if (result.success) {
         const imageUrl = result.url
-        console.log('✅ ImageUpload: Upload successful, URL:', imageUrl)
-
         // No need to save to media library separately - already done in upload endpoint
         setPreviewUrl(imageUrl)
         onChange(imageUrl)
-        console.log('✅ ImageUpload: onChange called with URL:', imageUrl)
       } else {
-        console.error('❌ ImageUpload: Upload failed:', result.error)
         throw new Error(result.error || 'Upload failed')
       }
     } catch (error) {
-      console.error('❌ Error uploading file:', error)
 
       // Show specific error message to user
       let errorMessage = 'Error al subir la imagen. Por favor, inténtalo de nuevo.'
@@ -236,18 +224,14 @@ export function ImageUpload({
   }
 
   const handleFile = async (file: File) => {
-    console.log('📁 ImageUpload: handleFile called with:', file.name, file.type, file.size)
-    
     // Validate file size
     if (file.size > maxSize * 1024 * 1024) {
-      console.error('❌ ImageUpload: File too large:', file.size, 'max:', maxSize * 1024 * 1024)
       alert(`El archivo es demasiado grande. Máximo ${maxSize}MB.`)
       return
     }
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      console.error('❌ ImageUpload: Invalid file type:', file.type)
       alert('Solo se permiten archivos de imagen.')
       return
     }
@@ -255,16 +239,14 @@ export function ImageUpload({
     // Check for unsupported formats
     const fileName = file.name.toLowerCase()
     const unsupportedFormats = ['.heic', '.heif']
-    const isUnsupported = unsupportedFormats.some(format => fileName.endsWith(format)) || 
+    const isUnsupported = unsupportedFormats.some(format => fileName.endsWith(format)) ||
                           file.type === 'image/heic' || file.type === 'image/heif'
-    
+
     if (isUnsupported) {
-      console.error('❌ ImageUpload: Unsupported format:', file.type, fileName)
       alert('Formato no compatible. Por favor, usa JPG, PNG, GIF o WebP. Los archivos HEIC de iPhone no son compatibles con navegadores web.')
       return
     }
 
-    console.log('✅ ImageUpload: File validation passed, starting upload')
     setUploading(true)
     await uploadFile(file, false)
   }
@@ -277,7 +259,7 @@ export function ImageUpload({
       // Update usage count for existing media
       fetch(`/api/media-library/${duplicateMediaInfo.id}/use`, {
         method: 'PATCH'
-      }).catch(error => console.error('Error updating usage count:', error))
+      }).catch(() => {})
     }
     
     setShowDuplicateModal(false)
@@ -342,10 +324,8 @@ export function ImageUpload({
             alt="Preview" 
             className="w-full h-full object-cover"
             onError={(e) => {
-              console.error('Error loading image:', previewUrl || value)
               // If the image fails to load, clear it
               if ((previewUrl || value)?.startsWith('blob:')) {
-                console.warn('Clearing broken blob URL')
                 onChange(null)
                 setPreviewUrl(null)
               } else {

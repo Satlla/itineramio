@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
-import { emailNotificationService } from '../../../../src/lib/email-notifications'
 import {
   sendTrialWarning3DaysEmail,
   sendTrialWarning1DayEmail,
@@ -17,7 +16,7 @@ export async function GET(request: NextRequest) {
 
     const now = new Date()
 
-    // 1. Check for expired trials
+    // 1. Check for expired trials (batch: 100)
     const expiredTrials = await prisma.property.findMany({
       where: {
         status: 'TRIAL',
@@ -25,6 +24,7 @@ export async function GET(request: NextRequest) {
           lte: now
         }
       },
+      take: 100,
       include: {
         host: {
           select: {
@@ -36,19 +36,21 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Suspend expired trials and send emails
-    for (const property of expiredTrials) {
-      await prisma.property.update({
-        where: { id: property.id },
+    if (expiredTrials.length > 0) {
+      const expiredIds = expiredTrials.map(p => p.id)
+
+      // Bulk-update status for all expired properties in one query
+      await prisma.property.updateMany({
+        where: { id: { in: expiredIds } },
         data: {
           status: 'SUSPENDED',
           isPublished: false
         }
       })
 
-      // Create notification
-      await prisma.notification.create({
-        data: {
+      // Bulk-create notifications for all expired properties in one query
+      await prisma.notification.createMany({
+        data: expiredTrials.map(property => ({
           userId: property.hostId,
           type: 'TRIAL_EXPIRED',
           title: 'Período de prueba finalizado',
@@ -56,23 +58,24 @@ export async function GET(request: NextRequest) {
           data: {
             propertyId: property.id
           }
-        }
+        }))
       })
 
-      // Send email notification for trial expiration (using Resend)
-      try {
-        await sendTrialExpiredEmail({
-          email: property.host.email,
-          name: property.host.name,
-          propertyName: property.name
-        })
-      } catch (emailError) {
-        console.error('Error sending trial expiration email:', emailError)
-        // Don't fail the cron job if email fails
+      // Send individual emails (requires per-property host data)
+      for (const property of expiredTrials) {
+        try {
+          await sendTrialExpiredEmail({
+            email: property.host.email,
+            name: property.host.name,
+            propertyName: property.name
+          })
+        } catch (emailError) {
+          // Don't fail the cron job if email fails
+        }
       }
     }
-    
-    // 2. Send 3-day warning (NEW)
+
+    // 2. Send 3-day warning (batch: 100)
     const threeDaysFromNow = new Date(now)
     threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3)
 
@@ -85,6 +88,7 @@ export async function GET(request: NextRequest) {
           lte: threeDaysFromNow
         }
       },
+      take: 100,
       include: {
         host: {
           select: { id: true, name: true, email: true }
@@ -92,41 +96,47 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    for (const property of properties3d) {
-      const daysRemaining = Math.ceil((property.trialEndsAt!.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-
-      await prisma.property.update({
-        where: { id: property.id },
+    if (properties3d.length > 0) {
+      // Bulk-update notification flag
+      await prisma.property.updateMany({
+        where: { id: { in: properties3d.map(p => p.id) } },
         data: { trialNotified3d: true }
       })
 
-      await prisma.notification.create({
-        data: {
-          userId: property.hostId,
-          type: 'TRIAL_WARNING_3D',
-          title: `⏰ Quedan ${daysRemaining} días de prueba`,
-          message: `Tu propiedad "${property.name}" expirará en ${daysRemaining} días. Activa un plan para no perder el acceso.`,
-          data: {
-            propertyId: property.id,
-            daysRemaining
+      // Bulk-create notifications (daysRemaining computed per property)
+      await prisma.notification.createMany({
+        data: properties3d.map(property => {
+          const daysRemaining = Math.ceil((property.trialEndsAt!.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+          return {
+            userId: property.hostId,
+            type: 'TRIAL_WARNING_3D',
+            title: `⏰ Quedan ${daysRemaining} días de prueba`,
+            message: `Tu propiedad "${property.name}" expirará en ${daysRemaining} días. Activa un plan para no perder el acceso.`,
+            data: {
+              propertyId: property.id,
+              daysRemaining
+            }
           }
-        }
+        })
       })
 
-      // Send email
-      try {
-        await sendTrialWarning3DaysEmail({
-          email: property.host.email,
-          name: property.host.name,
-          propertyName: property.name,
-          daysRemaining
-        })
-      } catch (emailError) {
-        console.error('Error sending 3-day warning email:', emailError)
+      // Send individual emails
+      for (const property of properties3d) {
+        const daysRemaining = Math.ceil((property.trialEndsAt!.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        try {
+          await sendTrialWarning3DaysEmail({
+            email: property.host.email,
+            name: property.host.name,
+            propertyName: property.name,
+            daysRemaining
+          })
+        } catch (emailError) {
+          // Don't fail the cron job if email fails
+        }
       }
     }
 
-    // 3. Send 24h warning
+    // 3. Send 24h warning (batch: 100)
     const twentyFourHoursFromNow = new Date(now)
     twentyFourHoursFromNow.setHours(twentyFourHoursFromNow.getHours() + 24)
 
@@ -139,6 +149,7 @@ export async function GET(request: NextRequest) {
           lte: twentyFourHoursFromNow
         }
       },
+      take: 100,
       include: {
         host: {
           select: { id: true, name: true, email: true }
@@ -146,14 +157,16 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    for (const property of properties24h) {
-      await prisma.property.update({
-        where: { id: property.id },
+    if (properties24h.length > 0) {
+      // Bulk-update notification flag
+      await prisma.property.updateMany({
+        where: { id: { in: properties24h.map(p => p.id) } },
         data: { trialNotified24h: true }
       })
 
-      await prisma.notification.create({
-        data: {
+      // Bulk-create notifications
+      await prisma.notification.createMany({
+        data: properties24h.map(property => ({
           userId: property.hostId,
           type: 'TRIAL_WARNING_24H',
           title: '⏰ Quedan 24 horas de prueba',
@@ -162,25 +175,27 @@ export async function GET(request: NextRequest) {
             propertyId: property.id,
             hoursRemaining: 24
           }
-        }
+        }))
       })
 
-      // Send email
-      try {
-        await sendTrialWarning1DayEmail({
-          email: property.host.email,
-          name: property.host.name,
-          propertyName: property.name
-        })
-      } catch (emailError) {
-        console.error('Error sending 24h warning email:', emailError)
+      // Send individual emails
+      for (const property of properties24h) {
+        try {
+          await sendTrialWarning1DayEmail({
+            email: property.host.email,
+            name: property.host.name,
+            propertyName: property.name
+          })
+        } catch (emailError) {
+          // Don't fail the cron job if email fails
+        }
       }
     }
 
-    // 3. Send 6h warning
+    // 4. Send 6h warning (batch: 100)
     const sixHoursFromNow = new Date(now)
     sixHoursFromNow.setHours(sixHoursFromNow.getHours() + 6)
-    
+
     const properties6h = await prisma.property.findMany({
       where: {
         status: 'TRIAL',
@@ -189,17 +204,20 @@ export async function GET(request: NextRequest) {
           gte: now,
           lte: sixHoursFromNow
         }
-      }
+      },
+      take: 100
     })
-    
-    for (const property of properties6h) {
-      await prisma.property.update({
-        where: { id: property.id },
+
+    if (properties6h.length > 0) {
+      // Bulk-update notification flag
+      await prisma.property.updateMany({
+        where: { id: { in: properties6h.map(p => p.id) } },
         data: { trialNotified6h: true }
       })
-      
-      await prisma.notification.create({
-        data: {
+
+      // Bulk-create notifications
+      await prisma.notification.createMany({
+        data: properties6h.map(property => ({
           userId: property.hostId,
           type: 'TRIAL_WARNING_6H',
           title: '🚨 Solo quedan 6 horas!',
@@ -209,14 +227,14 @@ export async function GET(request: NextRequest) {
             hoursRemaining: 6,
             urgent: true
           }
-        }
+        }))
       })
     }
-    
-    // 4. Send 1h final warning
+
+    // 5. Send 1h final warning (batch: 100)
     const oneHourFromNow = new Date(now)
     oneHourFromNow.setHours(oneHourFromNow.getHours() + 1)
-    
+
     const properties1h = await prisma.property.findMany({
       where: {
         status: 'TRIAL',
@@ -225,17 +243,20 @@ export async function GET(request: NextRequest) {
           gte: now,
           lte: oneHourFromNow
         }
-      }
+      },
+      take: 100
     })
-    
-    for (const property of properties1h) {
-      await prisma.property.update({
-        where: { id: property.id },
+
+    if (properties1h.length > 0) {
+      // Bulk-update notification flag
+      await prisma.property.updateMany({
+        where: { id: { in: properties1h.map(p => p.id) } },
         data: { trialNotified1h: true }
       })
-      
-      await prisma.notification.create({
-        data: {
+
+      // Bulk-create notifications
+      await prisma.notification.createMany({
+        data: properties1h.map(property => ({
           userId: property.hostId,
           type: 'TRIAL_WARNING_1H',
           title: '⚠️ ÚLTIMA HORA de prueba!',
@@ -245,10 +266,10 @@ export async function GET(request: NextRequest) {
             hoursRemaining: 1,
             critical: true
           }
-        }
+        }))
       })
     }
-    
+
     return NextResponse.json({
       success: true,
       processed: {
@@ -259,9 +280,8 @@ export async function GET(request: NextRequest) {
         warned1h: properties1h.length
       }
     })
-    
+
   } catch (error) {
-    console.error('Error checking trials:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

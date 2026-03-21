@@ -164,7 +164,7 @@ export async function POST(
         },
         userId,
       },
-    }).catch(err => console.error('Error creating audit log:', err))
+    }).catch(() => {})
 
     if (!result.success) {
       return NextResponse.json(
@@ -186,7 +186,6 @@ export async function POST(
       cancelHash: hash,
     })
   } catch (error) {
-    console.error('Error cancelling VeriFactu invoice:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

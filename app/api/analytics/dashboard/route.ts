@@ -37,7 +37,6 @@ export async function GET(request: NextRequest) {
         zones: Array(prop._count.zones).fill({ _count: { ratings: 0, steps: 0 } })
       }))
     } catch (error) {
-      console.error('Error fetching properties with workaround:', error)
       // Fallback to basic query
       const basicProps = await prisma.property.findMany({
         where: { hostId: userId, deletedAt: null }
@@ -210,7 +209,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching dashboard analytics:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor',

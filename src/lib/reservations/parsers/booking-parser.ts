@@ -19,7 +19,6 @@ export function parseBookingEmail(
 
     const confirmationCode = extractBookingConfirmationCode(text, subject)
     if (!confirmationCode) {
-      console.error('Booking parser: No se encontró número de reserva')
       return null
     }
 
@@ -28,7 +27,6 @@ export function parseBookingEmail(
     const dates = extractBookingDates(text, subject)
 
     if (!dates) {
-      console.error('Booking parser: No se encontraron fechas')
       return null
     }
 
@@ -61,7 +59,6 @@ export function parseBookingEmail(
       rawEmail: text.substring(0, 5000)
     }
   } catch (error) {
-    console.error('Error parseando email de Booking:', error)
     return null
   }
 }

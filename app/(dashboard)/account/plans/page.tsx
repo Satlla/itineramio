@@ -52,11 +52,9 @@ function PlansPageContent() {
 
   const fetchBillingOverview = async () => {
     try {
-      console.log('🔄 Fetching billing overview...')
       const response = await fetch('/api/user/billing-overview')
       if (response.ok) {
         const data = await response.json()
-        console.log('✅ Billing overview data:', data)
         setCurrentProperties(data.totalProperties || 0)
         setCurrentPlan({
           code: data.planCode?.toUpperCase(),
@@ -69,11 +67,8 @@ function PlansPageContent() {
           nextPaymentDate: data.nextPaymentDate,
           maxProperties: data.maxProperties
         })
-      } else {
-        console.error('❌ Failed to fetch billing overview:', response.status)
       }
     } catch (error) {
-      console.error('❌ Error fetching billing overview:', error)
     }
   }
 
@@ -87,7 +82,6 @@ function PlansPageContent() {
         }
       }
     } catch (error) {
-      console.error('❌ Error fetching subscription details:', error)
     }
   }
 
@@ -121,7 +115,6 @@ function PlansPageContent() {
         toast.error(data.error || t('plans.cancelError'))
       }
     } catch (error) {
-      console.error('Error cancelling subscription:', error)
       toast.error(t('plans.cancelError'))
     } finally {
       setCancelling(false)
@@ -150,7 +143,6 @@ function PlansPageContent() {
         toast.error(data.error || t('plans.reactivateError'))
       }
     } catch (error) {
-      console.error('Error reactivating subscription:', error)
       toast.error(t('plans.reactivateError'))
     }
   }
@@ -160,7 +152,6 @@ function PlansPageContent() {
 
     // Fallback to monthly if period not found
     if (!periodInfo) {
-      console.warn(`Invalid billing period: ${billingPeriod}, defaulting to monthly`)
       return monthlyPrice
     }
 
@@ -190,11 +181,9 @@ function PlansPageContent() {
 
     try {
       // ⚠️ CRITICAL: Check if billing info is complete FIRST
-      console.log('🔍 Checking billing data completion...')
       const billingResponse = await fetch('/api/user/billing-info', { credentials: 'include' })
 
       if (!billingResponse.ok) {
-        console.error('❌ BILLING-CHECK-FAILED: Cannot verify billing data')
         toast.error(t('plans.billingVerifyError'))
         setLoading(false)
         return
@@ -202,8 +191,6 @@ function PlansPageContent() {
 
       const billingData = await billingResponse.json()
       if (!billingData.isBillingComplete) {
-        console.log('❌ BILLING-DATA-INCOMPLETE: Showing billing modal')
-
         // Save pending plan data to process after billing data is completed
         const tempPlanData = {
           plan,
@@ -219,7 +206,6 @@ function PlansPageContent() {
         setLoading(false)
         return
       }
-      console.log('✅ BILLING-DATA-COMPLETE: Proceeding with plan selection')
 
       // Server-side validation for downgrade prevention
       const validationResponse = await fetch('/api/billing/validate-plan-change', {
@@ -236,7 +222,6 @@ function PlansPageContent() {
       const validation = await validationResponse.json()
 
       if (!validation.allowed) {
-        console.log(`❌ PLAN-SELECTION-BLOCKED: ${validation.message}`)
         toast.error(validation.message, {
           duration: 5000,
           style: {
@@ -246,8 +231,6 @@ function PlansPageContent() {
         setLoading(false)
         return
       }
-
-      console.log(`✅ PLAN-SELECTION: Plan change validated - ${validation.reason}`)
 
       // Normalize billing period to ensure it matches our BILLING_PERIODS keys
       const periodMapping: Record<string, BillingPeriod> = {
@@ -263,24 +246,11 @@ function PlansPageContent() {
 
       let normalizedPeriod = periodMapping[billingPeriod?.toLowerCase() || 'monthly'] || 'monthly'
 
-      console.log(`📅 Billing period mapping: ${billingPeriod} → ${normalizedPeriod}`)
-
       // Calcular el precio basado en el plan y período
       const price = calculatePrice(plan.priceMonthly, normalizedPeriod)
 
       // Obtener el price ID correcto basado en el período de facturación
       const priceId = plan.stripePriceId || plan.priceIds?.[normalizedPeriod] || ''
-
-      console.log('Plan data:', {
-        planCode: plan.code,
-        planName: plan.name,
-        billingPeriod: normalizedPeriod,
-        originalBillingPeriod: billingPeriod,
-        propertyCount,
-        calculatedPrice: price,
-        priceId,
-        prorationData
-      })
 
       // Prepare plan data for modal
       const planData = {
@@ -308,7 +278,6 @@ function PlansPageContent() {
       setSelectedPlanData(planData)
       setShowPaymentModal(true)
     } catch (error) {
-      console.error('Error processing plan selection:', error)
       toast.error(error instanceof Error ? error.message : t('plans.planSelectionError'))
     } finally {
       setLoading(false)

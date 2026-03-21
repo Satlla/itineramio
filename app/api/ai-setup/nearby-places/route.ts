@@ -20,7 +20,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: places })
   } catch (error) {
-    console.error('[nearby-places] Error:', error)
     return NextResponse.json(
       {
         success: false,
@@ -57,7 +56,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: details })
   } catch (error) {
-    console.error('[nearby-places] Error:', error)
     return NextResponse.json(
       {
         success: false,

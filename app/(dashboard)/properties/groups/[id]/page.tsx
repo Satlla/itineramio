@@ -367,11 +367,10 @@ export default function PropertySetDetailPage() {
       if (response.ok && result.data) {
         setPropertySet(result.data)
       } else {
-        console.error('Property set not found')
         router.push('/main')
       }
     } catch (error) {
-      console.error('Error fetching property set:', error)
+      // error fetching property set
       router.push('/main')
     } finally {
       setLoading(false)
@@ -388,7 +387,7 @@ export default function PropertySetDetailPage() {
         setViewsData(result.data)
       }
     } catch (error) {
-      console.error('Error fetching views data:', error)
+      // error fetching views data
     } finally {
       setLoadingViews(false)
     }
@@ -460,7 +459,6 @@ export default function PropertySetDetailPage() {
       }
 
     } catch (error) {
-      console.error('Error duplicating property:', error)
       alert(t('groups.duplicate.errorDuplicating', { error: error instanceof Error ? error.message : t('groups.duplicate.errorUnknown') }))
       setIsDuplicating(false)
     }
@@ -506,7 +504,7 @@ export default function PropertySetDetailPage() {
         setFilteredProperties(sortedProps)
       }
     } catch (error) {
-      console.error('Error fetching available properties:', error)
+      // error fetching available properties
     } finally {
       setLoadingProperties(false)
     }
@@ -543,7 +541,6 @@ export default function PropertySetDetailPage() {
         : t('groups.detail.propertiesAddedMany', { count: selectedProperties.length })
       )
     } catch (error) {
-      console.error('Error adding properties to set:', error)
       alert(t('groups.detail.errorAddingProperties'))
     } finally {
       setIsAddingProperties(false)
@@ -627,7 +624,6 @@ export default function PropertySetDetailPage() {
         }
       }
     } catch (error) {
-      console.error('Error in remove action:', error)
       alert(t('groups.remove.errorProcessing'))
     } finally {
       setIsRemoving(false)
@@ -686,8 +682,6 @@ export default function PropertySetDetailPage() {
         alert(t('groups.errorReorderingDetail', { error: result.error || t('groups.duplicate.errorUnknown') }))
       }
     } catch (error) {
-      console.error('Error reordering properties:', error)
-
       // Revert on error
       setPropertySet(prev => prev ? {
         ...prev,
@@ -754,7 +748,6 @@ export default function PropertySetDetailPage() {
       }
 
     } catch (error) {
-      console.error('Error toggling property:', error)
       // Revertir al estado original en caso de error
       setPropertySet(prev => {
         if (!prev) return prev
@@ -814,7 +807,6 @@ export default function PropertySetDetailPage() {
             document.body.removeChild(notification)
           }, 3000)
         } catch (error) {
-          console.error('Error sharing property:', error)
           alert(t('common.errorSharing'))
         } finally {
           setProcessingPropertyId(null)
@@ -834,7 +826,7 @@ export default function PropertySetDetailPage() {
           }
           window.open(`/guide/${propertyId}`, '_blank')
         } catch (error) {
-          console.error('Error opening public view:', error)
+          // error opening public view
         } finally {
           setProcessingPropertyId(null)
         }

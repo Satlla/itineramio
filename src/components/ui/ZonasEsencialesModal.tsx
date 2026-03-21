@@ -56,21 +56,6 @@ export function ZonasEsencialesModal({
 }: ZonasEsencialesModalProps) {
   const { t } = useTranslation('zones')
 
-  // Debug logging for mobile
-  React.useEffect(() => {
-    if (isOpen) {
-      console.log('🎭 ZonasEsencialesModal mounted and visible', {
-        isOpen,
-        userName,
-        isLoading,
-        viewport: typeof window !== 'undefined' ? {
-          width: window.innerWidth,
-          height: window.innerHeight,
-          userAgent: window.navigator.userAgent
-        } : null
-      })
-    }
-  }, [isOpen, userName, isLoading])
 
   if (!isOpen) return null
 

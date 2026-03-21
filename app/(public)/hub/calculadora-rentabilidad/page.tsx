@@ -522,7 +522,7 @@ export default function CalculadoraRentabilidad() {
         })
       }
     } catch (error) {
-      console.error('Error saving lead:', error)
+      // lead save error silenced
     }
 
     setLoading(false)

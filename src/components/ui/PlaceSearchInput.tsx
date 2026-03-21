@@ -68,7 +68,7 @@ export function PlaceSearchInput({
           setShowDropdown(true)
         }
       } catch (err) {
-        console.error('Search error:', err)
+        // search error suppressed
       } finally {
         setSearching(false)
       }

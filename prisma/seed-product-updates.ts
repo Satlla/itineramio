@@ -195,10 +195,10 @@ async function main() {
 
     await prisma.productUpdate.create({
       data: {
-        title: update.title,
-        description: update.description,
+        title: update.title as any,
+        description: update.description as any,
         tag: update.tag,
-        ctaText: update.ctaText || null,
+        ctaText: (update.ctaText || null) as any,
         ctaUrl: update.ctaUrl || null,
         isPublished: true,
         publishedAt,

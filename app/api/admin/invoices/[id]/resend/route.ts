@@ -55,7 +55,6 @@ export async function POST(
     })
 
     if (!emailResult.success) {
-      console.error('Error sending invoice email:', emailResult.error)
       return NextResponse.json(
         { error: 'Error al enviar email: ' + emailResult.error },
         { status: 500 }
@@ -85,7 +84,6 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('Error resending invoice:', error)
     return NextResponse.json(
       { error: 'Error al reenviar factura' },
       { status: 500 }

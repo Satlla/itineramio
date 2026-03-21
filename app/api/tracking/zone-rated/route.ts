@@ -38,7 +38,6 @@ export async function POST(request: NextRequest) {
       message: 'Zone rating tracked successfully'
     })
   } catch (error) {
-    console.error('Error tracking zone rating:', error)
     return NextResponse.json(
       { error: 'Failed to track zone rating' },
       { status: 500 }

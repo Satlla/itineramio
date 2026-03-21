@@ -93,7 +93,6 @@ export async function checkHostManualesAccess(hostId: string): Promise<ModuleChe
     return { hasAccess: false, blockedReason: 'no_module' }
 
   } catch (error) {
-    console.error('Error checking host MANUALES access:', error)
     // En caso de error, permitir acceso para no bloquear por error técnico
     return { hasAccess: true, reason: 'active' }
   }

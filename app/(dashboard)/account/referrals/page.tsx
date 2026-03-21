@@ -56,7 +56,6 @@ export default function ReferralsPage() {
       const result = await response.json()
       setData(result)
     } catch (err) {
-      console.error('Error:', err)
       setError(t('referrals.page.loadError'))
     } finally {
       setIsLoading(false)
@@ -70,7 +69,6 @@ export default function ReferralsPage() {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
-      console.error('Error copying:', err)
     }
   }
 
@@ -85,7 +83,6 @@ export default function ReferralsPage() {
         })
       } catch (err) {
         if ((err as Error).name !== 'AbortError') {
-          console.error('Error sharing:', err)
         }
       }
     } else {

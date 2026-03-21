@@ -37,7 +37,6 @@ export async function POST(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error tracking skipped evaluation:', error)
     return NextResponse.json(
       { error: 'Error tracking skipped evaluation' },
       { status: 500 }

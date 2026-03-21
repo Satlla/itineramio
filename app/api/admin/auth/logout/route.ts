@@ -29,8 +29,7 @@ export async function POST(request: NextRequest) {
     return response
 
   } catch (error) {
-    console.error('❌ Admin logout error:', error)
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Error durante el logout' 
     }, { status: 500 })
   }

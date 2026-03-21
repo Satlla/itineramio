@@ -78,7 +78,6 @@ export async function POST(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('Error cleaning up fake evaluations:', error)
     return NextResponse.json({
       error: 'Failed to cleanup fake evaluations',
       details: error instanceof Error ? error.message : 'Unknown error'

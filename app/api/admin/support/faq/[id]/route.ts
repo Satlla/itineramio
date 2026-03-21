@@ -43,7 +43,6 @@ export async function PUT(
 
     return NextResponse.json({ faq })
   } catch (error) {
-    console.error('Error updating FAQ:', error)
     return NextResponse.json(
       { error: 'Error al actualizar FAQ' },
       { status: 500 }
@@ -81,7 +80,6 @@ export async function DELETE(
 
     return NextResponse.json({ faq })
   } catch (error) {
-    console.error('Error archiving FAQ:', error)
     return NextResponse.json(
       { error: 'Error al archivar FAQ' },
       { status: 500 }

@@ -85,7 +85,6 @@ export async function GET(request: NextRequest) {
       }))
     })
   } catch (error) {
-    console.error('Error getting referral info:', error)
     return NextResponse.json(
       { error: 'Error al obtener información de referidos' },
       { status: 500 }

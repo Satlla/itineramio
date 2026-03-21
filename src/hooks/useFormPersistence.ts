@@ -33,7 +33,6 @@ export function useFormPersistence({
         const savedData = localStorage.getItem(storageKey)
         if (savedData && autoRestore) {
           const parsedData = JSON.parse(savedData)
-          console.log('📥 Auto-restoring saved form data:', Object.keys(parsedData))
 
           // Only restore non-excluded fields
           Object.keys(parsedData).forEach(key => {
@@ -41,14 +40,8 @@ export function useFormPersistence({
               setValue(key, parsedData[key])
             }
           })
-          console.log('✅ Form data restored successfully')
-        } else if (savedData) {
-          console.log('📋 Saved data found but NOT auto-restoring (waiting for user action)')
-        } else {
-          console.log('ℹ️  No saved form data found')
         }
       } catch (error) {
-        console.error('❌ Error checking saved form data:', error)
         localStorage.removeItem(storageKey)
       } finally {
         setIsInitialized(true)
@@ -110,15 +103,13 @@ export function useFormPersistence({
               const now = new Date()
               setLastSaved(now)
               localStorage.setItem(`${storageKey}_timestamp`, now.toISOString())
-              console.log('✅ Form data saved to localStorage:', Object.keys(dataToSave))
             }
           } else {
             localStorage.removeItem(storageKey)
             localStorage.removeItem(`${storageKey}_timestamp`)
-            console.log('🧹 No meaningful data, cleared localStorage')
           }
         } catch (error) {
-          console.error('❌ Error saving form data:', error)
+          // save error handled silently
         } finally {
           setIsSaving(false)
         }
@@ -136,7 +127,6 @@ export function useFormPersistence({
     if (typeof window !== 'undefined') {
       localStorage.removeItem(storageKey)
       localStorage.removeItem(`${storageKey}_timestamp`)
-      console.log('🗑️ Cleared saved data from localStorage')
     }
   }, [storageKey])
 
@@ -147,18 +137,16 @@ export function useFormPersistence({
         const savedData = localStorage.getItem(storageKey)
         if (savedData) {
           const parsedData = JSON.parse(savedData)
-          console.log('📥 Manually restoring saved form data:', Object.keys(parsedData))
 
           Object.keys(parsedData).forEach(key => {
             if (!excludeFields.includes(key) && parsedData[key] !== undefined && parsedData[key] !== null) {
               setValue(key, parsedData[key])
             }
           })
-          console.log('✅ Form data restored successfully')
           return true
         }
       } catch (error) {
-        console.error('❌ Error restoring saved form data:', error)
+        // restore error handled silently
       }
     }
     return false
@@ -212,13 +200,7 @@ export function useFormPersistence({
             return false
           })
 
-          console.log('📊 Saved data check:', {
-            keys: Object.keys(parsedData),
-            hasMeaningfulData
-          })
-
           if (!hasMeaningfulData) {
-            console.log('🧹 No meaningful data found, cleaning up localStorage')
             localStorage.removeItem(storageKey)
             localStorage.removeItem(`${storageKey}_timestamp`)
           }
@@ -230,7 +212,7 @@ export function useFormPersistence({
           }
         }
       } catch (error) {
-        console.error('Error getting saved data info:', error)
+        // error handled silently
       }
     }
     return { data: null, timestamp: null, hasData: false }

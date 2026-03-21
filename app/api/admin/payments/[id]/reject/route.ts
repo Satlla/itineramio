@@ -88,7 +88,6 @@ export async function POST(
     })
     
   } catch (error) {
-    console.error('Error rejecting payment:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

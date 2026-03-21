@@ -163,8 +163,7 @@ export async function POST(request: NextRequest) {
         })
       })
 
-    } catch (emailError) {
-      console.error('❌ Error enviando email a backoffice:', emailError)
+    } catch {
       // Continuar sin email - la solicitud ya fue creada
     }
 
@@ -187,8 +186,8 @@ export async function POST(request: NextRequest) {
         }
       })
 
-    } catch (notifError) {
-      console.error('❌ Error creando notificación de campanita:', notifError)
+    } catch {
+      // Ignore notification errors
     }
 
     // 3. EMAIL DE CONFIRMACIÓN AL USUARIO
@@ -210,8 +209,8 @@ export async function POST(request: NextRequest) {
         })
       })
 
-    } catch (userEmailError) {
-      console.error('❌ Error enviando email de confirmación a usuario:', userEmailError)
+    } catch {
+      // Ignore user email errors
     }
 
     return NextResponse.json({
@@ -227,9 +226,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('❌ Error creating subscription request:', error)
-    console.error('❌ Error details:', error instanceof Error ? error.message : 'Unknown error')
-    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack')
     return NextResponse.json(
       {
         error: 'Error al crear la solicitud de suscripción',
@@ -256,8 +252,7 @@ async function getAdminEmails(): Promise<string[]> {
     }
 
     return admins.map(admin => admin.email)
-  } catch (error) {
-    console.error('Error fetching admin emails:', error)
+  } catch {
     // Fallback
     return ['hola@itineramio.com', 'alejandrosatlla@gmail.com']
   }

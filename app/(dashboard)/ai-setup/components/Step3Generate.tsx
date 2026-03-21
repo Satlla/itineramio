@@ -230,7 +230,6 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
         }
       } catch (err) {
         if ((err as Error).name === 'AbortError') return
-        console.error('[Step3] Generation error:', err)
         setError(err instanceof Error ? err.message : t('step5.unknownError'))
       } finally {
         clearTimeout(timeoutId)
@@ -271,10 +270,10 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
           {/* Content */}
           <div className="p-6 sm:p-8 space-y-4">
             {/* Essential zones */}
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-green-500/5 border border-green-500/20">
-              <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-green-50 border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-green-300">{t('step5.essentialZones')}</p>
+                <p className="text-sm font-medium text-green-800">{t('step5.essentialZones')}</p>
                 <p className="text-xs text-gray-500 mt-0.5">{t('step5.essentialZonesList')}</p>
               </div>
             </div>

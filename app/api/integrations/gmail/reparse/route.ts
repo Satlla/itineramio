@@ -164,7 +164,6 @@ export async function POST(request: NextRequest) {
           }
         }
       } catch (error) {
-        console.error(`Error reparsing email ${email.id}:`, error)
         results.errors++
       }
     }
@@ -174,7 +173,6 @@ export async function POST(request: NextRequest) {
       results,
     })
   } catch (error) {
-    console.error('Error reparsing emails:', error)
     return NextResponse.json(
       { error: 'Error al reprocesar emails' },
       { status: 500 }

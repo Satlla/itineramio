@@ -204,7 +204,6 @@ export async function POST(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('✅ SAFE POST - Error:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al crear la propiedad',

@@ -66,7 +66,6 @@ async function claimDemoProperty(userId: string, userEmail: string): Promise<str
 
     return propertyId
   } catch (error) {
-    console.error('[claimDemoProperty] Error:', error)
     return null
   }
 }
@@ -99,9 +98,7 @@ export async function GET(request: NextRequest) {
 
       if (user) {
         // Send welcome email (don't await to avoid blocking the response)
-        EmailVerificationService.sendWelcomeEmail(user.email, user.name).catch(error => {
-          console.error('Error sending welcome email:', error)
-        })
+        EmailVerificationService.sendWelcomeEmail(user.email, user.name).catch(() => {})
 
         // Attempt to transfer demo property to the new user
         const claimedPropertyId = await claimDemoProperty(user.id, user.email)
@@ -138,7 +135,6 @@ export async function GET(request: NextRequest) {
       new URL('/login?verified=true', request.url)
     )
   } catch (error) {
-    console.error('Email verification error:', error)
     return NextResponse.redirect(
       new URL('/login?error=Error de verificación', request.url)
     )
@@ -184,7 +180,6 @@ export async function POST(request: NextRequest) {
       message: 'Email de verificación enviado'
     })
   } catch (error) {
-    console.error('Error resending verification email:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

@@ -480,7 +480,6 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error fetching analytics:', error);
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor',
@@ -614,7 +613,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
 
   } catch (error) {
-    console.error('Error tracking event:', error);
     return NextResponse.json({
       success: false,
       error: 'Error tracking event'

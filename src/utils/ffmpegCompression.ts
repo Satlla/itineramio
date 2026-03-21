@@ -30,10 +30,6 @@ async function initFFmpeg(onProgress?: (message: string) => void): Promise<FFmpe
 async function _doLoadFFmpeg(onProgress?: (message: string) => void): Promise<FFmpeg> {
   ffmpeg = new FFmpeg()
 
-  ffmpeg.on('log', ({ message }) => {
-    console.log('[FFmpeg]', message)
-  })
-
   ffmpeg.on('progress', ({ progress }) => {
     const percent = Math.round(progress * 100)
     onProgress?.(`Comprimiendo... ${percent}%`)
@@ -101,7 +97,6 @@ async function _doCompress(
   } = options
 
   const fileSizeMB = file.size / (1024 * 1024)
-  console.log('🎬 FFmpeg compression starting:', file.name, fileSizeMB.toFixed(2), 'MB')
 
   try {
     const ffmpegInstance = await initFFmpeg(onProgress)
@@ -164,14 +159,11 @@ async function _doCompress(
     )
 
     const compressedSizeMB = compressedFile.size / (1024 * 1024)
-    console.log('✅ Compression complete:', compressedSizeMB.toFixed(2), 'MB')
-    console.log('📊 Reduced by:', ((1 - compressedFile.size / file.size) * 100).toFixed(1), '%')
 
     onProgress?.(`Comprimido: ${compressedSizeMB.toFixed(1)}MB`)
 
     // If still too large and not at lowest quality, try again with lower quality
     if (compressedSizeMB > maxSizeMB && quality !== 'low') {
-      console.log('⚠️ Still too large, trying lower quality...')
       const lowerQuality = quality === 'high' ? 'medium' : 'low'
       return compressVideoFFmpeg(compressedFile, { ...options, quality: lowerQuality })
     }
@@ -179,7 +171,6 @@ async function _doCompress(
     return compressedFile
 
   } catch (error) {
-    console.error('❌ FFmpeg compression failed:', error)
     throw new Error('Error comprimiendo video. Intenta con un video más corto.')
   }
 }

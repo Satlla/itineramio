@@ -87,9 +87,8 @@ export default function EditArticlePage() {
       } else {
         setError('Error al cargar el articulo')
       }
-    } catch (err) {
+    } catch {
       setError('Error de conexion')
-      console.error('Error fetching article:', err)
     } finally {
       setLoading(false)
     }
@@ -146,8 +145,7 @@ export default function EditArticlePage() {
         const errData = await res.json().catch(() => ({}))
         setError(errData.error || 'Error al actualizar el articulo')
       }
-    } catch (err) {
-      console.error('Error updating article:', err)
+    } catch {
       setError('Error de conexion')
     } finally {
       setSaving(false)
@@ -168,8 +166,7 @@ export default function EditArticlePage() {
       } else {
         alert('Error al eliminar el articulo')
       }
-    } catch (err) {
-      console.error('Error deleting article:', err)
+    } catch {
       alert('Error de conexion')
     } finally {
       setDeleting(false)

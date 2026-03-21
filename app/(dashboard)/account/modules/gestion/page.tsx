@@ -214,7 +214,6 @@ export default function GestionModulePage() {
         setValidatedCoupon(null)
       }
     } catch (error) {
-      console.error('Error validating coupon:', error)
       setCouponError(t('modules.gestion.toasts.couponValidationError'))
       setValidatedCoupon(null)
     } finally {
@@ -251,7 +250,6 @@ export default function GestionModulePage() {
         toast.error(result.error || t('modules.gestion.toasts.trialActivationError'))
       }
     } catch (error) {
-      console.error('Error:', error)
       toast.error(t('modules.gestion.toasts.trialActivationError'))
     } finally {
       setTrialLoading(false)
@@ -284,7 +282,6 @@ export default function GestionModulePage() {
         toast.error(result.error || t('modules.gestion.toasts.checkoutError'))
       }
     } catch (error) {
-      console.error('Error:', error)
       toast.error(t('modules.gestion.toasts.paymentProcessingError'))
     } finally {
       setLoading(false)
@@ -384,7 +381,6 @@ export default function GestionModulePage() {
         toast.error(result.error || t('modules.gestion.toasts.requestSubmitError'))
       }
     } catch (error) {
-      console.error('Error:', error)
       toast.error(t('modules.gestion.toasts.requestProcessingError'))
     } finally {
       setLoading(false)

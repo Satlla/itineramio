@@ -7,7 +7,6 @@ export async function POST(request: NextRequest) {
     }, { status: 503 })
     
   } catch (error) {
-    console.error('Calendar sync error:', error)
     return NextResponse.json({
       error: 'Internal server error'
     }, { status: 500 })

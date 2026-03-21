@@ -119,8 +119,7 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
         alert('Error al cargar el artículo')
         router.push('/admin/blog')
       }
-    } catch (error) {
-      console.error('Error fetching post:', error)
+    } catch {
       alert('Error al cargar el artículo')
       router.push('/admin/blog')
     } finally {
@@ -189,8 +188,7 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
         setErrorMessage(error.error || 'Error al actualizar el artículo')
         setShowErrorModal(true)
       }
-    } catch (error) {
-      console.error('Error updating post:', error)
+    } catch {
       setErrorMessage('Error al actualizar el artículo')
       setShowErrorModal(true)
     } finally {
@@ -228,8 +226,7 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
       } else {
         alert('Error al eliminar el artículo')
       }
-    } catch (error) {
-      console.error('Error deleting post:', error)
+    } catch {
       alert('Error al eliminar el artículo')
     }
   }

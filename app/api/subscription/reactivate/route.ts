@@ -60,8 +60,7 @@ export async function POST(request: NextRequest) {
             reactivated_by: decoded.userId
           }
         })
-      } catch (stripeError) {
-        console.error('Error reactivating Stripe subscription:', stripeError)
+      } catch {
         // Continuamos con la reactivación local aunque falle Stripe
       }
     }
@@ -90,7 +89,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error reactivando suscripción:', error)
     return NextResponse.json(
       { error: 'Error al reactivar suscripción' },
       { status: 500 }

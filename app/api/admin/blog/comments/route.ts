@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
 import { requireAdminAuth } from '../../../../../src/lib/admin-auth'
+import { Prisma } from '@prisma/client'
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status') || 'PENDING'
 
     // Build where clause
-    const where = status === 'ALL' ? {} : { status }
+    const where: Prisma.BlogCommentWhereInput = status === 'ALL' ? {} : { status: status as Prisma.EnumCommentStatusFilter }
 
     // Get comments
     const comments = await prisma.blogComment.findMany({
@@ -33,7 +34,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ comments })
   } catch (error) {
-    console.error('Error fetching comments:', error)
     return NextResponse.json(
       { error: 'Error al cargar comentarios' },
       { status: 500 }

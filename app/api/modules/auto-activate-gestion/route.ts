@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
       ...result
     })
   } catch (error) {
-    console.error('Error auto-activating GESTION trial:', error)
     return NextResponse.json(
       { success: false, error: 'Error interno del servidor' },
       { status: 500 }

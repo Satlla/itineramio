@@ -43,7 +43,6 @@ export async function GET(request: NextRequest) {
       data: reportData
     })
   } catch (error) {
-    console.error('Error generating weekly report:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor',
@@ -104,7 +103,6 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
   } catch (error) {
-    console.error('Error sending weekly report:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor',

@@ -96,8 +96,8 @@ export default function AdminLeadsPage() {
           setStats(data.stats.bySource)
         }
       }
-    } catch (error) {
-      console.error('Error fetching leads:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }
@@ -125,8 +125,7 @@ export default function AdminLeadsPage() {
         window.URL.revokeObjectURL(url)
         document.body.removeChild(a)
       }
-    } catch (error) {
-      console.error('Error exporting leads:', error)
+    } catch {
       alert('Error al exportar leads')
     } finally {
       setExporting(false)

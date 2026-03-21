@@ -50,7 +50,6 @@ export async function GET(
       group
     })
   } catch (error) {
-    console.error('Error fetching billing unit group:', error)
     return NextResponse.json(
       { error: 'Error al obtener el conjunto' },
       { status: 500 }
@@ -187,7 +186,6 @@ export async function PATCH(
       }
     })
   } catch (error) {
-    console.error('Error updating billing unit group:', error)
     return NextResponse.json(
       { error: 'Error al actualizar el conjunto' },
       { status: 500 }
@@ -256,7 +254,6 @@ export async function DELETE(
       message: 'Conjunto eliminado. Los apartamentos ahora son independientes.'
     })
   } catch (error) {
-    console.error('Error deleting billing unit group:', error)
     return NextResponse.json(
       { error: 'Error al eliminar el conjunto' },
       { status: 500 }

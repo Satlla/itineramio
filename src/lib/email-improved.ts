@@ -3,13 +3,6 @@ import { Resend } from 'resend'
 const RESEND_API_KEY = process.env.RESEND_API_KEY
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'hola@itineramio.com'
 
-console.log('📧 Email service initialization:', {
-  hasApiKey: !!RESEND_API_KEY,
-  apiKeyLength: RESEND_API_KEY?.length || 0,
-  fromEmail: FROM_EMAIL,
-  nodeEnv: process.env.NODE_ENV
-})
-
 // Initialize Resend client
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null
 
@@ -40,16 +33,8 @@ export async function sendEmail({
   const formattedTo = Array.isArray(to) ? to : [to]
   const cleanEmails = formattedTo.map(email => email.trim().toLowerCase())
 
-  console.log('📧 Attempting to send email:', {
-    to: cleanEmails,
-    subject,
-    from,
-    hasApiKey: !!RESEND_API_KEY
-  })
-
   // Check if API key is configured
   if (!RESEND_API_KEY || !resend) {
-    console.error('❌ Email sending failed: No RESEND_API_KEY configured or Resend client not initialized')
     return { 
       success: false, 
       error: 'Email service not configured - RESEND_API_KEY missing',
@@ -62,8 +47,6 @@ export async function sendEmail({
     let fromEmail = from
     let attempt = 1
 
-    console.log('🚀 Sending email via Resend...')
-    
     // First attempt with configured email
     let { data, error } = await resend.emails.send({
       from: fromEmail,
@@ -74,13 +57,8 @@ export async function sendEmail({
     })
 
     if (error) {
-      console.error('❌ Resend error:', error)
-      
       // Check for specific errors and retry with fallback email
       if (error.message?.includes('domain') || error.message?.includes('verified') || error.message?.includes('DNS')) {
-        console.error('🔐 Domain verification issue detected')
-        console.log('🔄 Retrying with onboarding@resend.dev...')
-        
         attempt = 2
         const retryResult = await resend.emails.send({
           from: 'onboarding@resend.dev',
@@ -91,12 +69,10 @@ export async function sendEmail({
         })
         
         if (retryResult.data) {
-          console.log('✅ Email sent successfully with fallback email (attempt 2)')
           return { success: true, id: retryResult.data.id }
         }
-        
+
         if (retryResult.error) {
-          console.error('❌ Retry also failed:', retryResult.error)
           return { 
             success: false, 
             error: `Failed after ${attempt} attempts: ${retryResult.error.message || 'Unknown error'}` 
@@ -110,14 +86,12 @@ export async function sendEmail({
       }
     }
 
-    console.log('✅ Email sent successfully:', data?.id)
-    return { 
-      success: true, 
-      id: data?.id 
+    return {
+      success: true,
+      id: data?.id
     }
 
   } catch (error) {
-    console.error('🚨 Email service error:', error)
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error' 
@@ -1421,7 +1395,6 @@ export async function sendTicketEscalatedEmail(params: TicketEscalatedEmailParam
 export const emailQueue = {
   add: async (emailOptions: EmailOptions) => {
     // TODO: Implement with Bull or similar queue system
-    console.log('📮 Email added to queue:', emailOptions.subject)
     return sendEmail(emailOptions)
   }
 }

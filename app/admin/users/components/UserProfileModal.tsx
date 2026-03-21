@@ -169,8 +169,8 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
         const data = await response.json()
         setUser(data.user)
       }
-    } catch (error) {
-      console.error('Error fetching user profile:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }
@@ -189,8 +189,8 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
         const data = await response.json()
         setCalls(data.data)
       }
-    } catch (error) {
-      console.error('Error fetching calls:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoadingCalls(false)
     }
@@ -209,8 +209,8 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
         const data = await response.json()
         setNotes(data.data)
       }
-    } catch (error) {
-      console.error('Error fetching notes:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoadingNotes(false)
     }
@@ -229,8 +229,8 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
         const data = await response.json()
         setConversations(data.tickets)
       }
-    } catch (error) {
-      console.error('Error fetching conversations:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoadingConversations(false)
     }
@@ -284,19 +284,12 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
 
   const handleImpersonate = async (propertyId: string) => {
     if (!userId) {
-      console.error('❌ No hay userId disponible')
       return
     }
-
-    console.log('👤 UserID del prop:', userId)
-    console.log('🏠 PropertyID:', propertyId)
-    console.log('📧 Email del usuario del modal:', user?.email)
 
     setImpersonating(true)
 
     try {
-      console.log('🔄 Iniciando impersonation para userId:', userId)
-
       // Llamar a la API de impersonation
       const response = await fetch('/api/admin/impersonate', {
         method: 'POST',
@@ -315,16 +308,12 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
       }
 
       const result = await response.json()
-      console.log('✅ Impersonation iniciada:', result)
-      console.log('👤 Usuario objetivo:', result.user)
-      console.log('👮 Suplantado por:', result.impersonatedBy)
 
       // IMPORTANTE: Usar window.location.replace() para forzar recarga completa
       // Esto elimina la página actual del historial y fuerza una recarga completa
       // Asegurando que las nuevas cookies se lean correctamente
       window.location.replace(`/properties/${propertyId}/zones`)
     } catch (error) {
-      console.error('❌ Error en impersonation:', error)
       alert(error instanceof Error ? error.message : 'Error al iniciar suplantación')
       setImpersonating(false)
     }
@@ -354,8 +343,7 @@ export default function UserProfileModal({ userId, isOpen, onClose }: UserProfil
       } else {
         alert(data.error || 'Error al cancelar suscripción')
       }
-    } catch (error) {
-      console.error('Error cancelando suscripción:', error)
+    } catch {
       alert('Error al cancelar suscripción. Por favor, intenta de nuevo.')
     } finally {
       setCancelingSubscription(false)

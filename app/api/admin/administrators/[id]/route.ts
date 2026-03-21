@@ -60,7 +60,6 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error fetching administrator:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'
@@ -189,7 +188,6 @@ export async function PUT(
     })
 
   } catch (error) {
-    console.error('Error updating administrator:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'
@@ -259,7 +257,6 @@ export async function DELETE(
     })
 
   } catch (error) {
-    console.error('Error deleting administrator:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'

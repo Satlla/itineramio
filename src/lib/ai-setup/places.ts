@@ -61,13 +61,11 @@ export async function searchNearbyPlaces(
 
   const response = await fetch(url)
   if (!response.ok) {
-    console.error(`[places] Nearby search failed for type ${type}:`, response.status)
     return []
   }
 
   const data = await response.json()
   if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-    console.error(`[places] API error for type ${type}:`, data.status, data.error_message)
     return []
   }
 
@@ -166,7 +164,6 @@ async function getCachedDirections(
     })
 
     if (cached && Date.now() - cached.lastFetchedAt.getTime() < CACHE_MAX_AGE_MS) {
-      console.log(`[places] Cache hit for directions: ${origin} → ${destTileKey} (${mode})`)
       const r = cached.result as any
       // Empty object = null was cached (no route found)
       return r && r.duration ? (r as DirectionsResult) : null
@@ -186,7 +183,7 @@ async function getCachedDirections(
       update: { result: result as any ?? {}, lastFetchedAt: new Date() },
     })
   } catch (err) {
-    console.warn('[places] Failed to cache directions:', err)
+    // Cache write failed, continue
   }
 
   return result
@@ -223,15 +220,11 @@ function emptyLocationData() {
  * by the Recommendations system — this only fetches transport directions.
  */
 export async function fetchAllLocationData(lat: number, lng: number, city: string) {
-  console.log('[places] Fetching directions for:', { lat, lng, city })
-
   if (!GOOGLE_MAPS_API_KEY) {
-    console.error('[places] GOOGLE_MAPS_API_KEY is empty — skipping location data')
     return emptyLocationData()
   }
 
   if (!lat || !lng || (lat === 0 && lng === 0)) {
-    console.error('[places] Invalid coordinates (lat/lng are 0 or missing) — skipping location data')
     return emptyLocationData()
   }
 

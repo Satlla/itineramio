@@ -24,10 +24,8 @@ export class EmailVerificationService {
         }
       })
     } catch (error) {
-      console.error('Error creating verification token:', error)
       // If table doesn't exist, return a dummy token for now
       if (error && typeof error === 'object' && 'code' in error && error.code === 'P2021') {
-        console.warn('Email verification table does not exist - returning dummy token')
         return `dummy-token-${Date.now()}`
       }
       throw error
@@ -88,7 +86,6 @@ export class EmailVerificationService {
 
       // Initialize trial if not already started (15 days from verification)
       if (!user.trialStartedAt) {
-        console.log(`🎁 Initializing 15-day trial for user ${user.id}`)
         await trialService.initializeTrial(user.id)
       }
 
@@ -99,7 +96,6 @@ export class EmailVerificationService {
 
       return { success: true, email: verificationToken.email }
     } catch (error) {
-      console.error('Error verifying email token:', error)
       return { success: false, error: 'Error al verificar el token' }
     }
   }

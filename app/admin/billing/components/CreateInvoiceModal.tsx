@@ -86,8 +86,8 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: Creat
       if (data.success) {
         setPlans(data.plans.filter((plan: Plan) => plan.isActive))
       }
-    } catch (error) {
-      console.error('Error fetching plans:', error)
+    } catch {
+      // ignore fetch error
     }
   }
 
@@ -99,8 +99,8 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: Creat
       if (data.success) {
         setUsers(data.users)
       }
-    } catch (error) {
-      console.error('Error searching users:', error)
+    } catch {
+      // ignore search error
     } finally {
       setSearchingUsers(false)
     }
@@ -186,8 +186,7 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }: Creat
       } else {
         alert(data.error || 'Error al crear la factura')
       }
-    } catch (error) {
-      console.error('Error creating invoice:', error)
+    } catch {
       alert('Error al crear la factura')
     } finally {
       setLoading(false)

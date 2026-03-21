@@ -297,7 +297,7 @@ export async function POST(request: NextRequest) {
       }
 
       return newInvoice
-    })
+    }, { timeout: 10000 })
 
     return NextResponse.json({
       invoice: {

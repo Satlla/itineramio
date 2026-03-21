@@ -85,7 +85,6 @@ export default function MediaLibraryPage() {
         setMediaItems(data.items)
       }
     } catch (error) {
-      console.error('Error fetching media:', error)
       toast({
         title: t('mediaLibrary.error'),
         description: t('mediaLibrary.errorLoadingFiles'),
@@ -117,7 +116,6 @@ export default function MediaLibraryPage() {
         })
       }
     } catch (error) {
-      console.error('Error saving to library:', error)
       toast({
         title: t('mediaLibrary.error'),
         description: t('mediaLibrary.errorSavingToLibrary'),
@@ -153,7 +151,6 @@ export default function MediaLibraryPage() {
         })
       }
     } catch (error) {
-      console.error('Error deleting media:', error)
       toast({
         title: t('mediaLibrary.error'),
         description: t('mediaLibrary.errorDeletingFiles'),

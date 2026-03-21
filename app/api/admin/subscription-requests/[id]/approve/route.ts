@@ -135,8 +135,8 @@ export async function POST(
           ipAddress,
           userAgent,
         })
-      } catch (logError) {
-        console.warn('⚠️ Could not create admin activity log:', logError)
+      } catch {
+        // Could not create admin activity log, continue
       }
 
       // Send confirmation email
@@ -154,8 +154,8 @@ export async function POST(
             dashboardUrl: `${process.env.NEXTAUTH_URL || 'https://www.itineramio.com'}/gestion`
           })
         })
-      } catch (emailError) {
-        console.error('Error sending GESTION approval email:', emailError)
+      } catch {
+        // Email send failed, continue
       }
 
       return NextResponse.json({
@@ -301,7 +301,6 @@ export async function POST(
         })
         }
       } catch (prorationError) {
-        console.error('❌ Error calculating proration:', prorationError)
         // Continue without proration if calculation fails
         prorationCalculation = null
       }
@@ -419,8 +418,7 @@ export async function POST(
         ipAddress,
         userAgent,
       })
-    } catch (logError) {
-      console.warn('⚠️ Could not create admin activity log:', logError)
+    } catch {
       // Continue without logging - subscription already approved
     }
 
@@ -443,8 +441,7 @@ export async function POST(
             : undefined
         })
       })
-    } catch (emailError) {
-      console.error('Error sending approval email:', emailError)
+    } catch {
       // Continue without email - subscription still approved
     }
 
@@ -456,9 +453,7 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('Error approving subscription request:', error)
     const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
-    console.error('Error details:', errorMessage)
     return NextResponse.json(
       {
         error: 'Error al aprobar la solicitud',

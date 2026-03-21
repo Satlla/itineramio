@@ -80,7 +80,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ payments, stats })
     
   } catch (error) {
-    console.error('Error fetching payments:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

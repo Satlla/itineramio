@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
+import { checkRateLimitAsync, getRateLimitKey } from '../../../../../src/lib/rate-limit'
 
 // POST /api/zones/[zoneId]/evaluate - Submit zone evaluation (private for host only)
 export async function POST(
@@ -7,6 +8,12 @@ export async function POST(
   { params }: { params: Promise<{ zoneId: string }> }
 ) {
   try {
+    const rl = await checkRateLimitAsync(
+      getRateLimitKey(request, null, 'zone-eval'),
+      { maxRequests: 5, windowMs: 60 * 1000 }
+    )
+    if (!rl.allowed) return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+
     const { zoneId } = await params
     const body = await request.json()
 
@@ -116,7 +123,6 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('Error submitting zone evaluation:', error)
     return NextResponse.json(
       { error: 'Error al enviar la evaluación' },
       { status: 500 }
@@ -185,7 +191,6 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error fetching zone ratings:', error)
     return NextResponse.json(
       { error: 'Error al obtener las evaluaciones' },
       { status: 500 }

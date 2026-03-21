@@ -174,7 +174,7 @@ export async function POST(
       }
 
       return zones
-    })
+    }, { timeout: 10000 })
     
     return NextResponse.json({
       success: true,
@@ -185,9 +185,6 @@ export async function POST(
     }, { status: 201 })
     
   } catch (error) {
-    console.error('🔴 Error creating zones batch:', error)
-    console.error('🔴 Error stack:', error instanceof Error ? error.stack : 'No stack trace')
-    
     if (error instanceof z.ZodError) {
       return NextResponse.json({
         success: false,

@@ -33,7 +33,6 @@ export async function GET(request: NextRequest) {
       hasCompleted: user?.onboardingCompletedAt !== null
     })
   } catch (error) {
-    console.error('Error checking onboarding:', error)
     return NextResponse.json(
       { hasCompleted: false },
       { status: 200 }
@@ -71,7 +70,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error completing onboarding:', error)
     return NextResponse.json(
       { error: 'Error al completar onboarding' },
       { status: 500 }

@@ -70,8 +70,8 @@ export default async function DownloadPage({
   })
 
   // Texto adaptado por género
-  const readyText = genderWord('listo', subscriber.gender as Gender)
-  const anfitrionText = genderWord('anfitrion', subscriber.gender as Gender)
+  const readyText = genderWord('listo', (subscriber as any).gender as Gender)
+  const anfitrionText = genderWord('anfitrion', (subscriber as any).gender as Gender)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
@@ -134,7 +134,7 @@ export default async function DownloadPage({
             <TrackDownloadButton
               href={leadMagnet.downloadUrl}
               slug={leadMagnet.slug}
-              archetype={leadMagnet.archetype}
+              archetype={(leadMagnet as any).archetype || ''}
               title={leadMagnet.title}
               pages={leadMagnet.pages}
             />

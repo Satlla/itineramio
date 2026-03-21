@@ -205,8 +205,8 @@ export default function AdminLayout({
 
       oscillator.start(audioContext.currentTime)
       oscillator.stop(audioContext.currentTime + 0.1)
-    } catch (error) {
-      console.error('Error playing notification sound:', error)
+    } catch {
+      // ignore audio error
     }
   }
 
@@ -233,7 +233,6 @@ export default function AdminLayout({
   useEffect(() => {
     // Only play sound if count increased and this is not the initial load
     if (previousPendingCount >= 0 && pendingRequests > previousPendingCount) {
-      console.log('🔔 Playing notification sound - new requests:', pendingRequests)
       playNotificationSound()
     }
     setPreviousPendingCount(pendingRequests)
@@ -305,8 +304,8 @@ export default function AdminLayout({
         credentials: 'include'
       })
       router.push('/admin/login')
-    } catch (error) {
-      console.error('Logout error:', error)
+    } catch {
+      // ignore logout error
     }
   }
 

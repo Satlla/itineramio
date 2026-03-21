@@ -255,8 +255,7 @@ export default function ReservasPage() {
         setProperties(data.properties || [])
         setBillingUnits(data.billingUnits || [])
       }
-    } catch (error) {
-      console.error('Error fetching properties:', error)
+    } catch {
     }
   }
 
@@ -278,8 +277,7 @@ export default function ReservasPage() {
         setReservations(data.reservations || [])
         setTotals(data.totals || { count: 0, earnings: 0, nights: 0, confirmed: 0 })
       }
-    } catch (error) {
-      console.error('Error fetching reservations:', error)
+    } catch {
     } finally {
       setLoading(false)
     }
@@ -344,8 +342,7 @@ export default function ReservasPage() {
         const data = await response.json()
         alert(data.error || t('common.errors.createReservation') || 'Error al crear la reserva')
       }
-    } catch (error) {
-      console.error('Error creating reservation:', error)
+    } catch {
       alert(t('common.errors.createReservation') || 'Error al crear la reserva')
     } finally {
       setSaving(false)
@@ -400,8 +397,7 @@ export default function ReservasPage() {
         const data = await response.json()
         alert(data.error || t('common.errors.updateReservation') || 'Error al actualizar la reserva')
       }
-    } catch (error) {
-      console.error('Error updating reservation:', error)
+    } catch {
       alert(t('common.errors.updateReservation') || 'Error al actualizar la reserva')
     } finally {
       setSaving(false)
@@ -450,8 +446,7 @@ export default function ReservasPage() {
         setGuestSearchResults(data.guests || [])
         setShowGuestDropdown(data.guests?.length > 0)
       }
-    } catch (error) {
-      console.error('Error searching guests:', error)
+    } catch {
     } finally {
       setSearchingGuest(false)
     }
@@ -497,8 +492,7 @@ export default function ReservasPage() {
         const data = await response.json()
         alert(data.error || t('common.errors.deleteReservation') || 'Error al eliminar la reserva')
       }
-    } catch (error) {
-      console.error('Error deleting reservation:', error)
+    } catch {
       alert(t('common.errors.deleteReservation') || 'Error al eliminar la reserva')
     } finally {
       setDeleting(false)
@@ -542,8 +536,7 @@ export default function ReservasPage() {
       } else {
         alert(data.error || t('common.errors.deleteReservations') || 'Error al eliminar las reservas')
       }
-    } catch (error) {
-      console.error('Error bulk deleting:', error)
+    } catch {
       alert(t('common.errors.deleteReservations') || 'Error al eliminar las reservas')
     } finally {
       setBulkDeleting(false)
@@ -596,8 +589,7 @@ export default function ReservasPage() {
         }
         // If not all detected, user will need to click "Configurar mapeo"
       }
-    } catch (error) {
-      console.error('Error parsing file:', error)
+    } catch {
       alert(t('common.errors.readFile') || 'Error al leer el archivo')
     }
   }
@@ -623,8 +615,6 @@ export default function ReservasPage() {
     try {
       // If replace existing is checked, delete current reservations AND draft invoices
       if (replaceExisting && importPropertyId) {
-        console.log('Deleting existing reservations for property:', importPropertyId)
-
         // Delete reservations
         const isUnit = billingUnits.some(u => u.id === importPropertyId)
         const deleteResponse = await fetch('/api/gestion/reservations/bulk-delete', {
@@ -637,12 +627,7 @@ export default function ReservasPage() {
             isUnit
           })
         })
-        const deleteResult = await deleteResponse.json()
-        console.log('Delete result:', deleteResult)
-
-        if (deleteResult.error) {
-          console.error('Error deleting reservations:', deleteResult.error)
-        }
+        await deleteResponse.json()
 
         // Also delete draft invoices so they regenerate with fresh data
         await fetch('/api/gestion/invoices/delete-drafts', {
@@ -717,7 +702,6 @@ export default function ReservasPage() {
       }
 
       const data = await response.json()
-      console.log('Import response:', data)
 
       if (response.ok) {
         // Handle both API response formats (importedCount vs imported)
@@ -728,8 +712,6 @@ export default function ReservasPage() {
           reason: e.error || e.reason || t('common.unknownError') || 'Error desconocido'
         })) || []
 
-        console.log('Parsed results:', { importedCount, skippedCount, errors: errors.length })
-
         setImportResults({
           imported: importedCount,
           skipped: skippedCount,
@@ -739,11 +721,9 @@ export default function ReservasPage() {
           fetchReservations()
         }
       } else {
-        console.error('Import error:', data)
         alert(data.error || t('common.errors.importFile') || 'Error al importar el archivo')
       }
-    } catch (error) {
-      console.error('Error importing CSV:', error)
+    } catch {
       alert(t('common.errors.importFile') || 'Error al importar el archivo')
     } finally {
       setImporting(false)

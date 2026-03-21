@@ -47,7 +47,6 @@ export async function GET(request: NextRequest) {
       gestionActive
     })
   } catch (error) {
-    console.error('Error checking module status:', error)
     return NextResponse.json(
       { error: 'Error al verificar módulos' },
       { status: 500 }

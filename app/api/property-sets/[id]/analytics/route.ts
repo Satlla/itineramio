@@ -194,7 +194,6 @@ export async function GET(
     })
     
   } catch (error) {
-    console.error('Error fetching property set analytics:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al obtener analytics'

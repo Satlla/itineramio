@@ -419,7 +419,7 @@ const trackZoneView = async (propertyId: string, zoneId: string) => {
       })
     })
   } catch (error) {
-    console.error('Error tracking zone view:', error)
+    // tracking error silenced
   }
 }
 
@@ -437,7 +437,7 @@ const trackStepViewed = async (propertyId: string, zoneId: string, stepIndex: nu
       })
     })
   } catch (error) {
-    console.error('Error tracking step view:', error)
+    // tracking error silenced
   }
 }
 
@@ -454,7 +454,7 @@ const trackZoneCompleted = async (propertyId: string, zoneId: string, completion
       })
     })
   } catch (error) {
-    console.error('Error tracking zone completion:', error)
+    // tracking error silenced
   }
 }
 
@@ -469,7 +469,7 @@ const trackWhatsAppClick = async (propertyId: string) => {
       })
     })
   } catch (error) {
-    console.error('Error tracking WhatsApp click:', error)
+    // tracking error silenced
   }
 }
 
@@ -484,7 +484,7 @@ const trackCallClick = async (propertyId: string) => {
       })
     })
   } catch (error) {
-    console.error('Error tracking call click:', error)
+    // tracking error silenced
   }
 }
 
@@ -499,7 +499,7 @@ const trackEmailClick = async (propertyId: string) => {
       })
     })
   } catch (error) {
-    console.error('Error tracking email click:', error)
+    // tracking error silenced
   }
 }
 
@@ -526,13 +526,8 @@ const trackZoneRated = async (propertyId: string, zoneId: string, rating: number
     
     const result = await response.json()
     
-    if (result.success) {
-      console.log('✅ Zone evaluation saved successfully')
-    } else {
-      console.error('❌ Failed to save zone evaluation:', result.error)
-    }
   } catch (error) {
-    console.error('Error saving zone evaluation:', error)
+    // zone evaluation save error silenced
   }
 }
 
@@ -600,7 +595,6 @@ export default function ZoneGuidePage({
           fetchZoneData(pId, zId)
         }
       } catch (error) {
-        console.error('Error resolving property:', error)
         // Fallback: try with original params
         trackZoneView(pId, zId)
         fetchZoneData(pId, zId)
@@ -644,8 +638,7 @@ export default function ZoneGuidePage({
       }
       
       const actualPropertyId = resolveResult.data.id
-      console.log('🔍 Resolved property ID:', actualPropertyId, 'from:', pId)
-      
+
       // Fetch zone data (which includes steps) and property data using public APIs with resolved ID
       let [zoneResponse, propertyResponse] = await Promise.all([
         fetch(`/api/public/properties/${actualPropertyId}/zones/${zId}`),
@@ -654,13 +647,11 @@ export default function ZoneGuidePage({
       
       // If zone endpoint fails, try safe endpoint
       if (!zoneResponse.ok && (zoneResponse.status === 500 || zoneResponse.status === 404)) {
-        console.log('Zone endpoint failed, trying safe endpoint...')
         zoneResponse = await fetch(`/api/public/properties/${actualPropertyId}/zones/${zId}/safe`)
       }
 
       // If property endpoint fails, try safe endpoint (handles demo previews)
       if (!propertyResponse.ok && (propertyResponse.status === 500 || propertyResponse.status === 404)) {
-        console.log('Property endpoint failed, trying safe endpoint...')
         propertyResponse = await fetch(`/api/public/properties/${actualPropertyId}/safe`)
       }
       
@@ -698,13 +689,6 @@ export default function ZoneGuidePage({
       const zoneWithSteps = {
         ...zoneResult.data,
         steps: zoneResult.data.steps ? zoneResult.data.steps.map((step: any) => {
-          console.log('🔍 Frontend step:', {
-            title: step.title,
-            type: step.type,
-            hasContent: !!step.content,
-            contentEs: step.content?.es,
-            mediaUrl: step.mediaUrl
-          })
           return {
             ...step,
             title: step.title, // Keep original title, don't generate default
@@ -720,7 +704,6 @@ export default function ZoneGuidePage({
       setZone(zoneWithSteps)
       setProperty(propertyResult.data)
     } catch (error) {
-      console.error('Error fetching zone data:', error)
       setZone(null)
       setProperty(null)
     } finally {
@@ -852,7 +835,7 @@ export default function ZoneGuidePage({
         window.location.href = `/guide/${propertyId}`
       }, 500)
     } catch (error) {
-      console.error('Error submitting rating:', error)
+      // rating submit error silenced
     } finally {
       setIsSubmittingRating(false)
     }
@@ -871,7 +854,7 @@ export default function ZoneGuidePage({
         })
       })
     } catch (error) {
-      console.error('Error tracking skipped evaluation:', error)
+      // tracking error silenced
     }
     
     // Mark zone as viewed even if rating is skipped
@@ -1638,7 +1621,7 @@ export default function ZoneGuidePage({
             setCopySuccess(true)
             setTimeout(() => setCopySuccess(false), 2000)
           } catch (err) {
-            console.error('Failed to copy:', err)
+            // copy error silenced
           }
         }}
         title={language === 'es' ? 'Compartir Zona' : language === 'en' ? 'Share Zone' : 'Partager la Zone'}

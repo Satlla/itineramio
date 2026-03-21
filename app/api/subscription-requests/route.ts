@@ -108,13 +108,6 @@ export async function POST(request: NextRequest) {
     )
 
     if (!isBillingComplete) {
-      console.error('❌ BILLING-DATA-INCOMPLETE: User attempted to subscribe without complete billing data', {
-        hasValidName,
-        hasValidTaxId,
-        hasEmail: !!billingInfo?.email,
-        hasAddress: !!billingInfo?.address,
-        billingInfo
-      })
       return NextResponse.json({
         error: 'Datos de facturación incompletos',
         details: 'Debes completar tus datos de facturación antes de realizar una suscripción.',
@@ -210,9 +203,7 @@ export async function POST(request: NextRequest) {
       userEmail: user.email,
       requestedPlan: planInfo?.name || 'Plan personalizado',
       status: 'PENDING'
-    }).catch(error => {
-      console.error('Failed to send admin notification:', error)
-    })
+    }).catch(() => {})
 
     // Create notification for user
     await prisma.notification.create({
@@ -237,7 +228,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error creating subscription request:', error)
     return NextResponse.json(
       { error: 'Error al crear la solicitud de suscripción' },
       { status: 500 }
@@ -278,7 +268,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(requests)
 
   } catch (error) {
-    console.error('Error fetching subscription requests:', error)
     return NextResponse.json(
       { error: 'Error al obtener las solicitudes' },
       { status: 500 }
@@ -293,8 +282,7 @@ async function getAdminEmails(): Promise<string[]> {
       select: { email: true }
     })
     return admins.map(admin => admin.email)
-  } catch (error) {
-    console.error('Error fetching admin emails:', error)
+  } catch {
     return []
   }
 }

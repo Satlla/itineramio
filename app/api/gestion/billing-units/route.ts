@@ -74,7 +74,6 @@ export async function GET(request: NextRequest) {
       }))
     })
   } catch (error) {
-    console.error('Error fetching billing units:', error)
     return NextResponse.json(
       { error: 'Error al obtener las unidades de facturación' },
       { status: 500 }
@@ -223,7 +222,6 @@ export async function POST(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error creating billing unit:', error)
     return NextResponse.json(
       { error: 'Error al crear la unidad de facturación' },
       { status: 500 }

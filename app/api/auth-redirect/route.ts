@@ -25,7 +25,6 @@ export async function GET(request: NextRequest) {
 
     return response
   } catch (error) {
-    console.error('Auth redirect error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = jwt.verify(token, JWT_SECRET as string) as unknown as { userId: string }
     const userId = decoded.userId
     
     // Set JWT claims for PostgreSQL RLS policies
@@ -114,8 +114,6 @@ export async function POST(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('Error fixing property sets:', error)
-    
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Error desconocido'

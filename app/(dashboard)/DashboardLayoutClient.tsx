@@ -51,7 +51,7 @@ export function DashboardLayoutClient({
           }
         }
       } catch (error) {
-        console.error('Error fetching dashboard init:', error)
+        // error fetching dashboard init
       }
     }
 

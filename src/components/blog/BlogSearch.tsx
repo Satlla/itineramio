@@ -51,7 +51,6 @@ export function BlogSearch({ className = '' }: BlogSearchProps) {
       const data = await response.json()
       setResults(data.results || [])
     } catch (error) {
-      console.error('Search error:', error)
       setResults([])
     } finally {
       setIsLoading(false)

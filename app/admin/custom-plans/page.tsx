@@ -78,8 +78,8 @@ export default function CustomPlansAdminPage() {
         setCustomPlans(data.customPlans || [])
         setStats(data.stats || stats)
       }
-    } catch (error) {
-      console.error('Error fetching custom plans:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }

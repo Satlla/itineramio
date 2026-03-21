@@ -32,7 +32,7 @@ export const SubscriptionActivatedModal: React.FC<SubscriptionActivatedModalProp
           credentials: 'include'
         })
       } catch (error) {
-        console.error('Error marking notification as read:', error)
+        // error suppressed
       }
     }
     markAsRead()

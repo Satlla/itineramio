@@ -44,7 +44,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ coupons, stats })
     
   } catch (error) {
-    console.error('Error fetching coupons:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -126,7 +125,6 @@ export async function POST(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('Error creating coupon:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
