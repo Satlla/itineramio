@@ -39,6 +39,10 @@ import {
   TreePine,
   Waves,
   Building2,
+  Plus,
+  Search,
+  Map,
+  Clock,
 } from 'lucide-react'
 import type { Step1Data } from './Step1Address'
 import type { Step2Data } from './Step2Details'
@@ -105,6 +109,15 @@ export interface ReviewZone {
   enabled: boolean
 }
 
+export interface DemoPlace {
+  id: string
+  googlePlaceId: string
+  name: string
+  address: string
+  rating: number | null
+  types: string[]
+}
+
 interface Step4ReviewProps {
   step1Data: Step1Data
   step2Data: Step2Data
@@ -121,6 +134,9 @@ interface Step4ReviewProps {
   onCustomIconsChange: (icons: Record<string, string>) => void
   onNext: () => void
   onBack: () => void
+  demoMode?: boolean
+  demoPlaces?: DemoPlace[]
+  onDemoPlacesChange?: (places: DemoPlace[]) => void
 }
 
 // ============================================
@@ -622,6 +638,9 @@ export default function Step4Review({
   onCustomIconsChange,
   onNext,
   onBack,
+  demoMode = false,
+  demoPlaces = [],
+  onDemoPlacesChange,
 }: Step4ReviewProps) {
   const { t } = useTranslation('ai-setup')
   const [editingZone, setEditingZone] = useState<string | null>(null)
@@ -631,6 +650,30 @@ export default function Step4Review({
   const [justSaved, setJustSaved] = useState<string | null>(null)
   const [iconPickerZone, setIconPickerZone] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState<string | null>(null)
+  const [confirmRemoveZone, setConfirmRemoveZone] = useState<string | null>(null)
+  const [placeQuery, setPlaceQuery] = useState('')
+  const [placeResults, setPlaceResults] = useState<{ googlePlaceId: string; name: string; address: string; rating: number | null; types: string[] }[]>([])
+  const [placeSearching, setPlaceSearching] = useState(false)
+  const [showPlaceDropdown, setShowPlaceDropdown] = useState(false)
+  const placeSearchTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Demo place search
+  useEffect(() => {
+    if (!demoMode) return
+    if (placeSearchTimeout.current) clearTimeout(placeSearchTimeout.current)
+    if (placeQuery.length < 2) { setPlaceResults([]); setShowPlaceDropdown(false); return }
+    setPlaceSearching(true)
+    placeSearchTimeout.current = setTimeout(async () => {
+      try {
+        let url = `/api/public/demo-places-search?q=${encodeURIComponent(placeQuery)}`
+        if (step1Data.lat && step1Data.lng) url += `&lat=${step1Data.lat}&lng=${step1Data.lng}`
+        const res = await fetch(url)
+        const data = await res.json()
+        if (data.success) { setPlaceResults(data.data); setShowPlaceDropdown(true) }
+      } catch { /* ignore */ } finally { setPlaceSearching(false) }
+    }, 400)
+    return () => { if (placeSearchTimeout.current) clearTimeout(placeSearchTimeout.current) }
+  }, [placeQuery, demoMode, step1Data.lat, step1Data.lng])
 
   // Build all zone content
   const zoneData = useMemo(
@@ -842,6 +885,27 @@ export default function Step4Review({
                   : 'bg-white border-gray-200 hover:border-gray-300'
               }`}
             >
+              {/* Demo confirm remove dialog */}
+              {demoMode && confirmRemoveZone === zone.id && (
+                <div className="flex items-center gap-2 px-3 sm:px-4 py-3 bg-red-50 border-b border-red-100">
+                  <span className="flex-1 text-sm text-red-700">¿Quitar esta sección? Podrás añadirla desde el dashboard.</span>
+                  <button
+                    type="button"
+                    onClick={() => { toggleZone(zone.id); setConfirmRemoveZone(null) }}
+                    className="px-3 py-1 rounded-lg bg-red-500 text-white text-xs font-medium hover:bg-red-600 transition-colors"
+                  >
+                    Sí, quitar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmRemoveZone(null)}
+                    className="px-3 py-1 rounded-lg border border-red-200 text-red-600 text-xs font-medium hover:bg-red-100 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              )}
+
               {/* Card header */}
               <div
                 className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 cursor-pointer"
@@ -970,8 +1034,20 @@ export default function Step4Review({
                   </button>
                 )}
 
+                {/* Demo mode: X button to remove auto zones */}
+                {demoMode && zone.source === 'auto' && !isEditing && confirmRemoveZone !== zone.id && (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setConfirmRemoveZone(zone.id) }}
+                    className="p-1 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                    title="Quitar sección"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+
                 {/* Chevron */}
-                {!isEditing && (
+                {!isEditing && confirmRemoveZone !== zone.id && (
                   <div className={`text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
                     <ChevronDown className="w-4 h-4" />
                   </div>
@@ -1077,6 +1153,110 @@ export default function Step4Review({
         })}
       </div>
 
+      {/* Demo mode: add your favourite places */}
+      {demoMode && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="space-y-4"
+        >
+          {/* City guide banner */}
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
+            <Map className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-blue-800">¿Hay una guía de ciudad de Itineramio?</p>
+              <p className="text-sm text-blue-600 mt-0.5">Si existe una guía de tu ciudad, podrás importarla desde el dashboard y tendrás todos los lugares más interesantes ya añadidos automáticamente.</p>
+            </div>
+          </div>
+
+          {/* Search bar */}
+          <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-2 mb-1">
+              <Plus className="w-4 h-4 text-violet-500" />
+              <span className="text-sm font-semibold text-gray-800">Añade tus lugares favoritos</span>
+            </div>
+            <p className="text-xs text-gray-500">Restaurantes, bares, tiendas, atracciones… lo que quieras que vean tus huéspedes.</p>
+
+            {/* Input */}
+            <div className="relative">
+              <div className="flex items-center gap-2 border border-gray-200 rounded-lg px-3 py-2.5 focus-within:border-violet-500 focus-within:ring-1 focus-within:ring-violet-500/20 bg-white">
+                <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <input
+                  type="text"
+                  value={placeQuery}
+                  onChange={(e) => setPlaceQuery(e.target.value)}
+                  placeholder="Busca un restaurante, parque, tienda..."
+                  className="flex-1 text-sm outline-none bg-transparent text-gray-900 placeholder:text-gray-400"
+                />
+                {placeSearching && <Loader2 className="w-4 h-4 text-violet-400 animate-spin flex-shrink-0" />}
+              </div>
+
+              {/* Dropdown results */}
+              {showPlaceDropdown && placeResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
+                  {placeResults.map((result) => (
+                    <button
+                      key={result.googlePlaceId}
+                      type="button"
+                      onClick={() => {
+                        const alreadyAdded = demoPlaces.some(p => p.googlePlaceId === result.googlePlaceId)
+                        if (!alreadyAdded && onDemoPlacesChange) {
+                          onDemoPlacesChange([...demoPlaces, {
+                            id: result.googlePlaceId,
+                            googlePlaceId: result.googlePlaceId,
+                            name: result.name,
+                            address: result.address,
+                            rating: result.rating,
+                            types: result.types,
+                          }])
+                        }
+                        setPlaceQuery('')
+                        setShowPlaceDropdown(false)
+                      }}
+                      className="w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-violet-50 transition-colors border-b border-gray-100 last:border-0"
+                    >
+                      <MapPin className="w-4 h-4 text-violet-400 flex-shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{result.name}</p>
+                        <p className="text-xs text-gray-500 truncate">{result.address}</p>
+                        {result.rating && <p className="text-xs text-amber-600 mt-0.5">⭐ {result.rating}</p>}
+                      </div>
+                      {demoPlaces.some(p => p.googlePlaceId === result.googlePlaceId) && (
+                        <Check className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5 ml-auto" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Added places list */}
+            {demoPlaces.length > 0 && (
+              <div className="space-y-2 pt-1">
+                <p className="text-xs text-gray-500 font-medium">{demoPlaces.length} lugar{demoPlaces.length !== 1 ? 'es' : ''} añadido{demoPlaces.length !== 1 ? 's' : ''}</p>
+                {demoPlaces.map((place) => (
+                  <div key={place.id} className="flex items-center gap-2 bg-violet-50 border border-violet-100 rounded-lg px-3 py-2">
+                    <MapPin className="w-3.5 h-3.5 text-violet-400 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-800 truncate">{place.name}</p>
+                      <p className="text-xs text-gray-500 truncate">{place.address}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onDemoPlacesChange?.(demoPlaces.filter(p => p.id !== place.id))}
+                      className="p-1 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </motion.div>
+      )}
+
       {/* Navigation */}
       <div className="flex gap-3 sm:gap-4 pt-4">
         <button
@@ -1087,6 +1267,16 @@ export default function Step4Review({
           <ArrowLeft className="w-5 h-5" />
           <span className="hidden sm:inline">{t('step4.previous')}</span>
         </button>
+        {demoMode && (
+          <button
+            type="button"
+            onClick={onNext}
+            className="flex-1 h-12 sm:h-14 rounded-xl text-base sm:text-lg font-semibold border border-gray-200 text-gray-500 hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+          >
+            <Clock className="w-4 h-4" />
+            <span className="text-sm">Hacerlo luego</span>
+          </button>
+        )}
         <button
           type="button"
           onClick={onNext}

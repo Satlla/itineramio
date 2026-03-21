@@ -14,7 +14,7 @@ import { I18nProvider } from '../../../src/providers/I18nProvider'
 import Step1Address, { type Step1Data } from '../../(dashboard)/ai-setup/components/Step1Address'
 import Step2Details, { type Step2Data } from '../../(dashboard)/ai-setup/components/Step2Details'
 import Step3Media, { type MediaItem } from '../../(dashboard)/ai-setup/components/Step2Media'
-import Step4Review, { type LocationData } from '../../(dashboard)/ai-setup/components/Step4Review'
+import Step4Review, { type LocationData, type DemoPlace } from '../../(dashboard)/ai-setup/components/Step4Review'
 import { isDisposableEmail, isValidEmailFormat } from '../../../src/utils/email-validation'
 import DemoResultsScreen from '../../../src/components/demo/DemoResultsScreen'
 import DemoShareModal from '../../../src/components/demo/DemoShareModal'
@@ -608,6 +608,7 @@ function DemoPageInner() {
   const [reviewedContent, setReviewedContent] = useState<Record<string, string>>({})
   const [customTitles, setCustomTitles] = useState<Record<string, string>>({})
   const [customIcons, setCustomIcons] = useState<Record<string, string>>({})
+  const [demoPlaces, setDemoPlaces] = useState<DemoPlace[]>([])
 
   // Lead data
   const [leadData, setLeadData] = useState<LeadData>({ name: '', email: '', phone: '' })
@@ -1218,6 +1219,9 @@ function DemoPageInner() {
                     onCustomIconsChange={setCustomIcons}
                     onNext={() => setPhase('lead-capture')}
                     onBack={() => setWizardStep(3)}
+                    demoMode={true}
+                    demoPlaces={demoPlaces}
+                    onDemoPlacesChange={setDemoPlaces}
                   />
                 )}
               </motion.div>
