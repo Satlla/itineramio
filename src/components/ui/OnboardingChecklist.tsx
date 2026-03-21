@@ -49,7 +49,7 @@ export function OnboardingChecklist() {
     setDismissed(true)
   }
 
-  if (loading || dismissed || !data) return null
+  if (loading || dismissed || !data || data.allCompleted) return null
 
   const progress = (data.completedCount / data.totalCount) * 100
   const pendingSteps = data.steps.filter(s => !s.completed)
