@@ -19,7 +19,6 @@ export function parseAirbnbEmail(
     // Extraer código de confirmación
     const confirmationCode = extractConfirmationCode(text)
     if (!confirmationCode) {
-      console.error('No se encontró código de confirmación')
       return null
     }
 
@@ -32,7 +31,6 @@ export function parseAirbnbEmail(
     // Extraer fechas
     const dates = extractDates(text, subject)
     if (!dates) {
-      console.error('No se encontraron fechas')
       return null
     }
 
@@ -72,7 +70,6 @@ export function parseAirbnbEmail(
       rawEmail: text.substring(0, 5000) // Guardar primeros 5000 chars para debug
     }
   } catch (error) {
-    console.error('Error parseando email de Airbnb:', error)
     return null
   }
 }

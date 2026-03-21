@@ -65,7 +65,6 @@ export async function GET(
       canEditNumber: true
     })
   } catch (error) {
-    console.error('Error previewing invoice issue:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -147,7 +146,6 @@ export async function PUT(
         : null
     })
   } catch (error) {
-    console.error('Error validating invoice number:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -427,7 +425,7 @@ export async function POST(
           importe: formatAmountVF(Number(invoice.total)),
         })
       } catch (qrError) {
-        console.error('Error generating VeriFactu QR:', qrError)
+        // QR generation failed, continue without QR
       }
 
       verifactuData = {
@@ -512,7 +510,7 @@ export async function POST(
           },
           userId,
         }
-      }).catch(err => console.error('Error creating audit log:', err))
+      }).catch(() => {})
     }
 
     // Submit to Verifacti if enabled and API key configured
@@ -574,10 +572,9 @@ export async function POST(
               response: JSON.stringify(result.data),
               status: 'SUBMITTED',
             },
-          }).catch(err => console.error('Error saving Verifacti submission:', err))
+          }).catch(() => {})
         } else {
           verifactiResult = { error: result.error }
-          console.error('Verifacti submission failed:', result.error)
 
           // Save failed submission for retry tracking
           await prisma.verifactuSubmission.create({
@@ -588,10 +585,9 @@ export async function POST(
               status: 'ERROR',
               errorMessage: result.error,
             },
-          }).catch(err => console.error('Error saving failed submission:', err))
+          }).catch(() => {})
         }
       } catch (verifactiError) {
-        console.error('Error submitting to Verifacti:', verifactiError)
         verifactiResult = { error: 'Error de conexión con Verifacti' }
 
         // Save connection error for retry tracking
@@ -602,7 +598,7 @@ export async function POST(
             status: 'ERROR',
             errorMessage: verifactiError instanceof Error ? verifactiError.message : 'Error de conexión',
           },
-        }).catch(err => console.error('Error saving error submission:', err))
+        }).catch(() => {})
       }
     }
 
@@ -637,7 +633,6 @@ export async function POST(
       ...(verifactiResult ? { verifacti: verifactiResult } : {}),
     })
   } catch (error) {
-    console.error('Error issuing invoice:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

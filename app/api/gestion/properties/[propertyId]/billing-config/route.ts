@@ -63,7 +63,6 @@ export async function GET(
       billingConfig
     })
   } catch (error) {
-    console.error('Error fetching billing config:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -225,7 +224,6 @@ export async function PUT(
 
     return NextResponse.json({ billingConfig })
   } catch (error) {
-    console.error('Error updating billing config:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

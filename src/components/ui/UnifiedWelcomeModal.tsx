@@ -125,7 +125,7 @@ export function UnifiedWelcomeModal({
         credentials: 'include'
       })
     } catch (error) {
-      console.error('Error saving onboarding completion:', error)
+      // completion error suppressed
     }
 
     // Save to localStorage as backup
@@ -146,7 +146,7 @@ export function UnifiedWelcomeModal({
         credentials: 'include'
       })
     } catch (error) {
-      console.error('Error saving onboarding completion:', error)
+      // completion error suppressed
     }
 
     // Save to localStorage as backup

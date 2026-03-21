@@ -161,7 +161,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error validating plan change:', error)
     return NextResponse.json({
       allowed: false,
       message: 'Error al validar el cambio de plan'

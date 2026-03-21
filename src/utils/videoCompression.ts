@@ -35,13 +35,9 @@ export async function compressVideo(
     onProgress
   } = options
 
-  console.log('🎬 Starting video compression...')
-  console.log('📁 Original file:', file.name, 'Size:', (file.size / 1024 / 1024).toFixed(2), 'MB')
-
   // Check if file is already small enough
   const fileSizeMB = file.size / (1024 * 1024)
   if (fileSizeMB <= maxSizeMB) {
-    console.log('✅ File is already under size limit, no compression needed')
     return file
   }
 
@@ -68,12 +64,8 @@ export async function compressVideo(
         canvas.width = newWidth % 2 === 0 ? newWidth : newWidth - 1
         canvas.height = newHeight % 2 === 0 ? newHeight : newHeight - 1
         
-        console.log('📐 Original dimensions:', video.videoWidth, 'x', video.videoHeight)
-        console.log('📐 Compressed dimensions:', canvas.width, 'x', canvas.height)
-        
         // Calculate target bitrate
         const targetBitrate = calculateBitrate(video.duration, maxSizeMB)
-        console.log('🎯 Target bitrate:', targetBitrate, 'bps')
         
         // Create media stream from canvas
         const stream = canvas.captureStream(fps)
@@ -91,7 +83,7 @@ export async function compressVideo(
             stream.addTrack(audioTrack)
           }
         } catch (e) {
-          console.warn('Could not capture audio, proceeding without audio:', e)
+          // Could not capture audio, proceeding without audio
         }
         
         // Determine best supported codec
@@ -114,7 +106,6 @@ export async function compressVideo(
           }
         }
         
-        console.log('🎥 Using codec:', mimeType)
         
         // Set up MediaRecorder with quality options
         const recorder = new MediaRecorder(stream, {
@@ -139,18 +130,12 @@ export async function compressVideo(
           )
           
           const compressedSizeMB = compressedFile.size / (1024 * 1024)
-          console.log('✅ Compression complete!')
-          console.log('📊 Original size:', fileSizeMB.toFixed(2), 'MB')
-          console.log('📊 Compressed size:', compressedSizeMB.toFixed(2), 'MB')
-          console.log('📊 Compression ratio:', ((1 - compressedFile.size / file.size) * 100).toFixed(1), '%')
-          
+
           // Clean up
           URL.revokeObjectURL(video.src)
           
           // If still too large, try more aggressive compression with multiple passes
           if (compressedSizeMB > maxSizeMB && scale > 0.3) {
-            console.log('⚠️ File still too large, trying more aggressive compression...')
-            console.log(`📉 Reducing scale from ${scale} to ${scale * 0.7}, quality from ${quality} to ${quality * 0.7}`)
             compressVideo(compressedFile, {  // Use already compressed file as input
               ...options,
               scale: scale * 0.7,       // More aggressive scaling reduction
@@ -163,7 +148,6 @@ export async function compressVideo(
         }
         
         recorder.onerror = (event) => {
-          console.error('MediaRecorder error:', event)
           reject(new Error('Recording failed'))
         }
         
@@ -210,12 +194,10 @@ export async function compressVideo(
         video.play().then(() => {
           requestAnimationFrame(processFrame)
         }).catch((error) => {
-          console.error('Video playback failed:', error)
           reject(error)
         })
         
       } catch (error) {
-        console.error('Compression setup failed:', error)
         reject(error)
       }
     }
@@ -233,15 +215,13 @@ export async function compressVideo(
 // Ultra-aggressive compression for maximum size reduction
 export async function compressVideoUltra(
   file: File,
-  options: { 
+  options: {
     maxSizeMB?: number
     onProgress?: (progress: number) => void
   } = {}
 ): Promise<File> {
   const { maxSizeMB = 1, onProgress } = options
-  
-  console.log('🔥 ULTRA compression mode activated!')
-  
+
   // For ultra compression, use extreme settings
   const fileSizeMB = file.size / (1024 * 1024)
   const compressionRatio = maxSizeMB / fileSizeMB

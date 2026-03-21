@@ -73,7 +73,6 @@ export default function FacturacionPage() {
         setProperties(data.properties || [])
       }
     } catch (error) {
-      console.error('Error fetching properties:', error)
     } finally {
       setLoading(false)
     }

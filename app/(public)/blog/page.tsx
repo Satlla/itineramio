@@ -196,7 +196,7 @@ export default async function BlogPage({
   const categories = Array.from(new Set([
     heroArticle?.category,
     ...articles.map(a => a.category)
-  ].filter(Boolean)))
+  ].filter(Boolean))) as string[]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">

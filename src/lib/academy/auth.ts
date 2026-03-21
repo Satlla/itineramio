@@ -92,7 +92,6 @@ export async function getAcademySession(): Promise<AcademyJWTPayload | null> {
 
     return decoded
   } catch (error) {
-    console.error('Academy session verification error:', error)
     return null
   }
 }

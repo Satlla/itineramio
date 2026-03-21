@@ -221,7 +221,6 @@ export default function AnalyticsPage() {
         throw new Error(result.error || 'Error fetching analytics')
       }
     } catch (err) {
-      console.error('Error fetching analytics:', err)
       setError(err instanceof Error ? err.message : 'Error al cargar analytics')
     } finally {
       setLoading(false)

@@ -129,8 +129,8 @@ export default function AdministratorsPage() {
         const data = await response.json()
         setAdministrators(data.administrators)
       }
-    } catch (error) {
-      console.error('Error fetching administrators:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }

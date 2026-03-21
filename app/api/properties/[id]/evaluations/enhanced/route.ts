@@ -122,7 +122,6 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error fetching property evaluations:', error)
     return NextResponse.json(
       { error: 'Error al obtener evaluaciones' },
       { status: 500 }

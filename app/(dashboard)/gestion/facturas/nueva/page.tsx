@@ -159,7 +159,6 @@ export default function NuevaFacturaPage() {
         }
       } catch (err) {
         // Si hay error de red, no bloquear
-        console.error('Error checking duplicate:', err)
         setInvoiceNumberDuplicate(false)
       } finally {
         setCheckingDuplicate(false)
@@ -213,7 +212,6 @@ export default function NuevaFacturaPage() {
       due.setDate(due.getDate() + 15)
       setDueDate(due.toISOString().split('T')[0])
     } catch (error) {
-      console.error('Error fetching data:', error)
     } finally {
       setLoading(false)
     }

@@ -100,7 +100,6 @@ export async function verifactiCreateInvoice(
 
     return { success: false, error: `Error Verifacti: HTTP ${response.status}` }
   } catch (err) {
-    console.error('Error calling Verifacti create:', err)
     return { success: false, error: 'Error de conexión con Verifacti' }
   }
 }
@@ -127,7 +126,6 @@ export async function verifactiGetStatus(
 
     return { success: false, error: `Error Verifacti: HTTP ${response.status}` }
   } catch (err) {
-    console.error('Error calling Verifacti status:', err)
     return { success: false, error: 'Error de conexión con Verifacti' }
   }
 }
@@ -175,7 +173,6 @@ export async function verifactiCancelInvoice(
 
     return { success: false, error: `Error Verifacti: HTTP ${response.status}` }
   } catch (err) {
-    console.error('Error calling Verifacti cancel:', err)
     return { success: false, error: 'Error de conexión con Verifacti' }
   }
 }

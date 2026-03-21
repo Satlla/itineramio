@@ -39,7 +39,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting marketing lead:', error)
     return NextResponse.json(
       { error: 'Error al eliminar el lead' },
       { status: 500 }
@@ -89,7 +88,6 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, lead })
   } catch (error) {
-    console.error('Error updating marketing lead:', error)
     return NextResponse.json(
       { error: 'Error al actualizar el lead' },
       { status: 500 }

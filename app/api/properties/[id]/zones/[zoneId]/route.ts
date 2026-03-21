@@ -114,8 +114,8 @@ export async function GET(
             linkUrl = content.linkUrl
           }
         }
-      } catch (error) {
-        console.error('Error parsing step content:', error)
+      } catch {
+        // ignore step content parse error
       }
 
       const effectiveType = (step.type === 'VIDEO' || step.type === 'IMAGE') && !mediaUrl
@@ -141,7 +141,6 @@ export async function GET(
       data: processedZone
     })
   } catch (error) {
-    console.error('Error fetching zone:', error)
     return NextResponse.json(
       { 
         success: false, 
@@ -256,7 +255,7 @@ export async function PUT(
       // Find all zones with the same name in the filtered properties
       const zonesToUpdate = await prisma.zone.findMany({
         where: {
-          name: zoneName,
+          name: zoneName as any,
           property: propertyFilter
         }
       })
@@ -301,7 +300,6 @@ export async function PUT(
     })
 
   } catch (error) {
-    console.error('Error updating zone:', error)
     return NextResponse.json(
       { 
         success: false, 
@@ -383,7 +381,6 @@ export async function DELETE(
     })
 
   } catch (error) {
-    console.error('Error deleting zone:', error)
     return NextResponse.json(
       { 
         success: false, 

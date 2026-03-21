@@ -170,8 +170,7 @@ Guidelines:
             }
           }
         }
-      } catch (err) {
-        console.error('Error calling OpenAI for follow-up:', err)
+      } catch {
         // Silently fail AI - user message was already saved
       }
     }
@@ -184,7 +183,6 @@ Guidelines:
 
     return NextResponse.json({ messages: newMessages })
   } catch (error) {
-    console.error('Error adding message to ticket:', error)
     return NextResponse.json(
       { error: 'Error al enviar mensaje' },
       { status: 500 }

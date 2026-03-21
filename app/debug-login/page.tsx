@@ -9,8 +9,6 @@ export default function DebugLogin() {
 
   const handleLogin = async () => {
     try {
-      console.log('Attempting login...')
-      
       const response = await fetch('/api/auth/force-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -18,17 +16,14 @@ export default function DebugLogin() {
       })
       
       const data = await response.json()
-      console.log('Login response:', data)
-      
+
       if (data.success) {
         setResult('✅ Login exitoso! Token: ' + data.token.substring(0, 20) + '...')
         
         // Test auth immediately
         setTimeout(async () => {
-          console.log('Testing auth...')
           const authTest = await fetch('/api/auth/me')
           const authResult = await authTest.json()
-          console.log('Auth test:', authResult)
           setResult(prev => prev + '\n\nAuth test: ' + JSON.stringify(authResult, null, 2))
         }, 1000)
         
@@ -37,7 +32,6 @@ export default function DebugLogin() {
       }
       
     } catch (error) {
-      console.error('Login error:', error)
       setResult('❌ Error de conexión: ' + error)
     }
   }

@@ -147,7 +147,6 @@ export async function POST(
       data: { importedCount, zonesCreated, skippedDuplicates },
     }, { status: 201 })
   } catch (error) {
-    console.error('Error importing recommendations:', error)
     return NextResponse.json({ success: false, error: 'Error al importar recomendaciones' }, { status: 500 })
   }
 }

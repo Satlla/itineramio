@@ -89,7 +89,6 @@ export async function GET(
 
     return NextResponse.json({ success: true, data })
   } catch (error) {
-    console.error('Error fetching recommendations:', error)
     return NextResponse.json(
       { success: false, error: 'Error al obtener las recomendaciones' },
       { status: 500 }
@@ -143,7 +142,6 @@ export async function DELETE(
       message: `Se eliminaron ${result.count} zonas de recomendaciones`,
     })
   } catch (error) {
-    console.error('Error deleting recommendations:', error)
     return NextResponse.json(
       { success: false, error: 'Error al eliminar las recomendaciones' },
       { status: 500 }

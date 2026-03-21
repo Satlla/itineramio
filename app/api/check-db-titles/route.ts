@@ -40,7 +40,6 @@ export async function GET(request: NextRequest) {
       analysis: analysis
     })
   } catch (error) {
-    console.error('Check DB error:', error)
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'

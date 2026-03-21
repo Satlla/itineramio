@@ -38,8 +38,7 @@ export async function POST(request: NextRequest) {
     return response;
 
   } catch (error) {
-    console.error('❌ Force logout error:', error);
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Force logout failed', 
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });

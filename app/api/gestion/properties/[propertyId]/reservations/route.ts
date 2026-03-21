@@ -239,7 +239,6 @@ export async function GET(
       summary
     })
   } catch (error) {
-    console.error('Error fetching property reservations:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

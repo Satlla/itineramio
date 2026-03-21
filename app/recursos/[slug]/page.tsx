@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getLeadMagnetBySlug, getAllLeadMagnetSlugs } from '@/data/lead-magnets'
+import { getLeadMagnetBySlug, getAllLeadMagnetSlugs, type LeadMagnet } from '@/data/lead-magnets'
 import LeadMagnetHero from '@/components/lead-magnets/LeadMagnetHero'
 import LeadMagnetForm from '@/components/lead-magnets/LeadMagnetForm'
 import ContentPreview from '@/components/lead-magnets/ContentPreview'
@@ -51,27 +51,27 @@ export default async function LeadMagnetPage({
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <LeadMagnetHero leadMagnet={leadMagnet} />
+      <LeadMagnetHero leadMagnet={leadMagnet as LeadMagnet} />
 
       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         {/* Form Section - Full Width */}
         <div className="mb-8 lg:mb-10">
-          <LeadMagnetForm leadMagnet={leadMagnet} />
+          <LeadMagnetForm leadMagnet={leadMagnet as LeadMagnet} />
         </div>
 
         {/* Content Preview - Full Width */}
         <div className="mb-8 lg:mb-10">
-          <ContentPreview leadMagnet={leadMagnet} />
+          <ContentPreview leadMagnet={leadMagnet as LeadMagnet} />
         </div>
 
         {/* Benefits Section - Full Width */}
-        <BenefitsSection leadMagnet={leadMagnet} />
+        <BenefitsSection leadMagnet={leadMagnet as LeadMagnet} />
 
         {/* Testimonial Section */}
         {leadMagnet.testimonial && (
           <div className="mt-10 lg:mt-12">
-            <TestimonialSection testimonial={leadMagnet.testimonial} />
+            <TestimonialSection testimonial={leadMagnet.testimonial as any} />
           </div>
         )}
 

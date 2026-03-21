@@ -21,8 +21,8 @@ export async function GET(
     try {
     // REMOVED: set_config doesn't work with PgBouncer in transaction mode
     // RLS is handled at application level instead
-    } catch (rslError) {
-      console.error('RLS config failed:', rslError)
+    } catch {
+      // RLS config skipped
     }
 
     // Use raw SQL to get steps directly, bypassing potential Prisma/RLS issues
@@ -61,8 +61,8 @@ export async function GET(
             linkUrl = content.linkUrl
           }
         }
-      } catch (error) {
-        console.error('Error parsing step content:', error)
+      } catch {
+        // ignore step content parse error
       }
 
       return {
@@ -78,7 +78,6 @@ export async function GET(
       data: processedSteps
     })
   } catch (error) {
-    console.error('Error fetching steps:', error)
     return NextResponse.json(
       { 
         success: false, 
@@ -253,8 +252,6 @@ export async function POST(
     }, { status: 201 })
 
   } catch (error) {
-    console.error('Error creating step:', error)
-    console.error('Error details:', JSON.stringify(error, null, 2))
     return NextResponse.json(
       { 
         success: false, 
@@ -285,8 +282,7 @@ export async function PUT(
     try {
     // REMOVED: set_config doesn't work with PgBouncer in transaction mode
     // RLS is handled at application level instead
-    } catch (rslError) {
-      console.error('🚨 RLS config failed:', rslError)
+    } catch {
       // Continue anyway, some environments might not need RLS
     }
 
@@ -349,8 +345,7 @@ export async function PUT(
       await prisma.step.deleteMany({
         where: { zoneId: actualZoneId }
       })
-    } catch (deleteError) {
-      console.error('🚨 Error deleting steps:', deleteError)
+    } catch {
       // Continue anyway, maybe there were no steps to delete
     }
 
@@ -424,7 +419,6 @@ export async function PUT(
         createdSteps.push(createdStep)
         
       } catch (stepError) {
-        console.error(`🚨 Error creating step ${i + 1}:`, stepError)
         // Don't fail the entire operation for one step
         // Instead, create a minimal fallback step
         try {
@@ -439,8 +433,7 @@ export async function PUT(
             }
           })
           createdSteps.push(fallbackStep)
-        } catch (fallbackError) {
-          console.error(`🚨 Error creating fallback step ${i + 1}:`, fallbackError)
+        } catch {
           // If we can't even create a fallback, something is seriously wrong
           throw new Error(`Failed to create step ${i + 1}: ${stepError instanceof Error ? stepError.message : String(stepError)}`)
         }
@@ -454,8 +447,6 @@ export async function PUT(
     })
 
   } catch (error) {
-    console.error('🚨 Error saving steps:', error)
-    console.error('🚨 Error stack:', error instanceof Error ? error.stack : 'No stack available')
     return NextResponse.json(
       { 
         success: false, 

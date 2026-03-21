@@ -32,8 +32,8 @@ export default function AdminBlogCommentsPage() {
       const response = await fetch(`/api/admin/blog/comments?status=${filter}`)
       const data = await response.json()
       setComments(data.comments || [])
-    } catch (error) {
-      console.error('Error loading comments:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setIsLoading(false)
     }
@@ -55,8 +55,8 @@ export default function AdminBlogCommentsPage() {
       if (response.ok) {
         loadComments()
       }
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
+      // ignore action error
     } finally {
       setActionLoading(null)
     }

@@ -32,7 +32,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ leads, stats })
   } catch (error) {
-    console.error('Error fetching unified leads:', error)
     return NextResponse.json({ error: 'Error fetching leads' }, { status: 500 })
   }
 }

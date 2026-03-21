@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../src/lib/prisma'
+import { checkRateLimitAsync, getRateLimitKey } from '../../../../../../src/lib/rate-limit'
 
 export async function GET(
   request: NextRequest,
@@ -7,6 +8,14 @@ export async function GET(
 ) {
   try {
     const { slug } = await params
+
+    const rateLimitResult = await checkRateLimitAsync(
+      getRateLimitKey(request, null, 'public-guide'),
+      { maxRequests: 60, windowMs: 60 * 1000 }
+    )
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+    }
     
     // Use raw SQL to find property safely - avoid slug field which may not exist in production
     let properties = await prisma.$queryRaw`
@@ -112,8 +121,8 @@ export async function GET(
                 linkUrl = content.linkUrl
               }
             }
-          } catch (error) {
-            console.error('Error parsing step content:', error)
+          } catch {
+            // ignore step content parse error
           }
 
           return {
@@ -136,22 +145,16 @@ export async function GET(
       ...property,
       zones: zonesWithSteps
     }
-    
-    if (!property) {
-      return NextResponse.json({
-        success: false,
-        error: 'Propiedad no encontrada o no publicada'
-      }, { status: 404 })
-    }
 
-    const result = property
-    
+    // Strip internal fields before returning to unauthenticated public clients
+    const { hostId: _hostId, propertySetId: _propertySetId, ...publicProperty } = property
+    const result = publicProperty
+
     return NextResponse.json({
       success: true,
       data: result
     })
   } catch (error) {
-    console.error('Error fetching public property by slug:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al obtener la propiedad'

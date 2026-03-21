@@ -74,7 +74,7 @@ async function setCacheResults(
       create: { tileKey, category: categoryId, placeIds: placeDbIds, lastFetchedAt: new Date() },
     })
   } catch (error) {
-    console.error(`[cache] Error saving cache for ${categoryId}:`, error)
+    // cache save failed silently
   }
 }
 
@@ -156,7 +156,6 @@ async function enrichWithDetails(
 ): Promise<void> {
   if (!category.fetchDetails || places.length === 0) return
 
-  console.log(`[places] Enriching ${places.length} places for ${category.id} with Google Details`)
 
   for (const place of places) {
     try {
@@ -196,7 +195,7 @@ async function enrichWithDetails(
       place.photoUrl = details.photoUrl
       place.openingHours = details.openingHours
     } catch (err) {
-      console.error(`[places] Details enrichment failed for ${place.name}:`, err)
+      // Details enrichment failed for this place, continue
     }
   }
 }
@@ -216,7 +215,6 @@ async function generateDescriptions(
 
   const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
   if (!ANTHROPIC_API_KEY) {
-    console.log('[places] No ANTHROPIC_API_KEY — skipping AI descriptions')
     return descriptions
   }
 
@@ -251,7 +249,6 @@ ${placesInfo}`
     })
 
     if (!response.ok) {
-      console.error('[places] AI description generation failed:', response.status)
       return descriptions
     }
 
@@ -271,7 +268,7 @@ ${placesInfo}`
       }
     }
   } catch (err) {
-    console.error('[places] AI description generation error:', err)
+    // AI description generation failed, return empty map
   }
 
   return descriptions
@@ -352,11 +349,8 @@ async function searchCategory(
   // 1. Check cache
   const cachedIds = await getCachedResults(tileKey, category.id)
   if (cachedIds) {
-    console.log(`[places] Cache HIT for ${category.id} tile=${tileKey}`)
     return loadPlacesFromDb(cachedIds, lat, lng)
   }
-
-  console.log(`[places] Cache MISS for ${category.id} tile=${tileKey} — fetching`)
 
   // 2. Fetch from source
   let results: PlaceResult[]
@@ -427,7 +421,6 @@ export async function fetchNearbyPlaces(
   city?: string
 ): Promise<CategoryResults[]> {
   if (!lat || !lng || (lat === 0 && lng === 0)) {
-    console.error('[places] Invalid coordinates — skipping')
     return []
   }
 

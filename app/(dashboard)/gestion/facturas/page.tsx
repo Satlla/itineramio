@@ -100,7 +100,6 @@ export default function FacturasPage() {
         setInvoices(data.invoices || [])
       }
     } catch (error) {
-      console.error('Error fetching invoices:', error)
     } finally {
       setLoading(false)
     }
@@ -123,7 +122,6 @@ export default function FacturasPage() {
         alert(data.error || t('invoices.errors.statusChangeError'))
       }
     } catch (error) {
-      console.error('Error updating status:', error)
     } finally {
       setActionLoading(null)
     }
@@ -145,7 +143,6 @@ export default function FacturasPage() {
         alert(data.error || t('invoices.errors.previewError'))
       }
     } catch (error) {
-      console.error('Error previewing issue:', error)
     } finally {
       setActionLoading(null)
     }
@@ -170,7 +167,6 @@ export default function FacturasPage() {
         alert(data.error || t('invoices.errors.issueError'))
       }
     } catch (error) {
-      console.error('Error issuing invoice:', error)
     } finally {
       setActionLoading(null)
     }
@@ -193,7 +189,6 @@ export default function FacturasPage() {
         alert(data.error || t('invoices.errors.deleteError'))
       }
     } catch (error) {
-      console.error('Error deleting invoice:', error)
     } finally {
       setActionLoading(null)
     }

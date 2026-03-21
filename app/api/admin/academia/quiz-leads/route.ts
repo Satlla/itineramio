@@ -112,7 +112,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching quiz leads:', error)
     return NextResponse.json(
       { error: 'Error al obtener los leads' },
       { status: 500 }
@@ -151,7 +150,6 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting quiz lead:', error)
     return NextResponse.json(
       { error: 'Error al eliminar el lead' },
       { status: 500 }
@@ -200,7 +198,6 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true, lead: updated })
   } catch (error) {
-    console.error('Error updating quiz lead:', error)
     return NextResponse.json(
       { error: 'Error al actualizar el lead' },
       { status: 500 }

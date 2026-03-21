@@ -26,8 +26,6 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo)
-    
     // Call custom error handler if provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo)
@@ -150,7 +148,6 @@ export function withErrorBoundary<P extends object>(
 export function useErrorHandler() {
   return {
     captureError: (error: Error, context?: string) => {
-      console.error(`Error in ${context}:`, error)
       // In production, send to error reporting service
       if (process.env.NODE_ENV === 'production') {
         // errorReportingService.captureException(error, { tags: { context } })

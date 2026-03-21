@@ -137,7 +137,7 @@ export async function POST(
     const newVersion = guide.version + 1
 
     // Create place entry and bump version atomically
-    const [guidePlace] = await prisma.$transaction([
+    const [guidePlace] = await (prisma.$transaction as any)([
       prisma.cityGuidePlace.create({
         data: {
           guideId: id,
@@ -171,7 +171,7 @@ export async function POST(
         where: { id },
         data: { version: newVersion },
       }),
-    ])
+    ], { timeout: 10000 })
 
     // Auto-subscribe + import to all properties in the same city.
     // Fire-and-forget: response is returned immediately, propagation runs in background.
@@ -214,15 +214,17 @@ export async function POST(
           )
         }))
       } catch (err) {
-        console.error('[city-guide] Background propagation failed:', err)
+        // background propagation error - ignore
       }
     }
 
     propagate()
 
     return NextResponse.json({ success: true, data: guidePlace }, { status: 201 })
-  } catch (error) {
-    console.error('Error adding place to city guide:', error)
+  } catch (error: any) {
+    if (error?.code === 'P2002') {
+      return NextResponse.json({ success: false, error: 'Este lugar ya está en esa categoría' }, { status: 409 })
+    }
     return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }
@@ -258,27 +260,26 @@ export async function DELETE(
     }
 
     const body = await request.json()
-    const { placeId } = body
+    const { guidePlaceId } = body
 
-    if (!placeId) {
-      return NextResponse.json({ success: false, error: 'El campo placeId es obligatorio' }, { status: 400 })
+    if (!guidePlaceId) {
+      return NextResponse.json({ success: false, error: 'El campo guidePlaceId es obligatorio' }, { status: 400 })
     }
 
     const guidePlace = await prisma.cityGuidePlace.findUnique({
-      where: { guideId_placeId: { guideId: id, placeId } },
+      where: { id: guidePlaceId },
     })
 
-    if (!guidePlace) {
+    if (!guidePlace || guidePlace.guideId !== id) {
       return NextResponse.json({ success: false, error: 'El lugar no está en esta guía' }, { status: 404 })
     }
 
     await prisma.cityGuidePlace.delete({
-      where: { guideId_placeId: { guideId: id, placeId } },
+      where: { id: guidePlaceId },
     })
 
     return NextResponse.json({ success: true, message: 'Lugar eliminado de la guía' })
   } catch (error) {
-    console.error('Error removing place from city guide:', error)
     return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }

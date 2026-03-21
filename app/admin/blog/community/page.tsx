@@ -31,8 +31,8 @@ export default function AdminBlogCommunityPage() {
       const response = await fetch(`/api/admin/blog/community?sortBy=${sortBy}`)
       const data = await response.json()
       setCommenters(data.commenters || [])
-    } catch (error) {
-      console.error('Error loading commenters:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setIsLoading(false)
     }

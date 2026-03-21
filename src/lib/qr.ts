@@ -37,7 +37,6 @@ export async function generateZoneQRCode(
     const qrCodeDataURL = await QRCode.toDataURL(url, qrOptions)
     return qrCodeDataURL
   } catch (error) {
-    console.error('Error generating QR code:', error)
     throw new Error('Failed to generate QR code')
   }
 }
@@ -68,7 +67,6 @@ export async function generatePropertyQRCode(
     const qrCodeDataURL = await QRCode.toDataURL(url, qrOptions)
     return qrCodeDataURL
   } catch (error) {
-    console.error('Error generating QR code:', error)
     throw new Error('Failed to generate QR code')
   }
 }
@@ -94,13 +92,12 @@ export async function generateQRCodeSVG(
   }
   
   try {
-    const svgString = await QRCode.toString(url, { 
+    const svgString = await QRCode.toString(url, {
       type: 'svg',
       ...qrOptions
     })
     return svgString
   } catch (error) {
-    console.error('Error generating QR code SVG:', error)
     throw new Error('Failed to generate QR code SVG')
   }
 }
@@ -133,7 +130,6 @@ export async function downloadQRCode(qrCodeDataURL: string, filename: string = '
       }
     } catch (err) {
       // If share fails or is cancelled, fall through to other methods
-      console.log('Share cancelled or failed, trying alternative method')
     }
   }
 

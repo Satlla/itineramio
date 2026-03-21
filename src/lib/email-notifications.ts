@@ -37,7 +37,7 @@ export class EmailNotificationService {
           }
         }
       } catch (error) {
-        console.error('Error loading SMTP settings:', error)
+        // Ignore SMTP settings load error
       }
     }
     return this.smtpSettings
@@ -51,7 +51,6 @@ export class EmailNotificationService {
       })
       return admins.map((admin: any) => admin.email)
     } catch (error) {
-      console.error('Error fetching admin emails:', error)
       return []
     }
   }
@@ -60,7 +59,6 @@ export class EmailNotificationService {
     const smtp = await this.getSmtpSettings()
     
     if (!smtp?.enabled) {
-      console.log('Email notifications disabled or SMTP not configured')
       return false
     }
 
@@ -71,13 +69,7 @@ export class EmailNotificationService {
       // - Amazon SES
       // - Nodemailer with SMTP
       
-      // For now, we'll simulate the email sending and log it
-      console.log('📧 Email notification sent:', {
-        from: `${smtp.fromName} <${smtp.fromEmail}>`,
-        to: data.to,
-        subject: data.subject,
-        content: data.textContent || 'HTML email'
-      })
+      // For now, we'll simulate the email sending
 
       // Log the notification in the database
       await prisma.notification.create({
@@ -96,7 +88,6 @@ export class EmailNotificationService {
 
       return true
     } catch (error) {
-      console.error('Error sending email:', error)
       return false
     }
   }
@@ -116,7 +107,6 @@ export class EmailNotificationService {
     const adminEmails = await this.getAdminEmails()
     
     if (adminEmails.length === 0) {
-      console.log('No admin emails found for payment notification')
       return false
     }
 
@@ -246,7 +236,6 @@ Ver en panel admin: ${dashboardUrl}
     const adminEmails = await this.getAdminEmails()
     
     if (adminEmails.length === 0) {
-      console.log('No admin emails found for new property notification')
       return false
     }
 

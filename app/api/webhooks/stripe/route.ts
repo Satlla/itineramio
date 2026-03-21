@@ -21,7 +21,6 @@ export async function POST(request: NextRequest) {
   try {
     // Check if Stripe is configured
     if (!process.env.STRIPE_SECRET_KEY) {
-      console.error('STRIPE_SECRET_KEY not configured')
       return NextResponse.json({ error: 'Stripe not configured' }, { status: 503 })
     }
 
@@ -39,7 +38,6 @@ export async function POST(request: NextRequest) {
     // In production, webhook secret is REQUIRED
     const isProduction = process.env.NODE_ENV === 'production'
     if (isProduction && !process.env.STRIPE_WEBHOOK_SECRET) {
-      console.error('CRITICAL: STRIPE_WEBHOOK_SECRET not configured in production')
       return NextResponse.json(
         { error: 'Webhook secret not configured' },
         { status: 500 }
@@ -55,17 +53,14 @@ export async function POST(request: NextRequest) {
           process.env.STRIPE_WEBHOOK_SECRET
         )
       } catch (err) {
-        console.error('Webhook signature verification failed:', err)
         return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
       }
     } else if (isProduction) {
       // Should not reach here due to earlier check, but extra safety
-      console.error('CRITICAL: Attempting to process webhook without verification in production')
       return NextResponse.json({ error: 'Webhook verification required' }, { status: 400 })
     } else {
       // For local development without webhook secret
       event = JSON.parse(body) as Stripe.Event
-      console.warn('⚠️ Webhook signature not verified (development mode)')
     }
 
 
@@ -111,7 +106,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true })
 
   } catch (error) {
-    console.error('Webhook error:', error)
     return NextResponse.json(
       { error: 'Webhook handler failed' },
       { status: 500 }
@@ -153,14 +147,14 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
         isActive: true,
         activatedAt: new Date(),
         stripeSubscriptionId: subscription.id,
-        expiresAt: new Date(subscription.current_period_end * 1000)
+        expiresAt: new Date((subscription as any).current_period_end * 1000)
       },
       update: {
         status: 'ACTIVE',
         isActive: true,
         activatedAt: new Date(),
         stripeSubscriptionId: subscription.id,
-        expiresAt: new Date(subscription.current_period_end * 1000),
+        expiresAt: new Date((subscription as any).current_period_end * 1000),
         trialEndsAt: null, // Clear trial if paying
         canceledAt: null
       }
@@ -178,7 +172,6 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
 
   // Handle plan subscription (BASIC, HOST, etc.) - legacy flow
   if (!userId || !planCode) {
-    console.error('Missing metadata in checkout session')
     return
   }
 
@@ -217,8 +210,8 @@ async function handleCheckoutCompleted(stripe: Stripe, session: Stripe.Checkout.
       userId,
       planId: plan.id,
       status: 'ACTIVE',
-      startDate: new Date(subscription.current_period_start * 1000),
-      endDate: new Date(subscription.current_period_end * 1000),
+      startDate: new Date((subscription as any).current_period_start * 1000),
+      endDate: new Date((subscription as any).current_period_end * 1000),
       stripeSubscriptionId: subscription.id,
       notes: `Billing period: ${billingPeriod}\nCheckout session: ${session.id}`
     }
@@ -288,7 +281,7 @@ async function recordCouponUsage(
     })
 
   } catch (couponError) {
-    console.error('Error recording coupon usage:', couponError)
+    // ignore
   }
 }
 
@@ -307,7 +300,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
  */
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string
-  const subscriptionId = invoice.subscription as string | null
+  const subscriptionId = (invoice as any).subscription as string | null
 
 
   try {
@@ -371,7 +364,6 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     })
   } catch (error) {
     // Don't let errors here break the webhook response
-    console.error('Error handling payment failed notification:', error)
   }
 }
 
@@ -408,7 +400,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       data: {
         status: newStatus,
         cancelAtPeriodEnd: subscription.cancel_at_period_end,
-        endDate: new Date(subscription.current_period_end * 1000),
+        endDate: new Date((subscription as any).current_period_end * 1000),
         notes: `${userSubscription.notes || ''}\n[Webhook] Updated from Stripe: ${subscription.status} at ${new Date().toISOString()}`
       }
     })
@@ -421,7 +413,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 
     if (userModule) {
       const moduleUpdate: any = {
-        expiresAt: new Date(subscription.current_period_end * 1000)
+        expiresAt: new Date((subscription as any).current_period_end * 1000)
       }
 
       if (subscription.status === 'active') {
@@ -442,7 +434,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       })
     }
   } catch (error) {
-    console.error('Error updating subscription from webhook:', error)
+    // ignore
   }
 }
 
@@ -495,6 +487,6 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       })
     }
   } catch (error) {
-    console.error('Error handling subscription deletion:', error)
+    // ignore
   }
 }

@@ -88,7 +88,6 @@ export async function POST(
         })
         activatedProperties.push(updatedProperty)
       } catch (error) {
-        console.error(`Error activating property ${prop.id}:`, error)
       }
     }
 
@@ -124,7 +123,6 @@ export async function POST(
           html: activationEmailContent
         })
       } catch (emailError) {
-        console.error(`Error sending activation email for property ${property.id}:`, emailError)
       }
     }
 
@@ -154,7 +152,6 @@ export async function POST(
     })
     
   } catch (error) {
-    console.error('Error confirming payment:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

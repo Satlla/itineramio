@@ -110,8 +110,8 @@ export default function BillingPage() {
       if (data.success) {
         setInvoices(data.invoices)
       }
-    } catch (error) {
-      console.error('Error fetching invoices:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }
@@ -188,8 +188,7 @@ export default function BillingPage() {
       } else {
         alert(data.error || 'Error al marcar la factura como pagada')
       }
-    } catch (error) {
-      console.error('Error marking invoice as paid:', error)
+    } catch {
       alert('Error al marcar la factura como pagada')
     } finally {
       setMarkingAsPaid(null)
@@ -213,8 +212,7 @@ export default function BillingPage() {
       } else {
         alert('Error al descargar la factura')
       }
-    } catch (error) {
-      console.error('Error downloading invoice:', error)
+    } catch {
       alert('Error al descargar la factura')
     }
   }

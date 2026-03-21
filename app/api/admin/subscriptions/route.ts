@@ -38,9 +38,9 @@ export async function GET(request: NextRequest) {
 
     // Calculate metrics
     const now = new Date()
-    const activeSubscriptions = subscriptions.filter(s => s.status === 'ACTIVE' && new Date(s.endDate) >= now)
+    const activeSubscriptions = subscriptions.filter(s => s.status === 'ACTIVE' && (s.endDate ? new Date(s.endDate) >= now : true))
     const cancelingSubscriptions = subscriptions.filter(s => s.status === 'ACTIVE' && s.cancelAtPeriodEnd)
-    const expiredSubscriptions = subscriptions.filter(s => s.status === 'CANCELED' || new Date(s.endDate) < now)
+    const expiredSubscriptions = subscriptions.filter(s => s.status === 'CANCELED' || (s.endDate ? new Date(s.endDate) < now : false))
 
     // MRR calculation (Monthly Recurring Revenue)
     const mrr = activeSubscriptions.reduce((total, sub) => {
@@ -61,7 +61,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching subscriptions:', error)
     return NextResponse.json(
       { error: 'Error al obtener suscripciones' },
       { status: 500 }

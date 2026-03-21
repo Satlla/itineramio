@@ -73,7 +73,6 @@ export async function POST(request: NextRequest) {
     return await handleProrationPreview(decoded.userId, planCode, billingPeriod as 'MONTHLY' | 'BIANNUAL' | 'ANNUAL')
 
   } catch (error) {
-    console.error('Error in POST proration preview:', error)
     return NextResponse.json(
       { error: 'Error al calcular el prorrateo' },
       { status: 500 }
@@ -132,7 +131,6 @@ export async function GET(request: NextRequest) {
     return await handleProrationPreview(decoded.userId, planCode, billingPeriod)
 
   } catch (error) {
-    console.error('Error in GET proration preview:', error)
     return NextResponse.json(
       { error: 'Error al calcular el prorrateo' },
       { status: 500 }
@@ -386,7 +384,6 @@ async function handleProrationPreview(
     })
 
   } catch (error) {
-    console.error('Error calculating proration preview:', error)
     return NextResponse.json(
       { error: 'Error al calcular el prorrateo' },
       { status: 500 }
@@ -409,7 +406,6 @@ function getBillingPeriodName(period: 'monthly' | 'biannual' | 'annual' | string
     case 'biannual': return 'plan semestral'
     case 'annual': return 'plan anual'
     default:
-      console.error(`⚠️ getBillingPeriodName received unexpected value: "${period}"`)
       return `plan ${period}` // Fallback to prevent undefined
   }
 }

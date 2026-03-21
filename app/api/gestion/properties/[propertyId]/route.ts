@@ -54,7 +54,6 @@ export async function PATCH(
       }
     })
   } catch (error) {
-    console.error('Error updating property:', error)
     return NextResponse.json(
       { error: 'Error al actualizar la propiedad' },
       { status: 500 }

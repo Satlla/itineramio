@@ -74,14 +74,13 @@ export async function POST(request: NextRequest) {
       userEmail: ticket.email || undefined,
       reason: 'manual',
       recentMessages: ticket.messages.reverse(),
-    }).catch(err => console.error('Error sending escalation email:', err))
+    }).catch(() => {})
 
     return NextResponse.json({
       success: true,
       message: 'Ticket escalado. Un agente revisará tu consulta pronto.',
     })
   } catch (error) {
-    console.error('Error escalating ticket:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

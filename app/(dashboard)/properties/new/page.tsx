@@ -202,12 +202,10 @@ function NewPropertyPageContent() {
               hostContactPhoto: property.hostContactPhoto || undefined
             })
           } else {
-            console.error('Error loading property:', result.error)
             alert(t('propertyForm.errorLoadingProperty'))
             router.push('/properties')
           }
         } catch (error) {
-          console.error('Error loading property:', error)
           alert(t('propertyForm.errorLoadingProperty'))
           router.push('/properties')
         } finally {
@@ -274,8 +272,6 @@ function NewPropertyPageContent() {
       const url = isEditing ? `/api/properties/${editId}/safe` : '/api/properties/safe'
       const method = isEditing ? 'PUT' : 'POST'
 
-      console.log('📤 Enviando propiedad...', { url, method })
-
       // Prepare headers with localStorage token for PWA persistence
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
@@ -285,10 +281,9 @@ function NewPropertyPageContent() {
         const localToken = localStorage.getItem('auth-token')
         if (localToken) {
           headers['Authorization'] = `Bearer ${localToken}`
-          console.log('📱 Including localStorage token in request')
         }
       } catch (e) {
-        console.warn('⚠️ Could not access localStorage:', e)
+        // could not access localStorage
       }
 
       // Create abort controller for timeout
@@ -308,18 +303,14 @@ function NewPropertyPageContent() {
 
       clearTimeout(timeoutId)
 
-      console.log('📥 Respuesta recibida:', response.status, response.headers.get('content-type'))
-
       // Check if response is JSON
       const contentType = response.headers.get('content-type')
       if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text()
-        console.error('❌ Respuesta no es JSON:', text.substring(0, 200))
+        await response.text()
         throw new Error(t('propertyForm.invalidServerResponse'))
       }
 
       const result = await response.json()
-      console.log('📦 Resultado:', result)
 
       if (!response.ok) {
         // Si requiere login, redirigir al login
@@ -330,8 +321,6 @@ function NewPropertyPageContent() {
         }
         throw new Error(result.error || t(isEditing ? 'propertyForm.errorUpdating' : 'propertyForm.errorCreating'))
       }
-
-      console.log(`✅ Propiedad ${isEditing ? 'actualizada' : 'creada'} exitosamente:`, result.data)
 
       // Stop loading spinner immediately on success
       setIsSubmitting(false)
@@ -351,7 +340,6 @@ function NewPropertyPageContent() {
           setShowTrialModal(true)
         } else {
           // First property is free, just redirect
-          console.log('🔄 Redirigiendo a:', `/properties/${result.data.id}/zones`)
           router.push(`/properties/${result.data.id}/zones`)
         }
       } else {
@@ -359,8 +347,6 @@ function NewPropertyPageContent() {
         handleSuccessfulSubmit()
       }
     } catch (error: any) {
-      console.error(`❌ Error ${isEditing ? 'actualizando' : 'creando'} propiedad:`, error)
-
       let errorMessage = t(isEditing ? 'propertyForm.errorUpdating' : 'propertyForm.errorCreating')
 
       if (error.name === 'AbortError') {
@@ -383,46 +369,16 @@ function NewPropertyPageContent() {
         const step1Valid = !!watchedValues.name && !!watchedValues.description &&
                watchedValues.bedrooms !== undefined && watchedValues.bathrooms !== undefined &&
                watchedValues.maxGuests !== undefined
-        if (!step1Valid) {
-          console.log('❌ Step 1 validation failed:', {
-            name: watchedValues.name,
-            description: watchedValues.description,
-            bedrooms: watchedValues.bedrooms,
-            bathrooms: watchedValues.bathrooms,
-            maxGuests: watchedValues.maxGuests,
-            hasName: !!watchedValues.name,
-            hasDescription: !!watchedValues.description,
-            hasBedrooms: watchedValues.bedrooms !== undefined,
-            hasBathrooms: watchedValues.bathrooms !== undefined,
-            hasMaxGuests: watchedValues.maxGuests !== undefined
-          })
-        }
         return step1Valid
 
       case 2:
         const step2Valid = !!watchedValues.street && !!watchedValues.city && !!watchedValues.state &&
                !!watchedValues.country && !!watchedValues.postalCode
-        if (!step2Valid) {
-          console.log('❌ Step 2 validation failed:', {
-            street: watchedValues.street,
-            city: watchedValues.city,
-            state: watchedValues.state,
-            country: watchedValues.country,
-            postalCode: watchedValues.postalCode
-          })
-        }
         return step2Valid
 
       case 3:
         const step3Valid = !!watchedValues.hostContactName && !!watchedValues.hostContactPhone &&
                !!watchedValues.hostContactEmail
-        if (!step3Valid) {
-          console.log('❌ Step 3 validation failed:', {
-            hostContactName: watchedValues.hostContactName,
-            hostContactPhone: watchedValues.hostContactPhone,
-            hostContactEmail: watchedValues.hostContactEmail
-          })
-        }
         return step3Valid
 
       default:
@@ -1082,7 +1038,6 @@ function NewPropertyPageContent() {
                         if (addressData.postalCode) {
                           setValue('postalCode', addressData.postalCode, { shouldValidate: true })
                         }
-                        console.log('Address autocomplete:', addressData)
                       }}
                       error={!!errors.street}
                       placeholder={t('propertyForm.addressPlaceholder')}
@@ -1217,7 +1172,6 @@ function NewPropertyPageContent() {
                     <ImageUpload
                       value={watchedValues.hostContactPhoto}
                       onChange={(imageUrl) => {
-                        console.log('Host photo changed to:', imageUrl)
                         setValue('hostContactPhoto', imageUrl || undefined)
                       }}
                       placeholder={t('propertyForm.uploadProfilePhoto')}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import { Decimal } from '@prisma/client/runtime/library'
+import { ReservationType } from '@prisma/client'
 
 /**
  * Calculate financial split between owner and manager
@@ -336,7 +337,7 @@ export async function POST(request: NextRequest) {
             hostEarnings: new Decimal(hostEarnings),
             currency: mergedData.currency || 'EUR',
             status: reservationStatus,
-            type: reservationType,
+            type: reservationType as ReservationType,
             importSource: 'EMAIL',
             rawEmailData: JSON.stringify(codeEmails.map(e => ({
               id: e.id,
@@ -368,7 +369,6 @@ export async function POST(request: NextRequest) {
           results.cancelled++
         }
       } catch (error) {
-        console.error(`Error processing code ${confirmationCode}:`, error)
         for (const email of codeEmails) {
           await prisma.gmailSyncedEmail.update({
             where: { id: email.id },
@@ -390,7 +390,6 @@ export async function POST(request: NextRequest) {
       results,
     })
   } catch (error) {
-    console.error('Error processing emails:', error)
     return NextResponse.json(
       { error: 'Error al procesar emails' },
       { status: 500 }

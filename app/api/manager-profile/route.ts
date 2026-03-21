@@ -73,7 +73,6 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error fetching manager profile:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -219,7 +218,6 @@ export async function PUT(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error updating manager profile:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

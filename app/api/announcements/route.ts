@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../src/lib/prisma'
 import { requireAuth } from '../../../src/lib/auth'
+import { translateFields } from '../../../src/lib/translate'
 
 // GET /api/announcements - Get announcements for a property
 export async function GET(request: NextRequest) {
@@ -115,18 +116,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Normaliza multilang: si en/fr están vacíos, copia desde es
-    const normalizeMultiLang = (field: { es: string; en?: string; fr?: string }) => ({
-      es: field.es || '',
-      en: field.en?.trim() ? field.en : (field.es || ''),
-      fr: field.fr?.trim() ? field.fr : (field.es || ''),
-    })
+    // Auto-traducir title y message (igual que zonas/steps)
+    let translatedTitle = title
+    let translatedMessage = message
+    try {
+      const [t, m] = await translateFields([title, message])
+      translatedTitle = t
+      translatedMessage = m
+    } catch {
+      // Si falla la traducción, continúa con el original
+    }
 
     // Create announcement with proper date handling
     const createData: any = {
       propertyId,
-      title: normalizeMultiLang(title),
-      message: normalizeMultiLang(message),
+      title: translatedTitle,
+      message: translatedMessage,
       category,
       priority,
       isActive

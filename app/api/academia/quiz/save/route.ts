@@ -77,9 +77,7 @@ export async function POST(request: NextRequest) {
       score,
       level: levelData.level,
       emailVerified: false
-    }).catch(error => {
-      console.error('Failed to send admin notification:', error)
-    })
+    }).catch(() => {})
 
     // Check if user already exists in AcademyUser
     const existingUser = await prisma.academyUser.findUnique({
@@ -116,9 +114,8 @@ export async function POST(request: NextRequest) {
       email: normalizedEmail,
       fullName: fullName || existingUser?.fullName || 'Usuario',
       verificationToken
-    }).catch(error => {
-      // Log error but don't fail the request
-      console.error('Failed to send verification email:', error)
+    }).catch(() => {
+      // Don't fail the request
     })
 
     // ✅ CREATE/UPDATE EmailSubscriber for Soap Opera email funnel
@@ -175,8 +172,7 @@ export async function POST(request: NextRequest) {
           sequenceStatus: 'active'
         }
       })
-    } catch (emailSubError) {
-      console.error('❌ Could not create EmailSubscriber for Soap Opera funnel:', emailSubError)
+    } catch {
       // Don't fail the request if this fails
     }
 
@@ -187,7 +183,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Save quiz error:', error)
     return NextResponse.json(
       { error: 'Error al guardar el quiz' },
       { status: 500 }

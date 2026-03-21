@@ -20,8 +20,8 @@ import { Badge } from './Badge'
 
 interface ZoneTemplate {
   id: string
-  name: string
-  description: string
+  name: string | { es: string; en?: string; fr?: string }
+  description: string | { es: string; en?: string; fr?: string }
   category: string
   icon: string
   coverImage?: string
@@ -103,7 +103,7 @@ export function ZoneTemplateSelector({ propertyId, onSelect, onClose, onCreateFr
         setTemplates(result.data)
       }
     } catch (error) {
-      console.error('Error fetching templates:', error)
+      // fetch error suppressed
     } finally {
       setLoading(false)
     }
@@ -114,7 +114,7 @@ export function ZoneTemplateSelector({ propertyId, onSelect, onClose, onCreateFr
       setApplying(templateId)
       await onSelect(templateId)
     } catch (error) {
-      console.error('Error applying template:', error)
+      // apply error suppressed
     } finally {
       setApplying(null)
     }

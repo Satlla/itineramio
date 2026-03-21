@@ -79,8 +79,7 @@ export default function AdminDashboard() {
       }
       const data = await response.json()
       setStats(data)
-    } catch (error) {
-      console.error('Error fetching stats:', error)
+    } catch {
       setStats(null)
     } finally {
       setLoading(false)

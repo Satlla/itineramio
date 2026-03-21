@@ -3,7 +3,7 @@ import { Resend } from 'resend'
 const RESEND_API_KEY = process.env.RESEND_API_KEY || 'test_key'
 
 if (!process.env.RESEND_API_KEY && process.env.NODE_ENV === 'production') {
-  console.warn('RESEND_API_KEY environment variable is not set')
+  // RESEND_API_KEY not set
 }
 
 const resend = new Resend(RESEND_API_KEY)
@@ -24,11 +24,8 @@ export async function sendEmail({ to, subject, html, from = 'hola@itineramio.com
     return cleanEmail
   })
 
-  console.log('📧 Sending email to:', cleanEmails[0], '| Subject:', subject)
-
   // Skip email sending if no API key is configured
   if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 'test_key') {
-    console.warn('❌ Email sending skipped - no valid RESEND_API_KEY configured')
     return { id: 'test-email-id', skipped: true }
   }
 
@@ -41,14 +38,11 @@ export async function sendEmail({ to, subject, html, from = 'hola@itineramio.com
     })
 
     if (error) {
-      console.error('❌ Email send failed:', error)
       throw new Error(`Failed to send email: ${JSON.stringify(error)}`)
     }
 
-    console.log('✅ Email sent:', data?.id)
     return data
   } catch (error) {
-    console.error('🚨 Email service error:', error)
     throw error
   }
 }

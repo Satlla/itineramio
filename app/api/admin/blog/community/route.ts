@@ -149,7 +149,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ commenters })
   } catch (error) {
-    console.error('Error fetching community:', error)
     return NextResponse.json(
       { error: 'Error al cargar la comunidad' },
       { status: 500 }

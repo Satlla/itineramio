@@ -24,8 +24,7 @@ export async function POST(request: NextRequest) {
       message: success ? 'Manual recreado exitosamente' : 'Error recreando manual'
     })
   } catch (error) {
-    console.error('Error in recreate-manual:', error)
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Error recreating manual', 
       details: error instanceof Error ? error.message : 'Unknown error' 
     }, { status: 500 })

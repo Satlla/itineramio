@@ -88,7 +88,6 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error('Error fetching city guide:', error)
     return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }
@@ -147,7 +146,6 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, data: updated })
   } catch (error) {
-    console.error('Error updating city guide:', error)
     return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }
@@ -185,7 +183,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, message: 'Guía eliminada correctamente' })
   } catch (error) {
-    console.error('Error deleting city guide:', error)
     return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }

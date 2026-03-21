@@ -85,8 +85,7 @@ export async function POST(
         subject: `❌ Propiedad desactivada - ${property.name}`,
         html: emailContent
       })
-    } catch (emailError) {
-      console.error('Error sending deactivation email:', emailError)
+    } catch {
       // Don't fail the deactivation process if email fails
     }
 
@@ -109,8 +108,7 @@ export async function POST(
         ipAddress,
         userAgent,
       })
-    } catch (logError) {
-      console.error('Error creating admin activity log:', logError)
+    } catch {
       // Don't fail the deactivation if logging fails
     }
 
@@ -126,13 +124,7 @@ export async function POST(
     })
     
   } catch (error) {
-    console.error('Error deactivating property:', error)
-    console.error('Property ID:', params.id)
-    console.error('Error details:', {
-      message: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined
-    })
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Internal server error',
       details: error instanceof Error ? error.message : String(error)
     }, { status: 500 })

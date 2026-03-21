@@ -80,12 +80,10 @@ export default function NotificationsPage() {
               setSettings(JSON.parse(savedSettings))
             }
           } catch (error) {
-            console.error('Error parsing saved settings:', error)
           }
         }
       }
     } catch (error) {
-      console.error('Error loading notification settings:', error)
       // Fallback to localStorage
       if (typeof window !== 'undefined') {
         try {
@@ -94,7 +92,6 @@ export default function NotificationsPage() {
             setSettings(JSON.parse(savedSettings))
           }
         } catch (e) {
-          console.error('Error parsing saved settings:', e)
         }
       }
     } finally {
@@ -123,7 +120,6 @@ export default function NotificationsPage() {
         throw new Error('Failed to save settings')
       }
     } catch (error) {
-      console.error('Error saving notification settings:', error)
       alert(t('notifications.page.saveError'))
     } finally {
       setSaving(false)

@@ -66,9 +66,8 @@ export default function ProductUpdatesListPage() {
       } else {
         setError('Error al cargar las novedades')
       }
-    } catch (err) {
+    } catch {
       setError('Error de conexion')
-      console.error('Error fetching product updates:', err)
     } finally {
       setLoading(false)
     }
@@ -88,8 +87,7 @@ export default function ProductUpdatesListPage() {
       } else {
         alert('Error al eliminar la novedad')
       }
-    } catch (err) {
-      console.error('Error deleting product update:', err)
+    } catch {
       alert('Error de conexion')
     } finally {
       setDeleting(null)

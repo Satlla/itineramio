@@ -2,6 +2,24 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 
+// Safe localStorage/sessionStorage helpers — survive Safari private mode
+function safeGetItem(storage: 'local' | 'session', key: string): string | null {
+  try {
+    const store = storage === 'local' ? localStorage : sessionStorage
+    return store.getItem(key)
+  } catch {
+    return null
+  }
+}
+function safeSetItem(storage: 'local' | 'session', key: string, value: string): void {
+  try {
+    const store = storage === 'local' ? localStorage : sessionStorage
+    store.setItem(key, value)
+  } catch {
+    // ignore — chat state simply won't persist in this session
+  }
+}
+
 // Simple markdown renderer — replaces react-markdown to avoid Safari/v10 ESM issues
 function parseInline(text: string, keyPrefix: string): React.ReactNode[] {
   const result: React.ReactNode[] = []
@@ -335,7 +353,7 @@ export default function ChatBot({
   const storageKey = `chatbot-${propertyId}${zoneId ? `-${zoneId}` : ''}`
   const sessionIdRef = useRef<string>('')
   if (!sessionIdRef.current) {
-    const saved = typeof window !== 'undefined' ? localStorage.getItem(`${storageKey}-session`) : null
+    const saved = typeof window !== 'undefined' ? safeGetItem('local', `${storageKey}-session`) : null
     sessionIdRef.current = saved || generateSessionId()
   }
   const userMessageCountRef = useRef(0)
@@ -345,10 +363,27 @@ export default function ChatBot({
   const activeControllerRef = useRef<AbortController | null>(null)
 
   const [lang, setLang] = useState<'es' | 'en' | 'fr'>(language || 'es')
+  const prevLangRef = useRef<string>(language || 'es')
 
-  // Sync lang when parent changes language prop
+  // Sync lang when parent changes language prop — reset chat on language change
   useEffect(() => {
-    if (language) setLang(language)
+    if (!language) return
+    if (language === prevLangRef.current) return
+    prevLangRef.current = language
+    setLang(language as 'es' | 'en' | 'fr')
+
+    // Clear old messages and show welcome in new language
+    const welcomeKey = isDemoMode ? 'demoWelcome' : (zoneId && zoneName ? 'welcomeZone' : 'welcomeProperty')
+    const welcomeContent = t(welcomeKey, language as 'es' | 'en' | 'fr', { propertyName, zoneName: zoneName || '' })
+    setMessages([{
+      id: Date.now().toString(),
+      role: 'assistant',
+      content: welcomeContent,
+      timestamp: new Date()
+    }])
+    setShowFAQs(true)
+    // Clear persisted messages so they don't restore in old language
+    safeSetItem('local', `${storageKey}-messages`, '')
   }, [language])
 
   // Check if chatbot is enabled for this property (beta restriction)
@@ -377,8 +412,8 @@ export default function ChatBot({
             caption: item.caption
           })) : undefined
         }))
-        localStorage.setItem(`${storageKey}-messages`, JSON.stringify(toSave))
-        localStorage.setItem(`${storageKey}-session`, sessionIdRef.current)
+        safeSetItem('local', `${storageKey}-messages`, JSON.stringify(toSave))
+        safeSetItem('local', `${storageKey}-session`, sessionIdRef.current)
       } catch { /* ignore serialization errors — chat history simply won't persist */ }
     }
   }, [messages, storageKey])
@@ -424,14 +459,14 @@ export default function ChatBot({
   useEffect(() => {
     if (isEnabled !== true || isOpen) return
     const welcomeKey = `chatbot-welcome-${propertyId}`
-    const alreadyShown = typeof window !== 'undefined' && sessionStorage.getItem(welcomeKey)
+    const alreadyShown = typeof window !== 'undefined' && safeGetItem('session', welcomeKey)
     if (alreadyShown) return
 
     const timer = setTimeout(() => {
       if (!isOpen) {
         setShowWelcomeBubble(true)
         if (typeof window !== 'undefined') {
-          sessionStorage.setItem(welcomeKey, '1')
+          safeSetItem('session', welcomeKey, '1')
         }
       }
     }, 3000)
@@ -449,7 +484,7 @@ export default function ChatBot({
   const initializeChat = () => {
     // Try to restore from localStorage
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(`${storageKey}-messages`)
+      const saved = safeGetItem('local', `${storageKey}-messages`)
       if (saved) {
         try {
           const parsed = JSON.parse(saved) as any[]
@@ -563,7 +598,9 @@ export default function ChatBot({
     // Tracks how much of the CURRENT message has been streamed (for error recovery)
     let currentStreamedChars = 0
 
+    const isDev = process.env.NODE_ENV === 'development'
     const diagLog = (step: string, data?: any) => {
+      if (!isDev) return
       fetch('/api/chatbot/error-log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -577,7 +614,10 @@ export default function ChatBot({
         propertyId,
         propertyName,
         language: lang,
-        conversationHistory: [],
+        conversationHistory: messages
+          .filter(m => !m.typing)
+          .slice(-6)
+          .map(m => ({ role: m.role, content: m.content.slice(0, 400) })),
         sessionId: sessionIdRef.current
       }
       if (zoneId) body.zoneId = zoneId
@@ -916,11 +956,22 @@ export default function ChatBot({
                     >
                       {isMinimized ? <Maximize2 className="w-4 h-4 text-white/60" /> : <Minimize2 className="w-4 h-4 text-white/60" />}
                     </button>
+                    {/* Mobile: prominent close button */}
                     <button
                       onClick={handleClose}
-                      className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-colors sm:hidden"
+                      style={{ background: 'rgba(255,255,255,0.12)' }}
                     >
-                      <X className="w-4 h-4 text-white/60" />
+                      <ChevronDown className="w-4 h-4 text-white" />
+                      <span className="text-xs font-medium text-white">Cerrar</span>
+                    </button>
+                    {/* Desktop: icon only */}
+                    <button
+                      onClick={handleClose}
+                      className="p-2 rounded-xl transition-colors hidden sm:block"
+                      style={{ background: 'rgba(255,255,255,0.12)' }}
+                    >
+                      <X className="w-4 h-4 text-white" />
                     </button>
                   </div>
                 </div>

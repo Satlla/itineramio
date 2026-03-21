@@ -49,7 +49,7 @@ export const createExpenseSchema = z.object({
   { message: 'Debes seleccionar un apartamento' }
 )
 
-export const updateExpenseSchema = createExpenseSchema.partial()
+export const updateExpenseSchema = createExpenseSchema.innerType().partial()
 
 // ============================================
 // Invoice schemas

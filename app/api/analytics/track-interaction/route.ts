@@ -98,7 +98,6 @@ export async function POST(request: NextRequest) {
         }
       })
     } catch (error) {
-      console.error('Property analytics error:', error)
       // Continue without failing the whole request
     }
 
@@ -122,12 +121,12 @@ export async function POST(request: NextRequest) {
         }
       })
     } catch (error) {
-      console.error('Tracking event error:', error)
+      // ignore tracking errors
     }
 
     // Update daily stats for whatsapp clicks
     if (interactionType === 'whatsapp_click') {
-      updateDailyStats(propertyId, false, true).catch(console.error)
+      updateDailyStats(propertyId, false, true).catch(() => {})
     }
 
     return NextResponse.json({
@@ -136,7 +135,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error tracking interaction:', error)
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Error tracking interaction'
@@ -192,6 +190,6 @@ async function updateDailyStats(
       update: updateData
     })
   } catch (error) {
-    console.error('Error updating daily stats:', error)
+    // ignore daily stats errors
   }
 }

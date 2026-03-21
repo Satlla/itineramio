@@ -45,7 +45,6 @@ export default function VerificarEmailPage() {
 
         setResult(data)
       } catch (error) {
-        console.error('Verification error:', error)
         setResult({
           success: false,
           error: 'Error al verificar el email. Por favor, intenta de nuevo.'

@@ -47,7 +47,6 @@ export async function POST(request: NextRequest) {
 
   if (!response.ok) {
     const err = await response.text()
-    console.error('[ai]', err)
     return NextResponse.json({ error: 'Error al consultar IA' }, { status: 500 })
   }
 

@@ -433,14 +433,14 @@ export default function KnowledgeAdminDashboard() {
                       <BarChart3 className="w-5 h-5" />
                     </Link>
                     <button
-                      onClick={() => console.log('Duplicar', article.id)}
+                      onClick={() => {}}
                       className="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                       title="Duplicar"
                     >
                       <Copy className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => console.log('Eliminar', article.id)}
+                      onClick={() => {}}
                       className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       title="Eliminar"
                     >

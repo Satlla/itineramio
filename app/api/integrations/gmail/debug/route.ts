@@ -82,7 +82,6 @@ export async function GET(request: NextRequest) {
       currentParsedData: pendingEmail.parsedData,
     })
   } catch (error) {
-    console.error('Error in debug endpoint:', error)
     return NextResponse.json(
       { error: 'Error', details: error instanceof Error ? error.message : 'Unknown' },
       { status: 500 }

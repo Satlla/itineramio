@@ -316,7 +316,6 @@ export async function GET(
       } : null,
     })
   } catch (error) {
-    console.error('Error fetching liquidation:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -422,7 +421,6 @@ export async function PUT(
       },
     })
   } catch (error) {
-    console.error('Error updating liquidation:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -482,7 +480,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting liquidation:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

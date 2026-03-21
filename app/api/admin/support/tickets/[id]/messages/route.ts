@@ -78,7 +78,7 @@ export async function POST(
             ticketSubject: ticket.subject,
             adminMessage: content.trim(),
           }),
-        }).catch(err => console.error('Error sending reply email:', err))
+        }).catch(() => {})
       }
     }
 
@@ -113,7 +113,6 @@ export async function POST(
 
     return NextResponse.json({ message })
   } catch (error) {
-    console.error('Error sending admin message:', error)
     return NextResponse.json(
       { error: 'Error al enviar mensaje' },
       { status: 500 }

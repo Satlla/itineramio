@@ -18,7 +18,6 @@ export async function GET(
     
     return NextResponse.json(property);
   } catch (error) {
-    console.error('Error resolving property:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

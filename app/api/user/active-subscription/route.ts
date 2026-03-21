@@ -96,7 +96,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching active subscription:', error)
     return NextResponse.json(
       { error: 'Error al obtener suscripción activa' },
       { status: 500 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
 import { checkHostManualesAccess, MANUAL_BLOCKED_MESSAGE } from '../../../../../src/lib/public-module-check'
+import { checkRateLimitAsync, getRateLimitKey } from '../../../../../src/lib/rate-limit'
 
 export async function GET(
   request: NextRequest,
@@ -8,6 +9,14 @@ export async function GET(
 ) {
   try {
     const { id } = await params
+
+    const rateLimitResult = await checkRateLimitAsync(
+      getRateLimitKey(request, null, 'public-guide'),
+      { maxRequests: 60, windowMs: 60 * 1000 }
+    )
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+    }
 
     let property = await prisma.property.findFirst({
       where: { id, isPublished: true },
@@ -81,17 +90,29 @@ export async function GET(
       ORDER BY COALESCE(z."order", 999999) ASC, z.id ASC
     ` as any[]
 
+    // Batch-count recommendations for all RECOMMENDATIONS zones in a single query
+    const recommendationZoneIds = zones
+      .filter((z: any) => z.type === 'RECOMMENDATIONS')
+      .map((z: any) => z.id)
+
+    const recCountRows = recommendationZoneIds.length > 0
+      ? await prisma.recommendation.groupBy({
+          by: ['zoneId'],
+          where: { zoneId: { in: recommendationZoneIds } },
+          _count: { zoneId: true }
+        })
+      : []
+
+    const recCountMap = new Map(recCountRows.map(r => [r.zoneId, r._count.zoneId]))
+
     // Get steps for each zone (and recommendation count for RECOMMENDATIONS zones)
     const zonesWithSteps = await Promise.all(
       zones.map(async (zone: any) => {
         // For RECOMMENDATIONS zones, count recommendations instead of steps
         if (zone.type === 'RECOMMENDATIONS') {
-          const recCount = await prisma.recommendation.count({
-            where: { zoneId: zone.id },
-          })
           return {
             ...zone,
-            stepsCount: recCount, // Use recommendation count so the zone appears in the grid
+            stepsCount: recCountMap.get(zone.id) ?? 0,
             steps: []
           }
         }
@@ -144,10 +165,13 @@ export async function GET(
     property = {
       ...property,
       zones: zonesWithSteps
-    }
-    
-    const result = property
-    
+    } as any
+
+    // Strip internal fields before returning to unauthenticated public clients
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { hostId, propertySetId, ...publicProperty } = property as typeof property & { hostId: string; propertySetId: string | null }
+    const result = publicProperty
+
     return NextResponse.json({
       success: true,
       data: result

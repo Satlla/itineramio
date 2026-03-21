@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
     for (const admin of admins) {
       await prisma.adminActivityLog.create({
         data: {
-          adminUserId: admin.id,
+          adminId: admin.id,
           action: 'PAYMENT_REQUEST_RECEIVED',
           targetType: 'invoice',
           targetId: invoice.id,
@@ -179,8 +179,7 @@ export async function POST(request: NextRequest) {
         createdAt: invoice.createdAt,
         properties: properties.map(p => ({ name: p.name }))
       })
-    } catch (error) {
-      console.error('Error sending payment notification email:', error)
+    } catch {
       // Don't fail the request if email fails
     }
     
@@ -218,7 +217,6 @@ export async function POST(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('Error requesting payment:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

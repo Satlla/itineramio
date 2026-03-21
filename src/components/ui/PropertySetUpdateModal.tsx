@@ -41,7 +41,6 @@ export function PropertySetUpdateModal({
   }
 
   const handleConfirm = () => {
-    console.log('PropertySetUpdateModal handleConfirm called', { selectedScope, selectedProperties: Array.from(selectedProperties) })
     if (selectedScope === 'selected') {
       onConfirm(selectedScope, Array.from(selectedProperties))
     } else {

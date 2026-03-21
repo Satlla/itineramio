@@ -3,18 +3,14 @@ import { manualEjemploZones } from '../data/manualEjemplo'
 // Función para agregar steps a zonas existentes
 export async function agregarStepsAZonasExistentes(propertyId: string) {
   try {
-    console.log('🔧 Agregando steps a zonas existentes...')
-    
     // Primero obtener las zonas existentes
     const zonesResponse = await fetch(`/api/properties/${propertyId}/zones`)
     if (!zonesResponse.ok) {
-      console.error('Error obteniendo zonas')
       return false
     }
-    
+
     const zonesResult = await zonesResponse.json()
     if (!zonesResult.success || !zonesResult.data) {
-      console.error('No se encontraron zonas')
       return false
     }
     
@@ -29,12 +25,9 @@ export async function agregarStepsAZonasExistentes(propertyId: string) {
       )
       
       if (!zonaExistente) {
-        console.log(`❌ No se encontró zona "${zonaEjemplo.name}"`)
         continue
       }
-      
-      console.log(`📝 Agregando steps a zona "${zonaEjemplo.name}" (ID: ${zonaExistente.id})`)
-      
+
       // Crear cada step
       for (const step of zonaEjemplo.steps) {
         try {
@@ -64,9 +57,6 @@ export async function agregarStepsAZonasExistentes(propertyId: string) {
           })
           
           if (!stepResponse.ok) {
-            const errorText = await stepResponse.text()
-            console.error(`❌ Error creando step "${step.title}":`, errorText)
-            
             // Intentar con formato alternativo
             const altStepData = {
               title: step.title,
@@ -84,24 +74,20 @@ export async function agregarStepsAZonasExistentes(propertyId: string) {
             })
             
             if (altResponse.ok) {
-              console.log(`✅ Step "${step.title}" creado con formato alternativo`)
               stepsAdded++
             }
           } else {
-            console.log(`✅ Step "${step.title}" creado`)
             stepsAdded++
           }
         } catch (error) {
-          console.error(`Error creando step "${step.title}":`, error)
+          // Ignore step creation errors
         }
       }
     }
-    
-    console.log(`🎉 Se agregaron ${stepsAdded} steps en total`)
+
     return stepsAdded > 0
-    
+
   } catch (error) {
-    console.error('❌ Error agregando steps:', error)
     return false
   }
 }
@@ -110,10 +96,7 @@ export async function agregarStepsAZonasExistentes(propertyId: string) {
 export function agregarStepsDesdeConsola(propertyId: string) {
   agregarStepsAZonasExistentes(propertyId).then(result => {
     if (result) {
-      console.log('✅ Steps agregados exitosamente')
       window.location.reload()
-    } else {
-      console.log('❌ Error al agregar steps')
     }
   })
 }

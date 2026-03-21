@@ -24,7 +24,6 @@ export async function GET(request: NextRequest) {
 
     // Handle OAuth errors
     if (error) {
-      console.error('Gmail OAuth error:', error)
       return NextResponse.redirect(
         new URL('/gestion/integraciones?error=gmail_auth_denied', request.url)
       )
@@ -32,7 +31,6 @@ export async function GET(request: NextRequest) {
 
     // CSRF Protection: Verify state token
     if (!state) {
-      console.error('Gmail OAuth: Missing state token')
       return NextResponse.redirect(
         new URL('/gestion/integraciones?error=gmail_invalid_state', request.url)
       )
@@ -40,7 +38,6 @@ export async function GET(request: NextRequest) {
 
     const stateUserId = verifyStateToken(state)
     if (!stateUserId || stateUserId !== userId) {
-      console.error('Gmail OAuth: Invalid state token or user mismatch')
       return NextResponse.redirect(
         new URL('/gestion/integraciones?error=gmail_invalid_state', request.url)
       )
@@ -56,7 +53,6 @@ export async function GET(request: NextRequest) {
     const tokens = await exchangeCodeForTokens(code, request.url)
 
     if (!tokens.access_token || !tokens.refresh_token) {
-      console.error('Missing tokens from Google:', tokens)
       return NextResponse.redirect(
         new URL('/gestion/integraciones?error=gmail_missing_tokens', request.url)
       )
@@ -98,7 +94,6 @@ export async function GET(request: NextRequest) {
       new URL('/gestion/integraciones?success=gmail_connected', request.url)
     )
   } catch (error) {
-    console.error('Error handling Gmail callback:', error)
     return NextResponse.redirect(
       new URL('/gestion/integraciones?error=gmail_callback_failed', request.url)
     )

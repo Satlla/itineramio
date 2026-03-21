@@ -40,7 +40,6 @@ export default function ResultadosPage() {
     try {
       parsed = JSON.parse(storedResults)
     } catch (error) {
-      console.error('Error parsing quiz results:', error)
       router.push('/academia/quiz')
       return
     }
@@ -71,7 +70,6 @@ export default function ResultadosPage() {
       const data = await response.json()
       setEmailVerified(data.verified || false)
     } catch (error) {
-      console.error('Error checking verification:', error)
       setEmailVerified(false)
     } finally {
       setCheckingVerification(false)

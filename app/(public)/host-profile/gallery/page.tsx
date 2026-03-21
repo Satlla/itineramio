@@ -7,7 +7,7 @@ import { Archetype } from '@/data/hostProfileQuestions'
 const archetypeExamples: Record<Archetype, {
   scores: {
     HOSPITALIDAD: number
-    COMUNICACIÓN: number
+    COMUNICACION:number
     OPERATIVA: number
     CRISIS: number
     DATA: number
@@ -21,7 +21,7 @@ const archetypeExamples: Record<Archetype, {
   ESTRATEGA: {
     scores: {
       HOSPITALIDAD: 3.5,
-      COMUNICACIÓN: 3.8,
+      COMUNICACION:3.8,
       OPERATIVA: 4.2,
       CRISIS: 3.5,
       DATA: 4.8,
@@ -35,7 +35,7 @@ const archetypeExamples: Record<Archetype, {
   SISTEMATICO: {
     scores: {
       HOSPITALIDAD: 3.8,
-      COMUNICACIÓN: 3.6,
+      COMUNICACION:3.6,
       OPERATIVA: 4.7,
       CRISIS: 3.8,
       DATA: 3.5,
@@ -49,7 +49,7 @@ const archetypeExamples: Record<Archetype, {
   DIFERENCIADOR: {
     scores: {
       HOSPITALIDAD: 4.0,
-      COMUNICACIÓN: 4.5,
+      COMUNICACION:4.5,
       OPERATIVA: 3.4,
       CRISIS: 3.6,
       DATA: 3.5,
@@ -63,7 +63,7 @@ const archetypeExamples: Record<Archetype, {
   EJECUTOR: {
     scores: {
       HOSPITALIDAD: 3.6,
-      COMUNICACIÓN: 3.7,
+      COMUNICACION:3.7,
       OPERATIVA: 4.3,
       CRISIS: 4.4,
       DATA: 3.4,
@@ -77,7 +77,7 @@ const archetypeExamples: Record<Archetype, {
   RESOLUTOR: {
     scores: {
       HOSPITALIDAD: 3.8,
-      COMUNICACIÓN: 4.0,
+      COMUNICACION:4.0,
       OPERATIVA: 3.9,
       CRISIS: 4.9,
       DATA: 3.4,
@@ -91,7 +91,7 @@ const archetypeExamples: Record<Archetype, {
   EXPERIENCIAL: {
     scores: {
       HOSPITALIDAD: 4.9,
-      COMUNICACIÓN: 4.6,
+      COMUNICACION:4.6,
       OPERATIVA: 3.5,
       CRISIS: 3.8,
       DATA: 3.2,
@@ -105,7 +105,7 @@ const archetypeExamples: Record<Archetype, {
   EQUILIBRADO: {
     scores: {
       HOSPITALIDAD: 4.1,
-      COMUNICACIÓN: 4.0,
+      COMUNICACION:4.0,
       OPERATIVA: 3.9,
       CRISIS: 4.0,
       DATA: 3.8,
@@ -119,7 +119,7 @@ const archetypeExamples: Record<Archetype, {
   IMPROVISADOR: {
     scores: {
       HOSPITALIDAD: 4.2,
-      COMUNICACIÓN: 3.9,
+      COMUNICACION:3.9,
       OPERATIVA: 2.5,
       CRISIS: 4.0,
       DATA: 2.8,

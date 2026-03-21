@@ -70,7 +70,6 @@ export async function POST(request: NextRequest) {
         email: user.email
       })
     } catch (emailError) {
-      console.error('❌ Error sending verification email:', emailError)
       return NextResponse.json(
         { error: 'Error al enviar el email. Por favor intenta más tarde.' },
         { status: 500 }
@@ -78,8 +77,6 @@ export async function POST(request: NextRequest) {
     }
     
   } catch (error) {
-    console.error('🚨 Resend verification error:', error)
-    
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Email inválido' },

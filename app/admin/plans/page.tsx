@@ -49,8 +49,8 @@ export default function PlansManagementPage() {
       if (data.success) {
         setPlans(data.plans)
       }
-    } catch (error) {
-      console.error('Error fetching plans:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }
@@ -67,8 +67,8 @@ export default function PlansManagementPage() {
       if (response.ok) {
         fetchPlans()
       }
-    } catch (error) {
-      console.error('Error toggling plan status:', error)
+    } catch {
+      // ignore toggle error
     }
   }
 

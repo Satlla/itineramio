@@ -35,7 +35,6 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
         setCurrentStep(state.currentStep)
       }
     } catch (error) {
-      console.error('Error loading onboarding state:', error)
       localStorage.removeItem('onboardingState')
     }
   }, [])
@@ -86,7 +85,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
         credentials: 'include'
       })
     } catch (error) {
-      console.error('Error completing onboarding:', error)
+      // Ignore completion errors
     }
   }, [])
 

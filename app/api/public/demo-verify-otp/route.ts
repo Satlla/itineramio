@@ -92,7 +92,6 @@ export async function POST(request: NextRequest) {
       verificationToken,
     })
   } catch (error) {
-    console.error('[demo-verify-otp] Error:', error)
     return NextResponse.json(
       { error: 'Error interno. Inténtalo de nuevo.' },
       { status: 500 }

@@ -788,8 +788,6 @@ export async function GET(request: NextRequest) {
       isGroup // Pass this so frontend knows it's a BillingUnitGroup
     })
   } catch (error: any) {
-    console.error('Error getting/creating property-month invoice:', error?.message || error)
-    console.error('Stack:', error?.stack)
     return NextResponse.json(
       { error: 'Error interno del servidor', details: error?.message },
       { status: 500 }

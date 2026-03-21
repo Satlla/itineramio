@@ -72,7 +72,6 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error calculating pricing:', error);
     return NextResponse.json({
       success: false,
       error: 'Internal server error'
@@ -192,7 +191,6 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error calculating pricing with coupon:', error);
     return NextResponse.json({
       success: false,
       error: 'Internal server error'

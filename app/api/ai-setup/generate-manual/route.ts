@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
             const data = `data: ${JSON.stringify(event)}\n\n`
             controller.enqueue(encoder.encode(data))
           } catch (err) {
-            console.error('[generate-manual] Error sending SSE event:', err)
+            // ignore SSE send errors
           }
         }
 
@@ -59,7 +59,6 @@ export async function POST(request: NextRequest) {
           const finalData = `data: ${JSON.stringify({ type: 'property_id', propertyId })}\n\n`
           controller.enqueue(encoder.encode(finalData))
         } catch (error) {
-          console.error('[generate-manual] Generation error:', error)
           const errorData = `data: ${JSON.stringify({
             type: 'error',
             error: error instanceof Error ? error.message : 'Error generating manual',
@@ -79,7 +78,6 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('[generate-manual] Error:', error)
     return new Response(
       JSON.stringify({
         success: false,

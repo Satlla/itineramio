@@ -30,7 +30,6 @@ export function useNotifications() {
         setNotifications(parsed)
       }
     } catch (error) {
-      console.error('Error loading notifications:', error)
       localStorage.removeItem('itineramio_notifications')
     }
   }, [])
@@ -41,7 +40,7 @@ export function useNotifications() {
     try {
       localStorage.setItem('itineramio_notifications', JSON.stringify(notifications))
     } catch (error) {
-      console.error('Error saving notifications:', error)
+      // save error handled silently
     }
   }, [notifications])
 

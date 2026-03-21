@@ -31,7 +31,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ unreadCount })
   } catch (error) {
-    console.error('Error fetching unread count:', error)
     return NextResponse.json(
       { error: 'Error al obtener conteo de no leídos' },
       { status: 500 }

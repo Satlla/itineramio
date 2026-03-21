@@ -56,18 +56,13 @@ export function ImpersonationBanner() {
       })
 
       if (response.ok) {
-        const result = await response.json()
-        console.log('Impersonation terminada:', result)
-
         // Redirigir al panel de admin
         window.location.href = '/admin/users'
       } else {
-        console.error('Error deteniendo impersonation')
         alert(t('admin.impersonation.error'))
         setIsEnding(false)
       }
     } catch (error) {
-      console.error('Error:', error)
       alert(t('admin.impersonation.error'))
       setIsEnding(false)
     }

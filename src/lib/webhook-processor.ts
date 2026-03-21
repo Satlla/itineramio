@@ -97,7 +97,6 @@ export async function processWebhookEvent(eventId: string, userId: string) {
       },
     })
   } catch (error) {
-    console.error(`Error processing webhook event ${eventId}:`, error)
     await prisma.webhookEvent.update({
       where: { id: eventId },
       data: {
@@ -295,7 +294,6 @@ async function createGestionReservation(
 
     return created.id
   } catch (error) {
-    console.error('Error creating gestion reservation:', error)
     return undefined
   }
 }
@@ -325,7 +323,6 @@ async function sendGuidebookToGuest(params: {
   })
 
   if (recentDelivery) {
-    console.log(`Skipping duplicate guidebook delivery to ${email} for property ${propertyId}`)
     return
   }
 

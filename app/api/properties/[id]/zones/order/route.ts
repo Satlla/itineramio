@@ -56,7 +56,7 @@ export async function PUT(
       })
     })
 
-    const results = await prisma.$transaction(updatePromises)
+    const results = await (prisma.$transaction as any)(updatePromises, { timeout: 10000 })
 
     return NextResponse.json({
       success: true,
@@ -65,9 +65,6 @@ export async function PUT(
     })
 
   } catch (error) {
-    console.error('❌ [ZONE ORDER UPDATE] Error updating zone order:', error)
-    console.error('❌ [ZONE ORDER UPDATE] Error stack:', error instanceof Error ? error.stack : 'No stack trace')
-
     if (error instanceof z.ZodError) {
       return NextResponse.json({
         success: false,

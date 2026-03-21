@@ -91,8 +91,8 @@ export default function ReportsPage() {
       } else {
         setZones([])
       }
-    } catch (error) {
-      console.error('Error loading filter options:', error)
+    } catch {
+      // ignore filter options load error
     }
   }
 
@@ -168,8 +168,8 @@ export default function ReportsPage() {
         
         setReportData(report)
       }
-    } catch (error) {
-      console.error('Error generating report:', error)
+    } catch {
+      // ignore report generation error
     } finally {
       setLoading(false)
     }
@@ -193,8 +193,8 @@ export default function ReportsPage() {
         const pdfData = generatePDFData(reportData)
         downloadFile(pdfData, `itineramio-report-${dateRange}-${Date.now()}.html`, 'text/html')
       }
-    } catch (error) {
-      console.error('Error exporting report:', error)
+    } catch {
+      // ignore report export error
     } finally {
       setIsExporting(false)
     }

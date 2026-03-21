@@ -106,24 +106,12 @@ export default function ZoneDetailPage() {
   const [translationsSaved, setTranslationsSaved] = useState(false)
 
   useEffect(() => {
-    console.log('🎯 ZoneDetailPage mounted with:', { propertyId, zoneId })
     fetchZoneData()
   }, [propertyId, zoneId])
   
-  // Debug component lifecycle
-  useEffect(() => {
-    console.log('🎯 ZoneDetailPage render state:', {
-      loading,
-      zoneExists: !!zone,
-      showStepEditor,
-      stepsCount: zone?.steps?.length || 0
-    })
-  })
-
   const fetchZoneData = async () => {
     try {
       setLoading(true)
-      console.log('🔄 FETCHING zone data for:', { propertyId, zoneId })
       
       let actualPropertyId = propertyId
       let actualZoneId = zoneId
@@ -147,42 +135,12 @@ export default function ZoneDetailPage() {
       const response = await fetch(`/api/properties/${actualPropertyId}/zones/${actualZoneId}`)
       const result = await response.json()
       
-      console.log('🔄 API Response:', { 
-        status: response.status, 
-        ok: response.ok, 
-        result 
-      })
-      
       if (!response.ok) {
         throw new Error(result.error || 'Error al cargar la zona')
       }
       
       const zoneData = result.data || result
-      const zoneName = typeof zoneData.name === 'string' ? zoneData.name : (zoneData.name as any)?.es || 'Zone'
-      console.log('📊 Zone loaded:', zoneName, 'with', zoneData.steps?.length || 0, 'steps')
-      
-      if (zoneData.steps) {
-        console.log('📊 Steps data:', zoneData.steps.map((s: any) => ({ 
-          id: s.id, 
-          type: s.type, 
-          title: s.title, 
-          content: s.content,
-          order: s.order,
-          isPublished: s.isPublished
-        })))
-        
-        // Log each step content individually
-        zoneData.steps.forEach((step: any, index: number) => {
-          console.log(`📊 Step ${index + 1}:`, {
-            id: step.id,
-            type: step.type,
-            titleES: step.title?.es,
-            contentES: step.content?.es,
-            order: step.order
-          })
-        })
-      }
-      
+
       setZone(zoneData)
 
       // Initialize translations from zone data
@@ -197,8 +155,6 @@ export default function ZoneDetailPage() {
         })
       }
     } catch (error) {
-      console.error('❌ Error fetching zone:', error)
-      // Don't navigate away, let user see the error
       alert(`Error al cargar la zona: ${error}`)
     } finally {
       setLoading(false)
@@ -231,7 +187,6 @@ export default function ZoneDetailPage() {
           alert(t('detail.errorDeletingStep'))
         }
       } catch (error) {
-        console.error('Error deleting step:', error)
         alert(t('detail.errorDeletingStep'))
       }
     }
@@ -270,7 +225,6 @@ export default function ZoneDetailPage() {
         alert('Error al guardar las traducciones')
       }
     } catch (error) {
-      console.error('Error saving translations:', error)
       alert('Error al guardar las traducciones')
     } finally {
       setSavingTranslations(false)
@@ -278,16 +232,10 @@ export default function ZoneDetailPage() {
   }
 
   const handleSaveSteps = async (steps: any[]) => {
-    console.log('💾 handleSaveSteps called with:', steps)
-    console.log('💾 Number of steps:', steps?.length)
-    console.log('💾 propertyId:', propertyId)
-    console.log('💾 zoneId:', zoneId)
-    
     if (!steps || steps.length === 0) {
-      console.error('💾 No steps to save!')
       return
     }
-    
+
     try {
       // Format steps correctly for API
       const formattedSteps = steps.map((step, index) => {
@@ -300,46 +248,31 @@ export default function ZoneDetailPage() {
           mediaUrl: step.media?.url || null,
           linkUrl: step.type === 'link' ? step.media?.url : null
         }
-        
-        console.log(`💾 Step ${index + 1} formatted:`, formattedStep)
+
         return formattedStep
       })
-      
-      console.log('💾 Formatted steps for API:', formattedSteps)
-      console.log('💾 API URL:', `/api/properties/${propertyId}/zones/${zoneId}/steps`)
-      
+
       const response = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps/safe`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ steps: formattedSteps })
       })
 
-      console.log('💾 Response status:', response.status)
       const result = await response.json()
-      console.log('💾 Response data:', result)
       
       if (!response.ok) {
         throw new Error(result.error || 'Error al guardar')
       }
       
-      console.log('✅ Steps saved:', result.message)
       setShowStepEditor(false)
       await fetchZoneData()
       
     } catch (error) {
-      console.error('Error saving steps:', error)
       alert(t('detail.errorSavingSteps'))
     }
   }
 
   const getInitialSteps = () => {
-    console.log('🎬 getInitialSteps called:', { 
-      hasZone: !!zone, 
-      stepsCount: zone?.steps?.length || 0,
-      isEditingExisting, 
-      editingStepId 
-    })
-    
     // When editing a specific step, return ALL steps but focus on the one being edited
     if (isEditingExisting && editingStepId) {
       if (!zone?.steps) return []
@@ -371,7 +304,6 @@ export default function ZoneDetailPage() {
           isBeingEdited: step.id === editingStepId // Mark which step is being edited
         }))
 
-      console.log('🎬 Editing mode: Returning all', allSteps.length, 'steps with editing flag')
       return allSteps
     }
 
@@ -425,7 +357,6 @@ export default function ZoneDetailPage() {
       order: nextOrder
     })
 
-    console.log('🎬 Returning all steps + new:', allSteps.length, 'steps')
     return allSteps
   }
 
@@ -1215,17 +1146,13 @@ export default function ZoneDetailPage() {
       </div>
 
       {/* StepEditor Modal */}
-      {(() => {
-        console.log('🟣 PAGE: showStepEditor:', showStepEditor, 'zone exists:', !!zone)
-        return showStepEditor && zone
-      })() && (
+      {showStepEditor && zone && (
         <StepEditor
           key={`step-editor-${editingStepId || 'new'}`}
           zoneTitle={getZoneText(zone.name, 'Zona')}
           initialSteps={getInitialSteps()}
           onSave={handleSaveSteps}
           onCancel={() => {
-            console.log('🎯 PAGE: onCancel called');
             setShowStepEditor(false);
           }}
           maxVideos={5}

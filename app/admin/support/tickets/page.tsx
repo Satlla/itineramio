@@ -125,9 +125,8 @@ export default function TicketsListPage() {
       } else {
         setError('Error al cargar los tickets')
       }
-    } catch (err) {
+    } catch {
       setError('Error de conexion')
-      console.error('Error fetching tickets:', err)
     } finally {
       setLoading(false)
     }

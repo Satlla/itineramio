@@ -22,7 +22,6 @@ export async function POST(request: NextRequest) {
   try {
     // Check if Stripe is configured
     if (!process.env.STRIPE_SECRET_KEY) {
-      console.error('STRIPE_SECRET_KEY not configured')
       return NextResponse.json(
         { success: false, error: 'Stripe no está configurado' },
         { status: 503 }
@@ -200,8 +199,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error creating module checkout:', error)
-
     if (error instanceof Stripe.errors.StripeError) {
       return NextResponse.json(
         { success: false, error: `Error de Stripe: ${error.message}` },

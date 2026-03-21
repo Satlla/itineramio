@@ -42,7 +42,7 @@ export function ComingSoonTool({
       })
       setSubmitted(true)
     } catch (error) {
-      console.error('Error subscribing:', error)
+      // Ignore subscribe errors
     }
     setLoading(false)
   }

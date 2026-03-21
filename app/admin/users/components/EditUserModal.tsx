@@ -77,8 +77,8 @@ export default function EditUserModal({ isOpen, onClose, onSuccess, user }: Edit
       if (data.success) {
         setPlans(data.plans)
       }
-    } catch (error) {
-      console.error('Error fetching plans:', error)
+    } catch {
+      // ignore fetch error
     }
   }
 

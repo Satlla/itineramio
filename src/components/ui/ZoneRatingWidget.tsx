@@ -46,7 +46,7 @@ export function ZoneRatingWidget({
         setIsSubmitted(true)
       }
     } catch (error) {
-      console.error('Error checking existing rating:', error)
+      // localStorage error suppressed
     }
   }
 
@@ -100,11 +100,9 @@ export function ZoneRatingWidget({
         setTimeout(() => {
           setIsVisible(false)
         }, 3000)
-      } else {
-        console.error('Error submitting rating:', result.error)
       }
     } catch (error) {
-      console.error('Error submitting rating:', error)
+      // submit error suppressed
     } finally {
       setIsSubmitting(false)
     }

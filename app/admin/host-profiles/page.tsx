@@ -79,8 +79,8 @@ export default function HostProfilesAdminPage() {
 
       setProfiles(data.profiles || [])
       setStats(data.stats || null)
-    } catch (error) {
-      console.error('Error fetching profiles:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }
@@ -119,8 +119,7 @@ export default function HostProfilesAdminPage() {
       } else {
         alert('Error al eliminar usuario')
       }
-    } catch (error) {
-      console.error('Error deleting:', error)
+    } catch {
       alert('Error al eliminar usuario')
     }
   }

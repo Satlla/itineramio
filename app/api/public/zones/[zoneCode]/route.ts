@@ -66,7 +66,6 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error fetching public zone:', error)
     return NextResponse.json(
       { 
         success: false, 

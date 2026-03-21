@@ -72,8 +72,8 @@ export default function CalendarPage() {
       const response = await fetch('/api/auth/me')
       const userData = await response.json()
       setIsAdmin(userData?.isAdmin || false)
-    } catch (error) {
-      console.error('Error checking user access:', error)
+    } catch {
+      // ignore access check error
     }
   }
 
@@ -97,14 +97,12 @@ export default function CalendarPage() {
         setTodayCheckIns(data.todayCheckIns)
         setTodayCheckOuts(data.todayCheckOuts)
       } else {
-        console.error('Calendar API error:', data.error)
         // Fallback to empty data
         setPropertyGroups([])
         setTodayCheckIns([])
         setTodayCheckOuts([])
       }
-    } catch (error) {
-      console.error('Error fetching calendar data:', error)
+    } catch {
       // Fallback to empty data
       setPropertyGroups([])
       setTodayCheckIns([])
@@ -169,8 +167,7 @@ export default function CalendarPage() {
         alert(`⚠️ Sincronización parcial: ${syncedCount} éxitos, ${errorCount} errores`)
       }
       
-    } catch (error) {
-      console.error('Error syncing calendars:', error)
+    } catch {
       alert('❌ Error durante la sincronización')
     } finally {
       setLoading(false)

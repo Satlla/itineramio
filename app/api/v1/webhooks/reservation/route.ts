@@ -66,9 +66,7 @@ export async function POST(request: NextRequest) {
   })
 
   // Process async (fire-and-forget)
-  processWebhookEvent(webhookEvent.id, auth.userId).catch((error) => {
-    console.error(`Async webhook processing failed for ${webhookEvent.id}:`, error)
-  })
+  processWebhookEvent(webhookEvent.id, auth.userId).catch(() => {})
 
   return apiSuccess(
     {

@@ -215,7 +215,7 @@ export async function POST(request: NextRequest) {
         status: 'ACTIVE',
         startDate,
         endDate,
-        stripeSubscriptionId: stripeSubscriptionId || null,
+        stripeSubscriptionId: stripeSubscriptionId ?? undefined,
         notes: `Stripe payment - Session: ${sessionId}\nBilling period: ${billingPeriod}\nAmount: €${session.metadata?.chargedPriceEur || 'N/A'}`
       }
     })
@@ -274,7 +274,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error verifying Stripe session:', error)
     return NextResponse.json(
       { error: 'Error al verificar el pago' },
       { status: 500 }

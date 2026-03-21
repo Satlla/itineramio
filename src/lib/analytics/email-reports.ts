@@ -329,26 +329,17 @@ export async function sendWeeklyReport(
     })
 
     if (result.success) {
-      // Log successful send
-      console.log(`✅ Weekly report sent to ${user.email}`, {
-        userId,
-        views: reportData.totalStats.totalViews,
-        preventedCalls: reportData.totalStats.totalPreventedCalls
-      })
-
       return {
         success: true,
         message: 'Weekly report sent successfully'
       }
     } else {
-      console.error(`❌ Failed to send weekly report to ${user.email}:`, result.error)
       return {
         success: false,
         message: result.error || 'Failed to send email'
       }
     }
   } catch (error) {
-    console.error('Error sending weekly report:', error)
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -390,8 +381,6 @@ export async function sendWeeklyReportsToAll(): Promise<{
       }
     })
 
-    console.log(`📧 Starting weekly reports for ${users.length} users...`)
-
     // Send reports sequentially to avoid rate limits
     for (const user of users) {
       try {
@@ -417,10 +406,8 @@ export async function sendWeeklyReportsToAll(): Promise<{
       }
     }
 
-    console.log(`✅ Weekly reports complete:`, results)
     return results
   } catch (error) {
-    console.error('Error in sendWeeklyReportsToAll:', error)
     results.errors.push(error instanceof Error ? error.message : 'Unknown error')
     return results
   }

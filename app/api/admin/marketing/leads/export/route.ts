@@ -73,7 +73,6 @@ export async function GET(req: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error exporting leads:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al exportar leads'

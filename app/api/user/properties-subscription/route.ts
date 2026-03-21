@@ -151,7 +151,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching properties subscription status:', error)
     return NextResponse.json(
       { error: 'Error al obtener el estado de las propiedades' },
       { status: 500 }

@@ -141,7 +141,7 @@ export async function GET(
 
     // Check if host has MANUALES module access
     const property = await prisma.property.findFirst({
-      where: { id: zone.propertyId, deletedAt: null },
+      where: { id: zone.propertyId || undefined, deletedAt: null },
       select: { hostId: true }
     })
 
@@ -219,7 +219,7 @@ export async function GET(
           }
         }
       } catch (error) {
-        console.error('Error parsing step content:', error)
+        // ignore step content parse error
       }
 
       // If type is VIDEO/IMAGE but no mediaUrl, downgrade to TEXT
@@ -245,7 +245,6 @@ export async function GET(
       data: processedZone
     })
   } catch (error) {
-    console.error('Error fetching public zone:', error)
     return NextResponse.json(
       { 
         success: false, 

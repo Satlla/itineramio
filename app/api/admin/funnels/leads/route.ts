@@ -24,7 +24,6 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true, message: 'Lead eliminado' })
   } catch (error) {
-    console.error('Error deleting lead:', error)
     return NextResponse.json(
       { error: 'Error al eliminar lead', details: String(error) },
       { status: 500 }
@@ -80,7 +79,6 @@ export async function GET(request: NextRequest) {
       leads
     })
   } catch (error) {
-    console.error('Error fetching funnel leads:', error)
     return NextResponse.json(
       { error: 'Error fetching leads', details: String(error) },
       { status: 500 }

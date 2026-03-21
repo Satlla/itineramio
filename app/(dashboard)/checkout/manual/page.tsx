@@ -92,11 +92,8 @@ function ManualCheckoutContent() {
         const data = await response.json()
         const billingInfo = data.billingInfo
 
-        console.log('📋 Checking billing data:', billingInfo)
-
         // Si no hay billingInfo en absoluto
         if (!billingInfo) {
-          console.log('❌ No billing info found')
           setBillingDataMissing(true)
           return
         }
@@ -111,29 +108,16 @@ function ManualCheckoutContent() {
                           billingInfo.postalCode &&
                           billingInfo.country
 
-        console.log('✅ Billing data complete:', isComplete)
-
         if (!isComplete) {
-          console.log('❌ Missing fields:', {
-            hasName,
-            email: !!billingInfo.email,
-            phone: !!billingInfo.phone,
-            address: !!billingInfo.address,
-            city: !!billingInfo.city,
-            postalCode: !!billingInfo.postalCode,
-            country: !!billingInfo.country
-          })
           setBillingDataMissing(true)
         } else {
           setBillingDataMissing(false)
         }
       } else {
         // Si falla la API, asumir que no hay datos
-        console.log('❌ API failed, status:', response.status)
         setBillingDataMissing(true)
       }
     } catch (error) {
-      console.error('❌ Error checking billing data:', error)
       setBillingDataMissing(true)
     } finally {
       setCheckingBillingData(false)
@@ -143,10 +127,6 @@ function ManualCheckoutContent() {
   const fetchProrationData = async () => {
     try {
       setLoadingProration(true)
-      console.log('🔄 Fetching proration data for checkout...', {
-        targetPlanCode: planCode,
-        targetBillingPeriod: billingPeriod
-      })
 
       const response = await fetch('/api/billing/preview-proration', {
         method: 'POST',
@@ -160,14 +140,11 @@ function ManualCheckoutContent() {
 
       if (response.ok) {
         const data = await response.json()
-        console.log('✅ Proration data received:', data)
         setProrationData(data)
       } else {
-        console.log('ℹ️ No proration available (user may not have active subscription)')
         setProrationData(null)
       }
     } catch (error) {
-      console.error('❌ Error fetching proration:', error)
       setProrationData(null)
     } finally {
       setLoadingProration(false)
@@ -207,7 +184,6 @@ function ManualCheckoutContent() {
         toast.error(data.error || t('checkout.coupon.invalid'))
       }
     } catch (error) {
-      console.error('Error validating coupon:', error)
       setCouponError(t('checkout.coupon.validationError'))
       toast.error(t('checkout.coupon.validationError'))
     } finally {
@@ -300,8 +276,6 @@ function ManualCheckoutContent() {
         userName: user?.name || 'Usuario de Itineramio'
       }
 
-      console.log('📤 Sending subscription request:', requestData)
-
       // Use simple endpoint directly since there are auth issues with the main endpoint
       const response = await fetch('/api/subscription-requests-simple', {
         method: 'POST',
@@ -313,8 +287,6 @@ function ManualCheckoutContent() {
 
       if (!response.ok) {
         const error = await response.json()
-        console.error('❌ API Error Response:', error)
-        console.error('❌ Status:', response.status)
         throw new Error(error.error || error.details || t('checkout.errors.processingRequest'))
       }
 
@@ -332,7 +304,6 @@ function ManualCheckoutContent() {
       }, 3000)
       
     } catch (error) {
-      console.error('Error:', error)
       toast.error(error instanceof Error ? error.message : t('checkout.errors.processingPayment'))
     } finally {
       setLoading(false)

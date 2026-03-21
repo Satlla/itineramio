@@ -3,7 +3,7 @@ import { Resend } from 'resend'
 const RESEND_API_KEY = process.env.RESEND_API_KEY || 'test_key'
 
 if (!process.env.RESEND_API_KEY && process.env.NODE_ENV === 'production') {
-  console.warn('RESEND_API_KEY environment variable is not set')
+  // RESEND_API_KEY not set
 }
 
 const resend = new Resend(RESEND_API_KEY)
@@ -21,14 +21,10 @@ const DEFAULT_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.d
 export async function sendEmail({ to, subject, html, from = DEFAULT_FROM_EMAIL }: EmailOptions) {
   // Skip email sending if no API key is configured
   if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 'test_key') {
-    console.warn('Email sending skipped - no valid RESEND_API_KEY configured')
-    console.log('Would have sent email:', { to, subject, from })
     return { id: 'test-email-id', skipped: true }
   }
 
   try {
-    console.log('Attempting to send email:', { to, from, subject })
-    
     const { data, error } = await resend.emails.send({
       from,
       to,
@@ -37,27 +33,21 @@ export async function sendEmail({ to, subject, html, from = DEFAULT_FROM_EMAIL }
     })
 
     if (error) {
-      console.error('Resend API error:', error)
-      
       // Provide more specific error messages
       if (error.name === 'validation_error' && error.message.includes('domain is not verified')) {
         throw new Error(`Email domain not verified: ${from}. Please verify the domain in Resend dashboard or use a different from address.`)
       }
-      
+
       throw new Error(`Failed to send email: ${error.message}`)
     }
 
-    console.log('Email sent successfully:', data?.id)
     return data
   } catch (error) {
-    console.error('Email service error:', error)
-    
     // In development, don't fail the entire operation if email fails
     if (process.env.NODE_ENV === 'development') {
-      console.warn('Email failed in development, continuing anyway')
       return { id: 'dev-email-failed', error: error instanceof Error ? error.message : 'Unknown error' }
     }
-    
+
     throw error
   }
 }

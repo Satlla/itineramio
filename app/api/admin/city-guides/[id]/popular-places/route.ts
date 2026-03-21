@@ -101,7 +101,6 @@ export async function GET(
 
     return NextResponse.json({ success: true, data: result })
   } catch (error) {
-    console.error('Error fetching popular places:', error)
     return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }

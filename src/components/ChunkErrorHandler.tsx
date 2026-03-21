@@ -28,7 +28,6 @@ export function ChunkErrorHandler() {
 
         // Check if we've exceeded max reloads
         if (count >= MAX_RELOADS) {
-          console.warn('⚠️ Max reload attempts reached, not reloading')
           return false
         }
 
@@ -57,21 +56,15 @@ export function ChunkErrorHandler() {
         errorMessage.includes('Invalid or unexpected token')
 
       if (isScriptError) {
-        console.warn('⚠️ Script loading error detected (not reloading):', errorMessage)
         // Prevent the error from bubbling up and breaking React
         event.preventDefault?.()
         return
       }
 
       if (isChunkError) {
-        console.log('⚠️ Chunk loading error detected')
-
         if (!canReload()) {
-          console.warn('⚠️ Skipping reload due to recent reload attempts')
           return
         }
-
-        console.log('⚠️ Clearing cache and reloading...')
 
         // Clear any service worker cache
         if ('serviceWorker' in navigator) {
@@ -104,7 +97,6 @@ export function ChunkErrorHandler() {
       if (reason?.name === 'ChunkLoadError' ||
           message.includes('Loading chunk') ||
           message.includes('Failed to fetch dynamically imported module')) {
-        console.log('⚠️ Chunk loading error in promise')
         event.preventDefault()
 
         if (canReload()) {

@@ -23,7 +23,7 @@ export async function PATCH(
 
     let userId: string
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+      const decoded = jwt.verify(token, JWT_SECRET!) as unknown as { userId: string }
       userId = decoded.userId
     } catch (error) {
       return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
@@ -59,7 +59,6 @@ export async function PATCH(
     })
 
   } catch (error) {
-    console.error('Error updating media usage:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

@@ -79,13 +79,13 @@ export default function InvoiceDetailPage() {
           try {
             const notes = JSON.parse(data.notes)
             setParsedNotes(notes)
-          } catch (e) {
-            console.log('Notes are not JSON:', data.notes)
+          } catch {
+            // notes are not JSON, ignore
           }
         }
       }
-    } catch (error) {
-      console.error('Error fetching invoice:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }

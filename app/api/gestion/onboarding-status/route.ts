@@ -52,7 +52,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error updating onboarding status:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -92,7 +91,6 @@ export async function GET(request: NextRequest) {
       isComplete
     })
   } catch (error) {
-    console.error('Error getting onboarding status:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

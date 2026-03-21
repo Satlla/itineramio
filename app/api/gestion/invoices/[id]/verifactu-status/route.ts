@@ -142,7 +142,6 @@ export async function GET(
       errorMessage: result.data.error_message,
     })
   } catch (error) {
-    console.error('Error checking VeriFactu status:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

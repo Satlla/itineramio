@@ -112,7 +112,7 @@ export function ZoneInspirationCard({
                 <span className={`${compact ? 'text-xs' : 'text-xs'} font-medium opacity-90`}>Sugerencia</span>
               </div>
               <h3 className={`${compact ? 'text-sm' : 'text-lg'} font-bold`}>{getText(inspiration.name, 'Zona')}</h3>
-              <p className={`${compact ? 'text-xs' : 'text-sm'} opacity-90`}>{inspiration.title}</p>
+              <p className={`${compact ? 'text-xs' : 'text-sm'} opacity-90`}>{typeof inspiration.title === 'string' ? inspiration.title : inspiration.title?.es || ''}</p>
             </div>
           </div>
         </div>

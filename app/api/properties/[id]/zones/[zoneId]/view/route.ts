@@ -45,7 +45,6 @@ export async function POST(
     })
 
     if (!zone || !zone.property) {
-      console.error('Zone not found:', { propertyId, zoneId })
       return NextResponse.json({
         success: false,
         error: 'Zona no encontrada'
@@ -64,7 +63,7 @@ export async function POST(
         data: {
           zoneId,
           propertyId,
-          hostId: zone.property.hostId,
+          hostId: zone.property!.hostId,
           visitorIp,
           userAgent,
           referrer,
@@ -126,7 +125,7 @@ export async function POST(
       })
 
       return { isUniqueVisitor: isUnique }
-    })
+    }, { timeout: 10000 })
 
     return NextResponse.json({
       success: true,
@@ -135,8 +134,6 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('❌ Error registrando vista de zona:', error)
-
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'

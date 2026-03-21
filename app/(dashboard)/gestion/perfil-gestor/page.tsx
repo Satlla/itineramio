@@ -151,7 +151,6 @@ export default function PerfilGestorPage() {
         }
       }
     } catch (error) {
-      console.error('Error fetching config:', error)
     } finally {
       setLoading(false)
     }
@@ -166,7 +165,6 @@ export default function PerfilGestorPage() {
         setSeries(data.series || [])
       }
     } catch (error) {
-      console.error('Error fetching series:', error)
     } finally {
       setLoadingSeries(false)
     }

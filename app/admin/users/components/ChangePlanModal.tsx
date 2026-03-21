@@ -58,8 +58,8 @@ export default function ChangePlanModal({
       if (data.success) {
         setPlans(data.plans.filter((plan: Plan) => plan.isActive))
       }
-    } catch (error) {
-      console.error('Error fetching plans:', error)
+    } catch {
+      // ignore fetch error
     }
   }
 
@@ -113,8 +113,7 @@ export default function ChangePlanModal({
       } else {
         alert(data.error || 'Error al cambiar el plan')
       }
-    } catch (error) {
-      console.error('Error changing plan:', error)
+    } catch {
       alert('Error al cambiar el plan')
     } finally {
       setLoading(false)

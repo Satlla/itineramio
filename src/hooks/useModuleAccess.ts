@@ -54,7 +54,6 @@ export function useModuleAccess(moduleCode: ModuleCode): UseModuleAccessResult {
         setError(result.error || 'Error al verificar acceso')
       }
     } catch (err) {
-      console.error('Error fetching module access:', err)
       setError('Error de conexión')
     } finally {
       setIsLoading(false)
@@ -114,7 +113,6 @@ export function useAllModulesAccess(): UseAllModulesAccessResult {
         setError(result.error || 'Error al verificar acceso')
       }
     } catch (err) {
-      console.error('Error fetching modules access:', err)
       setError('Error de conexión')
     } finally {
       setIsLoading(false)
@@ -160,7 +158,6 @@ export function useManualesAccess() {
         setError(result.error || 'Error al verificar acceso')
       }
     } catch (err) {
-      console.error('Error fetching MANUALES access:', err)
       setError('Error de conexión')
     } finally {
       setIsLoading(false)
@@ -212,7 +209,6 @@ export function useGestionAccess() {
         setError(result.error || 'Error al verificar acceso')
       }
     } catch (err) {
-      console.error('Error fetching GESTION access:', err)
       setError('Error de conexión')
     } finally {
       setIsLoading(false)

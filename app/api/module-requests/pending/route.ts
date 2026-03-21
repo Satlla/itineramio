@@ -30,7 +30,6 @@ export async function GET(request: NextRequest) {
       } : null
     })
   } catch (error) {
-    console.error('Error checking pending module request:', error)
     return NextResponse.json(
       { error: 'Error al verificar solicitud pendiente' },
       { status: 500 }

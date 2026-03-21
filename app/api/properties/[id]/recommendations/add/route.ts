@@ -159,7 +159,6 @@ export async function POST(
       },
     }, { status: 201 })
   } catch (error) {
-    console.error('Error adding recommendation:', error)
     return NextResponse.json({ success: false, error: 'Error al añadir recomendación' }, { status: 500 })
   }
 }

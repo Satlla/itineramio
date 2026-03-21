@@ -13,7 +13,6 @@ const CRON_SECRET = process.env.CRON_SECRET
 
 export async function GET(request: NextRequest) {
   if (!CRON_SECRET) {
-    console.error('CRON_SECRET not configured')
     return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
   }
 
@@ -85,22 +84,23 @@ export async function GET(request: NextRequest) {
       const newStatus = mapVerifactiStatus(result.data.status)
       if (newStatus === invoice.verifactuStatus) continue
 
-      // Update invoice and submission
-      await prisma.clientInvoice.update({
-        where: { id: invoice.id },
-        data: { verifactuStatus: newStatus },
-      })
-
-      await prisma.verifactuSubmission.update({
-        where: { id: submission.id },
-        data: {
-          status: newStatus,
-          respondedAt: new Date(),
-          errorCode: result.data.error_code || null,
-          errorMessage: result.data.error_message || null,
-          response: JSON.stringify(result.data),
-        },
-      })
+      // Update invoice and submission atomically
+      await prisma.$transaction(async (tx) => {
+        await tx.clientInvoice.update({
+          where: { id: invoice.id },
+          data: { verifactuStatus: newStatus },
+        })
+        await tx.verifactuSubmission.update({
+          where: { id: submission.id },
+          data: {
+            status: newStatus,
+            respondedAt: new Date(),
+            errorCode: result.data.error_code || null,
+            errorMessage: result.data.error_message || null,
+            response: JSON.stringify(result.data),
+          },
+        })
+      }, { timeout: 10000 })
 
       updated++
     }
@@ -112,7 +112,6 @@ export async function GET(request: NextRequest) {
       errors,
     })
   } catch (error) {
-    console.error('[verifactu-cron] Error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

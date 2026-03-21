@@ -308,7 +308,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error analyzing file:', error)
     return NextResponse.json(
       { error: 'Error al analizar el archivo' },
       { status: 500 }

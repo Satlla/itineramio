@@ -211,7 +211,6 @@ function HostProfileTestContent() {
       router.push(`/host-profile/results/${data.resultId}`)
 
     } catch (error) {
-      console.error('Error submitting test:', error)
       alert('Error al procesar tu test. Por favor intenta de nuevo.')
       setIsSubmitting(false)
     }

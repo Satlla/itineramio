@@ -36,7 +36,6 @@ const daysAgo = (days: number) => new Date(Date.now() - days * 24 * 60 * 60 * 10
 export async function GET(request: NextRequest) {
   // Verificar autorizacion
   if (!CRON_SECRET) {
-    console.error('CRON_SECRET not configured')
     return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
   }
 
@@ -95,7 +94,6 @@ export async function GET(request: NextRequest) {
 
         results.email1Sent++
       } catch (error) {
-        console.error(`Error sending soap opera email 1 to ${subscriber.email}:`, error)
         results.errors.push(`Email1 ${subscriber.email}: ${error}`)
       }
     }
@@ -133,7 +131,6 @@ export async function GET(request: NextRequest) {
 
         results.email2Sent++
       } catch (error) {
-        console.error(`Error sending soap opera email 2 to ${subscriber.email}:`, error)
         results.errors.push(`Email2 ${subscriber.email}: ${error}`)
       }
     }
@@ -171,7 +168,6 @@ export async function GET(request: NextRequest) {
 
         results.email3Sent++
       } catch (error) {
-        console.error(`Error sending soap opera email 3 to ${subscriber.email}:`, error)
         results.errors.push(`Email3 ${subscriber.email}: ${error}`)
       }
     }
@@ -209,7 +205,6 @@ export async function GET(request: NextRequest) {
 
         results.email4Sent++
       } catch (error) {
-        console.error(`Error sending soap opera email 4 to ${subscriber.email}:`, error)
         results.errors.push(`Email4 ${subscriber.email}: ${error}`)
       }
     }
@@ -247,7 +242,6 @@ export async function GET(request: NextRequest) {
 
         results.email5Sent++
       } catch (error) {
-        console.error(`Error sending soap opera email 5 to ${subscriber.email}:`, error)
         results.errors.push(`Email5 ${subscriber.email}: ${error}`)
       }
     }
@@ -285,7 +279,6 @@ export async function GET(request: NextRequest) {
 
         results.email6Sent++
       } catch (error) {
-        console.error(`Error sending soap opera email 6 to ${subscriber.email}:`, error)
         results.errors.push(`Email6 ${subscriber.email}: ${error}`)
       }
     }
@@ -323,7 +316,6 @@ export async function GET(request: NextRequest) {
 
         results.email7Sent++
       } catch (error) {
-        console.error(`Error sending soap opera email 7 to ${subscriber.email}:`, error)
         results.errors.push(`Email7 ${subscriber.email}: ${error}`)
       }
     }
@@ -362,7 +354,6 @@ export async function GET(request: NextRequest) {
 
         results.email8Sent++
       } catch (error) {
-        console.error(`Error sending soap opera email 8 to ${subscriber.email}:`, error)
         results.errors.push(`Email8 ${subscriber.email}: ${error}`)
       }
     }
@@ -388,7 +379,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error in soap opera sequence cron:', error)
     return NextResponse.json(
       {
         success: false,

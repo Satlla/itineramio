@@ -4,8 +4,6 @@ import { createBatchZones } from './createBatchZones'
 // Función para crear las zonas del manual de ejemplo
 export async function crearManualEjemplo(propertyId: string): Promise<boolean> {
   try {
-    console.log('🎨 Creando manual de ejemplo para propiedad:', propertyId)
-    
     let zonasCreadas = 0
     
     // Prepare zones data for batch creation
@@ -17,20 +15,17 @@ export async function crearManualEjemplo(propertyId: string): Promise<boolean> {
     }))
 
     // Use batch API for reliability
-    console.log('🚀 Using BATCH API for manual ejemplo creation')
     const success = await createBatchZones(propertyId, zonesToCreate)
-    
+
     if (!success) {
-      console.error('❌ Error creando zonas del manual de ejemplo')
       return false
     }
 
     // Get the created zones to add steps
     const zonesResponse = await fetch(`/api/properties/${propertyId}/zones`)
     const zonesResult = await zonesResponse.json()
-    
+
     if (!zonesResult.success || !zonesResult.data) {
-      console.error('❌ Error obteniendo zonas creadas')
       return false
     }
 
@@ -45,12 +40,10 @@ export async function crearManualEjemplo(propertyId: string): Promise<boolean> {
       })
       
       if (!createdZone) {
-        console.error(`❌ No se encontró la zona creada: ${zona.name}`)
         continue
       }
-      
+
       const zoneId = createdZone.id
-      console.log(`✅ Zona "${zona.name}" creada con ID:`, zoneId)
 
       // Crear los pasos de esta zona
       for (const step of zona.steps) {
@@ -71,27 +64,22 @@ export async function crearManualEjemplo(propertyId: string): Promise<boolean> {
         })
 
         if (!stepResponse.ok) {
-          console.error(`Error creando paso "${step.title}":`, await stepResponse.text())
+          await stepResponse.text()
           continue
         }
 
         const stepResult = await stepResponse.json()
         if (!stepResult.success) {
-          console.error(`Error en respuesta de paso "${step.title}":`, stepResult.error)
           continue
         }
-
-        console.log(`  ✅ Paso "${step.title}" creado`)
       }
 
       zonasCreadas++
     }
 
-    console.log(`🎉 Manual de ejemplo creado: ${zonasCreadas} zonas`)
     return zonasCreadas > 0
 
   } catch (error) {
-    console.error('❌ Error creando manual de ejemplo:', error)
     return false
   }
 }
@@ -116,7 +104,6 @@ export async function tieneManualEjemplo(propertyId: string): Promise<boolean> {
     return zonasEjemplo.length >= 2 // Si tiene al menos 2 zonas del ejemplo
     
   } catch (error) {
-    console.error('Error verificando manual de ejemplo:', error)
     return false
   }
 }

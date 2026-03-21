@@ -76,9 +76,8 @@ export default function FAQAdminPage() {
       } else {
         setError('Error al cargar las FAQs')
       }
-    } catch (err) {
+    } catch {
       setError('Error de conexion')
-      console.error('Error fetching FAQs:', err)
     } finally {
       setLoading(false)
     }
@@ -96,8 +95,8 @@ export default function FAQAdminPage() {
       if (res.ok) {
         setFaqs(faqs.map(f => f.id === faq.id ? { ...f, includeInWelcomeEmail: !f.includeInWelcomeEmail } : f))
       }
-    } catch (err) {
-      console.error('Error toggling welcome email:', err)
+    } catch {
+      // ignore toggle error
     } finally {
       setToggling(null)
     }
@@ -114,8 +113,8 @@ export default function FAQAdminPage() {
       if (res.ok) {
         setFaqs(faqs.filter(f => f.id !== id))
       }
-    } catch (err) {
-      console.error('Error archiving FAQ:', err)
+    } catch {
+      // ignore archive error
     } finally {
       setArchiving(null)
     }
@@ -155,8 +154,7 @@ export default function FAQAdminPage() {
       } else {
         alert('Error al crear la FAQ')
       }
-    } catch (err) {
-      console.error('Error creating FAQ:', err)
+    } catch {
       alert('Error de conexion')
     } finally {
       setCreating(false)

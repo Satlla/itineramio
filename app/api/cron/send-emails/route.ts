@@ -12,12 +12,10 @@ export async function GET(req: NextRequest) {
     const cronSecret = process.env.CRON_SECRET
 
     if (!cronSecret) {
-      console.error('[CRON] CRON_SECRET not configured')
       return NextResponse.json({ success: false, error: 'Server misconfigured' }, { status: 500 })
     }
 
     if (authHeader !== `Bearer ${cronSecret}`) {
-      console.error('[CRON] Unauthorized request')
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -25,13 +23,11 @@ export async function GET(req: NextRequest) {
     const result = await processScheduledEmails(100) // Procesar hasta 100 emails por ejecución
 
     return NextResponse.json({
-      success: true,
       ...result,
       timestamp: new Date().toISOString()
     })
 
   } catch (error: any) {
-    console.error('[CRON] Error processing emails:', error)
 
     return NextResponse.json({
       success: false,

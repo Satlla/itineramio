@@ -21,7 +21,6 @@ export function LikeButton({ slug, initialLikes }: LikeButtonProps) {
       const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]')
       setHasLiked(likedPosts.includes(slug))
     } catch (error) {
-      console.error('Error loading liked posts:', error)
       setHasLiked(false)
     }
   }, [slug])
@@ -38,7 +37,7 @@ export function LikeButton({ slug, initialLikes }: LikeButtonProps) {
       const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]')
       localStorage.setItem('likedPosts', JSON.stringify([...likedPosts, slug]))
     } catch (error) {
-      console.error('Error saving liked post:', error)
+      // Ignore localStorage errors
     }
 
     // Animate
@@ -50,7 +49,7 @@ export function LikeButton({ slug, initialLikes }: LikeButtonProps) {
         method: 'POST'
       })
     } catch (error) {
-      console.error('Error liking post:', error)
+      // Ignore like errors
     }
   }
 

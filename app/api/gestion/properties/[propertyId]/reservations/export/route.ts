@@ -220,7 +220,6 @@ export async function GET(
       }
     })
   } catch (error) {
-    console.error('Error exporting reservations:', error)
     return NextResponse.json({ error: 'Error al exportar' }, { status: 500 })
   }
 }

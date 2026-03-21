@@ -27,7 +27,7 @@ export async function GET(
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = jwt.verify(token, JWT_SECRET!) as unknown as { userId: string }
     const { userId } = await params
 
     // Set JWT claims for PostgreSQL RLS policies
@@ -70,7 +70,6 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error fetching inspiration state:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'
@@ -89,7 +88,7 @@ export async function POST(
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = jwt.verify(token, JWT_SECRET!) as unknown as { userId: string }
     const { userId } = await params
 
     // Set JWT claims for PostgreSQL RLS policies
@@ -142,7 +141,6 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('Error updating inspiration state:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'

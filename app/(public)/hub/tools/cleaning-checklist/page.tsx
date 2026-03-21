@@ -279,7 +279,7 @@ export default function CleaningChecklist() {
         }
       )
     } catch (error) {
-      console.error('Error generating PDF:', error)
+      // PDF generation error silenced
     }
   }
 
@@ -302,17 +302,15 @@ export default function CleaningChecklist() {
             title: s.title,
             items: s.items.map(i => i.text)
           })),
-          style: selectedStyle.name
+          style: selectedStyle.nameKey
         })
       })
 
       const result = await response.json()
 
       if (response.ok) {
-        console.log('Checklist sent successfully:', result)
         setShowSuccessModal(true)
       } else {
-        console.error('Error sending checklist:', result.error)
         // Fallback to local download if email fails
         if (pendingAction === 'download') {
           await downloadChecklist()
@@ -321,7 +319,6 @@ export default function CleaningChecklist() {
         }
       }
     } catch (error) {
-      console.error('Error calling checklist API:', error)
       // Fallback to local download
       if (pendingAction === 'download') {
         await downloadChecklist()

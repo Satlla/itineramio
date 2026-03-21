@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
         </body>
         </html>
       `
-    }).catch(console.error)
+    }).catch(() => {})
 
     return NextResponse.json({
       success: true,
@@ -137,7 +137,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error confirming password change:', error)
     return NextResponse.json({
       error: 'Error al confirmar el cambio de contraseña'
     }, { status: 500 })

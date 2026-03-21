@@ -710,8 +710,6 @@ export async function POST(request: NextRequest) {
       data,
     })
   } catch (error) {
-    console.error('[demo-import-airbnb] Error:', error)
-
     if (error instanceof Error && error.name === 'AbortError') {
       return NextResponse.json(
         { success: false, error: 'El anuncio tardó demasiado en cargar. Inténtalo de nuevo.' },

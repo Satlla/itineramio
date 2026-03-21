@@ -18,7 +18,10 @@ export async function GET(req: NextRequest) {
   const userId = authResult.userId
   let lastChecked = new Date()
   let intervalId: ReturnType<typeof setInterval> | null = null
+  let timeoutId: ReturnType<typeof setTimeout> | null = null
   let closed = false
+
+  const MAX_DURATION_MS = 5 * 60 * 1000 // 5 minutes
 
   const stream = new ReadableStream({
     start(controller) {
@@ -75,10 +78,36 @@ export async function GET(req: NextRequest) {
           closed = true
         }
       }, 15_000)
+
+      // Close the stream after MAX_DURATION_MS so the client reconnects,
+      // preventing interval leaks from clients that disconnect without a close event.
+      timeoutId = setTimeout(() => {
+        if (!closed) {
+          send({ type: 'reconnect' })
+          closed = true
+          if (intervalId) {
+            clearInterval(intervalId)
+            intervalId = null
+          }
+          timeoutId = null
+          try {
+            controller.close()
+          } catch {
+            // controller may already be closed
+          }
+        }
+      }, MAX_DURATION_MS)
     },
     cancel() {
       closed = true
-      if (intervalId) clearInterval(intervalId)
+      if (intervalId) {
+        clearInterval(intervalId)
+        intervalId = null
+      }
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+        timeoutId = null
+      }
     }
   })
 

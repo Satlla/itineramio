@@ -220,7 +220,6 @@ export default function MonthInvoicePage() {
         setSingleConceptText(data.billingSettings.singleConceptText || 'Gestión apartamento turístico')
       }
     } catch (err) {
-      console.error('Error fetching invoice:', err)
       setError('Error al cargar la factura')
     } finally {
       setLoading(false)
@@ -246,7 +245,6 @@ export default function MonthInvoicePage() {
         setError(data.error || 'Error al regenerar')
       }
     } catch (err) {
-      console.error('Error regenerating:', err)
       alert('Error al regenerar')
     } finally {
       setActionLoading(null)
@@ -290,7 +288,6 @@ export default function MonthInvoicePage() {
         alert(data.error || 'Error al guardar')
       }
     } catch (err) {
-      console.error('Error saving:', err)
       alert('Error al guardar')
     } finally {
       setSaving(false)
@@ -319,7 +316,6 @@ export default function MonthInvoicePage() {
         alert(data.error || 'Error al emitir factura')
       }
     } catch (err) {
-      console.error('Error issuing:', err)
       alert('Error al emitir factura')
     } finally {
       setActionLoading(null)
@@ -345,7 +341,6 @@ export default function MonthInvoicePage() {
         alert(data.error || 'Error al actualizar estado')
       }
     } catch (err) {
-      console.error('Error updating status:', err)
       alert('Error al actualizar estado')
     } finally {
       setActionLoading(null)
@@ -379,7 +374,6 @@ export default function MonthInvoicePage() {
         setShowSendModal(true)
       }
     } catch (err) {
-      console.error('Error loading email data:', err)
     } finally {
       setActionLoading(null)
     }
@@ -410,7 +404,6 @@ export default function MonthInvoicePage() {
         alert(data.error || 'Error al enviar factura')
       }
     } catch (err) {
-      console.error('Error sending:', err)
       alert('Error al enviar factura')
     } finally {
       setActionLoading(null)
@@ -440,7 +433,6 @@ export default function MonthInvoicePage() {
         alert('Error al descargar PDF')
       }
     } catch (err) {
-      console.error('Error downloading PDF:', err)
       alert('Error al descargar PDF')
     } finally {
       setActionLoading(null)
@@ -527,7 +519,6 @@ export default function MonthInvoicePage() {
         alert(data.error || 'Error al eliminar reservas')
       }
     } catch (err) {
-      console.error('Error resetting month:', err)
       alert('Error al eliminar reservas')
     } finally {
       setResetting(false)

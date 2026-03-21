@@ -657,7 +657,6 @@ export class InvoiceGeneratorAirbnb {
       })
 
       if (!invoice) {
-        console.error('Invoice not found:', invoiceId)
         return null
       }
 
@@ -688,7 +687,7 @@ export class InvoiceGeneratorAirbnb {
           const settings = JSON.parse(systemSetting.value as string)
           companySettings = { ...companySettings, ...settings }
         } catch (error) {
-          console.error('Error parsing company settings:', error)
+          // ignore parse error, use defaults
         }
       }
 
@@ -730,7 +729,6 @@ export class InvoiceGeneratorAirbnb {
         properties
       }
     } catch (error) {
-      console.error('Error fetching invoice data:', error)
       return null
     }
   }

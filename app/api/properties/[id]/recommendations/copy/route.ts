@@ -108,7 +108,7 @@ export async function POST(
           targetZone = await prisma.zone.create({
             data: {
               propertyId: targetId,
-              name: srcZone.name,
+              name: srcZone.name as any,
               icon: srcZone.icon,
               type: 'RECOMMENDATIONS',
               recommendationCategory: srcZone.recommendationCategory,
@@ -156,7 +156,6 @@ export async function POST(
       totalRecommendations: totalCopied,
     })
   } catch (error) {
-    console.error('Error copying recommendations:', error)
     return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }

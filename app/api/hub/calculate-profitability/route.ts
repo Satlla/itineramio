@@ -107,23 +107,26 @@ export async function POST(req: NextRequest) {
         const { prisma } = await import('../../../../src/lib/prisma')
 
         // Crear o actualizar subscriber
-        await prisma.newsletterSubscriber.upsert({
+        await prisma.emailSubscriber.upsert({
           where: { email: validatedEmail },
           update: {
             name: name || undefined,
-            city: MARKET_DATA[city].displayName,
-            propertyCount: 1,
             tags: ['calculator-user'],
-            source: 'calculadora-rentabilidad'
+            source: 'calculadora-rentabilidad',
+            sourceMetadata: {
+              city: MARKET_DATA[city].displayName,
+              propertyCount: 1
+            }
           },
           create: {
             email: validatedEmail,
             name: name || undefined,
-            city: MARKET_DATA[city].displayName,
-            propertyCount: 1,
             tags: ['calculator-user'],
             source: 'calculadora-rentabilidad',
-            isActive: true
+            sourceMetadata: {
+              city: MARKET_DATA[city].displayName,
+              propertyCount: 1
+            }
           }
         })
 
@@ -146,7 +149,6 @@ export async function POST(req: NextRequest) {
         // await sendCalculatorResults(validatedEmail, name, result)
 
       } catch (dbError) {
-        console.error('Error guardando en BD:', dbError)
         // No fallar el request si falla el guardado en BD
       }
     }
@@ -179,7 +181,6 @@ export async function POST(req: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error en calculate-profitability:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al calcular rentabilidad'

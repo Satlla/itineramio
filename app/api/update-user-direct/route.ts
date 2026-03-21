@@ -9,7 +9,6 @@ export async function POST(request: NextRequest) {
   try {
     // Verify JWT authentication
     if (!JWT_SECRET) {
-      console.error('JWT_SECRET not configured')
       return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
     }
 
@@ -89,7 +88,6 @@ export async function POST(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('Direct update error:', error)
     return NextResponse.json({ error: 'Error interno' }, { status: 500 })
   }
 }

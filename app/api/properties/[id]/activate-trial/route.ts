@@ -112,7 +112,6 @@ export async function POST(
     })
     
   } catch (error) {
-    console.error('Error activating trial:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -106,7 +106,6 @@ export async function POST(
       sentTo: owner.email
     })
   } catch (error) {
-    console.error('Error sending magic link:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -161,7 +160,6 @@ export async function GET(
       lastAccess: owner.magicLinkLastAccess?.toISOString() || null
     })
   } catch (error) {
-    console.error('Error getting magic link status:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

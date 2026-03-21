@@ -89,7 +89,6 @@ export async function GET(
       }
     })
   } catch (error) {
-    console.error('Error generating invoice preview:', error)
     return NextResponse.json(
       { error: 'Error al generar vista previa de factura' },
       { status: 500 }

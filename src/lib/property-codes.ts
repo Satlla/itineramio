@@ -24,7 +24,6 @@ export async function generateUniquePropertyCode(): Promise<string> {
         attempts++
       }
     } catch (error) {
-      console.error('Error checking property code uniqueness:', error)
       break
     }
   }

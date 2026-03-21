@@ -98,8 +98,8 @@ export default function AdminLogsPage() {
       if (data.success) {
         setLogs(data.logs)
       }
-    } catch (error) {
-      console.error('Error fetching logs:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }

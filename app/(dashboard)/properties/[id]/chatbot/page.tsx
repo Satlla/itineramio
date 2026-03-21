@@ -102,7 +102,7 @@ export default function ChatbotDashboardPage() {
         fetchData()
       }
     } catch (error) {
-      console.error('Error deleting conversations:', error)
+      // error deleting conversations
     } finally {
       setDeleting(false)
     }
@@ -121,7 +121,7 @@ export default function ChatbotDashboardPage() {
         setPropertyName(result.data.name)
       }
     } catch (error) {
-      console.error('Error fetching property info:', error)
+      // error fetching property info
     }
   }
 
@@ -137,7 +137,7 @@ export default function ChatbotDashboardPage() {
         setGuests(result.data.guests)
       }
     } catch (error) {
-      console.error('Error fetching chatbot data:', error)
+      // error fetching chatbot data
     } finally {
       setLoading(false)
     }

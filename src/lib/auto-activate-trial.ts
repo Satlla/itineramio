@@ -90,8 +90,6 @@ export async function autoActivateTrial(
       }
     })
 
-    console.log(`✅ Auto-trial activado: ${moduleCode} para usuario ${userId}, expira ${trialEndsAt.toISOString()}`)
-
     return {
       activated: true,
       alreadyActive: false,
@@ -99,7 +97,6 @@ export async function autoActivateTrial(
       message: `Período de prueba de ${TRIAL_DAYS} días activado`
     }
   } catch (error) {
-    console.error(`Error auto-activating ${moduleCode} trial:`, error)
     return {
       activated: false,
       alreadyActive: false,

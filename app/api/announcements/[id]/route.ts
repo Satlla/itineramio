@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
 import { requireAuth } from '../../../../src/lib/auth'
+import { translateFields } from '../../../../src/lib/translate'
 
 // PUT /api/announcements/[id] - Update announcement
 export async function PUT(
@@ -44,18 +45,22 @@ export async function PUT(
       )
     }
 
-    // Normaliza multilang: si en/fr están vacíos, copia desde es
-    const normalizeMultiLang = (field: { es: string; en?: string; fr?: string }) => ({
-      es: field.es || '',
-      en: field.en?.trim() ? field.en : (field.es || ''),
-      fr: field.fr?.trim() ? field.fr : (field.es || ''),
-    })
-
     // Build update data object
     const updateData: any = {}
 
-    if (title !== undefined) updateData.title = normalizeMultiLang(title)
-    if (message !== undefined) updateData.message = normalizeMultiLang(message)
+    if (title !== undefined || message !== undefined) {
+      try {
+        const fieldsToTranslate = []
+        if (title !== undefined) fieldsToTranslate.push(title)
+        if (message !== undefined) fieldsToTranslate.push(message)
+        const translated = await translateFields(fieldsToTranslate)
+        if (title !== undefined) updateData.title = translated[0]
+        if (message !== undefined) updateData.message = translated[title !== undefined ? 1 : 0]
+      } catch {
+        if (title !== undefined) updateData.title = title
+        if (message !== undefined) updateData.message = message
+      }
+    }
     if (category !== undefined) updateData.category = category
     if (priority !== undefined) updateData.priority = priority
     if (isActive !== undefined) updateData.isActive = isActive

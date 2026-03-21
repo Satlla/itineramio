@@ -135,8 +135,8 @@ export default function SubscriptionsPage() {
         setSubscriptions(data.subscriptions)
         setMetrics(data.metrics)
       }
-    } catch (error) {
-      console.error('Error fetching subscriptions:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }

@@ -87,8 +87,8 @@ export default function AuditLogsPage() {
         setLogs(data.logs)
         setPagination(data.pagination)
       }
-    } catch (error) {
-      console.error('Error fetching audit logs:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }

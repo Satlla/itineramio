@@ -2413,6 +2413,7 @@ model Reservation {
   @@index([userId, billingUnitId, checkIn])
   @@index([userId, billingConfigId])
   @@index([userId, status, checkOut])
+  @@index([userId, platform, checkIn])
   @@map("reservations")
 }
 
@@ -3083,7 +3084,7 @@ model CityGuidePlace {
   order          Int       @default(0)
   createdAt      DateTime  @default(now())
 
-  @@unique([guideId, placeId])
+  @@unique([guideId, placeId, category])
   @@index([guideId, category])
   @@map("city_guide_places")
 }

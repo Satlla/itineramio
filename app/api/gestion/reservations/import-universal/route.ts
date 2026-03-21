@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
+import { Prisma } from '@prisma/client'
 import type { ColumnMapping, ImportConfig, UniversalImportRequest } from '@/types/import'
 import { tryParseSpanishDate, parseDateRange } from '@/lib/spanish-date-parser'
 
@@ -257,7 +258,7 @@ export async function POST(request: NextRequest) {
         importedCount: results.importedCount,
         skippedCount: results.skippedCount,
         errorCount: results.errorCount,
-        errors: results.errors.length > 0 ? results.errors : undefined,
+        errors: results.errors.length > 0 ? results.errors as Prisma.InputJsonValue : undefined,
         propertyId
       }
     })
@@ -275,7 +276,6 @@ export async function POST(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error importing reservations:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

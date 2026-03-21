@@ -62,7 +62,6 @@ export async function POST(
         : 'No se encontraron lugares cercanos para las categorías seleccionadas',
     })
   } catch (error) {
-    console.error('Error generating recommendations:', error)
     return NextResponse.json(
       { success: false, error: 'Error al generar recomendaciones' },
       { status: 500 }

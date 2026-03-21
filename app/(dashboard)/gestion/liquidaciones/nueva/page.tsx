@@ -228,7 +228,6 @@ export default function NuevaLiquidacionPage() {
         setBillingUnits(data.billingUnits || [])
       }
     } catch (error) {
-      console.error('Error fetching data:', error)
     } finally {
       setLoading(false)
     }
@@ -328,7 +327,6 @@ export default function NuevaLiquidacionPage() {
         setError(data.error || 'Error al cargar preview')
       }
     } catch (error) {
-      console.error('Error loading preview:', error)
       setError('Error al cargar preview')
     } finally {
       setLoadingPreview(false)
@@ -373,7 +371,6 @@ export default function NuevaLiquidacionPage() {
         setStep('preview')
       }
     } catch (error) {
-      console.error('Error generating liquidation:', error)
       setError('Error al generar liquidación')
       setStep('preview')
     } finally {

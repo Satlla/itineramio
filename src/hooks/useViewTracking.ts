@@ -133,7 +133,7 @@ const trackPropertyView = async (propertyId: string) => {
       body: JSON.stringify(viewData)
     })
   } catch (error) {
-    console.error('Error tracking property view:', error)
+    // tracking error handled silently
   }
 }
 
@@ -156,7 +156,7 @@ const trackZoneView = async (propertyId: string, zoneId: string, timeSpent: numb
       body: JSON.stringify(viewData)
     })
   } catch (error) {
-    console.error('Error tracking zone view:', error)
+    // tracking error handled silently
   }
 }
 

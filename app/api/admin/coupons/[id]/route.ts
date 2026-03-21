@@ -54,7 +54,6 @@ export async function DELETE(
     })
 
   } catch (error) {
-    console.error('Error deleting coupon:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

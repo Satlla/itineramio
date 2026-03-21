@@ -49,9 +49,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
   const [showConfetti, setShowConfetti] = useState(false)
 
   useEffect(() => {
-    console.log('🎨 WelcomeModal isOpen changed to:', isOpen)
     if (isOpen) {
-      console.log('🎊 WelcomeModal opening - showing confetti')
       setShowConfetti(true)
       setCurrentSlide(0)
       // Import confetti dynamically to avoid SSR issues

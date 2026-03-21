@@ -18,7 +18,6 @@ export async function GET(
     
     return NextResponse.json(zone);
   } catch (error) {
-    console.error('Error resolving zone:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

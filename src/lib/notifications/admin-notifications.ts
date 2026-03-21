@@ -23,7 +23,6 @@ export async function notifyNewUserRegistration(user: {
   source?: string
 }) {
   // DESACTIVADO - Ver usuarios en /admin/users
-  console.log('📧 [DISABLED] New user registration:', user.email)
   return
 }
 
@@ -39,7 +38,6 @@ export async function notifyQuizLeadCaptured(lead: {
   emailVerified: boolean
 }) {
   // DESACTIVADO - Ver en /admin/academia/quiz-leads
-  console.log('📧 [DISABLED] Quiz lead captured:', lead.email)
   return
 }
 
@@ -54,7 +52,6 @@ export async function notifyEmailSubscriber(subscriber: {
   leadMagnetSlug?: string
 }) {
   // DESACTIVADO - Ver en /admin/marketing/leads
-  console.log('📧 [DISABLED] Email subscriber:', subscriber.email)
   return
 }
 
@@ -85,9 +82,8 @@ export async function notifySubscriptionRequest(request: {
         <p><a href="https://www.itineramio.com/admin/subscription-requests">Ir al panel de solicitudes</a></p>
       `
     })
-    console.log('✅ Admin notification sent: Subscription request')
   } catch (error) {
-    console.error('❌ Failed to send admin notification:', error)
+    // notification send failed silently
   }
 }
 
@@ -100,7 +96,6 @@ export async function notifyQuizEmailVerified(lead: {
   fullName: string | null
 }) {
   // DESACTIVADO - Ver en /admin/academia/quiz-leads
-  console.log('📧 [DISABLED] Quiz email verified:', lead.email)
   return
 }
 
@@ -115,6 +110,5 @@ export async function notifyHostProfileTestCompleted(test: {
   score: number
 }) {
   // DESACTIVADO - Ver en /admin/host-profiles
-  console.log('📧 [DISABLED] Host profile test:', test.email)
   return
 }

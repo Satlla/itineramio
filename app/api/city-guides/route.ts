@@ -105,7 +105,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: result })
   } catch (error) {
-    console.error('Error listing city guides:', error)
     return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }
@@ -164,7 +163,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: guide }, { status: 201 })
   } catch (error) {
-    console.error('Error creating city guide:', error)
     return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
 }

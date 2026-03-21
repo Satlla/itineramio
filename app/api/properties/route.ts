@@ -177,7 +177,6 @@ export async function POST(request: NextRequest) {
         if (dbError.message.includes('Unable to generate unique slug')) {
           throw dbError
         }
-        console.error('Error checking slug uniqueness:', dbError)
         throw new Error('Database connection error')
       }
     }
@@ -208,8 +207,7 @@ export async function POST(request: NextRequest) {
         propertyCode = generatePropertyNumber(lastNumber)
       }
 
-    } catch (error) {
-      console.error('Error generating property code, using default:', error)
+    } catch {
       // If error, use default ITN-00001
     }
 
@@ -307,12 +305,12 @@ export async function POST(request: NextRequest) {
       })
 
       // Create zones in a single transaction
-      await prisma.$transaction(
-        zonesData.map((data) => prisma.zone.create({ data }))
+      await (prisma.$transaction as any)(
+        zonesData.map((data) => prisma.zone.create({ data })),
+        { timeout: 10000 }
       )
       
-    } catch (zoneError) {
-      console.error('❌ Warning: Failed to auto-create zones for property:', property.id, zoneError)
+    } catch {
       // Don't fail the property creation if zone creation fails
     }
 
@@ -330,8 +328,7 @@ export async function POST(request: NextRequest) {
           timestamp: new Date()
         }
       })
-    } catch (trackError) {
-      console.error('Error tracking property creation:', trackError)
+    } catch {
       // Don't fail the request if tracking fails
     }
 
@@ -371,8 +368,7 @@ export async function POST(request: NextRequest) {
           createdAt: property.createdAt
         })
       }
-    } catch (error) {
-      console.error('Error sending new property notification email:', error)
+    } catch {
       // Don't fail the request if email fails
     }
 
@@ -384,8 +380,7 @@ export async function POST(request: NextRequest) {
       if (trialResult.activated) {
         // Trial activated
       }
-    } catch (trialError) {
-      console.error('Error auto-activating MANUALES trial:', trialError)
+    } catch {
       // Don't fail the request if trial activation fails
     }
 
@@ -405,13 +400,6 @@ export async function POST(request: NextRequest) {
     }, { status: 201 })
     
   } catch (error) {
-    console.error('Error creating property:', error)
-    console.error('Error details:', {
-      name: error instanceof Error ? error.name : 'Unknown',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined
-    })
-    
     if (error instanceof z.ZodError) {
       return NextResponse.json({
         success: false,
@@ -631,7 +619,6 @@ export async function GET(request: NextRequest) {
           hostContactPhoto: property.hostContactPhoto
         }
       } catch (error) {
-        console.error('Error transforming property:', property.id, error)
         throw error
       }
     })
@@ -648,8 +635,6 @@ export async function GET(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('Error fetching properties:', error)
-    
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor',

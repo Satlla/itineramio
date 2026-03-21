@@ -99,8 +99,8 @@ export default function MarketingFunnelsHub() {
       if (data.success) {
         setHealth(data)
       }
-    } catch (error) {
-      console.error('Error fetching health:', error)
+    } catch {
+      // ignore health fetch error
     }
   }
 
@@ -144,8 +144,8 @@ export default function MarketingFunnelsHub() {
           avgOpenRate: hostProfileData.stats?.emailMetrics?.avgOpenRate || 0
         }
       })
-    } catch (error) {
-      console.error('Error fetching funnel stats:', error)
+    } catch {
+      // ignore funnel stats fetch error
     } finally {
       setLoading(false)
     }

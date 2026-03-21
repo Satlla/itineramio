@@ -18,22 +18,19 @@ async function borrarZonasEjemplo(propertyId: string): Promise<void> {
     for (const zone of zones) {
       const zoneName = typeof zone.name === 'string' ? zone.name : zone.name?.es || ''
       if (nombresEjemplo.includes(zoneName.toLowerCase())) {
-        console.log(`🗑️ Borrando zona existente: ${zoneName}`)
         await fetch(`/api/properties/${propertyId}/zones/${zone.id}`, {
           method: 'DELETE'
         })
       }
     }
   } catch (error) {
-    console.error('Error borrando zonas:', error)
+    // Ignore zone deletion errors
   }
 }
 
 // Función principal para recrear el manual
 export async function recrearManualSimple(propertyId: string): Promise<boolean> {
   try {
-    console.log('🔄 Recreando manual simple para:', propertyId)
-    
     // 1. Borrar zonas existentes
     await borrarZonasEjemplo(propertyId)
     
@@ -48,20 +45,17 @@ export async function recrearManualSimple(propertyId: string): Promise<boolean> 
       status: 'ACTIVE'
     }))
 
-    console.log('🚀 Using BATCH API for manual simple recreation')
     const success = await createBatchZones(propertyId, zonesToCreate)
-    
+
     if (!success) {
-      console.error('❌ Error creando zonas del manual simple')
       return false
     }
 
     // Get the created zones to add steps
     const zonesResponse = await fetch(`/api/properties/${propertyId}/zones`)
     const zonesResult = await zonesResponse.json()
-    
+
     if (!zonesResult.success || !zonesResult.data) {
-      console.error('❌ Error obteniendo zonas creadas')
       return false
     }
 
@@ -76,12 +70,10 @@ export async function recrearManualSimple(propertyId: string): Promise<boolean> 
       })
       
       if (!createdZone) {
-        console.error(`❌ No se encontró la zona creada: ${zona.name}`)
         continue
       }
-      
+
       const zoneId = createdZone.id
-      console.log(`✅ Zona ${zona.name} creada:`, zoneId)
 
       // 4. Crear steps con descripción adicional
       for (const step of zona.steps) {
@@ -95,8 +87,6 @@ export async function recrearManualSimple(propertyId: string): Promise<boolean> 
           order: step.order
         }
         
-        console.log(`  📝 Creando step:`, stepData.title)
-        
         const stepRes = await fetch(`/api/properties/${propertyId}/zones/${zoneId}/steps`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -104,18 +94,13 @@ export async function recrearManualSimple(propertyId: string): Promise<boolean> 
         })
 
         if (!stepRes.ok) {
-          const errorText = await stepRes.text()
-          console.error('Error creando step:', errorText)
-        } else {
-          const stepResult = await stepRes.json()
-          console.log(`  ✅ Step creado:`, stepResult.data.id)
+          await stepRes.text()
         }
       }
     }
 
     return true
   } catch (error) {
-    console.error('❌ Error recreando manual:', error)
     return false
   }
 }

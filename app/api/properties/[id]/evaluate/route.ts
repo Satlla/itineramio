@@ -118,7 +118,6 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('Error submitting manual evaluation:', error)
     return NextResponse.json(
       { error: 'Error al enviar la evaluación del manual' },
       { status: 500 }
@@ -225,7 +224,6 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error fetching manual evaluations:', error)
     return NextResponse.json(
       { error: 'Error al obtener las evaluaciones del manual' },
       { status: 500 }

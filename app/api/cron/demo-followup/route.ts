@@ -18,7 +18,6 @@ const CRON_SECRET = process.env.CRON_SECRET
 export async function GET(request: NextRequest) {
   // Verificar autorización
   if (!CRON_SECRET) {
-    console.error('[DemoFollowup] CRON_SECRET not configured')
     return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
   }
 
@@ -108,7 +107,6 @@ export async function GET(request: NextRequest) {
         feedbackSent++
       } catch (err) {
         errors++
-        console.error(`[DemoFollowup] Feedback email error for lead ${lead.id}:`, err)
       }
     }
 
@@ -150,7 +148,6 @@ export async function GET(request: NextRequest) {
         chatbotSent++
       } catch (err) {
         errors++
-        console.error(`[DemoFollowup] Chatbot email error for lead ${lead.id}:`, err)
       }
     }
 
@@ -204,7 +201,6 @@ export async function GET(request: NextRequest) {
         fomoSent++
       } catch (err) {
         errors++
-        console.error(`[DemoFollowup] FOMO email error for lead ${lead.id}:`, err)
       }
     }
 
@@ -266,7 +262,6 @@ export async function GET(request: NextRequest) {
         urgencySent++
       } catch (err) {
         errors++
-        console.error(`[DemoFollowup] Urgency email error for lead ${lead.id}:`, err)
       }
     }
 
@@ -311,7 +306,6 @@ export async function GET(request: NextRequest) {
         lastChanceSent++
       } catch (err) {
         errors++
-        console.error(`[DemoFollowup] Last chance email error for lead ${lead.id}:`, err)
       }
     }
 
@@ -325,7 +319,6 @@ export async function GET(request: NextRequest) {
       errors,
     })
   } catch (error) {
-    console.error('[DemoFollowup] Cron job error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

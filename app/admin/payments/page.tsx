@@ -80,8 +80,8 @@ export default function PaymentsAdminPage() {
         setPayments(data.payments || [])
         setStats(data.stats || stats)
       }
-    } catch (error) {
-      console.error('Error fetching payments:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }

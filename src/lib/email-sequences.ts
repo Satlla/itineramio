@@ -187,11 +187,9 @@ async function getEmailTemplate(templateName: string): Promise<React.FC<any> | n
       case 'funnel-day7-conversion':
         return (await import('../emails/templates/funnel/day7-conversion')).default
       default:
-        console.error(`[EMAIL TEMPLATES] Unknown template: ${templateName}`)
         return null
     }
   } catch (error) {
-    console.error(`[EMAIL TEMPLATES] Failed to load template ${templateName}:`, error)
     return null
   }
 }
@@ -201,9 +199,6 @@ let _resend: Resend | null = null
 
 function getResend(): Resend {
   if (!_resend) {
-    if (!process.env.RESEND_API_KEY) {
-      console.warn('RESEND_API_KEY not set - email sending will fail at runtime')
-    }
     _resend = new Resend(process.env.RESEND_API_KEY || 'placeholder')
   }
   return _resend
@@ -245,20 +240,16 @@ export async function enrollSubscriberInSequences(
     tags?: string[]
   }
 ) {
-  console.log(`[EMAIL SEQUENCES] Enrolling subscriber ${subscriberId} for trigger: ${triggerEvent}`)
-
   // Buscar el subscriber
   const subscriber = await prisma.emailSubscriber.findUnique({
     where: { id: subscriberId }
   })
 
   if (!subscriber) {
-    console.error(`[EMAIL SEQUENCES] Subscriber ${subscriberId} not found`)
     return { success: false, error: 'Subscriber not found' }
   }
 
   if (subscriber.status !== 'active') {
-    console.log(`[EMAIL SEQUENCES] Subscriber ${subscriberId} is not active, skipping enrollment`)
     return { success: false, error: 'Subscriber not active' }
   }
 
@@ -307,8 +298,6 @@ export async function enrollSubscriberInSequences(
     return true
   })
 
-  console.log(`[EMAIL SEQUENCES] Found ${sequences.length} matching sequences`)
-
   const enrollments = []
 
   for (const sequence of sequences) {
@@ -323,7 +312,6 @@ export async function enrollSubscriberInSequences(
     })
 
     if (existing) {
-      console.log(`[EMAIL SEQUENCES] Subscriber already enrolled in sequence ${sequence.name}`)
       continue
     }
 
@@ -345,8 +333,6 @@ export async function enrollSubscriberInSequences(
         subscribersActive: { increment: 1 }
       }
     })
-
-    console.log(`[EMAIL SEQUENCES] Enrolled in sequence: ${sequence.name}`)
 
     // Programar los emails de esta secuencia
     await scheduleSequenceEmails(enrollment.id, sequence, subscriber)
@@ -373,8 +359,6 @@ async function scheduleSequenceEmails(
   sequence: any, // EmailSequence con steps
   subscriber: any // EmailSubscriber
 ) {
-  console.log(`[EMAIL SEQUENCES] Scheduling emails for enrollment ${enrollmentId}`)
-
   const now = new Date()
   let previousScheduledTime = now
 
@@ -473,8 +457,6 @@ async function scheduleSequenceEmails(
       }
     })
 
-    console.log(`[EMAIL SEQUENCES] Scheduled: ${step.name} for ${scheduledFor.toISOString()}`)
-
     // Actualizar para el siguiente email
     previousScheduledTime = scheduledFor
   }
@@ -494,8 +476,6 @@ async function scheduleSequenceEmails(
  * (Los emails de entrega inmediata - step.order === 0 - no cuentan para el límite)
  */
 export async function processScheduledEmails(limit: number = 50) {
-  console.log(`[EMAIL SEQUENCES] Processing scheduled emails (limit: ${limit})`)
-
   const now = new Date()
   const todayStart = new Date(now)
   todayStart.setHours(0, 0, 0, 0)
@@ -517,8 +497,6 @@ export async function processScheduledEmails(limit: number = 50) {
     orderBy: { scheduledFor: 'asc' },
     take: limit
   })
-
-  console.log(`[EMAIL SEQUENCES] Found ${scheduledEmails.length} emails to send`)
 
   const results = []
   // Track which subscribers already received a nurturing email today (in this batch)
@@ -553,7 +531,6 @@ export async function processScheduledEmails(limit: number = 50) {
           data: { scheduledFor: tomorrow }
         })
 
-        console.log(`[EMAIL SEQUENCES] Daily limit reached for ${subscriberId}, rescheduled to ${tomorrow.toISOString()}`)
         continue
       }
     }
@@ -562,8 +539,6 @@ export async function processScheduledEmails(limit: number = 50) {
     if (scheduledEmail.step.requiresPreviousOpen || scheduledEmail.step.requiresPreviousClick) {
       const canSend = await checkStepConditions(scheduledEmail)
       if (!canSend) {
-        console.log(`[EMAIL SEQUENCES] Conditions not met for ${scheduledEmail.id}, skipping`)
-
         // Cancelar este email
         await prisma.scheduledEmail.update({
           where: { id: scheduledEmail.id },
@@ -575,7 +550,6 @@ export async function processScheduledEmails(limit: number = 50) {
 
     // Verificar que el enrollment siga activo
     if (scheduledEmail.enrollment.status !== 'active') {
-      console.log(`[EMAIL SEQUENCES] Enrollment inactive, cancelling email ${scheduledEmail.id}`)
       await prisma.scheduledEmail.update({
         where: { id: scheduledEmail.id },
         data: { status: 'cancelled' }
@@ -649,8 +623,6 @@ async function checkStepConditions(scheduledEmail: any): Promise<boolean> {
  * Envía un email programado usando Resend
  */
 async function sendScheduledEmail(scheduledEmail: any) {
-  console.log(`[EMAIL SEQUENCES] Sending email ${scheduledEmail.id} to ${scheduledEmail.recipientEmail}`)
-
   // Marcar como "sending"
   await prisma.scheduledEmail.update({
     where: { id: scheduledEmail.id },
@@ -690,9 +662,7 @@ async function sendScheduledEmail(scheduledEmail: any) {
           const { getSubject } = await import('../emails/templates/tools/tool-checklist-day8-offer')
           emailSubject = getSubject(couponsRemaining)
         }
-        console.log(`[EMAIL SEQUENCES] Offer email: ${couponsRemaining} coupons remaining`)
       } catch (err) {
-        console.error('[EMAIL SEQUENCES] Error getting coupon status:', err)
         // Continue with default values
       }
     }
@@ -761,12 +731,9 @@ async function sendScheduledEmail(scheduledEmail: any) {
       }
     })
 
-    console.log(`[EMAIL SEQUENCES] Email sent successfully: ${data?.id}`)
-
     return { success: true, emailId: data?.id }
 
   } catch (error: any) {
-    console.error(`[EMAIL SEQUENCES] Error sending email:`, error)
 
     // Marcar como fallido
     await prisma.scheduledEmail.update({
@@ -797,15 +764,12 @@ export async function trackEmailEvent(
     reason?: string
   }
 ) {
-  console.log(`[EMAIL SEQUENCES] Tracking event: ${eventType} for ${resendId}`)
-
   // Buscar el scheduled email por resendId
   const scheduledEmail = await prisma.scheduledEmail.findUnique({
     where: { resendId }
   })
 
   if (!scheduledEmail) {
-    console.error(`[EMAIL SEQUENCES] Email not found for resendId: ${resendId}`)
     return { success: false, error: 'Email not found' }
   }
 

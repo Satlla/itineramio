@@ -40,7 +40,6 @@ export async function GET(request: NextRequest) {
     const data = await res.json()
 
     if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-      console.error('Google Places API error:', data.status, data.error_message)
       return NextResponse.json({ success: false, error: 'Error en búsqueda de Google Places' }, { status: 502 })
     }
 
@@ -67,7 +66,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: results })
   } catch (error) {
-    console.error('Error searching places:', error)
     return NextResponse.json({ success: false, error: 'Error en la búsqueda' }, { status: 500 })
   }
 }

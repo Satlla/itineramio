@@ -15,14 +15,14 @@ export async function sendPushNotification(
   body: string,
   data?: Record<string, unknown>
 ): Promise<void> {
-  const devices = await prisma.userDevice.findMany({
+  const devices = await (prisma as any).userDevice.findMany({
     where: { userId },
     select: { pushToken: true },
   })
 
   if (!devices.length) return
 
-  const messages: PushMessage[] = devices.map(d => ({
+  const messages: PushMessage[] = devices.map((d: { pushToken: string }) => ({
     to: d.pushToken,
     title,
     body,

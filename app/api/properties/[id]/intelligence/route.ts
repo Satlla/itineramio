@@ -45,7 +45,6 @@ export async function GET(
       intelligence: property.intelligence || {},
     })
   } catch (error) {
-    console.error('[intelligence GET] Error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -84,7 +83,6 @@ export async function PATCH(
       intelligence: updated.intelligence,
     })
   } catch (error) {
-    console.error('[intelligence PATCH] Error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

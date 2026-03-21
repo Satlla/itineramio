@@ -55,7 +55,6 @@ export async function GET(
 
     return NextResponse.json({ success: true, data })
   } catch (error) {
-    console.error('Error fetching zone recommendations:', error)
     return NextResponse.json({ success: false, error: 'Error al obtener recomendaciones' }, { status: 500 })
   }
 }
@@ -173,7 +172,6 @@ export async function POST(
 
     return NextResponse.json({ success: true, data: rec }, { status: 201 })
   } catch (error) {
-    console.error('Error adding recommendation:', error)
     return NextResponse.json({ success: false, error: 'Error al añadir recomendación' }, { status: 500 })
   }
 }
@@ -211,14 +209,14 @@ export async function PATCH(
             where: { id: r.id },
             data: { order: r.order },
           })
-        )
+        ),
+        { timeout: 10000 }
       )
       return NextResponse.json({ success: true })
     }
 
     return NextResponse.json({ success: false, error: 'Body inválido' }, { status: 400 })
   } catch (error) {
-    console.error('Error reordering recommendations:', error)
     return NextResponse.json({ success: false, error: 'Error al reordenar' }, { status: 500 })
   }
 }

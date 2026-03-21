@@ -77,7 +77,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching academy users:', error)
     return NextResponse.json(
       { error: 'Error al obtener usuarios de academia' },
       { status: 500 }
@@ -144,7 +143,7 @@ export async function DELETE(request: NextRequest) {
           lastAcademyActivityAt: null
         }
       })
-    ])
+    ] as any, { timeout: 10000 })
 
     return NextResponse.json({
       success: true,
@@ -152,7 +151,6 @@ export async function DELETE(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error deleting academy user:', error)
     return NextResponse.json(
       { error: 'Error al eliminar usuario de la academia' },
       { status: 500 }

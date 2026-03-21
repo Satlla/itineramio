@@ -64,7 +64,6 @@ export async function POST(request: NextRequest) {
       message: `${result.count} reservas eliminadas`
     })
   } catch (error) {
-    console.error('Error bulk deleting reservations:', error)
     return NextResponse.json(
       { error: 'Error al eliminar reservas' },
       { status: 500 }

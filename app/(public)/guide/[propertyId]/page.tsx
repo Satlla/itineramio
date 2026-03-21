@@ -49,6 +49,7 @@ import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLo
 import { ZONE_ICONS } from '../../../../src/data/zoneIcons'
 import { getZoneIconByName } from '../../../../src/data/zoneIconsExtended'
 import { ShareLanguageModal } from '../../../../src/components/ui/ShareLanguageModal'
+import { GuestRegistrationGate } from '../../../../src/components/ui/GuestRegistrationGate'
 
 // Lazy-loaded heavy components
 const ChatBot = dynamic(() => import('../../../../src/components/ui/ChatBot'), { ssr: false })
@@ -77,6 +78,14 @@ interface Property {
   zones: Zone[]
   status?: 'ACTIVE' | 'DRAFT' | 'ARCHIVED'
   isPublished?: boolean
+  isDemoPreview?: boolean
+  nameTranslations?: Record<string, string>
+  descriptionTranslations?: Record<string, string>
+  guestRegistration?: {
+    required: boolean
+    url: string
+    message?: string
+  } | null
 }
 
 interface Zone {
@@ -140,21 +149,22 @@ const getText = (value: any, language: string = 'es', fallback: string = '') => 
 
 // Helper function to get translated property field
 const getPropertyText = (
-  baseValue: string,
+  baseValue: string | { es: string; en?: string; fr?: string },
   translations: any,
   language: string = 'es',
   fallback: string = ''
-) => {
+): string => {
+  const resolvedBase = typeof baseValue === 'string' ? baseValue : (baseValue?.es || fallback)
   // If language is Spanish or no translations, return base value
   if (language === 'es' || !translations) {
-    return baseValue || fallback
+    return resolvedBase || fallback
   }
   // Try to get translation for requested language
   if (translations && translations[language]) {
     return translations[language]
   }
   // Fallback to base value (Spanish)
-  return baseValue || fallback
+  return resolvedBase || fallback
 }
 
 // Translations for the public interface
@@ -552,14 +562,13 @@ const trackPropertyView = async (propertyId: string) => {
       })
     })
   } catch (error) {
-    console.error('Error tracking property view:', error)
+    // tracking error silenced
   }
 }
 
 const trackWhatsAppClick = async (propertyId: string) => {
-  console.log('📱 Tracking WhatsApp click for property:', propertyId)
   try {
-    const response = await fetch('/api/analytics/track-interaction', {
+    await fetch('/api/analytics/track-interaction', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -567,17 +576,14 @@ const trackWhatsAppClick = async (propertyId: string) => {
         interactionType: 'whatsapp_click'
       })
     })
-    const data = await response.json()
-    console.log('📱 WhatsApp click tracked:', data)
   } catch (error) {
-    console.error('❌ Error tracking WhatsApp click:', error)
+    // tracking error silenced
   }
 }
 
 const trackEmailClick = async (propertyId: string) => {
-  console.log('📧 Tracking Email click for property:', propertyId)
   try {
-    const response = await fetch('/api/analytics/track-interaction', {
+    await fetch('/api/analytics/track-interaction', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -585,17 +591,14 @@ const trackEmailClick = async (propertyId: string) => {
         interactionType: 'email_click'
       })
     })
-    const data = await response.json()
-    console.log('📧 Email click tracked:', data)
   } catch (error) {
-    console.error('❌ Error tracking Email click:', error)
+    // tracking error silenced
   }
 }
 
 const trackCallClick = async (propertyId: string) => {
-  console.log('📞 Tracking Call click for property:', propertyId)
   try {
-    const response = await fetch('/api/analytics/track-interaction', {
+    await fetch('/api/analytics/track-interaction', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -603,10 +606,8 @@ const trackCallClick = async (propertyId: string) => {
         interactionType: 'call_click'
       })
     })
-    const data = await response.json()
-    console.log('📞 Call click tracked:', data)
   } catch (error) {
-    console.error('❌ Error tracking Call click:', error)
+    // tracking error silenced
   }
 }
 
@@ -617,7 +618,6 @@ class ChatBotErrorBoundary extends Component<{ children: ReactNode }, { hasError
   private _resetTimer: ReturnType<typeof setTimeout> | null = null
   static getDerivedStateFromError() { return { hasError: true } }
   componentDidCatch(e: Error, info: { componentStack: string }) {
-    console.error('[ChatBot] render error caught by boundary:', e.message, '\nStack:', info.componentStack)
     // Send error to server so it appears in Vercel logs (no DevTools needed on mobile)
     try {
       fetch('/api/chatbot/error-log', {
@@ -674,6 +674,9 @@ export default function PropertyGuidePage() {
   const [showAnnouncementsInline, setShowAnnouncementsInline] = useState(true)
   const [showShareModal, setShowShareModal] = useState(false)
   const [showScrollArrow, setShowScrollArrow] = useState(true)
+
+  // Guest registration gate
+  const [showRegGate, setShowRegGate] = useState(false)
 
   // Demo mode state
   const [isDemoMode, setIsDemoMode] = useState(false)
@@ -790,7 +793,6 @@ export default function PropertyGuidePage() {
 
       // If not found by slug, try safe by ID (for backward compatibility)
       if (!response.ok && (response.status === 404 || response.status === 500)) {
-        console.log('Property not found by slug, trying by ID...')
         response = await fetch(`/api/public/properties/${propertyId}/safe`)
         result = await response.json()
       }
@@ -808,6 +810,16 @@ export default function PropertyGuidePage() {
       setIsBlocked(false)
       setProperty(result.data)
 
+      // Check guest registration gate
+      const regConfig = result.data?.guestRegistration
+      if (regConfig?.required && regConfig?.url) {
+        let alreadyDone = false
+        try {
+          alreadyDone = sessionStorage.getItem(`reg-${result.data.id}`) === '1'
+        } catch {}
+        if (!alreadyDone) setShowRegGate(true)
+      }
+
       // Track property view with the REAL property ID (not slug)
       if (result.data?.id) {
         trackPropertyView(result.data.id)
@@ -815,7 +827,6 @@ export default function PropertyGuidePage() {
         await fetchPublicEvaluationsWithId(result.data.id)
       }
     } catch (error) {
-      console.error('Error fetching property:', error)
       setProperty(null)
     } finally {
       setLoading(false)
@@ -835,7 +846,6 @@ export default function PropertyGuidePage() {
         }
       }
     } catch (error) {
-      console.error('Error fetching public evaluations:', error)
       setPublicEvaluations([])
       setEvaluationsStats(null)
     } finally {
@@ -885,7 +895,6 @@ export default function PropertyGuidePage() {
         }
       }
     } catch (error) {
-      console.error('Error fetching announcements:', error)
       setAnnouncements([])
     }
   }
@@ -924,7 +933,7 @@ export default function PropertyGuidePage() {
       setShowSuggestionBox(false)
       // Show success message or toast
     } catch (error) {
-      console.error('Error submitting suggestion:', error)
+      // suggestion submit error silenced
     } finally {
       setIsSubmittingSuggestion(false)
     }
@@ -976,7 +985,6 @@ export default function PropertyGuidePage() {
         }, 2000)
       }
     } catch (err) {
-      console.error('Failed to copy:', err)
       alert('No se pudo copiar el enlace')
     }
   }
@@ -1076,6 +1084,16 @@ export default function PropertyGuidePage() {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-white'}`}>
+      {/* Guest registration gate */}
+      {showRegGate && property.guestRegistration?.required && property.guestRegistration?.url && (
+        <GuestRegistrationGate
+          propertyId={property.id}
+          propertyName={typeof property.name === 'string' ? property.name : property.name?.es || ''}
+          config={property.guestRegistration as { required: boolean; url: string; message?: string }}
+          onComplete={() => setShowRegGate(false)}
+        />
+      )}
+
       {/* Demo countdown banner */}
       {isDemoMode && demoExpiresAt && demoCouponCode && (
         <DemoCountdownBanner
@@ -1283,7 +1301,7 @@ export default function PropertyGuidePage() {
                       const mapsUrl = `https://maps.google.com/maps?q=${encodeURIComponent(address)}`
                       window.open(mapsUrl, '_blank', 'noopener,noreferrer')
                     } catch (error) {
-                      console.error('Error opening maps:', error)
+                      // maps open error silenced
                     }
                   }}
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors w-full sm:w-auto ${
@@ -2046,7 +2064,6 @@ export default function PropertyGuidePage() {
                         throw new Error(result.error || 'Error al enviar la evaluación')
                       }
                     } catch (error) {
-                      console.error('Error submitting rating:', error)
                       alert('Error al enviar la evaluación. Por favor, inténtalo de nuevo.')
                     } finally {
                       setIsSubmittingRating(false)

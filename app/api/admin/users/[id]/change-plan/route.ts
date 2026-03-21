@@ -208,7 +208,6 @@ export async function POST(
         })
         
       } catch (emailError) {
-        console.error('⚠️ Error sending email (will continue anyway):', emailError)
         // Continue even if email fails - this is not critical
         // Auto-responders or out-of-office messages should not block the plan change
       }
@@ -240,8 +239,7 @@ export async function POST(
     })
     
   } catch (error) {
-    console.error('Error changing user plan:', error)
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: false, 
       error: 'Internal server error' 
     }, { status: 500 })

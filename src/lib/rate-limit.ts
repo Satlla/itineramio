@@ -39,14 +39,24 @@ interface RateLimitRecord {
 }
 
 const rateLimitStore = new Map<string, RateLimitRecord>()
-const CLEANUP_INTERVAL = 60 * 60 * 1000
+const CLEANUP_INTERVAL = 5 * 60 * 1000 // 5 min
+const MAX_STORE_SIZE = 10_000
 let lastCleanup = Date.now()
 
 function cleanupExpiredRecords() {
   const now = Date.now()
-  if (now - lastCleanup < CLEANUP_INTERVAL) return
+  if (now - lastCleanup < CLEANUP_INTERVAL && rateLimitStore.size < MAX_STORE_SIZE) return
   for (const [key, record] of rateLimitStore.entries()) {
     if (now > record.resetTime) rateLimitStore.delete(key)
+  }
+  if (rateLimitStore.size > MAX_STORE_SIZE) {
+    const toDelete = rateLimitStore.size - MAX_STORE_SIZE
+    let deleted = 0
+    for (const key of rateLimitStore.keys()) {
+      if (deleted >= toDelete) break
+      rateLimitStore.delete(key)
+      deleted++
+    }
   }
   lastCleanup = now
 }

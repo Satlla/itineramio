@@ -9,8 +9,7 @@ export async function POST(request: NextRequest) {
     let body
     try {
       body = await request.json()
-    } catch (bodyError) {
-      console.error('🟢 ULTRA SAFE - Body parse error:', bodyError)
+    } catch {
       return NextResponse.json({
         success: false,
         error: 'Invalid JSON in request body'
@@ -25,8 +24,7 @@ export async function POST(request: NextRequest) {
         return authResult
       }
       userId = authResult.userId
-    } catch (authError) {
-      console.error('🟢 ULTRA SAFE - Auth error:', authError)
+    } catch {
       return NextResponse.json({
         success: false,
         error: 'Authentication failed'
@@ -54,8 +52,7 @@ export async function POST(request: NextRequest) {
 
       if (!slug) slug = 'property'
       slug = `${slug}-${Date.now()}`
-    } catch (slugError) {
-      console.error('🟢 ULTRA SAFE - Slug generation error:', slugError)
+    } catch {
       slug = `property-${Date.now()}`
     }
 
@@ -118,7 +115,6 @@ export async function POST(request: NextRequest) {
       `
       
     } catch (insertError) {
-      console.error('🟢 ULTRA SAFE - Insert error:', insertError)
       return NextResponse.json({
         success: false,
         error: 'Failed to insert property',
@@ -135,8 +131,7 @@ export async function POST(request: NextRequest) {
       
       createdProperty = result[0]
 
-    } catch (fetchError) {
-      console.error('🟢 ULTRA SAFE - Fetch error:', fetchError)
+    } catch {
       // Don't fail here, just return basic info
       createdProperty = { id: propertyId, name: body.name }
     }
@@ -148,7 +143,6 @@ export async function POST(request: NextRequest) {
     })
     
   } catch (generalError) {
-    console.error('🟢 ULTRA SAFE - General error:', generalError)
     return NextResponse.json({
       success: false,
       error: 'Internal server error',

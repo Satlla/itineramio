@@ -67,7 +67,6 @@ export async function GET(request: NextRequest) {
       stats,
     })
   } catch (error) {
-    console.error('Error fetching Gmail integration:', error)
     return NextResponse.json(
       { error: 'Error al obtener integración' },
       { status: 500 }
@@ -93,7 +92,6 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error disconnecting Gmail:', error)
     return NextResponse.json(
       { error: 'Error al desconectar Gmail' },
       { status: 500 }

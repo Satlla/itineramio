@@ -63,8 +63,7 @@ export default function CallLogModal({
         const error = await response.json()
         alert(error.error || 'Error al registrar la llamada')
       }
-    } catch (error) {
-      console.error('Error saving call:', error)
+    } catch {
       alert('Error al guardar la llamada')
     } finally {
       setSaving(false)

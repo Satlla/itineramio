@@ -90,8 +90,8 @@ export async function GET(
             linkUrl = content.linkUrl
           }
         }
-      } catch (error) {
-        console.error('Error parsing step content:', error)
+      } catch {
+        // ignore step content parse error
       }
 
       return {
@@ -108,7 +108,6 @@ export async function GET(
       data: processedSteps
     })
   } catch (error) {
-    console.error('Error fetching steps (safe endpoint):', error)
     return NextResponse.json(
       { 
         success: false, 
@@ -267,7 +266,6 @@ export async function PUT(
     })
 
   } catch (error) {
-    console.error('✅ SAFE - Error:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al guardar los pasos',
@@ -388,7 +386,6 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('✅ SAFE POST - Error:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al crear el paso',

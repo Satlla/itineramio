@@ -407,8 +407,8 @@ export default function DemoConversionsPage() {
         const json = await res.json()
         setData(json)
       }
-    } catch (err) {
-      console.error('Error fetching demo conversions:', err)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }

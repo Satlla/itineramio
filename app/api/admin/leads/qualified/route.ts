@@ -24,7 +24,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ leads })
   } catch (error) {
-    console.error('Error fetching qualified leads:', error)
     return NextResponse.json({ error: 'Error fetching leads' }, { status: 500 })
   }
 }

@@ -60,7 +60,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error cancelling subscription:', error)
     return NextResponse.json(
       { error: 'Error al cancelar la suscripción' },
       { status: 500 }
@@ -126,7 +125,6 @@ export async function DELETE(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error reactivating subscription:', error)
     return NextResponse.json(
       { error: 'Error al reactivar la suscripción' },
       { status: 500 }

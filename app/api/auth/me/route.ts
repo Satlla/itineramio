@@ -45,7 +45,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ user })
   } catch (error) {
-    console.error('Auth verification error:', error instanceof Error ? error.message : 'Unknown')
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
   }
 }

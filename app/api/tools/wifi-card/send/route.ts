@@ -18,7 +18,6 @@ async function verifyTurnstile(token: string): Promise<boolean> {
   const secretKey = process.env.TURNSTILE_SECRET_KEY
 
   if (!secretKey) {
-    console.warn('TURNSTILE_SECRET_KEY not configured, skipping verification')
     return true // Skip in development
   }
 
@@ -34,8 +33,7 @@ async function verifyTurnstile(token: string): Promise<boolean> {
 
     const data = await response.json()
     return data.success === true
-  } catch (error) {
-    console.error('Turnstile verification error:', error)
+  } catch {
     return false
   }
 }
@@ -230,9 +228,7 @@ export async function POST(request: NextRequest) {
       await enrollSubscriberInSequences(subscriber.id, 'SUBSCRIBER_CREATED', {
         source: 'tool_wifi-card',
         tags: ['tool_wifi-card', 'wifi-card']
-      }).catch(error => {
-        console.error('Failed to enroll subscriber in sequences:', error)
-      })
+      }).catch(() => {})
     } else {
       subscriber = existingSubscriber
       // Update tags if needed
@@ -258,8 +254,7 @@ export async function POST(request: NextRequest) {
           light: '#ffffff'
         }
       })
-    } catch (qrError) {
-      console.error('Failed to generate QR code:', qrError)
+    } catch {
       // Continue without QR code if generation fails
     }
 
@@ -286,7 +281,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error sending WiFi card:', error)
     return NextResponse.json(
       { error: 'Error al enviar la tarjeta. Inténtalo de nuevo.' },
       { status: 500 }

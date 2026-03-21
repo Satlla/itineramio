@@ -37,7 +37,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error checking email:', error)
     return NextResponse.json(
       { error: 'Error al verificar el email' },
       { status: 500 }

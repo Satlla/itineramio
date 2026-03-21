@@ -155,7 +155,6 @@ IMPORTANTE: Responde SOLO con JSON válido, sin markdown fences ni explicación:
     })
 
     if (!response.ok) {
-      console.error('[generator] improveAndTranslate failed:', response.status)
       return { es: userDescription, en: userDescription, fr: userDescription, nameEn: zoneName, nameFr: zoneName }
     }
 
@@ -172,7 +171,6 @@ IMPORTANTE: Responde SOLO con JSON válido, sin markdown fences ni explicación:
       nameFr: parsed.zoneName?.fr || zoneName,
     }
   } catch (err) {
-    console.error('[generator] improveAndTranslate error:', err)
     return { es: userDescription, en: userDescription, fr: userDescription, nameEn: zoneName, nameFr: zoneName }
   }
 }
@@ -333,7 +331,6 @@ async function assignMediaToSteps(
       })
     }
 
-    console.log(`[generator] Assigned ${userZone.mediaItems.length} media item(s) to zone "${userZone.name.es}"`)
   }
 }
 
@@ -382,7 +379,6 @@ async function assignTemplateZoneMedia(
       },
     })
 
-    console.log(`[generator] Assigned template ${mediaType} to zone "${(dbZone.name as any)?.es || dbZone.name}"`)
   }
 }
 
@@ -397,7 +393,6 @@ async function buildRecommendationZones(
 ): Promise<TrilingualZoneConfig[]> {
   const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || ''
   if (!ANTHROPIC_API_KEY) {
-    console.error('[generator] No ANTHROPIC_API_KEY — skipping recommendation zones')
     return []
   }
 
@@ -462,7 +457,6 @@ Rules:
     })
 
     if (!response.ok) {
-      console.error('[generator] Recommendation categorization failed:', response.status)
       return buildFallbackRecommendationZone(recommendations)
     }
 
@@ -515,7 +509,6 @@ Rules:
 
     return zones
   } catch (err) {
-    console.error('[generator] Recommendation categorization error:', err)
     return buildFallbackRecommendationZone(recommendations)
   }
 }
@@ -917,7 +910,6 @@ export async function generateManual(
     sendEvent({ type: 'translation', language: 'en', progress: 0 })
 
     if (isMock) {
-      console.log('[generator] MOCK MODE — skipping translations')
       sendEvent({ type: 'translation', language: 'en', progress: 100 })
       sendEvent({ type: 'translation', language: 'fr', progress: 100 })
     } else if (zoneIdsNeedingTranslation.size > 0) {
@@ -1027,7 +1019,7 @@ export async function generateManual(
           data: { qrCode: qrDataUrl },
         })
       } catch (err) {
-        console.error(`[generator] QR generation failed for zone ${zone.id}:`, err)
+        // QR generation failed, continue
       }
     }))
 
@@ -1043,9 +1035,8 @@ export async function generateManual(
           propertyInput.city,
         )
         totalZones += recResult.zonesCreated
-        console.log(`[generator] Recommendations: ${recResult.zonesCreated} zones, ${recResult.totalPlaces} places`)
       } catch (err) {
-        console.error('[generator] Recommendation generation failed (non-blocking):', err)
+        // Recommendation generation failed (non-blocking)
       }
     }
 
@@ -1064,7 +1055,6 @@ export async function generateManual(
 
     return property.id
   } catch (error) {
-    console.error('[generator] Manual generation failed:', error)
     sendEvent({
       type: 'error',
       error: error instanceof Error ? error.message : 'Error desconocido',

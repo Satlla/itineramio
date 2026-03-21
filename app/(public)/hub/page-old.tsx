@@ -77,14 +77,12 @@ export default function KnowledgeCenterLanding() {
 
   const handleAskAI = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Por ahora solo console.log, implementaremos el AI después
-    console.log('Pregunta AI:', aiQuestion)
+    // Por ahora sin implementar el AI
   }
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     // Implementar después
-    console.log('Newsletter email:', newsletterEmail)
   }
 
   return (

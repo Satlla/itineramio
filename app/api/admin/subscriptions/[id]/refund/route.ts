@@ -63,7 +63,7 @@ export async function POST(
       )
     }
 
-    const latestInvoice = invoices.data[0]
+    const latestInvoice = invoices.data[0] as any
 
     if (!latestInvoice.payment_intent) {
       return NextResponse.json(
@@ -125,8 +125,6 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('Error processing refund:', error)
-
     if (error instanceof Stripe.errors.StripeError) {
       return NextResponse.json(
         { error: `Error de Stripe: ${error.message}` },

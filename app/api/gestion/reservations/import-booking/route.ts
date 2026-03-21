@@ -235,7 +235,6 @@ export async function POST(request: NextRequest) {
 
         results.importedCount++
       } catch (error) {
-        console.error(`Row ${rowNum} error:`, error)
         results.errors.push({
           row: rowNum,
           error: error instanceof Error ? error.message : 'Error desconocido',
@@ -265,7 +264,6 @@ export async function POST(request: NextRequest) {
       results
     })
   } catch (error) {
-    console.error('Error importing Booking reservations:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

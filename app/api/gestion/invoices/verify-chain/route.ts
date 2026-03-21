@@ -115,7 +115,6 @@ export async function GET(request: NextRequest) {
       issues: issues.length > 0 ? issues : undefined,
     })
   } catch (error) {
-    console.error('Error verifying hash chain:', error)
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

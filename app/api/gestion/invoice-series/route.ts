@@ -62,7 +62,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ series: seriesWithPreview })
   } catch (error) {
-    console.error('Error fetching invoice series:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -178,7 +177,6 @@ export async function POST(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error creating invoice series:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -313,7 +311,6 @@ export async function PUT(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error updating invoice series:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -382,7 +379,6 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting invoice series:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

@@ -670,7 +670,7 @@ function DemoPageInner() {
           setLocationData(data.data)
         }
       })
-      .catch(err => console.error('[demo] Failed to fetch location data:', err))
+      .catch(() => { /* location data fetch error silenced */ })
       .finally(() => setLocationDataLoading(false))
   }, [wizardStep, locationData, locationDataLoading, step1Data.lat, step1Data.lng, step1Data.city])
 
@@ -848,7 +848,6 @@ function DemoPageInner() {
       setPhase('results')
       setConfettiBurst(prev => prev + 1)
     } catch (err) {
-      console.error('[demo] Generation error:', err)
       setError(err instanceof Error ? err.message : 'Error de conexion')
       setPhase('lead-capture')
       setLeadCaptureStep('info')

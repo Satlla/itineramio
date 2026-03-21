@@ -136,7 +136,6 @@ export default function QRGeneratorPage() {
       })
       setQrCode(qrDataURL)
     } catch (err) {
-      console.error('Error generating QR:', err)
       setError('Error al generar el código QR')
     } finally {
       setLoading(false)
@@ -174,7 +173,7 @@ export default function QRGeneratorPage() {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
-      console.error('Error copying:', err)
+      // copy error silenced
     }
   }
 

@@ -352,7 +352,6 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error fetching detailed analytics:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al obtener analíticas',

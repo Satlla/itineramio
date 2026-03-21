@@ -52,7 +52,7 @@ export function ShareButtons({ url, title, description, className = '' }: ShareB
         })
       }
     } catch (err) {
-      console.error('Failed to copy:', err)
+      // Ignore clipboard errors
     }
   }
 

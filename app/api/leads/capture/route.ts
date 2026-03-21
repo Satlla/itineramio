@@ -194,9 +194,7 @@ export async function POST(request: NextRequest) {
         archetype,
         source: subscriberSource,
         tags
-      }).catch(error => {
-        console.error('Failed to enroll subscriber in sequences:', error)
-      })
+      }).catch(() => {})
     } else {
       // Update existing subscriber with new source tag (don't overwrite archetype if exists)
       const newTag = isOnlineTool ? `tool_${source}` : source
@@ -220,9 +218,7 @@ export async function POST(request: NextRequest) {
         archetype: subscriber.archetype || archetype,
         source: subscriberSource,
         tags: [...(subscriber.tags || []), newTag]
-      }).catch(error => {
-        console.error('Failed to enroll existing subscriber in sequences:', error)
-      })
+      }).catch(() => {})
     }
 
     // Send welcome email ONLY for lead magnets that have downloadable content
@@ -247,8 +243,7 @@ export async function POST(request: NextRequest) {
         })
 
       } catch (emailError) {
-        // Log error but don't fail the request
-        console.error(`[Email Error] Failed to send to ${normalizedEmail}:`, emailError)
+        // Don't fail the request if email send fails
       }
     } else if (source === 'pricing-calculator' && metadata) {
       // Special handling for pricing calculator - send PDF by email
@@ -287,7 +282,7 @@ export async function POST(request: NextRequest) {
         })
 
       } catch (emailError) {
-        console.error(`[Email Error] Failed to send pricing PDF to ${normalizedEmail}:`, emailError)
+        // Don't fail the request if email send fails
       }
     }
 
@@ -301,7 +296,6 @@ export async function POST(request: NextRequest) {
     )
 
   } catch (error) {
-    console.error('Error capturing lead:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -363,7 +357,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching leads:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

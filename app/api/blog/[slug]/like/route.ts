@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
+import { checkRateLimitAsync, getRateLimitKey } from '../../../../../src/lib/rate-limit'
 
 // POST - Like a blog post
 export async function POST(
@@ -7,6 +8,12 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const rl = await checkRateLimitAsync(
+      getRateLimitKey(request, null, 'blog-like'),
+      { maxRequests: 3, windowMs: 60 * 1000 }
+    )
+    if (!rl.allowed) return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+
     const { slug } = await params
 
     // Find the blog post by slug
@@ -34,7 +41,6 @@ export async function POST(
       likes: updated.likes
     })
   } catch (error) {
-    console.error('Error liking post:', error)
     return NextResponse.json(
       { error: 'Error al dar like' },
       { status: 500 }

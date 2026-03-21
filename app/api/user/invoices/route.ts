@@ -113,7 +113,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching user invoices:', error)
     return NextResponse.json(
       { error: 'Error al obtener las facturas' },
       { status: 500 }

@@ -48,7 +48,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching notification settings:', error)
     return NextResponse.json(
       { error: 'Error al obtener configuración de notificaciones' },
       { status: 500 }
@@ -56,7 +55,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/account/notification-settings - Update user notification preferences  
+// POST /api/account/notification-settings - Update user notification preferences
 export async function POST(request: NextRequest) {
   try {
     const authResult = await requireAuth(request)
@@ -104,7 +103,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error updating notification settings:', error)
     return NextResponse.json(
       { error: 'Error al actualizar configuración' },
       { status: 500 }

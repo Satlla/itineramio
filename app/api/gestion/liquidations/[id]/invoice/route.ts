@@ -330,7 +330,6 @@ export async function POST(
       }
     })
   } catch (error) {
-    console.error('Error creating invoice from liquidation:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

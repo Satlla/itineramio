@@ -91,11 +91,9 @@ export default function PropertySetDetailPage() {
       if (response.ok && result.data) {
         setPropertySet(result.data)
       } else {
-        console.error('Property set not found')
         router.push('/main')
       }
     } catch (error) {
-      console.error('Error fetching property set:', error)
       router.push('/main')
     } finally {
       setLoading(false)

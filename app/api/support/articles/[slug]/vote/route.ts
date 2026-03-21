@@ -55,7 +55,6 @@ export async function POST(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error voting on article:', error)
     return NextResponse.json(
       { error: 'Error al votar' },
       { status: 500 }

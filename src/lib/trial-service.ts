@@ -40,8 +40,6 @@ export class TrialService {
    * Inicializar trial para un nuevo usuario (llamar en registro)
    */
   async initializeTrial(userId: string): Promise<void> {
-    console.log(`🔍 TRIAL-SERVICE: Initializing trial for user ${userId}`)
-
     const now = new Date()
     const trialEndsAt = new Date(now.getTime() + TrialService.TRIAL_DAYS * 24 * 60 * 60 * 1000)
 
@@ -53,7 +51,6 @@ export class TrialService {
       }
     })
 
-    console.log(`✅ TRIAL-SERVICE: Trial initialized - ends at ${trialEndsAt.toISOString()}`)
   }
 
   /**
@@ -77,8 +74,6 @@ export class TrialService {
    * Obtener estado completo del trial de un usuario
    */
   async getTrialStatus(userId: string): Promise<TrialStatus> {
-    console.log(`🔍 TRIAL-SERVICE: Getting trial status for user ${userId}`)
-
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -88,7 +83,6 @@ export class TrialService {
     })
 
     if (!user || !user.trialEndsAt) {
-      console.log(`⚠️  TRIAL-SERVICE: No trial found for user ${userId}`)
       return {
         isActive: false,
         startedAt: null,
@@ -113,8 +107,6 @@ export class TrialService {
       hasExpired: !isActive && user.trialEndsAt < now
     }
 
-    console.log(`✅ TRIAL-SERVICE: Trial status - active: ${isActive}, days remaining: ${daysRemaining}`)
-
     return status
   }
 
@@ -122,8 +114,6 @@ export class TrialService {
    * Expirar manualmente el trial de un usuario (admin)
    */
   async expireTrial(userId: string): Promise<void> {
-    console.log(`🔍 TRIAL-SERVICE: Manually expiring trial for user ${userId}`)
-
     const now = new Date()
     await prisma.user.update({
       where: { id: userId },
@@ -132,15 +122,12 @@ export class TrialService {
       }
     })
 
-    console.log(`✅ TRIAL-SERVICE: Trial expired for user ${userId}`)
   }
 
   /**
    * Extender el trial de un usuario (admin)
    */
   async extendTrial(userId: string, additionalDays: number): Promise<void> {
-    console.log(`🔍 TRIAL-SERVICE: Extending trial for user ${userId} by ${additionalDays} days`)
-
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { trialEndsAt: true }
@@ -159,7 +146,6 @@ export class TrialService {
       }
     })
 
-    console.log(`✅ TRIAL-SERVICE: Trial extended - new end date: ${newEndsAt.toISOString()}`)
   }
 
   /**

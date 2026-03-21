@@ -80,7 +80,6 @@ ${businessName}`
       lastSentTo: invoice.sentTo
     })
   } catch (error) {
-    console.error('Error getting send preview:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -251,7 +250,6 @@ export async function POST(
     })
 
     if (sendError) {
-      console.error('Resend error:', sendError)
       return NextResponse.json(
         { error: 'Error al enviar el email' },
         { status: 500 }
@@ -277,7 +275,6 @@ export async function POST(
       publicUrl
     })
   } catch (error) {
-    console.error('Error sending invoice:', error)
     return NextResponse.json(
       { error: 'Error al enviar la factura' },
       { status: 500 }

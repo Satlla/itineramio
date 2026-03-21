@@ -34,14 +34,13 @@ export async function POST(request: NextRequest) {
     })
 
     // Update zone analytics with completion data
-    updateZoneCompletionAnalytics(zoneId, completionTime, stepsCompleted, totalSteps).catch(console.error)
+    updateZoneCompletionAnalytics(zoneId, completionTime, stepsCompleted, totalSteps).catch(() => {})
 
     return NextResponse.json({
       success: true,
       message: 'Zone completion tracked successfully'
     })
   } catch (error) {
-    console.error('Error tracking zone completion:', error)
     return NextResponse.json(
       { error: 'Failed to track zone completion' },
       { status: 500 }
@@ -105,6 +104,6 @@ async function updateZoneCompletionAnalytics(zoneId: string, completionTime?: nu
       })
     }
   } catch (error) {
-    console.error('Error updating completion analytics:', error)
+    // ignore completion analytics errors
   }
 }

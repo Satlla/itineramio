@@ -221,7 +221,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }))
   } catch (error) {
-    console.error('Error fetching blog posts for sitemap:', error)
     // Continue with empty blog posts array if DB is not available
   }
 

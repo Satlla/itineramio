@@ -43,8 +43,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Admin auth check error:', error)
-    return NextResponse.json({ 
+    return NextResponse.json({
       authenticated: false 
     }, { status: 401 })
   }

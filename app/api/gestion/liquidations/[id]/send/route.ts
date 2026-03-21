@@ -103,7 +103,6 @@ export async function POST(
 
     return NextResponse.json({ success: true, portalUrl, sentTo: liquidation.owner.email })
   } catch (error) {
-    console.error('Error sending liquidation to owner:', error)
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

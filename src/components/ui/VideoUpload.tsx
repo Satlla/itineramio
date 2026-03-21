@@ -39,9 +39,6 @@ export function VideoUpload({
   error = false,
   saveToLibrary = true
 }: VideoUploadProps) {
-  // Debug: Log the maxDuration prop being received
-  console.log('🎯 VideoUpload component initialized with maxDuration:', maxDuration)
-  
   const [dragActive, setDragActive] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -118,24 +115,15 @@ export function VideoUpload({
   }, [isRecording, maxDuration])
 
   const validateVideo = async (file: File): Promise<boolean> => {
-    console.log('📋 Validating file:', file.name, file.type, file.size)
-    
     // Check file size - ACCEPT EVERYTHING under 1GB
     const sizeMB = file.size / (1024 * 1024)
-    console.log('📏 File size:', sizeMB.toFixed(2), 'MB')
-    
+
     // Only block truly massive files (1GB+)
     if (sizeMB > 1000) {
       setVideoError(`Archivo extremadamente grande (${sizeMB.toFixed(1)}MB). Máximo 1GB.`)
       return false
     }
     
-    // For any reasonable file size, just show positive message
-    if (sizeMB > 0.1) { // Show size info for files over 100KB
-      console.log('✅ File size acceptable:', sizeMB.toFixed(2), 'MB')
-      // Don't set any error message - just log for info
-    }
-
     // Check video duration and orientation
     return new Promise((resolve) => {
       const video = document.createElement('video')
@@ -144,51 +132,30 @@ export function VideoUpload({
       
       // Add timeout to prevent hanging on metadata loading
       const timeoutId = setTimeout(() => {
-        console.warn('⏰ Video metadata loading timeout - accepting video anyway')
         URL.revokeObjectURL(video.src)
         resolve(true) // Accept video if metadata fails to load
       }, 10000) // 10 second timeout
-      
+
       video.onloadedmetadata = () => {
         clearTimeout(timeoutId) // Cancel timeout since metadata loaded
-        console.log('📹 Video metadata:', {
-          duration: video.duration,
-          width: video.videoWidth,
-          height: video.videoHeight,
-          aspectRatio: video.videoWidth / video.videoHeight
-        })
-        console.log('⏱️ Comparing duration:', video.duration, 'vs maxDuration:', maxDuration)
-        
+
         // Check if duration is valid (sometimes videos don't load metadata properly)
         if (isNaN(video.duration) || video.duration === 0) {
-          console.warn('⚠️ Could not read video duration, assuming it is OK')
           // Don't block upload if we can't read duration
         } else if (video.duration > 300) { // Only reject if longer than 5 minutes
-          console.error('⏱️ Video extremely long:', video.duration, 'seconds')
           setVideoError(`Video demasiado largo (${Math.round(video.duration)}s). Máximo 5 minutos.`)
           URL.revokeObjectURL(video.src)
           resolve(false)
           return
         } else if (video.duration > maxDuration) {
           // Show info but don't block
-          console.log('ℹ️ Video longer than recommended but within limits:', video.duration, 'vs', maxDuration)
           setVideoError(`ℹ️ Video de ${Math.round(video.duration)}s detectado correctamente. ¡Perfecto para subir!`)
           // Clear error after 3 seconds since it's just informational
           setTimeout(() => setVideoError(null), 3000)
         } else {
-          console.log('✅ Video duration perfect:', video.duration, 'seconds')
           setVideoError(`✅ Video de ${Math.round(video.duration)} segundos detectado. ¡Perfecto!`)
           // Clear success message after 2 seconds
           setTimeout(() => setVideoError(null), 2000)
-        }
-
-        // Check orientation but don't block anything - just show info
-        const aspectRatio = video.videoWidth / video.videoHeight
-        if (aspectRatio > 1) { // Horizontal
-          console.log('📐 Video horizontal detectado:', aspectRatio)
-          // Don't set error, just log for info
-        } else {
-          console.log('📐 Video vertical perfecto:', aspectRatio)
         }
 
         // Generate thumbnail from first frame
@@ -216,25 +183,21 @@ export function VideoUpload({
         }
       }
       
-      video.onerror = (error) => {
+      video.onerror = () => {
         clearTimeout(timeoutId)
-        console.error('🚨 Video validation error:', error)
-        console.log('⚠️ Video processing failed, but allowing upload anyway for compatibility')
         setVideoError('⚠️ No se pudieron leer los metadatos del video, pero se subirá de todas formas.')
         URL.revokeObjectURL(video.src)
         resolve(true) // Accept video even if metadata reading fails
       }
-      
+
       video.src = URL.createObjectURL(file)
-      console.log('🔗 Created video URL for validation:', video.src)
     })
   }
 
   const startCamera = async () => {
     try {
       setVideoError(null)
-      console.log('📱 Requesting camera access...')
-      
+
       // Try back camera first, fallback to any camera
       let constraints = {
         video: {
@@ -249,7 +212,6 @@ export function VideoUpload({
       try {
         stream = await navigator.mediaDevices.getUserMedia(constraints)
       } catch (backCameraError) {
-        console.warn('Back camera failed, trying any camera:', backCameraError)
         // Fallback to any available camera
         const fallbackConstraints = {
           video: {
@@ -261,7 +223,6 @@ export function VideoUpload({
         stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints)
       }
       
-      console.log('✅ Camera access granted')
       setMediaStream(stream)
       setShowCamera(true)
       
@@ -269,7 +230,6 @@ export function VideoUpload({
         cameraRef.current.srcObject = stream
       }
     } catch (error) {
-      console.error('🚨 Error accessing camera:', error)
       setVideoError('No se pudo acceder a la cámara. Verifica los permisos del navegador.')
     }
   }
@@ -313,16 +273,13 @@ export function VideoUpload({
       const blob = new Blob(recordedChunksRef.current, { type: options.mimeType })
       const extension = options.mimeType.includes('mp4') ? 'mp4' : 'webm'
       const file = new File([blob], `recording-${Date.now()}.${extension}`, { type: options.mimeType })
-      
-      console.log('📹 Recording complete:', file.name, file.size, 'bytes')
-      
+
       // Stop camera and process the recorded video
       stopCamera()
       handleUpload(file)
     }
 
-    mediaRecorder.onerror = (event) => {
-      console.error('MediaRecorder error:', event)
+    mediaRecorder.onerror = () => {
       setVideoError('Error durante la grabación')
       stopCamera()
     }
@@ -340,8 +297,6 @@ export function VideoUpload({
   }
 
   const handleUpload = async (file: File) => {
-    console.log('🎬 Starting video upload:', file.name, file.size, file.type)
-    console.log('📐 Upload component maxDuration:', maxDuration)
     setVideoError(null)
     setUploadSuccess(false)
 
@@ -418,16 +373,12 @@ export function VideoUpload({
     
     // Validate video (unless force upload is enabled)
     if (!forceUpload) {
-      console.log('🔍 Validating video...')
       const isValid = await validateVideo(fileToUpload)
-      console.log('✅ Video validation result:', isValid)
       if (!isValid) {
-        console.log('❌ Video validation failed - showing force upload option')
         setUploading(false)
         return
       }
     } else {
-      console.log('🚀 FORCE UPLOAD MODE - Skipping all validations!')
       setVideoError(null) // Clear any previous errors
     }
 
@@ -457,9 +408,7 @@ export function VideoUpload({
     // Use large upload endpoint for files > 4MB
     const finalFileSizeMB = fileToUpload.size / (1024 * 1024)
     const uploadEndpoint = finalFileSizeMB > 4 ? '/api/upload-large' : '/api/upload'
-    
-    console.log(`📤 Using ${uploadEndpoint} for ${finalFileSizeMB.toFixed(2)}MB file`)
-    
+
     try {
       const xhr = new XMLHttpRequest()
       xhrRef.current = xhr
@@ -504,7 +453,6 @@ export function VideoUpload({
 
           // Handle duplicate detection
           if (data.duplicate) {
-            console.log('🔄 Duplicate video detected:', data.existingMedia?.originalName)
             setDuplicateMediaInfo(data.existingMedia)
             setPendingFile(fileToUpload)
             setShowDuplicateModal(true)
@@ -517,8 +465,6 @@ export function VideoUpload({
             // Save to media library if enabled (with timeout and better error handling)
             if (saveToLibrary) {
               try {
-                console.log('💾 Saving video to media library...')
-                
                 // Add timeout to prevent hanging
                 const controller = new AbortController()
                 const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
@@ -546,17 +492,9 @@ export function VideoUpload({
                 clearTimeout(timeoutId)
                 
                 if (response.ok) {
-                  const mediaResult = await response.json()
-                  console.log('✅ Video saved to media library:', mediaResult)
-                } else {
-                  console.warn('⚠️ Media library save failed with status:', response.status)
+                  await response.json()
                 }
               } catch (error) {
-                if (error instanceof Error && error.name === 'AbortError') {
-                  console.warn('⏱️ Media library save timed out')
-                } else {
-                  console.warn('❌ Failed to save to media library:', error)
-                }
                 // Don't fail the upload if library save fails
               }
             }
@@ -628,7 +566,6 @@ export function VideoUpload({
       xhr.send(formData)
       
     } catch (error) {
-      console.error('Error uploading video:', error)
       setVideoError('Error al subir el video')
       setUploading(false)
       setUploadSuccess(false)
@@ -740,7 +677,7 @@ export function VideoUpload({
       // Update usage count for existing media
       fetch(`/api/media-library/${duplicateMediaInfo.id}/use`, {
         method: 'PATCH'
-      }).catch(error => console.error('Error updating usage count:', error))
+      }).catch(() => {})
 
       addNotification({
         type: 'info',

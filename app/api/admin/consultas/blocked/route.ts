@@ -22,7 +22,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ blockedSlots })
   } catch (error) {
-    console.error('Error fetching blocked slots:', error)
     return NextResponse.json({ error: 'Error fetching blocked slots' }, { status: 500 })
   }
 }
@@ -66,7 +65,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ blockedSlot })
   } catch (error) {
-    console.error('Error creating blocked slot:', error)
     // Handle unique constraint violation
     if ((error as { code?: string }).code === 'P2002') {
       return NextResponse.json({ error: 'This slot is already blocked' }, { status: 400 })

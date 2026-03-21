@@ -17,7 +17,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+    const decoded = jwt.verify(token, JWT_SECRET as string) as unknown as { userId: string }
     
     // Set JWT claims for PostgreSQL RLS policies
     // REMOVED: set_config doesn't work with PgBouncer in transaction mode
@@ -83,7 +83,6 @@ export async function DELETE(request: NextRequest) {
     return response
 
   } catch (error) {
-    console.error('Account deletion error:', error)
     return NextResponse.json(
       { error: 'Error al eliminar la cuenta' },
       { status: 500 }

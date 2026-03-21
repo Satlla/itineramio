@@ -40,7 +40,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching notifications:', error)
     return NextResponse.json(
       { error: 'Error al obtener notificaciones', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -77,7 +76,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error creating notification:', error)
     return NextResponse.json(
       { error: 'Error creating notification' },
       { status: 500 }
@@ -136,7 +134,6 @@ export async function PATCH(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error updating notifications:', error)
     return NextResponse.json(
       { error: 'Error al actualizar notificaciones' },
       { status: 500 }

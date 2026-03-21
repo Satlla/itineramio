@@ -168,7 +168,7 @@ export async function GET(request: NextRequest) {
 
       // 2. Try to extract from subject
       if (!propertyName) {
-        propertyName = extractPropertyNameFromSubject(email.subject)
+        propertyName = extractPropertyNameFromSubject(email.subject || '')
       }
 
       // 3. If still no valid name, group by confirmation code
@@ -219,7 +219,7 @@ export async function GET(request: NextRequest) {
           roomTotal: data?.roomTotal || null,
           hostEarnings: data?.hostEarnings || null,
           propertyName: data?.propertyName || null,
-          subject: e.subject,
+          subject: e.subject || '',
           emailType: e.emailType,
           receivedAt: e.receivedAt.toISOString()
         }
@@ -278,7 +278,6 @@ export async function GET(request: NextRequest) {
       }))
     })
   } catch (error) {
-    console.error('Error detecting properties:', error)
     return NextResponse.json(
       { error: 'Error al detectar propiedades' },
       { status: 500 }

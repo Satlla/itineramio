@@ -66,10 +66,9 @@ export async function PATCH(
     });
 
   } catch (error) {
-    console.error('Error toggling plan status:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Internal server error' 
+    return NextResponse.json({
+      success: false,
+      error: 'Internal server error'
     }, { status: 500 });
   }
 }

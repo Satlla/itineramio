@@ -148,7 +148,7 @@ export default function NewStepPage() {
         setPropertyName(propertyResult.data.name)
       }
     } catch (error) {
-      console.error('Error fetching data:', error)
+      // error fetching data
     }
   }
 
@@ -176,7 +176,6 @@ export default function NewStepPage() {
       // Redirect back to zone page
       router.push(`/properties/${propertyId}/zones/${zoneId}`)
     } catch (error) {
-      console.error('Error creating step:', error)
       alert(t('stepsPage.errorSavingStep'))
     } finally {
       setIsSubmitting(false)

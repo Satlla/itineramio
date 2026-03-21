@@ -15,7 +15,6 @@ const CRON_SECRET = process.env.CRON_SECRET
 export async function GET(request: NextRequest) {
   // Verificar autorización
   if (!CRON_SECRET) {
-    console.error('CRON_SECRET not configured')
     return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
   }
 
@@ -100,11 +99,9 @@ export async function GET(request: NextRequest) {
           sent++
         } else {
           errors++
-          console.error(`[GuestFollowup] Failed to send to ${conversation.guestEmail}:`, result.error)
         }
       } catch (emailError) {
         errors++
-        console.error(`[GuestFollowup] Error processing conversation ${conversation.id}:`, emailError)
       }
     }
 
@@ -116,7 +113,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('[GuestFollowup] Cron job error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

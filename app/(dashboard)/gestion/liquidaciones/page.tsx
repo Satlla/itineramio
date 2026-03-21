@@ -122,7 +122,6 @@ export default function LiquidacionesPage() {
         })))
       }
     } catch (error) {
-      console.error('Error fetching owners:', error)
     }
   }
 
@@ -146,7 +145,6 @@ export default function LiquidacionesPage() {
         setTotals(data.totals)
       }
     } catch (error) {
-      console.error('Error fetching liquidations:', error)
     } finally {
       setLoading(false)
     }
@@ -169,7 +167,6 @@ export default function LiquidacionesPage() {
         fetchLiquidations()
       }
     } catch (error) {
-      console.error('Error updating liquidation:', error)
     }
   }
 

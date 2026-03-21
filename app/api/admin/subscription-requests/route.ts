@@ -67,7 +67,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(formattedRequests)
 
   } catch (error) {
-    console.error('Error fetching subscription requests:', error)
     return NextResponse.json(
       { error: 'Error al obtener las solicitudes' },
       { status: 500 }

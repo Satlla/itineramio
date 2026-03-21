@@ -84,7 +84,6 @@ export async function GET(
       data: zonesWithStepsRaw
     })
   } catch (error) {
-    console.error('Error fetching zones:', error)
     return NextResponse.json(
       { 
         success: false, 
@@ -138,9 +137,6 @@ export async function POST(
     
     if (!batchResponse.ok) {
       const errorText = await batchResponse.text()
-      console.error('🔴 Batch redirect failed with status:', batchResponse.status)
-      console.error('🔴 Batch error details:', errorText)
-      
       let errorDetails
       try {
         errorDetails = JSON.parse(errorText)
@@ -172,7 +168,6 @@ export async function POST(
     }, { status: 500 })
     
   } catch (error) {
-    console.error('🔴 Error in zone redirect:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor',

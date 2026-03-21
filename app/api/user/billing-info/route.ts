@@ -104,7 +104,6 @@ export async function GET(request: NextRequest) {
       isBillingComplete
     })
   } catch (error) {
-    console.error('Error fetching billing info:', error)
     return NextResponse.json(
       { error: 'Error al obtener datos de facturación' },
       { status: 500 }
@@ -124,7 +123,6 @@ export async function POST(request: NextRequest) {
 
 
     if (!userId) {
-      console.error('❌ No userId found in token')
       return NextResponse.json(
         { error: 'No autenticado' },
         { status: 401 }
@@ -172,7 +170,6 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields (phone is optional)
     if (!entityType || !email || !address || !city || !postalCode || !country) {
-      console.error('❌ Missing required fields:', { entityType, email, address, city, postalCode, country })
       return NextResponse.json(
         { error: 'Faltan campos obligatorios: ' + [
           !entityType && 'tipo de entidad',
@@ -188,7 +185,6 @@ export async function POST(request: NextRequest) {
 
     // Validate entity-specific fields
     if (entityType === 'empresa' && (!companyName || !actualTaxId)) {
-      console.error('❌ Missing company fields:', { companyName, actualTaxId })
       return NextResponse.json(
         { error: 'Faltan datos de empresa: ' + [
           !companyName && 'razón social',
@@ -199,7 +195,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (entityType === 'autonomo' && !actualTaxId) {
-      console.error('❌ Missing self-employed fields:', { actualTaxId })
       return NextResponse.json(
         { error: 'Faltan datos de autónomo: NIF es obligatorio' },
         { status: 400 }
@@ -207,7 +202,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (entityType === 'particular' && !actualTaxId) {
-      console.error('❌ Missing individual fields:', { actualTaxId })
       return NextResponse.json(
         { error: 'Faltan datos personales: DNI/NIE es obligatorio' },
         { status: 400 }
@@ -300,8 +294,6 @@ export async function POST(request: NextRequest) {
       billingInfo
     })
   } catch (error) {
-    console.error('❌ Error saving billing info:', error)
-    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace')
     return NextResponse.json(
       { error: 'Error al guardar datos de facturación: ' + (error instanceof Error ? error.message : 'Unknown error') },
       { status: 500 }

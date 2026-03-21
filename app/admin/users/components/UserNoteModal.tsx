@@ -77,8 +77,7 @@ export default function UserNoteModal({
         const error = await response.json()
         alert(error.error || 'Error al crear la nota')
       }
-    } catch (error) {
-      console.error('Error saving note:', error)
+    } catch {
       alert('Error al guardar la nota')
     } finally {
       setSaving(false)

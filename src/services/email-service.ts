@@ -35,7 +35,6 @@ export async function sendEmail({
     })
 
     if (error) {
-      console.error('Error sending email:', error)
 
       // Track bounce event
       await prisma.emailEvent.create({
@@ -80,11 +79,9 @@ export async function sendEmail({
       })
     }
 
-    console.log('Email sent successfully:', data)
     return { success: true, data }
 
   } catch (error) {
-    console.error('Failed to send email:', error)
     return { success: false, error }
   }
 }
@@ -114,7 +111,6 @@ export async function trackEmailOpened(emailEventId: string) {
 
     return { success: true }
   } catch (error) {
-    console.error('Error tracking email open:', error)
     return { success: false, error }
   }
 }
@@ -145,7 +141,6 @@ export async function trackEmailClicked(emailEventId: string, clickedUrl: string
 
     return { success: true }
   } catch (error) {
-    console.error('Error tracking email click:', error)
     return { success: false, error }
   }
 }

@@ -110,7 +110,6 @@ export default function NotificationsPage() {
       await markAsRead(notificationIds)
       setSelectedNotifications([])
     } catch (error) {
-      console.error('Error marking notifications as read:', error)
     } finally {
       setLoading(false)
     }
@@ -122,7 +121,6 @@ export default function NotificationsPage() {
       await markAllAsRead()
       setSelectedNotifications([])
     } catch (error) {
-      console.error('Error marking all notifications as read:', error)
     } finally {
       setLoading(false)
     }

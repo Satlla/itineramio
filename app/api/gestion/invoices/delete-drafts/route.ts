@@ -73,7 +73,6 @@ export async function POST(request: NextRequest) {
       message: `${result.count} borradores eliminados`
     })
   } catch (error) {
-    console.error('Error deleting draft invoices:', error)
     return NextResponse.json(
       { error: 'Error al eliminar borradores' },
       { status: 500 }

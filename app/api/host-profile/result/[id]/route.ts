@@ -53,7 +53,6 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error fetching result:', error)
     return NextResponse.json(
       { error: 'Error al obtener resultado' },
       { status: 500 }

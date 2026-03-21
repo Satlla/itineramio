@@ -209,7 +209,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error generating zone reviews:', error)
     return NextResponse.json(
       { error: 'Error al generar reseñas de zonas' },
       { status: 500 }

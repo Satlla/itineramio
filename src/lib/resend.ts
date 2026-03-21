@@ -7,9 +7,6 @@ let _resend: Resend | null = null
 
 function getResend(): Resend {
   if (!_resend) {
-    if (!process.env.RESEND_API_KEY) {
-      console.warn('RESEND_API_KEY environment variable is not set. Email sending will fail.')
-    }
     _resend = new Resend(process.env.RESEND_API_KEY || '')
   }
   return _resend
@@ -84,13 +81,11 @@ export async function sendEmail({
     })
 
     if (error) {
-      console.error('Error sending email:', error)
       return { success: false, error }
     }
 
     return { success: true, data }
   } catch (error) {
-    console.error('Error rendering or sending email:', error)
     return { success: false, error }
   }
 }
@@ -345,7 +340,6 @@ export async function sendDay3MistakesEmail({
   })
 
   if (error) {
-    console.error('Error sending Day 3 email:', error)
     return { success: false, error }
   }
 
@@ -509,7 +503,6 @@ export async function sendDay7CaseStudyEmail({
   })
 
   if (error) {
-    console.error('Error sending Day 7 email:', error)
     return { success: false, error }
   }
 
@@ -649,7 +642,6 @@ export async function sendDay10TrialEmail({
   })
 
   if (error) {
-    console.error('Error sending Day 10 email:', error)
     return { success: false, error }
   }
 
@@ -792,7 +784,6 @@ export async function sendDay14UrgencyEmail({
   })
 
   if (error) {
-    console.error('Error sending Day 14 email:', error)
     return { success: false, error }
   }
 
@@ -842,7 +833,6 @@ export async function addToAudience({
     // Por ahora guardamos en nuestra DB y usamos tags en emails
     return { success: true }
   } catch (error) {
-    console.error('Error adding to audience:', error)
     return { success: false, error }
   }
 }
@@ -855,7 +845,6 @@ export async function removeFromAudience(email: string) {
     // Implementar unsubscribe
     return { success: true }
   } catch (error) {
-    console.error('Error removing from audience:', error)
     return { success: false, error }
   }
 }
@@ -947,7 +936,6 @@ export async function sendTrialWarning3DaysEmail({
   })
 
   if (error) {
-    console.error('Error sending trial warning 3 days email:', error)
     return { success: false, error }
   }
 
@@ -1031,7 +1019,6 @@ export async function sendTrialWarning1DayEmail({
   })
 
   if (error) {
-    console.error('Error sending trial warning 1 day email:', error)
     return { success: false, error }
   }
 
@@ -1118,7 +1105,6 @@ export async function sendTrialExpiredEmail({
   })
 
   if (error) {
-    console.error('Error sending trial expired email:', error)
     return { success: false, error }
   }
 
@@ -1199,7 +1185,6 @@ export async function sendPaymentFailedEmail({
   })
 
   if (error) {
-    console.error('Error sending payment failed email:', error)
     return { success: false, error }
   }
 
@@ -1277,7 +1262,6 @@ export async function sendModuleTrialExpiredEmail({
   })
 
   if (error) {
-    console.error('Error sending module trial expired email:', error)
     return { success: false, error }
   }
 
@@ -1515,7 +1499,6 @@ export async function sendSoapOperaEmail1({
   })
 
   if (error) {
-    console.error('Error sending Soap Opera Email 1:', error)
     return { success: false, error }
   }
 
@@ -1640,7 +1623,6 @@ export async function sendSoapOperaEmail2({
   })
 
   if (error) {
-    console.error('Error sending Soap Opera Email 2:', error)
     return { success: false, error }
   }
 
@@ -1776,7 +1758,6 @@ export async function sendSoapOperaEmail3({
   })
 
   if (error) {
-    console.error('Error sending Soap Opera Email 3:', error)
     return { success: false, error }
   }
 
@@ -1933,7 +1914,6 @@ export async function sendSoapOperaEmail4({
   })
 
   if (error) {
-    console.error('Error sending Soap Opera Email 4:', error)
     return { success: false, error }
   }
 
@@ -2077,7 +2057,6 @@ export async function sendSoapOperaEmail5({
   })
 
   if (error) {
-    console.error('Error sending Soap Opera Email 5:', error)
     return { success: false, error }
   }
 
@@ -2199,7 +2178,6 @@ export async function sendSoapOperaEmail6({
   })
 
   if (error) {
-    console.error('Error sending Soap Opera Email 6:', error)
     return { success: false, error }
   }
 
@@ -2316,7 +2294,6 @@ export async function sendSoapOperaEmail7({
   })
 
   if (error) {
-    console.error('Error sending Soap Opera Email 7:', error)
     return { success: false, error }
   }
 
@@ -2410,7 +2387,6 @@ export async function sendSoapOperaEmail8({
   })
 
   if (error) {
-    console.error('Error sending Soap Opera Email 8:', error)
     return { success: false, error }
   }
 
@@ -2478,14 +2454,11 @@ export async function sendPricingAnalysisEmail({
     })
 
     if (error) {
-      console.error('Error sending pricing analysis email:', error)
       return { success: false, error }
     }
 
-    console.log(`[Email Sent] Pricing analysis to ${email}`)
     return { success: true, data }
   } catch (error) {
-    console.error('Error rendering or sending pricing analysis email:', error)
     return { success: false, error }
   }
 }
@@ -2579,14 +2552,11 @@ export async function sendOnboardingReminderEmail({
     })
 
     if (error) {
-      console.error('Error sending onboarding reminder email:', error)
       return { success: false, error }
     }
 
-    console.log(`[Email Sent] Onboarding reminder to ${to}`)
     return { success: true, data }
   } catch (error) {
-    console.error('Error sending onboarding reminder email:', error)
     return { success: false, error }
   }
 }

@@ -53,10 +53,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {loading ? (
           <>
             <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            {children}
+            {children as React.ReactNode}
           </>
         ) : (
-          children
+          children as React.ReactNode
         )}
       </Comp>
     )

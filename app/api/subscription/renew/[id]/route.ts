@@ -101,8 +101,7 @@ export async function POST(
           adminUrl: `${process.env.NEXTAUTH_URL || 'https://www.itineramio.com'}/admin/subscription-requests`
         })
       })
-    } catch (emailError) {
-      console.error('Error sending admin notification email:', emailError)
+    } catch {
       // Continue without email - renewal request still created
     }
 
@@ -122,8 +121,7 @@ export async function POST(
           requestType: 'renovación'
         })
       })
-    } catch (emailError) {
-      console.error('Error sending user confirmation email:', emailError)
+    } catch {
       // Continue without email - renewal request still created
     }
 
@@ -150,7 +148,6 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('Error processing subscription renewal:', error)
     return NextResponse.json(
       { error: 'Error al procesar la renovación' },
       { status: 500 }

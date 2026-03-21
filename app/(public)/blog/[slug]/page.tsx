@@ -90,7 +90,6 @@ export async function generateStaticParams() {
     }))
   } catch (error) {
     // Return empty array if database is not accessible during build
-    console.error('Error fetching blog posts for static params:', error)
     return []
   }
 }

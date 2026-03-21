@@ -184,7 +184,7 @@ interface CommandListProps {
   command: (item: CommandItem) => void
 }
 
-export const CommandList = forwardRef((props: CommandListProps, ref) => {
+export const CommandList = forwardRef<{ onKeyDown: (props: { event: KeyboardEvent }) => boolean }, CommandListProps>((props: CommandListProps, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0)
 
   const selectItem = (index: number) => {

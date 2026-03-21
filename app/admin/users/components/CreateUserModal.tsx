@@ -44,8 +44,8 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
       if (data.success) {
         setPlans(data.plans)
       }
-    } catch (error) {
-      console.error('Error fetching plans:', error)
+    } catch {
+      // ignore fetch error
     }
   }
 

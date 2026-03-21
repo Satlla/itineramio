@@ -314,8 +314,8 @@ export async function POST(request: NextRequest) {
         resourceSlug,
         sourceEmail
       })
-    } catch (leadError) {
-      console.error('Error updating unified lead:', leadError)
+    } catch {
+      // Ignore lead update errors
     }
 
     // Send email with resource
@@ -333,7 +333,6 @@ export async function POST(request: NextRequest) {
     })
 
     if (emailResult.error) {
-      console.error('Resend error:', emailResult.error)
       return NextResponse.json({
         success: false,
         error: emailResult.error.message || 'Error enviando email'
@@ -394,8 +393,8 @@ export async function POST(request: NextRequest) {
             </div>
           `
         })
-      } catch (notifError) {
-        console.error('Error sending hot lead notification:', notifError)
+      } catch {
+        // Ignore notification errors
       }
     }
 
@@ -405,7 +404,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error processing funnel form:', error)
     return NextResponse.json(
       { error: 'Error al procesar el formulario' },
       { status: 500 }

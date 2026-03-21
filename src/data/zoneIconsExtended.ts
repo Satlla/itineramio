@@ -3,6 +3,9 @@ import {
   Key,
   Car,
   Utensils,
+  Monitor,
+  QrCode,
+  Fingerprint,
   Bath,
   Bed,
   Home,
@@ -413,6 +416,26 @@ export const iconIdMapping: { [key: string]: LucideIcon } = {
   'electrical': Zap,
   'water-off': Droplets,
   'wateroff': Droplets,
+
+  // Check-in digital
+  'checkin-online': Monitor,
+  'checkin-qr': QrCode,
+  'checkin-digital': Fingerprint,
+  'checkin-app': Phone,
+  'checkin-tablet': Phone,
+  // Cocina completa
+  'vitroceramica': Flame,
+  'horno': Microwave,
+  'lavavajillas': Sparkles,
+  'congelador': Snowflake,
+  // Servicios extra
+  'ascensor': Zap,
+  'escaleras': ChevronRight,
+  'balcony': Sun,
+  'window': Wind,
+  'portero': Bell,
+  'hotel': Building,
+  'beach-umbrella': Umbrella,
 
   // Extra aliases used in recommendations display
   'cocktailbar': GlassWater,

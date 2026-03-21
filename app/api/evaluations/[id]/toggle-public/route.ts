@@ -75,7 +75,6 @@ export async function PATCH(
     })
 
   } catch (error) {
-    console.error('Error toggling evaluation visibility:', error)
     return NextResponse.json(
       { error: 'Error al cambiar la visibilidad de la evaluación' },
       { status: 500 }

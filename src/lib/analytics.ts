@@ -76,10 +76,6 @@ export function trackEvent(
     (window as any).va('track', eventName, eventParams)
   }
 
-  // Console log en desarrollo
-  if (process.env.NODE_ENV === 'development') {
-    console.log('📊 [GTM/GA4 Event]', eventName, eventParams)
-  }
 }
 
 // ========================================

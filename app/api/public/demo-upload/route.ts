@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { put } from '@vercel/blob'
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client'
 import { v4 as uuidv4 } from 'uuid'
-import { checkRateLimit, getRateLimitKey } from '../../../../src/lib/rate-limit'
+import { checkRateLimitAsync, getRateLimitKey } from '../../../../src/lib/rate-limit'
 
 export const maxDuration = 60
 export const dynamic = 'force-dynamic'
@@ -17,13 +17,13 @@ export async function POST(request: NextRequest) {
   const isVercelCallback = !!request.headers.get('x-vercel-signature')
   if (!isVercelCallback) {
     const rateLimitKey = getRateLimitKey(request, null, 'demo-upload')
-    const rateCheck = checkRateLimit(rateLimitKey, {
-      maxRequests: isDev ? 200 : 30,
-      windowMs: 24 * 60 * 60 * 1000,
+    const rateCheck = await checkRateLimitAsync(rateLimitKey, {
+      maxRequests: isDev ? 200 : 5,
+      windowMs: 60 * 60 * 1000, // 5 uploads per hour
     })
     if (!rateCheck.allowed) {
       return NextResponse.json(
-        { error: 'Has alcanzado el límite de uploads de demo. Vuelve mañana.' },
+        { error: 'Has alcanzado el límite de uploads de demo. Inténtalo en una hora.' },
         { status: 429 }
       )
     }
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
               'video/3gpp', 'video/x-msvideo', 'application/octet-stream',
               'video/x-matroska', 'video/mpeg', 'video/ogg',
             ],
-            maximumSizeInBytes: 500 * 1024 * 1024,
+            maximumSizeInBytes: 10 * 1024 * 1024, // 10MB for demo (unauthenticated)
             addRandomSuffix: true,
           }
         },

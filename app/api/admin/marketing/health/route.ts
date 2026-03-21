@@ -174,7 +174,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching marketing health:', error)
     return NextResponse.json(
       { success: false, error: 'Error fetching marketing health' },
       { status: 500 }

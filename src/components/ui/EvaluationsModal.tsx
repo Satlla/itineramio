@@ -75,7 +75,7 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
         setEvaluations(result.data)
       }
     } catch (error) {
-      console.error('Error fetching evaluations:', error)
+      // fetch error suppressed
     } finally {
       setLoading(false)
     }
@@ -85,12 +85,12 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
     try {
       const response = await fetch('/api/account/notification-settings')
       const result = await response.json()
-      
+
       if (result.success && result.data) {
         setSettings(result.data)
       }
     } catch (error) {
-      console.error('Error fetching settings:', error)
+      // fetch error suppressed
     }
   }
 
@@ -106,7 +106,7 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
         setSettings(newSettings)
       }
     } catch (error) {
-      console.error('Error updating settings:', error)
+      // update error suppressed
     }
   }
 
@@ -126,7 +126,7 @@ export function EvaluationsModal({ isOpen, onClose, propertyId, propertyName }: 
         )
       }
     } catch (error) {
-      console.error('Error toggling evaluation visibility:', error)
+      // toggle error suppressed
     }
   }
 

@@ -41,7 +41,6 @@ export async function POST(request: NextRequest) {
     const emailContent = await getEmailContent(event.data.email_id)
 
     if (!emailContent) {
-      console.error('❌ No se pudo obtener contenido del email')
       return NextResponse.json(
         { error: 'No se pudo obtener contenido del email' },
         { status: 500 }
@@ -98,7 +97,6 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('❌ Error procesando webhook:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -121,7 +119,6 @@ async function getEmailContent(emailId: string): Promise<{
     })
 
     if (!response.ok) {
-      console.error('Error obteniendo email de Resend:', response.status)
       return null
     }
 
@@ -132,7 +129,6 @@ async function getEmailContent(emailId: string): Promise<{
       text: data.text || null
     }
   } catch (error) {
-    console.error('Error llamando a Resend API:', error)
     return null
   }
 }

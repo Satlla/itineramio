@@ -151,8 +151,7 @@ export default function SystemSettingsPage() {
       if (data.success && data.settings) {
         setSettings({ ...defaultSettings, ...data.settings })
       }
-    } catch (error) {
-      console.error('Error fetching settings:', error)
+    } catch {
       showMessage('error', 'Error al cargar la configuración')
     } finally {
       setLoading(false)
@@ -197,8 +196,7 @@ export default function SystemSettingsPage() {
       } else {
         showMessage('error', data.error || 'Error al guardar la configuración')
       }
-    } catch (error) {
-      console.error('Error saving settings:', error)
+    } catch {
       showMessage('error', 'Error al guardar la configuración')
     } finally {
       setSaving(false)

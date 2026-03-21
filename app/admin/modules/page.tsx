@@ -95,8 +95,7 @@ export default function AdminModulesPage() {
         setUsers(data.users)
         setTotalPages(data.pagination.totalPages)
       }
-    } catch (error) {
-      console.error('Error fetching users:', error)
+    } catch {
       toast.error('Error al cargar usuarios')
     } finally {
       setLoading(false)

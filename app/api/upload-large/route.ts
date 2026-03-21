@@ -90,8 +90,6 @@ export async function POST(request: NextRequest) {
         })
       }
     } catch (uploadError) {
-      console.error('❌ Large upload failed:', uploadError)
-      
       // If upload fails, suggest compression
       return NextResponse.json({
         error: "Error al subir archivo grande. Intenta comprimir el video a menor calidad.",
@@ -101,7 +99,6 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Error in large upload endpoint:', error)
     return NextResponse.json({
       error: 'Error interno del servidor',
       details: error instanceof Error ? error.message : 'Error desconocido'

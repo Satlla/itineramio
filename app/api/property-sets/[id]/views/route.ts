@@ -71,8 +71,6 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error obteniendo visualizaciones del conjunto:', error)
-    
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'

@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     let decoded: { userId: string }
     try {
-      decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+      decoded = jwt.verify(token, JWT_SECRET as string) as unknown as { userId: string }
     } catch (jwtError) {
       return NextResponse.json({ error: 'Token inválido' }, { status: 401 })
     }
@@ -169,7 +169,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Account update error:', error)
     // Return more specific error message
     if (error instanceof Error) {
       return NextResponse.json(

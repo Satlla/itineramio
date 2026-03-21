@@ -151,7 +151,7 @@ export default function DashboardPage(): JSX.Element {
         setRecentActivity(result.activity.slice(0, 5)) // Reducir a 5 elementos
       }
     } catch (error) {
-      console.error('Error fetching recent activity:', error)
+      // error fetching recent activity
     } finally {
       isFetchingRecentActivity.current = false
     }
@@ -224,7 +224,7 @@ export default function DashboardPage(): JSX.Element {
         setPropertySets(propertySetsResult.data)
       }
     } catch (error) {
-      console.error('Error fetching data:', error)
+      // error fetching data
     } finally {
       setLoading(false)
     }
@@ -275,7 +275,6 @@ export default function DashboardPage(): JSX.Element {
           ])
         }
       } catch (error) {
-        console.error('Error loading dashboard:', error)
         // Fallback a método anterior si falla
         await Promise.all([
           fetchAnalyticsData(),
@@ -297,7 +296,6 @@ export default function DashboardPage(): JSX.Element {
 
       // Skip onboarding if user just claimed a demo property
       if (demoClaimedPropertyId) {
-        console.log('🚫 Demo property claimed, skipping onboarding modal')
         setShowUnifiedWelcome(false)
         localStorage.setItem('hasSeenUnifiedWelcome', 'true')
         return
@@ -305,14 +303,12 @@ export default function DashboardPage(): JSX.Element {
 
       // ABSOLUTE GUARD: NEVER show if already seen - check localStorage FIRST
       if (typeof window !== 'undefined' && localStorage.getItem('hasSeenUnifiedWelcome') === 'true') {
-        console.log('🚫 Unified welcome modal already seen (localStorage), not showing')
         setShowUnifiedWelcome(false)
         return
       }
 
       // Only check once per component lifetime
       if (hasCheckedWelcomeModal.current) {
-        console.log('🚫 Already checked unified welcome modal in this session')
         return
       }
       hasCheckedWelcomeModal.current = true
@@ -320,7 +316,6 @@ export default function DashboardPage(): JSX.Element {
       // Show onboarding if: user has NO properties (new user) OR has ?welcome=true
       const welcome = searchParams.get('welcome')
       const isNewUser = properties.length === 0
-      console.log('🔍 Welcome check - param:', welcome, 'isNewUser:', isNewUser, 'User:', !!user?.name)
 
       if ((welcome === 'true' || isNewUser) && user?.name) {
         // Check database to see if user has completed onboarding
@@ -331,23 +326,20 @@ export default function DashboardPage(): JSX.Element {
           const data = await response.json()
 
           if (data.hasCompleted) {
-            console.log('🚫 User already completed onboarding (database), not showing')
             localStorage.setItem('hasSeenUnifiedWelcome', 'true')
             setShowUnifiedWelcome(false)
             return
           }
         } catch (error) {
-          console.error('Error checking onboarding status:', error)
+          // error checking onboarding status
         }
 
         // Double check localStorage one more time
         if (localStorage.getItem('hasSeenUnifiedWelcome') === 'true') {
-          console.log('🚫 Double-check: already seen, not showing')
           setShowUnifiedWelcome(false)
           return
         }
 
-        console.log('✅ Showing unified welcome modal for first time')
         // Guardar en localStorage inmediatamente para que no reaparezca al navegar
         localStorage.setItem('hasSeenUnifiedWelcome', 'true')
         setShowUnifiedWelcome(true)
@@ -487,7 +479,6 @@ export default function DashboardPage(): JSX.Element {
         }))
 
       } catch (error) {
-        console.error('Error deleting property:', error)
         alert('Error al eliminar la propiedad. Por favor, inténtalo de nuevo.')
       }
     }
@@ -516,10 +507,8 @@ export default function DashboardPage(): JSX.Element {
         throw new Error('Error al actualizar el estado de la propiedad')
       }
 
-      const result = await response.json()
-      console.log(result.message)
+      await response.json()
     } catch (error) {
-      console.error('Error toggling property:', error)
       // Revertir el cambio en caso de error
       setProperties(prev => prev.map(p => 
         p.id === propertyId 
@@ -531,7 +520,6 @@ export default function DashboardPage(): JSX.Element {
 
   const handleSolveProblem = (reportId: string) => {
     // Aquí implementarías la lógica para marcar el problema como resuelto
-    console.log(`Resolviendo problema con ID: ${reportId}`)
     // Por ahora solo cerramos el modal
     setShowGuestReportsModal(false)
   }
@@ -546,7 +534,6 @@ export default function DashboardPage(): JSX.Element {
         break
       case 'share':
         // Compartir conjunto - podrías implementar esto más tarde
-        console.log(`Compartir conjunto ${propertySetId}`)
         break
       default:
         break
@@ -1283,7 +1270,6 @@ export default function DashboardPage(): JSX.Element {
       <UnifiedWelcomeModal
         isOpen={showUnifiedWelcome}
         onClose={() => {
-          console.log('🚪 UnifiedWelcomeModal onClose called')
           // ALWAYS save to localStorage when closing, no matter how it was closed
           if (typeof window !== 'undefined') {
             localStorage.setItem('hasSeenUnifiedWelcome', 'true')

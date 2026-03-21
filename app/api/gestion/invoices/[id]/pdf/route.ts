@@ -180,7 +180,6 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error('Error generating invoice PDF:', error)
     return NextResponse.json(
       { error: 'Error al generar el PDF' },
       { status: 500 }

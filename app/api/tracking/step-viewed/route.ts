@@ -40,10 +40,9 @@ export async function POST(request: NextRequest) {
       })
 
       // Update analytics asynchronously (don't wait for it)
-      updateZoneAnalytics(zoneId, propertyId, visitorIp, userAgent).catch(console.error)
+      updateZoneAnalytics(zoneId, propertyId, visitorIp, userAgent).catch(() => {})
     } catch (dbError) {
-      console.error('Database tracking failed (continuing):', dbError)
-      // Don't fail the request - just log the error
+      // Don't fail the request - just ignore the error
     }
 
     return NextResponse.json({
@@ -51,7 +50,6 @@ export async function POST(request: NextRequest) {
       message: 'Step view tracked successfully'
     })
   } catch (error) {
-    console.error('Error tracking step view:', error)
     // Return success anyway to not block video loading
     return NextResponse.json({
       success: true,
@@ -80,7 +78,6 @@ async function updateZoneAnalytics(
     })
 
     if (!zone || !zone.property) {
-      console.error('Zone or property not found for analytics update')
       return
     }
 
@@ -149,6 +146,6 @@ async function updateZoneAnalytics(
     })
 
   } catch (error) {
-    console.error('Error updating zone analytics:', error)
+    // ignore zone analytics errors
   }
 }

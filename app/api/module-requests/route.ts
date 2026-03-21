@@ -112,8 +112,8 @@ export async function POST(request: NextRequest) {
           adminUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.itineramio.com'}/admin/subscription-requests`
         })
       })
-    } catch (emailError) {
-      console.error('Error sending admin notification:', emailError)
+    } catch {
+      // Ignore email errors
     }
 
     // Create notification for user
@@ -133,8 +133,8 @@ export async function POST(request: NextRequest) {
           }
         }
       })
-    } catch (notifError) {
-      console.error('Error creating notification:', notifError)
+    } catch {
+      // Ignore notification errors
     }
 
     // Send confirmation email to user
@@ -153,8 +153,8 @@ export async function POST(request: NextRequest) {
           requestType: 'módulo Gestión'
         })
       })
-    } catch (userEmailError) {
-      console.error('Error sending user email:', userEmailError)
+    } catch {
+      // Ignore user email errors
     }
 
     return NextResponse.json({
@@ -164,7 +164,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error creating module request:', error)
     return NextResponse.json(
       { error: 'Error al crear la solicitud', details: error instanceof Error ? error.message : 'Error desconocido' },
       { status: 500 }

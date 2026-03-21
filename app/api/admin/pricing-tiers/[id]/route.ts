@@ -109,10 +109,9 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
     });
 
   } catch (error) {
-    console.error('Error updating pricing tier:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Internal server error' 
+    return NextResponse.json({
+      success: false,
+      error: 'Internal server error'
     }, { status: 500 });
   }
 }
@@ -168,10 +167,9 @@ export async function DELETE(request: NextRequest, context: { params: Promise<{ 
     });
 
   } catch (error) {
-    console.error('Error deleting pricing tier:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Internal server error' 
+    return NextResponse.json({
+      success: false,
+      error: 'Internal server error'
     }, { status: 500 });
   }
 }

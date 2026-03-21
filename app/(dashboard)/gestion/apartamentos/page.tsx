@@ -139,7 +139,6 @@ export default function ApartamentosPage() {
         setOwners(data.owners || [])
       }
     } catch (error) {
-      console.error('Error fetching data:', error)
     } finally {
       setLoading(false)
     }
@@ -431,7 +430,6 @@ function GroupCard({
       if (res.ok) onRefresh()
       else alert(t('apartments.errors.deleteError'))
     } catch (e) {
-      console.error(e)
     } finally {
       setDeleting(false)
     }
@@ -588,7 +586,6 @@ function UnitCard({
         alert(data.error || t('apartments.errors.deleteError'))
       }
     } catch (e) {
-      console.error(e)
     } finally {
       setDeleting(false)
     }
@@ -736,7 +733,6 @@ function ImageUpload({
         alert(errorData.error || t('apartments.errors.uploadError'))
       }
     } catch (error) {
-      console.error('Upload error:', error)
       alert(t('apartments.errors.uploadError'))
     } finally {
       setUploading(false)
@@ -895,7 +891,6 @@ function NewUnitModal({
         alert(data.error || t('apartments.errors.createError'))
       }
     } catch (error) {
-      console.error(error)
     } finally {
       setSaving(false)
     }
@@ -1193,7 +1188,6 @@ function NewGroupModal({
         alert(data.error || t('apartments.errors.createError'))
       }
     } catch (error) {
-      console.error(error)
     } finally {
       setSaving(false)
     }
@@ -1470,7 +1464,6 @@ function EditUnitModal({
         alert(data.error || t('apartments.errors.saveError'))
       }
     } catch (error) {
-      console.error(error)
     } finally {
       setSaving(false)
     }
@@ -1788,7 +1781,6 @@ function EditGroupModal({
         alert(data.error || t('apartments.errors.saveError'))
       }
     } catch (error) {
-      console.error(error)
     } finally {
       setSaving(false)
     }

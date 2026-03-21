@@ -14,7 +14,6 @@ export async function GET() {
       }
     })
   } catch (error) {
-    console.error('Error generating inspection protocol PDF:', error)
     return NextResponse.json(
       { error: 'Error generating PDF' },
       { status: 500 }

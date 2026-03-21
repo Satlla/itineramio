@@ -44,7 +44,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error submitting FAQ:', error)
     return NextResponse.json(
       { error: 'Error al enviar la pregunta' },
       { status: 500 }
@@ -87,7 +86,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching FAQ submissions:', error)
     return NextResponse.json(
       { error: 'Error al obtener preguntas' },
       { status: 500 }

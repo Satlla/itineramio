@@ -52,7 +52,6 @@ export async function GET(req: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error fetching FAQs:', error)
     return NextResponse.json(
       { error: 'Error al obtener FAQs' },
       { status: 500 }
@@ -95,7 +94,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ faq }, { status: 201 })
   } catch (error) {
-    console.error('Error creating FAQ:', error)
     return NextResponse.json(
       { error: 'Error al crear FAQ' },
       { status: 500 }

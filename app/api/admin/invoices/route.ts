@@ -109,7 +109,6 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error fetching invoices:', error);
     return NextResponse.json({ 
       success: false, 
       error: 'Internal server error' 
@@ -216,7 +215,6 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error creating invoice:', error);
     return NextResponse.json({ 
       success: false, 
       error: 'Internal server error' 

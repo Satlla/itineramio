@@ -608,31 +608,22 @@ function PropertiesPageContent() {
     try {
       setLoading(true)
       setError(null)
-      console.log('Fetching properties...')
-      
+
       // Use pagination to load properties faster - increase limit for better UX
       const response = await fetch('/api/properties?limit=50&page=1')
-      console.log('Response status:', response.status)
-      
+
       const result = await response.json()
-      console.log('Response data:', result)
-      
+
       if (!response.ok) {
         throw new Error(result.error || 'Error al cargar propiedades')
       }
-      
+
       if (result.success && result.data) {
-        console.log('Setting properties:', result.data.length, 'properties found')
         setProperties(result.data)
-        
-        // EMERGENCY DISABLED - Background notification generation causes performance issues
-        // generatePropertyNotificationsAsync(result.data.slice(0, 10)) // Only process first 10 for notifications to avoid overload
-        console.log('🚫 Background notification generation disabled to improve performance')
       } else {
         throw new Error('Respuesta del API inválida')
       }
     } catch (err) {
-      console.error('Error fetching properties:', err)
       setError(err instanceof Error ? err.message : 'Error desconocido')
     } finally {
       setLoading(false)
@@ -641,21 +632,15 @@ function PropertiesPageContent() {
 
   const fetchPropertySets = async () => {
     try {
-      console.log('🔄 Fetching property sets...')
       const response = await fetch('/api/property-sets')
       const result = await response.json()
-      
-      console.log('📦 Property sets response:', { status: response.status, success: result.success, count: result.data?.length })
-      
+
       if (response.ok && result.success && result.data) {
         setPropertySets(result.data)
-        console.log('✅ Property sets loaded:', result.data.length)
       } else {
-        console.error('❌ Failed to fetch property sets:', result.error || 'Unknown error')
         setPropertySets([])
       }
     } catch (err) {
-      console.error('❌ Error fetching property sets:', err)
       setPropertySets([])
     }
   }
@@ -663,21 +648,15 @@ function PropertiesPageContent() {
   const fetchPlanLimits = async () => {
     try {
       setLoadingPlanLimits(true)
-      console.log('🎯 Fetching plan limits...')
       const response = await fetch('/api/account/plan-limits')
       const result = await response.json()
 
-      console.log('📊 Plan limits response:', { status: response.status, result })
-
       if (response.ok) {
         setPlanLimits(result)
-        console.log('✅ Plan limits loaded:', result)
       } else {
-        console.error('❌ Failed to fetch plan limits:', result.error || 'Unknown error')
         setPlanLimits(null)
       }
     } catch (err) {
-      console.error('❌ Error fetching plan limits:', err)
       setPlanLimits(null)
     } finally {
       setLoadingPlanLimits(false)
@@ -686,13 +665,10 @@ function PropertiesPageContent() {
 
   const fetchTrialStatus = async () => {
     try {
-      console.log('🔄 Fetching trial status...')
       const response = await fetch('/api/analytics/dashboard', {
         credentials: 'include'
       })
       const result = await response.json()
-
-      console.log('📊 Trial status response:', { status: response.status, success: result.success })
 
       if (response.ok && result.success && result.data) {
         const { trialStatus: trialData, hasActiveSubscription: hasSubscription } = result.data
@@ -708,53 +684,47 @@ function PropertiesPageContent() {
           })
         }
         setHasActiveSubscription(hasSubscription || false)
-        console.log('✅ Trial status loaded:', { trialData, hasSubscription })
       }
     } catch (err) {
-      console.error('❌ Error fetching trial status:', err)
+      // error fetching trial status
     }
   }
 
   const generatePropertyNotificationsAsync = (properties: Property[]) => {
     // Run notifications generation in background without blocking UI
     setTimeout(async () => {
-      console.log('🔔 Starting background notification generation for', properties.length, 'properties')
-      
       // Process properties in smaller batches to avoid overwhelming the API
       const batchSize = 3
       for (let i = 0; i < properties.length; i += batchSize) {
         const batch = properties.slice(i, i + batchSize)
-        
+
         // Process batch concurrently
         const batchPromises = batch.map(async (property) => {
           try {
             const zonesResponse = await fetch(`/api/properties/${property.id}/zones`)
             const zonesResult = await zonesResponse.json()
-            
+
             if (zonesResponse.ok && zonesResult.success && zonesResult.data) {
               const zones = zonesResult.data
-              const propertyName = typeof property.name === 'string' 
-                ? property.name 
+              const propertyName = typeof property.name === 'string'
+                ? property.name
                 : property.name.es || property.name.en || 'Propiedad'
-              
-              console.log(`🔔 Generating warnings for property: ${propertyName} (${zones.length} zones)`)
+
               generateZoneWarnings(property.id, zones, propertyName)
             }
           } catch (error) {
-            console.error(`Error generating notifications for property ${property.id}:`, error)
+            // error generating notifications
           }
         })
-        
+
         // Wait for current batch to complete before processing next batch
         await Promise.allSettled(batchPromises)
-        
+
         // Small delay between batches to avoid overwhelming the server
         if (i + batchSize < properties.length) {
           await new Promise(resolve => setTimeout(resolve, 500))
         }
       }
-      
-      console.log('🔔 Background notification generation completed')
     }, 100) // Start after very short delay to let UI render first
   }
 
@@ -785,8 +755,6 @@ function PropertiesPageContent() {
 
     setIsDeleting(true)
     try {
-      // 🔥 MÉTODO SIMPLE - A VER SI ASÍ FUNCIONA
-      console.log('🔥 Using SIMPLE DELETE for property:', propertyToDelete.id)
       const response = await fetch(`/api/properties/${propertyToDelete.id}/simple-delete`, {
         method: 'DELETE',
         headers: {
@@ -797,7 +765,6 @@ function PropertiesPageContent() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
-        console.error('🔥 DELETE ERROR RESPONSE:', response.status, errorData)
         throw new Error(errorData.error || `Error ${response.status} al eliminar la propiedad`)
       }
 
@@ -809,7 +776,6 @@ function PropertiesPageContent() {
       setPropertyToDelete(null)
       
     } catch (error) {
-      console.error('Error deleting property:', error)
       setSuccessMessage('Error al eliminar la propiedad. Por favor, inténtalo de nuevo.')
       setSuccessModalOpen(true)
     } finally {
@@ -833,7 +799,7 @@ function PropertiesPageContent() {
         setTrashProperties(data.data || [])
       }
     } catch (error) {
-      console.error('Error fetching trash:', error)
+      // error fetching trash
     } finally {
       setLoadingTrash(false)
     }
@@ -852,7 +818,7 @@ function PropertiesPageContent() {
         fetchProperties()
       }
     } catch (error) {
-      console.error('Error restoring property:', error)
+      // error restoring property
     } finally {
       setRestoringId(null)
     }
@@ -889,7 +855,6 @@ function PropertiesPageContent() {
       setPropertySetToDelete(null)
       
     } catch (error) {
-      console.error('Error deleting property set:', error)
       setSuccessMessage('Error al eliminar el conjunto. Por favor, inténtalo de nuevo.')
       setSuccessModalOpen(true)
     } finally {
@@ -951,10 +916,7 @@ function PropertiesPageContent() {
         }))
       }
 
-      console.log(result.message)
-
     } catch (error) {
-      console.error('Error toggling property:', error)
       // Revertir al estado original en caso de error
       setProperties(prev => prev.map(p => {
         if (p.id === propertyId) {
@@ -1021,7 +983,7 @@ function PropertiesPageContent() {
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
       } catch (err) {
-        console.error('Failed to copy text: ', err)
+        // failed to copy text
       }
     }
   }
@@ -1057,7 +1019,7 @@ function PropertiesPageContent() {
         }
       }
     } catch (error) {
-      console.error('Error fetching property zones:', error)
+      // error fetching property zones
     }
   }
 
@@ -1112,7 +1074,6 @@ function PropertiesPageContent() {
       setSuccessModalOpen(true)
       
     } catch (error) {
-      console.error('Error duplicating property:', error)
       setSuccessMessage(`Error al duplicar la propiedad: ${error instanceof Error ? error.message : 'Error desconocido'}`)
       setSuccessModalOpen(true)
     } finally {
@@ -1132,11 +1093,9 @@ function PropertiesPageContent() {
       const response = await fetch(`/api/properties/${propertyId}/evaluations`)
       if (response.ok) {
         const result = await response.json()
-        console.log('🔍 Evaluations API result:', result)
         setPropertyEvaluations(result.data?.evaluations || [])
       }
     } catch (error) {
-      console.error('Error fetching evaluations:', error)
       setPropertyEvaluations([])
     } finally {
       setLoadingEvaluations(false)
@@ -1171,7 +1130,7 @@ function PropertiesPageContent() {
         )
       }
     } catch (error) {
-      console.error('Error toggling evaluation visibility:', error)
+      // error toggling evaluation visibility
     }
   }
 
@@ -1461,9 +1420,6 @@ function PropertiesPageContent() {
         ) : activeTab === 'properties' ? (
           (() => {
             const individualProperties = properties.filter(property => !property.propertySetId)
-            console.log('🏠 Total properties:', properties.length)
-            console.log('🏠 Individual properties:', individualProperties.length)
-            console.log('🏠 Properties with sets:', properties.filter(p => p.propertySetId).map(p => ({ name: getText(p.name), setId: p.propertySetId, setName: p.propertySet?.name })))
             return individualProperties.length === 0
           })() ? (
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">

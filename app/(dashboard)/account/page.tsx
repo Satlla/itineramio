@@ -91,38 +91,28 @@ export default function AccountPage() {
       const formData = new FormData()
       formData.append('file', file)
 
-      console.log('Making upload request to /api/upload')
-      console.log('Current cookies:', document.cookie)
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       })
 
-      console.log('Upload response status:', response.status, response.statusText)
-
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('Upload response not ok:', errorText)
         throw new Error(`Upload failed: ${response.status} - ${errorText}`)
       }
 
       const result = await response.json()
-      console.log('Upload response data:', result)
 
       if (result.success) {
         // Set the uploaded image URL
         setProfileImage(result.url)
-        console.log('Profile image uploaded successfully:', result.url)
       } else if (result.duplicate && result.existingMedia?.url) {
         // Handle duplicate image - use existing media
         setProfileImage(result.existingMedia.url)
-        console.log('Using existing image from media library:', result.existingMedia.url)
       } else {
-        console.error('Upload result not successful:', result)
         throw new Error(result.error || result.message || 'Upload failed')
       }
     } catch (error) {
-      console.error('Error uploading profile image:', error)
       setErrors({ image: t('errors.uploadError') })
     } finally {
       setLoading(false)
@@ -190,11 +180,6 @@ export default function AccountPage() {
         ...(isEmailChanging && confirmationPassword && { password: confirmationPassword })
       }
 
-      // Debug logging (old endpoint not used)
-      // console.log('Sending update request:', requestBodyOld)
-      console.log('Form data state:', formData)
-      console.log('Profile image state:', profileImage)
-
       const directBody = {
         email: user?.email || '', // Current email for auth
         password: isEmailChanging ? confirmationPassword : undefined,
@@ -211,12 +196,8 @@ export default function AccountPage() {
         body: JSON.stringify(directBody)
       })
 
-      console.log('Response status:', response.status)
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
-
       if (response.ok) {
         const data = await response.json()
-        console.log('Success response:', data)
         setShowSuccessToast(true)
         setTimeout(() => setShowSuccessToast(false), 3000)
         // Don't refresh user, just update form data and profile image
@@ -238,7 +219,6 @@ export default function AccountPage() {
         await refreshUser()
       } else {
         const data = await response.json().catch(() => ({ error: t('errors.unknownError') }))
-        console.log('Error response:', data)
 
         // If unauthorized, redirect to login
         if (response.status === 401) {
@@ -249,7 +229,6 @@ export default function AccountPage() {
         setErrors({ general: data.error || `Error ${response.status}: ${response.statusText}` })
       }
     } catch (error) {
-      console.error('Request error:', error)
       setErrors({ general: t('errors.connectionError') + ': ' + (error instanceof Error ? error.message : t('errors.unknownError')) })
     } finally {
       setLoading(false)
@@ -296,7 +275,6 @@ export default function AccountPage() {
         setErrors({ general: data.error || t('errors.emailChangeRequestError') })
       }
     } catch (error) {
-      console.error('Error requesting email change:', error)
       setErrors({ general: t('errors.connectionError') })
     } finally {
       setLoading(false)

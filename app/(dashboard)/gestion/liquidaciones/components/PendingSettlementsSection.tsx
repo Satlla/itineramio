@@ -81,15 +81,12 @@ export function PendingSettlementsSection({ year, month }: Props) {
 
       if (response.ok) {
         const data = await response.json()
-        console.log('[PendingSettlements] year:', year, 'month:', month, 'totalPending:', data.totalPending, 'owners:', data.owners?.length, '_debug:', data._debug)
         setPendingData(data)
       } else {
         const errorText = await response.text()
-        console.error('[PendingSettlements] Response not OK:', response.status, errorText)
         setError(`Error ${response.status}: ${errorText}`)
       }
     } catch (err) {
-      console.error('[PendingSettlements] Error fetching pending data:', err)
       setError('Error de conexión')
     } finally {
       setLoading(false)

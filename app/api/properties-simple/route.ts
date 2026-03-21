@@ -20,7 +20,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error getting properties:', error)
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'

@@ -90,7 +90,6 @@ export default function ClientesPage() {
         setClients(data.owners || [])
       }
     } catch (error) {
-      console.error('Error fetching clients:', error)
     } finally {
       setLoading(false)
     }
@@ -209,7 +208,6 @@ export default function ClientesPage() {
         setFormErrors({ general: data.error || (editingClient ? t('owners.errors.updateError') : t('owners.errors.createError')) })
       }
     } catch (error) {
-      console.error('Error saving client:', error)
       setFormErrors({ general: t('owners.errors.connectionError') })
     } finally {
       setSaving(false)
@@ -235,7 +233,6 @@ export default function ClientesPage() {
         }
       }
     } catch (error) {
-      console.error('Error sending portal link:', error)
     } finally {
       setSendingLink(null)
     }
@@ -285,7 +282,6 @@ export default function ClientesPage() {
         alert(data.error || t('owners.errors.deleteError'))
       }
     } catch (error) {
-      console.error('Error deleting client:', error)
     } finally {
       setDeleting(null)
     }

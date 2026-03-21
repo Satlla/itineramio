@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
+import { checkRateLimitAsync, getRateLimitKey } from '../../../../../src/lib/rate-limit'
 
 // GET /api/public/announcements/[propertyId] - Get active announcements for public view
 export async function GET(
@@ -7,6 +8,12 @@ export async function GET(
   { params }: { params: Promise<{ propertyId: string }> }
 ) {
   try {
+    const rl = await checkRateLimitAsync(
+      getRateLimitKey(request, null, 'public-ann'),
+      { maxRequests: 60, windowMs: 60 * 1000 }
+    )
+    if (!rl.allowed) return NextResponse.json({ success: false, error: 'Too many requests' }, { status: 429 })
+
     const { propertyId } = await params
 
     if (!propertyId) {
@@ -61,8 +68,7 @@ export async function GET(
         ],
         take: 5 // Limit to maximum 5 announcements
       })
-    } catch (dbError) {
-      console.error('💥 Database error getting announcements:', dbError)
+    } catch {
       // Return empty array if database error
       announcements = []
     }
@@ -72,9 +78,7 @@ export async function GET(
       data: announcements
     })
 
-  } catch (error) {
-    console.error('💥 Error getting public announcements:', error)
-    
+  } catch {
     // Return empty announcements array instead of error to prevent frontend crash
     return NextResponse.json({
       success: true,

@@ -91,8 +91,8 @@ export default function AdminBlogPage() {
         const data = await response.json()
         setPosts(data.posts || [])
       }
-    } catch (error) {
-      console.error('Error fetching posts:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }
@@ -112,8 +112,7 @@ export default function AdminBlogPage() {
       } else {
         alert('Error al eliminar el artículo')
       }
-    } catch (error) {
-      console.error('Error deleting post:', error)
+    } catch {
       alert('Error al eliminar el artículo')
     }
   }

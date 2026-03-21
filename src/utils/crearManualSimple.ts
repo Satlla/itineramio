@@ -3,8 +3,6 @@ import { createBatchZones } from './createBatchZones'
 
 export async function crearManualSimple(propertyId: string): Promise<boolean> {
   try {
-    console.log('🚀 Creando manual simple para:', propertyId)
-    
     // 1. Crear zonas usando batch API
     const zonesToCreate = manualEjemploSimple.map(zona => ({
       name: zona.name,
@@ -13,20 +11,17 @@ export async function crearManualSimple(propertyId: string): Promise<boolean> {
       status: 'ACTIVE'
     }))
 
-    console.log('🚀 Using BATCH API for manual simple creation')
     const success = await createBatchZones(propertyId, zonesToCreate)
-    
+
     if (!success) {
-      console.error('❌ Error creando zonas del manual simple')
       return false
     }
 
     // Get the created zones to add steps
     const zonesResponse = await fetch(`/api/properties/${propertyId}/zones`)
     const zonesResult = await zonesResponse.json()
-    
+
     if (!zonesResult.success || !zonesResult.data) {
-      console.error('❌ Error obteniendo zonas creadas')
       return false
     }
 
@@ -41,12 +36,10 @@ export async function crearManualSimple(propertyId: string): Promise<boolean> {
       })
       
       if (!createdZone) {
-        console.error(`❌ No se encontró la zona creada: ${zona.name}`)
         continue
       }
-      
+
       const zoneId = createdZone.id
-      console.log(`✅ Zona ${zona.name} creada:`, zoneId)
 
       // 3. Crear steps
       for (const step of zona.steps) {
@@ -63,16 +56,13 @@ export async function crearManualSimple(propertyId: string): Promise<boolean> {
         })
 
         if (!stepRes.ok) {
-          console.error('Error creando step:', await stepRes.text())
-        } else {
-          console.log(`  ✅ Step "${step.title}" creado`)
+          await stepRes.text()
         }
       }
     }
 
     return true
   } catch (error) {
-    console.error('❌ Error:', error)
     return false
   }
 }

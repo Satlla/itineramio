@@ -43,7 +43,6 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(user)
   } catch (error) {
-    console.error('Error fetching billing info:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -83,7 +82,6 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({ success: true, data: updatedUser })
   } catch (error) {
-    console.error('Error updating billing info:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

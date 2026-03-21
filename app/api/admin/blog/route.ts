@@ -19,7 +19,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ posts })
   } catch (error) {
-    console.error('Error fetching blog posts:', error)
     return NextResponse.json(
       { error: 'Error al obtener artículos' },
       { status: 500 }
@@ -95,7 +94,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ post }, { status: 201 })
   } catch (error) {
-    console.error('Error creating blog post:', error)
     return NextResponse.json(
       { error: 'Error al crear artículo' },
       { status: 500 }

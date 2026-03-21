@@ -19,7 +19,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ count })
   } catch (error) {
-    console.error('Error fetching pending count:', error)
     return NextResponse.json(
       { error: 'Error al obtener el conteo' },
       { status: 500 }

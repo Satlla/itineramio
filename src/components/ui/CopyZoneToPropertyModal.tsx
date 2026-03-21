@@ -81,7 +81,6 @@ export function CopyZoneToPropertyModal({
         setError(t('modals.copyZone.errorLoading'))
       }
     } catch (error) {
-      console.error('Error loading properties:', error)
       setError(t('modals.copyZone.errorLoading'))
     } finally {
       setIsLoading(false)
@@ -127,18 +126,15 @@ export function CopyZoneToPropertyModal({
             successCount++
           } else {
             failedCount++
-            console.error(`Failed to copy zone to property ${propertyId}:`, result.error)
           }
         } catch (error) {
           failedCount++
-          console.error(`Error copying zone to property ${propertyId}:`, error)
         }
       }
 
       onCopyComplete(successCount, failedCount)
       onClose()
     } catch (error) {
-      console.error('Error in copy process:', error)
       setError(t('modals.copyZone.errorCopying'))
     } finally {
       setIsCopying(false)

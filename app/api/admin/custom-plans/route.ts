@@ -46,7 +46,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ customPlans, stats })
     
   } catch (error) {
-    console.error('Error fetching custom plans:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -103,7 +102,6 @@ export async function POST(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('Error creating custom plan:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

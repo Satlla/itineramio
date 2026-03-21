@@ -23,8 +23,8 @@ export async function POST(
       where: { id: id },
       select: {
         id: true,
-        helpfulVotes: true,
-        notHelpfulVotes: true
+        upvotes: true,
+        downvotes: true
       }
     })
 
@@ -37,29 +37,28 @@ export async function POST(
 
     // Actualizar contador correspondiente
     const updateData = isHelpful
-      ? { helpfulVotes: { increment: 1 } }
-      : { notHelpfulVotes: { increment: 1 } }
+      ? { upvotes: { increment: 1 } }
+      : { downvotes: { increment: 1 } }
 
     const updatedArticle = await prisma.knowledgeArticle.update({
       where: { id: id },
       data: updateData,
       select: {
         id: true,
-        helpfulVotes: true,
-        notHelpfulVotes: true
+        upvotes: true,
+        downvotes: true
       }
     })
 
     return NextResponse.json({
       success: true,
       data: {
-        helpfulVotes: updatedArticle.helpfulVotes,
-        notHelpfulVotes: updatedArticle.notHelpfulVotes
+        helpfulVotes: updatedArticle.upvotes,
+        notHelpfulVotes: updatedArticle.downvotes
       }
     })
 
   } catch (error) {
-    console.error('Error registrando voto:', error)
     return NextResponse.json({
       success: false,
       error: 'Error al registrar voto'

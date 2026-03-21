@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
 
     return response
   } catch (error) {
-    console.error('Logout error:', error)
     return NextResponse.json({
       success: false,
       error: 'Error interno del servidor'

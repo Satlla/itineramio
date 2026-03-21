@@ -128,8 +128,8 @@ export async function POST(
         subject: `🎉 Propiedad activada - ${property.name}`,
         html: activationEmailContent
       })
-    } catch (emailError) {
-      console.error('Error sending activation email:', emailError)
+    } catch {
+      // Email send failed, continue
     }
 
     // Send invoice notification email
@@ -149,8 +149,8 @@ export async function POST(
         subject: `📄 Nueva factura ${invoice.invoiceNumber} - Itineramio`,
         html: invoiceEmailContent
       })
-    } catch (emailError) {
-      console.error('Error sending invoice email:', emailError)
+    } catch {
+      // Email send failed, continue
     }
 
     // Log admin activity
@@ -178,8 +178,7 @@ export async function POST(
         ipAddress,
         userAgent,
       })
-    } catch (logError) {
-      console.error('Error creating admin activity log:', logError)
+    } catch {
       // Don't fail the activation if logging fails
     }
 
@@ -202,13 +201,7 @@ export async function POST(
     })
     
   } catch (error) {
-    console.error('Error activating property with invoice:', error)
-    console.error('Property ID:', params.id)
-    console.error('Error details:', {
-      message: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined
-    })
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Internal server error',
       details: error instanceof Error ? error.message : String(error)
     }, { status: 500 })

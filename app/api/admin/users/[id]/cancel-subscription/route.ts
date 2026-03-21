@@ -107,7 +107,6 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('Error cancelando suscripción (admin):', error)
     return NextResponse.json(
       { error: 'Error al cancelar suscripción' },
       { status: 500 }

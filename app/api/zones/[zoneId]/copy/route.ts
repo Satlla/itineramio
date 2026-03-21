@@ -40,7 +40,7 @@ export async function POST(
 
     let userId: string
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+      const decoded = jwt.verify(token, JWT_SECRET!) as unknown as { userId: string }
       userId = decoded.userId
     } catch (error) {
       return NextResponse.json(
@@ -133,7 +133,6 @@ export async function POST(
           data: stepsData
         })
       } catch (stepsError) {
-        console.error('Error copying steps:', stepsError)
         // If steps fail, we should clean up the zone
         await prisma.zone.delete({
           where: { id: newZone.id }
@@ -161,7 +160,7 @@ export async function POST(
         data: { slug }
       })
     } catch (slugError) {
-      console.warn('Could not generate slug for copied zone:', slugError)
+      // ignore slug generation errors
     }
 
     return NextResponse.json({
@@ -174,7 +173,6 @@ export async function POST(
     })
 
   } catch (error) {
-    console.error('Error copying zone:', error)
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

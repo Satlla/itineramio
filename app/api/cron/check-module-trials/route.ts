@@ -71,7 +71,6 @@ export async function GET(request: NextRequest) {
           moduleName,
         })
       } catch (emailError) {
-        console.error('Error sending module trial expired email:', emailError)
       }
     }
 
@@ -83,7 +82,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error checking module trials:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

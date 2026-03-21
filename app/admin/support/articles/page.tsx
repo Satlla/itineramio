@@ -64,9 +64,8 @@ export default function ArticlesListPage() {
       } else {
         setError('Error al cargar los articulos')
       }
-    } catch (err) {
+    } catch {
       setError('Error de conexion')
-      console.error('Error fetching articles:', err)
     } finally {
       setLoading(false)
     }
@@ -86,8 +85,7 @@ export default function ArticlesListPage() {
       } else {
         alert('Error al eliminar el articulo')
       }
-    } catch (err) {
-      console.error('Error deleting article:', err)
+    } catch {
       alert('Error de conexion')
     } finally {
       setDeleting(null)

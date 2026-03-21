@@ -70,8 +70,8 @@ export default function AdminUsersPage() {
         setUsers(data.users)
         setTotalPages(data.pagination.totalPages)
       }
-    } catch (error) {
-      console.error('Error fetching users:', error)
+    } catch {
+      // ignore fetch error
     } finally {
       setLoading(false)
     }

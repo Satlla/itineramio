@@ -27,30 +27,23 @@ export interface ResolvedZone {
  */
 export async function resolveProperty(identifier: string): Promise<ResolvedProperty | null> {
   try {
-    console.log('🔍 Resolving property identifier:', identifier);
-    
     // Check if it's a CUID (backward compatibility)
     if (isCuid(identifier)) {
-      console.log('📋 Identified as CUID, searching...');
       const property = await prisma.property.findUnique({
         where: { id: identifier },
         select: { id: true, name: true }
       });
-      console.log('🎯 CUID property result:', property);
       return property ? { ...property, slug: null } : null;
     }
-    
+
     // For properties that aren't CUIDs, also try to find by ID
-    console.log('🆔 Not a CUID, searching by ID...');
     const property = await prisma.property.findUnique({
       where: { id: identifier },
       select: { id: true, name: true }
     });
-    console.log('🎯 ID property result:', property);
-    
+
     return property ? { ...property, slug: null } : null;
   } catch (error) {
-    console.error('❌ Error resolving property:', error);
     return null;
   }
 }
@@ -87,7 +80,6 @@ export async function resolveZone(propertyId: string, zoneIdentifier: string): P
     
     return zone;
   } catch (error) {
-    console.error('Error resolving zone:', error);
     return null;
   }
 }
@@ -108,7 +100,6 @@ export async function getPropertiesWithSlugs(hostId: string): Promise<ResolvedPr
     // return properties.filter(p => p.slug) as ResolvedProperty[];
     return []; // Temporarily return empty array since no slugs available
   } catch (error) {
-    console.error('Error getting properties with slugs:', error);
     return [];
   }
 }
@@ -129,7 +120,6 @@ export async function getZonesWithSlugs(propertyId: string): Promise<ResolvedZon
     // return zones.filter(z => z.slug) as ResolvedZone[];
     return []; // Temporarily return empty array since no slugs available
   } catch (error) {
-    console.error('Error getting zones with slugs:', error);
     return [];
   }
 }

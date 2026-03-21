@@ -35,14 +35,12 @@ function verifyWebhookSignature(
   }
 ): boolean {
   if (!WEBHOOK_SECRET) {
-    console.warn('⚠️ RESEND_WEBHOOK_SECRET no configurado - saltando verificación')
     return true // Permitir en desarrollo
   }
 
   const { svixId, svixTimestamp, svixSignature } = headers
 
   if (!svixId || !svixTimestamp || !svixSignature) {
-    console.error('❌ Faltan headers de firma Svix')
     return false
   }
 
@@ -50,7 +48,6 @@ function verifyWebhookSignature(
   const timestamp = parseInt(svixTimestamp)
   const now = Math.floor(Date.now() / 1000)
   if (Math.abs(now - timestamp) > 300) {
-    console.error('❌ Timestamp del webhook muy viejo')
     return false
   }
 
@@ -81,7 +78,6 @@ function verifyWebhookSignature(
     }
   }
 
-  console.error('❌ Firma del webhook inválida')
   return false
 }
 
@@ -127,7 +123,6 @@ export async function POST(request: NextRequest) {
     })
 
     if (!isValid) {
-      console.error('❌ Webhook rechazado: firma inválida')
       return NextResponse.json(
         { error: 'Invalid signature' },
         { status: 401 }
@@ -195,7 +190,6 @@ export async function POST(request: NextRequest) {
     const recipientEmail = payload.data.to[0] // Resend envía array de emails
 
     if (!recipientEmail) {
-      console.warn('⚠️ No se encontró email de destinatario en webhook')
       return NextResponse.json({ received: true })
     }
 
@@ -205,7 +199,6 @@ export async function POST(request: NextRequest) {
     })
 
     if (!subscriber) {
-      console.warn(`⚠️ Subscriber no encontrado: ${recipientEmail}`)
       // No es error - puede ser un email manual no de la lista
       return NextResponse.json({ received: true, warning: 'subscriber_not_found' })
     }
@@ -268,12 +261,8 @@ export async function POST(request: NextRequest) {
         if (payload.data.bounce_type === 'hard') {
           updateData.status = 'bounced'
           updateData.bouncedAt = new Date()
-          console.warn(`❌ Hard bounce detectado: ${recipientEmail}`)
         }
         // Soft bounce → no hacer nada por ahora (puede ser temporal)
-        else {
-          console.warn(`⚠️ Soft bounce detectado: ${recipientEmail}`)
-        }
         break
 
       case 'email.complained':
@@ -285,13 +274,10 @@ export async function POST(request: NextRequest) {
         // Añadir tag de "complained"
         const tags = subscriber.tags || []
         updateData.tags = [...tags, 'complained']
-
-        console.warn(`🚨 Spam complaint: ${recipientEmail}`)
         break
 
       case 'email.delivery_delayed':
         // Solo log, no actualizar DB
-        console.warn(`⏰ Delivery delayed: ${recipientEmail}`)
         break
 
       default:
@@ -315,7 +301,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('❌ Error procesando webhook de Resend:', error)
 
     // Retornar 200 para que Resend no reintente
     // (el error es nuestro, no de Resend)

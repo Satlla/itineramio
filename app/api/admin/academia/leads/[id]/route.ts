@@ -39,7 +39,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting academia lead:', error)
     return NextResponse.json(
       { error: 'Error al eliminar el lead' },
       { status: 500 }

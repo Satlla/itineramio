@@ -61,7 +61,9 @@ async function notifyAbuse(ip: string, propertyId: string, limitType: 'hourly' |
 
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
+    const ip = request.headers.get('x-real-ip')
+      || request.headers.get('x-forwarded-for')?.split(',').pop()?.trim()
+      || 'unknown';
     const rateLimitKey = getRateLimitKey(request, null, 'chatbot');
 
     // 1. Burst check (sync, fast)
@@ -118,9 +120,13 @@ export async function POST(request: NextRequest) {
     } = await request.json();
 
     if (!message || !propertyId) {
-      return NextResponse.json({
-        error: 'Faltan parámetros requeridos'
-      }, { status: 400 });
+      return NextResponse.json({ error: 'Faltan parámetros requeridos' }, { status: 400 });
+    }
+    if (typeof propertyId !== 'string' || propertyId.length < 10 || propertyId.length > 40) {
+      return NextResponse.json({ error: 'Invalid propertyId' }, { status: 400 });
+    }
+    if (typeof message !== 'string' || message.length > 600) {
+      return NextResponse.json({ error: 'Invalid message' }, { status: 400 });
     }
 
     // Get property from cache (avoids DB hit on every message)
@@ -179,7 +185,6 @@ export async function POST(request: NextRequest) {
     const runAfterTasks = async (fullResponse: string) => {
       if (!fullResponse) return;
       const isUnanswered = detectUnansweredQuestion(fullResponse, language);
-      logChatInteraction(propertyId, zoneId || null, message, fullResponse);
       if (sessionId) {
         await saveConversation({ propertyId, zoneId: zoneId || null, sessionId, language, userMessage: message, aiResponse: fullResponse, isUnanswered });
       }
@@ -804,7 +809,7 @@ async function getLearnedContext(propertyId: string): Promise<string> {
     }
 
     // Sanitize to avoid prompt injection from malicious users
-    const INJECTION_PATTERNS = /ignore|instrucciones|system|forget|pretend|jailbreak|override|act as|olvida|ignora/i;
+    const INJECTION_PATTERNS = /ign[o0]r[ae]|instrucciones|system\s*prompt|forget|pretend|jailbreak|override|act\s+as|olvida|desestima|finge\s+(ser|que)|nuevo\s+rol|as\s+an?\s+(ai|assistant|gpt)/i;
     const qaPairs: string[] = [];
     for (const conv of recentConversations) {
       const msgs = Array.isArray(conv.messages) ? conv.messages as any[] : [];
@@ -1048,6 +1053,14 @@ function buildIntelligenceSection(property: any): string {
     }
     if (intel.houseRules.additionalRules) rules.push(intel.houseRules.additionalRules);
     if (rules.length > 0) lines.push(`- Normas: ${rules.join(', ')}`);
+    // Baby-friendly info
+    if (intel.houseRules.allowsBabies === true) lines.push('- Bebés/niños: SÍ se admiten');
+    if (intel.houseRules.allowsBabies === false) lines.push('- Bebés/niños: NO se admiten');
+    const babyItems: string[] = [];
+    if (intel.houseRules.hasCrib) babyItems.push('cuna');
+    if (intel.houseRules.hasHighChair) babyItems.push('trona');
+    if (intel.houseRules.hasBabyBath) babyItems.push('bañera de bebé');
+    if (babyItems.length > 0) lines.push(`- Equipamiento para bebés: ${babyItems.join(', ')}`);
   }
 
   // Checkout tasks
@@ -1188,7 +1201,7 @@ function buildZoneSystemPrompt(property: any, zone: any, language: string): stri
 
   const intelligenceSection = buildIntelligenceSection(property);
 
-  const prompt = `You are the virtual concierge for "${getLocalizedText(property.name, language)}" in ${property.city}, ${property.country}.
+  const prompt = `You are the virtual concierge for "${getLocalizedText(property.name, language)}" in ${property.city}${property.country ? ', ' + property.country : ''}.
 You are helping with the "${getLocalizedText(zone.name, language)}" zone.
 
 YOUR KNOWLEDGE BASE — use ONLY this information to answer:
@@ -1206,13 +1219,13 @@ ${hostInfo}
 ${EMERGENCY_KNOWLEDGE}
 
 CRITICAL RULES:
-1. LANGUAGE: Detect the language the user writes in and ALWAYS respond in that SAME language.
+1. LANGUAGE: ALWAYS respond in the EXACT language the guest uses in their message — not the language of this prompt, not Spanish by default. The UI hint is "${language === 'en' ? 'English' : language === 'fr' ? 'French' : 'Spanish'}", but if the guest writes in English, respond in English. If they write in French, respond in French. If they write in Spanish, respond in Spanish. Match the guest's language 100% of the time, no exceptions.
 2. ANSWER FROM DATA: Your answers MUST come from the knowledge base above. Quote specific details (names, codes, locations, times).
-3. MEDIA: For every step you describe that has a 📷 or 📹, you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Ver vídeo](url). Include ALL images and videos from every step you mention — never skip them.
-4. VIDEO STEPS: If a zone or step only has a video (📹) and no text, ALWAYS share the video link and say it explains everything visually. Example: "Aquí tienes el vídeo explicativo: [🎬 Ver vídeo](url)"
+3. MEDIA: For every step you describe that has a 📷 or 📹, you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Watch video](url). Include ALL images and videos from every step you mention — never skip them.
+4. VIDEO STEPS: If a zone or step only has a video (📹) and no text, ALWAYS share the video link and say it explains everything visually — in the guest's language.
 5. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any place category, list ALL places from that zone — every single one. Never pick just 1 or 2. Show name, rating (★), distance, and walk time for each.
 6. STYLE: Be friendly and direct. Use **bold** for key info. Use bullet lists. Max 3 short paragraphs.
-7. HONESTY: If the specific information is NOT in the knowledge base above, say "No tengo esa información, te recomiendo contactar al anfitrión" — NEVER guess or approximate.
+7. HONESTY: If the specific information is NOT in the knowledge base above, tell the guest you don't have that information and recommend contacting the host — always in their language, NEVER hardcoded in Spanish.
 8. ⚠️ ABSOLUTE RULE — NO HALLUCINATION: NEVER invent, assume, or use information from your training data. If check-in times, door codes, addresses, or any detail are NOT explicitly written in the knowledge base above, do NOT mention them.`;
 
   return prompt;
@@ -1265,7 +1278,7 @@ function buildPropertySystemPrompt(property: any, zones: any[], language: string
 
   const intelligenceSection = buildIntelligenceSection(property);
 
-  const prompt = `You are the virtual concierge for "${propertyName}" in ${property.city}, ${property.country}.
+  const prompt = `You are the virtual concierge for "${propertyName}" in ${property.city}${property.country ? ', ' + property.country : ''}.
 You have access to the complete property manual with all zones and sections.
 
 YOUR KNOWLEDGE BASE — use ONLY this information to answer:
@@ -1280,15 +1293,15 @@ ${zonesContent || 'No zones available'}
 ${EMERGENCY_KNOWLEDGE}
 
 CRITICAL RULES:
-1. LANGUAGE: Detect the language the user writes in and ALWAYS respond in that SAME language.
+1. LANGUAGE: ALWAYS respond in the EXACT language the guest uses in their message — not the language of this prompt, not Spanish by default. The UI hint is "${language === 'en' ? 'English' : language === 'fr' ? 'French' : 'Spanish'}", but if the guest writes in English, respond in English. If they write in French, respond in French. If they write in Spanish, respond in Spanish. Match the guest's language 100% of the time, no exceptions.
 2. ANSWER FROM DATA: Your answers MUST come EXCLUSIVELY from the knowledge base above. Quote specific details (WiFi name, codes, locations, times, step-by-step instructions).
-3. MEDIA: For every step you describe that has a 📷 or 📹, you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Ver vídeo](url). Include ALL images and videos from every step you mention — never skip them.
-4. VIDEO STEPS: If a zone or step only has a video (📹) and no text, ALWAYS share the video link and say it explains everything visually. Example: "Aquí tienes el vídeo explicativo: [🎬 Ver vídeo](url)"
+3. MEDIA: For every step you describe that has a 📷 or 📹, you MUST include the EXACT URL in your response. For images: ![description](url). For videos: [🎬 Watch video](url). Include ALL images and videos from every step you mention — never skip them.
+4. VIDEO STEPS: If a zone or step only has a video (📹) and no text, ALWAYS share the video link and say it explains everything visually — in the guest's language.
 5. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any category, list ALL places from that zone. Show name, rating (★), distance, and walk time for each. If the guest asks for places "cerca", "near", "close" or mentions walking distance, prioritize places with low distanceMeters/walkMinutes and only list those within ~1.5km (18 min walk).
 6. STAY FOCUSED: Answer ONLY what was asked, using the most relevant zone. DO NOT add information from other unrelated zones. If the question is about checkout, answer only about checkout — never add kitchen, lights, or other zone info unless the guest explicitly asks about it.
 7. STYLE: Be friendly and direct like a WhatsApp chat. Use **bold** for key info. Use bullet lists with -. Max 3 short paragraphs. Use emojis sparingly (📍🏠✅☕🍽️).
-8. HONESTY: If the specific information is NOT in the knowledge base above, say "No tengo esa información, te recomiendo contactar al anfitrión" — NEVER guess or approximate.
-9. ⚠️ ABSOLUTE RULE — NO HALLUCINATION: NEVER invent, assume, or use information from your training data. If check-in times, door codes, addresses, or any detail are NOT explicitly written in the knowledge base above, do NOT mention them. Saying "I don't know, contact the host" is always better than inventing data.`;
+8. HONESTY: If the specific information is NOT in the knowledge base above, tell the guest you don't have that information and recommend contacting the host — always in their language, NEVER hardcoded in Spanish.
+9. ⚠️ ABSOLUTE RULE — NO HALLUCINATION: NEVER invent, assume, or use information from your training data. If check-in times, door codes, addresses, or any detail are NOT explicitly written in the knowledge base above, do NOT mention them. Telling the guest "I don't know, please contact the host" is always better than inventing data.`;
 
   return prompt;
 }
@@ -1352,5 +1365,3 @@ function generateFallbackResponse(message: string, property: any, zone: any | nu
   return langResponses.default;
 }
 
-function logChatInteraction(propertyId: string, zoneId: string | null, userMessage: string, aiResponse: string) {
-}

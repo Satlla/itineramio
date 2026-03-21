@@ -76,7 +76,6 @@ export async function GET(request: NextRequest) {
       }))
     })
   } catch (error) {
-    console.error('Error fetching billing unit groups:', error)
     return NextResponse.json(
       { error: 'Error al obtener los conjuntos' },
       { status: 500 }
@@ -214,7 +213,6 @@ export async function POST(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Error creating billing unit group:', error)
     return NextResponse.json(
       { error: 'Error al crear el conjunto' },
       { status: 500 }

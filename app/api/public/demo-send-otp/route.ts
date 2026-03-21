@@ -101,8 +101,7 @@ export async function POST(request: NextRequest) {
             leadName: name || undefined,
           }),
         })
-      } catch (emailErr) {
-        console.error('[demo-otp] Email send failed:', emailErr)
+      } catch {
         return NextResponse.json(
           { error: 'Error al enviar el email. Inténtalo de nuevo.' },
           { status: 500 }
@@ -112,7 +111,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, ...(isDev && !hasResend ? { devCode: code } : {}) })
   } catch (error) {
-    console.error('[demo-otp] Error:', error)
     return NextResponse.json(
       { error: 'Error interno. Inténtalo de nuevo.' },
       { status: 500 }

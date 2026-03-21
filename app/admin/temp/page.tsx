@@ -13,8 +13,7 @@ export default function TempAdminPage() {
         setStats(data)
         setLoading(false)
       })
-      .catch(err => {
-        console.error('Error:', err)
+      .catch(() => {
         setLoading(false)
       })
   }, [])

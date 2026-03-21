@@ -49,10 +49,5 @@ export const isFeatureEnabled = (flag: keyof typeof FEATURE_FLAGS): boolean => {
  * Helper para desarrollo: log de todos los feature flags activos
  */
 export const logFeatureFlags = (): void => {
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🚩 Feature Flags Status:')
-    Object.entries(FEATURE_FLAGS).forEach(([key, value]) => {
-      console.log(`  ${key}: ${value ? '✅ ENABLED' : '❌ DISABLED'}`)
-    })
-  }
+  // No-op: console logging removed
 }

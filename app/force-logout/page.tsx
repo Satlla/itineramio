@@ -34,7 +34,6 @@ export default function ForceLogoutPage() {
       } catch (error) {
         setStatus('error')
         setMessage('Error durante el logout')
-        console.error('Force logout error:', error)
       }
     }
 

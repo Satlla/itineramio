@@ -21,8 +21,8 @@ export async function GET(
     try {
     // REMOVED: set_config doesn't work with PgBouncer in transaction mode
     // RLS is handled at application level instead
-    } catch (rslError) {
-      console.error('🔍 SIMPLE - RLS config failed:', rslError)
+    } catch {
+      // RLS config skipped
     }
 
     // Check property ownership
@@ -37,8 +37,7 @@ export async function GET(
       if (!property) {
         return NextResponse.json({ error: 'Property not found' }, { status: 404 })
       }
-    } catch (propError) {
-      console.error('🔍 SIMPLE - Property check failed:', propError)
+    } catch {
       return NextResponse.json({ error: 'Property check failed' }, { status: 500 })
     }
 
@@ -54,8 +53,7 @@ export async function GET(
       if (!zone) {
         return NextResponse.json({ error: 'Zone not found' }, { status: 404 })
       }
-    } catch (zoneError) {
-      console.error('🔍 SIMPLE - Zone check failed:', zoneError)
+    } catch {
       return NextResponse.json({ error: 'Zone check failed' }, { status: 500 })
     }
 
@@ -84,15 +82,13 @@ export async function GET(
       })
       
     } catch (stepsError) {
-      console.error('🔍 SIMPLE - Steps query failed:', stepsError)
-      return NextResponse.json({ 
+      return NextResponse.json({
         error: 'Steps query failed', 
         details: String(stepsError) 
       }, { status: 500 })
     }
 
   } catch (error) {
-    console.error('🔍 SIMPLE - General error:', error)
     return NextResponse.json({
       error: 'Internal server error',
       details: String(error)
