@@ -169,6 +169,14 @@ const nextConfig = {
         ],
       },
       {
+        // COEP for Next.js static chunks — required so FFmpeg Web Worker scripts
+        // inherit the credentialless COEP when loaded from a crossOriginIsolated context (/demo)
+        source: '/_next/static/:path*',
+        headers: [
+          { key: 'Cross-Origin-Embedder-Policy', value: 'credentialless' },
+        ],
+      },
+      {
         // Apply security headers to all routes
         source: '/:path*',
         headers: securityHeaders,
