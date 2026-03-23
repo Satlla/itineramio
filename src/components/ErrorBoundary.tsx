@@ -71,8 +71,8 @@ export class ErrorBoundary extends Component<Props, State> {
               Ha ocurrido un error inesperado. Por favor, inténtalo de nuevo.
             </p>
             
-            {/* Error Details (Development Only) */}
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {/* Error Details */}
+            {this.state.error && (
               <div className="mb-6 p-4 bg-gray-100 rounded-lg text-left">
                 <h3 className="text-sm font-medium text-gray-900 mb-2">Error Details:</h3>
                 <p className="text-xs text-gray-700 font-mono break-all">
