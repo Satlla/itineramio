@@ -4,6 +4,7 @@ import { planLimitsService } from '../../../../src/lib/plan-limits'
 import { generateManual, type PropertyInput, type GenerationEvent } from '../../../../src/lib/ai-setup/generator'
 import { prisma } from '../../../../src/lib/prisma'
 import crypto from 'crypto'
+import { citiesMatch } from '../../../../src/lib/city-match'
 
 export const maxDuration = 300
 export const runtime = 'nodejs'
@@ -69,10 +70,7 @@ export async function POST(request: NextRequest) {
                   },
                 },
               })
-              const matchingGuide = guides.find(g => {
-                const gc = g.city.toLowerCase().trim()
-                return gc.includes(city) || city.includes(gc)
-              })
+              const matchingGuide = guides.find(g => citiesMatch(g.city, propertyData.city!))
               if (matchingGuide) {
                 // Create subscription
                 await prisma.propertyGuideSubscription.upsert({

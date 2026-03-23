@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { prisma } from '../../../../../src/lib/prisma'
 import { requireAdminAuth } from '../../../../../src/lib/admin-auth'
+import { citiesMatch } from '../../../../../src/lib/city-match'
 
 const CATEGORY_NAMES: Record<string, { es: string; en: string; fr: string; icon: string }> = {
   restaurant: { es: 'Restaurantes', en: 'Restaurants', fr: 'Restaurants', icon: 'Utensils' },
@@ -57,10 +58,7 @@ export async function POST(request: NextRequest) {
       const guideCity = guide.city.toLowerCase().trim()
 
       // Find matching properties (bidirectional city name match)
-      const matchingProperties = properties.filter(p => {
-        const propCity = p.city.toLowerCase().trim()
-        return propCity.includes(guideCity) || guideCity.includes(propCity)
-      })
+      const matchingProperties = properties.filter(p => citiesMatch(p.city, guide.city))
 
       for (const property of matchingProperties) {
         const key = `${guide.id}__${property.id}`

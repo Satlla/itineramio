@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../src/lib/prisma'
 import { getAuthUser } from '../../../src/lib/auth'
 import { getAdminUser } from '../../../src/lib/admin-auth'
+import { citiesMatch } from '../../../src/lib/city-match'
 
 const ADMIN_EMAIL = 'alejandrosatlla@gmail.com'
 
@@ -71,13 +72,9 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Filter by city with bidirectional contains (handles bilingual names)
+    // Filter by city using alias-aware match (handles bilingual names like Alacant/Alicante)
     const filtered = city
-      ? guides.filter(g => {
-          const gc = g.city.toLowerCase()
-          const sc = city.toLowerCase()
-          return gc.includes(sc) || sc.includes(gc)
-        })
+      ? guides.filter(g => citiesMatch(g.city, city))
       : guides
 
     // Re-sort: VERIFIED first, then PUBLISHED
