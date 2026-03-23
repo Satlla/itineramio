@@ -43,6 +43,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             'video/webm'
           ],
           maximumSizeInBytes: 100 * 1024 * 1024, // 100MB
+          addRandomSuffix: true,
           tokenPayload: JSON.stringify({
             userId,
           }),
