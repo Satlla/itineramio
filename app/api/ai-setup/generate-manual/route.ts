@@ -5,6 +5,7 @@ import { generateManual, type PropertyInput, type GenerationEvent } from '../../
 import { prisma } from '../../../../src/lib/prisma'
 import crypto from 'crypto'
 import { citiesMatch } from '../../../../src/lib/city-match'
+import { CATEGORY_NAMES } from '../../../../src/lib/category-names'
 
 export const maxDuration = 300
 export const runtime = 'nodejs'
@@ -80,19 +81,6 @@ export async function POST(request: NextRequest) {
                 })
                 // Import places into recommendation zones
                 for (const gp of matchingGuide.places) {
-                  const CATEGORY_NAMES: Record<string, { es: string; en: string; fr: string; icon: string }> = {
-                    restaurant: { es: 'Restaurantes', en: 'Restaurants', fr: 'Restaurants', icon: 'Utensils' },
-                    cafe: { es: 'Cafeterías', en: 'Cafes', fr: 'Cafés', icon: 'Coffee' },
-                    tourist_attraction: { es: 'Lugares de interés', en: 'Tourist Attractions', fr: 'Attractions touristiques', icon: 'Camera' },
-                    park: { es: 'Parques y naturaleza', en: 'Parks & Nature', fr: 'Parcs & Nature', icon: 'Trees' },
-                    beach: { es: 'Playas', en: 'Beaches', fr: 'Plages', icon: 'Waves' },
-                    shopping_mall: { es: 'Compras', en: 'Shopping', fr: 'Shopping', icon: 'ShoppingBag' },
-                    museum: { es: 'Museos', en: 'Museums', fr: 'Musées', icon: 'Landmark' },
-                    bar: { es: 'Bares', en: 'Bars', fr: 'Bars', icon: 'Wine' },
-                    pharmacy: { es: 'Farmacias', en: 'Pharmacies', fr: 'Pharmacies', icon: 'Pill' },
-                    hospital: { es: 'Hospitales', en: 'Hospitals', fr: 'Hôpitaux', icon: 'Hospital' },
-                    supermarket: { es: 'Supermercados', en: 'Supermarkets', fr: 'Supermarchés', icon: 'ShoppingCart' },
-                  }
                   const catInfo = CATEGORY_NAMES[gp.category] || { es: gp.category, en: gp.category, fr: gp.category, icon: 'MapPin' }
                   let zone = await prisma.zone.findFirst({
                     where: { propertyId, type: 'RECOMMENDATIONS', recommendationCategory: gp.category },

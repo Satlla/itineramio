@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { prisma } from '../../../../../src/lib/prisma'
 import { getAuthUser } from '../../../../../src/lib/auth'
+import { CATEGORY_NAMES } from '../../../../../src/lib/category-names'
 
 function haversineMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371000
@@ -13,25 +14,6 @@ function haversineMeters(lat1: number, lon1: number, lat2: number, lon2: number)
   return Math.round(2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)))
 }
 
-const CATEGORY_NAMES: Record<string, { es: string; en: string; fr: string; icon: string }> = {
-  restaurant: { es: 'Restaurantes', en: 'Restaurants', fr: 'Restaurants', icon: 'Utensils' },
-  cafe: { es: 'Cafeterías', en: 'Cafes', fr: 'Cafés', icon: 'Coffee' },
-  tourist_attraction: {
-    es: 'Lugares de interés',
-    en: 'Tourist Attractions',
-    fr: 'Attractions touristiques',
-    icon: 'Camera',
-  },
-  park: { es: 'Parques y naturaleza', en: 'Parks & Nature', fr: 'Parcs & Nature', icon: 'Trees' },
-  beach: { es: 'Playas', en: 'Beaches', fr: 'Plages', icon: 'Waves' },
-  shopping_mall: { es: 'Compras', en: 'Shopping', fr: 'Shopping', icon: 'ShoppingBag' },
-  museum: { es: 'Museos', en: 'Museums', fr: 'Musées', icon: 'Landmark' },
-  bar: { es: 'Bares', en: 'Bars', fr: 'Bars', icon: 'Wine' },
-  pharmacy: { es: 'Farmacias', en: 'Pharmacies', fr: 'Pharmacies', icon: 'Pill' },
-  hospital: { es: 'Hospitales', en: 'Hospitals', fr: 'Hôpitaux', icon: 'Hospital' },
-  supermarket: { es: 'Supermercados', en: 'Supermarkets', fr: 'Supermarchés', icon: 'ShoppingCart' },
-  gym: { es: 'Gimnasios', en: 'Gyms', fr: 'Salles de sport', icon: 'Dumbbell' },
-}
 
 async function importPlacesToProperty(
   propertyId: string,
