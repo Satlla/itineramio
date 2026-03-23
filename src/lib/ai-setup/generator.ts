@@ -20,7 +20,6 @@ import { generatePropertyNumber, extractNumberFromReference } from '../property-
 import { translateFields } from '../translate'
 import { generateZoneQRCode } from '../qr'
 import { fetchAllLocationData } from './places'
-import { generateRecommendations } from '../recommendations'
 import { getZoneContentTemplate, type ZoneContentTemplate } from '../../data/zone-content-templates'
 import {
   APPLIANCE_REGISTRY,
@@ -1022,23 +1021,6 @@ export async function generateManual(
         // QR generation failed, continue
       }
     }))
-
-    // ── 7. Auto-generate nearby recommendations (default categories only) ──
-    if (propertyInput.lat && propertyInput.lng) {
-      sendEvent({ type: 'status', message: 'Buscando servicios cercanos...' })
-      try {
-        const recResult = await generateRecommendations(
-          property.id,
-          propertyInput.lat,
-          propertyInput.lng,
-          undefined, // Uses defaultEnabled categories only
-          propertyInput.city,
-        )
-        totalZones += recResult.zonesCreated
-      } catch (err) {
-        // Recommendation generation failed (non-blocking)
-      }
-    }
 
     // ── 8. Complete ──
     const elapsedTime = Math.round((Date.now() - startTime) / 1000)
