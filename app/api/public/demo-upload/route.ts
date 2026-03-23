@@ -18,8 +18,8 @@ export async function POST(request: NextRequest) {
   if (!isVercelCallback) {
     const rateLimitKey = getRateLimitKey(request, null, 'demo-upload')
     const rateCheck = await checkRateLimitAsync(rateLimitKey, {
-      maxRequests: isDev ? 200 : 5,
-      windowMs: 60 * 60 * 1000, // 5 uploads per hour
+      maxRequests: isDev ? 200 : 30,
+      windowMs: 60 * 60 * 1000, // 30 uploads per hour
     })
     if (!rateCheck.allowed) {
       return NextResponse.json(
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
               'video/3gpp', 'video/x-msvideo', 'application/octet-stream',
               'video/x-matroska', 'video/mpeg', 'video/ogg',
             ],
-            maximumSizeInBytes: 10 * 1024 * 1024, // 10MB for demo (unauthenticated)
+            maximumSizeInBytes: 100 * 1024 * 1024, // 100MB for demo
             addRandomSuffix: true,
           }
         },
