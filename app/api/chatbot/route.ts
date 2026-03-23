@@ -40,7 +40,7 @@ const CHATBOT_DAILY_LIMIT = {
 async function notifyAbuse(ip: string, propertyId: string, limitType: 'hourly' | 'daily', count: number) {
   try {
     await sendEmail({
-      to: ['alejandrosatlla@gmail.com'],
+      to: [process.env.ADMIN_EMAIL || 'alejandrosatlla@gmail.com'],
       subject: `⚠️ Uso excesivo del chatbot — límite ${limitType === 'hourly' ? 'horario' : 'diario'} superado`,
       html: `
         <h2>Alerta de uso excesivo del chatbot</h2>
@@ -439,10 +439,18 @@ export async function POST(request: NextRequest) {
  * If the top zone is a RECOMMENDATIONS zone (e.g. user asked about restaurants),
  * there are no step-media to show, so we return [].
  */
+// Minimum relevance score to show media — avoids showing unrelated zone videos
+// Score >= 8 means: name keyword match (15pts) OR 2+ step content matches (4pts each)
+// Pure ALWAYS_RELEVANT base score (2pts) is NOT enough to show media
+const MIN_MEDIA_SCORE = 8;
+
 function collectRelevantMedia(zones: any[], language: string): MediaItem[] {
   if (!zones.length || zones[0].type === 'RECOMMENDATIONS') return [];
 
   const zone = zones[0];
+
+  // Don't show media if the top zone doesn't strongly match the question
+  if ((zone._relevanceScore ?? 0) < MIN_MEDIA_SCORE) return [];
   const items: MediaItem[] = [];
   let stepNumber = 0;
 
@@ -774,8 +782,8 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
 
   scored.sort((a, b) => b.score - a.score);
 
-  // Return top 3 zones — focused context reduces zone-mixing in AI responses
-  return scored.slice(0, 3).map(s => s.zone);
+  // Return top 3 zones — attach _relevanceScore so collectRelevantMedia can filter weak matches
+  return scored.slice(0, 3).map(s => ({ ...s.zone, _relevanceScore: s.score }));
 }
 
 // ========================================
