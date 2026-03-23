@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Upload, X, Video, CheckCircle, Loader2, AlertCircle, Copy } from 'lucide-react'
 import { Button } from './Button'
-import { upload } from '@vercel/blob/client'
+// Dynamically imported below to avoid Safari bundling issues
 import { compressVideoFFmpeg, isFFmpegSupported, preloadFFmpeg } from '../../utils/ffmpegCompression'
 
 interface VideoUploadProps {
@@ -233,6 +233,7 @@ export function VideoUploadSimple({
     // Add timestamp to filename to avoid "blob already exists" error
     const uniqueFilename = `${Date.now()}-${file.name}`
     try {
+      const { upload } = await import('@vercel/blob/client')
       const blob = await upload(uniqueFilename, file, {
         access: 'public',
         handleUploadUrl: '/api/upload-token',
