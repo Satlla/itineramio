@@ -41,7 +41,6 @@ import {
   Building2,
   Plus,
   Search,
-  Map,
   Clock,
 } from 'lucide-react'
 import type { Step1Data } from './Step1Address'
@@ -1163,7 +1162,7 @@ export default function Step4Review({
         >
           {/* City guide banner */}
           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
-            <Map className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+            <MapPin className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-semibold text-blue-800">¿Hay una guía de ciudad de Itineramio?</p>
               <p className="text-sm text-blue-600 mt-0.5">Si existe una guía de tu ciudad, podrás importarla desde el dashboard y tendrás todos los lugares más interesantes ya añadidos automáticamente.</p>

@@ -9,9 +9,7 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  experimental: {
-    esmExternals: true,
-  },
+
   outputFileTracingExcludes: {
     '/api/*': ['./public/uploads/**', './public/ffmpeg/**'],
   },
