@@ -179,6 +179,13 @@ export async function POST(
       return NextResponse.json({ success: false, error: 'Acceso denegado' }, { status: 403 })
     }
 
+    // Check if there was already an active subscription before upserting
+    const existingSub = await prisma.propertyGuideSubscription.findUnique({
+      where: { guideId_propertyId: { guideId: id, propertyId } },
+      select: { status: true },
+    })
+    const wasAlreadyActive = existingSub?.status === 'ACTIVE'
+
     // Create or update subscription (idempotent — re-importing is fine)
     const subscription = await prisma.propertyGuideSubscription.upsert({
       where: { guideId_propertyId: { guideId: id, propertyId } },
@@ -210,11 +217,13 @@ export async function POST(
       null
     )
 
-    // Increment subscriberCount
-    await prisma.cityGuide.update({
-      where: { id },
-      data: { subscriberCount: { increment: 1 } },
-    })
+    // Only increment subscriberCount for new subscriptions (not re-activations)
+    if (!wasAlreadyActive) {
+      await prisma.cityGuide.update({
+        where: { id },
+        data: { subscriberCount: { increment: 1 } },
+      })
+    }
 
     return NextResponse.json(
       { success: true, data: { subscription, importedCount } },
@@ -261,6 +270,13 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: 'Acceso denegado' }, { status: 403 })
     }
 
+    // Check if actively subscribed before unsubscribing (to decrement counter only if needed)
+    const existingSub = await prisma.propertyGuideSubscription.findUnique({
+      where: { guideId_propertyId: { guideId: id, propertyId } },
+      select: { status: true },
+    })
+    const wasActive = existingSub?.status === 'ACTIVE'
+
     // Upsert: set UNSUBSCRIBED whether or not a subscription already exists.
     // This allows "No mostrar más" to work even before the user has subscribed.
     await prisma.propertyGuideSubscription.upsert({
@@ -274,6 +290,14 @@ export async function DELETE(
       },
       update: { status: 'UNSUBSCRIBED' },
     })
+
+    // Decrement subscriberCount only if was previously active
+    if (wasActive) {
+      await prisma.cityGuide.update({
+        where: { id },
+        data: { subscriberCount: { decrement: 1 } },
+      })
+    }
 
     return NextResponse.json({ success: true, message: 'Suscripción cancelada correctamente' })
   } catch (error) {
