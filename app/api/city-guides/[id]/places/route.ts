@@ -274,11 +274,29 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: 'El lugar no está en esta guía' }, { status: 404 })
     }
 
+    // Delete recommendations in all subscribed properties that came from this city guide place
+    const deleted = await prisma.recommendation.deleteMany({
+      where: {
+        placeId: guidePlace.placeId,
+        source: 'CITY_GUIDE',
+        zone: {
+          property: {
+            guideSubscriptions: {
+              some: { guideId: id, status: 'ACTIVE' },
+            },
+          },
+        },
+      },
+    })
+
     await prisma.cityGuidePlace.delete({
       where: { id: guidePlaceId },
     })
 
-    return NextResponse.json({ success: true, message: 'Lugar eliminado de la guía' })
+    return NextResponse.json({
+      success: true,
+      message: `Lugar eliminado de la guía y de ${deleted.count} propiedad(es)`,
+    })
   } catch (error) {
     return NextResponse.json({ success: false, error: 'Error interno del servidor' }, { status: 500 })
   }
