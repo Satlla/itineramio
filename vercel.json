@@ -4,6 +4,9 @@
   "outputDirectory": ".next",
   "installCommand": "npm ci",
   "functions": {
+    "app/api/public/generate-demo/route.ts": {
+      "maxDuration": 300
+    },
     "app/api/upload/route.ts": {
       "maxDuration": 60
     },

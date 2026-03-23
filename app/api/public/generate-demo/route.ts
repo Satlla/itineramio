@@ -680,17 +680,20 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // 14. Generate nearby recommendations (async, non-blocking for response)
-    // We still await it because the demo preview needs them
+    // 14. Generate nearby recommendations with a 50s timeout so it never blocks the response
     if (propertyInput.lat && propertyInput.lng) {
       try {
-        await generateRecommendations(
-          property.id,
-          propertyInput.lat,
-          propertyInput.lng,
-          DEMO_CATEGORY_IDS,
-          propertyInput.city,
-        )
+        const recoTimeout = new Promise<void>((resolve) => setTimeout(resolve, 50_000))
+        await Promise.race([
+          generateRecommendations(
+            property.id,
+            propertyInput.lat,
+            propertyInput.lng,
+            DEMO_CATEGORY_IDS,
+            propertyInput.city,
+          ),
+          recoTimeout,
+        ])
       } catch {
         // non-blocking recommendation generation error ignored
       }
