@@ -32,8 +32,6 @@ import {
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { UnifiedWelcomeModal } from '../../../src/components/ui/UnifiedWelcomeModal'
-import FirstPropertyOnboarding from '../../../src/components/ui/FirstPropertyOnboarding'
-import FirstPropertyNotification from '../../../src/components/ui/FirstPropertyNotification'
 import { Button, Card, CardContent, CardHeader, CardTitle, Badge, Avatar } from '../../../src/components/ui'
 import { AnimatedLoadingSpinner } from '../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardFooter } from '../../../src/components/layout/DashboardFooter'
@@ -93,8 +91,6 @@ export default function DashboardPage(): JSX.Element {
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [showGuestReportsModal, setShowGuestReportsModal] = useState(false)
   const [showUnifiedWelcome, setShowUnifiedWelcome] = useState(false)
-  const [showFirstPropertyNotification, setShowFirstPropertyNotification] = useState(false)
-  const [showFirstPropertyOnboarding, setShowFirstPropertyOnboarding] = useState(false)
   const [trialStatus, setTrialStatus] = useState<any>(null)
   const [hasActiveSubscription, setHasActiveSubscription] = useState<boolean | null>(null)
   const [demoClaimedPropertyId, setDemoClaimedPropertyId] = useState<string | null>(null)
@@ -357,49 +353,6 @@ export default function DashboardPage(): JSX.Element {
   }, [searchParams, user, loading, properties, demoClaimedPropertyId])
 
   // Check if should show first property notification/onboarding
-  useEffect(() => {
-    // Skip if demo property was claimed
-    if (demoClaimedPropertyId) return
-    // No mostrar si el welcome modal está abierto
-    if (showUnifiedWelcome) return
-    // Solo mostrar si no está cargando y no hay propiedades
-    if (!loading && properties.length === 0) {
-      const hasSeenFirstPropertyOnboarding = localStorage.getItem('hasSeenFirstPropertyOnboarding')
-
-      if (!hasSeenFirstPropertyOnboarding) {
-        // Mostrar notificación después de 2 segundos
-        const timer = setTimeout(() => {
-          setShowFirstPropertyNotification(true)
-        }, 2000)
-        return () => clearTimeout(timer)
-      }
-    }
-  }, [loading, properties, showUnifiedWelcome])
-
-  // Handlers for first property onboarding
-  const handleStartFirstPropertyTour = () => {
-    localStorage.setItem('hasSeenFirstPropertyOnboarding', 'true')
-    setShowFirstPropertyNotification(false)
-    // Show spotlight on the "Add Property" button
-    setSpotlight(true, 'add-property-button')
-    // Give users 2 seconds to see the spotlight before redirecting
-    setTimeout(() => {
-      startOnboarding()
-    }, 2000)
-  }
-
-  const handleCompleteFirstPropertyOnboarding = () => {
-    localStorage.setItem('hasSeenFirstPropertyOnboarding', 'true')
-    setShowFirstPropertyOnboarding(false)
-    // Redirigir a crear propiedad
-    router.push('/properties/new?onboarding=true')
-  }
-
-  const handleCloseFirstPropertyNotification = () => {
-    // Marcar como visto para que no vuelva a aparecer
-    localStorage.setItem('hasSeenFirstPropertyOnboarding', 'true')
-    setShowFirstPropertyNotification(false)
-  }
 
   // NOTE: Polling removed - recentActivity is already included in /api/dashboard/data
   // If real-time updates are needed, consider using WebSockets instead
@@ -734,26 +687,6 @@ export default function DashboardPage(): JSX.Element {
                   </h2>
                 </div>
                 <div className="flex items-center gap-3 w-full sm:w-auto">
-                  {/* Floating Lightbulb - OUTSIDE button, on the left - CLICKEABLE */}
-                  {properties.length === 0 && !localStorage.getItem('hasSeenFirstPropertyOnboarding') && (
-                    <motion.div
-                      animate={{
-                        y: [0, -8, 0]
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                      className="flex-shrink-0 cursor-pointer"
-                      onClick={handleStartFirstPropertyTour}
-                    >
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-yellow-400 rounded-full blur-lg opacity-60 animate-pulse" />
-                        <Lightbulb className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-400 relative hover:scale-110 transition-transform" fill="currentColor" />
-                      </div>
-                    </motion.div>
-                  )}
                   <Button
                     asChild
                     size="sm"
@@ -812,24 +745,6 @@ export default function DashboardPage(): JSX.Element {
                       {t('properties.createFirst')}
                     </p>
                     <div className="flex items-center justify-center gap-3">
-                      {/* Floating Lightbulb - OUTSIDE button, on the left - CLICKEABLE */}
-                      <motion.div
-                        animate={{
-                          y: [0, -8, 0]
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
-                        className="flex-shrink-0 cursor-pointer"
-                        onClick={handleStartFirstPropertyTour}
-                      >
-                        <div className="relative">
-                          <div className="absolute inset-0 bg-yellow-400 rounded-full blur-lg opacity-60 animate-pulse" />
-                          <Lightbulb className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-400 relative hover:scale-110 transition-transform" fill="currentColor" />
-                        </div>
-                      </motion.div>
                       <Button
                         asChild
                         variant="outline"
@@ -1282,19 +1197,6 @@ export default function DashboardPage(): JSX.Element {
         trialDaysRemaining={trialStatus?.daysRemaining}
       />
 
-      {/* First Property Notification */}
-      <FirstPropertyNotification
-        isOpen={showFirstPropertyNotification}
-        onClose={handleCloseFirstPropertyNotification}
-        onStartTour={handleStartFirstPropertyTour}
-      />
-
-      {/* First Property Onboarding */}
-      <FirstPropertyOnboarding
-        isOpen={showFirstPropertyOnboarding}
-        onClose={() => setShowFirstPropertyOnboarding(false)}
-        onComplete={handleCompleteFirstPropertyOnboarding}
-      />
 
       {/* Spotlight para resaltar elementos durante onboarding */}
       {spotlightTarget && (
