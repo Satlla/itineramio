@@ -139,7 +139,8 @@ export async function POST(request: NextRequest) {
     const allZones: any[] = Array.isArray(property.zones) ? property.zones : [];
     const zones = zoneId
       ? allZones.filter((z: any) => z.id === zoneId).length > 0
-        ? allZones.filter((z: any) => z.id === zoneId)
+        // Exact zone match — set high relevance score so media always shows
+        ? allZones.filter((z: any) => z.id === zoneId).map((z: any) => ({ ...z, _relevanceScore: 20 }))
         : rankZonesByRelevance(message, allZones, language)
       : rankZonesByRelevance(message, allZones, language);
 
@@ -879,12 +880,12 @@ function buildStepDescription(step: any, index: number, language: string): strin
 
   let desc = `Paso ${index + 1}: ${text || title || fallbackLabel}`;
 
-  // Include actual media URL so the AI can embed it in markdown responses
+  // Note media presence so AI knows a video/image accompanies this step
   if (hasMedia) {
     if (step.type === 'VIDEO') {
-      desc += `\n  📹 Vídeo disponible (INCLUIR en la respuesta): ${content.mediaUrl}`;
+      desc += `\n  📹 [Vídeo adjunto a este paso — se muestra automáticamente]`;
     } else if (step.type === 'IMAGE') {
-      desc += `\n  📷 Imagen disponible (INCLUIR en la respuesta): ![${title || 'imagen'}](${content.mediaUrl})`;
+      desc += `\n  📷 [Imagen adjunta a este paso — se muestra automáticamente]`;
     }
   }
 
