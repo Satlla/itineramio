@@ -541,8 +541,6 @@ export default function AISetupPage() {
                 onMediaChange={setMedia}
                 onNext={() => setCurrentStep(4)}
                 onBack={() => setCurrentStep(2)}
-                clientUpload={true}
-                uploadEndpoint="/api/upload-token"
               />
             )}
 
