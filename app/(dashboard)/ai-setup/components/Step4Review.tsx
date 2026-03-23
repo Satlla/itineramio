@@ -1152,22 +1152,28 @@ export default function Step4Review({
         })}
       </div>
 
+      {/* City guide banner — always visible */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3"
+      >
+        <MapPin className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-semibold text-blue-800">¿Hay una guía de ciudad de Itineramio?</p>
+          <p className="text-sm text-blue-600 mt-0.5">Si existe una guía de tu ciudad, podrás importarla desde el dashboard y tendrás todos los lugares más interesantes ya añadidos automáticamente.</p>
+        </div>
+      </motion.div>
+
       {/* Demo mode: add your favourite places */}
       {demoMode && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.3 }}
           className="space-y-4"
         >
-          {/* City guide banner */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
-            <MapPin className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-semibold text-blue-800">¿Hay una guía de ciudad de Itineramio?</p>
-              <p className="text-sm text-blue-600 mt-0.5">Si existe una guía de tu ciudad, podrás importarla desde el dashboard y tendrás todos los lugares más interesantes ya añadidos automáticamente.</p>
-            </div>
-          </div>
 
           {/* Search bar */}
           <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">

@@ -1279,12 +1279,16 @@ export function StepEditor({
                                         </h4>
                                       ) : null}
                                       
-                                      <p className="text-xs text-gray-700 leading-relaxed">
-                                        {index === activeStep 
+                                      <div className="text-xs text-gray-700 leading-relaxed whitespace-pre-line">
+                                        {(index === activeStep
                                           ? (steps[activeStep]?.content?.[activeLanguage] || `Añade contenido para este paso`)
                                           : (step.content.es || `Añade contenido para este paso`)
-                                        }
-                                      </p>
+                                        ).split(/(\*\*[^*]+\*\*)/g).map((part: string, i: number) =>
+                                          part.startsWith('**') && part.endsWith('**')
+                                            ? <strong key={i}>{part.slice(2, -2)}</strong>
+                                            : <span key={i}>{part}</span>
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
