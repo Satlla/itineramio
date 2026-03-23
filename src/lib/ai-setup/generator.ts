@@ -715,7 +715,14 @@ export async function generateManual(
 
     // User-defined zones from media (AI perfects + translates)
     const userZones = await buildUserMediaZones(mediaAnalysis, sendEvent, isMock)
-    allZones.push(...userZones)
+    // Exclude template zone IDs (checkin, ac) — their media is attached via assignTemplateZoneMedia
+    // to the essential zones already added above, preventing duplicate zones
+    const TEMPLATE_ZONE_IDS = new Set(['checkin', 'ac'])
+    const nonTemplateUserZones = userZones.filter(z => {
+      const matched = PREDEFINED_ZONES.find(p => p.name === z.name.es)
+      return !matched || !TEMPLATE_ZONE_IDS.has(matched.id)
+    })
+    allZones.push(...nonTemplateUserZones)
 
     // AC zone: add if user said hasAC and not already covered by user zones
     if (propertyInput.hasAC) {
