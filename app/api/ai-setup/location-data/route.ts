@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '../../../../src/lib/auth'
 import { fetchAllLocationData } from '../../../../src/lib/ai-setup/places'
-import { fetchNearbyPlaces } from '../../../../src/lib/recommendations'
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,17 +16,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Fetch directions and nearby places in parallel
-    const [locationData, nearbyPlaces] = await Promise.all([
-      fetchAllLocationData(lat, lng, city),
-      fetchNearbyPlaces(lat, lng, undefined, city).catch(() => []),
-    ])
+    const locationData = await fetchAllLocationData(lat, lng, city)
 
     return NextResponse.json({
       success: true,
       data: {
         ...locationData,
-        nearbyPlaces,
+        nearbyPlaces: [],
       },
     })
   } catch (error) {

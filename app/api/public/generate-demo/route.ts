@@ -4,7 +4,6 @@ import { checkRateLimit, getRateLimitKey } from '../../../../src/lib/rate-limit'
 import { generateSlug } from '../../../../src/lib/slug-utils'
 import { generatePropertyNumber, extractNumberFromReference } from '../../../../src/lib/property-number-generator'
 import { fetchAllLocationData } from '../../../../src/lib/ai-setup/places'
-import { generateRecommendations } from '../../../../src/lib/recommendations'
 import { validateEmail } from '../../../../src/utils/email-validation'
 import { verifyDemoVerificationToken } from '../../../../src/lib/demo-otp'
 import { sendEmail, emailTemplates } from '../../../../src/lib/email'
@@ -21,12 +20,6 @@ import {
 } from '../../../../src/lib/ai-setup/zone-builders'
 import { APPLIANCE_REGISTRY, type CanonicalApplianceType } from '../../../../src/lib/ai-setup/zone-registry'
 import { buildCityInfoZone } from '../../../../src/lib/ai-setup/city-links-builder'
-
-// Free OSM categories to include in demo (all free categories, not just default 3)
-const DEMO_CATEGORY_IDS = [
-  'pharmacy', 'hospital', 'parking',
-  'supermarket', 'transit_station', 'atm', 'laundry',
-]
 
 // ============================================
 // Turnstile verification
@@ -678,25 +671,6 @@ export async function POST(request: NextRequest) {
           }
         }),
       })
-    }
-
-    // 14. Generate nearby recommendations with a 50s timeout so it never blocks the response
-    if (propertyInput.lat && propertyInput.lng) {
-      try {
-        const recoTimeout = new Promise<void>((resolve) => setTimeout(resolve, 50_000))
-        await Promise.race([
-          generateRecommendations(
-            property.id,
-            propertyInput.lat,
-            propertyInput.lng,
-            DEMO_CATEGORY_IDS,
-            propertyInput.city,
-          ),
-          recoTimeout,
-        ])
-      } catch {
-        // non-blocking recommendation generation error ignored
-      }
     }
 
     // 15. Send confirmation email (non-blocking)
