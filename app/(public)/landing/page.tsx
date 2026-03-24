@@ -83,12 +83,15 @@ export default function LandingPage() {
   // Lenis smooth scroll
   useEffect(() => {
     let lenis: any
-    import('lenis').then(({ default: Lenis }) => {
+    let rafId: number
+    const initLenis = async () => {
+      const { default: Lenis } = await import('lenis')
       lenis = new Lenis({ duration: 1.2, easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) })
-      const raf = (time: number) => { lenis.raf(time); requestAnimationFrame(raf) }
-      requestAnimationFrame(raf)
-    })
-    return () => lenis?.destroy()
+      const raf = (time: number) => { lenis.raf(time); rafId = requestAnimationFrame(raf) }
+      rafId = requestAnimationFrame(raf)
+    }
+    initLenis()
+    return () => { cancelAnimationFrame(rafId); lenis?.destroy() }
   }, [])
 
   return (
