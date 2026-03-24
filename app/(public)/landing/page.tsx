@@ -194,7 +194,7 @@ export default function LandingPage() {
           </motion.div>
 
           {/* Phone mockups */}
-          <div className="flex flex-col lg:flex-row items-end justify-center gap-6 lg:gap-2">
+          <div className="flex flex-col lg:flex-row items-center justify-center gap-10 lg:gap-8">
 
             {/* Phone 1 — Dashboard */}
             <motion.div
