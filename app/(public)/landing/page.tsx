@@ -98,7 +98,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
 
       {/* ─── STICKY HEADER ─── */}
-      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-black/60 backdrop-blur-xl border-b border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-2">
           <img src="/logo.png" alt="Itineramio" width={32} height={32} className="rounded-lg" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
           <span className="font-bold text-white text-lg">itineramio</span>
@@ -198,11 +198,11 @@ export default function LandingPage() {
 
             {/* Phone 1 — Dashboard */}
             <motion.div
-              initial={{ opacity: 0, y: 60, rotate: -4 }}
-              whileInView={{ opacity: 1, y: 0, rotate: -4 }}
+              initial={{ opacity: 0, y: 60 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.9, delay: 0, ease: [0.25, 0.1, 0.25, 1] }}
-              className="relative w-60 lg:w-64 shrink-0 lg:mb-8"
+              className="relative w-60 lg:w-64 shrink-0"
             >
               {/* iPhone frame */}
               <div className="relative bg-[#1a1a1a] rounded-[3.2rem] shadow-[0_40px_100px_rgba(139,92,246,0.25),inset_0_0_0_1px_rgba(255,255,255,0.08)] p-[10px]">
@@ -269,11 +269,11 @@ export default function LandingPage() {
 
             {/* Phone 3 — Chatbot */}
             <motion.div
-              initial={{ opacity: 0, y: 60, rotate: 4 }}
-              whileInView={{ opacity: 1, y: 0, rotate: 4 }}
+              initial={{ opacity: 0, y: 60 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.9, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-              className="relative w-60 lg:w-64 shrink-0 lg:mb-8"
+              className="relative w-60 lg:w-64 shrink-0"
             >
               <div className="relative bg-[#1a1a1a] rounded-[3.2rem] shadow-[0_40px_100px_rgba(139,92,246,0.25),inset_0_0_0_1px_rgba(255,255,255,0.08)] p-[10px]">
                 <div className="absolute -left-[3px] top-24 w-[3px] h-8 bg-[#2a2a2a] rounded-l-sm" />
