@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef, useEffect } from 'react'
 import { ArrowRight, Check, X } from 'lucide-react'
@@ -98,7 +97,7 @@ export default function LandingPage() {
       {/* ─── STICKY HEADER ─── */}
       <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-black/60 backdrop-blur-xl border-b border-white/5">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="Itineramio" width={32} height={32} className="rounded-lg" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+          <img src="/logo.png" alt="Itineramio" width={32} height={32} className="rounded-lg" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
           <span className="font-bold text-white text-lg">itineramio</span>
         </Link>
         <Link
@@ -214,11 +213,9 @@ export default function LandingPage() {
                 <div className="relative rounded-[2.5rem] overflow-hidden bg-black">
                   {/* Dynamic island */}
                   <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-6 bg-black rounded-full z-20 border border-white/5" />
-                  <Image
+                  <img
                     src="/landing-mockup-1.png"
                     alt="Dashboard de propiedades"
-                    width={400}
-                    height={800}
                     className="w-full h-auto"
                   />
                 </div>
@@ -249,11 +246,9 @@ export default function LandingPage() {
                 <div className="absolute -right-[3px] top-36 w-[3px] h-16 bg-[#2a2a2a] rounded-r-sm" />
                 <div className="relative rounded-[2.5rem] overflow-hidden bg-black">
                   <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-6 bg-black rounded-full z-20 border border-white/5" />
-                  <Image
+                  <img
                     src="/landing-mockup-2.png"
                     alt="Manual del apartamento"
-                    width={400}
-                    height={800}
                     className="w-full h-auto"
                   />
                 </div>
@@ -284,11 +279,9 @@ export default function LandingPage() {
                 <div className="absolute -right-[3px] top-36 w-[3px] h-16 bg-[#2a2a2a] rounded-r-sm" />
                 <div className="relative rounded-[2.5rem] overflow-hidden bg-black">
                   <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-6 bg-black rounded-full z-20 border border-white/5" />
-                  <Image
+                  <img
                     src="/landing-mockup-3.png"
                     alt="Chatbot respondiendo"
-                    width={400}
-                    height={800}
                     className="w-full h-auto"
                   />
                 </div>
