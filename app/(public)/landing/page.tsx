@@ -128,7 +128,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-5xl sm:text-7xl lg:text-8xl font-bold leading-[1.05] tracking-tight mb-8"
+            className="text-5xl sm:text-7xl lg:text-8xl font-bold leading-[1.05] tracking-tight mb-10"
           >
             Los huéspedes<br />
             <span className="bg-gradient-to-r from-violet-400 via-purple-300 to-indigo-400 bg-clip-text text-transparent">
@@ -139,10 +139,10 @@ export default function LandingPage() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-xl sm:text-2xl text-white/50 max-w-2xl mx-auto mb-12 leading-relaxed"
+            transition={{ duration: 0.8, delay: 0.55 }}
+            className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-white/40 mb-14 leading-snug"
           >
-            Pero llegan preguntando lo mismo. Crea una guía una vez, configura el enlace en tu mensaje automático y deja de repetirte.
+            Pero llegan preguntando lo mismo.
           </motion.p>
 
           <motion.div
