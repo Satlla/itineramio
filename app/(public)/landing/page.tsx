@@ -6,13 +6,13 @@ import { useRef, useEffect } from 'react'
 import { ArrowRight, Check, X } from 'lucide-react'
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.25, 0.1, 0.25, 1] } },
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.25, 0.1, 0.25, 1] } },
 }
 
 const stagger = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.12 } },
+  show: { transition: { staggerChildren: 0.1 } },
 }
 
 const stats = [
@@ -78,7 +78,7 @@ export default function LandingPage() {
   const heroRef = useRef(null)
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
   const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0])
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, -80])
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, -60])
 
   // Lenis smooth scroll
   useEffect(() => {
@@ -95,33 +95,32 @@ export default function LandingPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+    <div className="min-h-screen bg-white text-black overflow-x-hidden">
 
       {/* ─── STICKY HEADER ─── */}
       <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-2">
           <img src="/logo.png" alt="Itineramio" width={32} height={32} className="rounded-lg" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
-          <span className="font-bold text-white text-lg">itineramio</span>
+          <span className="font-bold text-black text-lg">itineramio</span>
         </Link>
         <Link
           href="/register"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-black font-bold rounded-full text-sm hover:bg-violet-100 transition-all"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-black text-white font-bold rounded-full text-sm hover:bg-gray-800 transition-all"
         >
           Empieza gratis <ArrowRight className="w-4 h-4" />
         </Link>
       </header>
 
       {/* ─── HERO ─── */}
-      <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center px-4 text-center overflow-hidden pt-20">
-        <div className="absolute inset-0 bg-gradient-to-b from-violet-950/60 via-black to-black" />
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-violet-600/20 rounded-full blur-[130px] pointer-events-none" />
+      <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center px-4 text-center pt-20">
+        <div className="absolute inset-0 bg-gradient-to-b from-violet-50/80 via-white to-white pointer-events-none" />
 
         <motion.div style={{ opacity: heroOpacity, y: heroY }} className="relative z-10 max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-flex items-center gap-2 border border-white/10 bg-white/5 backdrop-blur-sm rounded-full px-5 py-2 text-sm text-white/50 mb-10"
+            className="inline-flex items-center gap-2 border border-gray-200 bg-white rounded-full px-5 py-2 text-sm text-gray-400 mb-10 shadow-sm"
           >
             Para anfitriones con 6–10 propiedades en España
           </motion.div>
@@ -130,10 +129,10 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-5xl sm:text-7xl lg:text-8xl font-bold leading-[1.05] tracking-tight mb-10"
+            className="text-5xl sm:text-7xl lg:text-8xl font-bold leading-[1.05] tracking-tight mb-10 text-black"
           >
             Los huéspedes<br />
-            <span className="bg-gradient-to-r from-violet-400 via-purple-300 to-indigo-400 bg-clip-text text-transparent">
+            <span className="text-violet-600">
               no leen.
             </span>
           </motion.h1>
@@ -142,7 +141,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.55 }}
-            className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-white/40 mb-14 leading-snug"
+            className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-300 mb-14 leading-snug"
           >
             Pero llegan preguntando lo mismo.
           </motion.p>
@@ -155,12 +154,12 @@ export default function LandingPage() {
           >
             <Link
               href="/register"
-              className="group inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-violet-100 transition-all text-lg shadow-[0_0_50px_rgba(139,92,246,0.5)] hover:shadow-[0_0_70px_rgba(139,92,246,0.7)]"
+              className="group inline-flex items-center gap-2 px-8 py-4 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-all text-lg"
             >
               Empieza gratis
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <p className="text-sm text-white/30">Sin tarjeta. 10 minutos.</p>
+            <p className="text-sm text-gray-400">Sin tarjeta. 10 minutos.</p>
           </motion.div>
         </motion.div>
 
@@ -170,12 +169,12 @@ export default function LandingPage() {
           transition={{ delay: 1.5, duration: 1 }}
           className="absolute bottom-10 left-1/2 -translate-x-1/2"
         >
-          <div className="w-px h-16 bg-gradient-to-b from-transparent via-white/20 to-transparent animate-pulse" />
+          <div className="w-px h-16 bg-gradient-to-b from-transparent via-gray-300 to-transparent animate-pulse" />
         </motion.div>
       </section>
 
       {/* ─── PRODUCT SHOWCASE ─── */}
-      <section className="py-32 lg:py-48 px-4 bg-black overflow-hidden">
+      <section className="py-32 lg:py-48 px-4 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial="hidden"
@@ -184,12 +183,12 @@ export default function LandingPage() {
             variants={stagger}
             className="text-center mb-20"
           >
-            <motion.p variants={fadeUp} className="text-sm uppercase tracking-widest text-violet-400 mb-4">
+            <motion.p variants={fadeUp} className="text-sm uppercase tracking-widest text-violet-500 mb-4">
               El producto
             </motion.p>
-            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold">
+            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold text-black">
               Lo que ven tus huéspedes.<br />
-              <span className="text-white/30">Lo que dejas de hacer tú.</span>
+              <span className="text-gray-300">Lo que dejas de hacer tú.</span>
             </motion.h2>
           </motion.div>
 
@@ -204,23 +203,14 @@ export default function LandingPage() {
               transition={{ duration: 0.9, delay: 0, ease: [0.25, 0.1, 0.25, 1] }}
               className="relative w-60 lg:w-64 shrink-0"
             >
-              {/* iPhone frame */}
-              <div className="relative bg-[#1a1a1a] rounded-[3.2rem] shadow-[0_40px_100px_rgba(139,92,246,0.25),inset_0_0_0_1px_rgba(255,255,255,0.08)] p-[10px]">
-                {/* Side buttons left */}
+              <div className="relative bg-[#1a1a1a] rounded-[3.2rem] shadow-[0_40px_80px_rgba(0,0,0,0.15),inset_0_0_0_1px_rgba(255,255,255,0.08)] p-[10px]">
                 <div className="absolute -left-[3px] top-24 w-[3px] h-8 bg-[#2a2a2a] rounded-l-sm" />
                 <div className="absolute -left-[3px] top-36 w-[3px] h-12 bg-[#2a2a2a] rounded-l-sm" />
                 <div className="absolute -left-[3px] top-52 w-[3px] h-12 bg-[#2a2a2a] rounded-l-sm" />
-                {/* Side button right */}
                 <div className="absolute -right-[3px] top-36 w-[3px] h-16 bg-[#2a2a2a] rounded-r-sm" />
-                {/* Screen */}
                 <div className="relative rounded-[2.5rem] overflow-hidden bg-black">
-                  {/* Dynamic island */}
                   <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-6 bg-black rounded-full z-20 border border-white/5" />
-                  <img
-                    src="/landing-mockup-1.png"
-                    alt="Dashboard de propiedades"
-                    className="w-full h-auto"
-                  />
+                  <img src="/landing-mockup-1.png" alt="Dashboard de propiedades" className="w-full h-auto" />
                 </div>
               </div>
               <motion.div
@@ -228,7 +218,7 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.7 }}
-                className="absolute -bottom-3 -right-3 bg-violet-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl whitespace-nowrap"
+                className="absolute -bottom-3 -right-3 bg-violet-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg whitespace-nowrap"
               >
                 Tus propiedades
               </motion.div>
@@ -242,18 +232,14 @@ export default function LandingPage() {
               transition={{ duration: 0.9, delay: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
               className="relative w-68 lg:w-72 shrink-0 z-10"
             >
-              <div className="relative bg-[#1a1a1a] rounded-[3.2rem] shadow-[0_60px_130px_rgba(139,92,246,0.45),inset_0_0_0_1px_rgba(255,255,255,0.1)] p-[10px]">
+              <div className="relative bg-[#1a1a1a] rounded-[3.2rem] shadow-[0_60px_120px_rgba(109,40,217,0.2),0_30px_60px_rgba(0,0,0,0.15),inset_0_0_0_1px_rgba(255,255,255,0.1)] p-[10px]">
                 <div className="absolute -left-[3px] top-24 w-[3px] h-8 bg-[#2a2a2a] rounded-l-sm" />
                 <div className="absolute -left-[3px] top-36 w-[3px] h-12 bg-[#2a2a2a] rounded-l-sm" />
                 <div className="absolute -left-[3px] top-52 w-[3px] h-12 bg-[#2a2a2a] rounded-l-sm" />
                 <div className="absolute -right-[3px] top-36 w-[3px] h-16 bg-[#2a2a2a] rounded-r-sm" />
                 <div className="relative rounded-[2.5rem] overflow-hidden bg-black">
                   <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-6 bg-black rounded-full z-20 border border-white/5" />
-                  <img
-                    src="/landing-mockup-2.png"
-                    alt="Manual del apartamento"
-                    className="w-full h-auto"
-                  />
+                  <img src="/landing-mockup-2.png" alt="Manual del apartamento" className="w-full h-auto" />
                 </div>
               </div>
               <motion.div
@@ -261,7 +247,7 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.8 }}
-                className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white text-black text-xs font-bold px-3 py-1.5 rounded-full shadow-xl whitespace-nowrap"
+                className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-black text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg whitespace-nowrap"
               >
                 Manual por zonas
               </motion.div>
@@ -275,18 +261,14 @@ export default function LandingPage() {
               transition={{ duration: 0.9, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
               className="relative w-60 lg:w-64 shrink-0"
             >
-              <div className="relative bg-[#1a1a1a] rounded-[3.2rem] shadow-[0_40px_100px_rgba(139,92,246,0.25),inset_0_0_0_1px_rgba(255,255,255,0.08)] p-[10px]">
+              <div className="relative bg-[#1a1a1a] rounded-[3.2rem] shadow-[0_40px_80px_rgba(0,0,0,0.15),inset_0_0_0_1px_rgba(255,255,255,0.08)] p-[10px]">
                 <div className="absolute -left-[3px] top-24 w-[3px] h-8 bg-[#2a2a2a] rounded-l-sm" />
                 <div className="absolute -left-[3px] top-36 w-[3px] h-12 bg-[#2a2a2a] rounded-l-sm" />
                 <div className="absolute -left-[3px] top-52 w-[3px] h-12 bg-[#2a2a2a] rounded-l-sm" />
                 <div className="absolute -right-[3px] top-36 w-[3px] h-16 bg-[#2a2a2a] rounded-r-sm" />
                 <div className="relative rounded-[2.5rem] overflow-hidden bg-black">
                   <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-6 bg-black rounded-full z-20 border border-white/5" />
-                  <img
-                    src="/landing-mockup-3.png"
-                    alt="Chatbot respondiendo"
-                    className="w-full h-auto"
-                  />
+                  <img src="/landing-mockup-3.png" alt="Chatbot respondiendo" className="w-full h-auto" />
                 </div>
               </div>
               <motion.div
@@ -294,7 +276,7 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.9 }}
-                className="absolute -bottom-3 -left-3 bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl whitespace-nowrap"
+                className="absolute -bottom-3 -left-3 bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg whitespace-nowrap"
               >
                 Chatbot en su idioma
               </motion.div>
@@ -305,7 +287,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── PROBLEM — BIG STATEMENT ─── */}
-      <section className="py-32 lg:py-48 px-4 bg-black">
+      <section className="py-32 lg:py-48 px-4 bg-gray-50">
         <div className="max-w-5xl mx-auto">
           <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-100px' }} className="space-y-6">
             {[
@@ -313,7 +295,7 @@ export default function LandingPage() {
               { text: 'El mismo mensaje de acceso. Las mismas normas.', muted: true },
               { text: 'Cambia el nombre del huésped y repite.', muted: true },
             ].map((line, i) => (
-              <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-white/25' : 'text-white'}`}>
+              <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-gray-200' : 'text-black'}`}>
                 {line.text}
               </motion.p>
             ))}
@@ -325,46 +307,46 @@ export default function LandingPage() {
               { text: 'A las 22:00. Mientras cenas.', muted: true },
               { text: 'Cuando estás atendiendo otro check-in.', muted: true },
             ].map((line, i) => (
-              <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-white/25' : 'text-white'}`}>
+              <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-gray-200' : 'text-black'}`}>
                 {line.text}
               </motion.p>
             ))}
           </motion.div>
 
-          <motion.p variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="mt-24 text-3xl sm:text-4xl lg:text-5xl font-bold text-white/25">
+          <motion.p variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="mt-24 text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-200">
             No es el trabajo lo que quema.{' '}
-            <span className="text-white">Es la repetición.</span>
+            <span className="text-black">Es la repetición.</span>
           </motion.p>
         </div>
       </section>
 
       {/* ─── THE SHIFT ─── */}
-      <section className="py-32 lg:py-48 px-4 bg-gradient-to-b from-black via-violet-950/20 to-black">
+      <section className="py-32 lg:py-48 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
           <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-100px' }}>
-            <motion.p variants={fadeUp} className="text-sm uppercase tracking-widest text-violet-400 mb-8">La diferencia</motion.p>
-            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-10">
+            <motion.p variants={fadeUp} className="text-sm uppercase tracking-widest text-violet-500 mb-8">La diferencia</motion.p>
+            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-10 text-black">
               ¿Y si el huésped llegara{' '}
-              <span className="bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">sabiendo cómo entrar?</span>
+              <span className="text-violet-600">sabiendo cómo entrar?</span>
             </motion.h2>
-            <motion.div variants={fadeUp} className="space-y-5 text-xl text-white/50 max-w-3xl leading-relaxed">
+            <motion.div variants={fadeUp} className="space-y-5 text-xl text-gray-400 max-w-3xl leading-relaxed">
               <p>No hablamos de otro mensaje largo. Ni de un PDF que nadie abre.</p>
               <p>Una guía corta, clara, organizada por zonas — entrada, WiFi, normas, parking — con un enlace que el huésped recibe cuando se confirma la reserva.</p>
               <p>Y si tiene alguna duda, un chatbot le responde en su idioma usando la información de tu propio apartamento.</p>
-              <p className="text-white font-semibold text-2xl">Tú configuras una vez. La guía hace el resto.</p>
+              <p className="text-black font-semibold text-2xl">Tú configuras una vez. La guía hace el resto.</p>
             </motion.div>
           </motion.div>
         </div>
       </section>
 
       {/* ─── STATS ─── */}
-      <section className="py-24 px-4 bg-black border-y border-white/5">
+      <section className="py-24 px-4 bg-white border-y border-gray-100">
         <div className="max-w-7xl mx-auto">
-          <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }} className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/5">
+          <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }} className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100">
             {stats.map((s, i) => (
-              <motion.div key={i} variants={fadeUp} className="bg-black p-12 flex flex-col gap-4">
-                <span className="text-6xl lg:text-7xl font-bold bg-gradient-to-br from-violet-400 to-purple-300 bg-clip-text text-transparent">{s.stat}</span>
-                <p className="text-white/40 text-base leading-relaxed">{s.label}</p>
+              <motion.div key={i} variants={fadeUp} className="p-12 flex flex-col gap-4">
+                <span className="text-6xl lg:text-7xl font-bold text-violet-600">{s.stat}</span>
+                <p className="text-gray-400 text-base leading-relaxed">{s.label}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -372,22 +354,22 @@ export default function LandingPage() {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section className="py-32 lg:py-48 px-4 bg-black">
+      <section className="py-32 lg:py-48 px-4 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
-            <motion.p variants={fadeUp} className="text-sm uppercase tracking-widest text-violet-400 mb-6">Cómo funciona</motion.p>
-            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold mb-20">Tres pasos.<br />Diez minutos.</motion.h2>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-white/5">
+            <motion.p variants={fadeUp} className="text-sm uppercase tracking-widest text-violet-500 mb-6">Cómo funciona</motion.p>
+            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold mb-20 text-black">Tres pasos.<br />Diez minutos.</motion.h2>
+            <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-gray-200">
               {steps.map((step, i) => (
-                <motion.div key={i} variants={fadeUp} className="bg-black p-12 flex flex-col gap-6 group hover:bg-white/[0.02] transition-colors">
-                  <span className="text-7xl font-black text-white/5 group-hover:text-white/10 transition-colors leading-none">{step.n}</span>
-                  <h3 className="text-2xl font-bold text-white">{step.title}</h3>
-                  <p className="text-white/40 leading-relaxed">{step.body}</p>
+                <motion.div key={i} variants={fadeUp} className="bg-white p-12 flex flex-col gap-6">
+                  <span className="text-7xl font-black text-gray-100 leading-none">{step.n}</span>
+                  <h3 className="text-2xl font-bold text-black">{step.title}</h3>
+                  <p className="text-gray-400 leading-relaxed">{step.body}</p>
                 </motion.div>
               ))}
             </div>
             <motion.div variants={fadeUp} className="mt-14 flex justify-center">
-              <Link href="/register" className="group inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-violet-100 transition-all text-lg shadow-[0_0_40px_rgba(139,92,246,0.3)]">
+              <Link href="/register" className="group inline-flex items-center gap-2 px-8 py-4 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-all text-lg">
                 Empieza gratis <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </motion.div>
@@ -396,17 +378,17 @@ export default function LandingPage() {
       </section>
 
       {/* ─── BEFORE / AFTER ─── */}
-      <section className="py-32 lg:py-48 px-4 bg-gradient-to-b from-black to-gray-950">
+      <section className="py-32 lg:py-48 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
-            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold mb-20 text-center">Tu semana<br />antes y después</motion.h2>
+            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold mb-20 text-center text-black">Tu semana<br />antes y después</motion.h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <motion.div variants={fadeUp} className="rounded-3xl bg-white/[0.03] border border-white/5 p-10">
+              <motion.div variants={fadeUp} className="rounded-3xl bg-gray-50 border border-gray-100 p-10">
                 <p className="text-xs uppercase tracking-widest text-red-400 mb-8">Antes</p>
                 <ul className="space-y-5">
                   {before.map((item, i) => (
-                    <li key={i} className="flex items-start gap-4 text-white/35">
-                      <div className="w-5 h-5 rounded-full border border-red-500/30 flex items-center justify-center shrink-0 mt-0.5">
+                    <li key={i} className="flex items-start gap-4 text-gray-400">
+                      <div className="w-5 h-5 rounded-full border border-red-200 flex items-center justify-center shrink-0 mt-0.5">
                         <X className="w-3 h-3 text-red-400" />
                       </div>
                       <span className="text-sm leading-relaxed">{item}</span>
@@ -414,13 +396,13 @@ export default function LandingPage() {
                   ))}
                 </ul>
               </motion.div>
-              <motion.div variants={fadeUp} className="rounded-3xl bg-violet-950/30 border border-violet-500/20 p-10">
-                <p className="text-xs uppercase tracking-widest text-violet-400 mb-8">Después</p>
+              <motion.div variants={fadeUp} className="rounded-3xl bg-violet-50 border border-violet-100 p-10">
+                <p className="text-xs uppercase tracking-widest text-violet-500 mb-8">Después</p>
                 <ul className="space-y-5">
                   {after.map((item, i) => (
-                    <li key={i} className="flex items-start gap-4 text-white/80">
-                      <div className="w-5 h-5 rounded-full bg-violet-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                        <Check className="w-3 h-3 text-violet-400" />
+                    <li key={i} className="flex items-start gap-4 text-gray-700">
+                      <div className="w-5 h-5 rounded-full bg-violet-100 flex items-center justify-center shrink-0 mt-0.5">
+                        <Check className="w-3 h-3 text-violet-600" />
                       </div>
                       <span className="text-sm leading-relaxed">{item}</span>
                     </li>
@@ -433,33 +415,33 @@ export default function LandingPage() {
       </section>
 
       {/* ─── ICP ─── */}
-      <section className="py-32 lg:py-48 px-4 bg-gray-950">
+      <section className="py-32 lg:py-48 px-4 bg-gray-50">
         <div className="max-w-5xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
-            <motion.p variants={fadeUp} className="text-sm uppercase tracking-widest text-violet-400 mb-8">Para quién es</motion.p>
-            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-12">
+            <motion.p variants={fadeUp} className="text-sm uppercase tracking-widest text-violet-500 mb-8">Para quién es</motion.p>
+            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-12 text-black">
               Hecho para quien gestiona<br />
-              <span className="bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">6, 7 u 8 pisos solo.</span>
+              <span className="text-violet-600">6, 7 u 8 pisos solo.</span>
             </motion.h2>
-            <motion.div variants={fadeUp} className="space-y-5 text-xl text-white/40 max-w-3xl leading-relaxed">
+            <motion.div variants={fadeUp} className="space-y-5 text-xl text-gray-400 max-w-3xl leading-relaxed">
               <p>Contestas cada mensaje tú. Coordinas cada check-in tú. Te juegas la nota en cada reseña tú.</p>
               <p>No tienes equipo. No tienes sistema. Tienes el móvil y las ganas de que funcione.</p>
-              <p className="text-white font-semibold text-2xl pt-4">No necesitas un software más.<br />Necesitas dejar de repetirte.</p>
+              <p className="text-black font-semibold text-2xl pt-4">No necesitas un software más.<br />Necesitas dejar de repetirte.</p>
             </motion.div>
           </motion.div>
         </div>
       </section>
 
       {/* ─── FAQ ─── */}
-      <section className="py-32 lg:py-48 px-4 bg-black">
+      <section className="py-32 lg:py-48 px-4 bg-white">
         <div className="max-w-3xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
-            <motion.h2 variants={fadeUp} className="text-4xl sm:text-5xl font-bold mb-16">Lo que suelen preguntar</motion.h2>
-            <div className="divide-y divide-white/5">
+            <motion.h2 variants={fadeUp} className="text-4xl sm:text-5xl font-bold mb-16 text-black">Lo que suelen preguntar</motion.h2>
+            <div className="divide-y divide-gray-100">
               {faqs.map((faq, i) => (
                 <motion.div key={i} variants={fadeUp} className="py-8">
-                  <h3 className="text-lg font-semibold text-white mb-3">{faq.q}</h3>
-                  <p className="text-white/40 leading-relaxed">{faq.a}</p>
+                  <h3 className="text-lg font-semibold text-black mb-3">{faq.q}</h3>
+                  <p className="text-gray-400 leading-relaxed">{faq.a}</p>
                 </motion.div>
               ))}
             </div>
@@ -468,7 +450,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── LOSS FRAMING ─── */}
-      <section className="py-32 lg:py-48 px-4 bg-gray-950">
+      <section className="py-32 lg:py-48 px-4 bg-gray-50">
         <div className="max-w-5xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger} className="space-y-6">
             {[
@@ -477,7 +459,7 @@ export default function LandingPage() {
               { text: 'Si llega confundido, la reseña lo refleja.', muted: true },
               { text: 'Y una reseña de 4 estrellas no baja sola.', muted: false },
             ].map((line, i) => (
-              <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-white/20' : 'text-white'}`}>
+              <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-gray-200' : 'text-black'}`}>
                 {line.text}
               </motion.p>
             ))}
@@ -487,18 +469,17 @@ export default function LandingPage() {
 
       {/* ─── FINAL CTA ─── */}
       <section className="relative py-40 lg:py-56 px-4 bg-black overflow-hidden flex items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-violet-950/30 to-black" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] bg-violet-600/15 rounded-full blur-[180px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-violet-600/20 rounded-full blur-[150px] pointer-events-none" />
         <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger} className="relative z-10 text-center max-w-4xl mx-auto">
-          <motion.h2 variants={fadeUp} className="text-5xl sm:text-7xl lg:text-8xl font-bold leading-tight mb-8">
+          <motion.h2 variants={fadeUp} className="text-5xl sm:text-7xl lg:text-8xl font-bold leading-tight mb-8 text-white">
             Tu próximo huésped<br />
-            <span className="bg-gradient-to-r from-violet-400 via-purple-300 to-indigo-400 bg-clip-text text-transparent">ya tiene reserva.</span>
+            <span className="text-violet-400">ya tiene reserva.</span>
           </motion.h2>
           <motion.p variants={fadeUp} className="text-xl text-white/40 mb-12 max-w-xl mx-auto">
             Que llegue informado. Empieza con lo básico. El resto se añade después.
           </motion.p>
           <motion.div variants={fadeUp}>
-            <Link href="/register" className="group inline-flex items-center gap-3 px-10 py-5 bg-white text-black font-bold rounded-full hover:bg-violet-100 transition-all text-xl shadow-[0_0_80px_rgba(139,92,246,0.5)] hover:shadow-[0_0_120px_rgba(139,92,246,0.8)]">
+            <Link href="/register" className="group inline-flex items-center gap-3 px-10 py-5 bg-white text-black font-bold rounded-full hover:bg-violet-50 transition-all text-xl">
               Empieza gratis
               <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
             </Link>
