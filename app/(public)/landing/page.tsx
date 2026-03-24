@@ -192,32 +192,43 @@ export default function LandingPage() {
           </motion.div>
 
           {/* Phone mockups */}
-          <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-4">
+          <div className="flex flex-col lg:flex-row items-end justify-center gap-6 lg:gap-2">
 
             {/* Phone 1 — Dashboard */}
             <motion.div
-              initial={{ opacity: 0, y: 60, rotate: -3 }}
-              whileInView={{ opacity: 1, y: 0, rotate: -3 }}
+              initial={{ opacity: 0, y: 60, rotate: -4 }}
+              whileInView={{ opacity: 1, y: 0, rotate: -4 }}
               viewport={{ once: true }}
               transition={{ duration: 0.9, delay: 0, ease: [0.25, 0.1, 0.25, 1] }}
-              className="relative w-64 lg:w-72 shrink-0 lg:-mr-6 lg:mt-16"
+              className="relative w-60 lg:w-64 shrink-0 lg:mb-8"
             >
-              <div className="relative rounded-[3rem] overflow-hidden bg-gray-900 shadow-[0_40px_100px_rgba(139,92,246,0.3)] border border-white/10 ring-1 ring-white/5">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-b-2xl z-10" />
-                <Image
-                  src="/landing-mockup-1.png"
-                  alt="Dashboard de propiedades"
-                  width={400}
-                  height={800}
-                  className="w-full h-auto"
-                />
+              {/* iPhone frame */}
+              <div className="relative bg-[#1a1a1a] rounded-[3.2rem] shadow-[0_40px_100px_rgba(139,92,246,0.25),inset_0_0_0_1px_rgba(255,255,255,0.08)] p-[10px]">
+                {/* Side buttons left */}
+                <div className="absolute -left-[3px] top-24 w-[3px] h-8 bg-[#2a2a2a] rounded-l-sm" />
+                <div className="absolute -left-[3px] top-36 w-[3px] h-12 bg-[#2a2a2a] rounded-l-sm" />
+                <div className="absolute -left-[3px] top-52 w-[3px] h-12 bg-[#2a2a2a] rounded-l-sm" />
+                {/* Side button right */}
+                <div className="absolute -right-[3px] top-36 w-[3px] h-16 bg-[#2a2a2a] rounded-r-sm" />
+                {/* Screen */}
+                <div className="relative rounded-[2.5rem] overflow-hidden bg-black">
+                  {/* Dynamic island */}
+                  <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-6 bg-black rounded-full z-20 border border-white/5" />
+                  <Image
+                    src="/landing-mockup-1.png"
+                    alt="Dashboard de propiedades"
+                    width={400}
+                    height={800}
+                    className="w-full h-auto"
+                  />
+                </div>
               </div>
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.6 }}
-                className="absolute -bottom-4 -right-4 bg-violet-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg"
+                transition={{ delay: 0.7 }}
+                className="absolute -bottom-3 -right-3 bg-violet-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl whitespace-nowrap"
               >
                 Tus propiedades
               </motion.div>
@@ -229,24 +240,30 @@ export default function LandingPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.9, delay: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
-              className="relative w-72 lg:w-80 shrink-0 z-10"
+              className="relative w-68 lg:w-72 shrink-0 z-10"
             >
-              <div className="relative rounded-[3rem] overflow-hidden bg-gray-900 shadow-[0_60px_120px_rgba(139,92,246,0.4)] border border-white/10 ring-1 ring-white/5">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-b-2xl z-10" />
-                <Image
-                  src="/landing-mockup-2.png"
-                  alt="Manual del apartamento"
-                  width={400}
-                  height={800}
-                  className="w-full h-auto"
-                />
+              <div className="relative bg-[#1a1a1a] rounded-[3.2rem] shadow-[0_60px_130px_rgba(139,92,246,0.45),inset_0_0_0_1px_rgba(255,255,255,0.1)] p-[10px]">
+                <div className="absolute -left-[3px] top-24 w-[3px] h-8 bg-[#2a2a2a] rounded-l-sm" />
+                <div className="absolute -left-[3px] top-36 w-[3px] h-12 bg-[#2a2a2a] rounded-l-sm" />
+                <div className="absolute -left-[3px] top-52 w-[3px] h-12 bg-[#2a2a2a] rounded-l-sm" />
+                <div className="absolute -right-[3px] top-36 w-[3px] h-16 bg-[#2a2a2a] rounded-r-sm" />
+                <div className="relative rounded-[2.5rem] overflow-hidden bg-black">
+                  <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-6 bg-black rounded-full z-20 border border-white/5" />
+                  <Image
+                    src="/landing-mockup-2.png"
+                    alt="Manual del apartamento"
+                    width={400}
+                    height={800}
+                    className="w-full h-auto"
+                  />
+                </div>
               </div>
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.7 }}
-                className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-white text-black text-xs font-bold px-3 py-1.5 rounded-full shadow-lg whitespace-nowrap"
+                transition={{ delay: 0.8 }}
+                className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white text-black text-xs font-bold px-3 py-1.5 rounded-full shadow-xl whitespace-nowrap"
               >
                 Manual por zonas
               </motion.div>
@@ -254,28 +271,34 @@ export default function LandingPage() {
 
             {/* Phone 3 — Chatbot */}
             <motion.div
-              initial={{ opacity: 0, y: 60, rotate: 3 }}
-              whileInView={{ opacity: 1, y: 0, rotate: 3 }}
+              initial={{ opacity: 0, y: 60, rotate: 4 }}
+              whileInView={{ opacity: 1, y: 0, rotate: 4 }}
               viewport={{ once: true }}
               transition={{ duration: 0.9, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-              className="relative w-64 lg:w-72 shrink-0 lg:-ml-6 lg:mt-16"
+              className="relative w-60 lg:w-64 shrink-0 lg:mb-8"
             >
-              <div className="relative rounded-[3rem] overflow-hidden bg-gray-900 shadow-[0_40px_100px_rgba(139,92,246,0.3)] border border-white/10 ring-1 ring-white/5">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-b-2xl z-10" />
-                <Image
-                  src="/landing-mockup-3.png"
-                  alt="Chatbot respondiendo"
-                  width={400}
-                  height={800}
-                  className="w-full h-auto"
-                />
+              <div className="relative bg-[#1a1a1a] rounded-[3.2rem] shadow-[0_40px_100px_rgba(139,92,246,0.25),inset_0_0_0_1px_rgba(255,255,255,0.08)] p-[10px]">
+                <div className="absolute -left-[3px] top-24 w-[3px] h-8 bg-[#2a2a2a] rounded-l-sm" />
+                <div className="absolute -left-[3px] top-36 w-[3px] h-12 bg-[#2a2a2a] rounded-l-sm" />
+                <div className="absolute -left-[3px] top-52 w-[3px] h-12 bg-[#2a2a2a] rounded-l-sm" />
+                <div className="absolute -right-[3px] top-36 w-[3px] h-16 bg-[#2a2a2a] rounded-r-sm" />
+                <div className="relative rounded-[2.5rem] overflow-hidden bg-black">
+                  <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-6 bg-black rounded-full z-20 border border-white/5" />
+                  <Image
+                    src="/landing-mockup-3.png"
+                    alt="Chatbot respondiendo"
+                    width={400}
+                    height={800}
+                    className="w-full h-auto"
+                  />
+                </div>
               </div>
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.8 }}
-                className="absolute -bottom-4 -left-4 bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg"
+                transition={{ delay: 0.9 }}
+                className="absolute -bottom-3 -left-3 bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-xl whitespace-nowrap"
               >
                 Chatbot en su idioma
               </motion.div>
