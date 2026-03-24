@@ -1,10 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { ArrowRight, Check, X } from 'lucide-react'
-import { Navbar } from '../../../src/components/layout/Navbar'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -81,27 +81,47 @@ export default function LandingPage() {
   const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0])
   const heroY = useTransform(scrollYProgress, [0, 1], [0, -80])
 
+  // Lenis smooth scroll
+  useEffect(() => {
+    let lenis: any
+    import('lenis').then(({ default: Lenis }) => {
+      lenis = new Lenis({ duration: 1.2, easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) })
+      const raf = (time: number) => { lenis.raf(time); requestAnimationFrame(raf) }
+      requestAnimationFrame(raf)
+    })
+    return () => lenis?.destroy()
+  }, [])
+
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
-      <Navbar />
+
+      {/* ─── STICKY HEADER ─── */}
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-black/60 backdrop-blur-xl border-b border-white/5">
+        <Link href="/" className="flex items-center gap-2">
+          <Image src="/logo.png" alt="Itineramio" width={32} height={32} className="rounded-lg" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+          <span className="font-bold text-white text-lg">itineramio</span>
+        </Link>
+        <Link
+          href="/register"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-black font-bold rounded-full text-sm hover:bg-violet-100 transition-all"
+        >
+          Empieza gratis <ArrowRight className="w-4 h-4" />
+        </Link>
+      </header>
 
       {/* ─── HERO ─── */}
-      <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center px-4 text-center overflow-hidden">
-        {/* Background glow */}
+      <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center px-4 text-center overflow-hidden pt-20">
         <div className="absolute inset-0 bg-gradient-to-b from-violet-950/60 via-black to-black" />
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-600/20 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-violet-600/20 rounded-full blur-[130px] pointer-events-none" />
 
-        <motion.div
-          style={{ opacity: heroOpacity, y: heroY }}
-          className="relative z-10 max-w-5xl mx-auto"
-        >
+        <motion.div style={{ opacity: heroOpacity, y: heroY }} className="relative z-10 max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-flex items-center gap-2 border border-white/10 bg-white/5 backdrop-blur-sm rounded-full px-5 py-2 text-sm text-white/60 mb-10"
+            className="inline-flex items-center gap-2 border border-white/10 bg-white/5 backdrop-blur-sm rounded-full px-5 py-2 text-sm text-white/50 mb-10"
           >
-            Hecho para anfitriones con 6–10 propiedades en España
+            Para anfitriones con 6–10 propiedades en España
           </motion.div>
 
           <motion.h1
@@ -120,7 +140,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-xl sm:text-2xl text-white/60 max-w-2xl mx-auto mb-12 leading-relaxed"
+            className="text-xl sm:text-2xl text-white/50 max-w-2xl mx-auto mb-12 leading-relaxed"
           >
             Pero llegan preguntando lo mismo. Crea una guía una vez, configura el enlace en tu mensaje automático y deja de repetirte.
           </motion.p>
@@ -133,81 +153,167 @@ export default function LandingPage() {
           >
             <Link
               href="/register"
-              className="group inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-violet-100 transition-all text-lg shadow-[0_0_40px_rgba(139,92,246,0.4)] hover:shadow-[0_0_60px_rgba(139,92,246,0.6)]"
+              className="group inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-violet-100 transition-all text-lg shadow-[0_0_50px_rgba(139,92,246,0.5)] hover:shadow-[0_0_70px_rgba(139,92,246,0.7)]"
             >
               Empieza gratis
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <p className="text-sm text-white/40">Sin tarjeta. 10 minutos.</p>
+            <p className="text-sm text-white/30">Sin tarjeta. 10 minutos.</p>
           </motion.div>
         </motion.div>
 
-        {/* Scroll hint */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5, duration: 1 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          className="absolute bottom-10 left-1/2 -translate-x-1/2"
         >
-          <div className="w-px h-16 bg-gradient-to-b from-transparent via-white/30 to-transparent animate-pulse" />
+          <div className="w-px h-16 bg-gradient-to-b from-transparent via-white/20 to-transparent animate-pulse" />
         </motion.div>
+      </section>
+
+      {/* ─── PRODUCT SHOWCASE ─── */}
+      <section className="py-32 lg:py-48 px-4 bg-black overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: '-100px' }}
+            variants={stagger}
+            className="text-center mb-20"
+          >
+            <motion.p variants={fadeUp} className="text-sm uppercase tracking-widest text-violet-400 mb-4">
+              El producto
+            </motion.p>
+            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold">
+              Lo que ven tus huéspedes.<br />
+              <span className="text-white/30">Lo que dejas de hacer tú.</span>
+            </motion.h2>
+          </motion.div>
+
+          {/* Phone mockups */}
+          <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-4">
+
+            {/* Phone 1 — Dashboard */}
+            <motion.div
+              initial={{ opacity: 0, y: 60, rotate: -3 }}
+              whileInView={{ opacity: 1, y: 0, rotate: -3 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.9, delay: 0, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative w-64 lg:w-72 shrink-0 lg:-mr-6 lg:mt-16"
+            >
+              <div className="relative rounded-[3rem] overflow-hidden bg-gray-900 shadow-[0_40px_100px_rgba(139,92,246,0.3)] border border-white/10 ring-1 ring-white/5">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-b-2xl z-10" />
+                <Image
+                  src="/landing-mockup-1.png"
+                  alt="Dashboard de propiedades"
+                  width={400}
+                  height={800}
+                  className="w-full h-auto"
+                />
+              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.6 }}
+                className="absolute -bottom-4 -right-4 bg-violet-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg"
+              >
+                Tus propiedades
+              </motion.div>
+            </motion.div>
+
+            {/* Phone 2 — Manual (center, elevated) */}
+            <motion.div
+              initial={{ opacity: 0, y: 80 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.9, delay: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative w-72 lg:w-80 shrink-0 z-10"
+            >
+              <div className="relative rounded-[3rem] overflow-hidden bg-gray-900 shadow-[0_60px_120px_rgba(139,92,246,0.4)] border border-white/10 ring-1 ring-white/5">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-b-2xl z-10" />
+                <Image
+                  src="/landing-mockup-2.png"
+                  alt="Manual del apartamento"
+                  width={400}
+                  height={800}
+                  className="w-full h-auto"
+                />
+              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.7 }}
+                className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-white text-black text-xs font-bold px-3 py-1.5 rounded-full shadow-lg whitespace-nowrap"
+              >
+                Manual por zonas
+              </motion.div>
+            </motion.div>
+
+            {/* Phone 3 — Chatbot */}
+            <motion.div
+              initial={{ opacity: 0, y: 60, rotate: 3 }}
+              whileInView={{ opacity: 1, y: 0, rotate: 3 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.9, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative w-64 lg:w-72 shrink-0 lg:-ml-6 lg:mt-16"
+            >
+              <div className="relative rounded-[3rem] overflow-hidden bg-gray-900 shadow-[0_40px_100px_rgba(139,92,246,0.3)] border border-white/10 ring-1 ring-white/5">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-b-2xl z-10" />
+                <Image
+                  src="/landing-mockup-3.png"
+                  alt="Chatbot respondiendo"
+                  width={400}
+                  height={800}
+                  className="w-full h-auto"
+                />
+              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.8 }}
+                className="absolute -bottom-4 -left-4 bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg"
+              >
+                Chatbot en su idioma
+              </motion.div>
+            </motion.div>
+
+          </div>
+        </div>
       </section>
 
       {/* ─── PROBLEM — BIG STATEMENT ─── */}
       <section className="py-32 lg:py-48 px-4 bg-black">
         <div className="max-w-5xl mx-auto">
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: '-100px' }}
-            className="space-y-6"
-          >
+          <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-100px' }} className="space-y-6">
             {[
               { text: 'Llevas semanas enviando la misma clave de WiFi.', muted: false },
               { text: 'El mismo mensaje de acceso. Las mismas normas.', muted: true },
               { text: 'Cambia el nombre del huésped y repite.', muted: true },
             ].map((line, i) => (
-              <motion.p
-                key={i}
-                variants={fadeUp}
-                className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-white/30' : 'text-white'}`}
-              >
+              <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-white/25' : 'text-white'}`}>
                 {line.text}
               </motion.p>
             ))}
           </motion.div>
 
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: '-100px' }}
-            className="mt-24 space-y-6"
-          >
+          <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-100px' }} className="mt-24 space-y-6">
             {[
               { text: '"No podemos entrar."', muted: false },
               { text: 'A las 22:00. Mientras cenas.', muted: true },
               { text: 'Cuando estás atendiendo otro check-in.', muted: true },
             ].map((line, i) => (
-              <motion.p
-                key={i}
-                variants={fadeUp}
-                className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-white/30' : 'text-white'}`}
-              >
+              <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-white/25' : 'text-white'}`}>
                 {line.text}
               </motion.p>
             ))}
           </motion.div>
 
-          <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="mt-24 text-3xl sm:text-4xl lg:text-5xl font-bold text-white/30"
-          >
-            Y no es el trabajo lo que quema.{' '}
+          <motion.p variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="mt-24 text-3xl sm:text-4xl lg:text-5xl font-bold text-white/25">
+            No es el trabajo lo que quema.{' '}
             <span className="text-white">Es la repetición.</span>
           </motion.p>
         </div>
@@ -216,29 +322,16 @@ export default function LandingPage() {
       {/* ─── THE SHIFT ─── */}
       <section className="py-32 lg:py-48 px-4 bg-gradient-to-b from-black via-violet-950/20 to-black">
         <div className="max-w-5xl mx-auto">
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: '-100px' }}
-          >
-            <motion.p variants={fadeUp} className="text-sm uppercase tracking-widest text-violet-400 mb-8">
-              La diferencia
-            </motion.p>
+          <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-100px' }}>
+            <motion.p variants={fadeUp} className="text-sm uppercase tracking-widest text-violet-400 mb-8">La diferencia</motion.p>
             <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-10">
               ¿Y si el huésped llegara{' '}
-              <span className="bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">
-                sabiendo cómo entrar?
-              </span>
+              <span className="bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">sabiendo cómo entrar?</span>
             </motion.h2>
-            <motion.div variants={fadeUp} className="space-y-6 text-xl text-white/60 max-w-3xl leading-relaxed">
+            <motion.div variants={fadeUp} className="space-y-5 text-xl text-white/50 max-w-3xl leading-relaxed">
               <p>No hablamos de otro mensaje largo. Ni de un PDF que nadie abre.</p>
-              <p>
-                Una guía corta, clara, organizada por zonas — entrada, WiFi, normas, parking — con un enlace que el huésped recibe cuando se confirma la reserva.
-              </p>
-              <p>
-                Y si tiene alguna duda, un chatbot le responde en su idioma usando la información de tu propio apartamento.
-              </p>
+              <p>Una guía corta, clara, organizada por zonas — entrada, WiFi, normas, parking — con un enlace que el huésped recibe cuando se confirma la reserva.</p>
+              <p>Y si tiene alguna duda, un chatbot le responde en su idioma usando la información de tu propio apartamento.</p>
               <p className="text-white font-semibold text-2xl">Tú configuras una vez. La guía hace el resto.</p>
             </motion.div>
           </motion.div>
@@ -248,23 +341,11 @@ export default function LandingPage() {
       {/* ─── STATS ─── */}
       <section className="py-24 px-4 bg-black border-y border-white/5">
         <div className="max-w-7xl mx-auto">
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/5"
-          >
+          <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }} className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/5">
             {stats.map((s, i) => (
-              <motion.div
-                key={i}
-                variants={fadeUp}
-                className="bg-black p-12 flex flex-col gap-4"
-              >
-                <span className="text-6xl lg:text-7xl font-bold bg-gradient-to-br from-violet-400 to-purple-300 bg-clip-text text-transparent">
-                  {s.stat}
-                </span>
-                <p className="text-white/50 text-base leading-relaxed">{s.label}</p>
+              <motion.div key={i} variants={fadeUp} className="bg-black p-12 flex flex-col gap-4">
+                <span className="text-6xl lg:text-7xl font-bold bg-gradient-to-br from-violet-400 to-purple-300 bg-clip-text text-transparent">{s.stat}</span>
+                <p className="text-white/40 text-base leading-relaxed">{s.label}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -274,42 +355,21 @@ export default function LandingPage() {
       {/* ─── HOW IT WORKS ─── */}
       <section className="py-32 lg:py-48 px-4 bg-black">
         <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            variants={stagger}
-          >
-            <motion.p variants={fadeUp} className="text-sm uppercase tracking-widest text-violet-400 mb-6">
-              Cómo funciona
-            </motion.p>
-            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold mb-20">
-              Tres pasos.<br />Diez minutos.
-            </motion.h2>
-
+          <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
+            <motion.p variants={fadeUp} className="text-sm uppercase tracking-widest text-violet-400 mb-6">Cómo funciona</motion.p>
+            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold mb-20">Tres pasos.<br />Diez minutos.</motion.h2>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-white/5">
               {steps.map((step, i) => (
-                <motion.div
-                  key={i}
-                  variants={fadeUp}
-                  className="bg-black p-12 flex flex-col gap-6 group hover:bg-white/[0.02] transition-colors"
-                >
-                  <span className="text-7xl font-black text-white/5 group-hover:text-white/10 transition-colors leading-none">
-                    {step.n}
-                  </span>
+                <motion.div key={i} variants={fadeUp} className="bg-black p-12 flex flex-col gap-6 group hover:bg-white/[0.02] transition-colors">
+                  <span className="text-7xl font-black text-white/5 group-hover:text-white/10 transition-colors leading-none">{step.n}</span>
                   <h3 className="text-2xl font-bold text-white">{step.title}</h3>
-                  <p className="text-white/50 leading-relaxed">{step.body}</p>
+                  <p className="text-white/40 leading-relaxed">{step.body}</p>
                 </motion.div>
               ))}
             </div>
-
             <motion.div variants={fadeUp} className="mt-14 flex justify-center">
-              <Link
-                href="/register"
-                className="group inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-violet-100 transition-all text-lg shadow-[0_0_40px_rgba(139,92,246,0.3)]"
-              >
-                Empieza gratis
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <Link href="/register" className="group inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-violet-100 transition-all text-lg shadow-[0_0_40px_rgba(139,92,246,0.3)]">
+                Empieza gratis <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </motion.div>
           </motion.div>
@@ -319,22 +379,14 @@ export default function LandingPage() {
       {/* ─── BEFORE / AFTER ─── */}
       <section className="py-32 lg:py-48 px-4 bg-gradient-to-b from-black to-gray-950">
         <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            variants={stagger}
-          >
-            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold mb-20 text-center">
-              Tu semana<br />antes y después
-            </motion.h2>
-
+          <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
+            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold mb-20 text-center">Tu semana<br />antes y después</motion.h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <motion.div variants={fadeUp} className="rounded-3xl bg-white/[0.03] border border-white/5 p-10">
                 <p className="text-xs uppercase tracking-widest text-red-400 mb-8">Antes</p>
                 <ul className="space-y-5">
                   {before.map((item, i) => (
-                    <li key={i} className="flex items-start gap-4 text-white/40">
+                    <li key={i} className="flex items-start gap-4 text-white/35">
                       <div className="w-5 h-5 rounded-full border border-red-500/30 flex items-center justify-center shrink-0 mt-0.5">
                         <X className="w-3 h-3 text-red-400" />
                       </div>
@@ -343,7 +395,6 @@ export default function LandingPage() {
                   ))}
                 </ul>
               </motion.div>
-
               <motion.div variants={fadeUp} className="rounded-3xl bg-violet-950/30 border border-violet-500/20 p-10">
                 <p className="text-xs uppercase tracking-widest text-violet-400 mb-8">Después</p>
                 <ul className="space-y-5">
@@ -365,27 +416,16 @@ export default function LandingPage() {
       {/* ─── ICP ─── */}
       <section className="py-32 lg:py-48 px-4 bg-gray-950">
         <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            variants={stagger}
-          >
-            <motion.p variants={fadeUp} className="text-sm uppercase tracking-widest text-violet-400 mb-8">
-              Para quién es
-            </motion.p>
+          <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
+            <motion.p variants={fadeUp} className="text-sm uppercase tracking-widest text-violet-400 mb-8">Para quién es</motion.p>
             <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-12">
               Hecho para quien gestiona<br />
-              <span className="bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">
-                6, 7 u 8 pisos solo.
-              </span>
+              <span className="bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent">6, 7 u 8 pisos solo.</span>
             </motion.h2>
-            <motion.div variants={fadeUp} className="space-y-5 text-xl text-white/50 max-w-3xl leading-relaxed">
+            <motion.div variants={fadeUp} className="space-y-5 text-xl text-white/40 max-w-3xl leading-relaxed">
               <p>Contestas cada mensaje tú. Coordinas cada check-in tú. Te juegas la nota en cada reseña tú.</p>
               <p>No tienes equipo. No tienes sistema. Tienes el móvil y las ganas de que funcione.</p>
-              <p className="text-white font-semibold text-2xl pt-4">
-                No necesitas un software más.<br />Necesitas dejar de repetirte.
-              </p>
+              <p className="text-white font-semibold text-2xl pt-4">No necesitas un software más.<br />Necesitas dejar de repetirte.</p>
             </motion.div>
           </motion.div>
         </div>
@@ -394,20 +434,13 @@ export default function LandingPage() {
       {/* ─── FAQ ─── */}
       <section className="py-32 lg:py-48 px-4 bg-black">
         <div className="max-w-3xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            variants={stagger}
-          >
-            <motion.h2 variants={fadeUp} className="text-4xl sm:text-5xl font-bold mb-16">
-              Lo que suelen preguntar
-            </motion.h2>
+          <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
+            <motion.h2 variants={fadeUp} className="text-4xl sm:text-5xl font-bold mb-16">Lo que suelen preguntar</motion.h2>
             <div className="divide-y divide-white/5">
               {faqs.map((faq, i) => (
                 <motion.div key={i} variants={fadeUp} className="py-8">
                   <h3 className="text-lg font-semibold text-white mb-3">{faq.q}</h3>
-                  <p className="text-white/50 leading-relaxed">{faq.a}</p>
+                  <p className="text-white/40 leading-relaxed">{faq.a}</p>
                 </motion.div>
               ))}
             </div>
@@ -418,24 +451,14 @@ export default function LandingPage() {
       {/* ─── LOSS FRAMING ─── */}
       <section className="py-32 lg:py-48 px-4 bg-gray-950">
         <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            variants={stagger}
-            className="space-y-6"
-          >
+          <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger} className="space-y-6">
             {[
               { text: 'El próximo huésped ya tiene reserva.', muted: false },
               { text: 'Va a preguntar el WiFi. Va a dudar con la entrada.', muted: true },
               { text: 'Si llega confundido, la reseña lo refleja.', muted: true },
               { text: 'Y una reseña de 4 estrellas no baja sola.', muted: false },
             ].map((line, i) => (
-              <motion.p
-                key={i}
-                variants={fadeUp}
-                className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-white/25' : 'text-white'}`}
-              >
+              <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-white/20' : 'text-white'}`}>
                 {line.text}
               </motion.p>
             ))}
@@ -446,36 +469,25 @@ export default function LandingPage() {
       {/* ─── FINAL CTA ─── */}
       <section className="relative py-40 lg:py-56 px-4 bg-black overflow-hidden flex items-center justify-center">
         <div className="absolute inset-0 bg-gradient-to-b from-black via-violet-950/30 to-black" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-violet-600/15 rounded-full blur-[160px] pointer-events-none" />
-
-        <motion.div
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          variants={stagger}
-          className="relative z-10 text-center max-w-4xl mx-auto"
-        >
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] bg-violet-600/15 rounded-full blur-[180px] pointer-events-none" />
+        <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger} className="relative z-10 text-center max-w-4xl mx-auto">
           <motion.h2 variants={fadeUp} className="text-5xl sm:text-7xl lg:text-8xl font-bold leading-tight mb-8">
             Tu próximo huésped<br />
-            <span className="bg-gradient-to-r from-violet-400 via-purple-300 to-indigo-400 bg-clip-text text-transparent">
-              ya tiene reserva.
-            </span>
+            <span className="bg-gradient-to-r from-violet-400 via-purple-300 to-indigo-400 bg-clip-text text-transparent">ya tiene reserva.</span>
           </motion.h2>
-          <motion.p variants={fadeUp} className="text-xl text-white/50 mb-12 max-w-xl mx-auto">
+          <motion.p variants={fadeUp} className="text-xl text-white/40 mb-12 max-w-xl mx-auto">
             Que llegue informado. Empieza con lo básico. El resto se añade después.
           </motion.p>
           <motion.div variants={fadeUp}>
-            <Link
-              href="/register"
-              className="group inline-flex items-center gap-3 px-10 py-5 bg-white text-black font-bold rounded-full hover:bg-violet-100 transition-all text-xl shadow-[0_0_80px_rgba(139,92,246,0.5)] hover:shadow-[0_0_100px_rgba(139,92,246,0.7)]"
-            >
+            <Link href="/register" className="group inline-flex items-center gap-3 px-10 py-5 bg-white text-black font-bold rounded-full hover:bg-violet-100 transition-all text-xl shadow-[0_0_80px_rgba(139,92,246,0.5)] hover:shadow-[0_0_120px_rgba(139,92,246,0.8)]">
               Empieza gratis
               <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <p className="mt-6 text-sm text-white/30">Sin tarjeta · Sin app · Sin compromiso</p>
+            <p className="mt-6 text-sm text-white/25">Sin tarjeta · Sin app · Sin compromiso</p>
           </motion.div>
         </motion.div>
       </section>
+
     </div>
   )
 }
