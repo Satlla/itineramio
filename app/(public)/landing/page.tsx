@@ -116,41 +116,21 @@ export default function LandingPage() {
       <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center px-4 text-center pt-20">
         <div className="absolute inset-0 bg-gradient-to-b from-violet-50 via-white to-white pointer-events-none" />
 
-        <motion.div style={{ opacity: heroOpacity, y: heroY }} className="relative z-10 max-w-5xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-flex items-center gap-2 border border-gray-200 bg-white rounded-full px-5 py-2 text-sm text-gray-500 mb-10 shadow-sm"
-          >
+        <div className="relative z-10 max-w-5xl mx-auto">
+          <div className="inline-flex items-center gap-2 border border-gray-200 bg-white rounded-full px-5 py-2 text-sm text-gray-500 mb-10 shadow-sm">
             Para anfitriones con 6–10 propiedades en España
-          </motion.div>
+          </div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-5xl sm:text-7xl lg:text-8xl font-bold leading-[1.05] tracking-tight mb-10 text-gray-900"
-          >
+          <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold leading-[1.05] tracking-tight mb-10 text-gray-900">
             Los huéspedes<br />
             <span className="text-violet-600">no leen.</span>
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.55 }}
-            className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-400 mb-14 leading-snug"
-          >
+          <p className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-500 mb-14 leading-snug">
             Pero llegan preguntando lo mismo.
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/register"
               className="group inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white font-bold rounded-full hover:bg-gray-700 transition-all text-lg"
@@ -159,8 +139,8 @@ export default function LandingPage() {
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <p className="text-sm text-gray-500">Sin tarjeta. 10 minutos.</p>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
         <motion.div
           initial={{ opacity: 0 }}
@@ -294,7 +274,7 @@ export default function LandingPage() {
               { text: 'El mismo mensaje de acceso. Las mismas normas.', muted: true },
               { text: 'Cambia el nombre del huésped y repite.', muted: true },
             ].map((line, i) => (
-              <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-gray-300' : 'text-gray-900'}`}>
+              <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-gray-400' : 'text-gray-900'}`}>
                 {line.text}
               </motion.p>
             ))}
@@ -306,13 +286,13 @@ export default function LandingPage() {
               { text: 'A las 22:00. Mientras cenas.', muted: true },
               { text: 'Cuando estás atendiendo otro check-in.', muted: true },
             ].map((line, i) => (
-              <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-gray-300' : 'text-gray-900'}`}>
+              <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-gray-400' : 'text-gray-900'}`}>
                 {line.text}
               </motion.p>
             ))}
           </motion.div>
 
-          <motion.p variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="mt-24 text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-300">
+          <motion.p variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="mt-24 text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-400">
             No es el trabajo lo que quema.{' '}
             <span className="text-gray-900">Es la repetición.</span>
           </motion.p>
@@ -458,7 +438,7 @@ export default function LandingPage() {
               { text: 'Si llega confundido, la reseña lo refleja.', muted: true },
               { text: 'Y una reseña de 4 estrellas no baja sola.', muted: false },
             ].map((line, i) => (
-              <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-gray-300' : 'text-gray-900'}`}>
+              <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? 'text-gray-400' : 'text-gray-900'}`}>
                 {line.text}
               </motion.p>
             ))}
