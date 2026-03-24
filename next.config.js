@@ -10,6 +10,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
+  transpilePackages: ['lenis'],
   outputFileTracingExcludes: {
     '/api/*': ['./public/uploads/**', './public/ffmpeg/**'],
   },
