@@ -22,19 +22,19 @@ const stats = [
 ]
 
 const before = [
-  'Envías el WiFi a cada huésped manualmente',
-  'Copias y pegas acceso y normas en cada reserva',
-  '"No podemos entrar" a las 22:00',
+  'He enviado el WiFi más que saludos',
+  'Hay días que no trabajas de anfitrión. Trabajas de copiar y pegar',
+  '"No podemos entrar." Cuando estás cenando o con otro check-in encima',
   'Contestas lo mismo en tres idiomas',
-  'La reseña de 4 estrellas llega sin aviso',
+  'Una reseña de 4 estrellas por una confusión evitable',
 ]
 
 const after = [
-  'Configuras el enlace una vez en tu mensaje automático',
-  'El huésped llega sabiendo cómo entrar y conectarse',
-  'El chatbot responde en su idioma sin que tú hagas nada',
-  'Tú no repites nada',
-  'El check-in empieza bien y la reseña lo nota',
+  'La guía sale sola cuando se confirma la reserva',
+  'Así llegan sabiendo cómo entrar, dónde aparcar y cuál es la clave del WiFi',
+  'Menos copiar y pegar. El huésped ya sabe',
+  'Tú dejas de repetir lo mismo cada semana',
+  'La reseña lo nota',
 ]
 
 const steps = [
@@ -232,8 +232,8 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-100px' }} className="space-y-6">
             {[
-              { text: 'Llevas semanas enviando la misma clave de WiFi.', muted: false },
-              { text: 'El mismo mensaje de acceso. Las mismas normas.', muted: true },
+              { text: 'He enviado la clave del WiFi tantas veces que ya me la sé mejor que mi DNI.', muted: false },
+              { text: 'El mismo WiFi. La misma entrada. Las mismas normas.', muted: true },
               { text: 'Cambia el nombre del huésped y repite.', muted: true },
             ].map((line, i) => (
               <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? textFaint : text}`}>{line.text}</motion.p>
@@ -241,15 +241,14 @@ export default function LandingPage() {
           </motion.div>
           <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-100px' }} className="mt-24 space-y-6">
             {[
-              { text: '"No podemos entrar."', muted: false },
-              { text: 'A las 22:00. Mientras cenas.', muted: true },
-              { text: 'Cuando estás atendiendo otro check-in.', muted: true },
+              { text: 'El peor mensaje no es una queja. Es este: «No podemos entrar».', muted: false },
+              { text: 'Suele llegar cuando estás cenando, conduciendo o con otro check-in encima.', muted: true },
             ].map((line, i) => (
               <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? textFaint : text}`}>{line.text}</motion.p>
             ))}
           </motion.div>
           <motion.p variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className={`mt-24 text-3xl sm:text-4xl lg:text-5xl font-bold ${textFaint}`}>
-            No es el trabajo lo que quema.{' '}
+            Lo que quema no es el trabajo.{' '}
             <span className={text}>Es la repetición.</span>
           </motion.p>
         </div>
@@ -359,9 +358,10 @@ export default function LandingPage() {
               <span className={d ? 'bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent' : 'text-violet-600'}>6, 7 u 8 pisos solo.</span>
             </motion.h2>
             <motion.div variants={fadeUp} className={`space-y-5 text-xl max-w-3xl leading-relaxed ${textMuted}`}>
-              <p>Contestas cada mensaje tú. Coordinas cada check-in tú. Te juegas la nota en cada reseña tú.</p>
-              <p>No tienes equipo. No tienes sistema. Tienes el móvil y las ganas de que funcione.</p>
-              <p className={`${text} font-semibold text-2xl pt-4`}>No necesitas un software más.<br />Necesitas dejar de repetirte.</p>
+              <p>Mi punto de ruptura no fue un huésped. Fue el sexto piso.</p>
+              <p>Con 2 o 3 apartamentos tiras. Con 6, 7 u 8, ya no. Empiezas a vivir entre mensajes, accesos, dudas y reseñas.</p>
+              <p>Si tu móvil manda más que tú, ya sabes de qué va esto. WhatsApp, Airbnb, Booking, llamadas, preguntas repetidas.</p>
+              <p className={`${text} font-semibold text-2xl pt-4`}>No necesitas otro chat.<br />Necesitas que el huésped llegue con lo básico ya claro.</p>
             </motion.div>
           </motion.div>
         </div>
@@ -389,10 +389,10 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger} className="space-y-6">
             {[
-              { text: 'El próximo huésped ya tiene reserva.', muted: false },
-              { text: 'Va a preguntar el WiFi. Va a dudar con la entrada.', muted: true },
-              { text: 'Si llega confundido, la reseña lo refleja.', muted: true },
-              { text: 'Y una reseña de 4 estrellas no baja sola.', muted: false },
+              { text: 'Una reseña de 4 estrellas por confusión duele más que una avería.', muted: false },
+              { text: 'No porque sea grave, sino porque sabes que se podía haber evitado.', muted: true },
+              { text: 'Si el huésped llega sin tener claro el acceso, el parking o las normas, el riesgo sube.', muted: true },
+              { text: 'El próximo check-in ya viene.', muted: false },
             ].map((line, i) => (
               <motion.p key={i} variants={fadeUp} className={`text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight ${line.muted ? textFaint : text}`}>{line.text}</motion.p>
             ))}
@@ -410,7 +410,7 @@ export default function LandingPage() {
             <span className={d ? 'bg-gradient-to-r from-violet-400 via-purple-300 to-indigo-400 bg-clip-text text-transparent' : 'text-violet-200'}>ya tiene reserva.</span>
           </motion.h2>
           <motion.p variants={fadeUp} className={`text-xl mb-12 max-w-xl mx-auto ${d ? 'text-white/40' : 'text-violet-100'}`}>
-            Que llegue informado. Empieza con lo básico. El resto se añade después.
+            Empieza por entrada, WiFi y normas. Ese primer paso ya te quita repeticiones.
           </motion.p>
           <motion.div variants={fadeUp}>
             <Link href="/register" className={`group inline-flex items-center gap-3 px-10 py-5 font-bold rounded-full transition-all text-xl ${d ? 'bg-white text-black hover:bg-violet-100 shadow-[0_0_80px_rgba(139,92,246,0.5)]' : 'bg-white text-violet-700 hover:bg-violet-50'}`}>

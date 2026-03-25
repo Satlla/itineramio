@@ -214,6 +214,7 @@ const NAV = [
   { id: 'components', label: 'Componentes' },
   { id: 'screens',    label: 'Pantallas'   },
   { id: 'tokens',     label: 'Tokens'      },
+  { id: 'marketing',  label: 'Marketing'   },
 ]
 
 // ─── Color swatch ──────────────────────────────────────────────────────────
@@ -623,6 +624,27 @@ export default function StyleGuidePage() {
               </div>
             </div>
 
+            {/* Dos variantes de gradiente */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className={`border rounded-2xl overflow-hidden ${cardBg}`}>
+                <div className="h-14 bg-gradient-to-r from-[#FF07AB] via-[#FF2E76] to-[#FF4D4D] flex items-center justify-center">
+                  <p className="text-white font-bold text-xs tracking-wide">#FF07AB → #FF2E76 → #FF4D4D</p>
+                </div>
+                <div className="p-4">
+                  <p className={`text-xs font-bold mb-0.5 ${text}`}>Logo Marketing · isotipo-gradient.svg</p>
+                  <p className={`text-[10px] ${mutedText}`}>Para anuncios Meta/Google, web pública, materiales impresos y creatividades</p>
+                </div>
+              </div>
+              <div className={`border rounded-2xl overflow-hidden ${cardBg}`}>
+                <div className="h-14 bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F43F5E] flex items-center justify-center">
+                  <p className="text-white font-bold text-xs tracking-wide">#8B5CF6 → #EC4899 → #F43F5E</p>
+                </div>
+                <div className="p-4">
+                  <p className={`text-xs font-bold mb-0.5 ${text}`}>Logo In-App · ItineramioLogo.tsx</p>
+                  <p className={`text-[10px] ${mutedText}`}>Para navbar de la app, pantallas de login, emails y dashboard</p>
+                </div>
+              </div>
+            </div>
 
             {/* Uso */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1019,6 +1041,160 @@ export default function StyleGuidePage() {
                   ))}
                 </div>
               </div>
+            </div>
+          </Section>
+
+          {/* ════ MARKETING ════ */}
+          <Section id="marketing">
+            <SectionHeader title="Marketing" desc="Especificaciones para el equipo creativo — formatos, paleta, tipografía y copy guidelines para campañas Meta Ads y Google Ads." theme={theme} />
+
+            {/* Formatos de anuncio */}
+            <div className="mb-10">
+              <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${subText}`}>Formatos de anuncio</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { label: 'Feed cuadrado', dims: '1080 × 1080 px', ratio: '1:1',    color: 'from-violet-500 to-purple-600', h: 'h-24' },
+                  { label: 'Feed vertical',  dims: '1080 × 1350 px', ratio: '4:5',    color: 'from-pink-500 to-rose-500',     h: 'h-28' },
+                  { label: 'Story / Reels',  dims: '1080 × 1920 px', ratio: '9:16',   color: 'from-indigo-500 to-violet-600', h: 'h-36' },
+                  { label: 'Banner Google',  dims: '1200 × 628 px',  ratio: '1.91:1', color: 'from-emerald-500 to-teal-500',  h: 'h-16' },
+                ].map(({ label, dims, ratio, color, h }) => (
+                  <div key={label} className={`rounded-2xl overflow-hidden border ${cardBg}`}>
+                    <div className={`bg-gradient-to-br ${color} ${h} flex items-center justify-center`}>
+                      <span className="text-white font-bold text-sm">{ratio}</span>
+                    </div>
+                    <div className="p-3">
+                      <p className={`text-[10px] font-bold ${text}`}>{label}</p>
+                      <p className={`text-[9px] font-mono mt-0.5 ${mutedText}`}>{dims}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Colores para creatividades */}
+            <div className="mb-10">
+              <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${subText}`}>Colores para creatividades — click para copiar</p>
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-3">
+                {[
+                  { label: 'Fondo oscuro',    hex: '#09090b', dark: true  },
+                  { label: 'Fondo claro',     hex: '#FFFFFF', dark: false },
+                  { label: 'Violet 500',      hex: '#8B5CF6', dark: true  },
+                  { label: 'Logo Start',      hex: '#FF07AB', dark: true  },
+                  { label: 'Logo Mid',        hex: '#FF2E76', dark: true  },
+                  { label: 'Logo End',        hex: '#FF4D4D', dark: true  },
+                ].map(({ label, hex, dark: d }) => (
+                  <div key={hex} className={`relative group cursor-pointer rounded-xl overflow-hidden border transition-transform hover:scale-105 ${d ? 'border-white/10' : 'border-black/10'}`} style={{ backgroundColor: hex }} onClick={() => copy(hex, `mkt-${hex}`)}>
+                    <div className="h-12 w-full" />
+                    <div className={`px-2 py-1.5 ${d ? 'bg-black/30 text-white' : 'bg-white/60 text-gray-800'}`}>
+                      <p className="text-[9px] font-semibold truncate">{label}</p>
+                      <p className={`text-[8px] font-mono ${d ? 'text-white/60' : 'text-gray-500'}`}>{hex}</p>
+                    </div>
+                    <div className={`absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity ${d ? 'bg-black/40' : 'bg-white/60'}`}>
+                      {copied === `mkt-${hex}` ? <Check className={`w-4 h-4 ${d ? 'text-white' : 'text-gray-800'}`} /> : <Copy className={`w-3.5 h-3.5 ${d ? 'text-white' : 'text-gray-800'}`} />}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div className="rounded-xl overflow-hidden h-11 bg-gradient-to-r from-[#FF07AB] via-[#FF2E76] to-[#FF4D4D] flex items-center justify-center cursor-pointer" onClick={() => copy('#FF07AB, #FF2E76, #FF4D4D', 'grad-logo')}>
+                  <p className="text-white font-bold text-xs">Gradiente Logo Marketing — copiar</p>
+                </div>
+                <div className="rounded-xl overflow-hidden h-11 bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F43F5E] flex items-center justify-center cursor-pointer" onClick={() => copy('#8B5CF6, #EC4899, #F43F5E', 'grad-app')}>
+                  <p className="text-white font-bold text-xs">Gradiente In-App — copiar</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Tipografía para anuncios */}
+            <div className="mb-10">
+              <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${subText}`}>Tipografía para creatividades — Inter (Google Fonts)</p>
+              <div className={`rounded-2xl border overflow-hidden ${cardBg}`}>
+                {[
+                  { role: 'Headline',    weight: '700', size: '32–40px', sample: 'Los huéspedes no leen.' },
+                  { role: 'Subheadline', weight: '600', size: '20–24px', sample: 'He enviado el WiFi más que saludos.' },
+                  { role: 'Body copy',   weight: '400', size: '14–16px', sample: 'Crea una guía una vez y haz que se envíe sola en cada reserva.' },
+                  { role: 'CTA button',  weight: '700', size: '14–16px', sample: 'Empieza gratis →' },
+                ].map(({ role, weight, size, sample }) => (
+                  <div key={role} className={`px-5 py-4 border-b last:border-0 ${isDark ? 'border-white/5' : 'border-gray-50'}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`text-[10px] font-mono ${subText}`}>{role}</span>
+                      <span className={`text-[9px] font-mono ${subText}`}>Inter {weight} · {size}</span>
+                    </div>
+                    <p className="text-gray-900" style={{ fontWeight: parseInt(weight), fontSize: '15px' }}>{sample}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Copy guidelines */}
+            <div className="mb-10">
+              <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${subText}`}>Copy aprobado — hooks reales de Haroon</p>
+              <div className={`rounded-2xl border divide-y ${isDark ? 'bg-[#111] border-white/10 divide-white/5' : 'bg-white border-gray-200 divide-gray-50'}`}>
+                {[
+                  { hook: 'He enviado la clave del WiFi tantas veces que ya me la sé mejor que mi DNI.', tag: 'Ad Set 2' },
+                  { hook: 'El peor mensaje no es una queja. Es este: «No podemos entrar».', tag: 'Ad Set 3' },
+                  { hook: 'Si tu móvil manda más que tú, ya sabes de qué va esto.', tag: 'Ad Set 3' },
+                  { hook: 'Una reseña de 4 estrellas por confusión duele más que una avería.', tag: 'Ad Set 4' },
+                  { hook: 'Mi punto de ruptura no fue un huésped. Fue el sexto piso.', tag: 'Ad Set 5' },
+                  { hook: 'Hay días en los que no trabajas de anfitrión. Trabajas de copiar y pegar.', tag: 'Ad Set 5' },
+                ].map(({ hook, tag }) => (
+                  <div key={tag + hook} className="px-5 py-4 flex items-start justify-between gap-4">
+                    <p className={`text-sm leading-relaxed ${isDark ? 'text-white/80' : 'text-gray-800'}`}>"{hook}"</p>
+                    <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5 ${isDark ? 'bg-white/5 text-white/30' : 'bg-gray-100 text-gray-400'}`}>{tag}</span>
+                  </div>
+                ))}
+              </div>
+              <div className={`mt-4 rounded-xl p-4 border ${isDark ? 'bg-white/5 border-white/10' : 'bg-amber-50 border-amber-200'}`}>
+                <p className={`text-xs font-bold mb-2 ${isDark ? 'text-amber-400' : 'text-amber-700'}`}>Reglas de tono</p>
+                <ul className="space-y-1">
+                  {[
+                    'Directo y en primera persona — el anfitrión habla',
+                    'Sin superlativos: no "la mejor solución", sino hechos concretos',
+                    'Sin emojis en titulares de anuncio',
+                    'Específico: "la clave del WiFi", no "información básica"',
+                    'CTA en imperativo: Empieza gratis · Prueba gratis · Crear mi guía',
+                  ].map(r => (
+                    <li key={r} className={`text-[10px] flex items-start gap-2 ${isDark ? 'text-white/40' : 'text-amber-800'}`}>
+                      <Check className={`w-3 h-3 mt-0.5 flex-shrink-0 ${isDark ? 'text-amber-400' : 'text-amber-600'}`} />{r}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Logo en anuncios */}
+            <div>
+              <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${subText}`}>Logo en anuncios</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className={`rounded-2xl overflow-hidden border ${cardBg}`}>
+                  <div className="h-20 bg-black flex items-center justify-center">
+                    <img src="/isotipo-gradient.svg" style={{ width: 120, height: 66, objectFit: 'contain' }} alt="Logo sobre negro" />
+                  </div>
+                  <div className="p-3">
+                    <p className="text-[10px] font-bold text-emerald-500">Correcto</p>
+                    <p className={`text-[9px] ${mutedText} mt-0.5`}>Gradiente sobre fondo oscuro</p>
+                  </div>
+                </div>
+                <div className={`rounded-2xl overflow-hidden border ${cardBg}`}>
+                  <div className="h-20 bg-white border-b border-gray-100 flex items-center justify-center">
+                    <img src="/isotipo-gradient.svg" style={{ width: 120, height: 66, objectFit: 'contain' }} alt="Logo sobre blanco" />
+                  </div>
+                  <div className="p-3">
+                    <p className="text-[10px] font-bold text-emerald-500">Correcto</p>
+                    <p className={`text-[9px] ${mutedText} mt-0.5`}>Gradiente sobre fondo claro</p>
+                  </div>
+                </div>
+                <div className={`rounded-2xl overflow-hidden border ${cardBg}`}>
+                  <div className="h-20 bg-gradient-to-r from-[#FF07AB] to-[#FF4D4D] flex items-center justify-center">
+                    <img src="/isotipo-gradient.svg" style={{ width: 120, height: 66, objectFit: 'contain' }} alt="Logo sobre color" />
+                  </div>
+                  <div className="p-3">
+                    <p className="text-[10px] font-bold text-red-400">Evitar</p>
+                    <p className={`text-[9px] ${mutedText} mt-0.5`}>Logo sobre fondo de color intenso</p>
+                  </div>
+                </div>
+              </div>
+              <p className={`mt-3 text-[10px] ${subText}`}>Padding mínimo alrededor del logo: 20px · Tamaño mínimo en anuncio: 80px de ancho</p>
             </div>
           </Section>
 
