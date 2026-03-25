@@ -114,22 +114,30 @@ const COLORS = {
     { name: 'Brand 950', hex: '#0f0c29', dark: true  },
   ],
   accent: [
-    { name: 'Accent 50',  hex: '#faf5ff', dark: false },
-    { name: 'Accent 100', hex: '#f3e8ff', dark: false },
-    { name: 'Accent 200', hex: '#e9d5ff', dark: false },
-    { name: 'Accent 300', hex: '#d8b4fe', dark: false },
-    { name: 'Accent 400', hex: '#c084fc', dark: false },
-    { name: 'Accent 500', hex: '#8b5cf6', dark: true, primary: true },
-    { name: 'Accent 600', hex: '#7c3aed', dark: true  },
-    { name: 'Accent 700', hex: '#6d28d9', dark: true  },
-    { name: 'Accent 800', hex: '#5b21b6', dark: true  },
-    { name: 'Accent 900', hex: '#4c1d95', dark: true  },
+    { name: 'Violet 50',  hex: '#faf5ff', dark: false },
+    { name: 'Violet 100', hex: '#f3e8ff', dark: false },
+    { name: 'Violet 200', hex: '#e9d5ff', dark: false },
+    { name: 'Violet 300', hex: '#d8b4fe', dark: false },
+    { name: 'Violet 400', hex: '#c084fc', dark: false },
+    { name: 'Violet 500', hex: '#8b5cf6', dark: true, primary: true },
+    { name: 'Violet 600', hex: '#7c3aed', dark: true  },
+    { name: 'Violet 700', hex: '#6d28d9', dark: true  },
+    { name: 'Violet 800', hex: '#5b21b6', dark: true  },
+    { name: 'Violet 900', hex: '#4c1d95', dark: true  },
+  ],
+  guide: [
+    { name: 'Text Primary',  hex: '#222222', dark: true,  primary: true },
+    { name: 'Text Body',     hex: '#484848', dark: true  },
+    { name: 'Text Muted',    hex: '#717171', dark: false },
+    { name: 'Success',       hex: '#008A05', dark: true  },
+    { name: 'Subtle BG',     hex: '#F7F7F7', dark: false },
+    { name: 'WhatsApp',      hex: '#25D366', dark: true  },
   ],
   semantic: [
-    { name: 'Success', hex: '#10b981', dark: true  },
-    { name: 'Warning', hex: '#f59e0b', dark: false },
-    { name: 'Danger',  hex: '#ef4444', dark: true  },
-    { name: 'Info',    hex: '#3b82f6', dark: true  },
+    { name: 'Emerald',   hex: '#10b981', dark: true  },
+    { name: 'Amber',     hex: '#f59e0b', dark: false },
+    { name: 'Red',       hex: '#ef4444', dark: true  },
+    { name: 'Blue',      hex: '#3b82f6', dark: true  },
   ],
 }
 
@@ -267,24 +275,39 @@ function PhoneFrame({ children }: { children: React.ReactNode }) {
 
 function DashboardScreen() {
   return (
-    <div className="bg-gray-50 min-h-[440px] flex text-[11px]">
-      <div className="w-44 bg-white border-r border-gray-100 h-[440px] flex flex-col flex-shrink-0">
-        <div className="px-3 py-3 border-b border-gray-100 flex items-center gap-2">
+    <div className="bg-gray-50 min-h-[440px] flex flex-col text-[11px]">
+      {/* Navbar horizontal — refleja la app real */}
+      <div className="bg-white border-b border-neutral-100 px-4 h-12 flex items-center justify-between flex-shrink-0 shadow-sm">
+        <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0">
             <InfinityLogo color="#fff" size={16} />
           </div>
           <span className="font-semibold text-gray-800 text-[11px]">Itineramio</span>
         </div>
-        <nav className="flex-1 px-2 py-3 space-y-0.5">
-          {[{ icon: Home, label: 'Panel', active: true }, { icon: Map, label: 'Propiedades' }, { icon: Calendar, label: 'Reservas' }, { icon: BarChart2, label: 'Analítica' }, { icon: MessageCircle, label: 'Chatbot IA' }, { icon: Settings, label: 'Ajustes' }].map(({ icon: I, label, active }) => (
-            <div key={label} className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-[10px] font-medium ${active ? 'bg-violet-50 text-violet-700' : 'text-gray-500'}`}>
-              <I className="w-3 h-3" />{label}
+        <nav className="flex items-center gap-0.5">
+          {[
+            { label: 'Home',       active: true  },
+            { label: 'Properties', active: false },
+            { label: 'Sets',       active: false },
+            { label: 'Gestion',    active: false },
+            { label: 'Guides',     active: false },
+          ].map(({ label, active }) => (
+            <div key={label} className={`relative px-2.5 py-2 text-[10px] font-medium ${active ? 'text-violet-600' : 'text-gray-700'}`}>
+              {label}
+              {active && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-violet-600 rounded-full" />}
             </div>
           ))}
         </nav>
-        <div className="px-2 pb-3">
-          <div className="bg-violet-50 rounded-xl p-2.5 border border-violet-100">
-            <p className="text-[9px] font-bold text-violet-700">Plan Pro · Activo</p>
+        <div className="flex items-center gap-2">
+          <div className="relative w-6 h-6 flex items-center justify-center">
+            <Bell className="w-3.5 h-3.5 text-gray-500" />
+            <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-red-500 rounded-full" />
+          </div>
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex-shrink-0" />
+          <div className="flex flex-col gap-[3px] cursor-pointer pl-1">
+            <div className="w-3.5 h-[2px] bg-gray-500 rounded" />
+            <div className="w-3.5 h-[2px] bg-gray-500 rounded" />
+            <div className="w-3.5 h-[2px] bg-gray-500 rounded" />
           </div>
         </div>
       </div>
@@ -293,10 +316,6 @@ function DashboardScreen() {
           <div>
             <p className="font-bold text-gray-900 text-[12px]">Buenos días 👋</p>
             <p className="text-gray-400 text-[9px]">Martes 25 de marzo, 2026</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-gray-100 flex items-center justify-center"><Bell className="w-3 h-3 text-gray-500" /></div>
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-500 to-purple-600" />
           </div>
         </div>
         <div className="grid grid-cols-3 gap-2 mb-3">
@@ -330,49 +349,69 @@ function DashboardScreen() {
 
 function GuideScreen() {
   const zones = [
-    { icon: Key,     name: 'Check-in',     c: 'from-blue-400 to-indigo-500'   },
-    { icon: Wifi,    name: 'WiFi',          c: 'from-violet-400 to-purple-500' },
-    { icon: ChefHat, name: 'Cocina',        c: 'from-amber-400 to-orange-500'  },
-    { icon: Car,     name: 'Parking',       c: 'from-emerald-400 to-teal-500'  },
-    { icon: Waves,   name: 'Piscina',       c: 'from-cyan-400 to-blue-500'     },
-    { icon: Utensils,name: 'Restaurantes',  c: 'from-rose-400 to-pink-500'     },
+    { icon: Key,      name: 'Check-in',    color: 'bg-gradient-to-br from-violet-500 to-purple-600' },
+    { icon: Wifi,     name: 'WiFi',         color: 'bg-gradient-to-br from-violet-500 to-purple-600' },
+    { icon: ChefHat,  name: 'Cocina',       color: 'bg-gradient-to-br from-violet-500 to-purple-600' },
+    { icon: Car,      name: 'Parking',      color: 'bg-gradient-to-br from-violet-500 to-purple-600' },
+    { icon: Waves,    name: 'Piscina',      color: 'bg-gradient-to-br from-violet-500 to-purple-600' },
+    { icon: Utensils, name: 'Restaurantes', color: 'bg-gradient-to-br from-violet-500 to-purple-600' },
   ]
   return (
-    <div className="bg-gray-50 min-h-[500px]">
-      <div className="relative bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-700 px-4 pt-5 pb-12">
-        <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center mb-2">
-          <Home className="w-4 h-4 text-white" />
-        </div>
-        <h1 className="text-sm font-bold text-white">Mercado Central</h1>
-        <p className="text-[10px] text-white/70">4Pax · Centro Alicante</p>
-        <div className="flex items-center gap-1 mt-1.5">
-          {[...Array(5)].map((_, i) => <Star key={i} className="w-2 h-2 fill-amber-300 text-amber-300" />)}
-          <span className="text-[9px] text-white/60 ml-1">4.9</span>
+    <div className="bg-white min-h-[500px]">
+      {/* Header — white sticky, real app style */}
+      <div className="bg-white/95 border-b border-gray-100 px-3 py-2.5 flex items-center justify-between">
+        <button className="p-1 rounded-full hover:bg-gray-100">
+          <ArrowRight className="w-3.5 h-3.5 text-[#222222] rotate-180" />
+        </button>
+        <div className="flex items-center gap-1.5">
+          <Globe className="w-3 h-3 text-gray-400" />
+          <span className="text-[9px] text-gray-400">ES</span>
         </div>
       </div>
-      <div className="px-3 -mt-7 relative">
-        <div className="grid grid-cols-3 gap-2">
-          {zones.map(({ icon: I, name, c }) => (
-            <div key={name} className="bg-white rounded-2xl shadow-lg overflow-hidden border border-white">
-              <div className={`h-10 bg-gradient-to-br ${c} flex items-center justify-center`}>
-                <I className="w-4 h-4 text-white" />
+      {/* Property header */}
+      <div className="px-4 pt-4 pb-3 border-b border-gray-100">
+        <div className="flex items-center gap-2.5 mb-2">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+            <Home className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <h1 className="text-[13px] font-semibold text-[#222222] leading-tight">Mercado Central</h1>
+            <p className="text-[9px] text-[#717171]">4Pax · Centro Alicante</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          {[...Array(5)].map((_, i) => <Star key={i} className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />)}
+          <span className="text-[9px] text-[#717171] ml-1">4.9 · 47 reseñas</span>
+        </div>
+      </div>
+      {/* Zone grid */}
+      <div className="px-3 py-3">
+        <p className="text-[9px] font-semibold text-[#717171] uppercase tracking-wider mb-2">Manual de la propiedad</p>
+        <div className="grid grid-cols-2 gap-2">
+          {zones.slice(0, 4).map(({ icon: I, name, color }) => (
+            <button key={name} className="flex items-center gap-2.5 p-2.5 bg-white border border-gray-200 rounded-xl text-left hover:border-[#222222] hover:shadow-md transition-all">
+              <div className={`w-7 h-7 ${color} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                <I className="w-3.5 h-3.5 text-white" strokeWidth={1.5} />
               </div>
-              <div className="p-1.5 text-center">
-                <p className="text-[9px] font-semibold text-gray-800 truncate">{name}</p>
-              </div>
-            </div>
+              <p className="text-[10px] font-medium text-[#222222] truncate">{name}</p>
+            </button>
           ))}
         </div>
-        <div className="mt-3 bg-white rounded-2xl border border-gray-100 shadow-sm p-2.5 flex items-center gap-2">
+        {/* AI chatbot button */}
+        <div className="mt-2 bg-white border border-gray-200 rounded-xl p-2.5 flex items-center gap-2">
           <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0">
             <MessageCircle className="w-3.5 h-3.5 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-semibold text-gray-800">Asistente IA 24/7</p>
-            <p className="text-[8px] text-gray-400">¿Tienes dudas? Pregúntame</p>
+            <p className="text-[10px] font-semibold text-[#222222]">Asistente IA 24/7</p>
+            <p className="text-[8px] text-[#717171]">¿Tienes dudas? Pregúntame</p>
           </div>
           <ArrowRight className="w-3 h-3 text-gray-400 flex-shrink-0" />
         </div>
+        {/* CTA button */}
+        <button className="mt-3 w-full bg-[#222222] text-white text-[10px] font-medium py-2 rounded-lg hover:bg-black transition-colors">
+          Ver siguiente paso →
+        </button>
       </div>
     </div>
   )
@@ -608,24 +647,31 @@ export default function StyleGuidePage() {
 
           {/* ════ COLORS ════ */}
           <Section id="colors">
-            <SectionHeader title="Colores" desc="Sistema de color basado en indigo–violeta. Transmite tecnología, confianza y modernidad. Click en cualquier swatch para copiar el hex." theme={theme} />
+            <SectionHeader title="Colores" desc="La app tiene DOS paletas: Dashboard (violet-600 como acción primaria) y Guía pública (negro #222222 al estilo Airbnb). Click para copiar el hex." theme={theme} />
 
-            <div className="flex gap-4 mb-8">
-              <div className="flex-1 rounded-2xl overflow-hidden h-16 bg-gradient-to-r from-[#FF07AB] via-[#FF2E76] to-[#FF4D4D] flex items-center justify-center">
-                <p className="text-white font-bold tracking-wide text-sm">Logo · #FF07AB → #FF4D4D</p>
+            {/* Gradient strips */}
+            <div className="flex flex-col sm:flex-row gap-3 mb-8">
+              <div className="flex-1 rounded-2xl overflow-hidden h-14 bg-gradient-to-r from-[#FF07AB] via-[#FF2E76] to-[#FF4D4D] flex items-center justify-center">
+                <p className="text-white font-bold tracking-wide text-xs">Isotipo Gradient · #FF07AB → #FF4D4D</p>
               </div>
-              <div className="flex-1 rounded-2xl overflow-hidden h-16 bg-gradient-to-r from-[#6366f1] via-[#7c3aed] to-[#8b5cf6] flex items-center justify-center">
-                <p className="text-white font-bold tracking-wide text-sm">UI Gradient · #6366f1 → #8b5cf6</p>
+              <div className="flex-1 rounded-2xl overflow-hidden h-14 bg-gradient-to-r from-[#6366f1] via-[#7c3aed] to-[#8b5cf6] flex items-center justify-center">
+                <p className="text-white font-bold tracking-wide text-xs">Dashboard UI · #6366f1 → #8b5cf6</p>
+              </div>
+              <div className="flex-1 rounded-2xl overflow-hidden h-14 bg-[#222222] flex items-center justify-center">
+                <p className="text-white font-bold tracking-wide text-xs">Guía Pública · #222222</p>
               </div>
             </div>
 
             <div className="space-y-8">
-              {['brand', 'accent', 'semantic'].map(group => (
+              {['brand', 'accent', 'guide', 'semantic'].map(group => (
                 <div key={group}>
                   <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${subText}`}>
-                    {group === 'brand' ? 'Color UI Principal — Indigo (acción, foco, enlaces)' : group === 'accent' ? 'Accent — Violet (botones, badges, gradientes UI)' : 'Semánticos'}
+                    {group === 'brand' ? '🖥 Dashboard — Indigo (foco, enlaces, variante)' :
+                     group === 'accent' ? '🖥 Dashboard — Violet (botones primarios, badges, gradientes)' :
+                     group === 'guide' ? '📱 Guía Pública — paleta Airbnb (huéspedes)' :
+                     'Semánticos (ambas superficies)'}
                   </p>
-                  <div className={`grid gap-2 ${group === 'semantic' ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-4 sm:grid-cols-6 lg:grid-cols-11'}`}>
+                  <div className={`grid gap-2 ${group === 'semantic' || group === 'guide' ? 'grid-cols-3 sm:grid-cols-6' : 'grid-cols-4 sm:grid-cols-6 lg:grid-cols-10'}`}>
                     {COLORS[group as keyof typeof COLORS].map((c: any) => (
                       <ColorSwatch key={c.hex} color={c} copied={copied} onCopy={copy} />
                     ))}
@@ -735,63 +781,131 @@ export default function StyleGuidePage() {
 
           {/* ════ COMPONENTS ════ */}
           <Section id="components">
-            <SectionHeader title="Componentes" desc="Biblioteca base construida sobre Radix UI + Tailwind. Accesibles, consistentes y reutilizables en toda la app." theme={theme} />
+            <SectionHeader title="Componentes" desc="Dos superficies, dos sistemas. Dashboard usa violet (src/components/ui/button.tsx). Guía pública usa negro #222222 (app/(public)/guide/)." theme={theme} />
+
+            {/* Contexto legend */}
+            <div className="flex flex-wrap gap-3 mb-6">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-100 text-violet-700 text-xs font-medium"><Monitor className="w-3.5 h-3.5" />Dashboard (host) — violet</span>
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 text-xs font-medium"><Smartphone className="w-3.5 h-3.5" />Guía pública (huésped) — negro #222222</span>
+            </div>
 
             <div className="space-y-5">
-              <ComponentBlock title="Buttons" theme={theme} code={`<button className="bg-violet-600 text-white px-4 py-2 rounded-md font-medium text-sm shadow-lg">\n  Primario\n</button>`}>
+              {/* ── Dashboard buttons ── */}
+              <ComponentBlock title="Buttons · Dashboard" theme={theme} code={`// src/components/ui/button.tsx\n<Button>Primario</Button>            // bg-violet-600 rounded-md shadow-lg\n<Button variant="secondary">...</Button>  // bg-gray-100 rounded-md\n<Button variant="outline">...</Button>    // border-2 border-gray-300\n<Button variant="ghost">...</Button>      // text-gray-700 hover:bg-gray-100\n<Button variant="destructive">...</Button>// bg-red-600`}>
                 <div className="flex flex-wrap gap-3">
                   {[
-                    { l: 'Primario',   c: 'bg-violet-600 text-white hover:bg-violet-700 px-4 py-2 rounded-md font-medium text-sm transition-all shadow-lg hover:shadow-xl' },
-                    { l: 'Secundario', c: 'bg-gray-100 text-gray-900 hover:bg-gray-200 px-4 py-2 rounded-md font-medium text-sm transition-all shadow-md' },
-                    { l: 'Outline',    c: 'border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 px-4 py-2 rounded-md font-medium text-sm transition-colors' },
-                    { l: 'Ghost',      c: 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-4 py-2 rounded-md font-medium text-sm transition-colors' },
-                    { l: 'Danger',     c: 'bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-md font-medium text-sm transition-all shadow-lg' },
-                    { l: 'Disabled',   c: 'bg-gray-100 text-gray-400 px-4 py-2 rounded-md font-medium text-sm cursor-not-allowed opacity-50', disabled: true },
+                    { l: 'Primary',      c: 'bg-violet-600 text-white hover:bg-violet-700 h-10 px-4 rounded-md font-medium text-sm transition-all shadow-lg hover:shadow-xl' },
+                    { l: 'Secondary',    c: 'bg-gray-100 text-gray-900 hover:bg-gray-200 h-10 px-4 rounded-md font-medium text-sm transition-all shadow-md' },
+                    { l: 'Outline',      c: 'border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 h-10 px-4 rounded-md font-medium text-sm transition-colors' },
+                    { l: 'Ghost',        c: 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 h-10 px-4 rounded-md font-medium text-sm transition-colors' },
+                    { l: 'Link',         c: 'text-violet-600 hover:text-violet-700 hover:underline h-10 px-4 font-medium text-sm' },
+                    { l: 'Destructive',  c: 'bg-red-600 text-white hover:bg-red-700 h-10 px-4 rounded-md font-medium text-sm transition-all shadow-lg' },
+                    { l: 'sm',           c: 'bg-violet-600 text-white hover:bg-violet-700 h-9 px-3 rounded-md font-medium text-sm transition-all shadow-md' },
+                    { l: 'lg',           c: 'bg-violet-600 text-white hover:bg-violet-700 h-12 px-8 rounded-lg font-medium text-base transition-all shadow-lg' },
+                    { l: 'disabled',     c: 'bg-violet-600 text-white h-10 px-4 rounded-md font-medium text-sm opacity-50 cursor-not-allowed', disabled: true },
                   ].map(({ l, c, disabled }) => <button key={l} className={c} disabled={disabled}>{l}</button>)}
                 </div>
               </ComponentBlock>
 
-              <ComponentBlock title="Badges" theme={theme}>
+              {/* ── Guía pública buttons ── */}
+              <ComponentBlock title="Buttons · Guía pública" theme={theme} code={`// app/(public)/guide/\n<button className="bg-[#222222] text-white px-6 py-3 rounded-lg font-medium text-sm hover:bg-black">\n  Siguiente paso\n</button>`}>
+                <div className="flex flex-wrap gap-3 items-center">
+                  {[
+                    { l: 'Primario (negro)',c: 'bg-[#222222] text-white hover:bg-black px-6 py-2.5 rounded-lg font-medium text-sm transition-colors' },
+                    { l: 'Outline',         c: 'text-[#222222] bg-white border border-[#222222] hover:bg-gray-50 px-6 py-2.5 rounded-lg font-medium text-sm transition-colors' },
+                    { l: 'Ghost circular',  c: 'p-2 rounded-full text-[#222222] hover:bg-gray-100 transition-colors' },
+                    { l: '💬 WhatsApp',    c: 'bg-[#25D366] hover:bg-[#20BD5A] text-white px-4 py-2.5 rounded-full font-medium text-sm transition-colors shadow-lg' },
+                  ].map(({ l, c }) => <button key={l} className={c}>{l}</button>)}
+                </div>
+              </ComponentBlock>
+
+              {/* ── Step badges ── */}
+              <ComponentBlock title="Step Badges · Guía pública" theme={theme}>
+                <div className="flex items-center gap-6 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-[#008A05] text-white flex items-center justify-center shadow-md"><Check className="w-4 h-4" /></div>
+                    <div><p className="text-xs font-medium text-gray-700">Completado</p><p className="text-[10px] text-gray-400 font-mono">#008A05</p></div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-[#222222] text-white flex items-center justify-center shadow-md text-sm font-medium">2</div>
+                    <div><p className="text-xs font-medium text-gray-700">Activo</p><p className="text-[10px] text-gray-400 font-mono">#222222</p></div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-sm font-medium border border-gray-200">3</div>
+                    <div><p className="text-xs font-medium text-gray-400">Pendiente</p><p className="text-[10px] text-gray-300 font-mono">gray-100</p></div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-full bg-gray-200 rounded-full h-2 w-32"><div className="bg-violet-600 h-2 rounded-full w-2/3" /></div>
+                    <p className="text-xs text-gray-500">Progress · violet-600</p>
+                  </div>
+                </div>
+              </ComponentBlock>
+
+              {/* ── Zone cards real ── */}
+              <ComponentBlock title="Zone Cards · Guía pública" theme={theme} code={`// Fondo blanco, border-gray-200, hover:border-[#222222]\n<button className="flex items-center gap-2.5 px-3 py-2.5 bg-white border border-gray-200\n  rounded-xl hover:border-[#222222] hover:shadow-md transition-all">\n  <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg">...\n  <p className="text-xs font-medium text-[#222222]">Check-in</p>\n</button>`}>
+                <div className="flex gap-3 flex-wrap">
+                  {[
+                    { I: Key,      name: 'Check-in'   },
+                    { I: Wifi,     name: 'WiFi'        },
+                    { I: ChefHat,  name: 'Cocina'      },
+                    { I: Waves,    name: 'Piscina'     },
+                    { I: Car,      name: 'Parking'     },
+                    { I: Utensils, name: 'Restaurantes'},
+                  ].map(({ I, name }) => (
+                    <button key={name} className="flex items-center gap-2.5 px-3 py-2.5 bg-white border border-gray-200 rounded-xl hover:border-[#222222] hover:shadow-md transition-all cursor-pointer">
+                      <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <I className="w-4 h-4 text-white" strokeWidth={1.5} />
+                      </div>
+                      <p className="text-xs font-medium text-[#222222]">{name}</p>
+                    </button>
+                  ))}
+                </div>
+              </ComponentBlock>
+
+              {/* ── Badges ── */}
+              <ComponentBlock title="Badges · Dashboard" theme={theme}>
                 <div className="flex flex-wrap gap-2">
                   {[
                     { l: 'Activo',    c: 'bg-emerald-100 text-emerald-700 text-xs font-semibold px-2.5 py-0.5 rounded-full' },
                     { l: 'Pendiente', c: 'bg-amber-100 text-amber-700 text-xs font-semibold px-2.5 py-0.5 rounded-full' },
                     { l: 'Beta',      c: 'bg-violet-100 text-violet-700 text-xs font-semibold px-2.5 py-0.5 rounded-full' },
                     { l: 'Pro',       c: 'bg-gradient-to-r from-violet-500 to-purple-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full' },
-                    { l: 'Archivado', c: 'bg-gray-100 text-gray-500 text-xs font-semibold px-2.5 py-0.5 rounded-full' },
+                    { l: 'Borrador',  c: 'bg-gray-100 text-gray-500 text-xs font-semibold px-2.5 py-0.5 rounded-full' },
                   ].map(({ l, c }) => <span key={l} className={c}>{l}</span>)}
                 </div>
               </ComponentBlock>
 
-              <ComponentBlock title="Inputs" theme={theme}>
+              {/* ── Inputs ── */}
+              <ComponentBlock title="Inputs · Dashboard (rounded-lg, ring-violet-500)" theme={theme}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg">
                   <div>
-                    <label className="text-xs font-medium text-gray-600 mb-1.5 block">Propiedad</label>
-                    <input type="text" placeholder="Ej: Apartamento Playa" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none transition-all" />
+                    <label className="text-xs font-medium text-gray-600 mb-1.5 block">Default</label>
+                    <input type="text" placeholder="Ej: Apartamento Playa" className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none transition-all" />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-gray-600 mb-1.5 block">Buscar</label>
+                    <label className="text-xs font-medium text-gray-600 mb-1.5 block">Con icono</label>
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input type="text" placeholder="Buscar..." className="w-full border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none transition-all" />
+                      <input type="text" placeholder="Buscar..." className="w-full border border-gray-200 rounded-lg pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none transition-all" />
                     </div>
                   </div>
                   <div>
                     <label className="text-xs font-medium text-red-500 mb-1.5 block">Error</label>
-                    <input type="text" defaultValue="Valor incorrecto" className="w-full border border-red-300 bg-red-50 rounded-xl px-4 py-2.5 text-sm text-red-600 outline-none" />
+                    <input type="text" defaultValue="Valor incorrecto" className="w-full border border-red-300 bg-red-50 rounded-lg px-4 py-2.5 text-sm text-red-600 outline-none" />
                     <p className="text-xs text-red-500 mt-1">Campo obligatorio</p>
                   </div>
                   <div>
                     <label className="text-xs font-medium text-emerald-600 mb-1.5 block">Correcto</label>
                     <div className="relative">
-                      <input type="text" defaultValue="Alicante centro" className="w-full border border-emerald-300 bg-emerald-50 rounded-xl px-4 py-2.5 text-sm text-emerald-700 outline-none pr-10" />
+                      <input type="text" defaultValue="Alicante centro" className="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-4 py-2.5 text-sm text-emerald-700 outline-none pr-10" />
                       <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
                     </div>
                   </div>
                 </div>
               </ComponentBlock>
 
-              <ComponentBlock title="Alerts" theme={theme}>
+              {/* ── Alerts ── */}
+              <ComponentBlock title="Alerts · Dashboard" theme={theme}>
                 <div className="space-y-2 max-w-md">
                   {[
                     { msg: 'Propiedad publicada correctamente.', c: 'bg-emerald-50 border-emerald-200 text-emerald-800', dot: 'bg-emerald-500' },
@@ -806,27 +920,23 @@ export default function StyleGuidePage() {
                 </div>
               </ComponentBlock>
 
-              <ComponentBlock title="Zone Cards — guía pública" theme={theme}>
-                <div className="flex gap-3 flex-wrap">
+              {/* ── Dashboard cards ── */}
+              <ComponentBlock title="Cards · Dashboard (bg-white, border-gray-200, rounded-lg, shadow-sm)" theme={theme}>
+                <div className="grid grid-cols-3 gap-3 max-w-sm">
                   {[
-                    { I: Key,     name: 'Check-in',  c: 'from-blue-400 to-indigo-500'   },
-                    { I: Wifi,    name: 'WiFi',       c: 'from-violet-400 to-purple-500' },
-                    { I: ChefHat, name: 'Cocina',     c: 'from-amber-400 to-orange-500'  },
-                    { I: Waves,   name: 'Piscina',    c: 'from-cyan-400 to-blue-500'     },
-                    { I: Car,     name: 'Parking',    c: 'from-emerald-400 to-teal-500'  },
-                    { I: Utensils,name: 'Restaurantes',c: 'from-rose-400 to-pink-500'   },
-                  ].map(({ I, name, c }) => (
-                    <div key={name} className="w-24 bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer">
-                      <div className={`h-14 bg-gradient-to-br ${c} flex items-center justify-center`}>
-                        <I className="w-5 h-5 text-white" strokeWidth={1.5} />
-                      </div>
-                      <div className="p-2 text-center">
-                        <p className="text-xs font-semibold text-gray-800 truncate">{name}</p>
-                      </div>
+                    { l: 'Propiedades', v: '4',  I: Home,          c: 'text-violet-600', bg: 'bg-violet-50' },
+                    { l: 'Reservas',    v: '23', I: Calendar,      c: 'text-emerald-600', bg: 'bg-emerald-50' },
+                    { l: 'Chats IA',   v: '187', I: MessageCircle, c: 'text-violet-600', bg: 'bg-violet-50' },
+                  ].map(({ l, v, I, c, bg }) => (
+                    <div key={l} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                      <div className={`w-8 h-8 ${bg} rounded-lg flex items-center justify-center mb-3`}><I className={`w-4 h-4 ${c}`} /></div>
+                      <p className="text-xl font-bold text-gray-900">{v}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{l}</p>
                     </div>
                   ))}
                 </div>
               </ComponentBlock>
+
             </div>
           </Section>
 
