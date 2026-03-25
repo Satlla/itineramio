@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import {
   Check, Copy, Download, ExternalLink, ChevronRight,
@@ -73,14 +73,16 @@ const TYPOGRAPHY = [
   { name: 'Caption',   size: '0.75rem', weight: '500', lh: '1.4',  sample: 'CAPTION — TAGS Y METADATOS', class: 'text-xs font-medium uppercase tracking-wider' },
 ]
 
-const LOGOS = [
-  { name: 'Logo principal',     file: '/logo.svg',                   bg: 'bg-white',         label: 'Fondo claro', desc: 'Uso general en fondos blancos o claros' },
-  { name: 'Logo light',         file: '/logo-light.svg',             bg: 'bg-gray-900',      label: 'Fondo oscuro', desc: 'Uso en fondos oscuros o dark mode' },
-  { name: 'Logo completo',      file: '/logo-itineramio.svg',        bg: 'bg-white',         label: 'Variante full', desc: 'Con tagline completo' },
-  { name: 'Logo cuadrado',      file: '/logo-itineramio-square.svg', bg: 'bg-gray-50',       label: 'Cuadrado', desc: 'Para avatares y thumbnails' },
-  { name: 'Isotipo',            file: '/isotipe.svg',                bg: 'bg-white',         label: 'Solo marca', desc: 'Cuando el espacio es limitado' },
-  { name: 'Favicon',            file: '/favicon.svg',                bg: 'bg-gray-900',      label: 'Favicon / App', desc: 'Icono de app y pestaña del navegador' },
-]
+// Isotipo inline SVG paths (shared geometry, color applied per variant)
+const ISOTIPO_PATHS = {
+  corners: [
+    'M2 8V5C2 3.34315 3.34315 2 5 2H9',
+    'M33.4336 2H36C37.6569 2 39 3.34315 39 5V8.16667M2 33.807V36C2 37.6569 3.34315 39 5 39H8.87611',
+    'M40 34V36C40 37.6569 38.6569 39 37 39H33',
+  ],
+  main: 'M7.59408 22.8502C8.12901 23.5437 10.9814 27.2414 17.4965 27.2943V30.8126C17.4965 32.1469 17.8273 33.8071 19.1616 33.8071C20.4732 33.8071 20.8268 32.1316 20.8268 30.82V27.2943C24.9777 27.1022 33.3808 24.7007 33.7863 16.6318C34.1917 8.56282 28.5253 6.54558 25.2432 6.54558C24.3835 6.52733 22.887 6.65611 21.4128 7.21625C17.9043 8.54936 17.4965 12.953 17.4965 16.7062V24.5854C16.0967 24.5086 12.9208 24.0091 11.4149 22.6258C11.3433 22.6258 11.0533 22.6369 10.6524 22.6521C9.75609 22.6861 8.3058 22.7411 7.50537 22.7411C7.51721 22.7505 7.54646 22.7885 7.59408 22.8502ZM20.8992 24.5274C24.2296 24.2585 30.6442 22.0938 30.2387 15.1315C29.9974 13.1911 28.6894 9.18351 24.8088 9.36794C21.7286 9.36794 21.0265 13.1302 20.9921 16.2102L20.8992 24.5274Z',
+  line: 'M8.30298 20.1123L12.6563 16.5179L8.30298 12.1248L12.6563 9.72852L17.977 13.7223',
+}
 
 const COMPONENTS_PREVIEW = {
   buttons: [
@@ -505,19 +507,15 @@ function AnalyticsScreen() {
 export default function StyleGuidePage() {
   const { copied, copy } = useCopy()
   const [activeNav, setActiveNav] = useState('brand')
-  const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
 
   const scrollTo = (id: string) => {
     setActiveNav(id)
-    sectionRefs.current[id]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const el = document.getElementById(id)
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   const Section = ({ id, children }: { id: string, children: React.ReactNode }) => (
-    <section
-      ref={(el) => { sectionRefs.current[id] = el }}
-      id={id}
-      className="scroll-mt-6"
-    >
+    <section id={id} className="scroll-mt-20">
       {children}
     </section>
   )
@@ -804,51 +802,109 @@ export default function StyleGuidePage() {
           {/* ════ LOGOS ════ */}
           <Section id="logos">
             <SectionHeader
-              title="Logos & Assets"
-              desc="Todas las variantes del logotipo con sus contextos de uso. Descarga en SVG vector para uso en cualquier resolución."
+              title="Isotipo & Assets"
+              desc="El isotipo de Itineramio en sus tres versiones oficiales. Descarga en SVG vectorial para uso a cualquier resolución."
               icon={<ImageIcon className="w-5 h-5 text-violet-400" />}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {LOGOS.map(({ name, file, bg, label, desc }) => (
-                <div key={name} className="bg-[#111] border border-white/10 rounded-2xl overflow-hidden group">
-                  <div className={`${bg} h-36 flex items-center justify-center p-6`}>
-                    <Image
-                      src={file}
-                      alt={name}
-                      width={180}
-                      height={60}
-                      className="max-h-20 w-auto object-contain"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-start justify-between mb-1">
-                      <div>
-                        <p className="text-sm font-semibold text-white">{name}</p>
-                        <p className="text-[10px] text-white/30 mt-0.5">{desc}</p>
-                      </div>
-                      <span className="text-[9px] text-violet-400 bg-violet-500/10 border border-violet-500/20 px-2 py-0.5 rounded-full font-medium">{label}</span>
-                    </div>
-                    <div className="flex gap-2 mt-3">
-                      <a
-                        href={file}
-                        download
-                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-[11px] text-white/50 hover:text-white/80 border border-white/5"
-                      >
-                        <Download className="w-3 h-3" />
-                        SVG
-                      </a>
-                      <button
-                        onClick={() => copy(file, `logo-${file}`)}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-[11px] text-white/50 hover:text-white/80 border border-white/5"
-                      >
-                        {copied === `logo-${file}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                        {copied === `logo-${file}` ? 'Copiado' : 'URL'}
-                      </button>
-                    </div>
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Gradiente */}
+              <div className="bg-[#111] border border-white/10 rounded-2xl overflow-hidden">
+                <div className="bg-white h-52 flex items-center justify-center">
+                  <svg width="120" height="117" viewBox="0 0 42 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    {ISOTIPO_PATHS.corners.map((d, i) => (
+                      <path key={i} d={d} stroke="url(#g1)" strokeWidth="3"/>
+                    ))}
+                    <path fillRule="evenodd" clipRule="evenodd" d={ISOTIPO_PATHS.main} fill="url(#g2)"/>
+                    <rect x="7.42334" y="18.5146" width="2.63837" height="2.39625" fill="url(#g3)"/>
+                    <rect x="10.9412" y="14.521" width="2.63837" height="2.39625" fill="url(#g3)"/>
+                    <rect x="6.54395" y="10.5269" width="2.63837" height="2.39625" fill="url(#g3)"/>
+                    <rect x="11.8208" y="8.9292" width="0.879455" height="0.798751" fill="url(#g3)"/>
+                    <path d={ISOTIPO_PATHS.line} stroke="url(#g1)" strokeWidth="0.2"/>
+                    <defs>
+                      <linearGradient id="g1" x1="2" y1="2" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#8B5CF6"/><stop offset="1" stopColor="#A855F7"/>
+                      </linearGradient>
+                      <linearGradient id="g2" x1="20.66" y1="6.54" x2="20.66" y2="33.81" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#8B5CF6"/><stop offset="1" stopColor="#A855F7"/>
+                      </linearGradient>
+                      <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+                        <stop stopColor="#8B5CF6"/><stop offset="1" stopColor="#A855F7"/>
+                      </linearGradient>
+                    </defs>
+                  </svg>
                 </div>
-              ))}
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-sm font-semibold text-white">Gradiente</p>
+                      <p className="text-[10px] text-white/30 mt-0.5">Uso principal · fondos claros</p>
+                    </div>
+                    <span className="text-[9px] text-violet-400 bg-violet-500/10 border border-violet-500/20 px-2 py-0.5 rounded-full font-medium">#8B5CF6 → #A855F7</span>
+                  </div>
+                  <a href="/isotipe.svg" download className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-xs text-white/50 hover:text-white/80 border border-white/5 w-full">
+                    <Download className="w-3.5 h-3.5" /> Descargar SVG
+                  </a>
+                </div>
+              </div>
+
+              {/* Negro */}
+              <div className="bg-[#111] border border-white/10 rounded-2xl overflow-hidden">
+                <div className="bg-white h-52 flex items-center justify-center">
+                  <svg width="120" height="117" viewBox="0 0 42 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    {ISOTIPO_PATHS.corners.map((d, i) => (
+                      <path key={i} d={d} stroke="#000000" strokeWidth="3"/>
+                    ))}
+                    <path fillRule="evenodd" clipRule="evenodd" d={ISOTIPO_PATHS.main} fill="#000000"/>
+                    <rect x="7.42334" y="18.5146" width="2.63837" height="2.39625" fill="#000000"/>
+                    <rect x="10.9412" y="14.521" width="2.63837" height="2.39625" fill="#000000"/>
+                    <rect x="6.54395" y="10.5269" width="2.63837" height="2.39625" fill="#000000"/>
+                    <rect x="11.8208" y="8.9292" width="0.879455" height="0.798751" fill="#000000"/>
+                    <path d={ISOTIPO_PATHS.line} stroke="#000000" strokeWidth="0.2"/>
+                  </svg>
+                </div>
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-sm font-semibold text-white">Negro</p>
+                      <p className="text-[10px] text-white/30 mt-0.5">Uso secundario · fondos claros</p>
+                    </div>
+                    <span className="text-[9px] text-white/40 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full font-medium">#000000</span>
+                  </div>
+                  <a href="/isotipo-black.svg" download className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-xs text-white/50 hover:text-white/80 border border-white/5 w-full">
+                    <Download className="w-3.5 h-3.5" /> Descargar SVG
+                  </a>
+                </div>
+              </div>
+
+              {/* Blanco */}
+              <div className="bg-[#111] border border-white/10 rounded-2xl overflow-hidden">
+                <div className="bg-[#09090b] h-52 flex items-center justify-center border-b border-white/5">
+                  <svg width="120" height="117" viewBox="0 0 42 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    {ISOTIPO_PATHS.corners.map((d, i) => (
+                      <path key={i} d={d} stroke="#ffffff" strokeWidth="3"/>
+                    ))}
+                    <path fillRule="evenodd" clipRule="evenodd" d={ISOTIPO_PATHS.main} fill="#ffffff"/>
+                    <rect x="7.42334" y="18.5146" width="2.63837" height="2.39625" fill="#ffffff"/>
+                    <rect x="10.9412" y="14.521" width="2.63837" height="2.39625" fill="#ffffff"/>
+                    <rect x="6.54395" y="10.5269" width="2.63837" height="2.39625" fill="#ffffff"/>
+                    <rect x="11.8208" y="8.9292" width="0.879455" height="0.798751" fill="#ffffff"/>
+                    <path d={ISOTIPO_PATHS.line} stroke="#ffffff" strokeWidth="0.2"/>
+                  </svg>
+                </div>
+                <div className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-sm font-semibold text-white">Blanco</p>
+                      <p className="text-[10px] text-white/30 mt-0.5">Fondos oscuros · dark mode</p>
+                    </div>
+                    <span className="text-[9px] text-white/40 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full font-medium">#ffffff</span>
+                  </div>
+                  <a href="/isotipo-white.svg" download className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-xs text-white/50 hover:text-white/80 border border-white/5 w-full">
+                    <Download className="w-3.5 h-3.5" /> Descargar SVG
+                  </a>
+                </div>
+              </div>
             </div>
 
             {/* Usage rules */}
