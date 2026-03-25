@@ -1278,8 +1278,8 @@ export default function ZoneGuidePage({
 
                         return (
                           <>
-                            {/* Show title as heading only if short and not duplicate of content */}
-                            {isShortTitle && !titleEqualsContent && (
+                            {/* Show title as heading only if short, has content, and not duplicate of content */}
+                            {isShortTitle && hasContent && !titleEqualsContent && (
                               <h2 className="text-lg sm:text-xl font-medium text-[#222222] mb-3 break-words">
                                 {titleText}
                               </h2>
