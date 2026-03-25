@@ -454,7 +454,7 @@ export default function StyleGuidePage() {
       <div className={`border-b ${border} ${topbarBg} backdrop-blur-xl sticky top-0 z-50`}>
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <InfinityLogo color={isDark ? '#ffffff' : '#000000'} size={28} />
+            <img src={isDark ? '/isotipo-white.svg' : '/isotipo-gradient.png'} alt="Itineramio" style={{ width: 28, height: 28 }} />
             <div className={`flex items-center gap-2 text-sm ${mutedText}`}>
               <span className={`font-semibold ${text}`}>Itineramio</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -533,7 +533,7 @@ export default function StyleGuidePage() {
                 </div>
                 {/* Logo principal en el hero */}
                 <div className="mb-6">
-                  <InfinityLogo color={isDark ? '#ffffff' : '#000000'} size={100} />
+                  <img src={isDark ? '/isotipo-white.svg' : '/isotipo-gradient.png'} alt="Itineramio" style={{ width: 100, height: 100, objectFit: 'contain' }} />
                 </div>
                 <h1 className={`text-4xl lg:text-5xl font-black leading-none mb-4 tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   Itineramio<br />
@@ -577,11 +577,11 @@ export default function StyleGuidePage() {
               <div className="grid grid-cols-1 md:grid-cols-2">
                 {/* Preview sobre fondo claro */}
                 <div className="h-64 bg-white flex items-center justify-center p-10 border-b md:border-b-0 md:border-r border-gray-100">
-                  <InfinityLogo color="#000000" size={180} />
+                  <img src="/isotipo-gradient.png" alt="Logo gradiente" style={{ width: 180, height: 180, objectFit: 'contain' }} />
                 </div>
                 {/* Preview sobre fondo oscuro */}
                 <div className="h-64 bg-black flex items-center justify-center p-10">
-                  <InfinityLogo color="#ffffff" size={180} />
+                  <img src="/isotipo-white.svg" alt="Logo blanco" style={{ width: 180, height: 180, objectFit: 'contain' }} />
                 </div>
               </div>
             </div>
@@ -591,7 +591,7 @@ export default function StyleGuidePage() {
               {/* Negro */}
               <div className={`rounded-2xl overflow-hidden border ${cardBg}`}>
                 <div className="h-44 bg-white flex items-center justify-center p-8">
-                  <InfinityLogo color="#000000" size={180} />
+                  <img src="/isotipo-black.svg" alt="Logo negro" style={{ width: 160, height: 80, objectFit: 'contain' }} />
                 </div>
                 <div className="p-5">
                   <div className="flex items-start justify-between mb-1">
@@ -608,7 +608,7 @@ export default function StyleGuidePage() {
               {/* Blanco */}
               <div className={`rounded-2xl overflow-hidden border ${cardBg}`}>
                 <div className="h-44 bg-[#09090b] flex items-center justify-center p-8">
-                  <InfinityLogo color="#ffffff" size={180} />
+                  <img src="/isotipo-white.svg" alt="Logo blanco" style={{ width: 160, height: 80, objectFit: 'contain' }} />
                 </div>
                 <div className="p-5">
                   <div className="flex items-start justify-between mb-1">
