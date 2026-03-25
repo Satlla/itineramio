@@ -277,13 +277,13 @@ function DashboardScreen() {
         </div>
         <nav className="flex-1 px-2 py-3 space-y-0.5">
           {[{ icon: Home, label: 'Panel', active: true }, { icon: Map, label: 'Propiedades' }, { icon: Calendar, label: 'Reservas' }, { icon: BarChart2, label: 'Analítica' }, { icon: MessageCircle, label: 'Chatbot IA' }, { icon: Settings, label: 'Ajustes' }].map(({ icon: I, label, active }) => (
-            <div key={label} className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-[10px] font-medium ${active ? 'bg-indigo-50 text-indigo-700' : 'text-gray-500'}`}>
+            <div key={label} className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-[10px] font-medium ${active ? 'bg-violet-50 text-violet-700' : 'text-gray-500'}`}>
               <I className="w-3 h-3" />{label}
             </div>
           ))}
         </nav>
         <div className="px-2 pb-3">
-          <div className="bg-indigo-50 rounded-xl p-2.5 border border-indigo-100">
+          <div className="bg-violet-50 rounded-xl p-2.5 border border-violet-100">
             <p className="text-[9px] font-bold text-violet-700">Plan Pro · Activo</p>
           </div>
         </div>
@@ -300,7 +300,7 @@ function DashboardScreen() {
           </div>
         </div>
         <div className="grid grid-cols-3 gap-2 mb-3">
-          {[{ l: 'Propiedades', v: '4', I: Home, c: 'text-indigo-600', bg: 'bg-indigo-50' }, { l: 'Reservas mes', v: '23', I: Calendar, c: 'text-emerald-600', bg: 'bg-emerald-50' }, { l: 'Consultas IA', v: '187', I: MessageCircle, c: 'text-violet-600', bg: 'bg-violet-50' }].map(({ l, v, I, c, bg }) => (
+          {[{ l: 'Propiedades', v: '4', I: Home, c: 'text-violet-600', bg: 'bg-violet-50' }, { l: 'Reservas mes', v: '23', I: Calendar, c: 'text-emerald-600', bg: 'bg-emerald-50' }, { l: 'Consultas IA', v: '187', I: MessageCircle, c: 'text-violet-600', bg: 'bg-violet-50' }].map(({ l, v, I, c, bg }) => (
             <div key={l} className="bg-white rounded-xl p-2.5 border border-gray-100 shadow-sm">
               <div className={`w-5 h-5 ${bg} rounded-lg flex items-center justify-center mb-1.5`}><I className={`w-2.5 h-2.5 ${c}`} /></div>
               <p className="text-base font-bold text-gray-900">{v}</p>
@@ -311,7 +311,7 @@ function DashboardScreen() {
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="px-3 py-2 border-b border-gray-50 flex justify-between items-center">
             <span className="text-[10px] font-semibold text-gray-700">Propiedades</span>
-            <span className="text-[8px] text-indigo-600">Ver todas →</span>
+            <span className="text-[8px] text-violet-600">Ver todas →</span>
           </div>
           {[{ n: 'Mercado Central', l: 'Alicante', s: 'Activa', sc: 'bg-emerald-100 text-emerald-700' }, { n: 'Playa San Juan', l: 'Alicante', s: 'Activa', sc: 'bg-emerald-100 text-emerald-700' }, { n: 'Villa Moraira', l: 'Moraira', s: 'Borrador', sc: 'bg-amber-100 text-amber-700' }].map(({ n, l, s, sc }) => (
             <div key={n} className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 border-b border-gray-50 last:border-0">
@@ -444,7 +444,7 @@ export default function StyleGuidePage() {
   const cardBg   = isDark ? 'bg-[#111] border-white/10' : 'bg-white border-gray-200 shadow-sm'
   const mutedText = isDark ? 'text-white/40'   : 'text-gray-500'
   const subText   = isDark ? 'text-white/20'   : 'text-gray-400'
-  const navActive = isDark ? 'bg-white/10 text-white' : 'bg-indigo-50 text-indigo-700'
+  const navActive = isDark ? 'bg-white/10 text-white' : 'bg-violet-50 text-violet-700'
   const navInactive = isDark ? 'text-white/40 hover:text-white/70 hover:bg-white/5' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
 
   return (
@@ -610,15 +610,20 @@ export default function StyleGuidePage() {
           <Section id="colors">
             <SectionHeader title="Colores" desc="Sistema de color basado en indigo–violeta. Transmite tecnología, confianza y modernidad. Click en cualquier swatch para copiar el hex." theme={theme} />
 
-            <div className="rounded-2xl overflow-hidden mb-8 h-16 bg-gradient-to-r from-[#6366f1] via-[#7c3aed] to-[#8b5cf6] flex items-center justify-center">
-              <p className="text-white font-bold tracking-wide">Brand Gradient · #6366f1 → #8b5cf6</p>
+            <div className="flex gap-4 mb-8">
+              <div className="flex-1 rounded-2xl overflow-hidden h-16 bg-gradient-to-r from-[#FF07AB] via-[#FF2E76] to-[#FF4D4D] flex items-center justify-center">
+                <p className="text-white font-bold tracking-wide text-sm">Logo · #FF07AB → #FF4D4D</p>
+              </div>
+              <div className="flex-1 rounded-2xl overflow-hidden h-16 bg-gradient-to-r from-[#6366f1] via-[#7c3aed] to-[#8b5cf6] flex items-center justify-center">
+                <p className="text-white font-bold tracking-wide text-sm">UI Gradient · #6366f1 → #8b5cf6</p>
+              </div>
             </div>
 
             <div className="space-y-8">
               {['brand', 'accent', 'semantic'].map(group => (
                 <div key={group}>
                   <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${subText}`}>
-                    {group === 'brand' ? 'Primary — Indigo (Brand)' : group === 'accent' ? 'Accent — Violet (Purple)' : 'Semánticos'}
+                    {group === 'brand' ? 'Color UI Principal — Indigo (acción, foco, enlaces)' : group === 'accent' ? 'Accent — Violet (botones, badges, gradientes UI)' : 'Semánticos'}
                   </p>
                   <div className={`grid gap-2 ${group === 'semantic' ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-4 sm:grid-cols-6 lg:grid-cols-11'}`}>
                     {COLORS[group as keyof typeof COLORS].map((c: any) => (
@@ -722,7 +727,7 @@ export default function StyleGuidePage() {
               <p className={`text-xs font-mono mb-3 ${mutedText}`}>Uso en código</p>
               <pre className={`text-[12px] font-mono leading-relaxed ${isDark ? 'text-white/60' : 'text-gray-600'}`}>{`import { Key, Wifi, ChefHat } from 'lucide-react'
 
-<Key className="w-5 h-5 text-indigo-600" strokeWidth={1.5} />
+<Key className="w-5 h-5 text-violet-600" strokeWidth={1.5} />
 <Wifi className="w-4 h-4 text-violet-500" />
 <ChefHat className="w-6 h-6 text-orange-500" />`}</pre>
             </div>
@@ -733,14 +738,15 @@ export default function StyleGuidePage() {
             <SectionHeader title="Componentes" desc="Biblioteca base construida sobre Radix UI + Tailwind. Accesibles, consistentes y reutilizables en toda la app." theme={theme} />
 
             <div className="space-y-5">
-              <ComponentBlock title="Buttons" theme={theme} code={`<button className="bg-indigo-600 text-white px-4 py-2 rounded-xl font-medium text-sm">\n  Primario\n</button>`}>
+              <ComponentBlock title="Buttons" theme={theme} code={`<button className="bg-violet-600 text-white px-4 py-2 rounded-md font-medium text-sm shadow-lg">\n  Primario\n</button>`}>
                 <div className="flex flex-wrap gap-3">
                   {[
-                    { l: 'Primario',   c: 'bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-xl font-medium text-sm transition-colors' },
-                    { l: 'Secundario', c: 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-xl font-medium text-sm transition-colors' },
-                    { l: 'Ghost',      c: 'text-indigo-600 hover:bg-indigo-50 px-4 py-2 rounded-xl font-medium text-sm transition-colors' },
-                    { l: 'Danger',     c: 'bg-red-500 text-white hover:bg-red-600 px-4 py-2 rounded-xl font-medium text-sm transition-colors' },
-                    { l: 'Disabled',   c: 'bg-gray-100 text-gray-400 px-4 py-2 rounded-xl font-medium text-sm cursor-not-allowed', disabled: true },
+                    { l: 'Primario',   c: 'bg-violet-600 text-white hover:bg-violet-700 px-4 py-2 rounded-md font-medium text-sm transition-all shadow-lg hover:shadow-xl' },
+                    { l: 'Secundario', c: 'bg-gray-100 text-gray-900 hover:bg-gray-200 px-4 py-2 rounded-md font-medium text-sm transition-all shadow-md' },
+                    { l: 'Outline',    c: 'border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 px-4 py-2 rounded-md font-medium text-sm transition-colors' },
+                    { l: 'Ghost',      c: 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 px-4 py-2 rounded-md font-medium text-sm transition-colors' },
+                    { l: 'Danger',     c: 'bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-md font-medium text-sm transition-all shadow-lg' },
+                    { l: 'Disabled',   c: 'bg-gray-100 text-gray-400 px-4 py-2 rounded-md font-medium text-sm cursor-not-allowed opacity-50', disabled: true },
                   ].map(({ l, c, disabled }) => <button key={l} className={c} disabled={disabled}>{l}</button>)}
                 </div>
               </ComponentBlock>
@@ -750,7 +756,7 @@ export default function StyleGuidePage() {
                   {[
                     { l: 'Activo',    c: 'bg-emerald-100 text-emerald-700 text-xs font-semibold px-2.5 py-0.5 rounded-full' },
                     { l: 'Pendiente', c: 'bg-amber-100 text-amber-700 text-xs font-semibold px-2.5 py-0.5 rounded-full' },
-                    { l: 'Beta',      c: 'bg-indigo-100 text-indigo-700 text-xs font-semibold px-2.5 py-0.5 rounded-full' },
+                    { l: 'Beta',      c: 'bg-violet-100 text-violet-700 text-xs font-semibold px-2.5 py-0.5 rounded-full' },
                     { l: 'Pro',       c: 'bg-gradient-to-r from-violet-500 to-purple-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full' },
                     { l: 'Archivado', c: 'bg-gray-100 text-gray-500 text-xs font-semibold px-2.5 py-0.5 rounded-full' },
                   ].map(({ l, c }) => <span key={l} className={c}>{l}</span>)}
@@ -761,13 +767,13 @@ export default function StyleGuidePage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg">
                   <div>
                     <label className="text-xs font-medium text-gray-600 mb-1.5 block">Propiedad</label>
-                    <input type="text" placeholder="Ej: Apartamento Playa" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 outline-none transition-all" />
+                    <input type="text" placeholder="Ej: Apartamento Playa" className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none transition-all" />
                   </div>
                   <div>
                     <label className="text-xs font-medium text-gray-600 mb-1.5 block">Buscar</label>
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input type="text" placeholder="Buscar..." className="w-full border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 outline-none transition-all" />
+                      <input type="text" placeholder="Buscar..." className="w-full border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none transition-all" />
                     </div>
                   </div>
                   <div>
@@ -871,7 +877,7 @@ export default function StyleGuidePage() {
                     </div>
                   ))}
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-white rounded-xl shadow-[0_4px_14px_0_rgba(99,102,241,0.3)] flex-shrink-0" />
+                    <div className="w-10 h-10 bg-white rounded-xl shadow-[0_4px_14px_0_rgba(99,102,241,0.15)] flex-shrink-0" />
                     <div>
                       <p className={`text-xs font-mono font-bold ${isDark ? 'text-white/60' : 'text-gray-600'}`}>shadow-brand</p>
                       <p className={`text-[9px] font-mono ${subText}`}>indigo glow</p>
