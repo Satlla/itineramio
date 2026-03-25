@@ -454,7 +454,7 @@ export default function StyleGuidePage() {
       <div className={`border-b ${border} ${topbarBg} backdrop-blur-xl sticky top-0 z-50`}>
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <InfinityLogoBadge size={28} />
+            <InfinityLogo color={isDark ? '#ffffff' : '#000000'} size={28} />
             <div className={`flex items-center gap-2 text-sm ${mutedText}`}>
               <span className={`font-semibold ${text}`}>Itineramio</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -533,7 +533,7 @@ export default function StyleGuidePage() {
                 </div>
                 {/* Logo principal en el hero */}
                 <div className="mb-6">
-                  <InfinityLogoBadge size={100} />
+                  <InfinityLogo color={isDark ? '#ffffff' : '#000000'} size={100} />
                 </div>
                 <h1 className={`text-4xl lg:text-5xl font-black leading-none mb-4 tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   Itineramio<br />
@@ -577,7 +577,7 @@ export default function StyleGuidePage() {
               <div className="grid grid-cols-1 md:grid-cols-2">
                 {/* Preview grande */}
                 <div className="h-64 bg-white flex items-center justify-center p-10 border-b md:border-b-0 md:border-r border-gray-100">
-                  <InfinityLogoBadge size={180} />
+                  <InfinityLogo color="#000000" size={180} />
                 </div>
                 {/* Info */}
                 <div className="p-8 flex flex-col justify-center">
