@@ -570,33 +570,18 @@ export default function StyleGuidePage() {
 
           {/* ════ LOGOS ════ */}
           <Section id="logos">
-            <SectionHeader title="Logotipo" desc="El símbolo de Itineramio: el infinito. Logo principal con el gradiente de marca rosa–rojo, más las versiones para fondos claros y oscuros." theme={theme} />
+            <SectionHeader title="Logotipo" desc="El símbolo de Itineramio: el infinito. Versión negra para fondos claros, versión blanca para fondos oscuros." theme={theme} />
 
             {/* Logo principal — destacado */}
             <div className={`rounded-3xl overflow-hidden border mb-6 ${cardBg}`}>
               <div className="grid grid-cols-1 md:grid-cols-2">
-                {/* Preview grande */}
+                {/* Preview sobre fondo claro */}
                 <div className="h-64 bg-white flex items-center justify-center p-10 border-b md:border-b-0 md:border-r border-gray-100">
                   <InfinityLogo color="#000000" size={180} />
                 </div>
-                {/* Info */}
-                <div className="p-8 flex flex-col justify-center">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-pink-500 bg-pink-50 border border-pink-200 px-2.5 py-1 rounded-full w-fit mb-3">Logo principal</span>
-                  <h3 className={`text-xl font-bold mb-2 ${text}`}>Símbolo de infinito</h3>
-                  <p className={`text-sm mb-4 leading-relaxed ${mutedText}`}>Círculo con gradiente de marca + infinito en blanco. Versión principal para digital, redes sociales y branding.</p>
-                  {/* Gradiente swatches */}
-                  <div className="flex items-center gap-2 mb-5">
-                    {[['#FF07AB', 'Rosa'], ['#FF2E76', 'Rojo-rosa'], ['#FF4D4D', 'Rojo']].map(([hex, name]) => (
-                      <div key={hex} className="flex flex-col items-center gap-1">
-                        <div className="w-8 h-8 rounded-lg border border-black/10" style={{ backgroundColor: hex }} />
-                        <p className="text-[8px] font-mono text-gray-400">{hex}</p>
-                      </div>
-                    ))}
-                    <div className="flex-1 h-8 rounded-lg bg-gradient-to-r from-[#FF07AB] via-[#FF2E76] to-[#FF4D4D] ml-1" />
-                  </div>
-                  <a href="/logo-itineramio-bg.svg" download className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border text-sm font-medium transition-colors w-full ${isDark ? 'bg-pink-500/10 border-pink-500/20 text-pink-400 hover:bg-pink-500/20' : 'bg-pink-50 border-pink-200 text-pink-600 hover:bg-pink-100'}`}>
-                    <Download className="w-4 h-4" />Descargar SVG
-                  </a>
+                {/* Preview sobre fondo oscuro */}
+                <div className="h-64 bg-black flex items-center justify-center p-10">
+                  <InfinityLogo color="#ffffff" size={180} />
                 </div>
               </div>
             </div>
