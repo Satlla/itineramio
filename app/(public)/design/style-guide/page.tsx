@@ -571,7 +571,7 @@ export default function StyleGuidePage() {
                 </div>
                 {/* Logo principal en el hero */}
                 <div className="mb-6">
-                  <img src="/isotipo-gradient.svg" alt="Itineramio" style={{ width: 183, height: 100, objectFit: "contain" }} />
+                  <img src="/isotipo-gradient.svg" alt="Itineramio" style={{ width: 100, height: 55, objectFit: "contain" }} />
                 </div>
                 <h1 className={`text-4xl lg:text-5xl font-black leading-none mb-4 tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   Itineramio<br />
@@ -615,11 +615,11 @@ export default function StyleGuidePage() {
               <div className="grid grid-cols-1 md:grid-cols-2">
                 {/* Preview sobre fondo claro */}
                 <div className="h-64 bg-white flex items-center justify-center p-10 border-b md:border-b-0 md:border-r border-gray-100">
-                  <img src="/isotipo-gradient.svg" alt="Logo gradiente" style={{ width: 330, height: 180, objectFit: "contain" }} />
+                  <img src="/isotipo-gradient.svg" alt="Logo gradiente" style={{ width: 160, height: 88, objectFit: "contain" }} />
                 </div>
                 {/* Preview sobre fondo oscuro */}
                 <div className="h-64 bg-black flex items-center justify-center p-10">
-                  <img src="/isotipo-gradient.svg" alt="Logo gradiente" style={{ width: 330, height: 180, objectFit: "contain" }} />
+                  <img src="/isotipo-gradient.svg" alt="Logo gradiente" style={{ width: 160, height: 88, objectFit: "contain" }} />
                 </div>
               </div>
             </div>
@@ -1168,7 +1168,7 @@ export default function StyleGuidePage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className={`rounded-2xl overflow-hidden border ${cardBg}`}>
                   <div className="h-20 bg-black flex items-center justify-center">
-                    <img src="/isotipo-gradient.svg" style={{ width: 120, height: 66, objectFit: 'contain' }} alt="Logo sobre negro" />
+                    <img src="/isotipo-gradient.svg" style={{ width: 80, height: 44, objectFit: 'contain' }} alt="Logo sobre negro" />
                   </div>
                   <div className="p-3">
                     <p className="text-[10px] font-bold text-emerald-500">Correcto</p>
@@ -1177,7 +1177,7 @@ export default function StyleGuidePage() {
                 </div>
                 <div className={`rounded-2xl overflow-hidden border ${cardBg}`}>
                   <div className="h-20 bg-white border-b border-gray-100 flex items-center justify-center">
-                    <img src="/isotipo-gradient.svg" style={{ width: 120, height: 66, objectFit: 'contain' }} alt="Logo sobre blanco" />
+                    <img src="/isotipo-gradient.svg" style={{ width: 80, height: 44, objectFit: 'contain' }} alt="Logo sobre blanco" />
                   </div>
                   <div className="p-3">
                     <p className="text-[10px] font-bold text-emerald-500">Correcto</p>
@@ -1186,7 +1186,7 @@ export default function StyleGuidePage() {
                 </div>
                 <div className={`rounded-2xl overflow-hidden border ${cardBg}`}>
                   <div className="h-20 bg-gradient-to-r from-[#FF07AB] to-[#FF4D4D] flex items-center justify-center">
-                    <img src="/isotipo-gradient.svg" style={{ width: 120, height: 66, objectFit: 'contain' }} alt="Logo sobre color" />
+                    <img src="/isotipo-gradient.svg" style={{ width: 80, height: 44, objectFit: 'contain' }} alt="Logo sobre color" />
                   </div>
                   <div className="p-3">
                     <p className="text-[10px] font-bold text-red-400">Evitar</p>
