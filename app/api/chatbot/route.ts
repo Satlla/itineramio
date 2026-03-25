@@ -784,19 +784,64 @@ async function getCachedProperty(propertyId: string): Promise<any | null> {
 // RELEVANCE RANKING — select top zones for each question
 // ========================================
 
+// Maps common short guest questions to extra search terms that help find the right zone.
+// Without this, single-word queries like "Address" or "Luggage" score 0 against zone names
+// and get cut before GPT ever sees the relevant content.
+const QUERY_EXPANSIONS: Record<string, string[]> = {
+  // Address / location
+  address:    ['llegar', 'llegada', 'ubicacion', 'location', 'directions', 'get here', 'calle', 'street', 'how to get'],
+  location:   ['llegar', 'llegada', 'ubicacion', 'location', 'directions', 'get here'],
+  where:      ['llegar', 'llegada', 'ubicacion', 'location', 'get here'],
+  directions: ['llegar', 'llegada', 'ubicacion', 'como llegar', 'get here'],
+  map:        ['llegar', 'llegada', 'ubicacion', 'location', 'get here'],
+  // Luggage / storage
+  luggage:    ['equipaje', 'maleta', 'storage', 'consigna', 'bag'],
+  bag:        ['equipaje', 'maleta', 'storage', 'consigna', 'luggage'],
+  bags:       ['equipaje', 'maleta', 'storage', 'consigna', 'luggage'],
+  suitcase:   ['equipaje', 'maleta', 'storage', 'consigna'],
+  storage:    ['equipaje', 'maleta', 'consigna', 'luggage', 'almacen'],
+  // WiFi / internet
+  wifi:       ['wifi', 'wi-fi', 'internet', 'password', 'contrasena', 'clave'],
+  internet:   ['wifi', 'wi-fi', 'internet', 'password', 'contrasena'],
+  password:   ['wifi', 'wi-fi', 'internet', 'contrasena', 'clave', 'acceso', 'entrada'],
+  // Check-in / access
+  checkin:    ['check', 'entrada', 'acceso', 'llegada', 'llave', 'key', 'door', 'puerta'],
+  checkout:   ['check', 'salida', 'checkout', 'departure', 'leaving', 'leave'],
+  key:        ['llave', 'acceso', 'check', 'entrada', 'puerta', 'door', 'lockbox'],
+  keys:       ['llave', 'acceso', 'check', 'entrada', 'puerta', 'door'],
+  door:       ['puerta', 'acceso', 'entrada', 'llave', 'key', 'check', 'lockbox'],
+  // Parking
+  parking:    ['parking', 'aparcamiento', 'coche', 'garaje', 'car', 'garage'],
+  car:        ['parking', 'aparcamiento', 'coche', 'garaje', 'garage'],
+  park:       ['parking', 'aparcamiento', 'garaje'],
+  // Spanish equivalents
+  direccion:  ['llegar', 'llegada', 'ubicacion', 'location', 'directions', 'get here', 'calle', 'street'],
+  contrasena: ['wifi', 'wi-fi', 'internet', 'clave'],
+  clave:      ['wifi', 'wi-fi', 'internet', 'contrasena', 'acceso'],
+  maleta:     ['equipaje', 'storage', 'consigna', 'luggage'],
+  llave:      ['acceso', 'check', 'entrada', 'puerta', 'door', 'key'],
+};
+
 function rankZonesByRelevance(message: string, zones: any[], language: string): any[] {
-  const words = String(message || '').toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove accents
-    .split(/\s+/).filter(w => w.length > 2);
+  const normalize = (s: string) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  const rawWords = normalize(message).split(/\s+/).filter(w => w.length > 2);
+
+  // Expand with semantic synonyms so short/ambiguous queries find the right zone
+  const expandedWords = [...rawWords];
+  for (const word of rawWords) {
+    const extras = QUERY_EXPANSIONS[word];
+    if (extras) expandedWords.push(...extras.map(normalize));
+  }
+  const words = [...new Set(expandedWords)];
 
   const ALWAYS_RELEVANT = ['wifi', 'wi-fi', 'check', 'entrada', 'salida', 'llegada', 'acceso'];
 
   const scored = zones.map(zone => {
-    const zoneName = String(getLocalizedText(zone.name, language) || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const zoneName = normalize(getLocalizedText(zone.name, language) || '');
     let score = 0;
 
     // Zone name keyword match = high relevance — bidirectional handles plurals
-    // e.g. "restaurantes" matches zone "Restaurante" via word.includes(zoneName)
     for (const word of words) {
       if (zoneName.includes(word) || word.includes(zoneName)) score += 15;
     }
@@ -804,8 +849,8 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
     // Step content match = medium relevance
     for (const step of (zone.steps || [])) {
       const content = step.content as any;
-      const title = String(getLocalizedText(step.title, language) || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      const text = String(getLocalizedText(content, language) || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const title = normalize(getLocalizedText(step.title, language) || '');
+      const text = normalize(getLocalizedText(content, language) || '');
       const combined = `${title} ${text}`;
       for (const word of words) {
         if (combined.includes(word)) score += 4;
@@ -822,8 +867,9 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
 
   scored.sort((a, b) => b.score - a.score);
 
-  // Return top 3 zones — attach _relevanceScore so collectRelevantMedia can filter weak matches
-  return scored.slice(0, 3).map(s => ({ ...s.zone, _relevanceScore: s.score }));
+  // Return top 5 zones (up from 3) — short queries after expansion can match more zones
+  // attach _relevanceScore so collectRelevantMedia can filter weak matches
+  return scored.slice(0, 5).map(s => ({ ...s.zone, _relevanceScore: s.score }));
 }
 
 // ========================================

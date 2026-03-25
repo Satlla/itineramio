@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Check, Copy, Download, ChevronRight,
   Palette, Type, Box, Sparkles, Image as ImageIcon,
@@ -471,10 +471,16 @@ function GuideScreen() {
 
 // ─── Section header ────────────────────────────────────────────────────────
 
-function SectionHeader({ title, desc, theme }: { title: string, desc: string, theme: Theme }) {
+function SectionHeader({ title, desc, theme, num }: { title: string, desc: string, theme: Theme, num?: string }) {
   const isDark = theme === 'dark'
   return (
     <div className="mb-8">
+      <div className={`flex items-center gap-3 mb-3 pb-3 border-b ${isDark ? 'border-white/5' : 'border-gray-100'}`}>
+        {num && (
+          <span className={`text-[11px] font-bold font-mono tracking-widest ${isDark ? 'text-violet-400/60' : 'text-violet-400'}`}>{num}</span>
+        )}
+        <div className={`flex-1 h-px ${isDark ? 'bg-white/5' : 'bg-gray-100'}`} />
+      </div>
       <h2 className={`text-2xl font-bold mb-1.5 ${isDark ? 'text-white' : 'text-gray-900'}`}>{title}</h2>
       <p className={`text-sm leading-relaxed max-w-2xl ${isDark ? 'text-white/40' : 'text-gray-500'}`}>{desc}</p>
     </div>
@@ -517,10 +523,50 @@ export default function StyleGuidePage() {
   const { copied, copy } = useCopy()
   const [activeNav, setActiveNav] = useState('brand')
   const isDark = theme === 'dark'
+  const scrollingRef = useRef(false)
+  const [readProgress, setReadProgress] = useState(0)
+
+  // ── Reading progress bar ──
+  useEffect(() => {
+    const onScroll = () => {
+      const el = document.documentElement
+      const scrolled = el.scrollTop
+      const total = el.scrollHeight - el.clientHeight
+      setReadProgress(total > 0 ? Math.round((scrolled / total) * 100) : 0)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  // ── Intersection Observer — auto-track active section on scroll ──
+  useEffect(() => {
+    const observers: IntersectionObserver[] = []
+    const sectionEls = NAV.map(({ id }) => document.getElementById(id)).filter(Boolean) as HTMLElement[]
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (scrollingRef.current) return
+        // Find the topmost visible section
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+        if (visible.length > 0) {
+          setActiveNav(visible[0].target.id)
+        }
+      },
+      { rootMargin: '-10% 0px -60% 0px', threshold: 0 }
+    )
+
+    sectionEls.forEach(el => observer.observe(el))
+    return () => observer.disconnect()
+  }, [])
 
   const scrollTo = (id: string) => {
     setActiveNav(id)
+    scrollingRef.current = true
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    // Re-enable observer after animation (~700ms)
+    setTimeout(() => { scrollingRef.current = false }, 800)
   }
 
   const Section = ({ id, children }: { id: string, children: React.ReactNode }) => (
@@ -540,6 +586,14 @@ export default function StyleGuidePage() {
 
   return (
     <div className={`min-h-screen ${bg} ${text} font-sans transition-colors duration-300`}>
+
+      {/* ── Reading progress bar ── */}
+      <div className="fixed top-0 left-0 right-0 z-[60] h-[2px] bg-transparent pointer-events-none">
+        <div
+          className="h-full bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-500 transition-all duration-150 ease-out"
+          style={{ width: `${readProgress}%` }}
+        />
+      </div>
 
       {/* ── Topbar ── */}
       <div className={`border-b ${border} ${topbarBg} backdrop-blur-xl sticky top-0 z-50`}>
@@ -582,26 +636,68 @@ export default function StyleGuidePage() {
       <div className="max-w-7xl mx-auto flex">
 
         {/* ── Sidebar ── */}
-        <aside className="w-52 flex-shrink-0 sticky top-[49px] h-[calc(100vh-49px)] overflow-y-auto py-8 pr-4 pl-6 hidden lg:block">
-          <p className={`text-[10px] font-semibold uppercase tracking-widest mb-3 ${subText}`}>Secciones</p>
-          <nav className="space-y-0.5">
-            {NAV.map(({ id, label }) => (
-              <button
-                key={id}
-                onClick={() => scrollTo(id)}
-                className={`w-full flex items-center px-3 py-2 rounded-lg text-sm transition-all text-left ${activeNav === id ? navActive + ' font-medium' : navInactive}`}
-              >
-                {label}
-              </button>
-            ))}
+        <aside className="w-56 flex-shrink-0 sticky top-[49px] h-[calc(100vh-49px)] overflow-y-auto py-8 pr-4 pl-6 hidden lg:block">
+          <p className={`text-[10px] font-bold uppercase tracking-widest mb-5 ${subText}`}>Itineramio DS</p>
+
+          {/* IBM-style numbered dot timeline */}
+          <nav className="relative">
+            {/* vertical line */}
+            <div className={`absolute left-[11px] top-3 bottom-3 w-px ${isDark ? 'bg-white/10' : 'bg-gray-200'}`} />
+
+            <div className="space-y-1">
+              {NAV.map(({ id, label }, i) => {
+                const isActive = activeNav === id
+                const isPast = NAV.findIndex(n => n.id === activeNav) > i
+                return (
+                  <button
+                    key={id}
+                    onClick={() => scrollTo(id)}
+                    className="w-full flex items-center gap-3 group py-1.5 text-left"
+                  >
+                    {/* dot */}
+                    <div className={`relative z-10 flex-shrink-0 w-[23px] h-[23px] rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                      isActive
+                        ? 'border-violet-500 bg-violet-500 scale-110 shadow-[0_0_12px_rgba(139,92,246,0.5)]'
+                        : isPast
+                          ? isDark ? 'border-white/30 bg-white/20' : 'border-gray-400 bg-gray-300'
+                          : isDark ? 'border-white/10 bg-transparent group-hover:border-white/30' : 'border-gray-200 bg-white group-hover:border-gray-400'
+                    }`}>
+                      {isPast && !isActive
+                        ? <div className={`w-1.5 h-1.5 rounded-full ${isDark ? 'bg-white/60' : 'bg-gray-500'}`} />
+                        : isActive
+                          ? <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                          : <span className={`text-[8px] font-bold ${isDark ? 'text-white/20 group-hover:text-white/50' : 'text-gray-300 group-hover:text-gray-500'}`}>{String(i + 1).padStart(2, '0')}</span>
+                      }
+                    </div>
+
+                    {/* label */}
+                    <div className="flex-1 min-w-0">
+                      <span className={`text-xs font-medium transition-all duration-200 ${
+                        isActive
+                          ? 'text-violet-500 font-semibold'
+                          : isPast
+                            ? isDark ? 'text-white/40' : 'text-gray-400'
+                            : isDark ? 'text-white/30 group-hover:text-white/70' : 'text-gray-400 group-hover:text-gray-700'
+                      }`}>
+                        {label}
+                      </span>
+                      {isActive && (
+                        <div className="h-px bg-gradient-to-r from-violet-500 to-transparent mt-0.5 rounded-full" />
+                      )}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
           </nav>
+
           <div className={`mt-8 pt-6 border-t ${border}`}>
-            <p className={`text-[10px] font-semibold uppercase tracking-widest mb-3 ${subText}`}>Descargas</p>
+            <p className={`text-[10px] font-bold uppercase tracking-widest mb-3 ${subText}`}>Descargas</p>
             {[
               { label: 'Isotipo marketing', file: '/isotipo-gradient.svg' },
               { label: 'Logo completo',     file: '/logo-itineramio.svg'  },
             ].map(({ label, file }) => (
-              <a key={file} href={file} download className={`flex items-center gap-2 px-3 py-2 text-xs rounded-lg transition-all ${mutedText} hover:${text} ${isDark ? 'hover:bg-white/5' : 'hover:bg-gray-100'}`}>
+              <a key={file} href={file} download className={`flex items-center gap-2 px-2 py-1.5 text-xs rounded-lg transition-all ${mutedText} hover:${text} ${isDark ? 'hover:bg-white/5' : 'hover:bg-gray-100'}`}>
                 <Download className="w-3 h-3" />{label}
               </a>
             ))}
@@ -618,6 +714,7 @@ export default function StyleGuidePage() {
               <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
               <div className="relative">
                 <div className="flex items-center gap-2 mb-6">
+                  <span className={`text-[10px] font-bold font-mono tracking-widest ${isDark ? 'text-violet-400/60' : 'text-violet-400'}`}>01 —</span>
                   <span className={`text-[10px] font-bold uppercase tracking-widest border px-3 py-1 rounded-full ${isDark ? 'text-violet-400 bg-violet-500/10 border-violet-500/20' : 'text-violet-600 bg-violet-100 border-violet-200'}`}>Design System</span>
                   <span className={`text-[10px] font-bold uppercase tracking-widest border px-3 py-1 rounded-full ${isDark ? 'text-white/20 bg-white/5 border-white/10' : 'text-gray-400 bg-gray-100 border-gray-200'}`}>v2.0 · 2026</span>
                 </div>
@@ -660,7 +757,7 @@ export default function StyleGuidePage() {
 
           {/* ════ LOGOS ════ */}
           <Section id="logos">
-            <SectionHeader title="Logotipo" desc="Sistema de identidad visual de Itineramio — 4 variantes de isotipo para cada superficie y contexto de uso." theme={theme} />
+            <SectionHeader title="Logotipo" desc="Sistema de identidad visual de Itineramio — 4 variantes de isotipo para cada superficie y contexto de uso." theme={theme} num="02 —" />
 
             {/* ── Hero — logo principal ─────────────────────────────── */}
             <div className="relative rounded-3xl overflow-hidden mb-8 h-56 md:h-72 bg-black flex items-center justify-center">
@@ -698,13 +795,13 @@ export default function StyleGuidePage() {
               {/* 2 — fondo blanco + isotipo negro */}
               <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
                 <div className="h-32 bg-white flex items-center justify-center">
-                  <img src="/isotipo-black.svg" alt="Isotipo negro sobre blanco" style={{ width: 56, height: 55, objectFit: 'contain' }} />
+                  <InfinityLogo color="#111111" size={56} />
                 </div>
                 <div className="px-3 py-2 bg-white border-t border-gray-100">
                   <p className="text-[11px] font-semibold text-gray-900 leading-tight">Blanco + Negro</p>
-                  <p className="text-[10px] text-gray-400 font-mono">isotipo-black.svg</p>
+                  <p className="text-[10px] text-gray-400 font-mono">InfinityLogo color="#111111"</p>
                   <div className="flex gap-1 mt-1">
-                    <span className="inline-block w-3 h-3 rounded-full bg-[#000000]" />
+                    <span className="inline-block w-3 h-3 rounded-full bg-[#111111]" />
                   </div>
                 </div>
               </div>
@@ -712,11 +809,11 @@ export default function StyleGuidePage() {
               {/* 3 — fondo negro + isotipo blanco */}
               <div className="rounded-2xl overflow-hidden border border-gray-800 shadow-sm">
                 <div className="h-32 bg-black flex items-center justify-center">
-                  <img src="/isotipo-white.svg" alt="Isotipo blanco sobre negro" style={{ width: 56, height: 55, objectFit: 'contain' }} />
+                  <InfinityLogo color="#ffffff" size={56} />
                 </div>
                 <div className="px-3 py-2 bg-[#111] border-t border-white/5">
                   <p className="text-[11px] font-semibold text-white leading-tight">Negro + Blanco</p>
-                  <p className="text-[10px] text-white/30 font-mono">isotipo-white.svg</p>
+                  <p className="text-[10px] text-white/30 font-mono">InfinityLogo color="#ffffff"</p>
                   <div className="flex gap-1 mt-1">
                     <span className="inline-block w-3 h-3 rounded-full bg-white border border-white/20" />
                   </div>
@@ -843,7 +940,7 @@ export default function StyleGuidePage() {
 
           {/* ════ COLORS ════ */}
           <Section id="colors">
-            <SectionHeader title="Colores" desc="La app tiene DOS paletas: Dashboard (violet-600 como acción primaria) y Guía pública (negro #222222 al estilo Airbnb). Click para copiar el hex." theme={theme} />
+            <SectionHeader title="Colores" desc="La app tiene DOS paletas: Dashboard (violet-600 como acción primaria) y Guía pública (negro #222222 al estilo Airbnb). Click para copiar el hex." theme={theme} num="03 —" />
 
             {/* Gradient strips */}
             <div className="flex flex-col sm:flex-row gap-3 mb-8">
@@ -894,7 +991,7 @@ export default function StyleGuidePage() {
 
           {/* ════ TYPOGRAPHY ════ */}
           <Section id="typography">
-            <SectionHeader title="Tipografía" desc="Inter como fuente única — diseñada para legibilidad en pantalla. Es la tipografía real usada en toda la app. Cargada desde Google Fonts con next/font." theme={theme} />
+            <SectionHeader title="Tipografía" desc="Inter como fuente única — diseñada para legibilidad en pantalla. Es la tipografía real usada en toda la app. Cargada desde Google Fonts con next/font." theme={theme} num="04 —" />
 
             <div className={`rounded-2xl p-8 border mb-8 ${cardBg}`}>
               <p className={`text-[10px] font-bold uppercase tracking-widest mb-4 ${subText}`}>Inter — fuente principal de Itineramio</p>
@@ -933,7 +1030,7 @@ export default function StyleGuidePage() {
 
           {/* ════ ICONS ════ */}
           <Section id="icons">
-            <SectionHeader title="Iconos" desc="Lucide React — librería de iconos vectoriales SVG usada en toda la app. Stroke-based, accesibles, con soporte de Tailwind CSS." theme={theme} />
+            <SectionHeader title="Iconos" desc="Lucide React — librería de iconos vectoriales SVG usada en toda la app. Stroke-based, accesibles, con soporte de Tailwind CSS." theme={theme} num="05 —" />
 
             <div className={`rounded-2xl p-4 border mb-6 flex items-center gap-4 ${isDark ? 'bg-[#111] border-white/10' : 'bg-white border-gray-200 shadow-sm'}`}>
               <div className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold ${isDark ? 'bg-violet-500/10 text-violet-400' : 'bg-violet-100 text-violet-700'}`}>lucide-react</div>
@@ -976,7 +1073,7 @@ export default function StyleGuidePage() {
 
           {/* ════ COMPONENTS ════ */}
           <Section id="components">
-            <SectionHeader title="Componentes" desc="Dos superficies, dos sistemas. Dashboard usa violet (src/components/ui/button.tsx). Guía pública usa negro #222222 (app/(public)/guide/)." theme={theme} />
+            <SectionHeader title="Componentes" desc="Dos superficies, dos sistemas. Dashboard usa violet (src/components/ui/button.tsx). Guía pública usa negro #222222 (app/(public)/guide/)." theme={theme} num="06 —" />
 
             {/* Contexto legend */}
             <div className="flex flex-wrap gap-3 mb-6">
@@ -1137,7 +1234,7 @@ export default function StyleGuidePage() {
 
           {/* ════ SCREENS ════ */}
           <Section id="screens">
-            <SectionHeader title="Pantallas" desc="Interfaces reales del producto — dashboard del host y guía pública del huésped." theme={theme} />
+            <SectionHeader title="Pantallas" desc="Interfaces reales del producto — dashboard del host y guía pública del huésped." theme={theme} num="07 —" />
 
             <div className="space-y-12">
               <div>
@@ -1166,7 +1263,7 @@ export default function StyleGuidePage() {
 
           {/* ════ TOKENS ════ */}
           <Section id="tokens">
-            <SectionHeader title="Design Tokens" desc="Sombras, radios de borde, espaciado y animaciones — los átomos del sistema visual." theme={theme} />
+            <SectionHeader title="Design Tokens" desc="Sombras, radios de borde, espaciado y animaciones — los átomos del sistema visual." theme={theme} num="08 —" />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className={`rounded-2xl p-6 border ${cardBg}`}>
@@ -1219,7 +1316,7 @@ export default function StyleGuidePage() {
 
           {/* ════ MARKETING ════ */}
           <Section id="marketing">
-            <SectionHeader title="Marketing" desc="Especificaciones para el equipo creativo — formatos, paleta, tipografía y copy guidelines para campañas Meta Ads y Google Ads." theme={theme} />
+            <SectionHeader title="Marketing" desc="Especificaciones para el equipo creativo — formatos, paleta, tipografía y copy guidelines para campañas Meta Ads y Google Ads." theme={theme} num="09 —" />
 
             {/* Formatos de anuncio */}
             <div className="mb-10">
