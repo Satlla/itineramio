@@ -422,7 +422,7 @@ function ComponentBlock({ title, children, code, theme }: { title: string, child
 // ─── Main page ─────────────────────────────────────────────────────────────
 
 export default function StyleGuidePage() {
-  const [theme, setTheme] = useState<Theme>('dark')
+  const [theme, setTheme] = useState<Theme>('light')
   const { copied, copy } = useCopy()
   const [activeNav, setActiveNav] = useState('brand')
   const isDark = theme === 'dark'
