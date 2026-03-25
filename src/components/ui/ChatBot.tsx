@@ -1062,14 +1062,12 @@ export default function ChatBot({
                                     />
                                   ) : (
                                     <video
+                                      src={item.url}
                                       controls
                                       preload="metadata"
                                       playsInline
                                       className="w-full max-h-48"
-                                    >
-                                      <source src={item.url} type="video/mp4" />
-                                      <source src={item.url} type="video/webm" />
-                                    </video>
+                                    />
                                   )}
                                   {/* Caption (step title) below media */}
                                   {item.caption && !item.stepText && (
