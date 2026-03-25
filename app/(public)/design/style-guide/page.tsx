@@ -106,7 +106,7 @@ const COLORS = {
     { name: 'Brand 200', hex: '#d1d1ff', dark: false },
     { name: 'Brand 300', hex: '#a5b4fc', dark: false },
     { name: 'Brand 400', hex: '#818cf8', dark: false },
-    { name: 'Brand 500', hex: '#6366f1', dark: true,  primary: true },
+    { name: 'Brand 500', hex: '#6366f1', dark: true },
     { name: 'Brand 600', hex: '#4338ca', dark: true  },
     { name: 'Brand 700', hex: '#3730a3', dark: true  },
     { name: 'Brand 800', hex: '#312e81', dark: true  },
@@ -615,11 +615,11 @@ export default function StyleGuidePage() {
               <div className="grid grid-cols-1 md:grid-cols-2">
                 {/* Preview sobre fondo claro */}
                 <div className="h-64 bg-white flex items-center justify-center p-10 border-b md:border-b-0 md:border-r border-gray-100">
-                  <img src="/isotipo-gradient.svg" alt="Logo gradiente" style={{ width: 160, height: 88, objectFit: "contain" }} />
+                  <img src="/isotipo-gradient.svg" alt="Logo gradiente" style={{ width: 90, height: 50, objectFit: "contain" }} />
                 </div>
                 {/* Preview sobre fondo oscuro */}
                 <div className="h-64 bg-black flex items-center justify-center p-10">
-                  <img src="/isotipo-gradient.svg" alt="Logo gradiente" style={{ width: 160, height: 88, objectFit: "contain" }} />
+                  <img src="/isotipo-gradient.svg" alt="Logo gradiente" style={{ width: 90, height: 50, objectFit: "contain" }} />
                 </div>
               </div>
             </div>
