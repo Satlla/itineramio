@@ -212,42 +212,43 @@ export async function POST(request: NextRequest) {
             where: { id: propertyId },
             data: { intelligence: { ...intel, unansweredQuestions: unanswered } },
           });
-          // TODO: Reactivar notificaciones cuando esté listo
-          // const hostEmail = (prop as any)?.host?.email;
-          // const propertyNameText = getLocalizedText(prop?.name, language) || propertyId;
-          // const hostUser = await prisma.user.findUnique({ where: { email: hostEmail || '' }, select: { id: true } });
-          // if (hostUser) {
-          //   await prisma.notification.create({
-          //     data: {
-          //       userId: hostUser.id,
-          //       type: 'warning',
-          //       title: `❓ Pregunta sin respuesta — ${propertyNameText}`,
-          //       message: `"${message.slice(0, 120)}"`,
-          //       data: { propertyId, actionUrl: `/properties/${propertyId}/chatbot?tab=unanswered` }
-          //     }
-          //   });
-          // }
-          // if (hostEmail) {
-          //   await sendEmail({
-          //     to: [hostEmail],
-          //     subject: `❓ Pregunta sin respuesta en "${propertyNameText}"`,
-          //     html: `
-          //       <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
-          //         <h2 style="color:#1a1a1a">Un huésped hizo una pregunta que el chatbot no pudo responder</h2>
-          //         <p style="color:#555">Propiedad: <strong>${propertyNameText}</strong></p>
-          //         <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;margin:20px 0">
-          //           <p style="margin:0;font-size:16px;color:#92400e">"${substantiveQuestion.slice(0, 300)}"</p>
-          //         </div>
-          //         <p style="color:#555">Puedes añadir una respuesta directamente en el panel para que el chatbot la use en futuras preguntas:</p>
-          //         <a href="https://www.itineramio.com/properties/${propertyId}/chatbot?tab=unanswered"
-          //            style="display:inline-block;background:#7c3aed;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">
-          //           Añadir respuesta →
-          //         </a>
-          //         <p style="color:#999;font-size:12px;margin-top:24px">Itineramio · Asistente IA</p>
-          //       </div>
-          //     `
-          //   });
-          // }
+          const hostEmail = (prop as any)?.host?.email;
+          const propertyNameText = getLocalizedText(prop?.name, language) || propertyId;
+          const hostUser = hostEmail
+            ? await prisma.user.findUnique({ where: { email: hostEmail }, select: { id: true } })
+            : null;
+          if (hostUser) {
+            await prisma.notification.create({
+              data: {
+                userId: hostUser.id,
+                type: 'warning',
+                title: `❓ Pregunta sin respuesta — ${propertyNameText}`,
+                message: `"${substantiveQuestion.slice(0, 120)}"`,
+                data: { propertyId, actionUrl: `/gestion/apartamentos/${propertyId}?tab=chatbot` }
+              }
+            }).catch(() => {/* non-critical */});
+          }
+          if (hostEmail) {
+            await sendEmail({
+              to: [hostEmail],
+              subject: `❓ Pregunta sin respuesta en "${propertyNameText}"`,
+              html: `
+                <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
+                  <h2 style="color:#1a1a1a">Un huésped hizo una pregunta que el chatbot no pudo responder</h2>
+                  <p style="color:#555">Propiedad: <strong>${propertyNameText}</strong></p>
+                  <div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:16px;border-radius:8px;margin:20px 0">
+                    <p style="margin:0;font-size:16px;color:#92400e">"${substantiveQuestion.slice(0, 300)}"</p>
+                  </div>
+                  <p style="color:#555">Puedes añadir esta información en el manual de la propiedad para que el chatbot la use en el futuro:</p>
+                  <a href="https://www.itineramio.com/gestion/apartamentos/${propertyId}"
+                     style="display:inline-block;background:#7c3aed;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">
+                    Ir al manual →
+                  </a>
+                  <p style="color:#999;font-size:12px;margin-top:24px">Itineramio · Asistente IA</p>
+                </div>
+              `
+            }).catch(() => {/* non-critical */});
+          }
         } catch (e) {
           // ignore unanswered question save errors
         }
@@ -639,15 +640,53 @@ function detectRelevantRecommendations(userMessage: string, aiResponse: string, 
 function detectUnansweredQuestion(aiResponse: string, language: string): boolean {
   const lower = String(aiResponse || '').toLowerCase();
 
-  const fallbackPhrases: Record<string, string[]> = {
-    es: ['contacta al anfitrión', 'contactar al anfitrión', 'contacta directamente', 'no tengo información', 'no dispongo de esa información', 'no cuento con esa información'],
-    en: ['contact the host', 'contact your host', 'reach out to the host', 'don\'t have that information', 'do not have specific information', 'i don\'t have information'],
-    fr: ['contactez l\'hôte', 'contacter l\'hôte', 'je n\'ai pas cette information', 'je ne dispose pas de cette information', 'je n\'ai pas d\'information']
-  };
+  const fallbackPhrases: string[] = [
+    // Spanish
+    'contacta al anfitrión',
+    'contactar al anfitrión',
+    'contacta directamente',
+    'contactes al anfitrión',
+    'contacter al anfitrión',
+    'no tengo información',
+    'no tengo esa información',
+    'no tengo información específica',
+    'no dispongo de esa información',
+    'no dispongo de información',
+    'no cuento con esa información',
+    'no cuento con información',
+    'no tengo los detalles',
+    'te recomiendo que contactes',
+    'recomiendo que contactes',
+    'lo siento, no tengo',
+    'lo siento, no dispongo',
+    // English
+    'contact the host',
+    'contact your host',
+    'reach out to the host',
+    'contacting the host',
+    "don't have that information",
+    "don't have specific information",
+    "don't have information",
+    "do not have specific information",
+    "do not have that information",
+    "i don't have information",
+    "i don't have the specific",
+    "i don't have details",
+    "i'm sorry, but i don't",
+    "i am sorry, but i don't",
+    'i recommend contacting',
+    'suggest contacting the host',
+    // French
+    "contactez l'hôte",
+    "contacter l'hôte",
+    "je n'ai pas cette information",
+    "je ne dispose pas de cette information",
+    "je n'ai pas d'information",
+    "je n'ai pas les détails",
+    "je vous recommande de contacter",
+  ];
 
-  // Check all languages (AI may respond in a different language than requested)
-  const allPhrases = Object.values(fallbackPhrases).flat();
-  return allPhrases.some(phrase => lower.includes(phrase));
+  return fallbackPhrases.some(phrase => lower.includes(phrase));
 }
 
 // ========================================
