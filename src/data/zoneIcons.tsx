@@ -1,70 +1,122 @@
 import React from 'react'
-import { 
-  ChefHat, 
-  Utensils, 
-  Coffee, 
+import {
+  // Kitchen
+  ChefHat,
+  Utensils,
+  UtensilsCrossed,
+  Coffee,
   Microwave,
-  Bed, 
-  Lamp, 
-  Fan,
-  Bath, 
-  ShowerHead as Shower, 
-  Droplets,
-  Sofa, 
-  Tv, 
-  Volume2,
-  DoorOpen, 
-  Key, 
-  Shield,
-  Trees, 
-  Car, 
-  Bike,
-  Shirt as Washing, 
-  Zap, 
   Refrigerator,
-  Wifi, 
-  Phone, 
-  MapPin,
+  Wine,
+  Flame,
+  Pizza,
+  Beef,
+  Fish,
+  Beer,
+  Soup,
+  // Bathroom
+  Bath,
+  ShowerHead,
+  Droplets,
+  Scissors,
+  // Bedroom
+  Bed,
+  BedDouble,
+  BedSingle,
+  Lamp,
+  Fan,
+  Lightbulb,
+  Armchair,
+  Shirt,
+  // Living room
+  Sofa,
+  Tv,
+  Volume2,
+  Radio,
+  Gamepad2,
+  Book,
+  Projector,
+  // Access & Security
+  DoorOpen,
+  Key,
+  KeyRound,
+  Shield,
+  Camera,
+  Lock,
+  Fingerprint,
+  QrCode,
+  // Exterior & Nature
+  Trees,
+  TreePine,
+  Car,
+  Bike,
+  Flower,
+  Flower2,
+  Waves,
+  Mountain,
+  Building,
+  Sailboat,
+  Tent,
+  Anchor,
+  Leaf,
+  // Travel
+  Plane,
+  Luggage,
+  BaggageClaim,
+  Globe,
+  Compass,
+  Map,
+  Ship,
+  Train,
+  Bus,
+  Navigation,
+  // Services & Home
+  Wifi,
   Thermometer,
   Wind,
   Sun,
   Moon,
-  Lock,
-  Camera,
-  Lightbulb,
-  Radio,
-  Gamepad2,
-  Book,
-  Wine,
-  UtensilsCrossed,
-  Armchair,
-  Shirt,
-  Scissors,
-  Flower,
-  Waves,
-  Mountain,
-  Building,
+  Zap,
+  Snowflake,
+  Dumbbell,
+  Sparkles,
+  Umbrella,
+  Cloud,
+  CloudRain,
+  CloudSun,
+  CloudSnow,
+  Blinds,
+  Printer,
+  // Pets
+  Dog,
+  Cat,
+  PawPrint,
+  // Kids & Fun
+  Baby,
+  Puzzle,
+  // Nature / Weather
+  Sunrise,
+  Sunset,
+  // General
   Home,
   Archive,
   Package,
   Settings,
+  Info,
+  Phone,
+  MapPin,
+  MapPinned,
   Wrench,
   HardHat,
   Gauge,
   Battery,
   PlugZap,
-  Flame,
-  Snowflake,
-  Umbrella,
-  Cloud,
-  CloudRain,
   Timer,
   Clock,
   Calendar,
   Bell,
   BellOff,
   AlertTriangle,
-  Info,
   HelpCircle,
   FileText,
   ClipboardList,
@@ -109,11 +161,8 @@ import {
   Disc,
   Album,
   Image,
-  // Additional icons that exist in lucide-react
   Apple,
   Circle,
-  QrCode,
-  Fingerprint,
   Users,
   Monitor,
   Laptop,
@@ -121,96 +170,68 @@ import {
   Router,
   Satellite,
   HardDrive,
-  // Travel and vacation icons
-  Plane,
-  Luggage,
-  Briefcase as Suitcase,
-  FileText as Passport,  
-  Globe,
-  Compass,
-  Map,
-  Camera as PhotoCamera,
-  Ship,
-  Zap as Train,
-  Car as Bus,
-  Car as Taxi,
-  Circle as ParkingCircle,
-  Navigation,
-  Building as Hotel,
-  Trees as PalmTree,
-  Umbrella as Beach,
-  CloudSun,
-  CloudSnow,
-  Sun as Sunset,
-  Sun as Sunrise,
-  // House and room icons
-  DoorOpen as Door,
-  DoorOpen as DoorClosed,
-  Package as Window,
-  Package as Blinds,
-  Package as Balcony,
-  Package as Stairs,
-  Package as Elevator,
-  // Appliances and amenities
-  Coffee as CoffeeCup,
-  Package as Oven,
-  Package as Dishwasher,
-  Snowflake as Freezer,
-  Flame as Heater,
-  Wind as AirVent,
-  Printer,
-  Package as Iron,
-  Lock as Safe,
-  CreditCard as AccessCard,
-  // Aliased icons for non-existent ones
-  Flame as Pizza, // Using Flame instead of Pizza for oven
-  Coffee as Soup, // Using Coffee instead of Soup for hot beverages
-  Package as Beef, // Using Package instead of Beef for food items
-  Waves as Fish, // Using Waves instead of Fish for sea/water
-  Coffee as Beer, // Using Coffee instead of Beer for beverages
-  Wine as Bottle, // Using Wine instead of Bottle
-  Coffee as Tea, // Using Coffee instead of Tea
-  Bed as BedDouble, // Using Bed instead of BedDouble
-  Bed as BedSingle, // Using Bed instead of BedSingle
-  Package as Pillow, // Using Package instead of Pillow
-  Armchair as Chair, // Using Armchair instead of Chair
-  Archive as Desk, // Using Archive instead of Desk
-  Flame as Candle, // Using Flame instead of Candle
-  Lightbulb as Flashlight, // Using Lightbulb instead of Flashlight
-  Clock as AlarmClock, // Using Clock instead of AlarmClock
-  Heart as Stethoscope, // Using Heart instead of Stethoscope for medical
-  Circle as Pill, // Using Circle instead of Pill
-  Archive as Table, // Using Archive instead of Table
-  Camera as Projector, // Using Camera instead of Projector
-  Gamepad2 as Joystick, // Using Gamepad2 instead of Joystick
-  Book as Library, // Using Book instead of Library
-  FileText as Newspaper, // Using FileText instead of Newspaper
-  Users as Accessibility, // Using Users instead of Accessibility
-  Trees as Palmtree, // Using Trees instead of Palmtree
-  Flower as Cactus, // Using Flower instead of Cactus
-  Mountain as Tent, // Using Mountain instead of Tent
-  Flame as Campfire, // Using Flame instead of Campfire
-  Shield as Fence, // Using Shield instead of Fence
-  Car as Sailboat, // Using Car instead of Sailboat
-  Phone as Smartphone, // Using Phone instead of Smartphone
-  Radio as SatelliteIcon, // Using Radio instead of Satellite
-  Building as Construction, // Using Building instead of Construction
-  Wrench as Hammer, // Using Wrench instead of Hammer
-  Circle as Dice1, // Using Circle instead of Dice1
-  Star as Trophy, // Using Star instead of Trophy
-  Package as Gift, // Using Package instead of Gift
-  Star as PartyPopper, // Using Star instead of PartyPopper
-  Heart as Dumbbell, // Using Heart instead of Dumbbell
-  Star as Sparkles, // Using Star instead of Sparkles
-  Circle as Brain, // Using Circle instead of Brain
-  FileText as Pen, // Using FileText instead of Pen
-  Heart as Dog, // Using Heart instead of Dog
-  Heart as Cat, // Using Heart instead of Cat
-  Flower as Bird, // Using Flower instead of Bird
-  Flower as Rabbit, // Using Flower instead of Rabbit
-  Waves as FishIcon // Using Waves instead of FishIcon
+  Mailbox,
 } from 'lucide-react'
 import { ZoneIcon } from '@/types/zones'
+
+// Legacy aliases — keeps existing ZONE_ICONS entries working
+const Shower = ShowerHead
+const Washing = Shirt
+const Bottle = Wine
+const Tea = Coffee
+const Pillow = Package
+const Chair = Armchair
+const Desk = Archive
+const Candle = Flame
+const Flashlight = Lightbulb
+const AlarmClock = Clock
+const Stethoscope = Heart
+const Pill = Circle
+const Table = Archive
+const Joystick = Gamepad2
+const Library = Book
+const Newspaper = FileText
+const Accessibility = Users
+const Palmtree = TreePine
+const PalmTree = TreePine
+const Cactus = Flower2
+const Campfire = Flame
+const Fence = Shield
+const Bird = Flower2
+const Rabbit = Flower2
+const FishIcon = Fish
+const Construction = Building
+const Hammer = Wrench
+const Dice1 = Circle
+const Trophy = Star
+const Gift = Package
+const PartyPopper = Star
+const Brain = Circle
+const Pen = FileText
+const Smartphone = Phone
+const SatelliteIcon = Satellite
+const Suitcase = Briefcase
+const Passport = FileText
+const PhotoCamera = Camera
+const ParkingCircle = Circle
+const Hotel = Building
+const Beach = Umbrella
+const Door = DoorOpen
+const DoorClosed = DoorOpen
+const Window = Package
+const Balcony = Package
+const Stairs = Package
+const Elevator = Package
+const CoffeeCup = Coffee
+const Oven = Package
+const Dishwasher = Sparkles
+const Freezer = Snowflake
+const Heater = Flame
+const AirVent = Wind
+const Iron = Package
+const Safe = Lock
+const AccessCard = CreditCard
+const Taxi = Car
 
 export const ZONE_ICONS: ZoneIcon[] = [
   // Cocina
@@ -1400,5 +1421,264 @@ export const ZONE_ICONS: ZoneIcon[] = [
     icon: Snowflake,
     category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
     color: 'text-yellow-600'
-  }
+  },
+
+  // =================== NUEVOS ICONOS ===================
+
+  // Barbacoa / parrilla
+  {
+    id: 'barbacoa',
+    name: 'Barbacoa',
+    icon: Beef,
+    category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' },
+    color: 'text-green-600'
+  },
+  {
+    id: 'parrilla',
+    name: 'Parrilla',
+    icon: Flame,
+    category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' },
+    color: 'text-green-600'
+  },
+
+  // Mascotas
+  {
+    id: 'paw-print',
+    name: 'Mascotas (general)',
+    icon: PawPrint,
+    category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' },
+    color: 'text-green-600'
+  },
+
+  // Consigna / equipaje
+  {
+    id: 'baggage-claim',
+    name: 'Consigna equipaje',
+    icon: BaggageClaim,
+    category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+    color: 'text-yellow-600'
+  },
+
+  // Niños
+  {
+    id: 'baby',
+    name: 'Bebé / Cuna',
+    icon: Baby,
+    category: { id: 'bedroom', name: 'Dormitorio', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+    color: 'text-blue-600'
+  },
+  {
+    id: 'puzzle',
+    name: 'Juguetes / Niños',
+    icon: Puzzle,
+    category: { id: 'living', name: 'Sala de estar', color: 'bg-purple-100 text-purple-800 border-purple-200' },
+    color: 'text-purple-600'
+  },
+
+  // Naturaleza
+  {
+    id: 'tree-pine',
+    name: 'Pino / Bosque',
+    icon: TreePine,
+    category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' },
+    color: 'text-green-600'
+  },
+  {
+    id: 'flower2',
+    name: 'Flores',
+    icon: Flower2,
+    category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' },
+    color: 'text-green-600'
+  },
+  {
+    id: 'leaf',
+    name: 'Naturaleza',
+    icon: Leaf,
+    category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' },
+    color: 'text-green-600'
+  },
+  {
+    id: 'anchor',
+    name: 'Puerto / Muelle',
+    icon: Anchor,
+    category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' },
+    color: 'text-green-600'
+  },
+
+  // Llave digital
+  {
+    id: 'key-round',
+    name: 'Llave digital',
+    icon: KeyRound,
+    category: { id: 'access', name: 'Acceso y seguridad', color: 'bg-red-100 text-red-800 border-red-200' },
+    color: 'text-red-600'
+  },
+
+  // Ubicación exacta
+  {
+    id: 'map-pinned',
+    name: 'Cómo llegar',
+    icon: MapPinned,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+
+  // Transporte real
+  {
+    id: 'train',
+    name: 'Tren',
+    icon: Train,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+  {
+    id: 'bus',
+    name: 'Autobús',
+    icon: Bus,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+
+  // Cocina - iconos reales
+  {
+    id: 'pizza-real',
+    name: 'Pizza / Horno pizza',
+    icon: Pizza,
+    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    color: 'text-orange-600'
+  },
+  {
+    id: 'soup-real',
+    name: 'Olla / Sopas',
+    icon: Soup,
+    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    color: 'text-orange-600'
+  },
+  {
+    id: 'fish-real',
+    name: 'Pescado / Frutos del mar',
+    icon: Fish,
+    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    color: 'text-orange-600'
+  },
+  {
+    id: 'beer-real',
+    name: 'Cerveza',
+    icon: Beer,
+    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    color: 'text-orange-600'
+  },
+
+  // Barco / vela
+  {
+    id: 'sailboat-real',
+    name: 'Velero / Embarcación',
+    icon: Sailboat,
+    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' },
+    color: 'text-sky-600'
+  },
+
+  // Laptop / trabajo
+  {
+    id: 'laptop',
+    name: 'Área de trabajo',
+    icon: Laptop,
+    category: { id: 'living', name: 'Sala de estar', color: 'bg-purple-100 text-purple-800 border-purple-200' },
+    color: 'text-purple-600'
+  },
+
+  // Ducha (ShowerHead real)
+  {
+    id: 'shower-head',
+    name: 'Ducha',
+    icon: ShowerHead,
+    category: { id: 'bathroom', name: 'Baño', color: 'bg-teal-100 text-teal-800 border-teal-200' },
+    color: 'text-teal-600'
+  },
+
+  // Lavavajillas (Sparkles real)
+  {
+    id: 'dishwasher',
+    name: 'Lavavajillas',
+    icon: Sparkles,
+    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    color: 'text-orange-600'
+  },
+
+  // Cama doble/individual reales
+  {
+    id: 'bed-double-real',
+    name: 'Cama de matrimonio',
+    icon: BedDouble,
+    category: { id: 'bedroom', name: 'Dormitorio', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+    color: 'text-blue-600'
+  },
+  {
+    id: 'bed-single-real',
+    name: 'Cama individual',
+    icon: BedSingle,
+    category: { id: 'bedroom', name: 'Dormitorio', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+    color: 'text-blue-600'
+  },
+
+  // Proyector real
+  {
+    id: 'projector-real',
+    name: 'Proyector / Home cinema',
+    icon: Projector,
+    category: { id: 'living', name: 'Sala de estar', color: 'bg-purple-100 text-purple-800 border-purple-200' },
+    color: 'text-purple-600'
+  },
+
+  // Cascos / auriculares
+  {
+    id: 'headphones',
+    name: 'Auriculares',
+    icon: Headphones,
+    category: { id: 'living', name: 'Sala de estar', color: 'bg-purple-100 text-purple-800 border-purple-200' },
+    color: 'text-purple-600'
+  },
+
+  // Música
+  {
+    id: 'music',
+    name: 'Música / Altavoces',
+    icon: Music,
+    category: { id: 'living', name: 'Sala de estar', color: 'bg-purple-100 text-purple-800 border-purple-200' },
+    color: 'text-purple-600'
+  },
+
+  // Perros / gatos reales
+  {
+    id: 'dog-real',
+    name: 'Perros',
+    icon: Dog,
+    category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' },
+    color: 'text-green-600'
+  },
+  {
+    id: 'cat-real',
+    name: 'Gatos',
+    icon: Cat,
+    category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' },
+    color: 'text-green-600'
+  },
+
+  // Gimnasio real
+  {
+    id: 'dumbbell-real',
+    name: 'Gimnasio / Pesas',
+    icon: Dumbbell,
+    category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+    color: 'text-yellow-600'
+  },
+
+  // Tent real
+  {
+    id: 'tent-real',
+    name: 'Zona camping',
+    icon: Tent,
+    category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' },
+    color: 'text-green-600'
+  },
 ]

@@ -9,15 +9,19 @@ import {
   Calendar, BarChart2, BookOpen, QrCode, Search,
   CheckCircle2, Eye, Sun, Moon,
   // Zone icons reales de la app
-  ChefHat, Utensils, Coffee, Refrigerator, Flame, Wine,
-  Bed, Lamp, Lightbulb, Fan, Armchair,
-  Bath, Droplets,
-  Sofa, Tv, Volume2, Gamepad2,
-  DoorOpen, Key, Lock, Camera,
-  Trees, Car, Bike, Waves,
-  Wifi, Thermometer, Wind,
-  Plane, Compass, Mountain, Umbrella,
-  Info, Scissors, ShowerHead, Shirt,
+  ChefHat, Utensils, UtensilsCrossed, Coffee, Refrigerator, Flame, Wine, Microwave,
+  Pizza, Beef, Fish, Beer, Soup,
+  Bed, BedDouble, BedSingle, Lamp, Lightbulb, Fan, Armchair,
+  Bath, Droplets, ShowerHead, Scissors,
+  Sofa, Tv, Volume2, Gamepad2, Book, Projector,
+  DoorOpen, Key, KeyRound, Lock, Camera, Fingerprint,
+  Trees, TreePine, Car, Bike, Waves, Flower, Flower2, Leaf, Sailboat, Tent, Anchor,
+  Wifi, Thermometer, Wind, Dumbbell, Snowflake,
+  Plane, Compass, Mountain, Umbrella, Luggage, BaggageClaim, Train, Bus, Ship, Navigation,
+  Shirt, Dog, Cat, PawPrint, Baby, Puzzle,
+  Sunrise, Sunset,
+  Music, Headphones, Speaker, Laptop,
+  Package, Archive, Wrench, MapPin, MapPinned, Phone,
 } from 'lucide-react'
 
 // ─── Theme ─────────────────────────────────────────────────────────────────
@@ -145,48 +149,95 @@ const COLORS = {
 
 const ZONE_ICONS = [
   // Cocina
-  { id: 'kitchen',      Icon: ChefHat,        label: 'Cocina',         cat: 'Cocina'    },
-  { id: 'utensils',     Icon: Utensils,        label: 'Utensilios',     cat: 'Cocina'    },
-  { id: 'coffee',       Icon: Coffee,          label: 'Café',           cat: 'Cocina'    },
-  { id: 'refrigerator', Icon: Refrigerator,    label: 'Frigorífico',    cat: 'Cocina'    },
-  { id: 'cooktop',      Icon: Flame,           label: 'Vitrocerámica',  cat: 'Cocina'    },
-  { id: 'wine',         Icon: Wine,            label: 'Vinos',          cat: 'Cocina'    },
+  { id: 'kitchen',       Icon: ChefHat,        label: 'Cocina',          cat: 'Cocina'     },
+  { id: 'utensils',      Icon: Utensils,        label: 'Utensilios',      cat: 'Cocina'     },
+  { id: 'utensils-x',    Icon: UtensilsCrossed, label: 'Cubiertos',       cat: 'Cocina'     },
+  { id: 'coffee',        Icon: Coffee,          label: 'Cafetera',        cat: 'Cocina'     },
+  { id: 'refrigerator',  Icon: Refrigerator,    label: 'Frigorífico',     cat: 'Cocina'     },
+  { id: 'microwave',     Icon: Microwave,       label: 'Microondas',      cat: 'Cocina'     },
+  { id: 'cooktop',       Icon: Flame,           label: 'Vitrocerámica',   cat: 'Cocina'     },
+  { id: 'wine',          Icon: Wine,            label: 'Vinos',           cat: 'Cocina'     },
+  { id: 'pizza',         Icon: Pizza,           label: 'Horno pizza',     cat: 'Cocina'     },
+  { id: 'beef',          Icon: Beef,            label: 'Carne / Parrilla',cat: 'Cocina'     },
+  { id: 'fish',          Icon: Fish,            label: 'Pescado',         cat: 'Cocina'     },
+  { id: 'beer',          Icon: Beer,            label: 'Cerveza',         cat: 'Cocina'     },
+  { id: 'soup',          Icon: Soup,            label: 'Ollas / Sopas',   cat: 'Cocina'     },
   // Dormitorio
-  { id: 'bed',          Icon: Bed,             label: 'Dormitorio',     cat: 'Dormitorio'},
-  { id: 'lamp',         Icon: Lamp,            label: 'Lámpara',        cat: 'Dormitorio'},
-  { id: 'lightbulb',    Icon: Lightbulb,       label: 'Luz',            cat: 'Dormitorio'},
-  { id: 'fan',          Icon: Fan,             label: 'Ventilador',     cat: 'Dormitorio'},
-  { id: 'armchair',     Icon: Armchair,        label: 'Salón',          cat: 'Dormitorio'},
+  { id: 'bed',           Icon: Bed,             label: 'Cama',            cat: 'Dormitorio' },
+  { id: 'bed-double',    Icon: BedDouble,       label: 'Matrimonio',      cat: 'Dormitorio' },
+  { id: 'bed-single',    Icon: BedSingle,       label: 'Individual',      cat: 'Dormitorio' },
+  { id: 'lamp',          Icon: Lamp,            label: 'Lámpara',         cat: 'Dormitorio' },
+  { id: 'lightbulb',     Icon: Lightbulb,       label: 'Iluminación',     cat: 'Dormitorio' },
+  { id: 'fan',           Icon: Fan,             label: 'Ventilador',      cat: 'Dormitorio' },
+  { id: 'armchair',      Icon: Armchair,        label: 'Sillón',          cat: 'Dormitorio' },
   // Baño
-  { id: 'bath',         Icon: Bath,            label: 'Bañera',         cat: 'Baño'      },
-  { id: 'shower',       Icon: ShowerHead,      label: 'Ducha',          cat: 'Baño'      },
-  { id: 'droplets',     Icon: Droplets,        label: 'Agua',           cat: 'Baño'      },
-  { id: 'scissors',     Icon: Scissors,        label: 'Secador',        cat: 'Baño'      },
+  { id: 'bath',          Icon: Bath,            label: 'Bañera',          cat: 'Baño'       },
+  { id: 'shower',        Icon: ShowerHead,      label: 'Ducha',           cat: 'Baño'       },
+  { id: 'droplets',      Icon: Droplets,        label: 'Agua / Toallas',  cat: 'Baño'       },
+  { id: 'scissors',      Icon: Scissors,        label: 'Secador',         cat: 'Baño'       },
   // Salón
-  { id: 'sofa',         Icon: Sofa,            label: 'Sofá',           cat: 'Salón'     },
-  { id: 'tv',           Icon: Tv,              label: 'TV',             cat: 'Salón'     },
-  { id: 'volume',       Icon: Volume2,         label: 'Audio',          cat: 'Salón'     },
-  { id: 'gamepad',      Icon: Gamepad2,        label: 'Videojuegos',    cat: 'Salón'     },
+  { id: 'sofa',          Icon: Sofa,            label: 'Sofá',            cat: 'Salón'      },
+  { id: 'tv',            Icon: Tv,              label: 'Televisión',      cat: 'Salón'      },
+  { id: 'volume',        Icon: Volume2,         label: 'Audio',           cat: 'Salón'      },
+  { id: 'gamepad',       Icon: Gamepad2,        label: 'Videojuegos',     cat: 'Salón'      },
+  { id: 'book',          Icon: Book,            label: 'Biblioteca',      cat: 'Salón'      },
+  { id: 'projector',     Icon: Projector,       label: 'Proyector',       cat: 'Salón'      },
+  { id: 'music',         Icon: Music,           label: 'Música',          cat: 'Salón'      },
+  { id: 'headphones',    Icon: Headphones,      label: 'Auriculares',     cat: 'Salón'      },
+  { id: 'speaker',       Icon: Speaker,         label: 'Altavoces',       cat: 'Salón'      },
+  { id: 'laptop',        Icon: Laptop,          label: 'Área trabajo',    cat: 'Salón'      },
+  { id: 'puzzle',        Icon: Puzzle,          label: 'Juguetes',        cat: 'Salón'      },
   // Acceso
-  { id: 'door',         Icon: DoorOpen,        label: 'Entrada',        cat: 'Acceso'    },
-  { id: 'key',          Icon: Key,             label: 'Llaves',         cat: 'Acceso'    },
-  { id: 'lock',         Icon: Lock,            label: 'Caja fuerte',    cat: 'Acceso'    },
-  { id: 'camera',       Icon: Camera,          label: 'Seguridad',      cat: 'Acceso'    },
+  { id: 'door',          Icon: DoorOpen,        label: 'Entrada',         cat: 'Acceso'     },
+  { id: 'key',           Icon: Key,             label: 'Llaves',          cat: 'Acceso'     },
+  { id: 'key-round',     Icon: KeyRound,        label: 'Llave digital',   cat: 'Acceso'     },
+  { id: 'lock',          Icon: Lock,            label: 'Caja fuerte',     cat: 'Acceso'     },
+  { id: 'camera',        Icon: Camera,          label: 'Cámaras',         cat: 'Acceso'     },
+  { id: 'fingerprint',   Icon: Fingerprint,     label: 'Acceso digital',  cat: 'Acceso'     },
   // Exterior
-  { id: 'trees',        Icon: Trees,           label: 'Jardín',         cat: 'Exterior'  },
-  { id: 'car',          Icon: Car,             label: 'Parking',        cat: 'Exterior'  },
-  { id: 'bike',         Icon: Bike,            label: 'Bicicleta',      cat: 'Exterior'  },
-  { id: 'waves',        Icon: Waves,           label: 'Piscina',        cat: 'Exterior'  },
+  { id: 'trees',         Icon: Trees,           label: 'Jardín',          cat: 'Exterior'   },
+  { id: 'tree-pine',     Icon: TreePine,        label: 'Pino / Bosque',   cat: 'Exterior'   },
+  { id: 'car',           Icon: Car,             label: 'Parking',         cat: 'Exterior'   },
+  { id: 'bike',          Icon: Bike,            label: 'Bicicletas',      cat: 'Exterior'   },
+  { id: 'waves',         Icon: Waves,           label: 'Piscina',         cat: 'Exterior'   },
+  { id: 'flower',        Icon: Flower,          label: 'Flores',          cat: 'Exterior'   },
+  { id: 'flower2',       Icon: Flower2,         label: 'Jardín flores',   cat: 'Exterior'   },
+  { id: 'leaf',          Icon: Leaf,            label: 'Naturaleza',      cat: 'Exterior'   },
+  { id: 'sailboat',      Icon: Sailboat,        label: 'Embarcadero',     cat: 'Exterior'   },
+  { id: 'tent',          Icon: Tent,            label: 'Zona camping',    cat: 'Exterior'   },
+  { id: 'anchor',        Icon: Anchor,          label: 'Puerto / Muelle', cat: 'Exterior'   },
+  { id: 'bbq',           Icon: Beef,            label: 'Barbacoa',        cat: 'Exterior'   },
+  // Mascotas
+  { id: 'dog',           Icon: Dog,             label: 'Perros',          cat: 'Mascotas'   },
+  { id: 'cat',           Icon: Cat,             label: 'Gatos',           cat: 'Mascotas'   },
+  { id: 'paw-print',     Icon: PawPrint,        label: 'Mascotas',        cat: 'Mascotas'   },
+  // Bebés / Niños
+  { id: 'baby',          Icon: Baby,            label: 'Bebé / Cuna',     cat: 'Niños'      },
   // Servicios
-  { id: 'washing',      Icon: Shirt,           label: 'Lavadora',       cat: 'Servicios' },
-  { id: 'wifi',         Icon: Wifi,            label: 'WiFi',           cat: 'Servicios' },
-  { id: 'thermometer',  Icon: Thermometer,     label: 'Calefacción',    cat: 'Servicios' },
-  { id: 'wind',         Icon: Wind,            label: 'Aire acond.',    cat: 'Servicios' },
+  { id: 'washing',       Icon: Shirt,           label: 'Lavadora',        cat: 'Servicios'  },
+  { id: 'wifi',          Icon: Wifi,            label: 'WiFi',            cat: 'Servicios'  },
+  { id: 'thermometer',   Icon: Thermometer,     label: 'Calefacción',     cat: 'Servicios'  },
+  { id: 'wind',          Icon: Wind,            label: 'Aire acond.',     cat: 'Servicios'  },
+  { id: 'dumbbell',      Icon: Dumbbell,        label: 'Gimnasio',        cat: 'Servicios'  },
+  { id: 'snowflake',     Icon: Snowflake,       label: 'Congelador',      cat: 'Servicios'  },
+  { id: 'luggage',       Icon: Luggage,         label: 'Equipaje',        cat: 'Servicios'  },
+  { id: 'baggage',       Icon: BaggageClaim,    label: 'Consigna',        cat: 'Servicios'  },
+  { id: 'package',       Icon: Package,         label: 'Suministros',     cat: 'Servicios'  },
+  { id: 'wrench',        Icon: Wrench,          label: 'Herramientas',    cat: 'Servicios'  },
   // Viajes
-  { id: 'plane',        Icon: Plane,           label: 'Transporte',     cat: 'Viajes'    },
-  { id: 'compass',      Icon: Compass,         label: 'Turismo',        cat: 'Viajes'    },
-  { id: 'mountain',     Icon: Mountain,        label: 'Montaña',        cat: 'Viajes'    },
-  { id: 'umbrella',     Icon: Umbrella,        label: 'Playa',          cat: 'Viajes'    },
+  { id: 'plane',         Icon: Plane,           label: 'Avión',           cat: 'Viajes'     },
+  { id: 'train',         Icon: Train,           label: 'Tren',            cat: 'Viajes'     },
+  { id: 'bus',           Icon: Bus,             label: 'Autobús',         cat: 'Viajes'     },
+  { id: 'ship',          Icon: Ship,            label: 'Barco',           cat: 'Viajes'     },
+  { id: 'navigation',    Icon: Navigation,      label: 'Navegación',      cat: 'Viajes'     },
+  { id: 'compass',       Icon: Compass,         label: 'Turismo',         cat: 'Viajes'     },
+  { id: 'map',           Icon: Map,             label: 'Mapa',            cat: 'Viajes'     },
+  { id: 'map-pin',       Icon: MapPin,          label: 'Ubicación',       cat: 'Viajes'     },
+  { id: 'map-pinned',    Icon: MapPinned,       label: 'Cómo llegar',     cat: 'Viajes'     },
+  { id: 'mountain',      Icon: Mountain,        label: 'Montaña',         cat: 'Viajes'     },
+  { id: 'umbrella',      Icon: Umbrella,        label: 'Playa',           cat: 'Viajes'     },
+  { id: 'sunrise',       Icon: Sunrise,         label: 'Amanecer',        cat: 'Viajes'     },
+  { id: 'sunset',        Icon: Sunset,          label: 'Atardecer',       cat: 'Viajes'     },
 ]
 
 // ─── Typography scale ──────────────────────────────────────────────────────
@@ -609,58 +660,180 @@ export default function StyleGuidePage() {
 
           {/* ════ LOGOS ════ */}
           <Section id="logos">
-            <SectionHeader title="Logotipo" desc="El símbolo de Itineramio: el infinito. Versión negra para fondos claros, versión blanca para fondos oscuros." theme={theme} />
+            <SectionHeader title="Logotipo" desc="Sistema de identidad visual de Itineramio — 4 variantes de isotipo para cada superficie y contexto de uso." theme={theme} />
 
-            {/* Logo principal — destacado */}
-            <div className={`rounded-3xl overflow-hidden border mb-6 ${cardBg}`}>
-              <div className="grid grid-cols-1 md:grid-cols-2">
-                {/* Preview sobre fondo claro */}
-                <div className="h-64 bg-white flex items-center justify-center p-10 border-b md:border-b-0 md:border-r border-gray-100">
-                  <img src="/isotipo-gradient.svg" alt="Logo gradiente" style={{ width: 90, height: 50, objectFit: "contain" }} />
-                </div>
-                {/* Preview sobre fondo oscuro */}
-                <div className="h-64 bg-black flex items-center justify-center p-10">
-                  <img src="/isotipo-gradient.svg" alt="Logo gradiente" style={{ width: 90, height: 50, objectFit: "contain" }} />
+            {/* ── Hero — logo principal ─────────────────────────────── */}
+            <div className="relative rounded-3xl overflow-hidden mb-8 h-56 md:h-72 bg-black flex items-center justify-center">
+              {/* gradient orbs */}
+              <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-[80px] opacity-30 bg-[#FF07AB]" />
+              <div className="absolute top-1/2 right-1/4 translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-[80px] opacity-30 bg-[#FF4D4D]" />
+              <div className="relative z-10 flex flex-col items-center gap-4">
+                <img src="/isotipo-gradient.svg" alt="Itineramio isotipo gradiente" style={{ width: 90, height: 50, objectFit: 'contain' }} />
+                <div className="text-center">
+                  <p className="text-white font-bold text-lg tracking-tight">Itineramio</p>
+                  <p className="text-white/40 text-xs font-mono mt-0.5">isotipo-gradient.svg · Variante principal</p>
                 </div>
               </div>
             </div>
 
-            {/* Dos variantes de gradiente */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div className={`border rounded-2xl overflow-hidden ${cardBg}`}>
-                <div className="h-14 bg-gradient-to-r from-[#FF07AB] via-[#FF2E76] to-[#FF4D4D] flex items-center justify-center">
-                  <p className="text-white font-bold text-xs tracking-wide">#FF07AB → #FF2E76 → #FF4D4D</p>
+            {/* ── 4 variantes — grid 2×2 ───────────────────────────── */}
+            <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${mutedText}`}>Todas las variantes</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+
+              {/* 1 — fondo blanco + isotipo gradiente */}
+              <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
+                <div className="h-32 bg-white flex items-center justify-center">
+                  <img src="/isotipo-gradient.svg" alt="Isotipo gradiente sobre blanco" style={{ width: 56, height: 31, objectFit: 'contain' }} />
                 </div>
-                <div className="p-4">
-                  <p className={`text-xs font-bold mb-0.5 ${text}`}>Logo Marketing · isotipo-gradient.svg</p>
-                  <p className={`text-[10px] ${mutedText}`}>Para anuncios Meta/Google, web pública, materiales impresos y creatividades</p>
+                <div className="px-3 py-2 bg-white border-t border-gray-100">
+                  <p className="text-[11px] font-semibold text-gray-900 leading-tight">Blanco + Gradiente</p>
+                  <p className="text-[10px] text-gray-400 font-mono">isotipo-gradient.svg</p>
+                  <div className="flex gap-1 mt-1">
+                    <span className="inline-block w-3 h-3 rounded-full bg-[#FF07AB]" />
+                    <span className="inline-block w-3 h-3 rounded-full bg-[#FF4D4D]" />
+                  </div>
                 </div>
               </div>
-              <div className={`border rounded-2xl overflow-hidden ${cardBg}`}>
-                <div className="h-14 bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F43F5E] flex items-center justify-center">
-                  <p className="text-white font-bold text-xs tracking-wide">#8B5CF6 → #EC4899 → #F43F5E</p>
+
+              {/* 2 — fondo blanco + isotipo negro */}
+              <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
+                <div className="h-32 bg-white flex items-center justify-center">
+                  <img src="/isotipo-black.svg" alt="Isotipo negro sobre blanco" style={{ width: 56, height: 55, objectFit: 'contain' }} />
                 </div>
-                <div className="p-4">
-                  <p className={`text-xs font-bold mb-0.5 ${text}`}>Logo In-App · ItineramioLogo.tsx</p>
-                  <p className={`text-[10px] ${mutedText}`}>Para navbar de la app, pantallas de login, emails y dashboard</p>
+                <div className="px-3 py-2 bg-white border-t border-gray-100">
+                  <p className="text-[11px] font-semibold text-gray-900 leading-tight">Blanco + Negro</p>
+                  <p className="text-[10px] text-gray-400 font-mono">isotipo-black.svg</p>
+                  <div className="flex gap-1 mt-1">
+                    <span className="inline-block w-3 h-3 rounded-full bg-[#000000]" />
+                  </div>
+                </div>
+              </div>
+
+              {/* 3 — fondo negro + isotipo blanco */}
+              <div className="rounded-2xl overflow-hidden border border-gray-800 shadow-sm">
+                <div className="h-32 bg-black flex items-center justify-center">
+                  <img src="/isotipo-white.svg" alt="Isotipo blanco sobre negro" style={{ width: 56, height: 55, objectFit: 'contain' }} />
+                </div>
+                <div className="px-3 py-2 bg-[#111] border-t border-white/5">
+                  <p className="text-[11px] font-semibold text-white leading-tight">Negro + Blanco</p>
+                  <p className="text-[10px] text-white/30 font-mono">isotipo-white.svg</p>
+                  <div className="flex gap-1 mt-1">
+                    <span className="inline-block w-3 h-3 rounded-full bg-white border border-white/20" />
+                  </div>
+                </div>
+              </div>
+
+              {/* 4 — fondo negro + isotipo gradiente */}
+              <div className="rounded-2xl overflow-hidden border border-gray-800 shadow-sm">
+                <div className="h-32 bg-[#111] flex items-center justify-center">
+                  <img src="/isotipo-gradient.svg" alt="Isotipo gradiente sobre negro" style={{ width: 56, height: 31, objectFit: 'contain' }} />
+                </div>
+                <div className="px-3 py-2 bg-[#111] border-t border-white/5">
+                  <p className="text-[11px] font-semibold text-white leading-tight">Negro + Gradiente</p>
+                  <p className="text-[10px] text-white/30 font-mono">isotipo-gradient.svg</p>
+                  <div className="flex gap-1 mt-1">
+                    <span className="inline-block w-3 h-3 rounded-full bg-[#FF07AB]" />
+                    <span className="inline-block w-3 h-3 rounded-full bg-[#FF4D4D]" />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Uso */}
+            {/* ── Logos completos (con wordmark) ───────────────────── */}
+            <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${mutedText}`}>Logo completo</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
+
+              {/* Logo sobre blanco */}
+              <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
+                <div className="h-28 bg-white flex items-center justify-center px-10">
+                  <img src="/logo-itineramio.svg" alt="Logo completo claro" style={{ maxWidth: 180, maxHeight: 60, objectFit: 'contain' }} />
+                </div>
+                <div className="px-4 py-2.5 bg-white border-t border-gray-100">
+                  <p className="text-[11px] font-semibold text-gray-900">Logotipo claro · logo-itineramio.svg</p>
+                  <p className="text-[10px] text-gray-400">Web pública, materiales, emails, documentos</p>
+                </div>
+              </div>
+
+              {/* Logo sobre negro */}
+              <div className="rounded-2xl overflow-hidden border border-gray-800 shadow-sm">
+                <div className="h-28 bg-black flex items-center justify-center px-10">
+                  <img src="/logo-light.svg" alt="Logo completo oscuro" style={{ maxWidth: 180, maxHeight: 60, objectFit: 'contain' }} />
+                </div>
+                <div className="px-4 py-2.5 bg-[#111] border-t border-white/5">
+                  <p className="text-[11px] font-semibold text-white">Logotipo oscuro · logo-light.svg</p>
+                  <p className="text-[10px] text-white/30">Dashboard, dark mode, emails oscuros, ads dark</p>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Gradientes ───────────────────────────────────────── */}
+            <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${mutedText}`}>Gradientes de marca</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+              <div className="rounded-2xl overflow-hidden border border-gray-200">
+                <div className="h-12 bg-gradient-to-r from-[#FF07AB] via-[#FF2E76] to-[#FF4D4D]" />
+                <div className="px-4 py-2.5 bg-white border-t border-gray-100">
+                  <p className="text-[11px] font-bold text-gray-900">Isotipo Gradient</p>
+                  <p className="text-[10px] text-gray-400 font-mono">#FF07AB → #FF2E76 → #FF4D4D</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">Logotipo, marketing, ads, elementos hero</p>
+                </div>
+              </div>
+              <div className="rounded-2xl overflow-hidden border border-gray-200">
+                <div className="h-12 bg-gradient-to-r from-[#6366f1] via-[#7c3aed] to-[#8b5cf6]" />
+                <div className="px-4 py-2.5 bg-white border-t border-gray-100">
+                  <p className="text-[11px] font-bold text-gray-900">UI Gradient</p>
+                  <p className="text-[10px] text-gray-400 font-mono">#6366f1 → #7c3aed → #8b5cf6</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">Botones CTA, badges premium, iconos activos</p>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Clear space & tamaños mínimos ────────────────────── */}
+            <div className={`rounded-2xl p-6 border mb-6 ${isDark ? 'bg-[#0a0a0a] border-white/10' : 'bg-gray-50 border-gray-200'}`}>
+              <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${mutedText}`}>Clear space & tamaños mínimos</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: 'Mínimo web',    size: '80px',  context: 'Header / nav' },
+                  { label: 'Mínimo print',  size: '20mm',  context: 'Documentos PDF' },
+                  { label: 'Favicon',       size: '32px',  context: 'Browser tab' },
+                  { label: 'Clear space',   size: '1× altura', context: 'Alrededor del logo' },
+                ].map(s => (
+                  <div key={s.label}>
+                    <p className="text-xl font-bold bg-gradient-to-r from-[#FF07AB] to-[#FF4D4D] bg-clip-text text-transparent">{s.size}</p>
+                    <p className={`text-xs font-semibold ${text}`}>{s.label}</p>
+                    <p className={`text-[10px] ${mutedText}`}>{s.context}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Do / Don't ───────────────────────────────────────── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className={`border rounded-2xl p-5 ${isDark ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-emerald-50 border-emerald-200'}`}>
                 <p className="text-sm font-bold text-emerald-500 mb-3 flex items-center gap-2"><CheckCircle2 className="w-4 h-4" />Usar así</p>
                 <ul className="space-y-1.5">
-                  {['Sobre fondo blanco o claro con versión gradiente', 'Sobre fondo oscuro (#000, #111) con versión blanca', 'Siempre mantener proporciones 195:107', 'Tamaño mínimo: 80px de ancho', 'SVG siempre — nunca PNG para web'].map(t => (
+                  {[
+                    'Blanco + gradiente: fondos claros, marketing',
+                    'Negro + blanco: fondos oscuros, dark mode',
+                    'Negro + gradiente: hero sections, emails dark',
+                    'Blanco + negro: documentos, PDFs, monochrome',
+                    'SVG siempre — nunca PNG para pantallas',
+                    'Tamaño mínimo 80px de ancho',
+                  ].map(t => (
                     <li key={t} className={`text-xs flex items-start gap-2 ${mutedText}`}><Check className="w-3 h-3 text-emerald-400 mt-0.5 flex-shrink-0" />{t}</li>
                   ))}
                 </ul>
               </div>
               <div className={`border rounded-2xl p-5 ${isDark ? 'bg-red-500/5 border-red-500/20' : 'bg-red-50 border-red-200'}`}>
-                <p className="text-sm font-bold text-red-400 mb-3 flex items-center gap-2"><span className="w-4 h-4 rounded-full border-2 border-red-400 flex items-center justify-center"><span className="w-2 h-0.5 bg-red-400 block" /></span>Evitar</p>
+                <p className="text-sm font-bold text-red-400 mb-3 flex items-center gap-2"><span className="w-4 h-4 rounded-full border-2 border-red-400 flex items-center justify-center text-red-400 text-[10px] font-bold">✕</span>Evitar</p>
                 <ul className="space-y-1.5">
-                  {['No distorsionar ni cambiar proporciones', 'No cambiar los colores del gradiente', 'No usar versión negra sobre fondo oscuro', 'No añadir sombras o efectos al logo', 'No usar en tamaño menor de 80px de ancho'].map(t => (
+                  {[
+                    'No distorsionar ni cambiar proporciones',
+                    'No recolorear el gradiente del isotipo',
+                    'No usar versión negra sobre fondo oscuro',
+                    'No añadir sombras, drop shadows o efectos',
+                    'No girar ni voltear el símbolo',
+                    'No usar en tamaño menor de 80px de ancho',
+                  ].map(t => (
                     <li key={t} className={`text-xs flex items-start gap-2 ${mutedText}`}><span className="w-3 h-0.5 bg-red-400 mt-2 flex-shrink-0 block" />{t}</li>
                   ))}
                 </ul>
