@@ -192,7 +192,7 @@ const ZONE_ICONS = [
 // ─── Typography scale ──────────────────────────────────────────────────────
 
 const TYPOGRAPHY = [
-  { name: 'Display',  size: '4.5rem',   weight: '800', lh: '1',    sample: 'Crea guías que enamoran',   cls: 'text-[3.5rem] font-extrabold leading-none'   },
+  { name: 'Display',  size: '3.5rem',   weight: '800', lh: '1',    sample: 'Crea guías que enamoran',   cls: 'text-[3.5rem] font-extrabold leading-none'   },
   { name: 'H1',       size: '3rem',     weight: '700', lh: '1.1',  sample: 'Property Manual Creator',   cls: 'text-4xl font-bold leading-tight'             },
   { name: 'H2',       size: '2.25rem',  weight: '700', lh: '1.2',  sample: 'Zonas, pasos y medios',      cls: 'text-3xl font-bold leading-snug'              },
   { name: 'H3',       size: '1.875rem', weight: '600', lh: '1.3',  sample: 'Check-in sin fricción',      cls: 'text-2xl font-semibold'                       },
@@ -547,7 +547,8 @@ export default function StyleGuidePage() {
           <div className={`mt-8 pt-6 border-t ${border}`}>
             <p className={`text-[10px] font-semibold uppercase tracking-widest mb-3 ${subText}`}>Descargas</p>
             {[
-              { label: 'Isotipo gradiente', file: '/isotipo-gradient.svg' },
+              { label: 'Isotipo marketing', file: '/isotipo-gradient.svg' },
+              { label: 'Logo completo',     file: '/logo-itineramio.svg'  },
             ].map(({ label, file }) => (
               <a key={file} href={file} download className={`flex items-center gap-2 px-3 py-2 text-xs rounded-lg transition-all ${mutedText} hover:${text} ${isDark ? 'hover:bg-white/5' : 'hover:bg-gray-100'}`}>
                 <Download className="w-3 h-3" />{label}
@@ -581,7 +582,7 @@ export default function StyleGuidePage() {
                   Guía completa del sistema de diseño — colores, tipografía Inter, iconos Lucide, logotipo y pantallas del producto.
                 </p>
                 <div className="flex flex-wrap gap-3 mt-8">
-                  {[{ l: 'Colores', n: '24+' }, { l: 'Iconos Lucide', n: '100+' }, { l: 'Componentes', n: '80+' }, { l: 'Assets SVG', n: '3' }].map(({ l, n }) => (
+                  {[{ l: 'Colores', n: '24+' }, { l: 'Iconos Lucide', n: '100+' }, { l: 'Componentes', n: '80+' }, { l: 'Assets SVG', n: '2' }].map(({ l, n }) => (
                     <div key={l} className={`flex items-center gap-2 border rounded-xl px-4 py-2.5 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200 shadow-sm'}`}>
                       <span className={`font-bold text-sm ${text}`}>{n}</span>
                       <span className={`text-sm ${mutedText}`}>{l}</span>
@@ -705,14 +706,13 @@ export default function StyleGuidePage() {
             <div className={`mt-8 rounded-2xl overflow-hidden border ${isDark ? 'bg-[#111] border-white/10' : 'bg-gray-900 border-gray-700'}`}>
               <div className={`flex items-center justify-between px-5 py-3 border-b ${isDark ? 'border-white/5' : 'border-gray-700'}`}>
                 <span className="text-xs font-mono text-white/40">globals.css — CSS variables</span>
-                <button onClick={() => copy('--primary: 262 83% 58%;\n--brand: #6366f1;\n--brand-accent: #8b5cf6;', 'css')} className="flex items-center gap-1 text-[10px] text-white/30 hover:text-white/60">
+                <button onClick={() => copy('--primary: 262 83% 58%;\n--accent: 262 83% 58%;\n--background: 0 0% 100%;\n--radius: 0.75rem;', 'css')} className="flex items-center gap-1 text-[10px] text-white/30 hover:text-white/60">
                   {copied === 'css' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />} Copiar
                 </button>
               </div>
               <div className="p-5 font-mono text-[12px] leading-relaxed">
-                <p><span className="text-violet-400">--primary:</span> <span className="text-emerald-400">262 83% 58%</span>;</p>
-                <p><span className="text-violet-400">--brand:</span> <span className="text-amber-300">#6366f1</span>;</p>
-                <p><span className="text-violet-400">--brand-accent:</span> <span className="text-amber-300">#8b5cf6</span>;</p>
+                <p><span className="text-violet-400">--primary:</span> <span className="text-emerald-400">262 83% 58%</span>; <span className="text-white/20">/* violet-500 = #8b5cf6 */</span></p>
+                <p><span className="text-violet-400">--accent:</span> <span className="text-emerald-400">262 83% 58%</span>;</p>
                 <p><span className="text-violet-400">--background:</span> <span className="text-emerald-400">0 0% 100%</span>;</p>
                 <p><span className="text-violet-400">--radius:</span> <span className="text-emerald-400">0.75rem</span>;</p>
               </div>
