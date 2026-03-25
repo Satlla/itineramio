@@ -700,114 +700,130 @@ export default function StyleGuidePage() {
           <Section id="logos">
             <SectionHeader title="Logotipo" desc="Sistema de identidad visual de Itineramio — 3 variantes de isotipo para cada superficie y contexto de uso." theme={theme} num="02 —" />
 
-            {/* ── Hero — logo principal ─────────────────────────────── */}
+            {/* ── Hero — isotipo principal ──────────────────────────── */}
             <div className="relative rounded-3xl overflow-hidden mb-8 h-56 md:h-72 bg-black flex items-center justify-center">
               {/* gradient orbs */}
               <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-[80px] opacity-30 bg-[#FF07AB]" />
               <div className="absolute top-1/2 right-1/4 translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-[80px] opacity-30 bg-[#FF4D4D]" />
               <div className="relative z-10 flex flex-col items-center gap-4">
-                <img src="/isotipo-gradient.svg" alt="Itineramio isotipo gradiente" style={{ width: 90, height: 50, objectFit: 'contain' }} />
+                <img src="/isotipo-gradient.svg" alt="Itineramio isotipo" style={{ width: 90, height: 50, objectFit: 'contain' }} />
                 <div className="text-center">
                   <p className="text-white font-bold text-lg tracking-tight">Itineramio</p>
-                  <p className="text-white/40 text-xs font-mono mt-0.5">isotipo-gradient.svg · Variante principal</p>
+                  <p className="text-white/40 text-xs font-mono mt-0.5">Isotipo · variante gradiente — referencia</p>
                 </div>
               </div>
             </div>
 
-            {/* ── 4 variantes — grid 2×2 ───────────────────────────── */}
-            <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${mutedText}`}>Todas las variantes</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
+            {/* ── 4 variantes ───────────────────────────────────── */}
+            <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${mutedText}`}>Variantes del isotipo</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
 
-              {/* 1 — fondo blanco + isotipo gradiente */}
+              {/* V1 — fondo claro + isotipo gradiente */}
               <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
                 <div className="h-32 bg-white flex items-center justify-center">
-                  <img src="/isotipo-gradient.svg" alt="Isotipo gradiente sobre blanco" style={{ width: 48, height: 48, objectFit: 'contain' }} />
+                  <img src="/isotipo-gradient.svg" alt="Isotipo variante gradiente" style={{ width: 56, height: 31, objectFit: 'contain' }} />
                 </div>
-                <div className="px-3 py-2 bg-white border-t border-gray-100">
-                  <p className="text-[11px] font-semibold text-gray-900 leading-tight">Blanco + Gradiente</p>
-                  <p className="text-[10px] text-gray-400 font-mono">isotipo-gradient.svg</p>
-                  <div className="flex gap-1 mt-1">
+                <div className="px-3 py-2.5 bg-white border-t border-gray-100">
+                  <p className="text-[11px] font-semibold text-gray-900 leading-tight">Isotipo · gradiente</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">Fondo claro · marketing</p>
+                  <div className="flex gap-1 mt-1.5">
                     <span className="inline-block w-3 h-3 rounded-full bg-[#FF07AB]" />
                     <span className="inline-block w-3 h-3 rounded-full bg-[#FF4D4D]" />
                   </div>
                 </div>
               </div>
 
-              {/* 2 — fondo blanco + isotipo negro */}
+              {/* V2 — fondo claro + isotipo negro */}
               <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
                 <div className="h-32 bg-white flex items-center justify-center">
-                  <img src="/isotipo-black.svg" alt="Isotipo negro sobre blanco" style={{ width: 48, height: 48, objectFit: 'contain' }} />
+                  <img src="/isotipo-black.svg" alt="Isotipo negro" style={{ width: 48, height: 48, objectFit: 'contain' }} />
                 </div>
-                <div className="px-3 py-2 bg-white border-t border-gray-100">
-                  <p className="text-[11px] font-semibold text-gray-900 leading-tight">Blanco + Negro</p>
-                  <p className="text-[10px] text-gray-400 font-mono">isotipo-black.svg</p>
-                  <div className="flex gap-1 mt-1">
+                <div className="px-3 py-2.5 bg-white border-t border-gray-100">
+                  <p className="text-[11px] font-semibold text-gray-900 leading-tight">Isotipo · negro</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">Fondo claro · documentos, PDF</p>
+                  <div className="flex gap-1 mt-1.5">
                     <span className="inline-block w-3 h-3 rounded-full bg-[#111111]" />
                   </div>
                 </div>
               </div>
 
-              {/* 3 — fondo negro + isotipo blanco */}
+              {/* V3 — fondo oscuro + isotipo blanco */}
               <div className="rounded-2xl overflow-hidden border border-gray-800 shadow-sm">
                 <div className="h-32 bg-black flex items-center justify-center">
-                  <img src="/isotipo-white.svg" alt="Isotipo blanco sobre negro" style={{ width: 48, height: 48, objectFit: 'contain' }} />
+                  <img src="/isotipo-white.svg" alt="Isotipo blanco" style={{ width: 48, height: 48, objectFit: 'contain' }} />
                 </div>
-                <div className="px-3 py-2 bg-[#111] border-t border-white/5">
-                  <p className="text-[11px] font-semibold text-white leading-tight">Negro + Blanco</p>
-                  <p className="text-[10px] text-white/30 font-mono">isotipo-white.svg</p>
-                  <div className="flex gap-1 mt-1">
+                <div className="px-3 py-2.5 bg-[#111] border-t border-white/5">
+                  <p className="text-[11px] font-semibold text-white leading-tight">Isotipo · blanco</p>
+                  <p className="text-[10px] text-white/40 mt-0.5">Fondo oscuro · dark mode</p>
+                  <div className="flex gap-1 mt-1.5">
                     <span className="inline-block w-3 h-3 rounded-full bg-white border border-white/20" />
+                  </div>
+                </div>
+              </div>
+
+              {/* V4 — fondo oscuro + isotipo gradiente */}
+              <div className="rounded-2xl overflow-hidden border border-gray-800 shadow-sm">
+                <div className="h-32 bg-[#111] flex items-center justify-center">
+                  <img src="/isotipo-gradient.svg" alt="Isotipo variante gradiente oscuro" style={{ width: 56, height: 31, objectFit: 'contain' }} />
+                </div>
+                <div className="px-3 py-2.5 bg-[#111] border-t border-white/5">
+                  <p className="text-[11px] font-semibold text-white leading-tight">Isotipo · gradiente</p>
+                  <p className="text-[10px] text-white/40 mt-0.5">Fondo oscuro · hero, emails dark</p>
+                  <div className="flex gap-1 mt-1.5">
+                    <span className="inline-block w-3 h-3 rounded-full bg-[#FF07AB]" />
+                    <span className="inline-block w-3 h-3 rounded-full bg-[#FF4D4D]" />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* ── Logos completos (con wordmark) ───────────────────── */}
-            <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${mutedText}`}>Logo completo</p>
+            {/* ── Logotipo completo ────────────────────────────────── */}
+            <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${mutedText}`}>Logotipo completo</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
-
-              {/* Logo sobre blanco */}
               <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
                 <div className="h-28 bg-white flex items-center justify-center px-10">
-                  <img src="/logo-itineramio.svg" alt="Logo completo claro" style={{ maxWidth: 180, maxHeight: 60, objectFit: 'contain' }} />
+                  <img src="/logo-itineramio.svg" alt="Logotipo variante clara" style={{ maxWidth: 180, maxHeight: 60, objectFit: 'contain' }} />
                 </div>
                 <div className="px-4 py-2.5 bg-white border-t border-gray-100">
-                  <p className="text-[11px] font-semibold text-gray-900">Logotipo claro · logo-itineramio.svg</p>
-                  <p className="text-[10px] text-gray-400">Web pública, materiales, emails, documentos</p>
+                  <p className="text-[11px] font-semibold text-gray-900">Logotipo · variante clara</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">Web pública, materiales impresos, emails, documentos</p>
                 </div>
               </div>
-
-              {/* Logo sobre negro */}
               <div className="rounded-2xl overflow-hidden border border-gray-800 shadow-sm">
                 <div className="h-28 bg-black flex items-center justify-center px-10">
-                  <img src="/isotipo-white.svg" alt="Isotipo blanco sobre negro" style={{ width: 80, height: 80, objectFit: 'contain' }} />
+                  <img src="/isotipo-white.svg" alt="Isotipo blanco" style={{ width: 80, height: 80, objectFit: 'contain' }} />
                 </div>
                 <div className="px-4 py-2.5 bg-[#111] border-t border-white/5">
-                  <p className="text-[11px] font-semibold text-white">Logotipo oscuro · isotipo-white.svg</p>
-                  <p className="text-[10px] text-white/30">Dashboard, dark mode, emails oscuros, ads dark</p>
+                  <p className="text-[11px] font-semibold text-white">Logotipo · variante oscura</p>
+                  <p className="text-[10px] text-white/40 mt-0.5">Dashboard, dark mode, emails oscuros, anuncios dark</p>
                 </div>
               </div>
             </div>
 
-            {/* ── Gradientes ───────────────────────────────────────── */}
-            <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${mutedText}`}>Gradientes de marca</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-              <div className="rounded-2xl overflow-hidden border border-gray-200">
+            {/* ── Gradientes con reglas explícitas ─────────────────── */}
+            <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${mutedText}`}>Gradientes de identidad</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+              <div className={`rounded-2xl overflow-hidden border ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
                 <div className="h-12 bg-gradient-to-r from-[#FF07AB] via-[#FF2E76] to-[#FF4D4D]" />
-                <div className="px-4 py-2.5 bg-white border-t border-gray-100">
-                  <p className="text-[11px] font-bold text-gray-900">Isotipo Gradient</p>
-                  <p className="text-[10px] text-gray-400 font-mono">#FF07AB → #FF2E76 → #FF4D4D</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5">Logotipo, marketing, ads, elementos hero</p>
+                <div className={`px-4 py-3 border-t ${isDark ? 'bg-[#111] border-white/5' : 'bg-white border-gray-100'}`}>
+                  <p className={`text-[11px] font-bold ${text}`}>Gradiente de marca</p>
+                  <p className={`text-[10px] font-mono mt-0.5 ${mutedText}`}>#FF07AB → #FF2E76 → #FF4D4D</p>
+                  <p className="text-[10px] mt-1.5 font-medium text-emerald-500">✔ Isotipo, marketing, hero, emails, ads</p>
+                  <p className="text-[10px] mt-0.5 text-red-400">✕ Nunca en botones, estados UI ni componentes de producto</p>
                 </div>
               </div>
-              <div className="rounded-2xl overflow-hidden border border-gray-200">
+              <div className={`rounded-2xl overflow-hidden border ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
                 <div className="h-12 bg-gradient-to-r from-[#6366f1] via-[#7c3aed] to-[#8b5cf6]" />
-                <div className="px-4 py-2.5 bg-white border-t border-gray-100">
-                  <p className="text-[11px] font-bold text-gray-900">UI Gradient</p>
-                  <p className="text-[10px] text-gray-400 font-mono">#6366f1 → #7c3aed → #8b5cf6</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5">Botones CTA, badges premium, iconos activos</p>
+                <div className={`px-4 py-3 border-t ${isDark ? 'bg-[#111] border-white/5' : 'bg-white border-gray-100'}`}>
+                  <p className={`text-[11px] font-bold ${text}`}>Gradiente de interfaz</p>
+                  <p className={`text-[10px] font-mono mt-0.5 ${mutedText}`}>#6366f1 → #7c3aed → #8b5cf6</p>
+                  <p className="text-[10px] mt-1.5 font-medium text-emerald-500">✔ Botones CTA premium, badges, onboarding, empty states</p>
+                  <p className="text-[10px] mt-0.5 text-red-400">✕ Nunca en materiales de marketing externos ni ads</p>
                 </div>
               </div>
+            </div>
+            <div className={`rounded-xl px-4 py-3 mb-8 text-xs leading-relaxed ${isDark ? 'bg-amber-500/10 border border-amber-500/20 text-amber-300/80' : 'bg-amber-50 border border-amber-200 text-amber-700'}`}>
+              <span className="font-bold">Puente visual marca ↔ producto:</span> el gradiente de interfaz (violeta) puede aparecer en onboarding, empty states y modales de bienvenida — puntos donde el producto necesita impacto emocional. Esto conecta marketing y producto sin romper la coherencia de cada superficie.
             </div>
 
             {/* ── Clear space & tamaños mínimos ────────────────────── */}
@@ -835,11 +851,11 @@ export default function StyleGuidePage() {
                 <p className="text-sm font-bold text-emerald-500 mb-3 flex items-center gap-2"><CheckCircle2 className="w-4 h-4" />Usar así</p>
                 <ul className="space-y-1.5">
                   {[
-                    'Blanco + gradiente: fondos claros, marketing',
-                    'Negro + blanco: fondos oscuros, dark mode',
-                    'Negro + gradiente: hero sections, emails dark',
-                    'Blanco + negro: documentos, PDFs, monochrome',
-                    'SVG siempre — nunca PNG para pantallas',
+                    'Isotipo · gradiente sobre fondo claro: marketing',
+                    'Isotipo · gradiente sobre fondo oscuro: hero, emails dark',
+                    'Isotipo · blanco sobre fondo oscuro: dark mode, dashboard',
+                    'Isotipo · negro sobre fondo claro: documentos, PDF',
+                    'Formato SVG siempre — nunca PNG para pantallas',
                     'Tamaño mínimo 80px de ancho',
                   ].map(t => (
                     <li key={t} className={`text-xs flex items-start gap-2 ${mutedText}`}><Check className="w-3 h-3 text-emerald-400 mt-0.5 flex-shrink-0" />{t}</li>
@@ -885,10 +901,10 @@ export default function StyleGuidePage() {
               {['brand', 'accent', 'guide', 'semantic'].map(group => (
                 <div key={group}>
                   <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${subText}`}>
-                    {group === 'brand' ? '🖥 Dashboard — Indigo (foco, enlaces, variante)' :
-                     group === 'accent' ? '🖥 Dashboard — Violet (botones primarios, badges, gradientes)' :
-                     group === 'guide' ? '📱 Guía Pública — paleta Airbnb (huéspedes)' :
-                     'Semánticos (ambas superficies)'}
+                    {group === 'brand' ? 'Dashboard — Indigo · foco, enlaces, variante secundaria' :
+                     group === 'accent' ? 'Dashboard — Violet · acciones primarias, badges, gradiente UI' :
+                     group === 'guide' ? 'Guía pública — paleta Airbnb · texto e interfaz para huéspedes' :
+                     'Semánticos — ambas superficies (ver nota abajo)'}
                   </p>
                   <div className={`grid gap-2 ${group === 'semantic' || group === 'guide' ? 'grid-cols-3 sm:grid-cols-6' : 'grid-cols-4 sm:grid-cols-6 lg:grid-cols-10'}`}>
                     {COLORS[group as keyof typeof COLORS].map((c: any) => (
@@ -899,18 +915,36 @@ export default function StyleGuidePage() {
               ))}
             </div>
 
+            {/* Nota semánticos cross-superficie */}
+            <div className={`rounded-xl px-4 py-3 mt-2 text-xs leading-relaxed ${isDark ? 'bg-blue-500/10 border border-blue-500/20 text-blue-300/80' : 'bg-blue-50 border border-blue-200 text-blue-700'}`}>
+              <span className="font-bold">Semánticos cross-superficie — deliberado:</span> los colores de éxito, error y advertencia varían por superficie. Dashboard usa emerald-500/amber-500/red-500 (sistema Tailwind). Guía pública usa #008A05 para éxito (escala Airbnb). Esta diferencia es intencional — cada superficie tiene su propio contexto emocional. No unificar sin revisar ambas UIs.
+            </div>
+
             <div className={`mt-8 rounded-2xl overflow-hidden border ${isDark ? 'bg-[#111] border-white/10' : 'bg-gray-900 border-gray-700'}`}>
               <div className={`flex items-center justify-between px-5 py-3 border-b ${isDark ? 'border-white/5' : 'border-gray-700'}`}>
-                <span className="text-xs font-mono text-white/40">globals.css — CSS variables</span>
-                <button onClick={() => copy('--primary: 262 83% 58%;\n--accent: 262 83% 58%;\n--background: 0 0% 100%;\n--radius: 0.75rem;', 'css')} className="flex items-center gap-1 text-[10px] text-white/30 hover:text-white/60">
-                  {copied === 'css' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />} Copiar
+                <span className="text-xs font-mono text-white/40">globals.css — CSS variables (tokens completos)</span>
+                <button onClick={() => copy('/* Color tokens */\n--primary: 262 83% 58%;      /* violet-500 #8b5cf6 */\n--accent: 239 84% 67%;        /* indigo-500 #6366f1 */\n--background: 0 0% 100%;\n--foreground: 222 84% 5%;\n--radius: 0.75rem;\n\n/* Semantic tokens */\n--success: 142 76% 36%;       /* emerald-600 */\n--warning: 38 92% 50%;        /* amber-500 */\n--danger: 0 84% 60%;          /* red-500 */\n\n/* Spacing (8px base) */\n--space-1: 0.5rem;   /* 8px */\n--space-2: 1rem;     /* 16px */\n--space-3: 1.5rem;   /* 24px */\n--space-4: 2rem;     /* 32px */\n--space-6: 3rem;     /* 48px */\n--space-8: 4rem;     /* 64px */', 'css')} className="flex items-center gap-1 text-[10px] text-white/30 hover:text-white/60">
+                  {copied === 'css' ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />} Copiar todo
                 </button>
               </div>
-              <div className="p-5 font-mono text-[12px] leading-relaxed">
-                <p><span className="text-violet-400">--primary:</span> <span className="text-emerald-400">262 83% 58%</span>; <span className="text-white/20">/* violet-500 = #8b5cf6 */</span></p>
-                <p><span className="text-violet-400">--accent:</span> <span className="text-emerald-400">262 83% 58%</span>;</p>
+              <div className="p-5 font-mono text-[12px] leading-relaxed space-y-0.5">
+                <p className="text-white/20 mb-2">/* ── Color tokens ── */</p>
+                <p><span className="text-violet-400">--primary:</span> <span className="text-emerald-400">262 83% 58%</span>; <span className="text-white/20">/* violet-500 = #8b5cf6 — acciones primarias */</span></p>
+                <p><span className="text-violet-400">--accent:</span> <span className="text-emerald-400">239 84% 67%</span>; <span className="text-white/20">/* indigo-500 = #6366f1 — secundario */</span></p>
                 <p><span className="text-violet-400">--background:</span> <span className="text-emerald-400">0 0% 100%</span>;</p>
-                <p><span className="text-violet-400">--radius:</span> <span className="text-emerald-400">0.75rem</span>;</p>
+                <p><span className="text-violet-400">--foreground:</span> <span className="text-emerald-400">222 84% 5%</span>;</p>
+                <p><span className="text-violet-400">--radius:</span> <span className="text-emerald-400">0.75rem</span>; <span className="text-white/20">/* rounded-xl — base */</span></p>
+                <p className="text-white/20 mt-3 mb-2">/* ── Semantic tokens ── */</p>
+                <p><span className="text-violet-400">--success:</span> <span className="text-emerald-400">142 76% 36%</span>; <span className="text-white/20">/* emerald-600 */</span></p>
+                <p><span className="text-violet-400">--warning:</span> <span className="text-emerald-400">38 92% 50%</span>; <span className="text-white/20">/* amber-500 */</span></p>
+                <p><span className="text-violet-400">--danger:</span> <span className="text-emerald-400">0 84% 60%</span>; <span className="text-white/20">/* red-500 */</span></p>
+                <p className="text-white/20 mt-3 mb-2">/* ── Spacing — base 8px ── */</p>
+                <p><span className="text-violet-400">--space-1:</span> <span className="text-emerald-400">0.5rem</span>; <span className="text-white/20">/* 8px */</span></p>
+                <p><span className="text-violet-400">--space-2:</span> <span className="text-emerald-400">1rem</span>; <span className="text-white/20">/* 16px */</span></p>
+                <p><span className="text-violet-400">--space-3:</span> <span className="text-emerald-400">1.5rem</span>; <span className="text-white/20">/* 24px */</span></p>
+                <p><span className="text-violet-400">--space-4:</span> <span className="text-emerald-400">2rem</span>; <span className="text-white/20">/* 32px */</span></p>
+                <p><span className="text-violet-400">--space-6:</span> <span className="text-emerald-400">3rem</span>; <span className="text-white/20">/* 48px */</span></p>
+                <p><span className="text-violet-400">--space-8:</span> <span className="text-emerald-400">4rem</span>; <span className="text-white/20">/* 64px */</span></p>
               </div>
             </div>
           </Section>
@@ -1216,7 +1250,7 @@ export default function StyleGuidePage() {
 
               <div className={`rounded-2xl p-6 border ${cardBg}`}>
                 <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${subText}`}>Border Radius</p>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-3 mb-5">
                   {[
                     { n: 'rounded-sm',   v: '2px',    c: 'rounded-sm'   },
                     { n: 'rounded',      v: '4px',    c: 'rounded'      },
@@ -1232,6 +1266,71 @@ export default function StyleGuidePage() {
                       <div>
                         <p className={`text-[10px] font-mono ${isDark ? 'text-white/60' : 'text-gray-600'}`}>{n}</p>
                         <p className={`text-[9px] ${subText}`}>{v}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Mapa de uso por componente */}
+                <div className={`border-t pt-4 ${isDark ? 'border-white/5' : 'border-gray-100'}`}>
+                  <p className={`text-[10px] font-bold uppercase tracking-widest mb-3 ${subText}`}>Uso por componente</p>
+                  <div className="space-y-1.5">
+                    {[
+                      { comp: 'Botones',    token: 'rounded-md',   v: '6px'    },
+                      { comp: 'Inputs',     token: 'rounded-lg',   v: '8px'    },
+                      { comp: 'Cards',      token: 'rounded-lg',   v: '8px'    },
+                      { comp: 'Modales',    token: 'rounded-xl',   v: '12px'   },
+                      { comp: 'Badges',     token: 'rounded-full', v: '9999px' },
+                      { comp: 'Secciones hero', token: 'rounded-3xl', v: '24px' },
+                    ].map(({ comp, token, v }) => (
+                      <div key={comp} className="flex items-center justify-between">
+                        <span className={`text-[10px] ${isDark ? 'text-white/50' : 'text-gray-500'}`}>{comp}</span>
+                        <span className={`text-[10px] font-mono ${isDark ? 'text-violet-400/70' : 'text-violet-600'}`}>{token} · {v}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Spacing scale + icon sizes */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <div className={`rounded-2xl p-6 border ${cardBg}`}>
+                <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${subText}`}>Espaciado — base 8px</p>
+                <div className="space-y-2.5">
+                  {[
+                    { px: '8px',  tw: 'p-2 / gap-2'   },
+                    { px: '16px', tw: 'p-4 / gap-4'   },
+                    { px: '24px', tw: 'p-6 / gap-6'   },
+                    { px: '32px', tw: 'p-8 / gap-8'   },
+                    { px: '48px', tw: 'p-12 / gap-12' },
+                    { px: '64px', tw: 'p-16 / gap-16' },
+                  ].map(({ px, tw }) => (
+                    <div key={px} className="flex items-center gap-3">
+                      <div className="w-20 flex-shrink-0">
+                        <div className="h-1.5 bg-violet-500/40 rounded-full" style={{ width: `${parseInt(px) / 2}px` }} />
+                      </div>
+                      <span className={`text-[10px] font-mono ${isDark ? 'text-violet-400/70' : 'text-violet-600'}`}>{px}</span>
+                      <span className={`text-[9px] ${subText}`}>{tw}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className={`rounded-2xl p-6 border ${cardBg}`}>
+                <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${subText}`}>Tamaños de iconos por contexto</p>
+                <div className="space-y-2.5">
+                  {[
+                    { size: 12, tw: 'w-3 h-3',   ctx: 'Labels inline, metadata'        },
+                    { size: 16, tw: 'w-4 h-4',   ctx: 'Nav, inputs, botones pequeños'   },
+                    { size: 20, tw: 'w-5 h-5',   ctx: 'Uso estándar — default'          },
+                    { size: 24, tw: 'w-6 h-6',   ctx: 'Acciones primarias, headings'    },
+                    { size: 32, tw: 'w-8 h-8',   ctx: 'Cards, empty states'             },
+                    { size: 48, tw: 'w-12 h-12', ctx: 'Onboarding, ilustraciones hero'  },
+                  ].map(({ size, tw, ctx }) => (
+                    <div key={size} className="flex items-center gap-3">
+                      <Zap className="flex-shrink-0 text-violet-500" style={{ width: Math.min(size, 24), height: Math.min(size, 24) }} />
+                      <div>
+                        <span className={`text-[10px] font-mono ${isDark ? 'text-violet-400/70' : 'text-violet-600'}`}>{tw} · {size}px</span>
+                        <p className={`text-[9px] ${subText}`}>{ctx}</p>
                       </div>
                     </div>
                   ))}

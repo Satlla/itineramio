@@ -209,10 +209,15 @@ export async function POST(
     // Fire-and-forget: response is returned immediately, propagation runs in background.
     const propagate = async () => {
       try {
+        // Include properties that match by city name OR are already subscribed to this guide.
+        // The OR covers city name variants (e.g. "Alacant" vs "Alicante") that are already subscribed.
         const propertiesInCity = await prisma.property.findMany({
           where: {
-            city: { equals: guide.city, mode: 'insensitive' },
             deletedAt: null,
+            OR: [
+              { city: { equals: guide.city, mode: 'insensitive' } },
+              { guideSubscriptions: { some: { guideId: id, status: { not: 'UNSUBSCRIBED' } } } },
+            ],
           },
           select: { id: true, hostId: true },
         })
