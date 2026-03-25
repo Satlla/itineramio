@@ -454,7 +454,7 @@ export default function StyleGuidePage() {
       <div className={`border-b ${border} ${topbarBg} backdrop-blur-xl sticky top-0 z-50`}>
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={isDark ? '/isotipo-white.svg' : '/isotipo-gradient.png'} alt="Itineramio" style={{ width: 28, height: 28 }} />
+            <img src="/isotipo-gradient.png" alt="Itineramio" style={{ width: 28, height: 28 }} />
             <div className={`flex items-center gap-2 text-sm ${mutedText}`}>
               <span className={`font-semibold ${text}`}>Itineramio</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -507,9 +507,7 @@ export default function StyleGuidePage() {
           <div className={`mt-8 pt-6 border-t ${border}`}>
             <p className={`text-[10px] font-semibold uppercase tracking-widest mb-3 ${subText}`}>Descargas</p>
             {[
-              { label: 'Isotipo gradiente', file: '/isotipe.svg' },
-              { label: 'Isotipo negro',     file: '/isotipo-black.svg' },
-              { label: 'Isotipo blanco',    file: '/isotipo-white.svg' },
+              { label: 'Isotipo gradiente', file: '/isotipo-gradient.png' },
             ].map(({ label, file }) => (
               <a key={file} href={file} download className={`flex items-center gap-2 px-3 py-2 text-xs rounded-lg transition-all ${mutedText} hover:${text} ${isDark ? 'hover:bg-white/5' : 'hover:bg-gray-100'}`}>
                 <Download className="w-3 h-3" />{label}
@@ -533,7 +531,7 @@ export default function StyleGuidePage() {
                 </div>
                 {/* Logo principal en el hero */}
                 <div className="mb-6">
-                  <img src={isDark ? '/isotipo-white.svg' : '/isotipo-gradient.png'} alt="Itineramio" style={{ width: 100, height: 100, objectFit: 'contain' }} />
+                  <img src="/isotipo-gradient.png" alt="Itineramio" style={{ width: 100, height: 100, objectFit: 'contain' }} />
                 </div>
                 <h1 className={`text-4xl lg:text-5xl font-black leading-none mb-4 tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   Itineramio<br />
@@ -581,47 +579,11 @@ export default function StyleGuidePage() {
                 </div>
                 {/* Preview sobre fondo oscuro */}
                 <div className="h-64 bg-black flex items-center justify-center p-10">
-                  <img src="/isotipo-white.svg" alt="Logo blanco" style={{ width: 180, height: 180, objectFit: 'contain' }} />
+                  <img src="/isotipo-gradient.png" alt="Logo gradiente" style={{ width: 180, height: 180, objectFit: 'contain' }} />
                 </div>
               </div>
             </div>
 
-            {/* Variantes — negro y blanco */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              {/* Negro */}
-              <div className={`rounded-2xl overflow-hidden border ${cardBg}`}>
-                <div className="h-44 bg-white flex items-center justify-center p-8">
-                  <img src="/isotipo-black.svg" alt="Logo negro" style={{ width: 160, height: 80, objectFit: 'contain' }} />
-                </div>
-                <div className="p-5">
-                  <div className="flex items-start justify-between mb-1">
-                    <p className={`text-sm font-semibold ${text}`}>Negro</p>
-                    <span className={`text-[9px] px-2 py-0.5 rounded-full border font-medium ${isDark ? 'text-white/40 bg-white/5 border-white/10' : 'text-gray-500 bg-gray-100 border-gray-200'}`}>#000000</span>
-                  </div>
-                  <p className={`text-[11px] mb-4 ${mutedText}`}>Fondos claros — impresión y documentos en B/N</p>
-                  <a href="/isotipo-black.svg" download className={`flex items-center justify-center gap-2 py-2 rounded-xl border text-xs transition-colors w-full ${isDark ? 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10 hover:text-white/80' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}>
-                    <Download className="w-3.5 h-3.5" />Descargar SVG
-                  </a>
-                </div>
-              </div>
-
-              {/* Blanco */}
-              <div className={`rounded-2xl overflow-hidden border ${cardBg}`}>
-                <div className="h-44 bg-[#09090b] flex items-center justify-center p-8">
-                  <img src="/isotipo-white.svg" alt="Logo blanco" style={{ width: 160, height: 80, objectFit: 'contain' }} />
-                </div>
-                <div className="p-5">
-                  <div className="flex items-start justify-between mb-1">
-                    <p className={`text-sm font-semibold ${text}`}>Blanco</p>
-                    <span className={`text-[9px] px-2 py-0.5 rounded-full border font-medium ${isDark ? 'text-white/40 bg-white/5 border-white/10' : 'text-gray-500 bg-gray-100 border-gray-200'}`}>#ffffff</span>
-                  </div>
-                  <p className={`text-[11px] mb-4 ${mutedText}`}>Fondos oscuros — dark mode y pantallas negras</p>
-                  <a href="/isotipo-white.svg" download className={`flex items-center justify-center gap-2 py-2 rounded-xl border text-xs transition-colors w-full ${isDark ? 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10 hover:text-white/80' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}>
-                    <Download className="w-3.5 h-3.5" />Descargar SVG
-                  </a>
-                </div>
-              </div>
-            </div>
 
             {/* Uso */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
