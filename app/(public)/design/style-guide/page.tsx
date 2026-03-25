@@ -51,23 +51,47 @@ const INF_PATHS = [
   { type: 'stroke', d: 'M142.718 24.813L145.792 24.7246C146.589 24.71 147.323 24.0518 147.579 23.0997L155.469 5.73167C155.919 4.11302 155.004 2.48029 153.635 2.50019L134.58 2.61179C133.363 2.61419 132.551 4.24425 133.114 5.52823L140.854 23.4706C141.21 24.3187 141.92 24.8276 142.718 24.813Z', sw: 5 },
 ]
 
-function InfinityLogo({ color, gradient = false, size = 160 }: { color?: string, gradient?: boolean, size?: number }) {
+// Isotipo plano — solo los trazos del infinito (negro / blanco)
+function InfinityLogo({ color = '#000', size = 160 }: { color?: string, size?: number }) {
   const h = Math.round(size * (107 / 195))
-  const strokeColor = gradient ? 'url(#infGrad)' : (color ?? '#000')
-  const fillColor = gradient ? 'url(#infGrad)' : (color ?? '#000')
   return (
     <svg width={size} height={h} viewBox="0 0 195 107" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {gradient && (
-        <defs>
-          <linearGradient id="infGrad" x1="0" y1="0" x2="195" y2="107" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#8B5CF6" />
-            <stop offset="1" stopColor="#A855F7" />
-          </linearGradient>
-        </defs>
-      )}
       {INF_PATHS.map((p, i) => p.type === 'fill'
-        ? <path key={i} d={p.d} fill={fillColor} />
-        : <path key={i} d={p.d} stroke={strokeColor} strokeWidth={p.sw} strokeMiterlimit="10" strokeLinecap={p.cap ?? 'butt'} />
+        ? <path key={i} d={p.d} fill={color} />
+        : <path key={i} d={p.d} stroke={color} strokeWidth={p.sw} strokeMiterlimit="10" strokeLinecap={p.cap ?? 'butt'} />
+      )}
+    </svg>
+  )
+}
+
+// Logo principal — círculo con gradiente de marca + infinito en blanco
+// Gradiente real: #FF07AB → #FF2E76 → #FF4D4D
+const INF_BG_PATHS = [
+  { type: 'stroke', d: 'M176.396 141.485L165.662 150.42L185.499 166.606C186.399 167.343 187.443 167.963 188.583 168.421C192.296 169.901 200.828 172.265 211.037 166.64C225.895 158.436 217.7 142.186 216.232 140.327', sw: 10, cap: 'round' as const },
+  { type: 'fill',   d: 'M161.147 128.885C163.293 127.147 163.623 123.999 161.885 121.853C160.147 119.707 156.999 119.377 154.853 121.115L158 125L161.147 128.885ZM146 134.721L149.147 138.606L161.147 128.885L158 125L154.853 121.115L142.853 130.835L146 134.721Z', sw: 0 },
+  { type: 'stroke', d: 'M234.94 121.275C242.285 132.02 243.855 144.015 241.271 156.778', sw: 10 },
+  { type: 'stroke', d: 'M58.5862 155.54C58.5862 155.54 60.4098 169.501 72.3313 180.348C75.1856 182.954 84.882 191.312 99.766 192.314C119.627 193.667 132.923 180.911 135.015 178.84L150.43 163.444L165.827 178.859C171.047 184.083 177.425 188.019 184.476 190.211C195.102 193.503 210.447 194.842 224.748 183.423C234.969 175.265 239.486 165.506 241.27 156.778', sw: 10 },
+  { type: 'stroke', d: 'M151.898 134.322L129.687 111.713C129.297 111.33 128.871 110.978 128.425 110.658C124.008 107.427 101.343 93.2791 75.407 111.823C75.407 111.823 54.5 126.794 58.5857 155.556', sw: 10 },
+  { type: 'stroke', d: 'M117.089 130.417C116.731 130.053 116.352 129.739 115.939 129.438C112.874 127.169 100.906 119.307 88.2083 130.178C73.8205 142.497 82.9407 157.426 82.9407 157.426C82.9407 157.426 89.8289 170.604 103.304 170.07C103.304 170.07 111.166 170.679 115.453 166.275L135.096 147.244L117.089 130.417Z', sw: 10 },
+  { type: 'stroke', d: 'M210.32 130.789L206.323 125.806C205.345 124.578 205.492 122.957 206.665 121.988L224.321 107.308C225.378 106.441 227.135 106.627 228.001 107.728L233.704 114.837C234.572 115.921 234.379 117.374 233.237 118.172L214.316 131.393C213.108 132.231 211.27 131.959 210.32 130.789Z', sw: 5 },
+  { type: 'stroke', d: 'M167.379 108.375L162.983 112.577C161.906 113.614 161.842 115.163 162.828 116.224L177.656 132.291C178.545 133.241 180.227 133.285 181.182 132.355L187.454 126.358C188.41 125.444 188.41 124.048 187.432 123.153L171.227 108.305C170.192 107.363 168.423 107.389 167.379 108.375Z', sw: 5 },
+  { type: 'stroke', d: 'M195.773 121.574L198.847 121.485C199.645 121.471 200.379 120.813 200.635 119.86L208.525 102.492C208.975 100.874 208.06 99.241 206.691 99.2609L187.636 99.3725C186.419 99.3749 185.607 101.005 186.17 102.289L193.91 120.231C194.266 121.079 194.976 121.588 195.773 121.574Z', sw: 5 },
+]
+
+function InfinityLogoBadge({ size = 200 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="brandGrad" x1="150" y1="0" x2="150" y2="300" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FF07AB" />
+          <stop offset="0.557292" stopColor="#FF2E76" />
+          <stop offset="1" stopColor="#FF4D4D" />
+        </linearGradient>
+      </defs>
+      <circle cx="150" cy="150" r="150" fill="url(#brandGrad)" />
+      {INF_BG_PATHS.map((p, i) => p.type === 'fill'
+        ? <path key={i} d={p.d} fill="white" />
+        : <path key={i} d={p.d} stroke="white" strokeWidth={p.sw} strokeMiterlimit="10" strokeLinecap={p.cap ?? 'butt'} />
       )}
     </svg>
   )
@@ -430,8 +454,7 @@ export default function StyleGuidePage() {
       <div className={`border-b ${border} ${topbarBg} backdrop-blur-xl sticky top-0 z-50`}>
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* Logo infinito real en el topbar */}
-            <InfinityLogo color={isDark ? '#fff' : '#000'} size={32} />
+            <InfinityLogoBadge size={28} />
             <div className={`flex items-center gap-2 text-sm ${mutedText}`}>
               <span className={`font-semibold ${text}`}>Itineramio</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -508,9 +531,9 @@ export default function StyleGuidePage() {
                   <span className={`text-[10px] font-bold uppercase tracking-widest border px-3 py-1 rounded-full ${isDark ? 'text-violet-400 bg-violet-500/10 border-violet-500/20' : 'text-violet-600 bg-violet-100 border-violet-200'}`}>Design System</span>
                   <span className={`text-[10px] font-bold uppercase tracking-widest border px-3 py-1 rounded-full ${isDark ? 'text-white/20 bg-white/5 border-white/10' : 'text-gray-400 bg-gray-100 border-gray-200'}`}>v2.0 · 2026</span>
                 </div>
-                {/* Infinity mark en el hero */}
+                {/* Logo principal en el hero */}
                 <div className="mb-6">
-                  <InfinityLogo gradient size={120} />
+                  <InfinityLogoBadge size={100} />
                 </div>
                 <h1 className={`text-4xl lg:text-5xl font-black leading-none mb-4 tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
                   Itineramio<br />
@@ -547,29 +570,42 @@ export default function StyleGuidePage() {
 
           {/* ════ LOGOS ════ */}
           <Section id="logos">
-            <SectionHeader title="Logotipo" desc="El símbolo de Itineramio: el infinito. Tres versiones oficiales para cada contexto de uso. Descarga en SVG vectorial." theme={theme} />
+            <SectionHeader title="Logotipo" desc="El símbolo de Itineramio: el infinito. Logo principal con el gradiente de marca rosa–rojo, más las versiones para fondos claros y oscuros." theme={theme} />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              {/* Gradiente */}
-              <div className={`rounded-2xl overflow-hidden border ${cardBg}`}>
-                <div className="h-52 bg-white flex items-center justify-center p-8">
-                  <InfinityLogo gradient size={180} />
+            {/* Logo principal — destacado */}
+            <div className={`rounded-3xl overflow-hidden border mb-6 ${cardBg}`}>
+              <div className="grid grid-cols-1 md:grid-cols-2">
+                {/* Preview grande */}
+                <div className="h-64 bg-white flex items-center justify-center p-10 border-b md:border-b-0 md:border-r border-gray-100">
+                  <InfinityLogoBadge size={180} />
                 </div>
-                <div className="p-5">
-                  <div className="flex items-start justify-between mb-1">
-                    <p className={`text-sm font-semibold ${text}`}>Gradiente</p>
-                    <span className={`text-[9px] px-2 py-0.5 rounded-full border font-medium ${isDark ? 'text-violet-400 bg-violet-500/10 border-violet-500/20' : 'text-violet-600 bg-violet-100 border-violet-200'}`}>#8B5CF6 → #A855F7</span>
+                {/* Info */}
+                <div className="p-8 flex flex-col justify-center">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-pink-500 bg-pink-50 border border-pink-200 px-2.5 py-1 rounded-full w-fit mb-3">Logo principal</span>
+                  <h3 className={`text-xl font-bold mb-2 ${text}`}>Símbolo de infinito</h3>
+                  <p className={`text-sm mb-4 leading-relaxed ${mutedText}`}>Círculo con gradiente de marca + infinito en blanco. Versión principal para digital, redes sociales y branding.</p>
+                  {/* Gradiente swatches */}
+                  <div className="flex items-center gap-2 mb-5">
+                    {[['#FF07AB', 'Rosa'], ['#FF2E76', 'Rojo-rosa'], ['#FF4D4D', 'Rojo']].map(([hex, name]) => (
+                      <div key={hex} className="flex flex-col items-center gap-1">
+                        <div className="w-8 h-8 rounded-lg border border-black/10" style={{ backgroundColor: hex }} />
+                        <p className="text-[8px] font-mono text-gray-400">{hex}</p>
+                      </div>
+                    ))}
+                    <div className="flex-1 h-8 rounded-lg bg-gradient-to-r from-[#FF07AB] via-[#FF2E76] to-[#FF4D4D] ml-1" />
                   </div>
-                  <p className={`text-[11px] mb-4 ${mutedText}`}>Uso principal — fondos claros y blancos</p>
-                  <a href="/isotipe.svg" download className={`flex items-center justify-center gap-2 py-2 rounded-xl border text-xs transition-colors w-full ${isDark ? 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10 hover:text-white/80' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}>
-                    <Download className="w-3.5 h-3.5" />Descargar SVG
+                  <a href="/logo-itineramio-bg.svg" download className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border text-sm font-medium transition-colors w-full ${isDark ? 'bg-pink-500/10 border-pink-500/20 text-pink-400 hover:bg-pink-500/20' : 'bg-pink-50 border-pink-200 text-pink-600 hover:bg-pink-100'}`}>
+                    <Download className="w-4 h-4" />Descargar SVG
                   </a>
                 </div>
               </div>
+            </div>
 
+            {/* Variantes — negro y blanco */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               {/* Negro */}
               <div className={`rounded-2xl overflow-hidden border ${cardBg}`}>
-                <div className="h-52 bg-white flex items-center justify-center p-8">
+                <div className="h-44 bg-white flex items-center justify-center p-8">
                   <InfinityLogo color="#000000" size={180} />
                 </div>
                 <div className="p-5">
@@ -577,7 +613,7 @@ export default function StyleGuidePage() {
                     <p className={`text-sm font-semibold ${text}`}>Negro</p>
                     <span className={`text-[9px] px-2 py-0.5 rounded-full border font-medium ${isDark ? 'text-white/40 bg-white/5 border-white/10' : 'text-gray-500 bg-gray-100 border-gray-200'}`}>#000000</span>
                   </div>
-                  <p className={`text-[11px] mb-4 ${mutedText}`}>Fondos claros — impresión y documentos</p>
+                  <p className={`text-[11px] mb-4 ${mutedText}`}>Fondos claros — impresión y documentos en B/N</p>
                   <a href="/isotipo-black.svg" download className={`flex items-center justify-center gap-2 py-2 rounded-xl border text-xs transition-colors w-full ${isDark ? 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10 hover:text-white/80' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}>
                     <Download className="w-3.5 h-3.5" />Descargar SVG
                   </a>
@@ -586,7 +622,7 @@ export default function StyleGuidePage() {
 
               {/* Blanco */}
               <div className={`rounded-2xl overflow-hidden border ${cardBg}`}>
-                <div className="h-52 bg-[#09090b] flex items-center justify-center p-8">
+                <div className="h-44 bg-[#09090b] flex items-center justify-center p-8">
                   <InfinityLogo color="#ffffff" size={180} />
                 </div>
                 <div className="p-5">
@@ -594,7 +630,7 @@ export default function StyleGuidePage() {
                     <p className={`text-sm font-semibold ${text}`}>Blanco</p>
                     <span className={`text-[9px] px-2 py-0.5 rounded-full border font-medium ${isDark ? 'text-white/40 bg-white/5 border-white/10' : 'text-gray-500 bg-gray-100 border-gray-200'}`}>#ffffff</span>
                   </div>
-                  <p className={`text-[11px] mb-4 ${mutedText}`}>Fondos oscuros — dark mode y pantallas</p>
+                  <p className={`text-[11px] mb-4 ${mutedText}`}>Fondos oscuros — dark mode y pantallas negras</p>
                   <a href="/isotipo-white.svg" download className={`flex items-center justify-center gap-2 py-2 rounded-xl border text-xs transition-colors w-full ${isDark ? 'bg-white/5 border-white/10 text-white/50 hover:bg-white/10 hover:text-white/80' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-700'}`}>
                     <Download className="w-3.5 h-3.5" />Descargar SVG
                   </a>
