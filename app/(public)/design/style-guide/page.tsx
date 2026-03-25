@@ -41,65 +41,6 @@ function useCopy(timeout = 1500) {
   return { copied, copy }
 }
 
-// ─── Infinity logo paths (logo-itineramio.svg) ─────────────────────────────
-
-const INF_PATHS = [
-  { type: 'stroke', d: 'M123.34 44.7245L112.607 53.6594L132.443 69.8455C133.344 70.5824 134.387 71.2027 135.527 71.6601C139.241 73.1402 147.773 75.5045 157.981 69.8791C172.84 61.6754 164.645 45.4257 163.177 43.566', sw: 10, cap: 'round' as const },
-  { type: 'fill',   d: 'M108.092 32.1245C110.237 30.3864 110.568 27.2378 108.83 25.0921C107.091 22.9463 103.943 22.6159 101.797 24.3541L104.944 28.2393L108.092 32.1245ZM92.9446 37.9599L96.0918 41.8452L108.092 32.1245L104.944 28.2393L101.797 24.3541L89.7973 34.0747L92.9446 37.9599Z', sw: 0 },
-  { type: 'stroke', d: 'M181.884 24.5146C189.23 35.2595 190.799 47.2539 188.215 60.0171', sw: 10 },
-  { type: 'stroke', d: 'M5.53057 58.7791C5.53057 58.7791 7.35412 72.7401 19.2757 83.5876C22.13 86.1931 31.8263 94.551 46.7103 95.5529C66.571 96.9067 79.8677 84.1505 81.9592 82.0792L97.3746 66.6829L112.771 82.0984C117.991 87.322 124.37 91.2585 131.42 93.4503C142.047 96.7418 157.391 98.0816 171.693 86.6627C181.913 78.5043 186.43 68.7455 188.215 60.0176', sw: 10 },
-  { type: 'stroke', d: 'M98.842 37.5615L76.6314 14.9518C76.2412 14.569 75.8151 14.2169 75.3698 13.8969C70.9518 10.6665 48.2872 -3.48163 22.3513 15.0626C22.3513 15.0626 1.44432 30.0334 5.53005 58.7954', sw: 10 },
-  { type: 'stroke', d: 'M64.0331 33.6563C63.675 33.2927 63.2964 32.9779 62.8831 32.6772C59.818 30.408 47.8499 22.5458 35.1527 33.4173C20.7648 45.7363 29.885 60.6655 29.885 60.6655C29.885 60.6655 36.7732 73.8435 50.2481 73.3088C50.2481 73.3088 58.11 73.9178 62.3971 69.5146L82.0403 50.483L64.0331 33.6563Z', sw: 10 },
-  { type: 'stroke', d: 'M157.264 34.028L153.267 29.0456C152.289 27.8172 152.436 26.196 153.61 25.2273L171.265 10.5469C172.323 9.68064 174.079 9.86666 174.945 10.9677L180.648 18.0767C181.517 19.1606 181.323 20.6136 180.182 21.4109L161.26 34.6319C160.052 35.4701 158.214 35.198 157.264 34.028Z', sw: 5 },
-  { type: 'stroke', d: 'M114.324 11.614L109.927 15.8166C108.85 16.8537 108.786 18.4023 109.773 19.4635L124.6 35.5303C125.49 36.4803 127.171 36.5247 128.126 35.5938L134.399 29.5975C135.355 28.6831 135.354 27.2875 134.376 26.392L118.171 11.5442C117.136 10.6018 115.367 10.6286 114.324 11.614Z', sw: 5 },
-  { type: 'stroke', d: 'M142.718 24.813L145.792 24.7246C146.589 24.71 147.323 24.0518 147.579 23.0997L155.469 5.73167C155.919 4.11302 155.004 2.48029 153.635 2.50019L134.58 2.61179C133.363 2.61419 132.551 4.24425 133.114 5.52823L140.854 23.4706C141.21 24.3187 141.92 24.8276 142.718 24.813Z', sw: 5 },
-]
-
-// Isotipo plano — solo los trazos del infinito (negro / blanco)
-function InfinityLogo({ color = '#000', size = 160 }: { color?: string, size?: number }) {
-  const h = Math.round(size * (107 / 195))
-  return (
-    <svg width={size} height={h} viewBox="0 0 195 107" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {INF_PATHS.map((p, i) => p.type === 'fill'
-        ? <path key={i} d={p.d} fill={color} />
-        : <path key={i} d={p.d} stroke={color} strokeWidth={p.sw} strokeMiterlimit="10" strokeLinecap={p.cap ?? 'butt'} />
-      )}
-    </svg>
-  )
-}
-
-// Logo principal — círculo con gradiente de marca + infinito en blanco
-// Gradiente real: #FF07AB → #FF2E76 → #FF4D4D
-const INF_BG_PATHS = [
-  { type: 'stroke', d: 'M176.396 141.485L165.662 150.42L185.499 166.606C186.399 167.343 187.443 167.963 188.583 168.421C192.296 169.901 200.828 172.265 211.037 166.64C225.895 158.436 217.7 142.186 216.232 140.327', sw: 10, cap: 'round' as const },
-  { type: 'fill',   d: 'M161.147 128.885C163.293 127.147 163.623 123.999 161.885 121.853C160.147 119.707 156.999 119.377 154.853 121.115L158 125L161.147 128.885ZM146 134.721L149.147 138.606L161.147 128.885L158 125L154.853 121.115L142.853 130.835L146 134.721Z', sw: 0 },
-  { type: 'stroke', d: 'M234.94 121.275C242.285 132.02 243.855 144.015 241.271 156.778', sw: 10 },
-  { type: 'stroke', d: 'M58.5862 155.54C58.5862 155.54 60.4098 169.501 72.3313 180.348C75.1856 182.954 84.882 191.312 99.766 192.314C119.627 193.667 132.923 180.911 135.015 178.84L150.43 163.444L165.827 178.859C171.047 184.083 177.425 188.019 184.476 190.211C195.102 193.503 210.447 194.842 224.748 183.423C234.969 175.265 239.486 165.506 241.27 156.778', sw: 10 },
-  { type: 'stroke', d: 'M151.898 134.322L129.687 111.713C129.297 111.33 128.871 110.978 128.425 110.658C124.008 107.427 101.343 93.2791 75.407 111.823C75.407 111.823 54.5 126.794 58.5857 155.556', sw: 10 },
-  { type: 'stroke', d: 'M117.089 130.417C116.731 130.053 116.352 129.739 115.939 129.438C112.874 127.169 100.906 119.307 88.2083 130.178C73.8205 142.497 82.9407 157.426 82.9407 157.426C82.9407 157.426 89.8289 170.604 103.304 170.07C103.304 170.07 111.166 170.679 115.453 166.275L135.096 147.244L117.089 130.417Z', sw: 10 },
-  { type: 'stroke', d: 'M210.32 130.789L206.323 125.806C205.345 124.578 205.492 122.957 206.665 121.988L224.321 107.308C225.378 106.441 227.135 106.627 228.001 107.728L233.704 114.837C234.572 115.921 234.379 117.374 233.237 118.172L214.316 131.393C213.108 132.231 211.27 131.959 210.32 130.789Z', sw: 5 },
-  { type: 'stroke', d: 'M167.379 108.375L162.983 112.577C161.906 113.614 161.842 115.163 162.828 116.224L177.656 132.291C178.545 133.241 180.227 133.285 181.182 132.355L187.454 126.358C188.41 125.444 188.41 124.048 187.432 123.153L171.227 108.305C170.192 107.363 168.423 107.389 167.379 108.375Z', sw: 5 },
-  { type: 'stroke', d: 'M195.773 121.574L198.847 121.485C199.645 121.471 200.379 120.813 200.635 119.86L208.525 102.492C208.975 100.874 208.06 99.241 206.691 99.2609L187.636 99.3725C186.419 99.3749 185.607 101.005 186.17 102.289L193.91 120.231C194.266 121.079 194.976 121.588 195.773 121.574Z', sw: 5 },
-]
-
-function InfinityLogoBadge({ size = 200 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="brandGrad" x1="150" y1="0" x2="150" y2="300" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#FF07AB" />
-          <stop offset="0.557292" stopColor="#FF2E76" />
-          <stop offset="1" stopColor="#FF4D4D" />
-        </linearGradient>
-      </defs>
-      <circle cx="150" cy="150" r="150" fill="url(#brandGrad)" />
-      {INF_BG_PATHS.map((p, i) => p.type === 'fill'
-        ? <path key={i} d={p.d} fill="white" />
-        : <path key={i} d={p.d} stroke="white" strokeWidth={p.sw} strokeMiterlimit="10" strokeLinecap={p.cap ?? 'butt'} />
-      )}
-    </svg>
-  )
-}
 
 // ─── Color data ────────────────────────────────────────────────────────────
 
@@ -332,7 +273,7 @@ function DashboardScreen() {
       <div className="bg-white border-b border-neutral-100 px-4 h-12 flex items-center justify-between flex-shrink-0 shadow-sm">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-            <InfinityLogo color="#fff" size={16} />
+            <img src="/isotipo-white.svg" alt="Itineramio" style={{ width: 14, height: 14, objectFit: 'contain' }} />
           </div>
           <span className="font-semibold text-gray-800 text-[11px]">Itineramio</span>
         </div>
@@ -757,7 +698,7 @@ export default function StyleGuidePage() {
 
           {/* ════ LOGOS ════ */}
           <Section id="logos">
-            <SectionHeader title="Logotipo" desc="Sistema de identidad visual de Itineramio — 4 variantes de isotipo para cada superficie y contexto de uso." theme={theme} num="02 —" />
+            <SectionHeader title="Logotipo" desc="Sistema de identidad visual de Itineramio — 3 variantes de isotipo para cada superficie y contexto de uso." theme={theme} num="02 —" />
 
             {/* ── Hero — logo principal ─────────────────────────────── */}
             <div className="relative rounded-3xl overflow-hidden mb-8 h-56 md:h-72 bg-black flex items-center justify-center">
@@ -775,12 +716,12 @@ export default function StyleGuidePage() {
 
             {/* ── 4 variantes — grid 2×2 ───────────────────────────── */}
             <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${mutedText}`}>Todas las variantes</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
 
               {/* 1 — fondo blanco + isotipo gradiente */}
               <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
                 <div className="h-32 bg-white flex items-center justify-center">
-                  <img src="/isotipo-gradient.svg" alt="Isotipo gradiente sobre blanco" style={{ width: 56, height: 31, objectFit: 'contain' }} />
+                  <img src="/isotipo-gradient.svg" alt="Isotipo gradiente sobre blanco" style={{ width: 48, height: 48, objectFit: 'contain' }} />
                 </div>
                 <div className="px-3 py-2 bg-white border-t border-gray-100">
                   <p className="text-[11px] font-semibold text-gray-900 leading-tight">Blanco + Gradiente</p>
@@ -795,11 +736,11 @@ export default function StyleGuidePage() {
               {/* 2 — fondo blanco + isotipo negro */}
               <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
                 <div className="h-32 bg-white flex items-center justify-center">
-                  <InfinityLogo color="#111111" size={56} />
+                  <img src="/isotipo-black.svg" alt="Isotipo negro sobre blanco" style={{ width: 48, height: 48, objectFit: 'contain' }} />
                 </div>
                 <div className="px-3 py-2 bg-white border-t border-gray-100">
                   <p className="text-[11px] font-semibold text-gray-900 leading-tight">Blanco + Negro</p>
-                  <p className="text-[10px] text-gray-400 font-mono">InfinityLogo color="#111111"</p>
+                  <p className="text-[10px] text-gray-400 font-mono">isotipo-black.svg</p>
                   <div className="flex gap-1 mt-1">
                     <span className="inline-block w-3 h-3 rounded-full bg-[#111111]" />
                   </div>
@@ -809,28 +750,13 @@ export default function StyleGuidePage() {
               {/* 3 — fondo negro + isotipo blanco */}
               <div className="rounded-2xl overflow-hidden border border-gray-800 shadow-sm">
                 <div className="h-32 bg-black flex items-center justify-center">
-                  <InfinityLogo color="#ffffff" size={56} />
+                  <img src="/isotipo-white.svg" alt="Isotipo blanco sobre negro" style={{ width: 48, height: 48, objectFit: 'contain' }} />
                 </div>
                 <div className="px-3 py-2 bg-[#111] border-t border-white/5">
                   <p className="text-[11px] font-semibold text-white leading-tight">Negro + Blanco</p>
-                  <p className="text-[10px] text-white/30 font-mono">InfinityLogo color="#ffffff"</p>
+                  <p className="text-[10px] text-white/30 font-mono">isotipo-white.svg</p>
                   <div className="flex gap-1 mt-1">
                     <span className="inline-block w-3 h-3 rounded-full bg-white border border-white/20" />
-                  </div>
-                </div>
-              </div>
-
-              {/* 4 — fondo negro + isotipo gradiente */}
-              <div className="rounded-2xl overflow-hidden border border-gray-800 shadow-sm">
-                <div className="h-32 bg-[#111] flex items-center justify-center">
-                  <img src="/isotipo-gradient.svg" alt="Isotipo gradiente sobre negro" style={{ width: 56, height: 31, objectFit: 'contain' }} />
-                </div>
-                <div className="px-3 py-2 bg-[#111] border-t border-white/5">
-                  <p className="text-[11px] font-semibold text-white leading-tight">Negro + Gradiente</p>
-                  <p className="text-[10px] text-white/30 font-mono">isotipo-gradient.svg</p>
-                  <div className="flex gap-1 mt-1">
-                    <span className="inline-block w-3 h-3 rounded-full bg-[#FF07AB]" />
-                    <span className="inline-block w-3 h-3 rounded-full bg-[#FF4D4D]" />
                   </div>
                 </div>
               </div>
@@ -854,10 +780,10 @@ export default function StyleGuidePage() {
               {/* Logo sobre negro */}
               <div className="rounded-2xl overflow-hidden border border-gray-800 shadow-sm">
                 <div className="h-28 bg-black flex items-center justify-center px-10">
-                  <img src="/logo-light.svg" alt="Logo completo oscuro" style={{ maxWidth: 180, maxHeight: 60, objectFit: 'contain' }} />
+                  <img src="/isotipo-white.svg" alt="Isotipo blanco sobre negro" style={{ width: 80, height: 80, objectFit: 'contain' }} />
                 </div>
                 <div className="px-4 py-2.5 bg-[#111] border-t border-white/5">
-                  <p className="text-[11px] font-semibold text-white">Logotipo oscuro · logo-light.svg</p>
+                  <p className="text-[11px] font-semibold text-white">Logotipo oscuro · isotipo-white.svg</p>
                   <p className="text-[10px] text-white/30">Dashboard, dark mode, emails oscuros, ads dark</p>
                 </div>
               </div>
@@ -1471,7 +1397,7 @@ export default function StyleGuidePage() {
           {/* Footer */}
           <div className={`border-t pt-10 pb-16 flex flex-col sm:flex-row items-center justify-between gap-4 ${border}`}>
             <div className="flex items-center gap-3">
-              <InfinityLogo color={isDark ? '#fff' : '#000'} size={28} />
+              <img src={isDark ? '/isotipo-white.svg' : '/isotipo-black.svg'} alt="Itineramio" style={{ width: 28, height: 28, objectFit: 'contain' }} />
               <span className={`text-xs ${subText}`}>Itineramio Design System · v2.0 · 2026</span>
             </div>
             <div className={`flex items-center gap-4 text-xs ${subText}`}>
