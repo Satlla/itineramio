@@ -478,9 +478,10 @@ function MultiLangChatMini() {
 
 // ─── MAIN ───────────────────────────────────────────────────────────────────
 export default function Landing2En() {
-  const [scrolled, setScrolled] = useState(false)
-  const [mob, setMob]           = useState(false)
-  const [faqOpen, setFaqOpen]   = useState<number|null>(null)
+  const [scrolled, setScrolled]             = useState(false)
+  const [mob, setMob]                       = useState(false)
+  const [faqOpen, setFaqOpen]               = useState<number|null>(null)
+  const [beforeAfterTab, setBeforeAfterTab] = useState<'before'|'after'>('before')
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20)

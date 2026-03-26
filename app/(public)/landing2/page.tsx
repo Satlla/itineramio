@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence, useInView, useScroll, useTransform } from 'framer-motion'
-import { ArrowRight, ChevronDown, ChevronLeft, Star, Wifi, DoorOpen, MessageCircle, Menu, X, Bot, Car, FileText, UtensilsCrossed, Check, LogOut, XCircle, CheckCircle2, Droplets, Sun, Leaf, Activity, Flame, ClipboardList, Thermometer, Heart, RefreshCcw, Phone, Lightbulb } from 'lucide-react'
+import { ArrowRight, ChevronDown, ChevronLeft, Star, Wifi, DoorOpen, MessageCircle, Menu, X, Bot, Car, FileText, UtensilsCrossed, Check, LogOut, XCircle, CheckCircle2, LogIn, Flame, ClipboardList, Wind, RotateCcw, Timer, Compass, Coffee } from 'lucide-react'
 import { Inter, Manrope } from 'next/font/google'
 
 const inter   = Inter({ subsets: ['latin'], display: 'swap' })
@@ -324,28 +324,20 @@ function DemoWidget() {
 // ─── ZONES CAROUSEL ─────────────────────────────────────────────────────────
 const ALL_ZONE_SETS_ES = [
   [
-    { label:'Entrada',       icon:<DoorOpen className="w-4 h-4"/> },
-    { label:'WiFi',          icon:<Wifi className="w-4 h-4"/> },
-    { label:'Normas',        icon:<FileText className="w-4 h-4"/> },
-    { label:'Parking',       icon:<Car className="w-4 h-4"/> },
-    { label:'Cocina',        icon:<UtensilsCrossed className="w-4 h-4"/> },
-    { label:'Salida',        icon:<LogOut className="w-4 h-4"/> },
+    { label:'Check-in',        icon:<LogIn className="w-4 h-4"/> },
+    { label:'Check-out',       icon:<LogOut className="w-4 h-4"/> },
+    { label:'WiFi',            icon:<Wifi className="w-4 h-4"/> },
+    { label:'Normas',          icon:<ClipboardList className="w-4 h-4"/> },
+    { label:'Parking',         icon:<Car className="w-4 h-4"/> },
+    { label:'Aire A/C',        icon:<Wind className="w-4 h-4"/> },
   ],
   [
-    { label:'Piscina',       icon:<Droplets className="w-4 h-4"/> },
-    { label:'Terraza',       icon:<Sun className="w-4 h-4"/> },
-    { label:'Jardín',        icon:<Leaf className="w-4 h-4"/> },
-    { label:'Garaje',        icon:<Car className="w-4 h-4"/> },
-    { label:'Gym',           icon:<Activity className="w-4 h-4"/> },
-    { label:'BBQ',           icon:<Flame className="w-4 h-4"/> },
-  ],
-  [
-    { label:'Check-in',      icon:<ClipboardList className="w-4 h-4"/> },
-    { label:'Climatización', icon:<Thermometer className="w-4 h-4"/> },
-    { label:'Mascotas',      icon:<Heart className="w-4 h-4"/> },
-    { label:'Reciclaje',     icon:<RefreshCcw className="w-4 h-4"/> },
-    { label:'Emergencias',   icon:<Phone className="w-4 h-4"/> },
-    { label:'Recomend.',     icon:<Lightbulb className="w-4 h-4"/> },
+    { label:'Vitrocerámica',   icon:<Flame className="w-4 h-4"/> },
+    { label:'Lavadora',        icon:<RotateCcw className="w-4 h-4"/> },
+    { label:'Microondas',      icon:<Timer className="w-4 h-4"/> },
+    { label:'Restaurantes',    icon:<UtensilsCrossed className="w-4 h-4"/> },
+    { label:'Qué ver',         icon:<Compass className="w-4 h-4"/> },
+    { label:'Coffee Shops',    icon:<Coffee className="w-4 h-4"/> },
   ],
 ]
 
@@ -487,9 +479,10 @@ function MultiLangChatMini() {
 
 // ─── MAIN ───────────────────────────────────────────────────────────────────
 export default function Landing2() {
-  const [scrolled, setScrolled] = useState(false)
-  const [mob, setMob]           = useState(false)
-  const [faqOpen, setFaqOpen]   = useState<number|null>(null)
+  const [scrolled, setScrolled]             = useState(false)
+  const [mob, setMob]                       = useState(false)
+  const [faqOpen, setFaqOpen]               = useState<number|null>(null)
+  const [beforeAfterTab, setBeforeAfterTab] = useState<'before'|'after'>('before')
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20)
@@ -550,7 +543,7 @@ export default function Landing2() {
         <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.45 }}
           className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50 px-5 py-2 text-sm text-violet-700 font-medium mb-8">
           <span className="w-1.5 h-1.5 rounded-full bg-violet-600 animate-pulse"/>
-          Para anfitriones con 6 a 10 pisos en España
+          Para anfitriones con 6 a 10 apartamentos en España
         </motion.div>
 
         <motion.h1 initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.7, delay:0.1 }}
@@ -645,45 +638,8 @@ export default function Landing2() {
             </motion.div>
           </div>
 
-          {/* Row 2: 3 smaller cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
-            {/* Card 3: Envío automático */}
-            <motion.div initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.12 }}
-              className="rounded-[20px] overflow-hidden" style={{ backgroundColor:'#f5f3f0' }}>
-              <div className="h-36 flex items-center justify-center px-6 pt-6">
-                <div className="flex flex-col gap-2 w-full max-w-[220px]">
-                  <motion.div className="flex items-center gap-2.5 bg-white rounded-[12px] px-3 py-2.5"
-                    style={{ boxShadow:'0 2px 8px rgba(0,0,0,0.06)' }}
-                    initial={{ opacity:0, x:-10 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:0.2 }}>
-                    <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs">✓</div>
-                    <div>
-                      <p className="text-[10px] font-semibold text-[#111]">Reserva confirmada</p>
-                      <p className="text-[9px] text-[#aaa]">Airbnb · hace 2 seg</p>
-                    </div>
-                  </motion.div>
-                  <motion.div className="flex items-center gap-2.5 bg-violet-600 rounded-[12px] px-3 py-2.5"
-                    animate={{ opacity:[0.85,1,0.85] }}
-                    transition={{ repeat:Infinity, duration:2, ease:'easeInOut' }}
-                    initial={{ opacity:0, x:-10 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }}>
-                    <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white text-xs">→</div>
-                    <div>
-                      <p className="text-[10px] font-semibold text-white">Guía enviada</p>
-                      <p className="text-[9px] text-violet-200">Al huésped automáticamente</p>
-                    </div>
-                  </motion.div>
-                </div>
-              </div>
-              <div className="px-5 pb-5 pt-3">
-                <p className="text-[11px] font-semibold text-[#aaa] uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-full bg-violet-600 inline-block"/>
-                  Envío automático
-                </p>
-                <p className="text-[13px] text-[#555] leading-relaxed font-normal">
-                  Haz que se envíe automáticamente al confirmarse la reserva. Sin tocar nada.
-                </p>
-              </div>
-            </motion.div>
+          {/* Row 2: 2 smaller cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
             {/* Card 4: Multi-idioma */}
             <motion.div initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.17 }}
@@ -985,8 +941,8 @@ export default function Landing2() {
             {[
               { title:'Copiar y pegar en WhatsApp o Airbnb', body:'El huésped recibe un mensaje largo entre otros veinte. No lo lee. Tú acabas repitiéndolo igual. El problema no es el canal. Es que un mensaje largo compite con todo lo demás en su bandeja.' },
               { title:'Un PDF con las instrucciones', body:'Nadie abre un PDF en el móvil. Y si lo abren, no encuentran lo que buscan porque está todo junto. Sin zonas. Sin estructura. Sin chatbot que resuelva dudas.' },
-              { title:'La guía integrada de Airbnb', body:'Funciona para un piso. No para ocho. No se traduce sola. No se envía automáticamente al confirmar. No tiene chatbot. Y no cubre Booking.com.' },
-              { title:'No hacer nada y "ya va bien"', body:'Va bien hasta que no va. Un check-in mal, una reseña de 4 estrellas, y la posición baja. A partir de 6 pisos, "ya va bien" es una apuesta que se paga con la nota.' },
+              { title:'La guía integrada de Airbnb', body:'Funciona para un apartamento. No para ocho. No se traduce sola. No tiene chatbot. Y no cubre Booking.com.' },
+              { title:'No hacer nada y "ya va bien"', body:'Va bien hasta que no va. Un check-in mal, una reseña de 4 estrellas, y la posición baja. A partir de 6 apartamentos, "ya va bien" es una apuesta que se paga con la nota.' },
             ].map((item, i) => (
               <motion.div key={i} initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:i*0.08 }}
                 className="rounded-[20px] p-7 border border-black/[0.07]" style={{ backgroundColor:'#f5f3f0' }}>
@@ -1013,7 +969,7 @@ export default function Landing2() {
               {[
                 'Con 2 o 3 apartamentos tiras. Con 6, 7 u 8, ya no. Empiezas a vivir entre mensajes, accesos, dudas y reseñas.',
                 'Ahí es donde dejar de hacerlo todo manualmente deja de ser comodidad y pasa a ser necesidad.',
-                'Con seis pisos, lo manual muere. Ahí empiezan las repeticiones, los mensajes y la sensación de no llegar a todo. Si has cruzado ese punto, lo sabes.',
+                'Con seis apartamentos, lo manual muere. Ahí empiezan las repeticiones, los mensajes y la sensación de no llegar a todo. Si has cruzado ese punto, lo sabes.',
               ].map((text, i) => (
                 <motion.p key={i} variants={fadeUp} className="text-[16px] text-[#999] leading-relaxed font-normal">{text}</motion.p>
               ))}
