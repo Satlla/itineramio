@@ -246,12 +246,6 @@ function DemoWidget() {
         <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs font-bold">✓</div>
         <div><p className="text-xs font-semibold text-[#111]">Guía enviada</p><p className="text-[10px] text-[#aaa]">Reserva confirmada</p></div>
       </motion.div>
-      <motion.div initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.1 }}
-        className="absolute -right-12 bottom-14 hidden lg:block bg-white rounded-2xl px-3.5 py-2.5" style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.09)' }}>
-        <div className="flex gap-0.5 mb-1">{[1,2,3,4,5].map(i=><Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400"/>)}</div>
-        <p className="text-[10px] font-medium text-[#111]">4,98 · Superhost</p>
-        <p className="text-[9px] text-[#aaa] mt-0.5">Airbnb · Barcelona</p>
-      </motion.div>
     </div>
   )
 }
