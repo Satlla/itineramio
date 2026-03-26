@@ -3,7 +3,10 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ChevronDown, Check, Star, Wifi, DoorOpen, MessageCircle, Menu, X, Bot, Zap, Globe, Bell } from 'lucide-react'
+import { ArrowRight, ChevronDown, Star, Wifi, DoorOpen, MessageCircle, Menu, X, Bot, Zap, Globe, Bell } from 'lucide-react'
+import { Manrope } from 'next/font/google'
+
+const manrope = Manrope({ subsets: ['latin'], weight: ['300', '400', '500', '600', '700', '800'], display: 'swap' })
 
 // ─── ANIMATION VARIANTS ───────────────────────────────────────────────────────
 const fadeUp = {
@@ -86,19 +89,25 @@ const FAQS = [
 ]
 
 // ─── ANIMATED DEMO ────────────────────────────────────────────────────────────
+// Positions are % of 320px-tall content div
+// Header ~44px (13.75%) — chat button at right edge
+// Zone row: header(44) + p-4 top(16) + half-card(~30) = 90px → 90/320 = 28%
+// Horizontal: 4 equal cols, padding 16px each side
+//   Col1(WiFi) center ≈ 13%, Col2(Entrada) ≈ 38%, Col3 ≈ 62%, Col4 ≈ 87%
+// Chat button: right side of header → cx≈84, cy≈7
 const SEQ = [
-  { cx: 35, cy: 50, click: false, zone: null as null|string, chat: false, msg: 0, dur: 900 },
-  { cx: 27, cy: 50, click: false, zone: null,      chat: false, msg: 0, dur: 550 },
-  { cx: 27, cy: 50, click: true,  zone: 'wifi',    chat: false, msg: 0, dur: 650 },
-  { cx: 27, cy: 50, click: false, zone: 'wifi',    chat: false, msg: 0, dur: 950 },
-  { cx: 65, cy: 50, click: false, zone: 'wifi',    chat: false, msg: 0, dur: 600 },
-  { cx: 65, cy: 50, click: true,  zone: 'entrada', chat: false, msg: 0, dur: 650 },
-  { cx: 65, cy: 50, click: false, zone: 'entrada', chat: false, msg: 0, dur: 800 },
-  { cx: 87, cy: 82, click: false, zone: 'entrada', chat: false, msg: 0, dur: 650 },
-  { cx: 87, cy: 82, click: true,  zone: 'entrada', chat: true,  msg: 0, dur: 550 },
-  { cx: 87, cy: 82, click: false, zone: 'entrada', chat: true,  msg: 1, dur: 850 },
-  { cx: 87, cy: 82, click: false, zone: 'entrada', chat: true,  msg: 2, dur: 1000 },
-  { cx: 87, cy: 82, click: false, zone: 'entrada', chat: true,  msg: 3, dur: 2800 },
+  { cx: 50, cy: 50, click: false, zone: null as null|string, chat: false, msg: 0, dur: 900 },
+  { cx: 13, cy: 28, click: false, zone: null,      chat: false, msg: 0, dur: 550 },
+  { cx: 13, cy: 28, click: true,  zone: 'wifi',    chat: false, msg: 0, dur: 650 },
+  { cx: 13, cy: 28, click: false, zone: 'wifi',    chat: false, msg: 0, dur: 950 },
+  { cx: 38, cy: 28, click: false, zone: 'wifi',    chat: false, msg: 0, dur: 600 },
+  { cx: 38, cy: 28, click: true,  zone: 'entrada', chat: false, msg: 0, dur: 650 },
+  { cx: 38, cy: 28, click: false, zone: 'entrada', chat: false, msg: 0, dur: 800 },
+  { cx: 84, cy:  7, click: false, zone: 'entrada', chat: false, msg: 0, dur: 650 },
+  { cx: 84, cy:  7, click: true,  zone: 'entrada', chat: true,  msg: 0, dur: 550 },
+  { cx: 84, cy:  7, click: false, zone: 'entrada', chat: true,  msg: 1, dur: 850 },
+  { cx: 84, cy:  7, click: false, zone: 'entrada', chat: true,  msg: 2, dur: 1000 },
+  { cx: 84, cy:  7, click: false, zone: 'entrada', chat: true,  msg: 3, dur: 2800 },
 ]
 
 const ZONES = [
@@ -135,12 +144,12 @@ function DemoWidget() {
           <div className="flex items-center justify-between px-5 py-3 border-b border-black/[0.05]">
             <div className="flex items-center gap-2">
               <img src="/isotipo-gradient.svg" alt="" width={18} height={10} className="object-contain" />
-              <span className="text-xs font-bold text-[#111]">Apartamento Barceloneta</span>
+              <span className="text-xs font-semibold text-[#111]">Apartamento Barceloneta</span>
             </div>
             <motion.button
               animate={s.chat ? { backgroundColor: '#7c3aed', color: '#fff' } : { backgroundColor: '#ede9ff', color: '#7c3aed' }}
               transition={{ duration: 0.25 }}
-              className="text-[10px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5"
+              className="text-[10px] font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5"
             >
               <MessageCircle className="w-3 h-3" /> Chatbot
             </motion.button>
@@ -155,10 +164,10 @@ function DemoWidget() {
                   className="rounded-xl border p-2.5 flex flex-col gap-1.5 cursor-default"
                 >
                   <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all duration-200 ${active ? 'bg-violet-700 text-white' : 'bg-white text-[#777]'}`}>{z.icon}</div>
-                  <span className="text-[10px] font-bold text-[#111]">{z.label}</span>
+                  <span className="text-[10px] font-medium text-[#111]">{z.label}</span>
                   <AnimatePresence>
                     {active && (
-                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ type: 'spring', stiffness: 340, damping: 30, mass: 0.8 }} className="overflow-hidden">
                         {z.detail.map((l, i) => <p key={i} className="text-[9px] text-violet-700 leading-snug">{l}</p>)}
                       </motion.div>
                     )}
@@ -174,8 +183,8 @@ function DemoWidget() {
                 <div className="flex items-center gap-2 px-4 py-2.5 border-b border-black/[0.05]">
                   <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center"><Bot className="w-3.5 h-3.5 text-violet-700" /></div>
                   <div>
-                    <p className="text-[11px] font-bold text-[#111]">Asistente IA</p>
-                    <p className="text-[9px] text-green-500 font-semibold">● En línea</p>
+                    <p className="text-[11px] font-semibold text-[#111]">Asistente IA</p>
+                    <p className="text-[9px] text-green-500 font-medium">● En línea</p>
                   </div>
                 </div>
                 <div className="flex-1 p-3.5 flex flex-col justify-end gap-2.5 overflow-hidden">
@@ -234,12 +243,12 @@ function DemoWidget() {
       <motion.div initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.9 }}
         className="absolute -left-12 top-14 hidden lg:flex items-center gap-2.5 bg-white rounded-2xl px-3.5 py-2.5" style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.09)' }}>
         <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs font-bold">✓</div>
-        <div><p className="text-xs font-bold text-[#111]">Guía enviada</p><p className="text-[10px] text-[#aaa]">Reserva confirmada</p></div>
+        <div><p className="text-xs font-semibold text-[#111]">Guía enviada</p><p className="text-[10px] text-[#aaa]">Reserva confirmada</p></div>
       </motion.div>
       <motion.div initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.1 }}
         className="absolute -right-12 bottom-14 hidden lg:block bg-white rounded-2xl px-3.5 py-2.5" style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.09)' }}>
         <div className="flex gap-0.5 mb-1">{[1,2,3,4,5].map(i=><Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400"/>)}</div>
-        <p className="text-[10px] font-bold text-[#111]">"Todo perfecto desde el primer día"</p>
+        <p className="text-[10px] font-medium text-[#111]">"Todo perfecto desde el primer día"</p>
         <p className="text-[9px] text-[#aaa] mt-0.5">Airbnb · hace 2 días</p>
       </motion.div>
     </div>
@@ -287,8 +296,8 @@ export default function Landing2() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-white text-[#111] overflow-x-hidden"
-      style={{ fontFamily: 'Inter, system-ui, sans-serif', WebkitFontSmoothing: 'antialiased' } as React.CSSProperties}>
+    <div className={`${manrope.className} min-h-screen bg-white text-[#111] overflow-x-hidden`}
+      style={{ WebkitFontSmoothing: 'antialiased' } as React.CSSProperties}>
 
       {/* ── NAV ── */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md' : 'bg-transparent'}`}
@@ -296,7 +305,7 @@ export default function Landing2() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <img src="/isotipo-gradient.svg" alt="Itineramio" width={28} height={16} className="object-contain" />
-            <span className="font-bold text-[15px]">Itineramio</span>
+            <span className="font-semibold text-[15px]">Itineramio</span>
           </Link>
           <div className="hidden md:flex items-center gap-7">
             {[['Producto','#features'],['Cómo funciona','#how'],['Testimonios','#testimonials'],['FAQ','#faq']].map(([l,h]) => (
@@ -305,7 +314,7 @@ export default function Landing2() {
           </div>
           <div className="flex items-center gap-3">
             <Link href="/login" className="hidden sm:block text-sm text-[#666] hover:text-[#111] font-medium transition-colors">Entrar</Link>
-            <Link href="/register" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-bold text-white transition-all"
+            <Link href="/register" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all"
               style={{ backgroundColor: '#7c3aed', boxShadow: '0 2px 12px rgba(124,58,237,0.3)' }}>
               Empieza gratis <ArrowRight className="w-3.5 h-3.5" />
             </Link>
@@ -351,17 +360,17 @@ export default function Landing2() {
         </motion.div>
 
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
-          className="text-base font-semibold text-[#111] mb-10">
+          className="text-base font-medium text-[#444] mb-10">
           Crea la guía una vez. Haz que se envíe sola.
         </motion.p>
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
           className="flex flex-col sm:flex-row items-center gap-4 mb-3">
-          <Link href="/register" className="group inline-flex items-center gap-2.5 px-8 py-4 rounded-full font-bold text-base text-white transition-all"
+          <Link href="/register" className="group inline-flex items-center gap-2.5 px-8 py-4 rounded-full font-semibold text-base text-white transition-all"
             style={{ backgroundColor: '#7c3aed', boxShadow: '0 4px 20px rgba(124,58,237,0.35)' }}>
             Empieza gratis <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
-          <Link href="/demo" className="inline-flex items-center gap-2 border border-black/10 text-[#666] hover:text-[#111] hover:border-black/20 px-8 py-4 rounded-full font-semibold text-base transition-all">
+          <Link href="/demo" className="inline-flex items-center gap-2 border border-black/10 text-[#666] hover:text-[#111] hover:border-black/20 px-8 py-4 rounded-full font-medium text-base transition-all">
             Ver demo
           </Link>
         </motion.div>
@@ -389,7 +398,7 @@ export default function Landing2() {
               <span className="font-semibold text-[#111]">Tu solución completa </span>
               <span className="font-light text-[#aaa]">para la comunicación con huéspedes.</span>
             </motion.h2>
-            <motion.p variants={fadeUp} className="text-base font-semibold text-[#111] mt-4">Más rápido. Sin repeticiones.</motion.p>
+            <motion.p variants={fadeUp} className="text-base font-medium text-[#555] mt-4">Más rápido. Sin repeticiones.</motion.p>
           </motion.div>
 
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}
@@ -404,8 +413,8 @@ export default function Landing2() {
                   {f.icon}
                 </div>
                 <div>
-                  <h3 className="text-[17px] font-bold text-[#111] mb-2">{f.title}</h3>
-                  <p className="text-[15px] text-[#666] leading-relaxed">{f.body}</p>
+                  <h3 className="text-[17px] font-semibold text-[#111] mb-2">{f.title}</h3>
+                  <p className="text-[15px] text-[#666] leading-relaxed font-normal">{f.body}</p>
                 </div>
               </motion.div>
             ))}
@@ -432,14 +441,14 @@ export default function Landing2() {
             ].map((s, i) => (
               <motion.div key={i} variants={fadeUp} whileHover={{ y: -3, transition: { duration: 0.18 } }}
                 className="rounded-[20px] p-8 flex flex-col gap-5" style={{ backgroundColor: '#f5f3f0' }}>
-                <span className="font-bold text-[#111]/[0.06] leading-none select-none" style={{ fontSize: '4.5rem' }}>{s.n}</span>
-                <h3 className="text-[17px] font-bold text-[#111]">{s.title}</h3>
-                <p className="text-[15px] text-[#666] leading-relaxed">{s.body}</p>
+                <span className="font-semibold text-[#111]/[0.06] leading-none select-none" style={{ fontSize: '4.5rem' }}>{s.n}</span>
+                <h3 className="text-[17px] font-semibold text-[#111]">{s.title}</h3>
+                <p className="text-[15px] text-[#666] leading-relaxed font-normal">{s.body}</p>
               </motion.div>
             ))}
           </motion.div>
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="mt-8 flex justify-start">
-            <Link href="/register" className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-bold text-sm text-white transition-all"
+            <Link href="/register" className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm text-white transition-all"
               style={{ backgroundColor: '#7c3aed' }}>
               Empieza ahora <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
@@ -481,7 +490,7 @@ export default function Landing2() {
                   { stat: '10 min', label: 'setup inicial' },
                 ].map(m => (
                   <div key={m.label} className="rounded-xl p-3" style={{ backgroundColor: '#f5f3f0' }}>
-                    <p className="font-semibold text-[#111] text-xl leading-none">{m.stat}</p>
+                    <p className="font-semibold text-[#111] text-lg leading-none">{m.stat}</p>
                     <p className="text-[11px] text-[#888] mt-1">{m.label}</p>
                   </div>
                 ))}
@@ -495,23 +504,23 @@ export default function Landing2() {
                 <span className="font-semibold text-[#111]">Resultados reales </span>
                 <span className="font-light text-[#aaa]">en tus reservas.</span>
               </h2>
-              <p className="text-[15px] text-[#666] leading-relaxed mb-8">
+              <p className="text-[15px] text-[#666] leading-relaxed mb-8 font-normal">
                 Lo que quema no es el trabajo. Es la repetición. Dónde se entra. Dónde se aparca. Cuál es la clave. Qué hacer al salir.
               </p>
-              <Link href="/register" className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm text-white"
+              <Link href="/register" className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm text-white"
                 style={{ backgroundColor: '#111' }}>
                 Ver demo
               </Link>
 
               {/* Featured quote — like arini's $56k quote */}
               <div className="mt-8 border-t border-black/[0.06] pt-8">
-                <p className="text-[17px] font-medium text-[#111] leading-relaxed mb-5">
+                <p className="text-[17px] font-normal text-[#111] leading-relaxed mb-5">
                   "Llevo 3 meses sin que nadie me pregunte por el acceso. Una guía. Un envío automático. Eso es lo importante."
                 </p>
                 <div className="flex items-center gap-3">
                   <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Carmen" width={40} height={40} className="rounded-full object-cover" />
                   <div>
-                    <p className="text-sm font-bold text-[#111]">Carmen R.</p>
+                    <p className="text-sm font-semibold text-[#111]">Carmen R.</p>
                     <p className="text-xs text-[#aaa]">7 apartamentos · Barcelona</p>
                   </div>
                 </div>
@@ -534,9 +543,9 @@ export default function Landing2() {
               <div className="space-y-4 text-[15px] text-[#666] leading-relaxed mb-8">
                 <p>El huésped recibe el enlace con la confirmación. Sin app. Sin registro. Abre la guía en el móvil y ve entrada, WiFi, normas y parking.</p>
                 <p>Si tiene alguna duda, el chatbot responde en su idioma usando la información que tú has configurado.</p>
-                <p className="font-bold text-[#111] text-lg">Cuando activas eso, dejas de repetir lo mismo en cada reserva.</p>
+                <p className="font-semibold text-[#111] text-base">Cuando activas eso, dejas de repetir lo mismo en cada reserva.</p>
               </div>
-              <Link href="/register" className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-bold text-sm text-white transition-all"
+              <Link href="/register" className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm text-white transition-all"
                 style={{ backgroundColor: '#7c3aed' }}>
                 Crear mi primera guía <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
@@ -567,13 +576,13 @@ export default function Landing2() {
               <div className="flex gap-1 mb-8">
                 {Array.from({ length: TESTIMONIALS[tIdx].stars }).map((_,i) => <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />)}
               </div>
-              <p className="font-medium text-[#111] leading-relaxed mb-10" style={{ fontSize: 'clamp(1.1rem, 2vw, 1.4rem)' }}>
+              <p className="font-normal text-[#111] leading-relaxed mb-10" style={{ fontSize: 'clamp(1.1rem, 2vw, 1.4rem)' }}>
                 "{TESTIMONIALS[tIdx].quote}"
               </p>
               <div className="flex items-center gap-4">
                 <img src={TESTIMONIALS[tIdx].avatar} alt={TESTIMONIALS[tIdx].name} width={52} height={52} className="rounded-full object-cover" style={{ boxShadow: '0 0 0 3px rgba(124,58,237,0.15)' }} />
                 <div>
-                  <p className="font-bold text-[#111] text-base">{TESTIMONIALS[tIdx].name}</p>
+                  <p className="font-semibold text-[#111] text-base">{TESTIMONIALS[tIdx].name}</p>
                   <p className="text-[#aaa] text-sm mt-0.5">{TESTIMONIALS[tIdx].role}</p>
                 </div>
               </div>
@@ -626,7 +635,7 @@ export default function Landing2() {
               className="border-t border-black/[0.08]">
               <button onClick={() => setFaqOpen(faqOpen === i ? null : i)}
                 className="w-full flex items-start justify-between gap-6 py-7 text-left">
-                <span className={`text-[16px] font-semibold leading-snug transition-colors ${faqOpen === i ? 'text-violet-700' : 'text-[#111]'}`}>{faq.q}</span>
+                <span className={`text-[16px] font-medium leading-snug transition-colors ${faqOpen === i ? 'text-violet-700' : 'text-[#111]'}`}>{faq.q}</span>
                 <ChevronDown className={`w-5 h-5 text-[#aaa] shrink-0 mt-0.5 transition-transform duration-200 ${faqOpen === i ? 'rotate-180' : ''}`} />
               </button>
               <AnimatePresence initial={false}>
@@ -654,7 +663,7 @@ export default function Landing2() {
           <p className="text-[#555] text-lg mb-12 max-w-lg mx-auto leading-relaxed">
             Empieza por entrada, WiFi y normas. Ese primer paso ya te quita repeticiones y evita más de una duda de última hora.
           </p>
-          <Link href="/register" className="group inline-flex items-center gap-3 bg-white text-[#111] px-10 py-5 rounded-full font-semibold text-xl hover:bg-violet-50 transition-all"
+          <Link href="/register" className="group inline-flex items-center gap-3 bg-white text-[#111] px-10 py-5 rounded-full font-semibold text-lg hover:bg-violet-50 transition-all"
             style={{ boxShadow: '0 0 50px rgba(124,58,237,0.2)' }}>
             Empieza gratis <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
           </Link>
@@ -669,7 +678,7 @@ export default function Landing2() {
             <div className="col-span-2 sm:col-span-1">
               <Link href="/" className="flex items-center gap-2 mb-5">
                 <img src="/isotipo-gradient.svg" alt="Itineramio" width={24} height={14} className="object-contain" />
-                <span className="font-bold text-sm">Itineramio</span>
+                <span className="font-semibold text-sm">Itineramio</span>
               </Link>
               <p className="text-[#aaa] text-sm leading-relaxed">Guías digitales y chatbot IA para anfitriones con 6 o más propiedades en España.</p>
             </div>
@@ -679,7 +688,7 @@ export default function Landing2() {
               { title: 'Legal', links: ['Privacidad', 'Términos', 'Cookies'] },
             ].map(col => (
               <div key={col.title}>
-                <p className="text-[11px] font-bold uppercase tracking-widest text-[#111] mb-5">{col.title}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-[#111] mb-5">{col.title}</p>
                 <ul className="space-y-3">
                   {col.links.map(item => <li key={item}><Link href="#" className="text-[#aaa] text-sm hover:text-[#111] transition-colors">{item}</Link></li>)}
                 </ul>
