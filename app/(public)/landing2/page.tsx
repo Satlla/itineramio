@@ -22,29 +22,29 @@ const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } }
 const FEATURES = [
   {
     icon: <Zap className="w-6 h-6" />,
-    title: 'Guías automáticas',
-    body: 'Crea la guía una vez y haz que se envíe automáticamente al confirmarse la reserva. Así llegan sabiendo cómo entrar, dónde aparcar y cuál es la clave del WiFi.',
+    title: 'Los huéspedes no leen, y tú lo sabes.',
+    body: 'Por eso acabas repitiendo el WiFi, la entrada y las normas cada semana. Haz que les llegue antes de venir y deja de perseguir mensajes.',
     wide: true,
   },
   {
+    icon: <Wifi className="w-6 h-6" />,
+    title: 'He enviado el WiFi más que saludos.',
+    body: 'Si gestionas varios apartamentos, sabes lo que es repetir WiFi, normas y acceso cada día. Crea una guía una vez y haz que se mande sola cuando entra la reserva.',
+  },
+  {
+    icon: <DoorOpen className="w-6 h-6" />,
+    title: 'El peor mensaje no es una queja.',
+    body: 'Es este: "no podemos entrar". Suele llegar cuando estás cenando, conduciendo o con otro check-in encima. Haz que las instrucciones lleguen antes de la llegada.',
+  },
+  {
+    icon: <Star className="w-6 h-6" />,
+    title: '4 estrellas por confusión duelen.',
+    body: 'No porque sea grave, sino porque sabes que se podía haber evitado. Si el huésped llega sin tener claro el acceso o las normas, el riesgo sube. Mejor que llegue informado.',
+  },
+  {
     icon: <Bot className="w-6 h-6" />,
-    title: 'Chatbot en su idioma',
-    body: 'El huésped pregunta. El chatbot responde usando la información de tu apartamento. 24/7, sin ti.',
-  },
-  {
-    icon: <Globe className="w-6 h-6" />,
-    title: 'Sin app ni registro',
-    body: 'El huésped abre la guía en el navegador del móvil. Sin descarga. Sin fricción.',
-  },
-  {
-    icon: <Bell className="w-6 h-6" />,
-    title: 'Envío automático',
-    body: 'Pega el enlace en Airbnb o Booking. Cada reserva recibe la guía correcta.',
-  },
-  {
-    icon: <MessageCircle className="w-6 h-6" />,
-    title: 'Multiidioma',
-    body: 'Español, inglés, francés. El chatbot detecta y responde. Configuras una sola vez.',
+    title: 'No agota tener huéspedes.',
+    body: 'Agota responder lo mismo veinte veces. Dónde se entra. Dónde se aparca. Cuál es la clave. Qué hacer al salir. Haz que la información llegue antes y sal de esa rueda.',
   },
 ]
 
@@ -53,21 +53,21 @@ const TESTIMONIALS = [
     quote: 'Los huéspedes no leen, ya está. Pero desde que uso Itineramio llegan con todo claro. Tres meses sin que nadie me pregunte por el acceso.',
     name: 'Carmen R.',
     role: 'Anfitriona · 7 apartamentos · Barcelona',
-    avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+    avatar: '/avatar-carmen.jpg',
     stars: 5,
   },
   {
-    quote: 'El chatbot responde en inglés, francés y alemán sin que yo toque nada. Mis valoraciones subieron medio punto en dos meses.',
+    quote: 'Con seis pisos ya no puedes seguir haciéndolo todo manual. Ahí empiezan las repeticiones y la sensación de no llegar a todo. Itineramio fue el cambio.',
     name: 'Marcos T.',
     role: 'Gestor de alquileres · 9 pisos · Madrid',
-    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+    avatar: '/avatar-marcos.jpg',
     stars: 5,
   },
   {
-    quote: 'Con 8 pisos y solo yo gestionando, necesitaba algo que trabajara mientras duermo. Itineramio lo hace.',
+    quote: 'Una guía. Un envío automático. Y de repente dejas de repetirte. Eso es lo importante.',
     name: 'Laura S.',
     role: 'Superhost · 8 propiedades · Valencia',
-    avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+    avatar: '/avatar-laura.jpg',
     stars: 5,
   },
 ]
@@ -340,7 +340,7 @@ export default function Landing2() {
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}
           className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50 px-5 py-2 text-sm text-violet-700 font-medium mb-8">
           <span className="w-1.5 h-1.5 rounded-full bg-violet-600 animate-pulse" />
-          Para anfitriones con 6 o más propiedades en España
+          A partir de 6 pisos, lo manual muere
         </motion.div>
 
         {/* Headline — arini typography: bold + light mixed */}
@@ -356,7 +356,7 @@ export default function Landing2() {
 
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
           className="text-base font-medium text-[#444] mb-10">
-          Crea la guía una vez. Haz que se envíe sola.
+          Cuando el huésped llega ya informado, se nota desde el minuto uno. Menos dudas. Menos interrupciones. Menos mensajes con prisas.
         </motion.p>
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
@@ -390,10 +390,10 @@ export default function Landing2() {
             {/* Arini section label style */}
             <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] mb-5 font-medium">El producto</motion.p>
             <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight max-w-2xl" style={{ fontSize: 'clamp(1.9rem, 4vw, 3.2rem)', fontFamily: 'var(--font-manrope)' }}>
-              <span className="font-semibold text-[#111]">Tu solución completa </span>
-              <span className="font-light text-[#aaa]">para la comunicación con huéspedes.</span>
+              <span className="font-semibold text-[#111]">Si tu móvil manda más que tú, </span>
+              <span className="font-light text-[#aaa]">ya sabes de qué va esto.</span>
             </motion.h2>
-            <motion.p variants={fadeUp} className="text-base font-medium text-[#555] mt-4">Más rápido. Sin repeticiones.</motion.p>
+            <motion.p variants={fadeUp} className="text-base font-medium text-[#555] mt-4">No necesitas otro chat. Necesitas que el huésped llegue con lo básico ya claro.</motion.p>
           </motion.div>
 
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}
@@ -423,16 +423,16 @@ export default function Landing2() {
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger} className="mb-12">
             <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] mb-5 font-medium">Cómo funciona</motion.p>
             <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight" style={{ fontSize: 'clamp(1.9rem, 4vw, 3.2rem)', fontFamily: 'var(--font-manrope)' }}>
-              <span className="font-semibold text-[#111]">Tres pasos. </span>
-              <span className="font-light text-[#aaa]">Diez minutos.</span>
+              <span className="font-semibold text-[#111]">No tienes que montarlo todo. </span>
+              <span className="font-light text-[#aaa]">Empieza por la entrada.</span>
             </motion.h2>
           </motion.div>
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}
             className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {[
-              { n: '01', title: 'Crea la guía', body: 'Entrada, WiFi, normas, parking. Organizado por zonas. No hace falta dejarlo perfecto. Empieza por lo básico: entrada, WiFi y normas. Ese primer paso ya te quita repeticiones.' },
-              { n: '02', title: 'Activa el envío automático', body: 'Pega el enlace en tu mensaje automático de Airbnb o Booking. Cuando se confirma la reserva, el huésped lo recibe. Así llegáis los dos mucho mejor al check-in.' },
-              { n: '03', title: 'El huésped llega ubicado', body: 'Sabe cómo entrar, tiene el WiFi y si duda, el chatbot responde en su idioma. Tú dejas de repetir lo mismo en cada reserva.' },
+              { n: '01', title: 'Check-in, WiFi y normas. Con eso ya puedes empezar.', body: 'No necesitas montar toda la guía hoy. Lo importante es tener la parte que más preguntas genera. Haz eso primero y deja el resto para después.' },
+              { n: '02', title: 'Una guía. Un envío automático.', body: 'Pega el enlace en tu mensaje automático de Airbnb o Booking. Cuando se confirma la reserva, el huésped lo recibe. Así llegáis los dos mucho mejor al check-in.' },
+              { n: '03', title: 'Ahí cambia todo.', body: 'Cuando activas eso, el huésped ya recibe la información antes de llegar. No es teoría. Es el momento en el que dejas de repetir lo mismo en cada reserva.' },
             ].map((s, i) => (
               <motion.div key={i} variants={fadeUp} whileHover={{ y: -3, transition: { duration: 0.18 } }}
                 className="rounded-[20px] p-8 flex flex-col gap-5" style={{ backgroundColor: '#f5f3f0' }}>
@@ -496,21 +496,20 @@ export default function Landing2() {
             <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
               <p className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] mb-5 font-medium">El impacto</p>
               <h2 className="leading-[1.08] tracking-tight mb-4" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)', fontFamily: 'var(--font-manrope)' }}>
-                <span className="font-semibold text-[#111]">Resultados reales </span>
-                <span className="font-light text-[#aaa]">en tus reservas.</span>
+                <span className="font-semibold text-[#111]">Con 2 o 3 apartamentos tiras. </span>
+                <span className="font-light text-[#aaa]">Con 6, 7 u 8, ya no.</span>
               </h2>
               <p className="text-[15px] text-[#666] leading-relaxed mb-8 font-normal">
-                Lo que quema no es el trabajo. Es la repetición. Dónde se entra. Dónde se aparca. Cuál es la clave. Qué hacer al salir.
+                No agota tener huéspedes. Agota responder lo mismo veinte veces. Dónde se entra. Dónde se aparca. Cuál es la clave. Qué hacer al salir. Haz que la información llegue antes y sal de esa rueda.
               </p>
               <Link href="/register" className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm text-white"
                 style={{ backgroundColor: '#111' }}>
                 Ver demo
               </Link>
 
-              {/* Featured quote — like arini's $56k quote */}
               <div className="mt-8 border-t border-black/[0.06] pt-8">
                 <p className="text-[17px] font-normal text-[#111] leading-relaxed mb-5">
-                  "Llevo 3 meses sin que nadie me pregunte por el acceso. Una guía. Un envío automático. Eso es lo importante."
+                  "Una guía. Un envío automático. Y de repente dejas de repetirte. Eso es lo importante."
                 </p>
                 <div className="flex items-center gap-3">
                   <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Carmen" width={40} height={40} className="rounded-full object-cover" />
@@ -532,13 +531,13 @@ export default function Landing2() {
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
               <p className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] mb-5 font-medium">La guía en acción</p>
               <h2 className="leading-[1.08] tracking-tight mb-6" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)', fontFamily: 'var(--font-manrope)' }}>
-                <span className="font-semibold text-[#111]">Tú defines el contenido una vez. </span>
-                <span className="font-light text-[#aaa]">La IA responde por ti.</span>
+                <span className="font-semibold text-[#111]">Ya empezaste tu guía. </span>
+                <span className="font-light text-[#aaa]">Termínala antes de que llegue el próximo huésped.</span>
               </h2>
               <div className="space-y-4 text-[15px] text-[#666] leading-relaxed mb-8">
-                <p>El huésped recibe el enlace con la confirmación. Sin app. Sin registro. Abre la guía en el móvil y ve entrada, WiFi, normas y parking.</p>
-                <p>Si tiene alguna duda, el chatbot responde en su idioma usando la información que tú has configurado.</p>
-                <p className="font-semibold text-[#111] text-base">Cuando activas eso, dejas de repetir lo mismo en cada reserva.</p>
+                <p>No hace falta dejarla perfecta. Empieza por lo básico: entrada, WiFi y normas. Ese primer paso ya te quita repeticiones y evita más de una duda de última hora.</p>
+                <p>Una guía. Un envío automático. Ese es el primer cambio real. Cuando activas eso, el huésped ya recibe la información antes de llegar.</p>
+                <p className="font-semibold text-[#111] text-base">Es el momento en el que dejas de repetir lo mismo en cada reserva.</p>
               </div>
               <Link href="/register" className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm text-white transition-all"
                 style={{ backgroundColor: '#7c3aed' }}>
@@ -600,6 +599,7 @@ export default function Landing2() {
       <section className="py-20 px-6 bg-white">
         <div className="max-w-5xl mx-auto space-y-6">
           {[
+            { bold: 'Mi punto de ruptura no fue un huésped.', light: ' Fue el sexto piso.' },
             { bold: 'Hay días en los que no trabajas de anfitrión.', light: ' Trabajas de copiar y pegar.' },
             { bold: 'El mismo WiFi. La misma entrada. Las mismas normas.', light: ' Cambia el nombre del huésped y repite.' },
           ].map((line, i) => (
