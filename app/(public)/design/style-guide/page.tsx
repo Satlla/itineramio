@@ -184,15 +184,15 @@ const ZONE_ICONS = [
 // ─── Typography scale ──────────────────────────────────────────────────────
 
 const TYPOGRAPHY = [
-  { name: 'Display',  size: '3.5rem',   weight: '800', lh: '1',    sample: 'Crea guías que enamoran',   cls: 'text-[3.5rem] font-extrabold leading-none'   },
-  { name: 'H1',       size: '3rem',     weight: '700', lh: '1.1',  sample: 'Property Manual Creator',   cls: 'text-4xl font-bold leading-tight'             },
-  { name: 'H2',       size: '2.25rem',  weight: '700', lh: '1.2',  sample: 'Zonas, pasos y medios',      cls: 'text-3xl font-bold leading-snug'              },
-  { name: 'H3',       size: '1.875rem', weight: '600', lh: '1.3',  sample: 'Check-in sin fricción',      cls: 'text-2xl font-semibold'                       },
-  { name: 'H4',       size: '1.5rem',   weight: '600', lh: '1.4',  sample: 'Instrucciones WiFi',         cls: 'text-xl font-semibold'                        },
-  { name: 'Body LG',  size: '1.125rem', weight: '400', lh: '1.75', sample: 'Texto amplio para descripciones largas.', cls: 'text-lg'                         },
-  { name: 'Body',     size: '1rem',     weight: '400', lh: '1.75', sample: 'Texto base de la interfaz.', cls: 'text-base'                                    },
-  { name: 'Body SM',  size: '0.875rem', weight: '400', lh: '1.5',  sample: 'Texto pequeño para etiquetas.', cls: 'text-sm'                                  },
-  { name: 'Caption',  size: '0.75rem',  weight: '500', lh: '1.4',  sample: 'CAPTION — TAGS Y METADATOS', cls: 'text-xs font-medium uppercase tracking-wider' },
+  { name: 'Display · Manrope',  size: '3.5rem',   weight: '700', lh: '1',    sample: 'Crea guías que enamoran',   cls: 'text-[3.5rem] font-bold leading-none'   },
+  { name: 'H1 · Manrope',       size: '3rem',     weight: '700', lh: '1.1',  sample: 'Property Manual Creator',   cls: 'text-4xl font-bold leading-tight'             },
+  { name: 'H2 · Manrope',       size: '2.25rem',  weight: '600', lh: '1.2',  sample: 'Zonas, pasos y medios',      cls: 'text-3xl font-semibold leading-snug'              },
+  { name: 'H3 · Inter',         size: '1.875rem', weight: '600', lh: '1.3',  sample: 'Check-in sin fricción',      cls: 'text-2xl font-semibold'                       },
+  { name: 'H4 · Inter',         size: '1.5rem',   weight: '600', lh: '1.4',  sample: 'Instrucciones WiFi',         cls: 'text-xl font-semibold'                        },
+  { name: 'Body LG · Inter',    size: '1.125rem', weight: '400', lh: '1.75', sample: 'Texto amplio para descripciones largas.', cls: 'text-lg'                         },
+  { name: 'Body · Inter',       size: '1rem',     weight: '400', lh: '1.75', sample: 'Texto base de la interfaz.', cls: 'text-base'                                    },
+  { name: 'Body SM · Inter',    size: '0.875rem', weight: '400', lh: '1.5',  sample: 'Texto pequeño para etiquetas.', cls: 'text-sm'                                  },
+  { name: 'Caption · Inter',    size: '0.75rem',  weight: '500', lh: '1.4',  sample: 'CAPTION — TAGS Y METADATOS', cls: 'text-xs font-medium uppercase tracking-wider' },
 ]
 
 // ─── Nav ───────────────────────────────────────────────────────────────────
@@ -956,19 +956,42 @@ export default function StyleGuidePage() {
 
           {/* ════ TYPOGRAPHY ════ */}
           <Section id="typography">
-            <SectionHeader title="Tipografía" desc="Inter como fuente única — diseñada para legibilidad en pantalla. Es la tipografía real usada en toda la app. Cargada desde Google Fonts con next/font." theme={theme} num="04 —" />
+            <SectionHeader title="Tipografía" desc="Sistema de dos fuentes: Manrope para headlines de display y secciones, Inter para UI, body y elementos pequeños." theme={theme} num="04 —" />
 
+            {/* Manrope */}
+            <div className={`rounded-2xl p-8 border mb-4 ${cardBg}`}>
+              <div className="flex items-center justify-between mb-4">
+                <p className={`text-[10px] font-bold uppercase tracking-widest ${subText}`}>Manrope — Headlines &amp; Display</p>
+                <span className="text-[10px] font-mono bg-violet-100 text-violet-700 px-2.5 py-1 rounded-lg">h1 · h2 · sección narrativa</span>
+              </div>
+              <p className="leading-none mb-4" style={{ fontFamily: 'var(--font-geist-sans, system-ui)', fontSize: '4.5rem', fontWeight: 700 }}>Aa</p>
+              <p className="text-gray-600 font-semibold" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontStyle: 'normal' }}>ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
+              <p className="text-gray-500">abcdefghijklmnopqrstuvwxyz</p>
+              <p className="text-gray-400 mt-1">0123456789 !@#$%&()</p>
+              <div className="flex gap-2 mt-4 flex-wrap">
+                {[['300','Light'],['400','Regular'],['600','SemiBold'],['700','Bold'],['800','ExtraBold']].map(([w, label]) => (
+                  <span key={w} className="text-xs bg-violet-50 text-violet-700 px-2.5 py-1 rounded-lg font-mono border border-violet-100" style={{ fontWeight: parseInt(w) }}>Manrope {label}</span>
+                ))}
+              </div>
+              <p className={`text-xs mt-4 ${subText}`}>Usada en: hero h1, section h2, narrative statements · Pesos habituales: 300 (light/gray) + 600–700 (bold/dark)</p>
+            </div>
+
+            {/* Inter */}
             <div className={`rounded-2xl p-8 border mb-8 ${cardBg}`}>
-              <p className={`text-[10px] font-bold uppercase tracking-widest mb-4 ${subText}`}>Inter — fuente principal de Itineramio</p>
+              <div className="flex items-center justify-between mb-4">
+                <p className={`text-[10px] font-bold uppercase tracking-widest ${subText}`}>Inter — UI &amp; Body</p>
+                <span className="text-[10px] font-mono bg-gray-100 text-gray-600 px-2.5 py-1 rounded-lg">nav · body · botones · labels</span>
+              </div>
               <p className="text-6xl font-black text-gray-900 leading-none mb-4">Aa</p>
               <p className="text-gray-600 font-medium">ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
               <p className="text-gray-500">abcdefghijklmnopqrstuvwxyz</p>
               <p className="text-gray-400 mt-1">0123456789 !@#$%&()</p>
               <div className="flex gap-2 mt-4 flex-wrap">
-                {['400', '500', '600', '700', '800', '900'].map(w => (
+                {['400', '500', '600', '700'].map(w => (
                   <span key={w} className="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-lg font-mono border border-gray-200" style={{ fontWeight: parseInt(w) }}>Inter {w}</span>
                 ))}
               </div>
+              <p className={`text-xs mt-4 ${subText}`}>Fuente base de toda la app. Body, nav, botones, labels, UI en general.</p>
             </div>
 
             <div className={`rounded-2xl border overflow-hidden ${cardBg}`}>

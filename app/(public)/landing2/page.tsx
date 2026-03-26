@@ -4,9 +4,10 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, ChevronDown, Star, Wifi, DoorOpen, MessageCircle, Menu, X, Bot, Zap, Globe, Bell } from 'lucide-react'
-import { Manrope } from 'next/font/google'
+import { Inter, Manrope } from 'next/font/google'
 
-const manrope = Manrope({ subsets: ['latin'], weight: ['300', '400', '500', '600', '700', '800'], display: 'swap' })
+const inter = Inter({ subsets: ['latin'], display: 'swap' })
+const manrope = Manrope({ subsets: ['latin'], weight: ['300', '400', '600', '700', '800'], display: 'swap', variable: '--font-manrope' })
 
 // ─── ANIMATION VARIANTS ───────────────────────────────────────────────────────
 const fadeUp = {
@@ -296,7 +297,7 @@ export default function Landing2() {
   }, [])
 
   return (
-    <div className={`${manrope.className} min-h-screen bg-white text-[#111] overflow-x-hidden`}
+    <div className={`${inter.className} ${manrope.variable} min-h-screen bg-white text-[#111] overflow-x-hidden`}
       style={{ WebkitFontSmoothing: 'antialiased' } as React.CSSProperties}>
 
       {/* ── NAV ── */}
@@ -353,7 +354,7 @@ export default function Landing2() {
           className="mb-4 max-w-4xl">
           {/* Label — arini style */}
           <p className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-5">El problema</p>
-          <h1 className="leading-[1.05] tracking-tight" style={{ fontSize: 'clamp(2.4rem, 6vw, 5rem)' }}>
+          <h1 className="leading-[1.05] tracking-tight" style={{ fontSize: 'clamp(2.4rem, 6vw, 5rem)', fontFamily: 'var(--font-manrope)' }}>
             <span className="font-semibold text-[#111]">Los huéspedes no leen. </span>
             <span className="font-light text-[#aaa]">Y tú sigues enviando el mismo mensaje una y otra vez.</span>
           </h1>
@@ -394,7 +395,7 @@ export default function Landing2() {
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger} className="mb-12">
             {/* Arini section label style */}
             <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] mb-5 font-medium">El producto</motion.p>
-            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight max-w-2xl" style={{ fontSize: 'clamp(1.9rem, 4vw, 3.2rem)' }}>
+            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight max-w-2xl" style={{ fontSize: 'clamp(1.9rem, 4vw, 3.2rem)', fontFamily: 'var(--font-manrope)' }}>
               <span className="font-semibold text-[#111]">Tu solución completa </span>
               <span className="font-light text-[#aaa]">para la comunicación con huéspedes.</span>
             </motion.h2>
@@ -427,7 +428,7 @@ export default function Landing2() {
         <div className="max-w-6xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger} className="mb-12">
             <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] mb-5 font-medium">Cómo funciona</motion.p>
-            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight" style={{ fontSize: 'clamp(1.9rem, 4vw, 3.2rem)' }}>
+            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight" style={{ fontSize: 'clamp(1.9rem, 4vw, 3.2rem)', fontFamily: 'var(--font-manrope)' }}>
               <span className="font-semibold text-[#111]">Tres pasos. </span>
               <span className="font-light text-[#aaa]">Diez minutos.</span>
             </motion.h2>
@@ -500,7 +501,7 @@ export default function Landing2() {
             {/* Right: copy (arini style) */}
             <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
               <p className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] mb-5 font-medium">El impacto</p>
-              <h2 className="leading-[1.08] tracking-tight mb-4" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}>
+              <h2 className="leading-[1.08] tracking-tight mb-4" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)', fontFamily: 'var(--font-manrope)' }}>
                 <span className="font-semibold text-[#111]">Resultados reales </span>
                 <span className="font-light text-[#aaa]">en tus reservas.</span>
               </h2>
@@ -536,7 +537,7 @@ export default function Landing2() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
               <p className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] mb-5 font-medium">La guía en acción</p>
-              <h2 className="leading-[1.08] tracking-tight mb-6" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}>
+              <h2 className="leading-[1.08] tracking-tight mb-6" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)', fontFamily: 'var(--font-manrope)' }}>
                 <span className="font-semibold text-[#111]">Tú defines el contenido una vez. </span>
                 <span className="font-light text-[#aaa]">La IA responde por ti.</span>
               </h2>
@@ -563,7 +564,7 @@ export default function Landing2() {
         <div className="max-w-4xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger} className="mb-14">
             <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] mb-5 font-medium">Anfitriones reales</motion.p>
-            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight" style={{ fontSize: 'clamp(1.9rem, 4vw, 3.2rem)' }}>
+            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight" style={{ fontSize: 'clamp(1.9rem, 4vw, 3.2rem)', fontFamily: 'var(--font-manrope)' }}>
               <span className="font-semibold text-[#111]">Lo que dicen </span>
               <span className="font-light text-[#aaa]">quienes ya lo usan.</span>
             </motion.h2>
@@ -609,13 +610,13 @@ export default function Landing2() {
             { bold: 'El mismo WiFi. La misma entrada. Las mismas normas.', light: ' Cambia el nombre del huésped y repite.' },
           ].map((line, i) => (
             <motion.p key={i} initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-              className="leading-tight tracking-tight" style={{ fontSize: 'clamp(1.6rem, 4vw, 3rem)' }}>
+              className="leading-tight tracking-tight" style={{ fontSize: 'clamp(1.6rem, 4vw, 3rem)', fontFamily: 'var(--font-manrope)' }}>
               <span className="font-semibold text-[#111]">{line.bold}</span>
               <span className="font-light text-[#ccc]">{line.light}</span>
             </motion.p>
           ))}
           <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }}
-            className="leading-tight tracking-tight pt-6" style={{ fontSize: 'clamp(1.6rem, 4vw, 3rem)' }}>
+            className="leading-tight tracking-tight pt-6" style={{ fontSize: 'clamp(1.6rem, 4vw, 3rem)', fontFamily: 'var(--font-manrope)' }}>
             <span className="font-light text-[#ccc]">Lo que quema no es el trabajo. </span>
             <span className="font-semibold text-[#111]">Es la repetición.</span>
           </motion.p>
@@ -626,7 +627,7 @@ export default function Landing2() {
       <section id="faq" className="py-20 px-6" style={{ backgroundColor: '#f5f3f0' }}>
         <div className="max-w-3xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger} className="mb-12">
-            <motion.h2 variants={fadeUp} className="font-semibold text-[#111] leading-tight" style={{ fontSize: 'clamp(1.9rem, 4vw, 3.2rem)' }}>
+            <motion.h2 variants={fadeUp} className="font-semibold text-[#111] leading-tight" style={{ fontSize: 'clamp(1.9rem, 4vw, 3.2rem)', fontFamily: 'var(--font-manrope)' }}>
               Preguntas frecuentes
             </motion.h2>
           </motion.div>
@@ -656,7 +657,7 @@ export default function Landing2() {
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(124,58,237,0.2) 0%, transparent 70%)' }} />
         <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="relative z-10 max-w-4xl mx-auto">
           <p className="text-[11px] uppercase tracking-[0.2em] text-[#555] mb-6 font-medium">El próximo check-in viene igual</p>
-          <h2 className="leading-[1.05] tracking-tight text-white mb-5" style={{ fontSize: 'clamp(2.2rem, 6vw, 4.8rem)' }}>
+          <h2 className="leading-[1.05] tracking-tight text-white mb-5" style={{ fontSize: 'clamp(2.2rem, 6vw, 4.8rem)', fontFamily: 'var(--font-manrope)' }}>
             <span className="font-semibold">Mejor que te pille </span>
             <span className="font-light" style={{ color: '#aaa' }}>preparado.</span>
           </h2>
