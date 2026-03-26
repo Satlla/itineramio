@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef, useEffect, useState } from 'react'
 import { ArrowRight, Check, X, Sun, Moon } from 'lucide-react'
+import { Manrope } from 'next/font/google'
+
+const manrope = Manrope({ subsets: ['latin'], weight: ['300','400','600','700','800'], display: 'swap', variable: '--font-manrope' })
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -85,7 +88,8 @@ export default function LandingPage() {
   const headerCta = d ? 'bg-white text-black hover:bg-violet-100' : 'bg-gray-900 text-white hover:bg-gray-700'
 
   return (
-    <div className={`min-h-screen ${bg} ${text} overflow-x-hidden transition-colors duration-300`}>
+    <div className={`${manrope.variable} min-h-screen ${bg} ${text} overflow-x-hidden transition-colors duration-300`}
+      style={{ WebkitFontSmoothing: 'antialiased' } as React.CSSProperties}>
 
       {/* ─── HEADER ─── */}
       <header className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 ${headerBg}`}>
@@ -124,6 +128,7 @@ export default function LandingPage() {
           <motion.h1
             initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }}
             className="text-5xl sm:text-7xl lg:text-8xl font-bold leading-[1.05] tracking-tight mb-10"
+            style={{ fontFamily: 'var(--font-manrope)' }}
           >
             Los huéspedes<br />
             <span className={d ? 'bg-gradient-to-r from-violet-400 via-purple-300 to-indigo-400 bg-clip-text text-transparent' : 'text-violet-600'}>
@@ -160,7 +165,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true, margin: '-100px' }} variants={stagger} className="text-center mb-20">
             <motion.p variants={fadeUp} className={`text-sm uppercase tracking-widest ${accent} mb-4`}>El producto</motion.p>
-            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold">
+            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold" style={{ fontFamily: 'var(--font-manrope)' }}>
               Lo que ven tus huéspedes.<br />
               <span className={textFaint}>Lo que dejas de hacer tú.</span>
             </motion.h2>
@@ -253,7 +258,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-100px' }}>
             <motion.p variants={fadeUp} className={`text-sm uppercase tracking-widest ${accent} mb-8`}>La diferencia</motion.p>
-            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-10">
+            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-10" style={{ fontFamily: 'var(--font-manrope)' }}>
               ¿Y si el huésped llegara{' '}
               <span className={d ? 'bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent' : 'text-violet-600'}>sabiendo cómo entrar?</span>
             </motion.h2>
@@ -286,7 +291,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
             <motion.p variants={fadeUp} className={`text-sm uppercase tracking-widest ${accent} mb-6`}>Cómo funciona</motion.p>
-            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold mb-20">Tres pasos.<br />Diez minutos.</motion.h2>
+            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold mb-20" style={{ fontFamily: 'var(--font-manrope)' }}>Tres pasos.<br />Diez minutos.</motion.h2>
             <div className={`grid grid-cols-1 lg:grid-cols-3 ${d ? 'gap-px bg-white/5' : 'divide-y lg:divide-y-0 lg:divide-x divide-gray-200'}`}>
               {steps.map((step, i) => (
                 <motion.div key={i} variants={fadeUp} className={`${d ? 'bg-black group hover:bg-white/[0.02]' : 'bg-white'} p-12 flex flex-col gap-6 transition-colors`}>
@@ -309,7 +314,7 @@ export default function LandingPage() {
       <section className={`py-32 lg:py-48 px-4 ${d ? 'bg-gradient-to-b from-black to-gray-950' : bg}`}>
         <div className="max-w-5xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
-            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold mb-20 text-center">Tu semana<br />antes y después</motion.h2>
+            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl font-bold mb-20 text-center" style={{ fontFamily: 'var(--font-manrope)' }}>Tu semana<br />antes y después</motion.h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <motion.div variants={fadeUp} className={`rounded-3xl p-10 ${d ? 'bg-white/[0.03] border border-white/5' : 'bg-gray-50 border border-gray-200'}`}>
                 <p className="text-xs uppercase tracking-widest text-red-400 mb-8">Antes</p>
@@ -347,7 +352,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
             <motion.p variants={fadeUp} className={`text-sm uppercase tracking-widest ${accent} mb-8`}>Para quién es</motion.p>
-            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-12">
+            <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-12" style={{ fontFamily: 'var(--font-manrope)' }}>
               Hecho para quien gestiona<br />
               <span className={d ? 'bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent' : 'text-violet-600'}>6, 7 u 8 apartamentos.</span>
             </motion.h2>
@@ -365,7 +370,7 @@ export default function LandingPage() {
       <section className={`py-32 lg:py-48 px-4 ${bg}`}>
         <div className="max-w-3xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger}>
-            <motion.h2 variants={fadeUp} className="text-4xl sm:text-5xl font-bold mb-16">Lo que suelen preguntar</motion.h2>
+            <motion.h2 variants={fadeUp} className="text-4xl sm:text-5xl font-bold mb-16" style={{ fontFamily: 'var(--font-manrope)' }}>Lo que suelen preguntar</motion.h2>
             <div className={`divide-y ${border}`}>
               {faqs.map((faq, i) => (
                 <motion.div key={i} variants={fadeUp} className="py-8">
@@ -399,7 +404,7 @@ export default function LandingPage() {
         {d && <div className="absolute inset-0 bg-gradient-to-b from-black via-violet-950/30 to-black" />}
         {d && <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] bg-violet-600/15 rounded-full blur-[180px] pointer-events-none" />}
         <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger} className="relative z-10 text-center max-w-4xl mx-auto">
-          <motion.h2 variants={fadeUp} className="text-5xl sm:text-7xl lg:text-8xl font-bold leading-tight mb-8 text-white">
+          <motion.h2 variants={fadeUp} className="text-5xl sm:text-7xl lg:text-8xl font-bold leading-tight mb-8 text-white" style={{ fontFamily: 'var(--font-manrope)' }}>
             Tu próximo huésped<br />
             <span className={d ? 'bg-gradient-to-r from-violet-400 via-purple-300 to-indigo-400 bg-clip-text text-transparent' : 'text-violet-200'}>ya tiene reserva.</span>
           </motion.h2>
