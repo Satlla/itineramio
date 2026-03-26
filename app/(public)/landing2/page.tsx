@@ -386,12 +386,12 @@ export default function Landing2() {
           className="leading-[1.05] tracking-tight mb-4 max-w-4xl"
           style={{ fontSize:'clamp(2.4rem, 6vw, 5rem)', fontFamily:'var(--font-manrope)' }}>
           <span className="font-semibold text-[#111]">Los huéspedes no leen. </span>
-          <span className="font-light text-[#aaa]">Pero llegan preguntando lo mismo.</span>
+          <span className="font-light text-[#aaa]">Y tú sigues enviando el mismo mensaje una y otra vez.</span>
         </motion.h1>
 
         <motion.p initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.3 }}
           className="text-base font-normal text-[#555] mb-10 max-w-xl leading-relaxed">
-          Crea una guía una vez. Se envía sola cuando entra la reserva. El huésped llega sabiendo cómo entrar, dónde aparcar y cuál es el WiFi. Tú dejas de repetir.
+          Crea una guía una vez y haz que se envíe automáticamente al confirmarse la reserva. Así llegan sabiendo cómo entrar, dónde aparcar y cuál es la clave del WiFi. Tú dejas de repetir lo mismo cada semana.
         </motion.p>
 
         <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.4 }}
@@ -431,10 +431,13 @@ export default function Landing2() {
 
           <div className="space-y-8">
             {[
-              'Llevas semanas enviando la misma clave de WiFi. El mismo mensaje de acceso. Las mismas normas. Cambia el nombre del huésped y repite.',
-              'De vez en cuando llega el mensaje que no quieres ver: "No podemos entrar." Suele ser a las 22:00. O mientras cenas. O cuando estás atendiendo otro check-in.',
-              'Después viene la reseña. Cuatro estrellas. Sin explicación clara. Pero tú sabes exactamente por qué: llegaron confundidos.',
-              'Con dos o tres pisos se puede tirar. Con seis, siete u ocho, el móvil manda más que tú. Y no es el trabajo lo que quema. Es la repetición.',
+              'Hay días en los que no trabajas de anfitrión. Trabajas de copiar y pegar. El mismo WiFi. La misma entrada. Las mismas normas. Cambia el nombre del huésped y repite.',
+              'He enviado la clave del WiFi tantas veces que ya me la sé mejor que mi DNI. Si gestionas varios apartamentos, sabes lo que es repetir WiFi, normas y acceso cada día.',
+              'No agota tener huéspedes. Agota responder lo mismo veinte veces. Dónde se entra. Dónde se aparca. Cuál es la clave. Qué hacer al salir. Lo que quema no es el trabajo. Es la repetición.',
+              'El peor mensaje no es una queja. Es este: "no podemos entrar". Suele llegar cuando estás cenando, conduciendo o con otro check-in encima.',
+              'Si tu móvil manda más que tú, ya sabes de qué va esto. WhatsApp, Airbnb, Booking, llamadas, notas del check-in, preguntas repetidas. No necesitas otro chat. Necesitas que el huésped llegue con lo básico ya claro.',
+              'Una reseña de 4 estrellas por confusión duele más que una avería. No porque sea "grave", sino porque sabes que se podía haber evitado.',
+              'Mi punto de ruptura no fue un huésped. Fue el sexto piso. Con 2 o 3 apartamentos tiras. Con 6, 7 u 8, ya no. Empiezas a vivir entre mensajes, accesos, dudas y reseñas. Ahí es donde dejar de hacerlo todo manualmente deja de ser comodidad y pasa a ser necesidad.',
             ].map((text, i) => (
               <motion.p key={i} initial={{ opacity:0, x:-16 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.1 }}
                 className="text-[17px] text-[#333] leading-relaxed font-normal">
@@ -452,16 +455,16 @@ export default function Landing2() {
             <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-5">La solución</motion.p>
             <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight mb-10"
               style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
-              <span className="font-semibold text-[#111]">¿Y si el huésped llegara </span>
-              <span className="font-light text-[#aaa]">sabiendo cómo entrar?</span>
+              <span className="font-semibold text-[#111]">Cuando el huésped llega ya informado, </span>
+              <span className="font-light text-[#aaa]">se nota desde el minuto uno.</span>
             </motion.h2>
           </motion.div>
 
           <div className="space-y-5">
             {[
-              'No hablamos de mandar otro mensaje largo que nadie lee. Ni de un PDF que se pierde en la bandeja.',
-              'Hablamos de una guía corta, clara, organizada por zonas — entrada, WiFi, normas, parking, lo útil del barrio — que el huésped recibe automáticamente cuando se confirma la reserva.',
-              'Antes de llegar, ya sabe cómo entrar. Ya tiene el WiFi. Ya conoce las normas. Y si tiene alguna duda, un chatbot le responde en su idioma usando la información de tu propio apartamento.',
+              'Menos dudas. Menos interrupciones. Menos mensajes con prisas.',
+              'La diferencia no está en tener otro manual. Está en que la guía se envíe sola cuando la reserva entra, antes de que empiece el caos.',
+              'Una guía. Un envío automático. Y de repente dejas de repetirte. Pones acceso, WiFi, normas y lo importante. Cuando se confirma la reserva, el huésped lo recibe. Así llegáis los dos mucho mejor al check-in.',
             ].map((text, i) => (
               <motion.p key={i} initial={{ opacity:0, y:12 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:i*0.1 }}
                 className="text-[17px] text-[#333] leading-relaxed font-normal">
@@ -470,7 +473,7 @@ export default function Landing2() {
             ))}
             <motion.p initial={{ opacity:0, y:12 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.3 }}
               className="text-[19px] font-semibold text-[#111] pt-2">
-              Tú no haces nada. La guía sale sola.
+              Una guía. Un envío automático. Ese es el primer cambio real.
             </motion.p>
           </div>
         </div>
@@ -526,9 +529,9 @@ export default function Landing2() {
           <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger}
             className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-10">
             {[
-              { n:'01', title:'Crea tu guía', body:'Acceso, WiFi, normas, parking y lo que necesiten. Organizado por zonas. Sin textos largos. Empieza solo con lo básico.' },
-              { n:'02', title:'Se envía sola', body:'Cuando se confirma una reserva, el huésped recibe la guía automáticamente. Sin que toques nada.' },
-              { n:'03', title:'El huésped llega ubicado', body:'Sabe cómo entrar. Tiene el WiFi. Conoce las normas. Y si pregunta algo, el chatbot le responde en su idioma.' },
+              { n:'01', title:'Crea tu guía', body:'No tienes que montarlo todo. Empieza por la entrada. Si una parte genera tensión, suele ser esa. Añádela primero y deja lo demás para después.' },
+              { n:'02', title:'Activa el envío', body:'Una guía. Un envío automático. Ese es el primer cambio real. Cuando activas eso, el huésped ya recibe la información antes de llegar.' },
+              { n:'03', title:'El huésped llega ubicado', body:'Ya llega más ubicado. Menos preguntas después. Menos caos al llegar. Todo más claro antes.' },
             ].map((s, i) => (
               <motion.div key={i} variants={fadeUp} whileHover={{ y:-3, transition:{ duration:0.18 } }}
                 className="rounded-[20px] p-8 flex flex-col gap-4 bg-white" style={{ boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
@@ -544,7 +547,7 @@ export default function Landing2() {
               style={{ backgroundColor:'#7c3aed' }}>
               Empieza gratis <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform"/>
             </Link>
-            <p className="text-sm text-[#bbb]">Empieza con check-in, WiFi y normas. Con eso ya funciona.</p>
+            <p className="text-sm text-[#bbb]">Check-in, WiFi y normas. Con eso ya puedes empezar. No necesitas montar toda la guía hoy.</p>
           </motion.div>
         </div>
       </section>
@@ -562,16 +565,16 @@ export default function Landing2() {
           </motion.div>
           <div className="space-y-5">
             {[
-              'No te van a dejar de escribir. Pero te van a dejar de preguntar lo mismo.',
-              'Menos mensajes con el WiFi a las 23:00. Menos llamadas de "no podemos entrar." Menos reseñas de 4 estrellas por confusión. Menos copiar y pegar el mismo texto cada reserva.',
-              'Más cenas tranquilas. Más fines de semana sin el móvil encima. Más huéspedes que llegan y resuelven solos.',
+              'Menos copiar y pegar cansa. Sal de esa rueda.',
+              'Cuando activas el envío automático, el huésped ya recibe la información antes de llegar. No es teoría. Es el momento en el que dejas de repetir lo mismo en cada reserva.',
+              'El próximo check-in viene igual. Mejor que te pille preparado. Si el huésped llega sin saber cómo entrar, vuelves al mismo bucle.',
             ].map((text, i) => (
               <motion.p key={i} initial={{ opacity:0, x:-12 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.1 }}
                 className="text-[17px] text-[#333] leading-relaxed font-normal">{text}</motion.p>
             ))}
             <motion.p initial={{ opacity:0 }} whileInView={{ opacity:1 }} viewport={{ once:true }} transition={{ delay:0.35 }}
               className="text-[19px] font-semibold text-[#111] pt-2">
-              No elimina todo. Elimina lo que se repite.
+              Deja lista la base antes de que pase otra vez.
             </motion.p>
           </div>
         </div>
@@ -674,20 +677,20 @@ export default function Landing2() {
             <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#555] font-medium mb-5">Para quién es</motion.p>
             <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight text-white mb-10"
               style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
-              <span className="font-semibold">Hecho para quien gestiona </span>
-              <span className="font-light" style={{ color:'#aaa' }}>6, 7 u 8 pisos solo.</span>
+              <span className="font-semibold">Mi punto de ruptura no fue un huésped. </span>
+              <span className="font-light" style={{ color:'#aaa' }}>Fue el sexto piso.</span>
             </motion.h2>
             <div className="space-y-4 text-left max-w-xl mx-auto mb-10">
               {[
-                'Gestionas varios apartamentos. Contestas cada mensaje tú. Coordinas cada check-in tú. Te juegas la nota en cada reseña tú.',
-                'No tienes equipo. No tienes sistema. Tienes el móvil y las ganas de que funcione.',
-                'Esto está hecho para ese momento. Para el anfitrión que ha cruzado el punto donde lo manual ya no aguanta y necesita que lo básico salga solo.',
+                'Con 2 o 3 apartamentos tiras. Con 6, 7 u 8, ya no. Empiezas a vivir entre mensajes, accesos, dudas y reseñas.',
+                'Ahí es donde dejar de hacerlo todo manualmente deja de ser comodidad y pasa a ser necesidad.',
+                'Con seis pisos, lo manual muere. Ahí empiezan las repeticiones, los mensajes y la sensación de no llegar a todo. Si has cruzado ese punto, lo sabes.',
               ].map((text, i) => (
                 <motion.p key={i} variants={fadeUp} className="text-[16px] text-[#999] leading-relaxed font-normal">{text}</motion.p>
               ))}
             </div>
             <motion.p variants={fadeUp} className="text-[20px] font-semibold text-white">
-              No necesitas un software más. Necesitas dejar de repetirte.
+              Si estás ahí, este mensaje te va a sonar muy real.
             </motion.p>
           </motion.div>
         </div>
@@ -742,16 +745,16 @@ export default function Landing2() {
           </motion.div>
           <div className="space-y-5">
             {[
-              'El próximo huésped va a llegar. Va a preguntar el WiFi. Va a dudar con la entrada. Puede que llame. Puede que no.',
-              'Pero si llega confundido y la estancia empieza mal, la reseña lo refleja. Y una reseña de 4 estrellas por confusión no baja sola.',
-              'Superhost pide un 4,8 o más. Booking.com pesa las reseñas recientes. Lo que parece un "detalle" es lo que mueve tu posición.',
+              'El próximo check-in viene igual. Mejor que te pille preparado. Si el huésped llega sin saber cómo entrar, vuelves al mismo bucle.',
+              'Una reseña de 4 estrellas sí duele. Sobre todo cuando sabes que vino por una confusión evitable.',
+              'Menos riesgo al llegar. Protege tu nota. Haz que el huésped llegue más ubicado y no te la juegues en cada check-in.',
             ].map((text, i) => (
               <motion.p key={i} initial={{ opacity:0, y:12 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:i*0.1 }}
                 className="text-[17px] text-[#333] leading-relaxed font-normal">{text}</motion.p>
             ))}
             <motion.p initial={{ opacity:0 }} whileInView={{ opacity:1 }} viewport={{ once:true }} transition={{ delay:0.35 }}
               className="text-[19px] font-semibold text-[#111] pt-2">
-              No hace falta que algo salga muy mal. Basta con que no salga del todo bien.
+              Haz que el huésped llegue más informado. Evita lo evitable.
             </motion.p>
           </div>
         </div>
@@ -764,17 +767,17 @@ export default function Landing2() {
           <p className="text-[11px] uppercase tracking-[0.2em] text-[#555] mb-6 font-medium">Tu próximo huésped ya tiene reserva</p>
           <h2 className="leading-[1.05] tracking-tight text-white mb-5"
             style={{ fontSize:'clamp(2.2rem, 6vw, 4.8rem)', fontFamily:'var(--font-manrope)' }}>
-            <span className="font-semibold">Que llegue </span>
-            <span className="font-light" style={{ color:'#aaa' }}>informado.</span>
+            <span className="font-semibold">Ya empezaste tu guía. </span>
+            <span className="font-light" style={{ color:'#aaa' }}>Termínala antes de que llegue el próximo huésped.</span>
           </h2>
           <p className="text-[#666] text-lg mb-12 max-w-lg mx-auto leading-relaxed font-normal">
-            Crea tu primera guía hoy. Empieza con lo básico. El resto se añade después.
+            No hace falta dejarla perfecta. Empieza por lo básico: entrada, WiFi y normas. Ese primer paso ya te quita repeticiones y evita más de una duda de última hora.
           </p>
           <Link href="/register" className="group inline-flex items-center gap-3 bg-white text-[#111] px-10 py-5 rounded-full font-semibold text-lg hover:bg-violet-50 transition-all"
             style={{ boxShadow:'0 0 50px rgba(124,58,237,0.2)' }}>
             Empieza gratis <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform"/>
           </Link>
-          <p className="mt-6 text-sm" style={{ color:'#444' }}>Sin tarjeta. Sin app. Sin compromiso.</p>
+          <p className="mt-6 text-sm" style={{ color:'#444' }}>Check-in, WiFi y normas. Con eso ya puedes empezar.</p>
         </motion.div>
       </section>
 
