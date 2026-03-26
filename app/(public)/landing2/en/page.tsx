@@ -3,16 +3,15 @@
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
-import { ArrowRight, ChevronDown, ChevronLeft, Star, Wifi, DoorOpen, MessageCircle, Menu, X, Bot, Car, FileText, UtensilsCrossed, Check, LogOut, XCircle, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, ChevronDown, ChevronLeft, Wifi, DoorOpen, MessageCircle, X, Bot, Car, FileText, UtensilsCrossed, Check, LogOut, XCircle, CheckCircle2 } from 'lucide-react'
 import { Inter, Manrope } from 'next/font/google'
 
 const inter   = Inter({ subsets: ['latin'], display: 'swap' })
 const manrope = Manrope({ subsets: ['latin'], weight: ['300','400','600','700','800'], display: 'swap', variable: '--font-manrope' })
 
 // ─── VARIANTS ──────────────────────────────────────────────────────────────
-const fadeUp  = { hidden: { opacity: 0, y: 22 }, show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.25,0.1,0.25,1] } } }
-const fadeIn  = { hidden: { opacity: 0 },         show: { opacity: 1,        transition: { duration: 0.5 } } }
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.09 } } }
+const fadeUp  = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.25,0.1,0.25,1] } } }
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } }
 
 // ─── COUNT-UP ──────────────────────────────────────────────────────────────
 function CountUp({ to, suffix = '' }: { to: number; suffix?: string }) {
@@ -54,12 +53,12 @@ function LogoCarousel() {
 
 // ─── DEMO WIDGET ───────────────────────────────────────────────────────────
 const GUIDE_ZONES = [
-  { id:'entry',    label:'Entry',    color:'#7c3aed', bg:'#ede9ff', icon:<DoorOpen className="w-3.5 h-3.5"/>,       step:{ title:'Lockbox',              body:'Grey box to the right of the door.\nCode: 4521 · Hold for 2 seconds.' } },
-  { id:'wifi',     label:'WiFi',     color:'#2563eb', bg:'#dbeafe', icon:<Wifi className="w-3.5 h-3.5"/>,           step:{ title:'Network & password',    body:'Network: Itineramio_5G\nPassword: balcon2024#' } },
-  { id:'rules',    label:'Rules',    color:'#d97706', bg:'#fef3c7', icon:<FileText className="w-3.5 h-3.5"/>,       step:{ title:'House rules',           body:'Checkout before 11:00am.\nNo smoking inside.' } },
-  { id:'parking',  label:'Parking',  color:'#059669', bg:'#d1fae5', icon:<Car className="w-3.5 h-3.5"/>,            step:{ title:'Parking',               body:'Space B-14 · Magnetic pass in\nthe kitchen drawer (left side).' } },
-  { id:'kitchen',  label:'Kitchen',  color:'#dc2626', bg:'#fee2e2', icon:<UtensilsCrossed className="w-3.5 h-3.5"/>,step:{ title:'Equipment',             body:'Coffee maker, microwave, toaster.\nBasic spices included.' } },
-  { id:'checkout', label:'Checkout', color:'#6b7280', bg:'#f3f4f6', icon:<LogOut className="w-3.5 h-3.5"/>,         step:{ title:'Check-out',             body:'Leave keys inside and\nlock with code 4521.' } },
+  { id:'entry',    label:'Entry',    icon:<DoorOpen className="w-3.5 h-3.5"/>,        step:{ title:'Lockbox',              body:'Grey box to the right of the door.\nCode: 4521 · Hold for 2 seconds.' } },
+  { id:'wifi',     label:'WiFi',     icon:<Wifi className="w-3.5 h-3.5"/>,            step:{ title:'Network & password',    body:'Network: Itineramio_5G\nPassword: balcon2024#' } },
+  { id:'rules',    label:'Rules',    icon:<FileText className="w-3.5 h-3.5"/>,        step:{ title:'House rules',           body:'Checkout before 11:00am.\nNo smoking inside.' } },
+  { id:'parking',  label:'Parking',  icon:<Car className="w-3.5 h-3.5"/>,             step:{ title:'Parking',               body:'Space B-14 · Magnetic pass in\nthe kitchen drawer (left side).' } },
+  { id:'kitchen',  label:'Kitchen',  icon:<UtensilsCrossed className="w-3.5 h-3.5"/>, step:{ title:'Equipment',             body:'Coffee maker, microwave, toaster.\nBasic spices included.' } },
+  { id:'checkout', label:'Checkout', icon:<LogOut className="w-3.5 h-3.5"/>,          step:{ title:'Check-out',             body:'Leave keys inside and\nlock with code 4521.' } },
 ]
 
 type SeqStep = { view:'guide'|'zona'|'chat'; zone:string|null; msg:number; cx:number; cy:number; click:boolean; dur:number }
@@ -136,17 +135,17 @@ function DemoWidget() {
               <AnimatePresence mode="wait">
                 {s.view==='zona' && activeZone ? (
                   <motion.div key={`zone-${activeZone.id}`} initial={{ x:'100%' }} animate={{ x:0 }} exit={{ x:'100%' }}
-                    transition={{ type:'spring', stiffness:400, damping:38 }} className="absolute inset-0 bg-white flex flex-col">
+                    transition={{ duration:0.28, ease:[0.25,0.1,0.25,1] }} className="absolute inset-0 bg-white flex flex-col">
                     <div className="flex items-center gap-2 px-3 py-2 border-b border-black/[0.05] shrink-0">
                       <button className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
                         <ChevronLeft className="w-3 h-3 text-[#555]"/>
                       </button>
-                      <div className="w-5 h-5 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor:activeZone.bg, color:activeZone.color }}>{activeZone.icon}</div>
+                      <div className="w-5 h-5 rounded-lg flex items-center justify-center shrink-0 text-[#555]" style={{ backgroundColor:'#f0efed' }}>{activeZone.icon}</div>
                       <p className="text-[11px] font-semibold text-[#111] flex-1 leading-none">{activeZone.label}</p>
-                      <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-green-50 text-green-600 flex items-center gap-0.5"><Check className="w-2.5 h-2.5"/>Viewed</span>
+                      <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full text-[#555] flex items-center gap-0.5" style={{ backgroundColor:'rgba(0,0,0,0.05)' }}><Check className="w-2.5 h-2.5"/>Viewed</span>
                     </div>
                     <div className="flex-1 p-3 overflow-hidden">
-                      <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1 }}
+                      <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.08 }}
                         className="bg-white rounded-xl border border-black/[0.07] p-3 shadow-sm">
                         <div className="flex items-center gap-2 mb-2">
                           <div className="w-5 h-5 rounded-full text-white text-[9px] font-bold flex items-center justify-center shrink-0" style={{ backgroundColor:'#111' }}>1</div>
@@ -154,24 +153,24 @@ function DemoWidget() {
                         </div>
                         <p className="text-[10px] text-[#555] leading-relaxed whitespace-pre-line pl-7">{activeZone.step.body}</p>
                         <div className="mt-2.5 pl-7 flex items-center gap-1">
-                          <Check className="w-2.5 h-2.5 text-green-500"/><span className="text-[9px] text-green-600 font-medium">Step completed</span>
+                          <Check className="w-2.5 h-2.5 text-[#555]"/><span className="text-[9px] text-[#555] font-medium">Step completed</span>
                         </div>
                       </motion.div>
                       <div className="mt-3">
                         <div className="flex justify-between mb-1">
                           <span className="text-[8px] text-[#aaa]">Progress</span>
-                          <span className="text-[8px] font-medium" style={{ color:activeZone.color }}>1/1 steps</span>
+                          <span className="text-[8px] font-medium text-[#555]">1/1 steps</span>
                         </div>
                         <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
                           <motion.div initial={{ width:0 }} animate={{ width:'100%' }} transition={{ duration:0.6, delay:0.3, ease:'easeOut' }}
-                            className="h-full rounded-full" style={{ backgroundColor:activeZone.color }}/>
+                            className="h-full rounded-full bg-[#7c3aed]"/>
                         </div>
                       </div>
                     </div>
                   </motion.div>
                 ) : s.view!=='chat' ? (
                   <motion.div key="zone-grid" initial={{ x:'-30%', opacity:0 }} animate={{ x:0, opacity:1 }} exit={{ x:'-30%', opacity:0 }}
-                    transition={{ type:'spring', stiffness:400, damping:38 }} className="absolute inset-0 p-3 flex flex-col gap-2.5 bg-[#f8f8f8]">
+                    transition={{ duration:0.28, ease:[0.25,0.1,0.25,1] }} className="absolute inset-0 p-3 flex flex-col gap-2.5 bg-[#f8f8f8]">
                     <p className="text-[8px] font-semibold uppercase tracking-[0.16em] text-[#bbb]">Property guide</p>
                     <div className="grid grid-cols-3 gap-2 flex-1">
                       {GUIDE_ZONES.map(z => {
@@ -179,13 +178,13 @@ function DemoWidget() {
                         const isHovered = s.view==='guide' && s.zone===z.id
                         return (
                           <motion.div key={z.id}
-                            animate={isHovered ? { scale:1.05, borderColor:z.color, boxShadow:`0 4px 12px ${z.color}22` } : { scale:1, borderColor:'rgba(0,0,0,0.07)', boxShadow:'0 1px 2px rgba(0,0,0,0.04)' }}
-                            transition={{ type:'spring', stiffness:400, damping:28 }}
+                            animate={isHovered ? { scale:1.03, borderColor:'rgba(0,0,0,0.15)', boxShadow:'0 4px 12px rgba(0,0,0,0.08)' } : { scale:1, borderColor:'rgba(0,0,0,0.07)', boxShadow:'0 1px 2px rgba(0,0,0,0.04)' }}
+                            transition={{ duration:0.2, ease:'easeOut' }}
                             className="bg-white rounded-xl border p-2 flex flex-col gap-1.5 cursor-default">
-                            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor:z.bg, color:z.color }}>{z.icon}</div>
+                            <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[#555]" style={{ backgroundColor:'#f0efed' }}>{z.icon}</div>
                             <p className="text-[9px] font-semibold text-[#111] leading-tight">{z.label}</p>
                             {isViewed
-                              ? <span className="text-[8px] text-green-600 font-medium flex items-center gap-0.5"><Check className="w-2 h-2"/>Viewed</span>
+                              ? <span className="text-[8px] text-[#555] font-medium flex items-center gap-0.5"><Check className="w-2 h-2"/>Viewed</span>
                               : <span className="text-[8px] text-[#ccc]">See →</span>}
                           </motion.div>
                         )
@@ -209,7 +208,7 @@ function DemoWidget() {
             <AnimatePresence>
               {s.view!=='chat' && (
                 <motion.div initial={{ scale:0, opacity:0 }} animate={{ scale:1, opacity:1 }} exit={{ scale:0, opacity:0 }}
-                  transition={{ type:'spring', stiffness:300, damping:22 }} className="absolute bottom-3 right-3 z-20">
+                  transition={{ duration:0.2, ease:'easeOut' }} className="absolute bottom-3 right-3 z-20">
                   <div className="w-9 h-9 rounded-2xl flex items-center justify-center text-white shadow-lg relative"
                     style={{ background:'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
                     <Bot className="w-4 h-4 relative z-10"/>
@@ -224,7 +223,7 @@ function DemoWidget() {
           <AnimatePresence>
             {s.view==='chat' && (
               <motion.div key="chat" initial={{ x:'100%' }} animate={{ x:0 }} exit={{ x:'100%' }}
-                transition={{ type:'spring', stiffness:340, damping:34 }} className="absolute inset-0 flex flex-col bg-white z-30">
+                transition={{ duration:0.28, ease:[0.25,0.1,0.25,1] }} className="absolute inset-0 flex flex-col bg-white z-30">
                 <div className="flex items-center gap-2.5 px-3.5 py-2.5 shrink-0"
                   style={{ background:'linear-gradient(135deg, #18181b, #27272a)' }}>
                   <div className="w-7 h-7 rounded-xl flex items-center justify-center" style={{ backgroundColor:'rgba(124,58,237,0.3)' }}>
@@ -441,25 +440,23 @@ export default function Landing2En() {
               <div className="h-56 flex items-center justify-center px-8 pt-8 relative overflow-hidden">
                 <div className="w-full max-w-[280px] grid grid-cols-3 gap-2">
                   {[
-                    { label:'Entry',    color:'#7c3aed', bg:'#ede9ff' },
-                    { label:'WiFi',     color:'#2563eb', bg:'#dbeafe' },
-                    { label:'Rules',    color:'#d97706', bg:'#fef3c7' },
-                    { label:'Parking',  color:'#059669', bg:'#d1fae5' },
-                    { label:'Kitchen',  color:'#dc2626', bg:'#fee2e2' },
-                    { label:'Checkout', color:'#6b7280', bg:'#f3f4f6' },
+                    { label:'Entry',    icon:<DoorOpen className="w-4 h-4"/> },
+                    { label:'WiFi',     icon:<Wifi className="w-4 h-4"/> },
+                    { label:'Rules',    icon:<FileText className="w-4 h-4"/> },
+                    { label:'Parking',  icon:<Car className="w-4 h-4"/> },
+                    { label:'Kitchen',  icon:<UtensilsCrossed className="w-4 h-4"/> },
+                    { label:'Checkout', icon:<LogOut className="w-4 h-4"/> },
                   ].map((z, i) => (
                     <motion.div key={i}
-                      initial={{ opacity:0, scale:0.8 }} whileInView={{ opacity:1, scale:1 }}
-                      viewport={{ once:true }} transition={{ delay: 0.1 + i*0.07 }}
+                      initial={{ opacity:0, scale:0.9 }} whileInView={{ opacity:1, scale:1 }}
+                      viewport={{ once:true }} transition={{ delay: 0.08 + i*0.06, ease:'easeOut', duration:0.3 }}
                       className="rounded-[14px] p-3 flex flex-col items-center justify-center gap-1.5 aspect-square"
-                      style={{ backgroundColor: z.bg }}>
-                      <div className="w-8 h-8 rounded-[10px] flex items-center justify-center text-lg"
-                        style={{ backgroundColor: z.color + '22' }}>
-                        <span style={{ color: z.color, fontSize:14 }}>
-                          {i===0?'🚪':i===1?'📶':i===2?'📋':i===3?'🚗':i===4?'🍳':'🔑'}
-                        </span>
+                      style={{ backgroundColor:'#f0efed' }}>
+                      <div className="w-8 h-8 rounded-[10px] flex items-center justify-center text-[#555]"
+                        style={{ backgroundColor:'rgba(0,0,0,0.04)' }}>
+                        {z.icon}
                       </div>
-                      <span className="text-[10px] font-semibold" style={{ color: z.color }}>{z.label}</span>
+                      <span className="text-[10px] font-semibold text-[#555]">{z.label}</span>
                     </motion.div>
                   ))}
                 </div>
@@ -608,7 +605,7 @@ export default function Landing2En() {
                       <div className="h-2 bg-[#f0f0f0] rounded-full flex-1"/>
                     </div>
                     <div className="grid grid-cols-3 gap-1">
-                      {['#ede9ff','#dbeafe','#d1fae5'].map((bg,i) => (
+                      {['#f0efed','#e8e6e3','#ebebeb'].map((bg,i) => (
                         <div key={i} className="rounded-[6px] h-6" style={{ backgroundColor: bg }}/>
                       ))}
                     </div>
