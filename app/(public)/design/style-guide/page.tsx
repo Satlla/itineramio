@@ -965,7 +965,7 @@ export default function StyleGuidePage() {
                 <span className="text-[10px] font-mono bg-violet-100 text-violet-700 px-2.5 py-1 rounded-lg">h1 · h2 · sección narrativa</span>
               </div>
               <p className="leading-none mb-4" style={{ fontFamily: 'var(--font-geist-sans, system-ui)', fontSize: '4.5rem', fontWeight: 700 }}>Aa</p>
-              <p className="text-gray-600 font-semibold" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontStyle: 'normal' }}>ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
+              <p className="text-gray-600 font-semibold">ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
               <p className="text-gray-500">abcdefghijklmnopqrstuvwxyz</p>
               <p className="text-gray-400 mt-1">0123456789 !@#$%&()</p>
               <div className="flex gap-2 mt-4 flex-wrap">

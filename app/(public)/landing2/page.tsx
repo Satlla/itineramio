@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ChevronDown, Star, Wifi, DoorOpen, MessageCircle, Menu, X, Bot, Zap, Globe, Bell } from 'lucide-react'
+import { ArrowRight, ChevronDown, ChevronLeft, Star, Wifi, DoorOpen, MessageCircle, Menu, X, Bot, Zap, Globe, Bell, Car, FileText, UtensilsCrossed, Check, LogOut } from 'lucide-react'
 import { Inter, Manrope } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
@@ -89,148 +89,337 @@ const FAQS = [
   },
 ]
 
-// ─── ANIMATED DEMO ────────────────────────────────────────────────────────────
-// Positions are % of 320px-tall content div
-// Header ~44px (13.75%) — chat button at right edge
-// Zone row: header(44) + p-4 top(16) + half-card(~30) = 90px → 90/320 = 28%
-// Horizontal: 4 equal cols, padding 16px each side
-//   Col1(WiFi) center ≈ 13%, Col2(Entrada) ≈ 38%, Col3 ≈ 62%, Col4 ≈ 87%
-// Chat button: right side of header → cx≈84, cy≈7
-const SEQ = [
-  { cx: 50, cy: 50, click: false, zone: null as null|string, chat: false, msg: 0, dur: 900 },
-  { cx: 13, cy: 28, click: false, zone: null,      chat: false, msg: 0, dur: 550 },
-  { cx: 13, cy: 28, click: true,  zone: 'wifi',    chat: false, msg: 0, dur: 650 },
-  { cx: 13, cy: 28, click: false, zone: 'wifi',    chat: false, msg: 0, dur: 950 },
-  { cx: 38, cy: 28, click: false, zone: 'wifi',    chat: false, msg: 0, dur: 600 },
-  { cx: 38, cy: 28, click: true,  zone: 'entrada', chat: false, msg: 0, dur: 650 },
-  { cx: 38, cy: 28, click: false, zone: 'entrada', chat: false, msg: 0, dur: 800 },
-  { cx: 84, cy:  7, click: false, zone: 'entrada', chat: false, msg: 0, dur: 650 },
-  { cx: 84, cy:  7, click: true,  zone: 'entrada', chat: true,  msg: 0, dur: 550 },
-  { cx: 84, cy:  7, click: false, zone: 'entrada', chat: true,  msg: 1, dur: 850 },
-  { cx: 84, cy:  7, click: false, zone: 'entrada', chat: true,  msg: 2, dur: 1000 },
-  { cx: 84, cy:  7, click: false, zone: 'entrada', chat: true,  msg: 3, dur: 2800 },
+// ─── ANIMATED DEMO v2 — replica del dashboard real ───────────────────────────
+
+const GUIDE_ZONES = [
+  { id: 'entrada',  label: 'Entrada',  color: '#7c3aed', bg: '#ede9ff', icon: <DoorOpen className="w-3.5 h-3.5"/>,
+    step: { title: 'Caja de llaves', body: 'Caja gris a la derecha de la puerta.\nCódigo: 4521 · Mantén pulsado 2 seg.' } },
+  { id: 'wifi',     label: 'WiFi',     color: '#2563eb', bg: '#dbeafe', icon: <Wifi className="w-3.5 h-3.5"/>,
+    step: { title: 'Red y contraseña', body: 'Red: Itineramio_5G\nClave: balcon2024#' } },
+  { id: 'normas',   label: 'Normas',   color: '#d97706', bg: '#fef3c7', icon: <FileText className="w-3.5 h-3.5"/>,
+    step: { title: 'Normas del piso',  body: 'Check-out antes de las 11:00h.\nNo fumar en el interior.' } },
+  { id: 'parking',  label: 'Parking',  color: '#059669', bg: '#d1fae5', icon: <Car className="w-3.5 h-3.5"/>,
+    step: { title: 'Aparcamiento',     body: 'Plaza B-14 · Pase magnético en\nel cajón de la cocina (izquierda).' } },
+  { id: 'cocina',   label: 'Cocina',   color: '#dc2626', bg: '#fee2e2', icon: <UtensilsCrossed className="w-3.5 h-3.5"/>,
+    step: { title: 'Equipamiento',     body: 'Cafetera, microondas, tostadora.\nEspecias básicas incluidas.' } },
+  { id: 'checkout', label: 'Salida',   color: '#6b7280', bg: '#f3f4f6', icon: <LogOut className="w-3.5 h-3.5"/>,
+    step: { title: 'Check-out',        body: 'Deja las llaves dentro y\ncierra con el código 4521.' } },
 ]
 
-const ZONES = [
-  { id: 'wifi',    icon: <Wifi className="w-4 h-4"/>,        label: 'WiFi',    detail: ['Red: ItineramioApts_5G', 'Clave: balcon2024#'] },
-  { id: 'entrada', icon: <DoorOpen className="w-4 h-4"/>,    label: 'Entrada', detail: ['Caja llaves: código 4521', 'Pulsa el botón 2 seg'] },
-  { id: 'parking', icon: <Bot className="w-4 h-4"/>,         label: 'Parking', detail: ['Plaza B-14 · Pase incluido'] },
-  { id: 'normas',  icon: <MessageCircle className="w-4 h-4"/>,label: 'Normas',  detail: ['Check-out antes de las 11h'] },
+// SEQ: view='guide'|'zona'|'chat'
+// Container 340px tall. Header 44px (13%). Zone grid p-3 (12px), 3 cols 2 rows.
+// Row1 cy: (44+12+28)/340=25%  Row2 cy: (44+12+64+8+28)/340=46%
+// Col1 cx≈17%  Col2 cx≈50%  Col3 cx≈83%
+// Back btn (zone sub-header left): cx≈10%, cy≈20%
+// Chat FAB (bottom-right): cx≈87%, cy≈87%
+type SeqStep = { view:'guide'|'zona'|'chat'; zone:string|null; msg:number; cx:number; cy:number; click:boolean; dur:number }
+const SEQ: SeqStep[] = [
+  { view:'guide', zone:null,      msg:0, cx:50, cy:50, click:false, dur:900  },
+  { view:'guide', zone:null,      msg:0, cx:17, cy:25, click:false, dur:550  },
+  { view:'guide', zone:null,      msg:0, cx:17, cy:25, click:true,  dur:400  },
+  { view:'zona',  zone:'entrada', msg:0, cx:17, cy:25, click:false, dur:1400 },
+  { view:'zona',  zone:'entrada', msg:0, cx:10, cy:20, click:false, dur:500  },
+  { view:'zona',  zone:'entrada', msg:0, cx:10, cy:20, click:true,  dur:400  },
+  { view:'guide', zone:null,      msg:0, cx:10, cy:20, click:false, dur:400  },
+  { view:'guide', zone:null,      msg:0, cx:50, cy:25, click:false, dur:500  },
+  { view:'guide', zone:null,      msg:0, cx:50, cy:25, click:true,  dur:400  },
+  { view:'zona',  zone:'wifi',    msg:0, cx:50, cy:25, click:false, dur:1200 },
+  { view:'zona',  zone:'wifi',    msg:0, cx:10, cy:20, click:false, dur:500  },
+  { view:'zona',  zone:'wifi',    msg:0, cx:10, cy:20, click:true,  dur:400  },
+  { view:'guide', zone:null,      msg:0, cx:10, cy:20, click:false, dur:400  },
+  { view:'guide', zone:null,      msg:0, cx:17, cy:46, click:false, dur:500  },
+  { view:'guide', zone:null,      msg:0, cx:17, cy:46, click:true,  dur:400  },
+  { view:'zona',  zone:'parking', msg:0, cx:17, cy:46, click:false, dur:1100 },
+  { view:'zona',  zone:'parking', msg:0, cx:10, cy:20, click:false, dur:500  },
+  { view:'zona',  zone:'parking', msg:0, cx:10, cy:20, click:true,  dur:400  },
+  { view:'guide', zone:null,      msg:0, cx:10, cy:20, click:false, dur:400  },
+  { view:'guide', zone:null,      msg:0, cx:87, cy:87, click:false, dur:600  },
+  { view:'guide', zone:null,      msg:0, cx:87, cy:87, click:true,  dur:400  },
+  { view:'chat',  zone:null,      msg:0, cx:87, cy:87, click:false, dur:700  },
+  { view:'chat',  zone:null,      msg:1, cx:87, cy:87, click:false, dur:900  },
+  { view:'chat',  zone:null,      msg:2, cx:87, cy:87, click:false, dur:1200 },
+  { view:'chat',  zone:null,      msg:3, cx:87, cy:87, click:false, dur:2500 },
+  { view:'chat',  zone:null,      msg:4, cx:87, cy:87, click:false, dur:1500 },
 ]
 
 function DemoWidget() {
   const [step, setStep] = useState(0)
   const s = SEQ[step % SEQ.length]
+  const [viewed, setViewed] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    if (step % SEQ.length === 0) setViewed(new Set())
+  }, [step])
+
+  useEffect(() => {
+    if (s.view === 'zona' && s.zone && !s.click) {
+      setViewed(prev => new Set([...prev, s.zone!]))
+    }
+  }, [s.view, s.zone, s.click])
+
   useEffect(() => {
     const t = setTimeout(() => setStep(p => (p + 1) % SEQ.length), s.dur)
     return () => clearTimeout(t)
   }, [step, s.dur])
 
+  const activeZone = GUIDE_ZONES.find(z => z.id === s.zone) ?? null
+
   return (
     <div className="relative w-full max-w-2xl mx-auto select-none">
-      <div className="rounded-2xl overflow-hidden" style={{ boxShadow: '0 32px 80px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05)' }}>
-        {/* Browser bar */}
-        <div className="bg-[#f0f0f0] px-4 py-2.5 flex items-center gap-3 border-b border-black/[0.06]">
+      <div className="rounded-2xl overflow-hidden" style={{ boxShadow: '0 32px 80px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05)' }}>
+
+        {/* Browser chrome */}
+        <div className="bg-[#ebebeb] px-4 py-2.5 flex items-center gap-3 border-b border-black/[0.06]">
           <div className="flex gap-1.5">
             <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
             <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
             <div className="w-3 h-3 rounded-full bg-[#28c840]" />
           </div>
-          <div className="flex-1 bg-white rounded-md px-3 py-1 text-xs text-[#aaa]">
-            app.itineramio.com/guide/apartamento-barceloneta
+          <div className="flex-1 bg-white rounded-md px-3 py-1 text-[11px] text-[#999] flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#059669] inline-block" />
+            app.itineramio.com/guide/barceloneta
           </div>
         </div>
-        {/* App */}
-        <div className="bg-white relative overflow-hidden" style={{ height: 320 }}>
-          <div className="flex items-center justify-between px-5 py-3 border-b border-black/[0.05]">
-            <div className="flex items-center gap-2">
-              <img src="/isotipo-gradient.svg" alt="" width={18} height={10} className="object-contain" />
-              <span className="text-xs font-semibold text-[#111]">Apartamento Barceloneta</span>
+
+        {/* App shell */}
+        <div className="bg-[#f8f8f8] relative overflow-hidden" style={{ height: 340 }}>
+
+          {/* ── Guide + Zona views ─────────────────────────────────── */}
+          <div className="absolute inset-0 flex flex-col">
+
+            {/* Sticky guide header — always visible */}
+            <div className="bg-white border-b border-black/[0.06] px-3.5 py-2.5 flex items-center justify-between shrink-0 z-10">
+              <div className="flex items-center gap-2">
+                <img src="/isotipo-gradient.svg" alt="" width={16} height={9} className="object-contain shrink-0" />
+                <div>
+                  <p className="text-[11px] font-semibold text-[#111] leading-none">Apartamento Barceloneta</p>
+                  <p className="text-[9px] text-[#999] mt-0.5">Barcelona · 2 hab · 4 huéspedes</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="text-[11px] cursor-default">🇪🇸</span>
+                <span className="text-[11px] cursor-default opacity-40">🇬🇧</span>
+                <span className="text-[11px] cursor-default opacity-40">🇫🇷</span>
+              </div>
             </div>
-            <motion.button
-              animate={s.chat ? { backgroundColor: '#7c3aed', color: '#fff' } : { backgroundColor: '#ede9ff', color: '#7c3aed' }}
-              transition={{ duration: 0.25 }}
-              className="text-[10px] font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5"
-            >
-              <MessageCircle className="w-3 h-3" /> Chatbot
-            </motion.button>
-          </div>
-          <div className="p-4 grid grid-cols-4 gap-2.5">
-            {ZONES.map(z => {
-              const active = s.zone === z.id
-              return (
-                <motion.div key={z.id}
-                  animate={active ? { borderColor: 'rgba(124,58,237,0.35)', backgroundColor: '#ede9ff', scale: 1.02 } : { borderColor: 'rgba(0,0,0,0.06)', backgroundColor: '#f9f9f9', scale: 1 }}
-                  transition={{ duration: 0.2 }}
-                  className="rounded-xl border p-2.5 flex flex-col gap-1.5 cursor-default"
-                >
-                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all duration-200 ${active ? 'bg-violet-700 text-white' : 'bg-white text-[#777]'}`}>{z.icon}</div>
-                  <span className="text-[10px] font-medium text-[#111]">{z.label}</span>
-                  <AnimatePresence>
-                    {active && (
-                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ type: 'spring', stiffness: 340, damping: 30, mass: 0.8 }} className="overflow-hidden">
-                        {z.detail.map((l, i) => <p key={i} className="text-[9px] text-violet-700 leading-snug">{l}</p>)}
+
+            {/* Sliding content area */}
+            <div className="flex-1 relative overflow-hidden">
+              <AnimatePresence mode="wait">
+
+                {/* Zone detail */}
+                {s.view === 'zona' && activeZone ? (
+                  <motion.div key={`zone-${activeZone.id}`}
+                    initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 38 }}
+                    className="absolute inset-0 bg-white flex flex-col">
+                    {/* Zone sub-header */}
+                    <div className="flex items-center gap-2 px-3 py-2 border-b border-black/[0.05] shrink-0">
+                      <button className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                        <ChevronLeft className="w-3 h-3 text-[#555]" />
+                      </button>
+                      <div className="w-5 h-5 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: activeZone.bg, color: activeZone.color }}>
+                        {activeZone.icon}
+                      </div>
+                      <p className="text-[11px] font-semibold text-[#111] flex-1 leading-none">{activeZone.label}</p>
+                      <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-green-50 text-green-600 flex items-center gap-0.5">
+                        <Check className="w-2.5 h-2.5" /> Visto
+                      </span>
+                    </div>
+                    {/* Step card */}
+                    <div className="flex-1 p-3 overflow-hidden">
+                      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+                        className="bg-white rounded-xl border border-black/[0.07] p-3 shadow-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-5 h-5 rounded-full text-white text-[9px] font-bold flex items-center justify-center shrink-0" style={{ backgroundColor: '#111' }}>1</div>
+                          <p className="text-[11px] font-semibold text-[#111]">{activeZone.step.title}</p>
+                        </div>
+                        <p className="text-[10px] text-[#555] leading-relaxed whitespace-pre-line pl-7">{activeZone.step.body}</p>
+                        <div className="mt-2.5 pl-7 flex items-center gap-1">
+                          <Check className="w-2.5 h-2.5 text-green-500" />
+                          <span className="text-[9px] text-green-600 font-medium">Paso completado</span>
+                        </div>
                       </motion.div>
-                    )}
-                  </AnimatePresence>
+                      {/* Progress */}
+                      <div className="mt-3">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-[8px] text-[#aaa]">Progreso</span>
+                          <span className="text-[8px] font-medium" style={{ color: activeZone.color }}>1/1 pasos</span>
+                        </div>
+                        <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+                          <motion.div initial={{ width: 0 }} animate={{ width: '100%' }} transition={{ duration: 0.6, delay: 0.3, ease: 'easeOut' }}
+                            className="h-full rounded-full" style={{ backgroundColor: activeZone.color }} />
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : s.view !== 'chat' ? (
+                  /* Zone grid */
+                  <motion.div key="zone-grid"
+                    initial={{ x: '-30%', opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: '-30%', opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 38 }}
+                    className="absolute inset-0 p-3 flex flex-col gap-2.5 bg-[#f8f8f8]">
+                    <p className="text-[8px] font-semibold uppercase tracking-[0.16em] text-[#bbb]">Manual de la propiedad</p>
+                    <div className="grid grid-cols-3 gap-2 flex-1">
+                      {GUIDE_ZONES.map(z => {
+                        const isViewed = viewed.has(z.id)
+                        const isHovered = s.view === 'guide' && s.zone === z.id
+                        return (
+                          <motion.div key={z.id}
+                            animate={isHovered
+                              ? { scale: 1.05, borderColor: z.color, boxShadow: `0 4px 12px ${z.color}22` }
+                              : { scale: 1, borderColor: 'rgba(0,0,0,0.07)', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                            className="bg-white rounded-xl border p-2 flex flex-col gap-1.5 cursor-default"
+                          >
+                            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: z.bg, color: z.color }}>
+                              {z.icon}
+                            </div>
+                            <p className="text-[9px] font-semibold text-[#111] leading-tight">{z.label}</p>
+                            {isViewed
+                              ? <span className="text-[8px] text-green-600 font-medium flex items-center gap-0.5"><Check className="w-2 h-2"/>Visto</span>
+                              : <span className="text-[8px] text-[#ccc]">Ver →</span>}
+                          </motion.div>
+                        )
+                      })}
+                    </div>
+                    {/* Reading progress */}
+                    <div className="shrink-0">
+                      <div className="flex justify-between mb-1">
+                        <span className="text-[8px] text-[#aaa]">Guía leída</span>
+                        <span className="text-[8px] font-semibold text-[#7c3aed]">{viewed.size}/6</span>
+                      </div>
+                      <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+                        <motion.div animate={{ width: `${(viewed.size / 6) * 100}%` }} transition={{ duration: 0.5, ease: 'easeOut' }}
+                          className="h-full rounded-full bg-gradient-to-r from-violet-500 to-violet-400" />
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+            </div>
+
+            {/* Chat FAB — visible only on guide/zona views */}
+            <AnimatePresence>
+              {s.view !== 'chat' && (
+                <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                  className="absolute bottom-3 right-3 z-20">
+                  <div className="w-9 h-9 rounded-2xl flex items-center justify-center text-white shadow-lg relative"
+                    style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
+                    <Bot className="w-4 h-4 relative z-10" />
+                    <motion.div animate={{ scale: [1, 1.7], opacity: [0.25, 0] }} transition={{ repeat: Infinity, duration: 1.8, ease: 'easeOut' }}
+                      className="absolute inset-0 rounded-2xl bg-violet-400" />
+                  </div>
                 </motion.div>
-              )
-            })}
+              )}
+            </AnimatePresence>
           </div>
+
+          {/* ── Chat panel ─────────────────────────────────────────── */}
           <AnimatePresence>
-            {s.chat && (
-              <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', stiffness: 320, damping: 32 }}
-                className="absolute inset-0 bg-white border-l border-black/[0.05] flex flex-col">
-                <div className="flex items-center gap-2 px-4 py-2.5 border-b border-black/[0.05]">
-                  <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center"><Bot className="w-3.5 h-3.5 text-violet-700" /></div>
-                  <div>
-                    <p className="text-[11px] font-semibold text-[#111]">Asistente IA</p>
-                    <p className="text-[9px] text-green-500 font-medium">● En línea</p>
+            {s.view === 'chat' && (
+              <motion.div key="chat" initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+                transition={{ type: 'spring', stiffness: 340, damping: 34 }}
+                className="absolute inset-0 flex flex-col bg-white z-30">
+
+                {/* Chat header */}
+                <div className="flex items-center gap-2.5 px-3.5 py-2.5 shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #18181b, #27272a)' }}>
+                  <div className="w-7 h-7 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(124,58,237,0.3)' }}>
+                    <Bot className="w-3.5 h-3.5 text-violet-300" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[11px] font-semibold text-white leading-none">Asistente IA</p>
+                    <p className="text-[9px] text-green-400 font-medium mt-0.5">● En línea · Barceloneta</p>
+                  </div>
+                  <div className="flex gap-1 items-center">
+                    <span className="text-[10px]">🇪🇸</span>
+                    <span className="text-[10px] opacity-50">🇬🇧</span>
+                    <span className="text-[10px] opacity-50">🇫🇷</span>
                   </div>
                 </div>
-                <div className="flex-1 p-3.5 flex flex-col justify-end gap-2.5 overflow-hidden">
+
+                {/* Messages area */}
+                <div className="flex-1 px-3 py-3 flex flex-col justify-end gap-2.5 overflow-hidden">
+
+                  {/* Suggested questions — shown before user types */}
                   <AnimatePresence>
-                    {s.msg >= 1 && (
-                      <motion.div key="q" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="self-end">
-                        <div className="bg-[#111] text-white text-[10px] px-2.5 py-1.5 rounded-2xl rounded-br-sm max-w-[160px]">How do I get in? Can't find keys 🤔</div>
+                    {s.msg === 0 && (
+                      <motion.div key="suggestions" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-1.5">
+                        <p className="text-[8px] uppercase tracking-[0.15em] text-[#bbb] font-semibold">Preguntas frecuentes</p>
+                        {['¿Cómo accedo al piso?', '¿Cuál es la clave del WiFi?', '¿A qué hora es el check-out?'].map((q, i) => (
+                          <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
+                            className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl border border-black/[0.06] bg-gray-50 text-[10px] text-[#444] cursor-default">
+                            <MessageCircle className="w-2.5 h-2.5 text-[#bbb] shrink-0" />{q}
+                          </motion.div>
+                        ))}
                       </motion.div>
                     )}
                   </AnimatePresence>
+
+                  {/* User message */}
+                  <AnimatePresence>
+                    {s.msg >= 1 && (
+                      <motion.div key="umsg" initial={{ opacity: 0, y: 8, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="self-end">
+                        <div className="bg-[#111] text-white text-[10px] px-3 py-2 rounded-2xl rounded-br-sm max-w-[160px] leading-relaxed">
+                          ¿Cómo entro? No encuentro las llaves 🤔
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Typing indicator */}
                   <AnimatePresence>
                     {s.msg === 2 && (
-                      <motion.div key="dots" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="self-start">
+                      <motion.div key="typing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="self-start">
                         <div className="bg-[#f5f3f0] px-3 py-2.5 rounded-2xl rounded-bl-sm flex gap-1 items-center">
                           {[0,1,2].map(i => <motion.div key={i} animate={{ y: [0,-3,0] }} transition={{ repeat: Infinity, duration: 0.65, delay: i*0.13 }} className="w-1.5 h-1.5 rounded-full bg-[#aaa]" />)}
                         </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
+
+                  {/* AI response */}
                   <AnimatePresence>
                     {s.msg >= 3 && (
-                      <motion.div key="a" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="self-start">
-                        <div className="bg-[#f5f3f0] text-[#111] text-[10px] px-2.5 py-2 rounded-2xl rounded-bl-sm max-w-[200px] leading-relaxed">
-                          Hi! 👋 Key box is next to the door. Code: <strong>4521</strong>. Hold 2 seconds and it opens!
+                      <motion.div key="aresp" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="self-start">
+                        <div className="bg-[#f5f3f0] text-[#111] text-[10px] px-3 py-2 rounded-2xl rounded-bl-sm max-w-[210px] leading-relaxed">
+                          ¡Hola! 👋 La caja de llaves está en la pared derecha de la puerta. Código: <strong>4521</strong>. Mantén pulsado 2 segundos y se abre.
                         </div>
-                        <p className="text-[8px] text-[#ccc] mt-0.5 ml-1">Itineramio AI · ahora</p>
+                        <p className="text-[8px] text-[#ccc] mt-0.5 ml-1">Asistente IA · ahora</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Follow-up */}
+                  <AnimatePresence>
+                    {s.msg >= 4 && (
+                      <motion.div key="follow" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="self-start">
+                        <div className="bg-[#f5f3f0] text-[#111] text-[10px] px-3 py-2 rounded-2xl rounded-bl-sm max-w-[200px] leading-relaxed">
+                          ¿Necesitas algo más? Tengo toda la info del piso 🏠
+                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
-                <div className="px-3.5 py-2.5 border-t border-black/[0.05]">
+
+                {/* Input bar */}
+                <div className="px-3 py-2.5 border-t border-black/[0.05] shrink-0">
                   <div className="bg-[#f5f3f0] rounded-full px-3 py-1.5 text-[9px] text-[#ccc]">Escribe en cualquier idioma…</div>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
-          {/* Cursor */}
+
+          {/* ── Cursor ─────────────────────────────────────────────── */}
           <motion.div
             animate={{ left: `${s.cx}%`, top: `${s.cy}%` }}
             transition={{ type: 'spring', stiffness: 180, damping: 26 }}
-            className="absolute pointer-events-none z-50" style={{ transform: 'translate(-3px,-3px)' }}
-          >
+            className="absolute pointer-events-none z-50" style={{ transform: 'translate(-3px,-3px)' }}>
             <AnimatePresence>
               {s.click && (
-                <motion.div key={`r${step}`} initial={{ scale: 0, opacity: 0.5 }} animate={{ scale: 2.8, opacity: 0 }} transition={{ duration: 0.38 }}
+                <motion.div key={`ripple-${step}`} initial={{ scale: 0, opacity: 0.5 }} animate={{ scale: 2.8, opacity: 0 }} transition={{ duration: 0.38 }}
                   className="absolute w-6 h-6 rounded-full bg-violet-500/25 -translate-x-1/2 -translate-y-1/2" style={{ left: 4, top: 4 }} />
               )}
             </AnimatePresence>
@@ -240,11 +429,15 @@ function DemoWidget() {
           </motion.div>
         </div>
       </div>
-      {/* Floating badges */}
+
+      {/* Floating badge */}
       <motion.div initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.9 }}
         className="absolute -left-12 top-14 hidden lg:flex items-center gap-2.5 bg-white rounded-2xl px-3.5 py-2.5" style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.09)' }}>
-        <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs font-bold">✓</div>
-        <div><p className="text-xs font-semibold text-[#111]">Guía enviada</p><p className="text-[10px] text-[#aaa]">Reserva confirmada</p></div>
+        <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-sm">✓</div>
+        <div>
+          <p className="text-xs font-semibold text-[#111]">Guía enviada</p>
+          <p className="text-[10px] text-[#aaa]">Reserva confirmada</p>
+        </div>
       </motion.div>
     </div>
   )
