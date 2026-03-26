@@ -49,21 +49,21 @@ const TESTIMONIALS = [
     quote: 'Los huéspedes no leen, ya está. Pero desde que uso Itineramio llegan con todo claro. Tres meses sin que nadie me pregunte por el acceso.',
     name: 'Carmen R.',
     role: 'Anfitriona · 7 apartamentos · Barcelona',
-    avatar: 'https://i.pravatar.cc/80?img=47',
+    avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
     stars: 5,
   },
   {
     quote: 'El chatbot responde en inglés, francés y alemán sin que yo toque nada. Mis valoraciones subieron medio punto en dos meses.',
     name: 'Marcos T.',
     role: 'Gestor de alquileres · 9 pisos · Madrid',
-    avatar: 'https://i.pravatar.cc/80?img=12',
+    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
     stars: 5,
   },
   {
     quote: 'Con 8 pisos y solo yo gestionando, necesitaba algo que trabajara mientras duermo. Itineramio lo hace.',
     name: 'Laura S.',
     role: 'Superhost · 8 propiedades · Valencia',
-    avatar: 'https://i.pravatar.cc/80?img=32',
+    avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
     stars: 5,
   },
 ]
@@ -256,7 +256,7 @@ function LogoCarousel() {
       <div className="h-8 flex items-center justify-center">
         <AnimatePresence mode="wait">
           <motion.span key={idx} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.35 }} className="text-xl font-black text-[#ccc] tracking-tight">
+            transition={{ duration: 0.35 }} className="text-xl font-semibold text-[#ccc] tracking-tight">
             {LOGOS[idx]}
           </motion.span>
         </AnimatePresence>
@@ -345,7 +345,7 @@ export default function Landing2() {
           {/* Label — arini style */}
           <p className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-5">El problema</p>
           <h1 className="leading-[1.05] tracking-tight" style={{ fontSize: 'clamp(2.4rem, 6vw, 5rem)' }}>
-            <span className="font-black text-[#111]">Los huéspedes no leen. </span>
+            <span className="font-semibold text-[#111]">Los huéspedes no leen. </span>
             <span className="font-light text-[#aaa]">Y tú sigues enviando el mismo mensaje una y otra vez.</span>
           </h1>
         </motion.div>
@@ -386,7 +386,7 @@ export default function Landing2() {
             {/* Arini section label style */}
             <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] mb-5 font-medium">El producto</motion.p>
             <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight max-w-2xl" style={{ fontSize: 'clamp(1.9rem, 4vw, 3.2rem)' }}>
-              <span className="font-black text-[#111]">Tu solución completa </span>
+              <span className="font-semibold text-[#111]">Tu solución completa </span>
               <span className="font-light text-[#aaa]">para la comunicación con huéspedes.</span>
             </motion.h2>
             <motion.p variants={fadeUp} className="text-base font-semibold text-[#111] mt-4">Más rápido. Sin repeticiones.</motion.p>
@@ -419,7 +419,7 @@ export default function Landing2() {
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger} className="mb-12">
             <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] mb-5 font-medium">Cómo funciona</motion.p>
             <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight" style={{ fontSize: 'clamp(1.9rem, 4vw, 3.2rem)' }}>
-              <span className="font-black text-[#111]">Tres pasos. </span>
+              <span className="font-semibold text-[#111]">Tres pasos. </span>
               <span className="font-light text-[#aaa]">Diez minutos.</span>
             </motion.h2>
           </motion.div>
@@ -432,7 +432,7 @@ export default function Landing2() {
             ].map((s, i) => (
               <motion.div key={i} variants={fadeUp} whileHover={{ y: -3, transition: { duration: 0.18 } }}
                 className="rounded-[20px] p-8 flex flex-col gap-5" style={{ backgroundColor: '#f5f3f0' }}>
-                <span className="font-black text-[#111]/[0.06] leading-none select-none" style={{ fontSize: '4.5rem' }}>{s.n}</span>
+                <span className="font-bold text-[#111]/[0.06] leading-none select-none" style={{ fontSize: '4.5rem' }}>{s.n}</span>
                 <h3 className="text-[17px] font-bold text-[#111]">{s.title}</h3>
                 <p className="text-[15px] text-[#666] leading-relaxed">{s.body}</p>
               </motion.div>
@@ -481,7 +481,7 @@ export default function Landing2() {
                   { stat: '10 min', label: 'setup inicial' },
                 ].map(m => (
                   <div key={m.label} className="rounded-xl p-3" style={{ backgroundColor: '#f5f3f0' }}>
-                    <p className="font-black text-[#111] text-xl leading-none">{m.stat}</p>
+                    <p className="font-semibold text-[#111] text-xl leading-none">{m.stat}</p>
                     <p className="text-[11px] text-[#888] mt-1">{m.label}</p>
                   </div>
                 ))}
@@ -492,7 +492,7 @@ export default function Landing2() {
             <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
               <p className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] mb-5 font-medium">El impacto</p>
               <h2 className="leading-[1.08] tracking-tight mb-4" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}>
-                <span className="font-black text-[#111]">Resultados reales </span>
+                <span className="font-semibold text-[#111]">Resultados reales </span>
                 <span className="font-light text-[#aaa]">en tus reservas.</span>
               </h2>
               <p className="text-[15px] text-[#666] leading-relaxed mb-8">
@@ -509,7 +509,7 @@ export default function Landing2() {
                   "Llevo 3 meses sin que nadie me pregunte por el acceso. Una guía. Un envío automático. Eso es lo importante."
                 </p>
                 <div className="flex items-center gap-3">
-                  <img src="https://i.pravatar.cc/48?img=47" alt="Carmen" width={40} height={40} className="rounded-full object-cover" />
+                  <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Carmen" width={40} height={40} className="rounded-full object-cover" />
                   <div>
                     <p className="text-sm font-bold text-[#111]">Carmen R.</p>
                     <p className="text-xs text-[#aaa]">7 apartamentos · Barcelona</p>
@@ -528,7 +528,7 @@ export default function Landing2() {
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
               <p className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] mb-5 font-medium">La guía en acción</p>
               <h2 className="leading-[1.08] tracking-tight mb-6" style={{ fontSize: 'clamp(1.9rem, 4vw, 3rem)' }}>
-                <span className="font-black text-[#111]">Tú defines el contenido una vez. </span>
+                <span className="font-semibold text-[#111]">Tú defines el contenido una vez. </span>
                 <span className="font-light text-[#aaa]">La IA responde por ti.</span>
               </h2>
               <div className="space-y-4 text-[15px] text-[#666] leading-relaxed mb-8">
@@ -555,7 +555,7 @@ export default function Landing2() {
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger} className="mb-14">
             <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] mb-5 font-medium">Anfitriones reales</motion.p>
             <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight" style={{ fontSize: 'clamp(1.9rem, 4vw, 3.2rem)' }}>
-              <span className="font-black text-[#111]">Lo que dicen </span>
+              <span className="font-semibold text-[#111]">Lo que dicen </span>
               <span className="font-light text-[#aaa]">quienes ya lo usan.</span>
             </motion.h2>
           </motion.div>
@@ -601,14 +601,14 @@ export default function Landing2() {
           ].map((line, i) => (
             <motion.p key={i} initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
               className="leading-tight tracking-tight" style={{ fontSize: 'clamp(1.6rem, 4vw, 3rem)' }}>
-              <span className="font-black text-[#111]">{line.bold}</span>
+              <span className="font-semibold text-[#111]">{line.bold}</span>
               <span className="font-light text-[#ccc]">{line.light}</span>
             </motion.p>
           ))}
           <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 }}
             className="leading-tight tracking-tight pt-6" style={{ fontSize: 'clamp(1.6rem, 4vw, 3rem)' }}>
             <span className="font-light text-[#ccc]">Lo que quema no es el trabajo. </span>
-            <span className="font-black text-[#111]">Es la repetición.</span>
+            <span className="font-semibold text-[#111]">Es la repetición.</span>
           </motion.p>
         </div>
       </section>
@@ -617,7 +617,7 @@ export default function Landing2() {
       <section id="faq" className="py-20 px-6" style={{ backgroundColor: '#f5f3f0' }}>
         <div className="max-w-3xl mx-auto">
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={stagger} className="mb-12">
-            <motion.h2 variants={fadeUp} className="font-black text-[#111] leading-tight" style={{ fontSize: 'clamp(1.9rem, 4vw, 3.2rem)' }}>
+            <motion.h2 variants={fadeUp} className="font-semibold text-[#111] leading-tight" style={{ fontSize: 'clamp(1.9rem, 4vw, 3.2rem)' }}>
               Preguntas frecuentes
             </motion.h2>
           </motion.div>
@@ -648,13 +648,13 @@ export default function Landing2() {
         <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="relative z-10 max-w-4xl mx-auto">
           <p className="text-[11px] uppercase tracking-[0.2em] text-[#555] mb-6 font-medium">El próximo check-in viene igual</p>
           <h2 className="leading-[1.05] tracking-tight text-white mb-5" style={{ fontSize: 'clamp(2.2rem, 6vw, 4.8rem)' }}>
-            <span className="font-black">Mejor que te pille </span>
+            <span className="font-semibold">Mejor que te pille </span>
             <span className="font-light" style={{ color: '#aaa' }}>preparado.</span>
           </h2>
           <p className="text-[#555] text-lg mb-12 max-w-lg mx-auto leading-relaxed">
             Empieza por entrada, WiFi y normas. Ese primer paso ya te quita repeticiones y evita más de una duda de última hora.
           </p>
-          <Link href="/register" className="group inline-flex items-center gap-3 bg-white text-[#111] px-10 py-5 rounded-full font-black text-xl hover:bg-violet-50 transition-all"
+          <Link href="/register" className="group inline-flex items-center gap-3 bg-white text-[#111] px-10 py-5 rounded-full font-semibold text-xl hover:bg-violet-50 transition-all"
             style={{ boxShadow: '0 0 50px rgba(124,58,237,0.2)' }}>
             Empieza gratis <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
           </Link>
