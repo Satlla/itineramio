@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence, useInView, useScroll, useTransform } from 'framer-motion'
-import { ArrowRight, ChevronDown, ChevronLeft, Star, Wifi, DoorOpen, MessageCircle, Menu, X, Bot, Car, FileText, UtensilsCrossed, Check, LogOut, XCircle, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, ChevronDown, ChevronLeft, Star, Wifi, DoorOpen, MessageCircle, Menu, X, Bot, Car, FileText, UtensilsCrossed, Check, LogOut, XCircle, CheckCircle2, Droplets, Sun, Leaf, Activity, Flame, ClipboardList, Thermometer, Heart, RefreshCcw, Phone, Lightbulb } from 'lucide-react'
 import { Inter, Manrope } from 'next/font/google'
 
 const inter   = Inter({ subsets: ['latin'], display: 'swap' })
@@ -321,6 +321,70 @@ function DemoWidget() {
   )
 }
 
+// ─── ZONES CAROUSEL ─────────────────────────────────────────────────────────
+const ALL_ZONE_SETS_ES = [
+  [
+    { label:'Entrada',       icon:<DoorOpen className="w-4 h-4"/> },
+    { label:'WiFi',          icon:<Wifi className="w-4 h-4"/> },
+    { label:'Normas',        icon:<FileText className="w-4 h-4"/> },
+    { label:'Parking',       icon:<Car className="w-4 h-4"/> },
+    { label:'Cocina',        icon:<UtensilsCrossed className="w-4 h-4"/> },
+    { label:'Salida',        icon:<LogOut className="w-4 h-4"/> },
+  ],
+  [
+    { label:'Piscina',       icon:<Droplets className="w-4 h-4"/> },
+    { label:'Terraza',       icon:<Sun className="w-4 h-4"/> },
+    { label:'Jardín',        icon:<Leaf className="w-4 h-4"/> },
+    { label:'Garaje',        icon:<Car className="w-4 h-4"/> },
+    { label:'Gym',           icon:<Activity className="w-4 h-4"/> },
+    { label:'BBQ',           icon:<Flame className="w-4 h-4"/> },
+  ],
+  [
+    { label:'Check-in',      icon:<ClipboardList className="w-4 h-4"/> },
+    { label:'Climatización', icon:<Thermometer className="w-4 h-4"/> },
+    { label:'Mascotas',      icon:<Heart className="w-4 h-4"/> },
+    { label:'Reciclaje',     icon:<RefreshCcw className="w-4 h-4"/> },
+    { label:'Emergencias',   icon:<Phone className="w-4 h-4"/> },
+    { label:'Recomend.',     icon:<Lightbulb className="w-4 h-4"/> },
+  ],
+]
+
+function ZonesCarousel({ sets }: { sets: {label:string; icon:React.ReactNode}[][] }) {
+  const [page, setPage] = useState(0)
+  useEffect(() => {
+    const t = setInterval(() => setPage(p => (p + 1) % sets.length), 2800)
+    return () => clearInterval(t)
+  }, [sets.length])
+  return (
+    <div className="w-full max-w-[280px]">
+      <div className="overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div key={page}
+            initial={{ x: '100%', opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '-100%', opacity: 0 }}
+            transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+            className="grid grid-cols-3 gap-2">
+            {sets[page].map((z, i) => (
+              <div key={z.label} className="rounded-[14px] p-3 flex flex-col items-center justify-center gap-1.5 aspect-square" style={{ backgroundColor:'#f0efed' }}>
+                <div className="w-8 h-8 rounded-[10px] flex items-center justify-center text-[#555]" style={{ backgroundColor:'rgba(0,0,0,0.04)' }}>
+                  {z.icon}
+                </div>
+                <span className="text-[10px] font-semibold text-[#555] text-center leading-tight">{z.label}</span>
+              </div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+      <div className="flex justify-center gap-1.5 mt-3">
+        {sets.map((_, i) => (
+          <div key={i} className={`rounded-full transition-all duration-300 ${i === page ? 'w-4 h-1.5 bg-violet-600' : 'w-1.5 h-1.5 bg-black/10'}`}/>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ─── INFINITE CHAT ──────────────────────────────────────────────────────────
 const CHAT_CONVOS_ES = [
   { q:'¿Cuál es la clave del WiFi? 🤔',       a:'Red: Itineramio_5G · Clave: balcon2024# 🙌' },
@@ -545,30 +609,9 @@ export default function Landing2() {
             {/* Card 1: Guía por zonas */}
             <motion.div initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.05 }}
               className="rounded-[20px] overflow-hidden" style={{ backgroundColor:'#f5f3f0' }}>
-              {/* Illustration */}
-              <div className="h-56 flex items-center justify-center px-8 pt-8 relative overflow-hidden">
-                <div className="w-full max-w-[280px] grid grid-cols-3 gap-2">
-                  {[
-                    { label:'Entrada',  icon:<DoorOpen className="w-4 h-4"/> },
-                    { label:'WiFi',     icon:<Wifi className="w-4 h-4"/> },
-                    { label:'Normas',   icon:<FileText className="w-4 h-4"/> },
-                    { label:'Parking',  icon:<Car className="w-4 h-4"/> },
-                    { label:'Cocina',   icon:<UtensilsCrossed className="w-4 h-4"/> },
-                    { label:'Salida',   icon:<LogOut className="w-4 h-4"/> },
-                  ].map((z, i) => (
-                    <motion.div key={i}
-                      initial={{ opacity:0, scale:0.9 }} whileInView={{ opacity:1, scale:1 }}
-                      viewport={{ once:true }} transition={{ delay: 0.08 + i*0.06, ease:'easeOut', duration:0.3 }}
-                      className="rounded-[14px] p-3 flex flex-col items-center justify-center gap-1.5 aspect-square"
-                      style={{ backgroundColor:'#f0efed' }}>
-                      <div className="w-8 h-8 rounded-[10px] flex items-center justify-center text-[#555]"
-                        style={{ backgroundColor:'rgba(0,0,0,0.04)' }}>
-                        {z.icon}
-                      </div>
-                      <span className="text-[10px] font-semibold text-[#555]">{z.label}</span>
-                    </motion.div>
-                  ))}
-                </div>
+              {/* Illustration: zones carousel */}
+              <div className="h-56 flex items-center justify-center px-8 pt-6 relative overflow-hidden">
+                <ZonesCarousel sets={ALL_ZONE_SETS_ES} />
               </div>
               {/* Text */}
               <div className="px-7 pb-7 pt-4">
