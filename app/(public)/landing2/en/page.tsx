@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
-import { ArrowRight, ChevronDown, ChevronLeft, Wifi, DoorOpen, MessageCircle, X, Bot, Car, FileText, UtensilsCrossed, Check, LogOut, XCircle, CheckCircle2, Droplets, Sun, Leaf, Activity, Flame, ClipboardList, Thermometer, Heart, RefreshCcw, Phone, Lightbulb } from 'lucide-react'
+import { ArrowRight, ChevronDown, ChevronLeft, Wifi, DoorOpen, MessageCircle, X, Bot, Car, FileText, UtensilsCrossed, Check, LogOut, XCircle, CheckCircle2, LogIn, Flame, ClipboardList, Wind, RotateCcw, Timer, Compass, Coffee } from 'lucide-react'
 import { Inter, Manrope } from 'next/font/google'
 
 const inter   = Inter({ subsets: ['latin'], display: 'swap' })
@@ -323,28 +323,20 @@ function DemoWidget() {
 // ─── ZONES CAROUSEL ─────────────────────────────────────────────────────────
 const ALL_ZONE_SETS_EN = [
   [
-    { label:'Entry',      icon:<DoorOpen className="w-4 h-4"/> },
-    { label:'WiFi',       icon:<Wifi className="w-4 h-4"/> },
-    { label:'Rules',      icon:<FileText className="w-4 h-4"/> },
-    { label:'Parking',    icon:<Car className="w-4 h-4"/> },
-    { label:'Kitchen',    icon:<UtensilsCrossed className="w-4 h-4"/> },
-    { label:'Checkout',   icon:<LogOut className="w-4 h-4"/> },
+    { label:'Check-in',    icon:<LogIn className="w-4 h-4"/> },
+    { label:'Check-out',   icon:<LogOut className="w-4 h-4"/> },
+    { label:'WiFi',        icon:<Wifi className="w-4 h-4"/> },
+    { label:'House Rules', icon:<ClipboardList className="w-4 h-4"/> },
+    { label:'Parking',     icon:<Car className="w-4 h-4"/> },
+    { label:'A/C',         icon:<Wind className="w-4 h-4"/> },
   ],
   [
-    { label:'Pool',       icon:<Droplets className="w-4 h-4"/> },
-    { label:'Terrace',    icon:<Sun className="w-4 h-4"/> },
-    { label:'Garden',     icon:<Leaf className="w-4 h-4"/> },
-    { label:'Garage',     icon:<Car className="w-4 h-4"/> },
-    { label:'Gym',        icon:<Activity className="w-4 h-4"/> },
-    { label:'BBQ',        icon:<Flame className="w-4 h-4"/> },
-  ],
-  [
-    { label:'Check-in',   icon:<ClipboardList className="w-4 h-4"/> },
-    { label:'Climate',    icon:<Thermometer className="w-4 h-4"/> },
-    { label:'Pets',       icon:<Heart className="w-4 h-4"/> },
-    { label:'Recycling',  icon:<RefreshCcw className="w-4 h-4"/> },
-    { label:'Emergency',  icon:<Phone className="w-4 h-4"/> },
-    { label:'Local Tips', icon:<Lightbulb className="w-4 h-4"/> },
+    { label:'Cooktop',      icon:<Flame className="w-4 h-4"/> },
+    { label:'Washer',       icon:<RotateCcw className="w-4 h-4"/> },
+    { label:'Microwave',    icon:<Timer className="w-4 h-4"/> },
+    { label:'Restaurants',  icon:<UtensilsCrossed className="w-4 h-4"/> },
+    { label:'What to See',  icon:<Compass className="w-4 h-4"/> },
+    { label:'Coffee Shops', icon:<Coffee className="w-4 h-4"/> },
   ],
 ]
 
@@ -642,45 +634,8 @@ export default function Landing2En() {
             </motion.div>
           </div>
 
-          {/* Row 2: 3 smaller cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
-            {/* Card 3: Auto send */}
-            <motion.div initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.12 }}
-              className="rounded-[20px] overflow-hidden" style={{ backgroundColor:'#f5f3f0' }}>
-              <div className="h-36 flex items-center justify-center px-6 pt-6">
-                <div className="flex flex-col gap-2 w-full max-w-[220px]">
-                  <motion.div className="flex items-center gap-2.5 bg-white rounded-[12px] px-3 py-2.5"
-                    style={{ boxShadow:'0 2px 8px rgba(0,0,0,0.06)' }}
-                    initial={{ opacity:0, x:-10 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:0.2 }}>
-                    <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs">✓</div>
-                    <div>
-                      <p className="text-[10px] font-semibold text-[#111]">Booking confirmed</p>
-                      <p className="text-[9px] text-[#aaa]">Airbnb · 2 sec ago</p>
-                    </div>
-                  </motion.div>
-                  <motion.div className="flex items-center gap-2.5 bg-violet-600 rounded-[12px] px-3 py-2.5"
-                    animate={{ opacity:[0.85,1,0.85] }}
-                    transition={{ repeat:Infinity, duration:2, ease:'easeInOut' }}
-                    initial={{ opacity:0, x:-10 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }}>
-                    <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white text-xs">→</div>
-                    <div>
-                      <p className="text-[10px] font-semibold text-white">Guide sent</p>
-                      <p className="text-[9px] text-violet-200">To the guest automatically</p>
-                    </div>
-                  </motion.div>
-                </div>
-              </div>
-              <div className="px-5 pb-5 pt-3">
-                <p className="text-[11px] font-semibold text-[#aaa] uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-full bg-violet-600 inline-block"/>
-                  Automatic send
-                </p>
-                <p className="text-[13px] text-[#555] leading-relaxed font-normal">
-                  Have it sent automatically when the booking is confirmed. Without touching anything.
-                </p>
-              </div>
-            </motion.div>
+          {/* Row 2: 2 smaller cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
             {/* Card 4: Multi-language */}
             <motion.div initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.17 }}
