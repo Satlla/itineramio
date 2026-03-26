@@ -90,14 +90,8 @@ export default function LandingPage() {
       {/* ─── HEADER ─── */}
       <header className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 ${headerBg}`}>
         <Link href="/" className="flex items-center gap-2">
-          {d ? (
-            <img src="/logo.png" alt="Itineramio" width={32} height={32} className="rounded-lg" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
-          ) : (
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-              <img src="/logo.png" alt="Itineramio" width={20} height={20} className="brightness-0 invert" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
-            </div>
-          )}
-          <span className={`font-bold text-lg ${headerText}`}>itineramio</span>
+          <img src="/isotipo-gradient.svg" alt="Itineramio" width={40} height={22} style={{ objectFit: 'contain' }} />
+          <span className={`font-bold text-lg ${d ? 'text-white' : 'text-gray-900'}`}>Itineramio</span>
         </Link>
         <div className="flex items-center gap-3">
           {/* Theme toggle */}
@@ -124,7 +118,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}
             className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm mb-10 ${d ? 'border border-white/10 bg-white/5 backdrop-blur-sm text-white/50' : 'border border-gray-200 bg-white text-gray-500 shadow-sm'}`}
           >
-            Para anfitriones con 6–10 propiedades en España
+            Para anfitriones con 6 o más propiedades en España
           </motion.div>
 
           <motion.h1
@@ -355,7 +349,7 @@ export default function LandingPage() {
             <motion.p variants={fadeUp} className={`text-sm uppercase tracking-widest ${accent} mb-8`}>Para quién es</motion.p>
             <motion.h2 variants={fadeUp} className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-12">
               Hecho para quien gestiona<br />
-              <span className={d ? 'bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent' : 'text-violet-600'}>6, 7 u 8 pisos solo.</span>
+              <span className={d ? 'bg-gradient-to-r from-violet-400 to-purple-300 bg-clip-text text-transparent' : 'text-violet-600'}>6, 7 u 8 apartamentos.</span>
             </motion.h2>
             <motion.div variants={fadeUp} className={`space-y-5 text-xl max-w-3xl leading-relaxed ${textMuted}`}>
               <p>Mi punto de ruptura no fue un huésped. Fue el sexto piso.</p>

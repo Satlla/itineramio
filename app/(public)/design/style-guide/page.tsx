@@ -198,20 +198,29 @@ const TYPOGRAPHY = [
 // ─── Nav ───────────────────────────────────────────────────────────────────
 
 const NAV = [
-  { id: 'brand',      label: 'Marca'       },
-  { id: 'logos',      label: 'Logotipo'    },
-  { id: 'colors',     label: 'Colores'     },
-  { id: 'typography', label: 'Tipografía'  },
-  { id: 'icons',      label: 'Iconos'      },
-  { id: 'components', label: 'Componentes' },
-  { id: 'screens',    label: 'Pantallas'   },
-  { id: 'tokens',     label: 'Tokens'      },
-  { id: 'marketing',  label: 'Marketing'   },
+  { id: 'brand',         label: 'Marca'          },
+  { id: 'logos',         label: 'Logotipo'        },
+  { id: 'colors',        label: 'Colores'         },
+  { id: 'typography',    label: 'Tipografía'      },
+  { id: 'icons',         label: 'Iconos'          },
+  { id: 'components',    label: 'Componentes'     },
+  { id: 'screens',       label: 'Pantallas'       },
+  { id: 'tokens',        label: 'Tokens'          },
+  { id: 'marketing',     label: 'Marketing'       },
+  { id: 'accessibility', label: 'Accesibilidad'   },
+  { id: 'motion',        label: 'Motion'          },
 ]
 
 // ─── Color swatch ──────────────────────────────────────────────────────────
 
-function ColorSwatch({ color, copied, onCopy }: { color: any, copied: string | null, onCopy: (h: string, id: string) => void }) {
+interface ColorData {
+  name: string
+  hex: string
+  dark: boolean
+  primary?: boolean
+}
+
+function ColorSwatch({ color, copied, onCopy }: { color: ColorData, copied: string | null, onCopy: (h: string, id: string) => void }) {
   const id = color.hex
   return (
     <div
@@ -273,7 +282,7 @@ function DashboardScreen() {
       <div className="bg-white border-b border-neutral-100 px-4 h-12 flex items-center justify-between flex-shrink-0 shadow-sm">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-            <img src="/isotipo-white.svg" alt="Itineramio" style={{ width: 14, height: 14, objectFit: 'contain' }} />
+            <img src="/logo-itineramio.svg" style={{ width: 14, height: 8, objectFit: "contain", filter: "invert(1)" }} alt="" />
           </div>
           <span className="font-semibold text-gray-800 text-[11px]">Itineramio</span>
         </div>
@@ -702,14 +711,11 @@ export default function StyleGuidePage() {
 
             {/* ── Hero — isotipo principal ──────────────────────────── */}
             <div className="relative rounded-3xl overflow-hidden mb-8 h-56 md:h-72 bg-black flex items-center justify-center">
-              {/* gradient orbs */}
-              <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-[80px] opacity-30 bg-[#FF07AB]" />
-              <div className="absolute top-1/2 right-1/4 translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-[80px] opacity-30 bg-[#FF4D4D]" />
               <div className="relative z-10 flex flex-col items-center gap-4">
-                <img src="/isotipo-gradient.svg" alt="Itineramio isotipo" style={{ width: 90, height: 50, objectFit: 'contain' }} />
+                <img src="/logo-itineramio.svg" alt="Itineramio isotipo" style={{ width: 90, height: 50, objectFit: 'contain', filter: 'invert(1)' }} />
                 <div className="text-center">
                   <p className="text-white font-bold text-lg tracking-tight">Itineramio</p>
-                  <p className="text-white/40 text-xs font-mono mt-0.5">Isotipo · variante gradiente — referencia</p>
+                  <p className="text-white/40 text-xs font-mono mt-0.5">Isotipo · variante blanca sobre negro</p>
                 </div>
               </div>
             </div>
@@ -736,7 +742,7 @@ export default function StyleGuidePage() {
               {/* V2 — fondo claro + isotipo negro */}
               <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
                 <div className="h-32 bg-white flex items-center justify-center">
-                  <img src="/isotipo-black.svg" alt="Isotipo negro" style={{ width: 48, height: 48, objectFit: 'contain' }} />
+                  <img src="/logo-itineramio.svg" style={{ width: 56, height: 31, objectFit: "contain" }} alt="Isotipo negro" />
                 </div>
                 <div className="px-3 py-2.5 bg-white border-t border-gray-100">
                   <p className="text-[11px] font-semibold text-gray-900 leading-tight">Isotipo · negro</p>
@@ -750,7 +756,7 @@ export default function StyleGuidePage() {
               {/* V3 — fondo oscuro + isotipo blanco */}
               <div className="rounded-2xl overflow-hidden border border-gray-800 shadow-sm">
                 <div className="h-32 bg-black flex items-center justify-center">
-                  <img src="/isotipo-white.svg" alt="Isotipo blanco" style={{ width: 48, height: 48, objectFit: 'contain' }} />
+                  <img src="/logo-itineramio.svg" style={{ width: 56, height: 31, objectFit: "contain", filter: "invert(1)" }} alt="Isotipo blanco" />
                 </div>
                 <div className="px-3 py-2.5 bg-[#111] border-t border-white/5">
                   <p className="text-[11px] font-semibold text-white leading-tight">Isotipo · blanco</p>
@@ -761,17 +767,16 @@ export default function StyleGuidePage() {
                 </div>
               </div>
 
-              {/* V4 — fondo oscuro + isotipo gradiente */}
+              {/* V4 — fondo oscuro + isotipo blanco */}
               <div className="rounded-2xl overflow-hidden border border-gray-800 shadow-sm">
                 <div className="h-32 bg-[#111] flex items-center justify-center">
-                  <img src="/isotipo-gradient.svg" alt="Isotipo variante gradiente oscuro" style={{ width: 56, height: 31, objectFit: 'contain' }} />
+                  <img src="/logo-itineramio.svg" alt="Isotipo variante blanca sobre oscuro" style={{ width: 56, height: 31, objectFit: 'contain', filter: 'invert(1)' }} />
                 </div>
                 <div className="px-3 py-2.5 bg-[#111] border-t border-white/5">
-                  <p className="text-[11px] font-semibold text-white leading-tight">Isotipo · gradiente</p>
-                  <p className="text-[10px] text-white/40 mt-0.5">Fondo oscuro · hero, emails dark</p>
+                  <p className="text-[11px] font-semibold text-white leading-tight">Isotipo · blanco</p>
+                  <p className="text-[10px] text-white/40 mt-0.5">Fondo oscuro · dark mode, dashboard</p>
                   <div className="flex gap-1 mt-1.5">
-                    <span className="inline-block w-3 h-3 rounded-full bg-[#FF07AB]" />
-                    <span className="inline-block w-3 h-3 rounded-full bg-[#FF4D4D]" />
+                    <span className="inline-block w-3 h-3 rounded-full bg-white border border-white/20" />
                   </div>
                 </div>
               </div>
@@ -791,7 +796,7 @@ export default function StyleGuidePage() {
               </div>
               <div className="rounded-2xl overflow-hidden border border-gray-800 shadow-sm">
                 <div className="h-28 bg-black flex items-center justify-center px-10">
-                  <img src="/isotipo-white.svg" alt="Isotipo blanco" style={{ width: 80, height: 80, objectFit: 'contain' }} />
+                  <img src="/logo-itineramio.svg" style={{ width: 180, height: 60, objectFit: "contain", filter: "invert(1)" }} alt="Logotipo variante oscura" />
                 </div>
                 <div className="px-4 py-2.5 bg-[#111] border-t border-white/5">
                   <p className="text-[11px] font-semibold text-white">Logotipo · variante oscura</p>
@@ -1394,8 +1399,8 @@ export default function StyleGuidePage() {
                 <div className="rounded-xl overflow-hidden h-11 bg-gradient-to-r from-[#FF07AB] via-[#FF2E76] to-[#FF4D4D] flex items-center justify-center cursor-pointer" onClick={() => copy('#FF07AB, #FF2E76, #FF4D4D', 'grad-logo')}>
                   <p className="text-white font-bold text-xs">Gradiente Logo Marketing — copiar</p>
                 </div>
-                <div className="rounded-xl overflow-hidden h-11 bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F43F5E] flex items-center justify-center cursor-pointer" onClick={() => copy('#8B5CF6, #EC4899, #F43F5E', 'grad-app')}>
-                  <p className="text-white font-bold text-xs">Gradiente In-App — copiar</p>
+                <div className="rounded-xl overflow-hidden h-11 bg-gradient-to-r from-[#6366f1] via-[#7c3aed] to-[#8b5cf6] flex items-center justify-center cursor-pointer" onClick={() => copy('#6366f1, #7c3aed, #8b5cf6', 'grad-app')}>
+                  <p className="text-white font-bold text-xs">Gradiente Dashboard UI — copiar</p>
                 </div>
               </div>
             </div>
@@ -1463,11 +1468,11 @@ export default function StyleGuidePage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className={`rounded-2xl overflow-hidden border ${cardBg}`}>
                   <div className="h-20 bg-black flex items-center justify-center">
-                    <img src="/isotipo-gradient.svg" style={{ width: 80, height: 44, objectFit: 'contain' }} alt="Logo sobre negro" />
+                    <img src="/logo-itineramio.svg" style={{ width: 80, height: 44, objectFit: 'contain', filter: 'invert(1)' }} alt="Logo blanco sobre negro" />
                   </div>
                   <div className="p-3">
                     <p className="text-[10px] font-bold text-emerald-500">Correcto</p>
-                    <p className={`text-[9px] ${mutedText} mt-0.5`}>Gradiente sobre fondo oscuro</p>
+                    <p className={`text-[9px] ${mutedText} mt-0.5`}>Blanco sobre fondo oscuro</p>
                   </div>
                 </div>
                 <div className={`rounded-2xl overflow-hidden border ${cardBg}`}>
@@ -1493,10 +1498,134 @@ export default function StyleGuidePage() {
             </div>
           </Section>
 
+          {/* ════ ACCESSIBILITY ════ */}
+          <Section id="accessibility">
+            <SectionHeader title="Accesibilidad" desc="Ratios de contraste WCAG 2.1 para las combinaciones de color clave. AA mínimo requerido en producción — AAA recomendado para texto principal." theme={theme} num="10 —" />
+
+            <div className={`rounded-2xl border overflow-hidden mb-6 ${cardBg}`}>
+              <div className={`grid grid-cols-[2fr_1fr_1fr_1fr] border-b ${isDark ? 'border-white/5 bg-white/5' : 'border-gray-100 bg-gray-50'}`}>
+                {['Combinación', 'Ratio', 'WCAG AA', 'WCAG AAA'].map(h => (
+                  <div key={h} className={`px-5 py-3 ${h !== 'Combinación' ? 'text-right' : ''}`}>
+                    <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>{h}</p>
+                  </div>
+                ))}
+              </div>
+              {[
+                { combo: '#222222 sobre blanco',        swatch: ['#222222','#FFFFFF'], ratio: '16.1:1', aa: true,  aaa: true,  note: 'Texto principal guía pública' },
+                { combo: '#484848 sobre blanco',        swatch: ['#484848','#FFFFFF'], ratio: '9.7:1',  aa: true,  aaa: true,  note: 'Texto body guía pública' },
+                { combo: '#717171 sobre blanco',        swatch: ['#717171','#FFFFFF'], ratio: '4.5:1',  aa: true,  aaa: false, note: '⚠ Solo texto ≥18px o bold ≥14px' },
+                { combo: 'Blanco sobre violet-600 (#4338ca)', swatch: ['#FFFFFF','#4338ca'], ratio: '8.6:1', aa: true, aaa: true,  note: 'Botones primarios dashboard' },
+                { combo: 'Blanco sobre violet-500 (#6366f1)', swatch: ['#FFFFFF','#6366f1'], ratio: '4.5:1', aa: true, aaa: false, note: 'OK para botones (texto bold)' },
+                { combo: '#008A05 sobre blanco',        swatch: ['#008A05','#FFFFFF'], ratio: '6.9:1',  aa: true,  aaa: true,  note: 'Éxito guía pública' },
+                { combo: 'Blanco sobre #25D366',        swatch: ['#FFFFFF','#25D366'], ratio: '1.7:1',  aa: false, aaa: false, note: '⛔ Solo usar en iconos, no en texto' },
+              ].map(({ combo, swatch, ratio, aa, aaa, note }) => (
+                <div key={combo} className={`grid grid-cols-[2fr_1fr_1fr_1fr] border-b last:border-0 ${isDark ? 'border-white/5' : 'border-gray-50'}`}>
+                  <div className="px-5 py-3 flex items-center gap-3">
+                    <div className="flex -space-x-1 flex-shrink-0">
+                      <div className="w-5 h-5 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: swatch[0] }} />
+                      <div className="w-5 h-5 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: swatch[1] }} />
+                    </div>
+                    <div>
+                      <p className={`text-xs font-medium ${text}`}>{combo}</p>
+                      <p className={`text-[9px] ${subText}`}>{note}</p>
+                    </div>
+                  </div>
+                  <div className="px-4 py-3 flex items-center justify-end">
+                    <span className={`text-xs font-mono font-bold ${isDark ? 'text-white/60' : 'text-gray-700'}`}>{ratio}</span>
+                  </div>
+                  <div className="px-4 py-3 flex items-center justify-end">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${aa ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>{aa ? 'Pass' : 'Fail'}</span>
+                  </div>
+                  <div className="px-4 py-3 flex items-center justify-end">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${aaa ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-400'}`}>{aaa ? 'Pass' : '—'}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className={`rounded-xl px-4 py-3 text-xs leading-relaxed ${isDark ? 'bg-amber-500/10 border border-amber-500/20 text-amber-300/80' : 'bg-amber-50 border border-amber-200 text-amber-700'}`}>
+              <span className="font-bold">Norma interna:</span> WCAG AA mínimo en toda la app. #717171 es el único color borderline — se acepta solo en texto ≥16px (guía pública: subtítulos de zona, metadata de propiedad). El gradiente WhatsApp (#25D366) nunca debe contener texto blanco.
+            </div>
+          </Section>
+
+          {/* ════ MOTION ════ */}
+          <Section id="motion">
+            <SectionHeader title="Motion" desc="Tokens de animación — duraciones, easings y presets Framer Motion usados en toda la app." theme={theme} num="11 —" />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {/* Durations */}
+              <div className={`rounded-2xl p-6 border ${cardBg}`}>
+                <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${subText}`}>Escala de duraciones</p>
+                <div className="space-y-3">
+                  {[
+                    { name: 'micro',    ms: 100,  tw: 'duration-100', use: 'Hover, focus ring, toggle' },
+                    { name: 'fast',     ms: 200,  tw: 'duration-200', use: 'Botones, badges, chips' },
+                    { name: 'standard', ms: 300,  tw: 'duration-300', use: 'Modales, dropdowns, sidebars' },
+                    { name: 'complex',  ms: 500,  tw: 'duration-500', use: 'Onboarding, empty states' },
+                    { name: 'page',     ms: 700,  tw: 'duration-700', use: 'Transiciones de ruta' },
+                  ].map(({ name, ms, tw, use }) => (
+                    <div key={name} className="flex items-center gap-4">
+                      <span className={`text-[10px] font-mono w-16 flex-shrink-0 ${isDark ? 'text-violet-400/70' : 'text-violet-600'}`}>{ms}ms</span>
+                      <div className="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-violet-500 to-purple-600 rounded-full" style={{ width: `${(ms / 700) * 100}%` }} />
+                      </div>
+                      <div className="text-right min-w-[140px]">
+                        <p className={`text-[10px] font-mono ${isDark ? 'text-white/50' : 'text-gray-500'}`}>{tw}</p>
+                        <p className={`text-[9px] ${subText}`}>{use}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Easings */}
+              <div className={`rounded-2xl p-6 border ${cardBg}`}>
+                <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${subText}`}>Easings</p>
+                <div className="space-y-4">
+                  {[
+                    { name: 'ease-out',    framer: '[0, 0, 0.2, 1]',     use: 'Elementos que entran — lo más común',    tw: 'ease-out'    },
+                    { name: 'ease-in',     framer: '[0.4, 0, 1, 1]',      use: 'Elementos que salen / desaparecen',      tw: 'ease-in'     },
+                    { name: 'ease-in-out', framer: '[0.4, 0, 0.2, 1]',    use: 'Transiciones bidireccionales',           tw: 'ease-in-out' },
+                    { name: 'spring',      framer: 'type: "spring"',       use: 'Interacciones táctiles, drag, reorder',  tw: '—'           },
+                  ].map(({ name, framer, use, tw }) => (
+                    <div key={name} className={`rounded-xl p-3 border ${isDark ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-200'}`}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className={`text-[11px] font-bold ${text}`}>{name}</span>
+                        <span className={`text-[9px] font-mono ${isDark ? 'text-violet-400/70' : 'text-violet-600'}`}>{tw}</span>
+                      </div>
+                      <p className={`text-[9px] font-mono ${subText} mb-1`}>ease: {framer}</p>
+                      <p className={`text-[9px] ${subText}`}>{use}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Framer Motion presets */}
+            <div className={`rounded-2xl p-6 border ${cardBg}`}>
+              <p className={`text-xs font-bold uppercase tracking-widest mb-4 ${subText}`}>Presets Framer Motion — copiar y usar</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { name: 'fadeIn',      code: `{ initial: { opacity: 0 },\n  animate: { opacity: 1 },\n  transition: { duration: 0.3 } }` },
+                  { name: 'slideUp',     code: `{ initial: { opacity: 0, y: 12 },\n  animate: { opacity: 1, y: 0 },\n  transition: { duration: 0.3, ease: [0,0,0.2,1] } }` },
+                  { name: 'scaleIn',     code: `{ initial: { opacity: 0, scale: 0.95 },\n  animate: { opacity: 1, scale: 1 },\n  transition: { duration: 0.2 } }` },
+                  { name: 'staggerList', code: `// En el padre:\n{ variants: { show: { transition: { staggerChildren: 0.06 } } } }\n// En cada hijo:\n{ variants: { hidden: { opacity:0, y:8 }, show: { opacity:1, y:0 } } }` },
+                ].map(({ name, code }) => (
+                  <div key={name} className={`rounded-xl overflow-hidden border ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
+                    <div className={`flex items-center justify-between px-3 py-2 border-b ${isDark ? 'bg-white/5 border-white/5' : 'bg-gray-50 border-gray-100'}`}>
+                      <span className={`text-[10px] font-bold font-mono ${isDark ? 'text-violet-400' : 'text-violet-700'}`}>{name}</span>
+                    </div>
+                    <pre className={`p-3 text-[10px] font-mono leading-relaxed overflow-x-auto ${isDark ? 'text-white/50 bg-[#0a0a0a]' : 'text-gray-600 bg-white'}`}><code>{code}</code></pre>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Section>
+
           {/* Footer */}
           <div className={`border-t pt-10 pb-16 flex flex-col sm:flex-row items-center justify-between gap-4 ${border}`}>
             <div className="flex items-center gap-3">
-              <img src={isDark ? '/isotipo-white.svg' : '/isotipo-black.svg'} alt="Itineramio" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+              <img src='/logo-itineramio.svg' style={{ width: 28, height: 15, objectFit: 'contain', filter: isDark ? 'invert(1)' : 'none' }} alt='Itineramio' />
               <span className={`text-xs ${subText}`}>Itineramio Design System · v2.0 · 2026</span>
             </div>
             <div className={`flex items-center gap-4 text-xs ${subText}`}>
