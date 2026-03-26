@@ -530,7 +530,7 @@ export default function Landing2() {
             className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-10">
             {[
               { n:'01', title:'Crea tu guía', body:'No tienes que montarlo todo. Empieza por la entrada. Si una parte genera tensión, suele ser esa. Añádela primero y deja lo demás para después.' },
-              { n:'02', title:'Activa el envío', body:'Una guía. Un envío automático. Ese es el primer cambio real. Cuando activas eso, el huésped ya recibe la información antes de llegar.' },
+              { n:'02', title:'Haz que se envíe automáticamente', body:'Cuando se confirma la reserva, el huésped lo recibe. Así llegáis los dos mucho mejor al check-in.' },
               { n:'03', title:'El huésped llega ubicado', body:'Ya llega más ubicado. Menos preguntas después. Menos caos al llegar. Todo más claro antes.' },
             ].map((s, i) => (
               <motion.div key={i} variants={fadeUp} whileHover={{ y:-3, transition:{ duration:0.18 } }}
