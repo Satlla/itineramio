@@ -212,7 +212,9 @@ function DemoWidget() {
                   <div className="w-9 h-9 rounded-2xl flex items-center justify-center text-white shadow-lg relative"
                     style={{ background:'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
                     <Bot className="w-4 h-4 relative z-10"/>
-                    <motion.div animate={{ scale:[1,1.7], opacity:[0.25,0] }} transition={{ repeat:Infinity, duration:1.8, ease:'easeOut' }}
+                    <motion.div animate={{ scale:[1,1.8], opacity:[0.3,0] }} transition={{ repeat:Infinity, duration:2, ease:'easeOut' }}
+                      className="absolute inset-0 rounded-2xl bg-violet-400"/>
+                    <motion.div animate={{ scale:[1,2.4], opacity:[0.15,0] }} transition={{ repeat:Infinity, duration:2, ease:'easeOut', delay:0.7 }}
                       className="absolute inset-0 rounded-2xl bg-violet-400"/>
                   </div>
                 </motion.div>
@@ -371,8 +373,13 @@ export default function Landing2En() {
       {/* ── SECTION 1: HERO ── */}
       <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-28 pb-16 overflow-hidden">
         <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[140%] h-[60%]"
-            style={{ background:'radial-gradient(ellipse 70% 50% at 50% -10%, rgba(124,58,237,0.1) 0%, transparent 70%)' }}/>
+          <motion.div animate={{ opacity:[0.6,1,0.6], scale:[0.97,1.03,0.97] }} transition={{ repeat:Infinity, duration:6, ease:'easeInOut' }}
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[140%] h-[60%]"
+            style={{ background:'radial-gradient(ellipse 70% 50% at 50% -10%, rgba(124,58,237,0.12) 0%, transparent 70%)' }}/>
+          <motion.div animate={{ scale:[1,1.6,1], opacity:[0.12,0,0.12] }} transition={{ repeat:Infinity, duration:5, ease:'easeInOut' }}
+            className="absolute top-[28%] left-1/2 w-[500px] h-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-violet-400/30"/>
+          <motion.div animate={{ scale:[1,1.6,1], opacity:[0.06,0,0.06] }} transition={{ repeat:Infinity, duration:5, ease:'easeInOut', delay:2.5 }}
+            className="absolute top-[28%] left-1/2 w-[500px] h-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-violet-400/20"/>
         </div>
 
         <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.45 }}
@@ -882,7 +889,7 @@ export default function Landing2En() {
       {/* ── SECTION 6: ICP FILTER ── */}
       <section className="py-24 px-6" style={{ backgroundColor:'#0e0e0e' }}>
         <div className="max-w-3xl mx-auto text-center">
-          <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(124,58,237,0.15) 0%, transparent 70%)' }}/>
+          <motion.div animate={{ opacity:[0.6,1,0.6] }} transition={{ repeat:Infinity, duration:4, ease:'easeInOut' }} className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(124,58,237,0.2) 0%, transparent 70%)' }}/>
           <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger} className="relative z-10">
             <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#555] font-medium mb-5">Who it&apos;s for</motion.p>
             <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight text-white mb-10"

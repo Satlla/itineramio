@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { motion, AnimatePresence, useInView, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, ChevronDown, ChevronLeft, Star, Wifi, DoorOpen, MessageCircle, Menu, X, Bot, Car, FileText, UtensilsCrossed, Check, LogOut, XCircle, CheckCircle2 } from 'lucide-react'
 import { Inter, Manrope } from 'next/font/google'
 
@@ -54,12 +54,12 @@ function LogoCarousel() {
 
 // ─── DEMO WIDGET ───────────────────────────────────────────────────────────
 const GUIDE_ZONES = [
-  { id:'entrada',  label:'Entrada',  color:'#7c3aed', bg:'#ede9ff', icon:<DoorOpen className="w-3.5 h-3.5"/>,       step:{ title:'Caja de llaves',    body:'Caja gris a la derecha de la puerta.\nCódigo: 4521 · Mantén pulsado 2 seg.' } },
-  { id:'wifi',     label:'WiFi',     color:'#2563eb', bg:'#dbeafe', icon:<Wifi className="w-3.5 h-3.5"/>,           step:{ title:'Red y contraseña',   body:'Red: Itineramio_5G\nClave: balcon2024#' } },
-  { id:'normas',   label:'Normas',   color:'#d97706', bg:'#fef3c7', icon:<FileText className="w-3.5 h-3.5"/>,       step:{ title:'Normas del piso',    body:'Check-out antes de las 11:00h.\nNo fumar en el interior.' } },
-  { id:'parking',  label:'Parking',  color:'#059669', bg:'#d1fae5', icon:<Car className="w-3.5 h-3.5"/>,            step:{ title:'Aparcamiento',       body:'Plaza B-14 · Pase magnético en\nel cajón de la cocina (izquierda).' } },
-  { id:'cocina',   label:'Cocina',   color:'#dc2626', bg:'#fee2e2', icon:<UtensilsCrossed className="w-3.5 h-3.5"/>,step:{ title:'Equipamiento',       body:'Cafetera, microondas, tostadora.\nEspecias básicas incluidas.' } },
-  { id:'checkout', label:'Salida',   color:'#6b7280', bg:'#f3f4f6', icon:<LogOut className="w-3.5 h-3.5"/>,         step:{ title:'Check-out',          body:'Deja las llaves dentro y\ncierra con el código 4521.' } },
+  { id:'entrada',  label:'Entrada',  icon:<DoorOpen className="w-3.5 h-3.5"/>,        step:{ title:'Caja de llaves',    body:'Caja gris a la derecha de la puerta.\nCódigo: 4521 · Mantén pulsado 2 seg.' } },
+  { id:'wifi',     label:'WiFi',     icon:<Wifi className="w-3.5 h-3.5"/>,            step:{ title:'Red y contraseña',   body:'Red: Itineramio_5G\nClave: balcon2024#' } },
+  { id:'normas',   label:'Normas',   icon:<FileText className="w-3.5 h-3.5"/>,        step:{ title:'Normas del piso',    body:'Check-out antes de las 11:00h.\nNo fumar en el interior.' } },
+  { id:'parking',  label:'Parking',  icon:<Car className="w-3.5 h-3.5"/>,             step:{ title:'Aparcamiento',       body:'Plaza B-14 · Pase magnético en\nel cajón de la cocina (izquierda).' } },
+  { id:'cocina',   label:'Cocina',   icon:<UtensilsCrossed className="w-3.5 h-3.5"/>, step:{ title:'Equipamiento',       body:'Cafetera, microondas, tostadora.\nEspecias básicas incluidas.' } },
+  { id:'checkout', label:'Salida',   icon:<LogOut className="w-3.5 h-3.5"/>,          step:{ title:'Check-out',          body:'Deja las llaves dentro y\ncierra con el código 4521.' } },
 ]
 
 type SeqStep = { view:'guide'|'zona'|'chat'; zone:string|null; msg:number; cx:number; cy:number; click:boolean; dur:number }
@@ -136,17 +136,17 @@ function DemoWidget() {
               <AnimatePresence mode="wait">
                 {s.view==='zona' && activeZone ? (
                   <motion.div key={`zone-${activeZone.id}`} initial={{ x:'100%' }} animate={{ x:0 }} exit={{ x:'100%' }}
-                    transition={{ type:'spring', stiffness:400, damping:38 }} className="absolute inset-0 bg-white flex flex-col">
+                    transition={{ duration:0.28, ease:[0.25,0.1,0.25,1] }} className="absolute inset-0 bg-white flex flex-col">
                     <div className="flex items-center gap-2 px-3 py-2 border-b border-black/[0.05] shrink-0">
                       <button className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
                         <ChevronLeft className="w-3 h-3 text-[#555]"/>
                       </button>
-                      <div className="w-5 h-5 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor:activeZone.bg, color:activeZone.color }}>{activeZone.icon}</div>
+                      <div className="w-5 h-5 rounded-lg flex items-center justify-center shrink-0 text-[#555]" style={{ backgroundColor:'#f0efed' }}>{activeZone.icon}</div>
                       <p className="text-[11px] font-semibold text-[#111] flex-1 leading-none">{activeZone.label}</p>
-                      <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-green-50 text-green-600 flex items-center gap-0.5"><Check className="w-2.5 h-2.5"/>Visto</span>
+                      <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full text-[#555] flex items-center gap-0.5" style={{ backgroundColor:'rgba(0,0,0,0.05)' }}><Check className="w-2.5 h-2.5"/>Visto</span>
                     </div>
                     <div className="flex-1 p-3 overflow-hidden">
-                      <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1 }}
+                      <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.08 }}
                         className="bg-white rounded-xl border border-black/[0.07] p-3 shadow-sm">
                         <div className="flex items-center gap-2 mb-2">
                           <div className="w-5 h-5 rounded-full text-white text-[9px] font-bold flex items-center justify-center shrink-0" style={{ backgroundColor:'#111' }}>1</div>
@@ -154,24 +154,24 @@ function DemoWidget() {
                         </div>
                         <p className="text-[10px] text-[#555] leading-relaxed whitespace-pre-line pl-7">{activeZone.step.body}</p>
                         <div className="mt-2.5 pl-7 flex items-center gap-1">
-                          <Check className="w-2.5 h-2.5 text-green-500"/><span className="text-[9px] text-green-600 font-medium">Paso completado</span>
+                          <Check className="w-2.5 h-2.5 text-[#555]"/><span className="text-[9px] text-[#555] font-medium">Paso completado</span>
                         </div>
                       </motion.div>
                       <div className="mt-3">
                         <div className="flex justify-between mb-1">
                           <span className="text-[8px] text-[#aaa]">Progreso</span>
-                          <span className="text-[8px] font-medium" style={{ color:activeZone.color }}>1/1 pasos</span>
+                          <span className="text-[8px] font-medium text-[#555]">1/1 pasos</span>
                         </div>
                         <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
                           <motion.div initial={{ width:0 }} animate={{ width:'100%' }} transition={{ duration:0.6, delay:0.3, ease:'easeOut' }}
-                            className="h-full rounded-full" style={{ backgroundColor:activeZone.color }}/>
+                            className="h-full rounded-full bg-[#7c3aed]"/>
                         </div>
                       </div>
                     </div>
                   </motion.div>
                 ) : s.view!=='chat' ? (
                   <motion.div key="zone-grid" initial={{ x:'-30%', opacity:0 }} animate={{ x:0, opacity:1 }} exit={{ x:'-30%', opacity:0 }}
-                    transition={{ type:'spring', stiffness:400, damping:38 }} className="absolute inset-0 p-3 flex flex-col gap-2.5 bg-[#f8f8f8]">
+                    transition={{ duration:0.28, ease:[0.25,0.1,0.25,1] }} className="absolute inset-0 p-3 flex flex-col gap-2.5 bg-[#f8f8f8]">
                     <p className="text-[8px] font-semibold uppercase tracking-[0.16em] text-[#bbb]">Manual de la propiedad</p>
                     <div className="grid grid-cols-3 gap-2 flex-1">
                       {GUIDE_ZONES.map(z => {
@@ -179,13 +179,13 @@ function DemoWidget() {
                         const isHovered = s.view==='guide' && s.zone===z.id
                         return (
                           <motion.div key={z.id}
-                            animate={isHovered ? { scale:1.05, borderColor:z.color, boxShadow:`0 4px 12px ${z.color}22` } : { scale:1, borderColor:'rgba(0,0,0,0.07)', boxShadow:'0 1px 2px rgba(0,0,0,0.04)' }}
-                            transition={{ type:'spring', stiffness:400, damping:28 }}
+                            animate={isHovered ? { scale:1.03, borderColor:'rgba(0,0,0,0.15)', boxShadow:'0 4px 12px rgba(0,0,0,0.08)' } : { scale:1, borderColor:'rgba(0,0,0,0.07)', boxShadow:'0 1px 2px rgba(0,0,0,0.04)' }}
+                            transition={{ duration:0.2, ease:'easeOut' }}
                             className="bg-white rounded-xl border p-2 flex flex-col gap-1.5 cursor-default">
-                            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor:z.bg, color:z.color }}>{z.icon}</div>
+                            <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[#555]" style={{ backgroundColor:'#f0efed' }}>{z.icon}</div>
                             <p className="text-[9px] font-semibold text-[#111] leading-tight">{z.label}</p>
                             {isViewed
-                              ? <span className="text-[8px] text-green-600 font-medium flex items-center gap-0.5"><Check className="w-2 h-2"/>Visto</span>
+                              ? <span className="text-[8px] text-[#555] font-medium flex items-center gap-0.5"><Check className="w-2 h-2"/>Visto</span>
                               : <span className="text-[8px] text-[#ccc]">Ver →</span>}
                           </motion.div>
                         )
@@ -209,11 +209,13 @@ function DemoWidget() {
             <AnimatePresence>
               {s.view!=='chat' && (
                 <motion.div initial={{ scale:0, opacity:0 }} animate={{ scale:1, opacity:1 }} exit={{ scale:0, opacity:0 }}
-                  transition={{ type:'spring', stiffness:300, damping:22 }} className="absolute bottom-3 right-3 z-20">
+                  transition={{ duration:0.2, ease:'easeOut' }} className="absolute bottom-3 right-3 z-20">
                   <div className="w-9 h-9 rounded-2xl flex items-center justify-center text-white shadow-lg relative"
                     style={{ background:'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
                     <Bot className="w-4 h-4 relative z-10"/>
-                    <motion.div animate={{ scale:[1,1.7], opacity:[0.25,0] }} transition={{ repeat:Infinity, duration:1.8, ease:'easeOut' }}
+                    <motion.div animate={{ scale:[1,1.8], opacity:[0.3,0] }} transition={{ repeat:Infinity, duration:2, ease:'easeOut' }}
+                      className="absolute inset-0 rounded-2xl bg-violet-400"/>
+                    <motion.div animate={{ scale:[1,2.4], opacity:[0.15,0] }} transition={{ repeat:Infinity, duration:2, ease:'easeOut', delay:0.7 }}
                       className="absolute inset-0 rounded-2xl bg-violet-400"/>
                   </div>
                 </motion.div>
@@ -224,7 +226,7 @@ function DemoWidget() {
           <AnimatePresence>
             {s.view==='chat' && (
               <motion.div key="chat" initial={{ x:'100%' }} animate={{ x:0 }} exit={{ x:'100%' }}
-                transition={{ type:'spring', stiffness:340, damping:34 }} className="absolute inset-0 flex flex-col bg-white z-30">
+                transition={{ duration:0.28, ease:[0.25,0.1,0.25,1] }} className="absolute inset-0 flex flex-col bg-white z-30">
                 <div className="flex items-center gap-2.5 px-3.5 py-2.5 shrink-0"
                   style={{ background:'linear-gradient(135deg, #18181b, #27272a)' }}>
                   <div className="w-7 h-7 rounded-xl flex items-center justify-center" style={{ backgroundColor:'rgba(124,58,237,0.3)' }}>
@@ -372,8 +374,13 @@ export default function Landing2() {
       {/* ── SECTION 1: HERO ── */}
       <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-28 pb-16 overflow-hidden">
         <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[140%] h-[60%]"
-            style={{ background:'radial-gradient(ellipse 70% 50% at 50% -10%, rgba(124,58,237,0.1) 0%, transparent 70%)' }}/>
+          <motion.div animate={{ opacity:[0.6,1,0.6], scale:[0.97,1.03,0.97] }} transition={{ repeat:Infinity, duration:6, ease:'easeInOut' }}
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[140%] h-[60%]"
+            style={{ background:'radial-gradient(ellipse 70% 50% at 50% -10%, rgba(124,58,237,0.12) 0%, transparent 70%)' }}/>
+          <motion.div animate={{ scale:[1,1.6,1], opacity:[0.12,0,0.12] }} transition={{ repeat:Infinity, duration:5, ease:'easeInOut' }}
+            className="absolute top-[28%] left-1/2 w-[500px] h-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-violet-400/30"/>
+          <motion.div animate={{ scale:[1,1.6,1], opacity:[0.06,0,0.06] }} transition={{ repeat:Infinity, duration:5, ease:'easeInOut', delay:2.5 }}
+            className="absolute top-[28%] left-1/2 w-[500px] h-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-violet-400/20"/>
         </div>
 
         <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.45 }}
@@ -416,6 +423,225 @@ export default function Landing2() {
       {/* ── LOGOS ── */}
       <section className="py-12 border-y border-black/[0.06]">
         <div className="max-w-sm mx-auto"><LogoCarousel/></div>
+      </section>
+
+      {/* ── FEATURE CARDS ── */}
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+
+          {/* Section header */}
+          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger} className="mb-12">
+            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-4">El producto</motion.p>
+            <motion.h2 variants={fadeUp} className="leading-[1.06] tracking-tight max-w-2xl"
+              style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
+              <span className="font-semibold text-[#111]">Todo lo que necesita el huésped. </span>
+              <span className="font-light text-[#aaa]">Sin que tú repitas nada.</span>
+            </motion.h2>
+          </motion.div>
+
+          {/* Row 1: 2 big cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+
+            {/* Card 1: Guía por zonas */}
+            <motion.div initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.05 }}
+              className="rounded-[20px] overflow-hidden" style={{ backgroundColor:'#f5f3f0' }}>
+              {/* Illustration */}
+              <div className="h-56 flex items-center justify-center px-8 pt-8 relative overflow-hidden">
+                <div className="w-full max-w-[280px] grid grid-cols-3 gap-2">
+                  {[
+                    { label:'Entrada',  icon:<DoorOpen className="w-4 h-4"/> },
+                    { label:'WiFi',     icon:<Wifi className="w-4 h-4"/> },
+                    { label:'Normas',   icon:<FileText className="w-4 h-4"/> },
+                    { label:'Parking',  icon:<Car className="w-4 h-4"/> },
+                    { label:'Cocina',   icon:<UtensilsCrossed className="w-4 h-4"/> },
+                    { label:'Salida',   icon:<LogOut className="w-4 h-4"/> },
+                  ].map((z, i) => (
+                    <motion.div key={i}
+                      initial={{ opacity:0, scale:0.9 }} whileInView={{ opacity:1, scale:1 }}
+                      viewport={{ once:true }} transition={{ delay: 0.08 + i*0.06, ease:'easeOut', duration:0.3 }}
+                      className="rounded-[14px] p-3 flex flex-col items-center justify-center gap-1.5 aspect-square"
+                      style={{ backgroundColor:'#f0efed' }}>
+                      <div className="w-8 h-8 rounded-[10px] flex items-center justify-center text-[#555]"
+                        style={{ backgroundColor:'rgba(0,0,0,0.04)' }}>
+                        {z.icon}
+                      </div>
+                      <span className="text-[10px] font-semibold text-[#555]">{z.label}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+              {/* Text */}
+              <div className="px-7 pb-7 pt-4">
+                <p className="text-[11px] font-semibold text-[#aaa] uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                  <span className="w-3.5 h-3.5 rounded-full bg-violet-600 inline-block"/>
+                  Guía por zonas
+                </p>
+                <p className="text-[15px] text-[#555] leading-relaxed font-normal">
+                  Organiza la información en zonas: entrada, WiFi, normas, parking. El huésped encuentra lo que busca sin leer todo.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Card 2: Chatbot IA */}
+            <motion.div initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.1 }}
+              className="rounded-[20px] overflow-hidden" style={{ backgroundColor:'#f5f3f0' }}>
+              {/* Illustration: chat mockup */}
+              <div className="h-56 flex items-end justify-center px-8 pt-8 relative overflow-hidden">
+                <div className="w-full max-w-[300px] bg-white rounded-t-[16px] p-4 flex flex-col gap-2.5"
+                  style={{ boxShadow:'0 -4px 24px rgba(0,0,0,0.06)' }}>
+                  {/* Header */}
+                  <div className="flex items-center gap-2 pb-2 border-b border-black/[0.05]">
+                    <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center">
+                      <Bot className="w-3 h-3 text-violet-600"/>
+                    </div>
+                    <span className="text-[11px] font-semibold text-[#111]">Asistente IA</span>
+                    <span className="ml-auto text-[9px] text-green-500 font-medium">● En línea</span>
+                  </div>
+                  {/* Messages */}
+                  <div className="flex flex-col gap-2">
+                    <div className="self-end bg-[#111] text-white text-[10px] px-2.5 py-1.5 rounded-2xl rounded-br-sm max-w-[160px] leading-relaxed">
+                      ¿Cuál es la clave del WiFi? 🤔
+                    </div>
+                    <div className="self-start bg-[#f5f3f0] text-[#111] text-[10px] px-2.5 py-1.5 rounded-2xl rounded-bl-sm max-w-[200px] leading-relaxed">
+                      Red: <strong>Itineramio_5G</strong> · Clave: <strong>balcon2024#</strong> 🙌
+                    </div>
+                    <div className="self-end bg-[#111] text-white text-[10px] px-2.5 py-1.5 rounded-2xl rounded-br-sm max-w-[140px] leading-relaxed">
+                      ¿A qué hora el checkout?
+                    </div>
+                    <motion.div className="self-start bg-[#f5f3f0] px-2.5 py-2 rounded-2xl rounded-bl-sm flex gap-1"
+                      animate={{ opacity:[0.4,1,0.4] }} transition={{ repeat:Infinity, duration:1.4 }}>
+                      {[0,1,2].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#aaa]"/>)}
+                    </motion.div>
+                  </div>
+                </div>
+              </div>
+              {/* Text */}
+              <div className="px-7 pb-7 pt-4">
+                <p className="text-[11px] font-semibold text-[#aaa] uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                  <span className="w-3.5 h-3.5 rounded-full bg-violet-600 inline-block"/>
+                  Chatbot IA
+                </p>
+                <p className="text-[15px] text-[#555] leading-relaxed font-normal">
+                  Responde las dudas del huésped en su idioma usando la información de tu propio apartamento. Tú no haces nada.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Row 2: 3 smaller cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+            {/* Card 3: Envío automático */}
+            <motion.div initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.12 }}
+              className="rounded-[20px] overflow-hidden" style={{ backgroundColor:'#f5f3f0' }}>
+              <div className="h-36 flex items-center justify-center px-6 pt-6">
+                <div className="flex flex-col gap-2 w-full max-w-[220px]">
+                  <motion.div className="flex items-center gap-2.5 bg-white rounded-[12px] px-3 py-2.5"
+                    style={{ boxShadow:'0 2px 8px rgba(0,0,0,0.06)' }}
+                    initial={{ opacity:0, x:-10 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:0.2 }}>
+                    <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs">✓</div>
+                    <div>
+                      <p className="text-[10px] font-semibold text-[#111]">Reserva confirmada</p>
+                      <p className="text-[9px] text-[#aaa]">Airbnb · hace 2 seg</p>
+                    </div>
+                  </motion.div>
+                  <motion.div className="flex items-center gap-2.5 bg-violet-600 rounded-[12px] px-3 py-2.5"
+                    initial={{ opacity:0, x:-10 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:0.35 }}>
+                    <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white text-xs">→</div>
+                    <div>
+                      <p className="text-[10px] font-semibold text-white">Guía enviada</p>
+                      <p className="text-[9px] text-violet-200">Al huésped automáticamente</p>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+              <div className="px-5 pb-5 pt-3">
+                <p className="text-[11px] font-semibold text-[#aaa] uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                  <span className="w-3 h-3 rounded-full bg-violet-600 inline-block"/>
+                  Envío automático
+                </p>
+                <p className="text-[13px] text-[#555] leading-relaxed font-normal">
+                  Haz que se envíe automáticamente al confirmarse la reserva. Sin tocar nada.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Card 4: Multi-idioma */}
+            <motion.div initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.17 }}
+              className="rounded-[20px] overflow-hidden" style={{ backgroundColor:'#f5f3f0' }}>
+              <div className="h-36 flex items-center justify-center px-6 pt-6">
+                <div className="flex flex-col gap-1.5 w-full max-w-[220px]">
+                  {[
+                    { flag:'🇪🇸', lang:'ES', text:'¿Cuál es el WiFi?' },
+                    { flag:'🇬🇧', lang:'EN', text:'What\'s the WiFi?' },
+                    { flag:'🇫🇷', lang:'FR', text:'C\'est quoi le WiFi?' },
+                  ].map((item, i) => (
+                    <motion.div key={i}
+                      initial={{ opacity:0, x:10 }} whileInView={{ opacity:1, x:0 }}
+                      viewport={{ once:true }} transition={{ delay: 0.2 + i*0.1 }}
+                      className="flex items-center gap-2 bg-white rounded-[10px] px-3 py-2"
+                      style={{ boxShadow:'0 1px 4px rgba(0,0,0,0.05)' }}>
+                      <span className="text-sm">{item.flag}</span>
+                      <span className="text-[9px] font-bold text-[#ccc]">{item.lang}</span>
+                      <span className="text-[10px] text-[#555]">{item.text}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+              <div className="px-5 pb-5 pt-3">
+                <p className="text-[11px] font-semibold text-[#aaa] uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                  <span className="w-3 h-3 rounded-full bg-violet-600 inline-block"/>
+                  Multi-idioma
+                </p>
+                <p className="text-[13px] text-[#555] leading-relaxed font-normal">
+                  El chatbot detecta el idioma del huésped y responde en el suyo. Español, inglés, francés.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Card 5: Sin app */}
+            <motion.div initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.22 }}
+              className="rounded-[20px] overflow-hidden" style={{ backgroundColor:'#f5f3f0' }}>
+              <div className="h-36 flex items-center justify-center px-6 pt-6">
+                <div className="w-full max-w-[200px] bg-white rounded-[14px] overflow-hidden"
+                  style={{ boxShadow:'0 4px 16px rgba(0,0,0,0.08)' }}>
+                  {/* Browser bar */}
+                  <div className="bg-[#f5f3f0] px-2.5 py-1.5 flex items-center gap-1.5">
+                    <div className="flex gap-1">
+                      {[0,1,2].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#ddd]"/>)}
+                    </div>
+                    <div className="flex-1 bg-white rounded-full px-2 py-0.5 text-[8px] text-[#aaa] truncate">
+                      itineramio.com/guide/tu-apto
+                    </div>
+                  </div>
+                  {/* Content */}
+                  <div className="p-2.5 flex flex-col gap-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-4 h-4 rounded-full bg-violet-100"/>
+                      <div className="h-2 bg-[#f0f0f0] rounded-full flex-1"/>
+                    </div>
+                    <div className="grid grid-cols-3 gap-1">
+                      {['#f0efed','#e8e6e3','#ebebeb'].map((bg,i) => (
+                        <div key={i} className="rounded-[6px] h-6" style={{ backgroundColor: bg }}/>
+                      ))}
+                    </div>
+                    <div className="h-1.5 bg-[#f0f0f0] rounded-full w-3/4"/>
+                  </div>
+                </div>
+              </div>
+              <div className="px-5 pb-5 pt-3">
+                <p className="text-[11px] font-semibold text-[#aaa] uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                  <span className="w-3 h-3 rounded-full bg-violet-600 inline-block"/>
+                  Sin app, sin descarga
+                </p>
+                <p className="text-[13px] text-[#555] leading-relaxed font-normal">
+                  El huésped lo abre en el navegador del móvil. Sin instalar nada. Sin registro.
+                </p>
+              </div>
+            </motion.div>
+
+          </div>
+        </div>
       </section>
 
       {/* ── SECTION 2: PROBLEM VALIDATION ── */}
@@ -672,7 +898,7 @@ export default function Landing2() {
       {/* ── SECTION 6: ICP FILTER ── */}
       <section className="py-24 px-6" style={{ backgroundColor:'#0e0e0e' }}>
         <div className="max-w-3xl mx-auto text-center">
-          <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(124,58,237,0.15) 0%, transparent 70%)' }}/>
+          <motion.div animate={{ opacity:[0.6,1,0.6] }} transition={{ repeat:Infinity, duration:4, ease:'easeInOut' }} className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(124,58,237,0.2) 0%, transparent 70%)' }}/>
           <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger} className="relative z-10">
             <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#555] font-medium mb-5">Para quién es</motion.p>
             <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight text-white mb-10"
