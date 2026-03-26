@@ -321,6 +321,106 @@ function DemoWidget() {
   )
 }
 
+// ─── INFINITE CHAT ──────────────────────────────────────────────────────────
+const CHAT_CONVOS_ES = [
+  { q:'¿Cuál es la clave del WiFi? 🤔',       a:'Red: Itineramio_5G · Clave: balcon2024# 🙌' },
+  { q:'¿A qué hora es el checkout?',           a:'El checkout es a las 11:00h. Deja las llaves dentro. ¡Hasta pronto! 👋' },
+  { q:'¿Cómo entro? No encuentro las llaves',  a:'Caja gris a la derecha de la puerta. Código: 4521, mantén 2 seg. 🔐' },
+  { q:'¿Dónde puedo aparcar?',                 a:'Plaza B-14 · Pase magnético en el cajón de la cocina (izquierda). 🚗' },
+]
+
+function InfiniteChat({ convos }: { convos: {q:string; a:string}[] }) {
+  const [idx, setIdx] = useState(0)
+  const [stage, setStage] = useState<'q'|'typing'|'a'|'pause'>('q')
+  useEffect(() => {
+    const delays = { q:900, typing:850, a:2600, pause:300 }
+    const next   = { q:'typing' as const, typing:'a' as const, a:'pause' as const, pause:'q' as const }
+    const t = setTimeout(() => {
+      if (stage === 'pause') setIdx(p => (p + 1) % convos.length)
+      setStage(next[stage])
+    }, delays[stage])
+    return () => clearTimeout(t)
+  }, [stage, idx, convos.length])
+  const convo = convos[idx]
+  return (
+    <div className="w-full max-w-[300px] bg-white rounded-t-[16px] p-4 flex flex-col gap-2.5" style={{ boxShadow:'0 -4px 24px rgba(0,0,0,0.06)' }}>
+      <div className="flex items-center gap-2 pb-2 border-b border-black/[0.05]">
+        <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center"><Bot className="w-3 h-3 text-violet-600"/></div>
+        <span className="text-[11px] font-semibold text-[#111]">Asistente IA</span>
+        <span className="ml-auto text-[9px] text-green-500 font-medium">● En línea</span>
+      </div>
+      <div className="flex flex-col gap-2 min-h-[80px] justify-end">
+        <AnimatePresence mode="wait">
+          <motion.div key={`q-${idx}`} initial={{ opacity:0, y:6, scale:0.96 }} animate={{ opacity:1, y:0, scale:1 }}
+            exit={{ opacity:0, y:-4 }} transition={{ duration:0.22 }}
+            className="self-end bg-[#111] text-white text-[10px] px-2.5 py-1.5 rounded-2xl rounded-br-sm max-w-[165px] leading-relaxed">
+            {convo.q}
+          </motion.div>
+        </AnimatePresence>
+        <AnimatePresence>
+          {stage === 'typing' && (
+            <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+              className="self-start bg-[#f5f3f0] px-2.5 py-2 rounded-2xl rounded-bl-sm flex gap-1">
+              {[0,1,2].map(i => <motion.div key={i} animate={{ y:[0,-3,0] }} transition={{ repeat:Infinity, duration:0.65, delay:i*0.13 }} className="w-1.5 h-1.5 rounded-full bg-[#aaa]"/>)}
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {(stage === 'a' || stage === 'pause') && (
+            <motion.div key={`a-${idx}`} initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}
+              transition={{ duration:0.22 }}
+              className="self-start bg-[#f5f3f0] text-[#111] text-[10px] px-2.5 py-1.5 rounded-2xl rounded-bl-sm max-w-[200px] leading-relaxed">
+              {convo.a}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  )
+}
+
+// ─── MULTI-LANG CHAT MINI ───────────────────────────────────────────────────
+const LANG_CONVOS = [
+  { flag:'🇬🇧', lang:'EN', q:"What's the WiFi password?",   a:'Network: Itineramio_5G · Password: balcon2024# 🙌' },
+  { flag:'🇪🇸', lang:'ES', q:'¿A qué hora es el checkout?',  a:'El checkout es a las 11:00h. ¡Hasta pronto! 👋' },
+  { flag:'🇫🇷', lang:'FR', q:"C'est quoi le WiFi?",           a:'Réseau: Itineramio_5G · Mdp: balcon2024# 🙌' },
+]
+
+function MultiLangChatMini() {
+  const [idx, setIdx] = useState(0)
+  const [showA, setShowA] = useState(false)
+  useEffect(() => {
+    setShowA(false)
+    const t1 = setTimeout(() => setShowA(true), 1300)
+    const t2 = setTimeout(() => setIdx(p => (p + 1) % LANG_CONVOS.length), 3400)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [idx])
+  const convo = LANG_CONVOS[idx]
+  return (
+    <div className="flex flex-col gap-1.5 w-full max-w-[220px]">
+      <AnimatePresence mode="wait">
+        <motion.div key={idx} initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-6 }}
+          transition={{ duration:0.22 }} className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <span className="text-sm">{convo.flag}</span>
+            <span className="text-[9px] font-bold text-[#bbb]">{convo.lang}</span>
+          </div>
+          <div className="self-end bg-[#111] text-white text-[10px] px-2.5 py-1.5 rounded-2xl rounded-br-sm max-w-[180px] leading-relaxed">{convo.q}</div>
+          <AnimatePresence>
+            {showA && (
+              <motion.div initial={{ opacity:0, y:4 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}
+                transition={{ duration:0.2 }}
+                className="self-start bg-[#f5f3f0] text-[#111] text-[10px] px-2.5 py-1.5 rounded-2xl rounded-bl-sm max-w-[200px] leading-relaxed border border-black/[0.05]">
+                {convo.a}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  )
+}
+
 // ─── MAIN ───────────────────────────────────────────────────────────────────
 export default function Landing2() {
   const [scrolled, setScrolled] = useState(false)
@@ -485,35 +585,9 @@ export default function Landing2() {
             {/* Card 2: Chatbot IA */}
             <motion.div initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.1 }}
               className="rounded-[20px] overflow-hidden" style={{ backgroundColor:'#f5f3f0' }}>
-              {/* Illustration: chat mockup */}
+              {/* Illustration: infinite chat loop */}
               <div className="h-56 flex items-end justify-center px-8 pt-8 relative overflow-hidden">
-                <div className="w-full max-w-[300px] bg-white rounded-t-[16px] p-4 flex flex-col gap-2.5"
-                  style={{ boxShadow:'0 -4px 24px rgba(0,0,0,0.06)' }}>
-                  {/* Header */}
-                  <div className="flex items-center gap-2 pb-2 border-b border-black/[0.05]">
-                    <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center">
-                      <Bot className="w-3 h-3 text-violet-600"/>
-                    </div>
-                    <span className="text-[11px] font-semibold text-[#111]">Asistente IA</span>
-                    <span className="ml-auto text-[9px] text-green-500 font-medium">● En línea</span>
-                  </div>
-                  {/* Messages */}
-                  <div className="flex flex-col gap-2">
-                    <div className="self-end bg-[#111] text-white text-[10px] px-2.5 py-1.5 rounded-2xl rounded-br-sm max-w-[160px] leading-relaxed">
-                      ¿Cuál es la clave del WiFi? 🤔
-                    </div>
-                    <div className="self-start bg-[#f5f3f0] text-[#111] text-[10px] px-2.5 py-1.5 rounded-2xl rounded-bl-sm max-w-[200px] leading-relaxed">
-                      Red: <strong>Itineramio_5G</strong> · Clave: <strong>balcon2024#</strong> 🙌
-                    </div>
-                    <div className="self-end bg-[#111] text-white text-[10px] px-2.5 py-1.5 rounded-2xl rounded-br-sm max-w-[140px] leading-relaxed">
-                      ¿A qué hora el checkout?
-                    </div>
-                    <motion.div className="self-start bg-[#f5f3f0] px-2.5 py-2 rounded-2xl rounded-bl-sm flex gap-1"
-                      animate={{ opacity:[0.4,1,0.4] }} transition={{ repeat:Infinity, duration:1.4 }}>
-                      {[0,1,2].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#aaa]"/>)}
-                    </motion.div>
-                  </div>
-                </div>
+                <InfiniteChat convos={CHAT_CONVOS_ES} />
               </div>
               {/* Text */}
               <div className="px-7 pb-7 pt-4">
@@ -546,7 +620,9 @@ export default function Landing2() {
                     </div>
                   </motion.div>
                   <motion.div className="flex items-center gap-2.5 bg-violet-600 rounded-[12px] px-3 py-2.5"
-                    initial={{ opacity:0, x:-10 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:0.35 }}>
+                    animate={{ opacity:[0.85,1,0.85] }}
+                    transition={{ repeat:Infinity, duration:2, ease:'easeInOut' }}
+                    initial={{ opacity:0, x:-10 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }}>
                     <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white text-xs">→</div>
                     <div>
                       <p className="text-[10px] font-semibold text-white">Guía enviada</p>
@@ -570,23 +646,7 @@ export default function Landing2() {
             <motion.div initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.17 }}
               className="rounded-[20px] overflow-hidden" style={{ backgroundColor:'#f5f3f0' }}>
               <div className="h-36 flex items-center justify-center px-6 pt-6">
-                <div className="flex flex-col gap-1.5 w-full max-w-[220px]">
-                  {[
-                    { flag:'🇪🇸', lang:'ES', text:'¿Cuál es el WiFi?' },
-                    { flag:'🇬🇧', lang:'EN', text:'What\'s the WiFi?' },
-                    { flag:'🇫🇷', lang:'FR', text:'C\'est quoi le WiFi?' },
-                  ].map((item, i) => (
-                    <motion.div key={i}
-                      initial={{ opacity:0, x:10 }} whileInView={{ opacity:1, x:0 }}
-                      viewport={{ once:true }} transition={{ delay: 0.2 + i*0.1 }}
-                      className="flex items-center gap-2 bg-white rounded-[10px] px-3 py-2"
-                      style={{ boxShadow:'0 1px 4px rgba(0,0,0,0.05)' }}>
-                      <span className="text-sm">{item.flag}</span>
-                      <span className="text-[9px] font-bold text-[#ccc]">{item.lang}</span>
-                      <span className="text-[10px] text-[#555]">{item.text}</span>
-                    </motion.div>
-                  ))}
-                </div>
+                <MultiLangChatMini />
               </div>
               <div className="px-5 pb-5 pt-3">
                 <p className="text-[11px] font-semibold text-[#aaa] uppercase tracking-widest mb-1 flex items-center gap-1.5">
