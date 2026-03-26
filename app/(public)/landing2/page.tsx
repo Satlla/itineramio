@@ -877,48 +877,94 @@ export default function Landing2() {
             </motion.h2>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Mobile tab switcher */}
+          <div className="flex md:hidden justify-center mb-8">
+            <div className="flex border border-black/[0.08] rounded-full p-1 bg-white">
+              {(['before','after'] as const).map(tab => (
+                <button key={tab} onClick={() => setBeforeAfterTab(tab)}
+                  className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${beforeAfterTab===tab ? 'bg-[#111] text-white' : 'text-[#999]'}`}>
+                  {tab==='before' ? 'Antes' : 'Después'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="relative grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Arrow desktop */}
+            <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10
+              w-10 h-10 rounded-full bg-white border border-black/[0.08] items-center justify-center"
+              style={{ boxShadow:'0 2px 8px rgba(0,0,0,0.08)' }}>
+              <ArrowRight className="w-4 h-4 text-[#aaa]"/>
+            </div>
+
             {/* ANTES */}
             <motion.div initial={{ opacity:0, x:-20 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }}
-              className="bg-white rounded-[20px] p-8" style={{ boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
-              <p className="text-[11px] uppercase tracking-[0.2em] text-[#999] font-semibold mb-6">Antes</p>
-              <div className="space-y-3.5">
-                {[
-                  'Envías el WiFi a cada huésped manualmente',
-                  'Copias y pegas las instrucciones de acceso cada reserva',
-                  'Recibes el "no podemos entrar" a las 22:00',
-                  'El huésped llega sin haber leído nada',
-                  'Contestas las mismas preguntas en tres idiomas',
-                  'La reseña de 4 estrellas llega sin aviso',
-                ].map((item, i) => (
-                  <motion.div key={i} initial={{ opacity:0, x:-8 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.07 }}
-                    className="flex items-start gap-3">
-                    <XCircle className="w-4 h-4 text-[#e5e7eb] shrink-0 mt-0.5"/>
-                    <span className="text-[14px] text-[#999] leading-snug">{item}</span>
-                  </motion.div>
-                ))}
+              className={`bg-white rounded-[20px] overflow-hidden ${beforeAfterTab==='after' ? 'hidden md:block' : ''}`}
+              style={{ boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+              <div className="px-8 pt-6 pb-2">
+                <div className="flex items-center gap-3 mb-1.5">
+                  <div className="flex-1 h-1.5 bg-red-50 rounded-full overflow-hidden">
+                    <div className="h-full bg-red-200 rounded-full" style={{ width:'85%' }}/>
+                  </div>
+                  <span className="text-[11px] text-red-400 font-semibold whitespace-nowrap shrink-0">85% gestionando</span>
+                </div>
+              </div>
+              <div className="px-8 pb-8">
+                <p className="text-[11px] uppercase tracking-[0.2em] text-[#999] font-semibold mb-6">Antes</p>
+                <div className="space-y-3.5">
+                  {[
+                    'Envías el WiFi a cada huésped manualmente',
+                    'Copias y pegas las instrucciones de acceso',
+                    'Recibes el "no podemos entrar" a las 22:00',
+                    'El huésped llega sin haber leído nada',
+                    'Contestas las mismas preguntas en tres idiomas',
+                    'La reseña de 4 estrellas llega sin aviso',
+                  ].map((item, i) => (
+                    <motion.div key={i} initial={{ opacity:0, x:-8 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.07 }}
+                      className="flex items-start gap-3">
+                      <XCircle className="w-4 h-4 text-[#e5e7eb] shrink-0 mt-0.5"/>
+                      <span className="text-[14px] text-[#999] leading-snug">{item}</span>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
             </motion.div>
 
             {/* DESPUÉS */}
             <motion.div initial={{ opacity:0, x:20 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }}
-              className="bg-white rounded-[20px] p-8" style={{ boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
-              <p className="text-[11px] uppercase tracking-[0.2em] text-[#7c3aed] font-semibold mb-6">Después</p>
-              <div className="space-y-3.5">
-                {[
-                  'La guía se envía sola cuando entra la reserva',
-                  'El huésped llega sabiendo cómo entrar, aparcar y conectarse',
-                  'Las dudas las resuelve el chatbot en su idioma',
-                  'Tú no repites nada',
-                  'Menos llamadas tensas, menos mensajes nocturnos',
-                  'El check-in empieza bien y la reseña lo nota',
-                ].map((item, i) => (
-                  <motion.div key={i} initial={{ opacity:0, x:8 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.07 }}
-                    className="flex items-start gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-[#059669] shrink-0 mt-0.5"/>
-                    <span className="text-[14px] text-[#333] leading-snug font-medium">{item}</span>
-                  </motion.div>
-                ))}
+              className={`bg-white rounded-[20px] overflow-hidden ${beforeAfterTab==='before' ? 'hidden md:block' : ''}`}
+              style={{ boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+              <div className="px-8 pt-6 pb-2">
+                <div className="flex items-center gap-3 mb-1.5">
+                  <div className="flex-1 h-1.5 bg-green-50 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width:0 }}
+                      whileInView={{ width:'15%' }}
+                      viewport={{ once:true }}
+                      transition={{ duration:1.2, delay:0.4, ease:'easeOut' }}
+                      className="h-full bg-green-400 rounded-full"/>
+                  </div>
+                  <span className="text-[11px] text-green-600 font-semibold whitespace-nowrap shrink-0">15% gestionando</span>
+                </div>
+              </div>
+              <div className="px-8 pb-8">
+                <p className="text-[11px] uppercase tracking-[0.2em] text-[#7c3aed] font-semibold mb-6">Después</p>
+                <div className="space-y-3.5">
+                  {[
+                    'La guía se envía sola cuando entra la reserva',
+                    'El huésped llega sabiendo cómo entrar y aparcar',
+                    'Las dudas las resuelve el chatbot en su idioma',
+                    'Tú no repites nada',
+                    'Menos llamadas tensas, menos mensajes nocturnos',
+                    'El check-in empieza bien y la reseña lo nota',
+                  ].map((item, i) => (
+                    <motion.div key={i} initial={{ opacity:0, x:8 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.07 }}
+                      className="flex items-start gap-3">
+                      <CheckCircle2 className="w-4 h-4 text-[#059669] shrink-0 mt-0.5"/>
+                      <span className="text-[14px] text-[#333] leading-snug font-medium">{item}</span>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
             </motion.div>
           </div>
