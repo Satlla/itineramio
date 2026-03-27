@@ -64,8 +64,8 @@ const COLORS = {
     { name: 'Violet 200', hex: '#e9d5ff', dark: false },
     { name: 'Violet 300', hex: '#d8b4fe', dark: false },
     { name: 'Violet 400', hex: '#c084fc', dark: false },
-    { name: 'Violet 500', hex: '#8b5cf6', dark: true, primary: true },
-    { name: 'Violet 600', hex: '#7c3aed', dark: true  },
+    { name: 'Violet 500', hex: '#8b5cf6', dark: true  },
+    { name: 'Violet 600', hex: '#7c3aed', dark: true, primary: true },
     { name: 'Violet 700', hex: '#6d28d9', dark: true  },
     { name: 'Violet 800', hex: '#5b21b6', dark: true  },
     { name: 'Violet 900', hex: '#4c1d95', dark: true  },
@@ -83,6 +83,16 @@ const COLORS = {
     { name: 'Amber',     hex: '#f59e0b', dark: false },
     { name: 'Red',       hex: '#ef4444', dark: true  },
     { name: 'Blue',      hex: '#3b82f6', dark: true  },
+  ],
+  landing: [
+    { name: 'CTA Primary',   hex: '#7c3aed', dark: true,  primary: true },
+    { name: 'Text Dark',     hex: '#111111', dark: true  },
+    { name: 'Text Mid',      hex: '#555555', dark: true  },
+    { name: 'Text Muted',    hex: '#aaaaaa', dark: false },
+    { name: 'Beige Card',    hex: '#f5f3f0', dark: false },
+    { name: 'Beige Section', hex: '#faf9f7', dark: false },
+    { name: 'Badge BG',      hex: '#ede9ff', dark: false },
+    { name: 'Badge Text',    hex: '#7c3aed', dark: true  },
   ],
 }
 
@@ -184,6 +194,8 @@ const ZONE_ICONS = [
 // ─── Typography scale ──────────────────────────────────────────────────────
 
 const TYPOGRAPHY = [
+  { name: 'Landing Hero H1 · Manrope 800', size: 'clamp(2.4rem,6vw,5rem)',  weight: '800', lh: '1',   sample: 'Crea guías que enamoran', cls: 'text-[clamp(2.4rem,6vw,5rem)] font-black leading-none'  },
+  { name: 'Landing H2 · Manrope 700',      size: 'clamp(1.9rem,4vw,3.2rem)', weight: '700', lh: '1.1', sample: 'Zonas, pasos y medios',   cls: 'text-[clamp(1.9rem,4vw,3.2rem)] font-bold leading-tight' },
   { name: 'Display · Manrope',  size: '3.5rem',   weight: '700', lh: '1',    sample: 'Crea guías que enamoran',   cls: 'text-[3.5rem] font-bold leading-none'   },
   { name: 'H1 · Manrope',       size: '3rem',     weight: '700', lh: '1.1',  sample: 'Property Manual Creator',   cls: 'text-4xl font-bold leading-tight'             },
   { name: 'H2 · Manrope',       size: '2.25rem',  weight: '600', lh: '1.2',  sample: 'Zonas, pasos y medios',      cls: 'text-3xl font-semibold leading-snug'              },
@@ -903,17 +915,18 @@ export default function StyleGuidePage() {
             </div>
 
             <div className="space-y-8">
-              {['brand', 'accent', 'guide', 'semantic'].map(group => (
+              {['brand', 'accent', 'guide', 'semantic', 'landing'].map(group => (
                 <div key={group}>
                   <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${subText}`}>
-                    {group === 'brand' ? 'Dashboard — Indigo · foco, enlaces, variante secundaria' :
-                     group === 'accent' ? 'Dashboard — Violet · acciones primarias, badges, gradiente UI' :
-                     group === 'guide' ? 'Guía pública — paleta Airbnb · texto e interfaz para huéspedes' :
+                    {group === 'brand'   ? 'Dashboard — Indigo · foco, enlaces, variante secundaria' :
+                     group === 'accent'  ? 'Dashboard — Violet · acciones primarias, badges, gradiente UI' :
+                     group === 'guide'   ? 'Guía pública — paleta Airbnb · texto e interfaz para huéspedes' :
+                     group === 'landing' ? 'Landing — tokens reales de landing2 · CTAs, beige, texto' :
                      'Semánticos — ambas superficies (ver nota abajo)'}
                   </p>
-                  <div className={`grid gap-2 ${group === 'semantic' || group === 'guide' ? 'grid-cols-3 sm:grid-cols-6' : 'grid-cols-4 sm:grid-cols-6 lg:grid-cols-10'}`}>
+                  <div className={`grid gap-2 ${group === 'semantic' || group === 'guide' ? 'grid-cols-3 sm:grid-cols-6' : group === 'landing' ? 'grid-cols-4 sm:grid-cols-8' : 'grid-cols-4 sm:grid-cols-6 lg:grid-cols-10'}`}>
                     {COLORS[group as keyof typeof COLORS].map((c: any) => (
-                      <ColorSwatch key={c.hex} color={c} copied={copied} onCopy={copy} />
+                      <ColorSwatch key={c.hex + c.name} color={c} copied={copied} onCopy={copy} />
                     ))}
                   </div>
                 </div>
@@ -1115,7 +1128,7 @@ export default function StyleGuidePage() {
                     <div><p className="text-xs font-medium text-gray-400">Pendiente</p><p className="text-[10px] text-gray-300 font-mono">gray-100</p></div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-full bg-gray-200 rounded-full h-2 w-32"><div className="bg-violet-600 h-2 rounded-full w-2/3" /></div>
+                    <div className="bg-gray-200 rounded-full h-2 w-32"><div className="bg-violet-600 h-2 rounded-full w-2/3" /></div>
                     <p className="text-xs text-gray-500">Progress · violet-600</p>
                   </div>
                 </div>
@@ -1200,6 +1213,41 @@ export default function StyleGuidePage() {
                 </div>
               </ComponentBlock>
 
+              {/* ── Landing components ── */}
+              <ComponentBlock title="Landing · Pill badge, CTA button, Beige card" theme={theme} code={`// Badge hero\n<div className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50 px-5 py-2 text-sm text-violet-700 font-medium">\n  <span className="w-1.5 h-1.5 rounded-full bg-violet-600 animate-pulse"/>\n  Para anfitriones con 6 a 10 apartamentos en España\n</div>\n\n// CTA button\n<button style={{ backgroundColor:'#7c3aed', boxShadow:'0 2px 12px rgba(124,58,237,0.3)' }}\n  className="rounded-full px-5 py-2.5 text-sm font-semibold text-white">\n  Empieza gratis\n</button>\n\n// Beige card\n<div className="rounded-[20px]" style={{ backgroundColor:'#f5f3f0' }}>...</div>`}>
+                <div className="flex flex-wrap gap-6 items-start">
+                  {/* Pill badge */}
+                  <div>
+                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${subText}`}>Pill badge</p>
+                    <div className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50 px-5 py-2 text-sm text-violet-700 font-medium">
+                      <span className="w-1.5 h-1.5 rounded-full bg-violet-600 animate-pulse"/>
+                      Para anfitriones con 6 a 10 apartamentos
+                    </div>
+                  </div>
+                  {/* CTA buttons */}
+                  <div>
+                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${subText}`}>CTA buttons</p>
+                    <div className="flex gap-3 items-center">
+                      <button style={{ backgroundColor:'#7c3aed', boxShadow:'0 2px 12px rgba(124,58,237,0.3)' }}
+                        className="rounded-full px-5 py-2.5 text-sm font-semibold text-white">
+                        Empieza gratis
+                      </button>
+                      <button className="rounded-full px-5 py-2.5 text-sm font-semibold border border-black/10 text-[#666]">
+                        Ver demo
+                      </button>
+                    </div>
+                  </div>
+                  {/* Beige card */}
+                  <div>
+                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${subText}`}>Beige card</p>
+                    <div className="rounded-[20px] p-5 w-40" style={{ backgroundColor:'#f5f3f0' }}>
+                      <p className="text-[11px] font-semibold text-[#aaa] uppercase tracking-widest mb-1">Card label</p>
+                      <p className="text-[13px] text-[#555]">Contenido de ejemplo para la card beige.</p>
+                    </div>
+                  </div>
+                </div>
+              </ComponentBlock>
+
               {/* ── Dashboard cards ── */}
               <ComponentBlock title="Cards · Dashboard (bg-white, border-gray-200, rounded-lg, shadow-sm)" theme={theme}>
                 <div className="grid grid-cols-3 gap-3 max-w-sm">
@@ -1273,6 +1321,22 @@ export default function StyleGuidePage() {
                       <p className={`text-[9px] font-mono ${subText}`}>indigo glow</p>
                     </div>
                   </div>
+                  <div className={`border-t pt-3 mt-1 ${isDark ? 'border-white/5' : 'border-gray-100'}`}>
+                    <p className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${subText}`}>Landing — específicas</p>
+                    {[
+                      { label: 'shadow-card',  val: '0 1px 3px rgba(0,0,0,0.04)',        node: <div className="w-8 h-8 bg-white rounded-[14px] shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-gray-100" /> },
+                      { label: 'shadow-float', val: '0 4px 16px rgba(0,0,0,0.08)',        node: <div className="w-8 h-8 bg-white rounded-[14px] shadow-[0_4px_16px_rgba(0,0,0,0.08)]" /> },
+                      { label: 'shadow-cta',   val: '0 2px 12px rgba(124,58,237,0.30)',   node: <div className="w-8 h-8 rounded-full" style={{ backgroundColor:'#7c3aed', boxShadow:'0 2px 12px rgba(124,58,237,0.30)' }} /> },
+                    ].map(({ label, val, node }) => (
+                      <div key={label} className="flex items-center gap-3 mb-2">
+                        {node}
+                        <div>
+                          <p className={`text-[10px] font-mono font-bold ${isDark ? 'text-white/60' : 'text-gray-600'}`}>{label}</p>
+                          <p className={`text-[9px] font-mono ${subText}`}>{val}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -1303,12 +1367,15 @@ export default function StyleGuidePage() {
                   <p className={`text-[10px] font-bold uppercase tracking-widest mb-3 ${subText}`}>Uso por componente</p>
                   <div className="space-y-1.5">
                     {[
-                      { comp: 'Botones',    token: 'rounded-md',   v: '6px'    },
-                      { comp: 'Inputs',     token: 'rounded-lg',   v: '8px'    },
-                      { comp: 'Cards',      token: 'rounded-lg',   v: '8px'    },
-                      { comp: 'Modales',    token: 'rounded-xl',   v: '12px'   },
-                      { comp: 'Badges',     token: 'rounded-full', v: '9999px' },
-                      { comp: 'Secciones hero', token: 'rounded-3xl', v: '24px' },
+                      { comp: 'Botones dashboard',  token: 'rounded-md',      v: '6px'    },
+                      { comp: 'Inputs',             token: 'rounded-lg',      v: '8px'    },
+                      { comp: 'Cards dashboard',    token: 'rounded-lg',      v: '8px'    },
+                      { comp: 'Modales',            token: 'rounded-xl',      v: '12px'   },
+                      { comp: 'Badges / Pills',     token: 'rounded-full',    v: '9999px' },
+                      { comp: 'Secciones hero',     token: 'rounded-3xl',     v: '24px'   },
+                      { comp: '★ Landing cards',   token: 'rounded-[20px]',  v: '20px'   },
+                      { comp: '★ Landing cards sm',token: 'rounded-[14px]',  v: '14px'   },
+                      { comp: '★ Landing CTA btn', token: 'rounded-full',    v: '9999px' },
                     ].map(({ comp, token, v }) => (
                       <div key={comp} className="flex items-center justify-between">
                         <span className={`text-[10px] ${isDark ? 'text-white/50' : 'text-gray-500'}`}>{comp}</span>
@@ -1633,6 +1700,9 @@ export default function StyleGuidePage() {
                   { name: 'slideUp',     code: `{ initial: { opacity: 0, y: 12 },\n  animate: { opacity: 1, y: 0 },\n  transition: { duration: 0.3, ease: [0,0,0.2,1] } }` },
                   { name: 'scaleIn',     code: `{ initial: { opacity: 0, scale: 0.95 },\n  animate: { opacity: 1, scale: 1 },\n  transition: { duration: 0.2 } }` },
                   { name: 'staggerList', code: `// En el padre:\n{ variants: { show: { transition: { staggerChildren: 0.06 } } } }\n// En cada hijo:\n{ variants: { hidden: { opacity:0, y:8 }, show: { opacity:1, y:0 } } }` },
+                  { name: '★ popUp (landing)',       code: `// Entrada suave con scale — landing sections\nconst popUp = {\n  hidden: { opacity: 0, y: 40, scale: 0.96 },\n  show:   { opacity: 1, y: 0,  scale: 1,\n    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }\n}` },
+                  { name: '★ cardStagger (landing)', code: `// Stagger de cards — landing feature grid\nconst cardStagger = {\n  hidden: {},\n  show: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } }\n}` },
+                  { name: '★ cardPop (landing)',     code: `// Pop individual de cada card — landing\nconst cardPop = {\n  hidden: { opacity: 0, y: 24, scale: 0.94 },\n  show:   { opacity: 1, y: 0,  scale: 1,\n    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }\n}` },
                 ].map(({ name, code }) => (
                   <div key={name} className={`rounded-xl overflow-hidden border ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
                     <div className={`flex items-center justify-between px-3 py-2 border-b ${isDark ? 'bg-white/5 border-white/5' : 'bg-gray-50 border-gray-100'}`}>
@@ -1654,7 +1724,7 @@ export default function StyleGuidePage() {
             <div className={`flex items-center gap-4 text-xs ${subText}`}>
               <span>Actualizado marzo 2026</span>
               <span>·</span>
-              <a href="/" className={`hover:${text} transition-colors`}>itineramio.com</a>
+              <a href="/" className={`hover:opacity-100 opacity-60 transition-opacity ${text}`}>itineramio.com</a>
             </div>
           </div>
 
