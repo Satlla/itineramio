@@ -48,8 +48,11 @@ export async function GET(req: NextRequest) {
   const userId = authResult.userId
 
   const { searchParams } = new URL(req.url)
-  const year = parseInt(searchParams.get('year') || String(new Date().getFullYear()))
-  const month = parseInt(searchParams.get('month') || String(new Date().getMonth() + 1))
+  const now      = new Date()
+  const year     = parseInt(searchParams.get('year')     || String(now.getFullYear()))
+  const month    = parseInt(searchParams.get('month')    || String(now.getMonth() + 1))
+  const endYear  = parseInt(searchParams.get('endYear')  || String(year))
+  const endMonth = parseInt(searchParams.get('endMonth') || String(month))
 
   const properties = await prisma.property.findMany({
     where: { hostId: userId, deletedAt: null },
@@ -63,10 +66,10 @@ export async function GET(req: NextRequest) {
     orderBy: { name: 'asc' }
   })
 
-  const daysInMonth = new Date(year, month, 0).getDate()
-  // Window: slightly beyond month for cross-month reservations
-  const windowStart = new Date(year, month - 1, 1)
-  const windowEnd = new Date(year, month, 1)
+  // Window covers from start of first month to end of last month
+  const daysInMonth  = new Date(year, month, 0).getDate()
+  const windowStart  = new Date(year, month - 1, 1)
+  const windowEnd    = new Date(endYear, endMonth, 1)  // exclusive upper bound
 
   const results = await Promise.allSettled(
     properties.map(async (prop) => {
