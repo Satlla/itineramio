@@ -469,8 +469,8 @@ function GanttContent({ prop, year, month, daysInMonth, colW, todayDay, forceEdi
         return (
           <div key={bar.id}
             style={{
-              position: 'absolute', top: 8, height: 40, left, width,
-              backgroundColor: c.bg, borderRadius: 6,
+              position: 'absolute', top: 14, height: 28, left, width,
+              backgroundColor: c.bg, borderRadius: 20,
               display: 'flex', alignItems: 'center',
               paddingLeft: 10, paddingRight: 8,
               overflow: 'hidden', gap: 6,
