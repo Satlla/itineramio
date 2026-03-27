@@ -231,6 +231,44 @@ import {
   DoorClosed,
   Disc2,
   Hotel,
+  // Entretenimiento
+  Clapperboard,
+  Popcorn,
+  Dices,
+  MonitorPlay,
+  Medal,
+  // Deporte y bienestar
+  MountainSnow,
+  Footprints,
+  Backpack,
+  Swords,
+  Target,
+  SunSnow,
+  // Trabajo
+  PenLine,
+  ScanLine,
+  Layers,
+  LayoutDashboard,
+  // Comida específica
+  Salad,
+  Sandwich,
+  EggFried,
+  IceCream2,
+  Martini,
+  Cherry,
+  Grape,
+  Banana,
+  Carrot,
+  Croissant,
+  Cookie,
+  Candy,
+  IceCream,
+  Dessert,
+  Donut,
+  // Educación y cultura
+  GraduationCap,
+  Palette,
+  BookOpen,
 } from 'lucide-react'
 import { ZoneIcon } from '@/types/zones'
 
@@ -1979,4 +2017,80 @@ export const ZONE_ICONS: ZoneIcon[] = [
   { id: 'nature-wildlife',      name: 'Fauna salvaje',        icon: PawPrint, category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' }, color: 'text-amber-600' },
   { id: 'nature-stargazing',    name: 'Astroturismo / Estrellas', icon: Star, category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' }, color: 'text-amber-600' },
   { id: 'nature-aurora',        name: 'Aurora boreal',        icon: Sparkles, category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' }, color: 'text-amber-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE N — Entretenimiento
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'ent-cinema',        name: 'Cine en casa',         icon: Clapperboard, category: { id: 'entertainment', name: 'Entretenimiento', color: 'bg-pink-100 text-pink-800 border-pink-200' }, color: 'text-pink-600' },
+  { id: 'ent-popcorn',       name: 'Palomitas / Snacks',   icon: Popcorn,      category: { id: 'entertainment', name: 'Entretenimiento', color: 'bg-pink-100 text-pink-800 border-pink-200' }, color: 'text-pink-600' },
+  { id: 'ent-projector',     name: 'Proyector',            icon: Projector,    category: { id: 'entertainment', name: 'Entretenimiento', color: 'bg-pink-100 text-pink-800 border-pink-200' }, color: 'text-pink-600' },
+  { id: 'ent-streaming',     name: 'Streaming / Smart TV', icon: MonitorPlay,  category: { id: 'entertainment', name: 'Entretenimiento', color: 'bg-pink-100 text-pink-800 border-pink-200' }, color: 'text-pink-600' },
+  { id: 'ent-gaming',        name: 'Videojuegos',          icon: Gamepad2,     category: { id: 'entertainment', name: 'Entretenimiento', color: 'bg-pink-100 text-pink-800 border-pink-200' }, color: 'text-pink-600' },
+  { id: 'ent-boardgames',    name: 'Juegos de mesa',       icon: Dices,        category: { id: 'entertainment', name: 'Entretenimiento', color: 'bg-pink-100 text-pink-800 border-pink-200' }, color: 'text-pink-600' },
+  { id: 'ent-music',         name: 'Música / Altavoces',   icon: Music,        category: { id: 'entertainment', name: 'Entretenimiento', color: 'bg-pink-100 text-pink-800 border-pink-200' }, color: 'text-pink-600' },
+  { id: 'ent-karaoke',       name: 'Karaoke',              icon: Mic,          category: { id: 'entertainment', name: 'Entretenimiento', color: 'bg-pink-100 text-pink-800 border-pink-200' }, color: 'text-pink-600' },
+  { id: 'ent-puzzle',        name: 'Puzzle / Juegos',      icon: Puzzle,       category: { id: 'entertainment', name: 'Entretenimiento', color: 'bg-pink-100 text-pink-800 border-pink-200' }, color: 'text-pink-600' },
+  { id: 'ent-books',         name: 'Biblioteca / Libros',  icon: BookOpen,     category: { id: 'entertainment', name: 'Entretenimiento', color: 'bg-pink-100 text-pink-800 border-pink-200' }, color: 'text-pink-600' },
+  { id: 'ent-trophy',        name: 'Trofeo / Premio',      icon: Trophy,       category: { id: 'entertainment', name: 'Entretenimiento', color: 'bg-pink-100 text-pink-800 border-pink-200' }, color: 'text-pink-600' },
+  { id: 'ent-medal',         name: 'Medalla',              icon: Medal,        category: { id: 'entertainment', name: 'Entretenimiento', color: 'bg-pink-100 text-pink-800 border-pink-200' }, color: 'text-pink-600' },
+  { id: 'ent-jacuzzi',       name: 'Jacuzzi',              icon: JacuzziIcon,  category: { id: 'entertainment', name: 'Entretenimiento', color: 'bg-pink-100 text-pink-800 border-pink-200' }, color: 'text-pink-600' },
+  { id: 'ent-hottub',        name: 'Bañera de hidromasaje', icon: HotTubIcon,  category: { id: 'entertainment', name: 'Entretenimiento', color: 'bg-pink-100 text-pink-800 border-pink-200' }, color: 'text-pink-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE O — Deporte y bienestar
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'sport-gym',         name: 'Gimnasio / Pesas',     icon: Dumbbell,     category: { id: 'sport', name: 'Deporte y bienestar', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' }, color: 'text-emerald-600' },
+  { id: 'sport-yoga',        name: 'Yoga / Meditación',    icon: PersonStanding, category: { id: 'sport', name: 'Deporte y bienestar', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' }, color: 'text-emerald-600' },
+  { id: 'sport-cycling',     name: 'Bicicleta / Ciclismo', icon: Bike,         category: { id: 'sport', name: 'Deporte y bienestar', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' }, color: 'text-emerald-600' },
+  { id: 'sport-hiking',      name: 'Senderismo / Hiking',  icon: Backpack,     category: { id: 'sport', name: 'Deporte y bienestar', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' }, color: 'text-emerald-600' },
+  { id: 'sport-swimming',    name: 'Natación',             icon: Waves,        category: { id: 'sport', name: 'Deporte y bienestar', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' }, color: 'text-emerald-600' },
+  { id: 'sport-ski',         name: 'Esquí / Nieve',        icon: MountainSnow, category: { id: 'sport', name: 'Deporte y bienestar', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' }, color: 'text-emerald-600' },
+  { id: 'sport-running',     name: 'Running / Footing',    icon: Footprints,   category: { id: 'sport', name: 'Deporte y bienestar', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' }, color: 'text-emerald-600' },
+  { id: 'sport-archery',     name: 'Tiro con arco / Diana', icon: Target,      category: { id: 'sport', name: 'Deporte y bienestar', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' }, color: 'text-emerald-600' },
+  { id: 'sport-fencing',     name: 'Esgrima / Deportes combate', icon: Swords, category: { id: 'sport', name: 'Deporte y bienestar', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' }, color: 'text-emerald-600' },
+  { id: 'sport-winter',      name: 'Deportes de invierno', icon: SunSnow,      category: { id: 'sport', name: 'Deporte y bienestar', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' }, color: 'text-emerald-600' },
+  { id: 'sport-sailing',     name: 'Vela / Náutica',       icon: Sailboat,     category: { id: 'sport', name: 'Deporte y bienestar', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' }, color: 'text-emerald-600' },
+  { id: 'sport-tent',        name: 'Camping / Acampada',   icon: Tent,         category: { id: 'sport', name: 'Deporte y bienestar', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' }, color: 'text-emerald-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE P — Trabajo / Oficina
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'work-laptop',       name: 'Portátil / Teletrabajo', icon: Laptop,     category: { id: 'work', name: 'Trabajo / Oficina', color: 'bg-slate-100 text-slate-800 border-slate-200' }, color: 'text-slate-600' },
+  { id: 'work-monitor',      name: 'Monitor de escritorio',  icon: Monitor,    category: { id: 'work', name: 'Trabajo / Oficina', color: 'bg-slate-100 text-slate-800 border-slate-200' }, color: 'text-slate-600' },
+  { id: 'work-wifi',         name: 'WiFi alta velocidad',    icon: Wifi,       category: { id: 'work', name: 'Trabajo / Oficina', color: 'bg-slate-100 text-slate-800 border-slate-200' }, color: 'text-slate-600' },
+  { id: 'work-printer',      name: 'Impresora',              icon: Printer,    category: { id: 'work', name: 'Trabajo / Oficina', color: 'bg-slate-100 text-slate-800 border-slate-200' }, color: 'text-slate-600' },
+  { id: 'work-desk',         name: 'Escritorio / Mesa trabajo', icon: LayoutDashboard, category: { id: 'work', name: 'Trabajo / Oficina', color: 'bg-slate-100 text-slate-800 border-slate-200' }, color: 'text-slate-600' },
+  { id: 'work-pen',          name: 'Material de escritura',  icon: PenLine,    category: { id: 'work', name: 'Trabajo / Oficina', color: 'bg-slate-100 text-slate-800 border-slate-200' }, color: 'text-slate-600' },
+  { id: 'work-scan',         name: 'Escáner',                icon: ScanLine,   category: { id: 'work', name: 'Trabajo / Oficina', color: 'bg-slate-100 text-slate-800 border-slate-200' }, color: 'text-slate-600' },
+  { id: 'work-layers',       name: 'Coworking / Workspace',  icon: Layers,     category: { id: 'work', name: 'Trabajo / Oficina', color: 'bg-slate-100 text-slate-800 border-slate-200' }, color: 'text-slate-600' },
+  { id: 'work-briefcase',    name: 'Maletín / Negocios',     icon: Briefcase,  category: { id: 'work', name: 'Trabajo / Oficina', color: 'bg-slate-100 text-slate-800 border-slate-200' }, color: 'text-slate-600' },
+  { id: 'work-tools',        name: 'Herramientas',           icon: Hammer,     category: { id: 'work', name: 'Trabajo / Oficina', color: 'bg-slate-100 text-slate-800 border-slate-200' }, color: 'text-slate-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE Q — Gastronomía detallada
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'food-salad',        name: 'Ensalada / Vegano',    icon: Salad,       category: { id: 'food', name: 'Gastronomía', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'food-sandwich',     name: 'Bocadillo / Sandwich', icon: Sandwich,    category: { id: 'food', name: 'Gastronomía', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'food-egg',          name: 'Huevos / Desayuno',   icon: EggFried,    category: { id: 'food', name: 'Gastronomía', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'food-icecream',     name: 'Helado',               icon: IceCream,    category: { id: 'food', name: 'Gastronomía', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'food-icecream2',    name: 'Helado cono',          icon: IceCream2,   category: { id: 'food', name: 'Gastronomía', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'food-cocktail',     name: 'Cóctel / Bar',         icon: Martini,     category: { id: 'food', name: 'Gastronomía', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'food-cherry',       name: 'Fruta / Postre',       icon: Cherry,      category: { id: 'food', name: 'Gastronomía', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'food-grape',        name: 'Uva / Vino',           icon: Grape,       category: { id: 'food', name: 'Gastronomía', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'food-banana',       name: 'Fruta tropical',       icon: Banana,      category: { id: 'food', name: 'Gastronomía', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'food-carrot',       name: 'Verdura / Ecológico',  icon: Carrot,      category: { id: 'food', name: 'Gastronomía', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'food-croissant',    name: 'Panadería / Croissant', icon: Croissant,  category: { id: 'food', name: 'Gastronomía', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'food-cookie',       name: 'Galletas / Dulces',    icon: Cookie,      category: { id: 'food', name: 'Gastronomía', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'food-candy',        name: 'Caramelos / Golosinas', icon: Candy,      category: { id: 'food', name: 'Gastronomía', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'food-donut',        name: 'Donut / Repostería',   icon: Donut,       category: { id: 'food', name: 'Gastronomía', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'food-dessert',      name: 'Pastelería / Postre',  icon: Dessert,     category: { id: 'food', name: 'Gastronomía', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE R — Educación y cultura
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'culture-education',  name: 'Educación / Formación', icon: GraduationCap, category: { id: 'culture', name: 'Cultura y educación', color: 'bg-violet-100 text-violet-800 border-violet-200' }, color: 'text-violet-600' },
+  { id: 'culture-art',        name: 'Arte / Pintura',        icon: Palette,       category: { id: 'culture', name: 'Cultura y educación', color: 'bg-violet-100 text-violet-800 border-violet-200' }, color: 'text-violet-600' },
+  { id: 'culture-library',    name: 'Biblioteca',            icon: BookOpen,      category: { id: 'culture', name: 'Cultura y educación', color: 'bg-violet-100 text-violet-800 border-violet-200' }, color: 'text-violet-600' },
+  { id: 'culture-museum',     name: 'Museo / Galería',       icon: Landmark,      category: { id: 'culture', name: 'Cultura y educación', color: 'bg-violet-100 text-violet-800 border-violet-200' }, color: 'text-violet-600' },
+  { id: 'culture-theater',    name: 'Teatro / Espectáculos', icon: Clapperboard,  category: { id: 'culture', name: 'Cultura y educación', color: 'bg-violet-100 text-violet-800 border-violet-200' }, color: 'text-violet-600' },
 ]

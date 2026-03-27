@@ -14,7 +14,6 @@ import {
   Calendar,
   ChevronRight,
   Trash2,
-  CheckCircle,
   Send,
   Brain,
   Pencil,
@@ -78,11 +77,11 @@ export default function ChatbotDashboardPage() {
   const [activeTab, setActiveTab] = useState<Tab>('conversations')
   const [customQA, setCustomQA] = useState<{ question: string; answer: string; addedAt: string; updatedAt?: string }[]>([])
 
-  // Open unanswered tab automatically if URL has ?tab=unanswered
+  // Open intelligence tab automatically if URL has ?tab=unanswered or ?tab=intelligence
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const sp = new URLSearchParams(window.location.search)
-      if (sp.get('tab') === 'unanswered') setActiveTab('unanswered')
+      if (sp.get('tab') === 'unanswered' || sp.get('tab') === 'intelligence') setActiveTab('intelligence')
     }
   }, [])
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
@@ -207,8 +206,7 @@ export default function ChatbotDashboardPage() {
 
   const tabs: { key: Tab; label: string; count?: number }[] = [
     { key: 'conversations', label: t('chatbot.tabs.conversations', 'Conversaciones'), count: stats?.totalConversations },
-    { key: 'unanswered', label: t('chatbot.tabs.unanswered', 'Sin respuesta'), count: stats?.totalUnanswered },
-    { key: 'intelligence', label: 'Inteligencia', count: customQA.length },
+    { key: 'intelligence', label: 'Inteligencia', count: customQA.length + allUnansweredItems.length },
     { key: 'guests', label: t('chatbot.tabs.guests', 'Huéspedes'), count: stats?.capturedGuests },
     { key: 'summary', label: t('chatbot.tabs.summary', 'Resumen') }
   ]
@@ -326,26 +324,19 @@ export default function ChatbotDashboardPage() {
         </>
       )}
 
-      {activeTab === 'unanswered' && (
-        <UnansweredTab
-          items={allUnansweredItems}
-          propertyId={propertyId}
-          onViewConversation={(id) => {
-            const conv = conversations.find(c => c.id === id)
-            if (conv) setSelectedConversation(conv)
-          }}
-          onAnswerSaved={() => { fetchCustomQA(); setActiveTab('intelligence') }}
-          formatDate={formatDate}
-          t={t}
-        />
-      )}
-
       {activeTab === 'intelligence' && (
         <IntelligenceTab
           propertyId={propertyId}
           propertyName={propertyName}
           items={customQA}
+          unansweredItems={allUnansweredItems}
           onRefresh={fetchCustomQA}
+          onViewConversation={(id) => {
+            const conv = conversations.find(c => c.id === id)
+            if (conv) setSelectedConversation(conv)
+          }}
+          formatDate={formatDate}
+          t={t}
         />
       )}
 
@@ -476,148 +467,51 @@ function ConversationsTab({
   )
 }
 
-// ─── Tab: Unanswered ─────────────────────────────────────────────────────
-
-function UnansweredTab({
-  items,
-  propertyId,
-  onViewConversation,
-  onAnswerSaved,
-  formatDate,
-  t
-}: {
-  items: { question: string; conversationId: string; guestName: string | null; guestEmail: string | null; date: string; language: string }[]
-  propertyId: string
-  onViewConversation: (id: string) => void
-  onAnswerSaved: () => void
-  formatDate: (d: string) => string
-  t: any
-}) {
-  const [answers, setAnswers] = useState<Record<number, string>>({})
-  const [saved, setSaved] = useState<Record<number, boolean>>({})
-  const [saving, setSaving] = useState<Record<number, boolean>>({})
-
-  const handleSave = async (idx: number, question: string) => {
-    const answer = answers[idx]?.trim()
-    if (!answer) return
-    setSaving(s => ({ ...s, [idx]: true }))
-    try {
-      await fetch(`/api/properties/${propertyId}/chatbot-qa`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, answer })
-      })
-      setSaved(s => ({ ...s, [idx]: true }))
-      // After 2s redirect to intelligence tab
-      setTimeout(() => onAnswerSaved(), 2000)
-    } finally {
-      setSaving(s => ({ ...s, [idx]: false }))
-    }
-  }
-
-  if (items.length === 0) {
-    return (
-      <Card className="p-8 text-center">
-        <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          {t('chatbot.empty.unanswered', 'Sin preguntas sin respuesta')}
-        </h3>
-        <p className="text-gray-600">
-          {t('chatbot.empty.unansweredDesc', 'El chatbot ha podido responder todas las preguntas de los huéspedes.')}
-        </p>
-      </Card>
-    )
-  }
-
-  return (
-    <div className="space-y-3">
-      <p className="text-sm text-gray-500 mb-1">
-        Preguntas que los huéspedes hicieron y el chatbot no supo responder. Añade la respuesta y se guardará en la inteligencia de este apartamento.
-      </p>
-      {items.map((item, idx) => {
-        const guestDisplay = item.guestName || item.guestEmail || t('chatbot.anonymous', 'Anónimo')
-        return (
-          <motion.div
-            key={`${item.conversationId}-${idx}`}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2, delay: idx * 0.03 }}
-          >
-            <Card className="border-l-4 border-l-orange-400 hover:shadow-md transition-shadow">
-              <CardContent className="p-4 space-y-3">
-                <p className="text-gray-900 font-medium">
-                  &ldquo;{item.question}&rdquo;
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-xs text-gray-500">
-                    <span>{guestDisplay}</span>
-                    <span>{formatDate(item.date)}</span>
-                  </div>
-                  <button
-                    onClick={() => onViewConversation(item.conversationId)}
-                    className="text-xs text-violet-600 hover:text-violet-800 font-medium"
-                  >
-                    {t('chatbot.viewConversation', 'Ver conversación')}
-                  </button>
-                </div>
-                <AnimatePresence mode="wait">
-                  {saved[idx] ? (
-                    <motion.div
-                      key="saved"
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center gap-2 bg-violet-50 border border-violet-200 rounded-lg px-3 py-2"
-                    >
-                      <Brain className="w-4 h-4 text-violet-600 flex-shrink-0" />
-                      <span className="text-sm text-violet-700 font-medium">Añadida a inteligencia — yendo a la sección...</span>
-                    </motion.div>
-                  ) : (
-                    <motion.div key="input" className="flex gap-2">
-                      <input
-                        type="text"
-                        value={answers[idx] || ''}
-                        onChange={e => setAnswers(a => ({ ...a, [idx]: e.target.value }))}
-                        onKeyDown={e => e.key === 'Enter' && handleSave(idx, item.question)}
-                        placeholder="Escribe la respuesta para el chatbot..."
-                        className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-violet-400"
-                      />
-                      <button
-                        onClick={() => handleSave(idx, item.question)}
-                        disabled={!answers[idx]?.trim() || saving[idx]}
-                        className="px-3 py-2 bg-violet-600 text-white rounded-lg disabled:opacity-40 hover:bg-violet-700 transition-colors"
-                      >
-                        <Send className="w-4 h-4" />
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )
-      })}
-    </div>
-  )
-}
-
 // ─── Tab: Intelligence ───────────────────────────────────────────────────
 
 function IntelligenceTab({
   propertyId,
   propertyName,
   items,
-  onRefresh
+  unansweredItems,
+  onRefresh,
+  onViewConversation,
+  formatDate,
+  t
 }: {
   propertyId: string
   propertyName: string
   items: { question: string; answer: string; addedAt: string; updatedAt?: string }[]
+  unansweredItems: { question: string; conversationId: string; guestName: string | null; guestEmail: string | null; date: string; language: string }[]
   onRefresh: () => void
+  onViewConversation: (id: string) => void
+  formatDate: (d: string) => string
+  t: any
 }) {
   const [editingIdx, setEditingIdx] = useState<number | null>(null)
   const [editAnswer, setEditAnswer] = useState('')
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState<number | null>(null)
+  const [pendingAnswers, setPendingAnswers] = useState<Record<number, string>>({})
+  const [pendingSaved, setPendingSaved] = useState<Record<number, boolean>>({})
+  const [pendingSaving, setPendingSaving] = useState<Record<number, boolean>>({})
+
+  const handleAnswerUnanswered = async (idx: number, question: string) => {
+    const answer = pendingAnswers[idx]?.trim()
+    if (!answer) return
+    setPendingSaving(s => ({ ...s, [idx]: true }))
+    try {
+      await fetch(`/api/properties/${propertyId}/chatbot-qa`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, answer })
+      })
+      setPendingSaved(s => ({ ...s, [idx]: true }))
+      setTimeout(() => { onRefresh() }, 1500)
+    } finally {
+      setPendingSaving(s => ({ ...s, [idx]: false }))
+    }
+  }
 
   const handleEdit = (idx: number) => {
     setEditingIdx(idx)
@@ -654,37 +548,131 @@ function IntelligenceTab({
     }
   }
 
-  if (items.length === 0) {
+  if (items.length === 0 && unansweredItems.length === 0) {
     return (
       <Card className="p-10 text-center border-dashed">
         <Brain className="w-12 h-12 text-gray-300 mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-gray-900 mb-2">Sin inteligencia personalizada aún</h3>
         <p className="text-gray-500 text-sm max-w-sm mx-auto">
-          Cuando respondas preguntas del tab &ldquo;Sin respuesta&rdquo;, se guardarán aquí. El chatbot las usará con prioridad máxima.
+          Cuando el chatbot no sepa responder una pregunta, aparecerá aquí para que puedas contestarla. El chatbot la usará con prioridad máxima.
         </p>
       </Card>
     )
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="bg-violet-50 border border-violet-200 rounded-xl p-4 flex items-start gap-3">
-        <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <Sparkles className="w-4 h-4 text-violet-600" />
+      {items.length > 0 && (
+        <div className="bg-violet-50 border border-violet-200 rounded-xl p-4 flex items-start gap-3">
+          <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <Sparkles className="w-4 h-4 text-violet-600" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-violet-900">
+              Inteligencia de {propertyName || 'este apartamento'}
+            </p>
+            <p className="text-xs text-violet-700 mt-0.5">
+              {items.length} {items.length === 1 ? 'respuesta personalizada' : 'respuestas personalizadas'} — el chatbot las usa con prioridad máxima sobre cualquier otra fuente
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="text-sm font-semibold text-violet-900">
-            Inteligencia de {propertyName || 'este apartamento'}
-          </p>
-          <p className="text-xs text-violet-700 mt-0.5">
-            {items.length} {items.length === 1 ? 'respuesta personalizada' : 'respuestas personalizadas'} — el chatbot las usa con prioridad máxima sobre cualquier otra fuente
-          </p>
-        </div>
-      </div>
+      )}
 
-      {/* Q&A list */}
+      {/* Unanswered questions section */}
+      {unansweredItems.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-orange-100 flex items-center justify-center">
+              <AlertTriangle className="w-3.5 h-3.5 text-orange-600" />
+            </div>
+            <h3 className="text-sm font-bold text-gray-800">
+              Sin respuesta
+              <span className="ml-1.5 text-xs font-semibold text-orange-700 bg-orange-100 px-2 py-0.5 rounded-full">
+                {unansweredItems.length}
+              </span>
+            </h3>
+          </div>
+          <p className="text-xs text-gray-500">
+            El chatbot no supo responder estas preguntas. Añade la respuesta y quedará guardada en la inteligencia de este apartamento.
+          </p>
+          {unansweredItems.map((item, idx) => {
+            const guestDisplay = item.guestName || item.guestEmail || 'Anónimo'
+            return (
+              <motion.div
+                key={`unanswered-${item.conversationId}-${idx}`}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: idx * 0.03 }}
+              >
+                <Card className="border-l-4 border-l-orange-400">
+                  <CardContent className="p-4 space-y-3">
+                    <p className="text-gray-900 font-medium text-sm">
+                      &ldquo;{item.question}&rdquo;
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 text-xs text-gray-500">
+                        <span>{guestDisplay}</span>
+                        <span>{formatDate(item.date)}</span>
+                      </div>
+                      <button
+                        onClick={() => onViewConversation(item.conversationId)}
+                        className="text-xs text-violet-600 hover:text-violet-800 font-medium"
+                      >
+                        Ver conversación
+                      </button>
+                    </div>
+                    <AnimatePresence mode="wait">
+                      {pendingSaved[idx] ? (
+                        <motion.div
+                          key="saved"
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="flex items-center gap-2 bg-violet-50 border border-violet-200 rounded-lg px-3 py-2"
+                        >
+                          <Brain className="w-4 h-4 text-violet-600 flex-shrink-0" />
+                          <span className="text-sm text-violet-700 font-medium">Añadida a inteligencia</span>
+                        </motion.div>
+                      ) : (
+                        <motion.div key="input" className="flex gap-2">
+                          <input
+                            type="text"
+                            value={pendingAnswers[idx] || ''}
+                            onChange={e => setPendingAnswers(a => ({ ...a, [idx]: e.target.value }))}
+                            onKeyDown={e => e.key === 'Enter' && handleAnswerUnanswered(idx, item.question)}
+                            placeholder="Escribe la respuesta para el chatbot..."
+                            className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-violet-400"
+                          />
+                          <button
+                            onClick={() => handleAnswerUnanswered(idx, item.question)}
+                            disabled={!pendingAnswers[idx]?.trim() || pendingSaving[idx]}
+                            className="px-3 py-2 bg-violet-600 text-white rounded-lg disabled:opacity-40 hover:bg-violet-700 transition-colors"
+                          >
+                            <Send className="w-4 h-4" />
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Answered Q&A list */}
+      {items.length > 0 && (
       <div className="space-y-3">
+        {items.length > 0 && unansweredItems.length > 0 && (
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-violet-100 flex items-center justify-center">
+              <Brain className="w-3.5 h-3.5 text-violet-600" />
+            </div>
+            <h3 className="text-sm font-bold text-gray-800">Respuestas guardadas</h3>
+          </div>
+        )}
         {items.map((item, idx) => (
           <motion.div
             key={item.question + idx}
@@ -765,6 +753,7 @@ function IntelligenceTab({
           </motion.div>
         ))}
       </div>
+      )}
     </div>
   )
 }

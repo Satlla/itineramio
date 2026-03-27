@@ -42,7 +42,12 @@ export function IconSelector({ selectedIconId, onSelect, onClose, className }: I
     { id: 'general', name: 'General', color: 'bg-gray-100 text-gray-800 border-gray-200' },
     { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' },
     { id: 'safety', name: 'Seguridad y normas', color: 'bg-rose-100 text-rose-800 border-rose-200' },
-    { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }
+    { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' },
+    { id: 'entertainment', name: 'Entretenimiento', color: 'bg-pink-100 text-pink-800 border-pink-200' },
+    { id: 'sport', name: 'Deporte y bienestar', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+    { id: 'work', name: 'Trabajo / Oficina', color: 'bg-slate-100 text-slate-800 border-slate-200' },
+    { id: 'food', name: 'Gastronomía', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    { id: 'culture', name: 'Cultura y educación', color: 'bg-violet-100 text-violet-800 border-violet-200' }
   ]
 
   return (
