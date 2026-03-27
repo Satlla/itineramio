@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight, Plus, Minus, Crown, Check, ArrowRight, Sparkles, Zap, Shield, Trophy, Star, BarChart3, DollarSign, Calendar, Rocket, Video } from 'lucide-react'
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
-import { StructuredData } from '../src/components/StructuredData'
-import { Navbar } from '../src/components/layout/Navbar'
+import { StructuredData } from '@/components/StructuredData'
+import { Navbar } from '@/components/layout/Navbar'
 
 // Animation variants for reusable animations
 const fadeInUp = {
