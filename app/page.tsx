@@ -1,1711 +1,1163 @@
 'use client'
 
-import React from 'react'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { ChevronLeft, ChevronRight, Plus, Minus, Crown, Check, ArrowRight, Sparkles, Zap, Shield, Trophy, Star, BarChart3, DollarSign, Calendar, Rocket, Video } from 'lucide-react'
-import { motion, useInView } from 'framer-motion'
-import { useRef } from 'react'
-import { StructuredData } from '../src/components/StructuredData'
-import { Navbar } from '../src/components/layout/Navbar'
+import { useState, useEffect, useRef } from 'react'
+import { motion, AnimatePresence, useInView, useScroll, useTransform } from 'framer-motion'
+import { ArrowRight, ChevronDown, ChevronLeft, Star, Wifi, DoorOpen, MessageCircle, Menu, X, Bot, Car, FileText, UtensilsCrossed, Check, LogOut, XCircle, CheckCircle2, LogIn, Flame, ClipboardList, Wind, Microwave, Compass, Coffee } from 'lucide-react'
+import { WashingMachineIcon, CeramicHobIcon } from '@/components/ui/icons/CustomHomeIcons'
+import { Inter, Manrope } from 'next/font/google'
 
-// Animation variants for reusable animations
-const fadeInUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] }
-  }
-}
+const inter   = Inter({ subsets: ['latin'], display: 'swap' })
+const manrope = Manrope({ subsets: ['latin'], weight: ['300','400','600','700','800'], display: 'swap', variable: '--font-manrope' })
 
-const fadeIn = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { duration: 0.5, ease: 'easeOut' }
-  }
-}
+// ─── VARIANTS ──────────────────────────────────────────────────────────────
+const fadeUp  = { hidden: { opacity: 0, y: 22 }, show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.25,0.1,0.25,1] } } }
+const fadeIn  = { hidden: { opacity: 0 },         show: { opacity: 1,        transition: { duration: 0.5 } } }
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.09 } } }
 
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0
-    }
-  }
-}
-
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] }
-  }
-}
-
-// Animated Section Wrapper
-const AnimatedSection = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
-
-  return (
-    <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      variants={fadeInUp}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-// Lazy Video Component - only loads when visible
-const LazyVideo = ({ src, className = "", poster }: { src: string; className?: string; poster?: string }) => {
-  const videoRef = useRef<HTMLDivElement>(null)
-  const [isVisible, setIsVisible] = useState(false)
-
+// ─── COUNT-UP ──────────────────────────────────────────────────────────────
+function CountUp({ to, suffix = '' }: { to: number; suffix?: string }) {
+  const [val, setVal] = useState(0)
+  const ref  = useRef<HTMLSpanElement>(null)
+  const inView = useInView(ref, { once: true, margin: '-60px' })
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-          observer.disconnect()
-        }
-      },
-      { rootMargin: '200px' }
-    )
+    if (!inView) return
+    let start = 0; const steps = 50; const inc = to / steps
+    const t = setInterval(() => { start += inc; if (start >= to) { setVal(to); clearInterval(t) } else setVal(Math.floor(start)) }, 28)
+    return () => clearInterval(t)
+  }, [inView, to])
+  return <span ref={ref}>{val}{suffix}</span>
+}
 
-    if (videoRef.current) {
-      observer.observe(videoRef.current)
-    }
+// ─── LOGOS ─────────────────────────────────────────────────────────────────
+const LOGOS = ['Airbnb', 'Booking.com', 'Vrbo', 'Holidu', 'Wimdu', 'HomeAway', 'Expedia']
 
-    return () => observer.disconnect()
-  }, [])
-
+function LogoCarousel() {
+  const [idx, setIdx] = useState(0)
+  useEffect(() => { const t = setInterval(() => setIdx(p => (p+1)%LOGOS.length), 1600); return () => clearInterval(t) }, [])
   return (
-    <div ref={videoRef} className={className}>
-      {isVisible ? (
-        <video
-          className="w-full h-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster={poster}
-        >
-          <source src={src} type="video/mp4" />
-        </video>
-      ) : (
-        <div className="w-full h-full bg-gradient-to-br from-violet-100 to-purple-100 animate-pulse" />
-      )}
+    <div className="flex flex-col items-center gap-5">
+      <p className="text-[11px] uppercase tracking-[0.18em] text-[#bbb] font-medium">Los huéspedes llegan desde</p>
+      <div className="h-8 flex items-center justify-center">
+        <AnimatePresence mode="wait">
+          <motion.span key={idx} initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-6 }}
+            transition={{ duration:0.35 }} className="text-xl font-semibold text-[#ccc] tracking-tight">
+            {LOGOS[idx]}
+          </motion.span>
+        </AnimatePresence>
+      </div>
+      <div className="flex gap-1.5">
+        {LOGOS.map((_,i) => <div key={i} className={`rounded-full transition-all duration-300 ${i===idx ? 'w-5 h-1.5 bg-violet-600' : 'w-1.5 h-1.5 bg-black/10'}`} />)}
+      </div>
     </div>
   )
 }
 
-// Testimonials data
-const testimonials = [
-  {
-    id: 1,
-    name: "María González",
-    role: "Superhost Airbnb",
-    property: "3 Apartamentos Barcelona",
-    location: "Barcelona, España",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b789?w=100&h=100&fit=crop&crop=face",
-    comment: "Se acabaron las llamadas a las 3 AM. Antes me despertaban 5-6 veces por semana preguntando wifi, parking, llaves... Con Itineramio duermo tranquila.",
-    rating: 5,
-    feature: "Reducción de consultas"
-  },
-  {
-    id: 2,
-    name: "Carlos Rodríguez",
-    role: "Property Manager",
-    property: "15 Apartamentos Costa del Sol",
-    location: "Málaga, España",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-    comment: "Recuperé 25 horas al mes que dedico a conseguir más propiedades. Los huéspedes aman la experiencia organizada.",
-    rating: 5,
-    feature: "Ahorro de tiempo"
-  },
-  {
-    id: 3,
-    name: "Ana Martín",
-    role: "Host independiente",
-    property: "8 Propiedades Turísticas",
-    location: "Sevilla, España",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-    comment: "Lo que más me costaba era crear manuales profesionales. Con Itineramio en 10 minutos tengo guías que parecen de hotel 5 estrellas.",
-    rating: 5,
-    feature: "Manuales profesionales"
-  },
-  {
-    id: 4,
-    name: "Javier Ruiz",
-    role: "Host Airbnb",
-    property: "5 Villas en Ibiza",
-    location: "Ibiza, España",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-    comment: "Los códigos QR personalizados son un game-changer. Cada propiedad tiene su identidad y los huéspedes lo valoran muchísimo en las reviews.",
-    rating: 5,
-    feature: "Códigos QR personalizados"
-  },
-  {
-    id: 5,
-    name: "Laura Sánchez",
-    role: "Superhost",
-    property: "12 Apartamentos Madrid",
-    location: "Madrid, España",
-    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=face",
-    comment: "El check-in automático ha transformado mi negocio. Ahora puedo gestionar 12 propiedades sin necesidad de estar presente físicamente.",
-    rating: 5,
-    feature: "Check-in automático"
-  },
-  {
-    id: 6,
-    name: "Diego Fernández",
-    role: "Property Manager",
-    property: "20 Apartamentos Valencia",
-    location: "Valencia, España",
-    avatar: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=100&h=100&fit=crop&crop=face",
-    comment: "La gestión multipropiedad desde un solo panel es increíble. Antes usaba 3 herramientas diferentes, ahora todo está en Itineramio.",
-    rating: 5,
-    feature: "Panel centralizado"
-  },
-  {
-    id: 7,
-    name: "Isabel Torres",
-    role: "Host Booking.com",
-    property: "6 Casas Rurales",
-    location: "Granada, España",
-    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face",
-    comment: "Mis reviews han mejorado un 40% desde que uso Itineramio. Los huéspedes destacan lo organizados y profesionales que somos.",
-    rating: 5,
-    feature: "Mejora de reviews"
-  },
-  {
-    id: 8,
-    name: "Roberto Gómez",
-    role: "Superhost",
-    property: "4 Áticos Marbella",
-    location: "Marbella, España",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
-    comment: "El check-out digital es perfecto. Los huéspedes dejan todo organizado y recibo notificaciones automáticas cuando terminan.",
-    rating: 5,
-    feature: "Check-out digital"
-  },
-  {
-    id: 9,
-    name: "Patricia Morales",
-    role: "Host independiente",
-    property: "2 Apartamentos Bilbao",
-    location: "Bilbao, España",
-    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face",
-    comment: "La app es súper intuitiva. Mis padres, que no son muy tecnológicos, pueden gestionar las reservas sin problema alguno.",
-    rating: 5,
-    feature: "Interfaz intuitiva"
-  },
-  {
-    id: 10,
-    name: "Miguel Ángel Pérez",
-    role: "Property Manager",
-    property: "25 Propiedades Canarias",
-    location: "Tenerife, España",
-    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face",
-    comment: "Las traducciones automáticas son perfectas. Tengo huéspedes de todo el mundo y todos reciben la info en su idioma.",
-    rating: 5,
-    feature: "Multiidioma"
-  },
-  {
-    id: 11,
-    name: "Carmen Jiménez",
-    role: "Superhost Airbnb",
-    property: "7 Estudios San Sebastián",
-    location: "San Sebastián, España",
-    avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100&h=100&fit=crop&crop=face",
-    comment: "Los reportes me ayudan a identificar qué propiedades necesitan mejoras. Ahora tomo decisiones basadas en datos reales.",
-    rating: 5,
-    feature: "Reportes y analíticas"
-  },
-  {
-    id: 12,
-    name: "Francisco López",
-    role: "Host Vrbo",
-    property: "10 Cabañas Pirineos",
-    location: "Huesca, España",
-    avatar: "https://images.unsplash.com/photo-1463453091185-61582044d556?w=100&h=100&fit=crop&crop=face",
-    comment: "La integración con mi sistema de reservas existente fue perfecta. En menos de 1 hora estaba todo funcionando.",
-    rating: 5,
-    feature: "Fácil integración"
-  }
+// ─── DEMO WIDGET ───────────────────────────────────────────────────────────
+const GUIDE_ZONES = [
+  { id:'entrada',  label:'Entrada',  icon:<DoorOpen className="w-3.5 h-3.5"/>,        step:{ title:'Caja de llaves',    body:'Caja gris a la derecha de la puerta.\nCódigo: 4521 · Mantén pulsado 2 seg.' } },
+  { id:'wifi',     label:'WiFi',     icon:<Wifi className="w-3.5 h-3.5"/>,            step:{ title:'Red y contraseña',   body:'Red: Itineramio_5G\nClave: balcon2024#' } },
+  { id:'normas',   label:'Normas',   icon:<FileText className="w-3.5 h-3.5"/>,        step:{ title:'Normas del piso',    body:'Check-out antes de las 11:00h.\nNo fumar en el interior.' } },
+  { id:'parking',  label:'Parking',  icon:<Car className="w-3.5 h-3.5"/>,             step:{ title:'Aparcamiento',       body:'Plaza B-14 · Pase magnético en\nel cajón de la cocina (izquierda).' } },
+  { id:'cocina',   label:'Cocina',   icon:<UtensilsCrossed className="w-3.5 h-3.5"/>, step:{ title:'Equipamiento',       body:'Cafetera, microondas, tostadora.\nEspecias básicas incluidas.' } },
+  { id:'checkout', label:'Salida',   icon:<LogOut className="w-3.5 h-3.5"/>,          step:{ title:'Check-out',          body:'Deja las llaves dentro y\ncierra con el código 4521.' } },
 ]
 
-// Pricing tiers configuration - ACTUALIZADO según src/config/plans.ts
-const PRICING_TIERS = [
-  { min: 1, max: 2, name: 'BASIC', price: 9 },
-  { min: 3, max: 10, name: 'HOST', price: 29 },
-  { min: 11, max: 25, name: 'SUPERHOST', price: 69 },
-  { min: 26, max: 50, name: 'BUSINESS', price: 99 }
+type SeqStep = { view:'guide'|'zona'|'chat'; zone:string|null; msg:number; cx:number; cy:number; click:boolean; dur:number }
+const SEQ: SeqStep[] = [
+  { view:'guide', zone:null,      msg:0, cx:50, cy:50, click:false, dur:900  },
+  { view:'guide', zone:null,      msg:0, cx:17, cy:25, click:false, dur:550  },
+  { view:'guide', zone:null,      msg:0, cx:17, cy:25, click:true,  dur:400  },
+  { view:'zona',  zone:'entrada', msg:0, cx:17, cy:25, click:false, dur:1400 },
+  { view:'zona',  zone:'entrada', msg:0, cx:10, cy:20, click:false, dur:500  },
+  { view:'zona',  zone:'entrada', msg:0, cx:10, cy:20, click:true,  dur:400  },
+  { view:'guide', zone:null,      msg:0, cx:10, cy:20, click:false, dur:400  },
+  { view:'guide', zone:null,      msg:0, cx:50, cy:25, click:false, dur:500  },
+  { view:'guide', zone:null,      msg:0, cx:50, cy:25, click:true,  dur:400  },
+  { view:'zona',  zone:'wifi',    msg:0, cx:50, cy:25, click:false, dur:1200 },
+  { view:'zona',  zone:'wifi',    msg:0, cx:10, cy:20, click:false, dur:500  },
+  { view:'zona',  zone:'wifi',    msg:0, cx:10, cy:20, click:true,  dur:400  },
+  { view:'guide', zone:null,      msg:0, cx:10, cy:20, click:false, dur:400  },
+  { view:'guide', zone:null,      msg:0, cx:17, cy:46, click:false, dur:500  },
+  { view:'guide', zone:null,      msg:0, cx:17, cy:46, click:true,  dur:400  },
+  { view:'zona',  zone:'parking', msg:0, cx:17, cy:46, click:false, dur:1100 },
+  { view:'zona',  zone:'parking', msg:0, cx:10, cy:20, click:false, dur:500  },
+  { view:'zona',  zone:'parking', msg:0, cx:10, cy:20, click:true,  dur:400  },
+  { view:'guide', zone:null,      msg:0, cx:10, cy:20, click:false, dur:400  },
+  { view:'guide', zone:null,      msg:0, cx:87, cy:87, click:false, dur:600  },
+  { view:'guide', zone:null,      msg:0, cx:87, cy:87, click:true,  dur:400  },
+  { view:'chat',  zone:null,      msg:0, cx:87, cy:87, click:false, dur:700  },
+  { view:'chat',  zone:null,      msg:1, cx:87, cy:87, click:false, dur:900  },
+  { view:'chat',  zone:null,      msg:2, cx:87, cy:87, click:false, dur:1200 },
+  { view:'chat',  zone:null,      msg:3, cx:87, cy:87, click:false, dur:2500 },
+  { view:'chat',  zone:null,      msg:4, cx:87, cy:87, click:false, dur:1500 },
 ]
 
-const PLAN_DETAILS = [
-  {
-    name: 'BASIC',
-    displayName: 'Basic',
-    maxProps: 2,
-    price: 9,
-    recommended: true,
-    description: 'Perfecto para comenzar'
-  },
-  {
-    name: 'HOST',
-    displayName: 'Host',
-    maxProps: 10,
-    price: 29,
-    recommended: false,
-    description: 'Múltiples propiedades'
-  },
-  {
-    name: 'SUPERHOST',
-    displayName: 'Superhost',
-    maxProps: 25,
-    price: 69,
-    recommended: false,
-    description: 'Gestores profesionales'
-  },
-  {
-    name: 'BUSINESS',
-    displayName: 'Business',
-    maxProps: 50,
-    price: 99,
-    recommended: false,
-    description: 'Soluciones enterprise'
-  }
-]
+function DemoWidget() {
+  const [step, setStep]     = useState(0)
+  const [viewed, setViewed] = useState<Set<string>>(new Set())
+  const s = SEQ[step % SEQ.length]
 
-export default function LandingPage() {
-  const router = useRouter()
-  const [currentTestimonial, setCurrentTestimonial] = useState(0)
-  const [propertyCount, setPropertyCount] = useState(1)
+  useEffect(() => { if (step % SEQ.length === 0) setViewed(new Set()) }, [step])
+  useEffect(() => { if (s.view==='zona' && s.zone && !s.click) setViewed(p => new Set([...p, s.zone!])) }, [s.view, s.zone, s.click])
+  useEffect(() => { const t = setTimeout(() => setStep(p => (p+1)%SEQ.length), s.dur); return () => clearTimeout(t) }, [step, s.dur])
 
-  // Parallax scroll effect - DISABLED to prevent hero from disappearing
-  // const { scrollY } = useScroll()
-  // const heroY = useTransform(scrollY, [0, 500], [0, 150])
-  // const heroOpacity = useTransform(scrollY, [0, 300], [1, 0])
-
-  // Calculate current tier and price
-  const getCurrentTier = (count: number) => {
-    return PRICING_TIERS.find(tier => count >= tier.min && count <= tier.max) || PRICING_TIERS[0]
-  }
-
-  const currentTier = getCurrentTier(propertyCount)
-  const totalPrice = currentTier.price
-
-  // Auto-scroll testimonials
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
-    }, 6000)
-    return () => clearInterval(interval)
-  }, [])
-
-  // Check if user is authenticated
-  useEffect(() => {
-    const checkAuth = async () => {
-      // Only verify if there's a session cookie (optimization: skip API call for new visitors)
-      const hasSession = document.cookie.includes('session') ||
-                         document.cookie.includes('auth') ||
-                         document.cookie.includes('sb-')
-      if (!hasSession) return
-
-      try {
-        const response = await fetch('/api/auth/me')
-        if (response.ok) {
-          const data = await response.json()
-          if (data.authenticated) {
-            router.push('/main')
-          }
-        }
-      } catch (error) {
-        // auth check error silenced
-      }
-    }
-    checkAuth()
-  }, [router])
-
-  const nextTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
-  }
-
-  const prevTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)
-  }
+  const activeZone = GUIDE_ZONES.find(z => z.id===s.zone) ?? null
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Structured Data for SEO */}
-      <StructuredData />
-
-      {/* Unified Navigation */}
-      <Navbar />
-
-      {/* Hero Section - with parallax */}
-      <section className="relative pt-28 sm:pt-36 md:pt-32 pb-0 sm:pb-6 px-4 sm:px-6 overflow-hidden bg-gradient-to-b from-gray-50 to-white">
-        <motion.div
-          className="max-w-7xl mx-auto"
-        >
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Hero Content */}
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={staggerContainer}
-              className="space-y-6 sm:space-y-8"
-            >
-              <motion.div variants={fadeInUp} className="inline-flex items-center space-x-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-violet-500/10 to-pink-500/10 rounded-full border border-violet-500/20">
-                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-violet-600" />
-                <span className="text-xs sm:text-sm font-medium text-gray-900">Plataforma #1 de manuales digitales para Airbnb</span>
-              </motion.div>
-
-              <motion.h1
-                variants={fadeInUp}
-                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-gray-900 leading-[1.05] tracking-tight"
-              >
-                <span className="block mb-2">Manuales digitales</span>
-                <span className="block bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  para Airbnb y alquileres
-                </span>
-              </motion.h1>
-
-              <motion.p
-                variants={fadeInUp}
-                className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-700 leading-relaxed max-w-xl"
-              >
-                <span className="font-bold text-gray-900">Crea guías digitales con WiFi, códigos, instrucciones y recomendaciones.</span> Todo en un QR que escanean tus huéspedes. Adiós a las llamadas y mensajes repetitivos.
-              </motion.p>
-
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-col sm:flex-row gap-3 sm:gap-4"
-              >
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
-                  <Link
-                    href="/register"
-                    className="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white rounded-full text-base sm:text-lg font-semibold hover:shadow-2xl hover:shadow-violet-500/30 transition-all group"
-                  >
-                    Prueba 15 días gratis
-                    <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </motion.div>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
-                  <Link href="/consulta">
-                    <button className="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white border-2 border-gray-200 text-gray-900 rounded-full text-base sm:text-lg font-semibold hover:border-gray-300 hover:shadow-lg transition-all">
-                      <Video className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                      Hablar con un Experto
-                    </button>
-                  </Link>
-                </motion.div>
-              </motion.div>
-
-              {/* Social Proof Bar */}
-              <motion.div
-                variants={fadeInUp}
-                className="flex flex-wrap items-center gap-4 py-4"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="flex -space-x-2">
-                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=32&h=32&fit=crop&crop=face" alt="" className="w-8 h-8 rounded-full border-2 border-white" />
-                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face" alt="" className="w-8 h-8 rounded-full border-2 border-white" />
-                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=32&h=32&fit=crop&crop=face" alt="" className="w-8 h-8 rounded-full border-2 border-white" />
-                    <div className="w-8 h-8 rounded-full border-2 border-white bg-violet-100 flex items-center justify-center text-xs font-semibold text-violet-600">+50</div>
-                  </div>
-                  <span className="text-sm text-gray-600">
-                    <strong className="text-gray-900">50+ property managers</strong> ya confían en nosotros
-                  </span>
-                </div>
-                <div className="hidden sm:flex items-center gap-1 text-sm text-gray-500">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span>Sin tarjeta de crédito</span>
-                </div>
-                <div className="hidden sm:flex items-center gap-1 text-sm text-gray-500">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span>Setup en 10 min</span>
-                </div>
-              </motion.div>
-
-              {/* Stats */}
-              <motion.div
-                variants={staggerContainer}
-                className="grid grid-cols-3 gap-8 pt-8 border-t border-gray-200"
-              >
-                <motion.div variants={scaleIn}>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-violet-500 to-purple-600 bg-clip-text text-transparent">86%</div>
-                  <div className="text-gray-600 text-sm mt-1">menos consultas</div>
-                </motion.div>
-                <motion.div variants={scaleIn}>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-violet-500 to-purple-600 bg-clip-text text-transparent">8h</div>
-                  <div className="text-gray-600 text-sm mt-1">ahorradas/semana</div>
-                </motion.div>
-                <motion.div variants={scaleIn}>
-                  <div className="text-4xl font-bold bg-gradient-to-r from-violet-500 to-purple-600 bg-clip-text text-transparent">5s</div>
-                  <div className="text-gray-600 text-sm mt-1">check-in QR</div>
-                </motion.div>
-              </motion.div>
-            </motion.div>
-
-            {/* Hero Video */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-              className="relative"
-            >
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-200">
-                <LazyVideo src="/videos/no-calls.mp4" className="w-full h-full" />
-
-                {/* Floating badges */}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6, duration: 0.4 }}
-                  className="absolute top-6 left-6 px-4 py-2 bg-white/90 backdrop-blur-lg rounded-full shadow-lg border border-gray-100"
-                >
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-semibold text-gray-900">0 llamadas esta semana</span>
-                  </div>
-                </motion.div>
-              </div>
-
-              {/* Decorative elements */}
-              <motion.div
-                animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [0.3, 0.5, 0.3]
-                }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -top-10 -right-10 w-64 h-64 bg-gradient-to-br from-violet-500/20 to-purple-500/20 rounded-full blur-3xl"
-              />
-            </motion.div>
+    <div className="relative w-full max-w-2xl mx-auto select-none">
+      <div className="rounded-2xl overflow-hidden" style={{ boxShadow:'0 32px 80px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05)' }}>
+        {/* Browser chrome */}
+        <div className="bg-[#ebebeb] px-4 py-2.5 flex items-center gap-3 border-b border-black/[0.06]">
+          <div className="flex gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-[#ff5f57]"/><div className="w-3 h-3 rounded-full bg-[#ffbd2e]"/><div className="w-3 h-3 rounded-full bg-[#28c840]"/>
           </div>
+          <div className="flex-1 bg-white rounded-md px-3 py-1 text-[11px] text-[#999] flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#059669] inline-block shrink-0"/>app.itineramio.com/guide/barceloneta
+          </div>
+        </div>
+        {/* App shell */}
+        <div className="bg-[#f8f8f8] relative overflow-hidden" style={{ height:340 }}>
+          <div className="absolute inset-0 flex flex-col">
+            {/* Header */}
+            <div className="bg-white border-b border-black/[0.06] px-3.5 py-2.5 flex items-center justify-between shrink-0 z-10">
+              <div className="flex items-center gap-2">
+                <img src="/isotipo-gradient.svg" alt="" width={16} height={9} className="object-contain shrink-0"/>
+                <div>
+                  <p className="text-[11px] font-semibold text-[#111] leading-none">Apartamento Barceloneta</p>
+                  <p className="text-[9px] text-[#999] mt-0.5">Barcelona · 2 hab · 4 huéspedes</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="text-[11px]">🇪🇸</span><span className="text-[11px] opacity-40">🇬🇧</span><span className="text-[11px] opacity-40">🇫🇷</span>
+              </div>
+            </div>
+            {/* Sliding content */}
+            <div className="flex-1 relative overflow-hidden">
+              <AnimatePresence mode="wait">
+                {s.view==='zona' && activeZone ? (
+                  <motion.div key={`zone-${activeZone.id}`} initial={{ x:'100%' }} animate={{ x:0 }} exit={{ x:'100%' }}
+                    transition={{ duration:0.28, ease:[0.25,0.1,0.25,1] }} className="absolute inset-0 bg-white flex flex-col">
+                    <div className="flex items-center gap-2 px-3 py-2 border-b border-black/[0.05] shrink-0">
+                      <button className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                        <ChevronLeft className="w-3 h-3 text-[#555]"/>
+                      </button>
+                      <div className="w-5 h-5 rounded-lg flex items-center justify-center shrink-0 text-[#555]" style={{ backgroundColor:'#f0efed' }}>{activeZone.icon}</div>
+                      <p className="text-[11px] font-semibold text-[#111] flex-1 leading-none">{activeZone.label}</p>
+                      <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full text-[#555] flex items-center gap-0.5" style={{ backgroundColor:'rgba(0,0,0,0.05)' }}><Check className="w-2.5 h-2.5"/>Visto</span>
+                    </div>
+                    <div className="flex-1 p-3 overflow-hidden">
+                      <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.08 }}
+                        className="bg-white rounded-xl border border-black/[0.07] p-3 shadow-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-5 h-5 rounded-full text-white text-[9px] font-bold flex items-center justify-center shrink-0" style={{ backgroundColor:'#111' }}>1</div>
+                          <p className="text-[11px] font-semibold text-[#111]">{activeZone.step.title}</p>
+                        </div>
+                        <p className="text-[10px] text-[#555] leading-relaxed whitespace-pre-line pl-7">{activeZone.step.body}</p>
+                        <div className="mt-2.5 pl-7 flex items-center gap-1">
+                          <Check className="w-2.5 h-2.5 text-[#555]"/><span className="text-[9px] text-[#555] font-medium">Paso completado</span>
+                        </div>
+                      </motion.div>
+                      <div className="mt-3">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-[8px] text-[#aaa]">Progreso</span>
+                          <span className="text-[8px] font-medium text-[#555]">1/1 pasos</span>
+                        </div>
+                        <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+                          <motion.div initial={{ width:0 }} animate={{ width:'100%' }} transition={{ duration:0.6, delay:0.3, ease:'easeOut' }}
+                            className="h-full rounded-full bg-[#7c3aed]"/>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : s.view!=='chat' ? (
+                  <motion.div key="zone-grid" initial={{ x:'-30%', opacity:0 }} animate={{ x:0, opacity:1 }} exit={{ x:'-30%', opacity:0 }}
+                    transition={{ duration:0.28, ease:[0.25,0.1,0.25,1] }} className="absolute inset-0 p-3 flex flex-col gap-2.5 bg-[#f8f8f8]">
+                    <p className="text-[8px] font-semibold uppercase tracking-[0.16em] text-[#bbb]">Manual de la propiedad</p>
+                    <div className="grid grid-cols-3 gap-2 flex-1">
+                      {GUIDE_ZONES.map(z => {
+                        const isViewed  = viewed.has(z.id)
+                        const isHovered = s.view==='guide' && s.zone===z.id
+                        return (
+                          <motion.div key={z.id}
+                            animate={isHovered ? { scale:1.03, borderColor:'rgba(0,0,0,0.15)', boxShadow:'0 4px 12px rgba(0,0,0,0.08)' } : { scale:1, borderColor:'rgba(0,0,0,0.07)', boxShadow:'0 1px 2px rgba(0,0,0,0.04)' }}
+                            transition={{ duration:0.2, ease:'easeOut' }}
+                            className="bg-white rounded-xl border p-2 flex flex-col gap-1.5 cursor-default">
+                            <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[#555]" style={{ backgroundColor:'#f0efed' }}>{z.icon}</div>
+                            <p className="text-[9px] font-semibold text-[#111] leading-tight">{z.label}</p>
+                            {isViewed
+                              ? <span className="text-[8px] text-[#555] font-medium flex items-center gap-0.5"><Check className="w-2 h-2"/>Visto</span>
+                              : <span className="text-[8px] text-[#ccc]">Ver →</span>}
+                          </motion.div>
+                        )
+                      })}
+                    </div>
+                    <div className="shrink-0">
+                      <div className="flex justify-between mb-1">
+                        <span className="text-[8px] text-[#aaa]">Guía leída</span>
+                        <span className="text-[8px] font-semibold text-[#7c3aed]">{viewed.size}/6</span>
+                      </div>
+                      <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
+                        <motion.div animate={{ width:`${(viewed.size/6)*100}%` }} transition={{ duration:0.5, ease:'easeOut' }}
+                          className="h-full rounded-full bg-gradient-to-r from-violet-500 to-violet-400"/>
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+            </div>
+            {/* Chat FAB */}
+            <AnimatePresence>
+              {s.view!=='chat' && (
+                <motion.div initial={{ scale:0, opacity:0 }} animate={{ scale:1, opacity:1 }} exit={{ scale:0, opacity:0 }}
+                  transition={{ duration:0.2, ease:'easeOut' }} className="absolute bottom-3 right-3 z-20">
+                  <div className="w-9 h-9 rounded-2xl flex items-center justify-center text-white shadow-lg relative"
+                    style={{ background:'linear-gradient(135deg, #7c3aed, #a855f7)' }}>
+                    <Bot className="w-4 h-4 relative z-10"/>
+                    <motion.div animate={{ scale:[1,1.8], opacity:[0.3,0] }} transition={{ repeat:Infinity, duration:2, ease:'easeOut' }}
+                      className="absolute inset-0 rounded-2xl bg-violet-400"/>
+                    <motion.div animate={{ scale:[1,2.4], opacity:[0.15,0] }} transition={{ repeat:Infinity, duration:2, ease:'easeOut', delay:0.7 }}
+                      className="absolute inset-0 rounded-2xl bg-violet-400"/>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+          {/* Chat panel */}
+          <AnimatePresence>
+            {s.view==='chat' && (
+              <motion.div key="chat" initial={{ x:'100%' }} animate={{ x:0 }} exit={{ x:'100%' }}
+                transition={{ duration:0.28, ease:[0.25,0.1,0.25,1] }} className="absolute inset-0 flex flex-col bg-white z-30">
+                <div className="flex items-center gap-2.5 px-3.5 py-2.5 shrink-0"
+                  style={{ background:'linear-gradient(135deg, #18181b, #27272a)' }}>
+                  <div className="w-7 h-7 rounded-xl flex items-center justify-center" style={{ backgroundColor:'rgba(124,58,237,0.3)' }}>
+                    <Bot className="w-3.5 h-3.5 text-violet-300"/>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[11px] font-semibold text-white leading-none">Asistente IA</p>
+                    <p className="text-[9px] text-green-400 font-medium mt-0.5">● En línea · Barceloneta</p>
+                  </div>
+                  <div className="flex gap-1"><span className="text-[10px]">🇪🇸</span><span className="text-[10px] opacity-50">🇬🇧</span><span className="text-[10px] opacity-50">🇫🇷</span></div>
+                </div>
+                <div className="flex-1 px-3 py-3 flex flex-col justify-end gap-2.5 overflow-hidden">
+                  <AnimatePresence>
+                    {s.msg===0 && (
+                      <motion.div key="sugg" initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }} className="space-y-1.5">
+                        <p className="text-[8px] uppercase tracking-[0.15em] text-[#bbb] font-semibold">Preguntas frecuentes</p>
+                        {['¿Cómo accedo al piso?','¿Cuál es la clave del WiFi?','¿A qué hora es el check-out?'].map((q,i) => (
+                          <motion.div key={i} initial={{ opacity:0, x:-8 }} animate={{ opacity:1, x:0 }} transition={{ delay:i*0.08 }}
+                            className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl border border-black/[0.06] bg-gray-50 text-[10px] text-[#444] cursor-default">
+                            <MessageCircle className="w-2.5 h-2.5 text-[#bbb] shrink-0"/>{q}
+                          </motion.div>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  <AnimatePresence>
+                    {s.msg>=1 && (
+                      <motion.div key="umsg" initial={{ opacity:0, y:8, scale:0.95 }} animate={{ opacity:1, y:0, scale:1 }} className="self-end">
+                        <div className="bg-[#111] text-white text-[10px] px-3 py-2 rounded-2xl rounded-br-sm max-w-[160px] leading-relaxed">
+                          ¿Cómo entro? No encuentro las llaves 🤔
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  <AnimatePresence>
+                    {s.msg===2 && (
+                      <motion.div key="typing" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }} className="self-start">
+                        <div className="bg-[#f5f3f0] px-3 py-2.5 rounded-2xl rounded-bl-sm flex gap-1 items-center">
+                          {[0,1,2].map(i => <motion.div key={i} animate={{ y:[0,-3,0] }} transition={{ repeat:Infinity, duration:0.65, delay:i*0.13 }} className="w-1.5 h-1.5 rounded-full bg-[#aaa]"/>)}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  <AnimatePresence>
+                    {s.msg>=3 && (
+                      <motion.div key="aresp" initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.3 }} className="self-start">
+                        <div className="bg-[#f5f3f0] text-[#111] text-[10px] px-3 py-2 rounded-2xl rounded-bl-sm max-w-[210px] leading-relaxed">
+                          ¡Hola! 👋 La caja está a la derecha de la puerta. Código: <strong>4521</strong>. Mantén pulsado 2 segundos y se abre.
+                        </div>
+                        <p className="text-[8px] text-[#ccc] mt-0.5 ml-1">Asistente IA · ahora</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  <AnimatePresence>
+                    {s.msg>=4 && (
+                      <motion.div key="follow" initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.2 }} className="self-start">
+                        <div className="bg-[#f5f3f0] text-[#111] text-[10px] px-3 py-2 rounded-2xl rounded-bl-sm max-w-[200px] leading-relaxed">
+                          ¿Necesitas algo más? Tengo toda la info del piso 🏠
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <div className="px-3 py-2.5 border-t border-black/[0.05] shrink-0">
+                  <div className="bg-[#f5f3f0] rounded-full px-3 py-1.5 text-[9px] text-[#ccc]">Escribe en cualquier idioma…</div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          {/* Cursor */}
+          <motion.div animate={{ left:`${s.cx}%`, top:`${s.cy}%` }} transition={{ type:'spring', stiffness:180, damping:26 }}
+            className="absolute pointer-events-none z-50" style={{ transform:'translate(-3px,-3px)' }}>
+            <AnimatePresence>
+              {s.click && (
+                <motion.div key={`r-${step}`} initial={{ scale:0, opacity:0.5 }} animate={{ scale:2.8, opacity:0 }} transition={{ duration:0.38 }}
+                  className="absolute w-6 h-6 rounded-full bg-violet-500/25 -translate-x-1/2 -translate-y-1/2" style={{ left:4, top:4 }}/>
+              )}
+            </AnimatePresence>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M2.5 1.5L2.5 15.5L6 11.5L8.5 16.5L11 15.5L8.5 10.5H14L2.5 1.5Z" fill="#111" stroke="white" strokeWidth="1.4" strokeLinejoin="round"/>
+            </svg>
+          </motion.div>
+        </div>
+      </div>
+      {/* Badge */}
+      <motion.div initial={{ opacity:0, x:-12 }} animate={{ opacity:1, x:0 }} transition={{ delay:0.9 }}
+        className="absolute -left-12 top-14 hidden lg:flex items-center gap-2.5 bg-white rounded-2xl px-3.5 py-2.5" style={{ boxShadow:'0 8px 24px rgba(0,0,0,0.09)' }}>
+        <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-sm">✓</div>
+        <div><p className="text-xs font-semibold text-[#111]">Guía enviada</p><p className="text-[10px] text-[#aaa]">Reserva confirmada</p></div>
+      </motion.div>
+    </div>
+  )
+}
+
+// ─── ZONES CAROUSEL ─────────────────────────────────────────────────────────
+const ALL_ZONE_SETS_ES = [
+  [
+    { label:'Check-in',        icon:<LogIn className="w-4 h-4"/> },
+    { label:'Check-out',       icon:<LogOut className="w-4 h-4"/> },
+    { label:'WiFi',            icon:<Wifi className="w-4 h-4"/> },
+    { label:'Normas',          icon:<ClipboardList className="w-4 h-4"/> },
+    { label:'Parking',         icon:<Car className="w-4 h-4"/> },
+    { label:'Aire A/C',        icon:<Wind className="w-4 h-4"/> },
+  ],
+  [
+    { label:'Vitrocerámica',   icon:<CeramicHobIcon className="w-4 h-4"/> },
+    { label:'Lavadora',        icon:<WashingMachineIcon className="w-4 h-4"/> },
+    { label:'Microondas',      icon:<Microwave className="w-4 h-4"/> },
+    { label:'Restaurantes',    icon:<UtensilsCrossed className="w-4 h-4"/> },
+    { label:'Qué ver',         icon:<Compass className="w-4 h-4"/> },
+    { label:'Coffee Shops',    icon:<Coffee className="w-4 h-4"/> },
+  ],
+]
+
+function ZonesCarousel({ sets }: { sets: {label:string; icon:React.ReactNode}[][] }) {
+  const [page, setPage] = useState(0)
+  useEffect(() => {
+    const t = setInterval(() => setPage(p => (p + 1) % sets.length), 2800)
+    return () => clearInterval(t)
+  }, [sets.length])
+  return (
+    <div className="w-full max-w-[280px]">
+      <div className="overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div key={page}
+            initial={{ x: '100%', opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '-100%', opacity: 0 }}
+            transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+            className="grid grid-cols-3 gap-2">
+            {sets[page].map((z, i) => (
+              <div key={z.label} className="rounded-[14px] p-3 flex flex-col items-center justify-center gap-1.5 aspect-square" style={{ backgroundColor:'#f0efed' }}>
+                <div className="w-8 h-8 rounded-[10px] flex items-center justify-center text-[#555]" style={{ backgroundColor:'rgba(0,0,0,0.04)' }}>
+                  {z.icon}
+                </div>
+                <span className="text-[10px] font-semibold text-[#555] text-center leading-tight">{z.label}</span>
+              </div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+      <div className="flex justify-center gap-1.5 mt-3">
+        {sets.map((_, i) => (
+          <div key={i} className={`rounded-full transition-all duration-300 ${i === page ? 'w-4 h-1.5 bg-violet-600' : 'w-1.5 h-1.5 bg-black/10'}`}/>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── INFINITE CHAT ──────────────────────────────────────────────────────────
+const CHAT_CONVOS_ES = [
+  { q:'¿Cuál es la clave del WiFi? 🤔',       a:'Red: Itineramio_5G · Clave: balcon2024# 🙌' },
+  { q:'¿A qué hora es el checkout?',           a:'El checkout es a las 11:00h. Deja las llaves dentro. ¡Hasta pronto! 👋' },
+  { q:'¿Cómo entro? No encuentro las llaves',  a:'Caja gris a la derecha de la puerta. Código: 4521, mantén 2 seg. 🔐' },
+  { q:'¿Dónde puedo aparcar?',                 a:'Plaza B-14 · Pase magnético en el cajón de la cocina (izquierda). 🚗' },
+]
+
+function InfiniteChat({ convos }: { convos: {q:string; a:string}[] }) {
+  const [idx, setIdx] = useState(0)
+  const [stage, setStage] = useState<'q'|'typing'|'a'|'pause'>('q')
+  useEffect(() => {
+    const delays = { q:900, typing:850, a:2600, pause:300 }
+    const next   = { q:'typing' as const, typing:'a' as const, a:'pause' as const, pause:'q' as const }
+    const t = setTimeout(() => {
+      if (stage === 'pause') setIdx(p => (p + 1) % convos.length)
+      setStage(next[stage])
+    }, delays[stage])
+    return () => clearTimeout(t)
+  }, [stage, idx, convos.length])
+  const convo = convos[idx]
+  return (
+    <div className="w-full max-w-[300px] bg-white rounded-t-[16px] p-4 flex flex-col gap-2.5" style={{ boxShadow:'0 -4px 24px rgba(0,0,0,0.06)' }}>
+      <div className="flex items-center gap-2 pb-2 border-b border-black/[0.05]">
+        <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center"><Bot className="w-3 h-3 text-violet-600"/></div>
+        <span className="text-[11px] font-semibold text-[#111]">Asistente IA</span>
+        <span className="ml-auto text-[9px] text-green-500 font-medium">● En línea</span>
+      </div>
+      <div className="flex flex-col gap-2 min-h-[80px] justify-end">
+        <AnimatePresence mode="wait">
+          <motion.div key={`q-${idx}`} initial={{ opacity:0, y:6, scale:0.96 }} animate={{ opacity:1, y:0, scale:1 }}
+            exit={{ opacity:0, y:-4 }} transition={{ duration:0.22 }}
+            className="self-end bg-[#111] text-white text-[10px] px-2.5 py-1.5 rounded-2xl rounded-br-sm max-w-[165px] leading-relaxed">
+            {convo.q}
+          </motion.div>
+        </AnimatePresence>
+        <AnimatePresence>
+          {stage === 'typing' && (
+            <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+              className="self-start bg-[#f5f3f0] px-2.5 py-2 rounded-2xl rounded-bl-sm flex gap-1">
+              {[0,1,2].map(i => <motion.div key={i} animate={{ y:[0,-3,0] }} transition={{ repeat:Infinity, duration:0.65, delay:i*0.13 }} className="w-1.5 h-1.5 rounded-full bg-[#aaa]"/>)}
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {(stage === 'a' || stage === 'pause') && (
+            <motion.div key={`a-${idx}`} initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}
+              transition={{ duration:0.22 }}
+              className="self-start bg-[#f5f3f0] text-[#111] text-[10px] px-2.5 py-1.5 rounded-2xl rounded-bl-sm max-w-[200px] leading-relaxed">
+              {convo.a}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  )
+}
+
+// ─── MULTI-LANG CHAT MINI ───────────────────────────────────────────────────
+const LANG_CONVOS = [
+  { flag:'🇬🇧', lang:'EN', q:"What's the WiFi password?",   a:'Network: Itineramio_5G · Password: balcon2024# 🙌' },
+  { flag:'🇪🇸', lang:'ES', q:'¿A qué hora es el checkout?',  a:'El checkout es a las 11:00h. ¡Hasta pronto! 👋' },
+  { flag:'🇫🇷', lang:'FR', q:"C'est quoi le WiFi?",           a:'Réseau: Itineramio_5G · Mdp: balcon2024# 🙌' },
+]
+
+function MultiLangChatMini() {
+  const [idx, setIdx] = useState(0)
+  const [showA, setShowA] = useState(false)
+  useEffect(() => {
+    setShowA(false)
+    const t1 = setTimeout(() => setShowA(true), 1300)
+    const t2 = setTimeout(() => setIdx(p => (p + 1) % LANG_CONVOS.length), 3400)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [idx])
+  const convo = LANG_CONVOS[idx]
+  return (
+    <div className="flex flex-col gap-1.5 w-full max-w-[220px]">
+      <AnimatePresence mode="wait">
+        <motion.div key={idx} initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-6 }}
+          transition={{ duration:0.22 }} className="flex flex-col gap-1.5">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <span className="text-sm">{convo.flag}</span>
+            <span className="text-[9px] font-bold text-[#bbb]">{convo.lang}</span>
+          </div>
+          <div className="self-end bg-[#111] text-white text-[10px] px-2.5 py-1.5 rounded-2xl rounded-br-sm max-w-[180px] leading-relaxed">{convo.q}</div>
+          <AnimatePresence>
+            {showA && (
+              <motion.div initial={{ opacity:0, y:4 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}
+                transition={{ duration:0.2 }}
+                className="self-start bg-[#f5f3f0] text-[#111] text-[10px] px-2.5 py-1.5 rounded-2xl rounded-bl-sm max-w-[200px] leading-relaxed border border-black/[0.05]">
+                {convo.a}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  )
+}
+
+// ─── MAIN ───────────────────────────────────────────────────────────────────
+export default function Landing2() {
+  const [scrolled, setScrolled]             = useState(false)
+  const [mob, setMob]                       = useState(false)
+  const [faqOpen, setFaqOpen]               = useState<number|null>(null)
+  const [beforeAfterTab, setBeforeAfterTab] = useState<'before'|'after'>('before')
+
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', fn, { passive:true })
+    return () => window.removeEventListener('scroll', fn)
+  }, [])
+
+  return (
+    <div className={`${inter.className} ${manrope.variable} min-h-screen bg-white text-[#111] overflow-x-hidden`}
+      style={{ WebkitFontSmoothing:'antialiased' } as React.CSSProperties}>
+
+      {/* ── NAV ── */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md' : 'bg-transparent'}`}
+        style={scrolled ? { boxShadow:'0 1px 0 rgba(0,0,0,0.06)' } : {}}>
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5">
+            <img src="/isotipo-gradient.svg" alt="Itineramio" width={28} height={16} className="object-contain"/>
+            <span className="font-semibold text-[15px]">Itineramio</span>
+          </Link>
+          <div className="hidden md:flex items-center gap-7">
+            {[['Cómo funciona','#how'],['Por qué funciona','#why'],['FAQ','#faq']].map(([l,h]) => (
+              <a key={l} href={h} className="text-sm text-[#666] hover:text-[#111] transition-colors font-medium">{l}</a>
+            ))}
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="hidden sm:block text-sm text-[#666] hover:text-[#111] font-medium transition-colors">Entrar</Link>
+            <Link href="/register" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all"
+              style={{ backgroundColor:'#7c3aed', boxShadow:'0 2px 12px rgba(124,58,237,0.3)' }}>
+              Empieza gratis <ArrowRight className="w-3.5 h-3.5"/>
+            </Link>
+            <button className="md:hidden p-1" onClick={() => setMob(!mob)}>
+              {mob ? <X className="w-5 h-5"/> : <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16"/></svg>}
+            </button>
+          </div>
+        </div>
+        <AnimatePresence>
+          {mob && (
+            <motion.div initial={{ opacity:0, height:0 }} animate={{ opacity:1, height:'auto' }} exit={{ opacity:0, height:0 }}
+              className="md:hidden bg-white border-t border-black/5 px-6 py-5 flex flex-col gap-5">
+              {['Cómo funciona','Por qué funciona','FAQ'].map(l => <button key={l} className="text-sm text-[#666] text-left font-medium">{l}</button>)}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
+
+      {/* ── SECTION 1: HERO ── */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-28 pb-16 overflow-hidden">
+        <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+          <motion.div animate={{ opacity:[0.6,1,0.6], scale:[0.97,1.03,0.97] }} transition={{ repeat:Infinity, duration:6, ease:'easeInOut' }}
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[140%] h-[60%]"
+            style={{ background:'radial-gradient(ellipse 70% 50% at 50% -10%, rgba(124,58,237,0.12) 0%, transparent 70%)' }}/>
+          <motion.div animate={{ scale:[1,1.6,1], opacity:[0.12,0,0.12] }} transition={{ repeat:Infinity, duration:5, ease:'easeInOut' }}
+            className="absolute top-[28%] left-1/2 w-[500px] h-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-violet-400/30"/>
+          <motion.div animate={{ scale:[1,1.6,1], opacity:[0.06,0,0.06] }} transition={{ repeat:Infinity, duration:5, ease:'easeInOut', delay:2.5 }}
+            className="absolute top-[28%] left-1/2 w-[500px] h-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-violet-400/20"/>
+        </div>
+
+        <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.45 }}
+          className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50 px-5 py-2 text-sm text-violet-700 font-medium mb-8">
+          <span className="w-1.5 h-1.5 rounded-full bg-violet-600 animate-pulse"/>
+          Para anfitriones con 6 a 10 apartamentos en España
+        </motion.div>
+
+        <motion.h1 initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.7, delay:0.1 }}
+          className="leading-[1.05] tracking-tight mb-4 max-w-4xl"
+          style={{ fontSize:'clamp(2.4rem, 6vw, 5rem)', fontFamily:'var(--font-manrope)' }}>
+          <span className="font-semibold text-[#111]">Los huéspedes no leen. </span>
+          <span className="font-light text-[#aaa]">Y tú sigues enviando el mismo mensaje una y otra vez.</span>
+        </motion.h1>
+
+        <motion.p initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.3 }}
+          className="text-base font-normal text-[#555] mb-10 max-w-xl leading-relaxed">
+          Crea una guía una vez y haz que se envíe automáticamente al confirmarse la reserva. Así llegan sabiendo cómo entrar, dónde aparcar y cuál es la clave del WiFi. Tú dejas de repetir lo mismo cada semana.
+        </motion.p>
+
+        <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.4 }}
+          className="flex flex-col sm:flex-row items-center gap-4 mb-3">
+          <Link href="/register" className="group inline-flex items-center gap-2.5 px-8 py-4 rounded-full font-semibold text-base text-white transition-all"
+            style={{ backgroundColor:'#7c3aed', boxShadow:'0 4px 20px rgba(124,58,237,0.35)' }}>
+            Empieza gratis <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform"/>
+          </Link>
+          <Link href="/demo" className="inline-flex items-center gap-2 border border-black/10 text-[#666] hover:text-[#111] hover:border-black/20 px-8 py-4 rounded-full font-medium text-base transition-all">
+            Ver demo
+          </Link>
+        </motion.div>
+        <motion.p initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.55 }} className="text-sm text-[#bbb] mb-16">
+          No necesitas tarjeta. Configúralo en 10 minutos.
+        </motion.p>
+
+        <motion.div initial={{ opacity:0, y:40 }} animate={{ opacity:1, y:0 }} transition={{ duration:1, delay:0.5 }} className="w-full px-4 lg:px-16">
+          <DemoWidget/>
         </motion.div>
       </section>
 
-      {/* Product Demo Section - Inkdrop Style */}
-      <section className="py-20 px-6 bg-white">
-        <div className="max-w-5xl mx-auto">
-          <AnimatedSection className="text-center mb-12">
-            <motion.div
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ type: "spring", duration: 0.6 }}
-              className="inline-flex items-center space-x-2 px-4 py-2 bg-violet-50 rounded-full border border-violet-200 mb-6"
-            >
-              <Video className="w-4 h-4 text-violet-600" />
-              <span className="text-sm font-medium text-violet-700">Ver en acción</span>
-            </motion.div>
+      {/* ── LOGOS ── */}
+      <section className="py-12 border-y border-black/[0.06]">
+        <div className="max-w-sm mx-auto"><LogoCarousel/></div>
+      </section>
 
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-              Crea tu propiedad en <span className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">segundos</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Mira lo fácil que es configurar tu manual digital. Sin complicaciones, sin curvas de aprendizaje.
-            </p>
-          </AnimatedSection>
+      {/* ── FEATURE CARDS ── */}
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
 
-          {/* Browser Frame with Video */}
-          <AnimatedSection>
-            <motion.div
-              whileHover={{ scale: 1.01, y: -5 }}
-              transition={{ duration: 0.3 }}
-              className="relative"
-            >
-              {/* Browser Chrome */}
-              <div className="bg-gray-800 rounded-t-2xl px-4 py-3 flex items-center space-x-2">
-                <div className="flex space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                </div>
-                <div className="flex-1 mx-4">
-                  <div className="bg-gray-700 rounded-lg px-4 py-1.5 text-sm text-gray-300 flex items-center justify-center">
-                    <svg className="w-4 h-4 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                    app.itineramio.com
-                  </div>
-                </div>
-              </div>
-
-              {/* Video Container */}
-              <div className="bg-gray-900 rounded-b-2xl overflow-hidden shadow-2xl">
-                <video
-                  className="w-full"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="metadata"
-                >
-                  <source src="/videos/create-zones.mp4" type="video/mp4" />
-                </video>
-              </div>
-
-              {/* Decorative glow */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-violet-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl blur-2xl -z-10"></div>
-            </motion.div>
-          </AnimatedSection>
-
-          {/* Quick stats below video */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            className="mt-10 flex flex-wrap justify-center gap-8 text-center"
-          >
-            <div className="px-6">
-              <div className="text-3xl font-bold text-violet-600">2 min</div>
-              <div className="text-sm text-gray-500 mt-1">crear una propiedad</div>
-            </div>
-            <div className="px-6">
-              <div className="text-3xl font-bold text-violet-600">0</div>
-              <div className="text-sm text-gray-500 mt-1">conocimientos técnicos</div>
-            </div>
-            <div className="px-6">
-              <div className="text-3xl font-bold text-violet-600">QR</div>
-              <div className="text-sm text-gray-500 mt-1">listo para imprimir</div>
-            </div>
+          {/* Section header */}
+          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger} className="mb-12">
+            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-4">El producto</motion.p>
+            <motion.h2 variants={fadeUp} className="leading-[1.06] tracking-tight max-w-2xl"
+              style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
+              <span className="font-semibold text-[#111]">Todo lo que necesita el huésped. </span>
+              <span className="font-light text-[#aaa]">Sin que tú repitas nada.</span>
+            </motion.h2>
           </motion.div>
-        </div>
-      </section>
 
-      {/* NEW: Enterprise Features Section - Property Sets & Announcements */}
-      <section id="features" className="py-24 px-6 bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50">
-        <div className="max-w-7xl mx-auto">
-          <AnimatedSection className="text-center max-w-3xl mx-auto mb-16">
-            <motion.div
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ type: "spring", duration: 0.6 }}
-              className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-violet-500/10 to-pink-500/10 rounded-full border border-violet-500/20 mb-6"
-            >
-              <Rocket className="w-4 h-4 text-violet-600" />
-              <span className="text-sm font-medium text-violet-900">Nuevas funcionalidades empresariales</span>
+          {/* Row 1: 2 big cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+
+            {/* Card 1: Guía por zonas */}
+            <motion.div initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.05 }}
+              className="rounded-[20px] overflow-hidden" style={{ backgroundColor:'#f5f3f0' }}>
+              {/* Illustration: zones carousel */}
+              <div className="h-56 flex items-center justify-center px-8 pt-6 relative overflow-hidden">
+                <ZonesCarousel sets={ALL_ZONE_SETS_ES} />
+              </div>
+              {/* Text */}
+              <div className="px-7 pb-7 pt-4">
+                <p className="text-[11px] font-semibold text-[#aaa] uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                  <span className="w-3.5 h-3.5 rounded-full bg-violet-600 inline-block"/>
+                  Guía por zonas
+                </p>
+                <p className="text-[15px] text-[#555] leading-relaxed font-normal">
+                  Organiza la información en zonas: entrada, WiFi, normas, parking. El huésped encuentra lo que busca sin leer todo.
+                </p>
+              </div>
             </motion.div>
 
-            <h2 className="text-5xl sm:text-6xl font-bold text-gray-900 mb-6">
-              Gestiona <span className="bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">decenas de alojamientos</span> con un solo cambio
-            </h2>
-            <p className="text-xl text-gray-600">
-              Si gestionas múltiples propiedades, tenemos funcionalidades que te ahorrarán horas cada semana
-            </p>
-          </AnimatedSection>
-
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* Property Sets Feature */}
-            <AnimatedSection>
-              <motion.div
-                whileHover={{ scale: 1.02, y: -5 }}
-                className="bg-white rounded-3xl p-8 shadow-2xl border-2 border-violet-100 h-full"
-              >
-                <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-
-                <h3 className="text-3xl font-bold text-gray-900 mb-4">
-                  Conjuntos de Propiedades
-                </h3>
-
-                <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                  <span className="font-semibold text-gray-900">¿Tienes 10, 20 o 50 apartamentos?</span> Agrúpalos en conjuntos y <span className="bg-yellow-100 px-2 py-1 rounded">edita todos a la vez</span>.
-                </p>
-
-                <div className="space-y-4 mb-6">
-                  <div className="flex items-start space-x-3">
-                    <Check className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <div className="font-semibold text-gray-900">Un cambio, 50 propiedades actualizadas</div>
-                      <div className="text-sm text-gray-600">Modifica zonas, avisos e instrucciones en todas tus propiedades simultáneamente</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <Check className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <div className="font-semibold text-gray-900">Control granular</div>
-                      <div className="text-sm text-gray-600">Elige si quieres aplicar cambios a todo el conjunto, propiedades específicas o solo una</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <Check className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <div className="font-semibold text-gray-900">Perfecto para edificios completos</div>
-                      <div className="text-sm text-gray-600">Ideal para hoteles, aparthoteles, complejos turísticos y edificios enteros</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl p-4 border border-violet-100">
-                  <div className="text-sm text-violet-900 font-medium mb-2">Caso de uso real:</div>
-                  <div className="text-sm text-gray-600 italic">
-                    "Cambié las instrucciones del WiFi en mis 20 apartamentos en menos de 30 segundos. Antes tardaba 2 horas."
-                  </div>
-                </div>
-              </motion.div>
-            </AnimatedSection>
-
-            {/* Announcements Feature */}
-            <AnimatedSection>
-              <motion.div
-                whileHover={{ scale: 1.02, y: -5 }}
-                className="bg-white rounded-3xl p-8 shadow-2xl border-2 border-orange-100 h-full"
-              >
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl flex items-center justify-center mb-6">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                  </svg>
-                </div>
-
-                <h3 className="text-3xl font-bold text-gray-900 mb-4">
-                  Sistema de Avisos Inteligente
-                </h3>
-
-                <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                  <span className="font-semibold text-gray-900">¿Obras en el edificio? ¿Cambio de horarios?</span> Crea avisos importantes que verán todos tus huéspedes <span className="bg-yellow-100 px-2 py-1 rounded">al instante</span>.
-                </p>
-
-                <div className="space-y-4 mb-6">
-                  <div className="flex items-start space-x-3">
-                    <Check className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <div className="font-semibold text-gray-900">Avisos urgentes para todas las propiedades</div>
-                      <div className="text-sm text-gray-600">Comunica cortes de agua, obras, cambios de normativa al instante</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <Check className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <div className="font-semibold text-gray-900">Fechas de vigencia</div>
-                      <div className="text-sm text-gray-600">Programa inicio y fin de cada aviso, se activan y desactivan automáticamente</div>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <Check className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <div className="font-semibold text-gray-900">Destacados con iconos y colores</div>
-                      <div className="text-sm text-gray-600">Avisos urgentes con estilo visual impactante que llaman la atención</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-100">
-                  <div className="text-sm text-orange-900 font-medium mb-2">Caso de uso real:</div>
-                  <div className="text-sm text-gray-600 italic">
-                    "Hubo un corte de agua en todo el edificio. Publiqué un aviso y TODOS los huéspedes lo vieron antes de que me llamaran. Cero quejas."
-                  </div>
-                </div>
-              </motion.div>
-            </AnimatedSection>
-          </div>
-
-          {/* Stats for Enterprise Features */}
-          <AnimatedSection className="mt-16">
-            <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100">
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  Diseñado para property managers profesionales
-                </h3>
-                <p className="text-gray-600">
-                  Funcionalidades que los competidores cobran extra (o no tienen)
-                </p>
+            {/* Card 2: Chatbot IA */}
+            <motion.div initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.1 }}
+              className="rounded-[20px] overflow-hidden" style={{ backgroundColor:'#f5f3f0' }}>
+              {/* Illustration: infinite chat loop */}
+              <div className="h-56 flex items-end justify-center px-8 pt-8 relative overflow-hidden">
+                <InfiniteChat convos={CHAT_CONVOS_ES} />
               </div>
-
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl border border-green-100">
-                  <div className="text-4xl font-bold text-green-600 mb-2">95%</div>
-                  <div className="text-sm text-gray-600">Menos tiempo gestionando</div>
-                  <div className="text-xs text-gray-500 mt-2">vs actualizar propiedad por propiedad</div>
-                </div>
-                <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border border-blue-100">
-                  <div className="text-4xl font-bold text-blue-600 mb-2">50+</div>
-                  <div className="text-sm text-gray-600">Propiedades soportadas</div>
-                  <div className="text-xs text-gray-500 mt-2">En un solo conjunto</div>
-                </div>
-                <div className="text-center p-6 bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl border border-violet-100">
-                  <div className="text-4xl font-bold text-violet-600 mb-2">30s</div>
-                  <div className="text-sm text-gray-600">Actualización masiva</div>
-                  <div className="text-xs text-gray-500 mt-2">Lo que antes tomaba horas</div>
-                </div>
-              </div>
-            </div>
-          </AnimatedSection>
-        </div>
-      </section>
-
-      {/* "Adiós a perder el tiempo" Section */}
-      <AnimatedSection className="pt-2 pb-4 sm:py-12 bg-gradient-to-b from-white to-gray-50 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6 }}
-              className="relative order-2 lg:order-1"
-            >
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-                <LazyVideo src="/videos/host-preocupado.mp4" className="w-full h-full" />
-              </div>
-              <motion.div
-                animate={{
-                  scale: [1, 1.1, 1],
-                  opacity: [0.2, 0.4, 0.2]
-                }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -bottom-10 -left-10 w-64 h-64 bg-gradient-to-br from-blue-500/20 to-violet-500/20 rounded-full blur-3xl"
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6 }}
-              className="space-y-6 order-1 lg:order-2"
-            >
-              <div className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-50 rounded-full border border-blue-100">
-                <Zap className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-900">Automatiza todo</span>
-              </div>
-
-              <h2 className="text-5xl sm:text-6xl font-bold text-gray-900 leading-tight">
-                Adiós a perder el tiempo
-              </h2>
-
-              <div className="space-y-6 text-lg text-gray-600 leading-relaxed">
-                <p>
-                  <span className="font-semibold text-gray-900">¿Cansado de repetir lo mismo?</span> Cada huésped pregunta dónde está el WiFi, cómo funciona el aire acondicionado, o dónde aparcar. Con Itineramio, crea una guía completa una sola vez.
+              {/* Text */}
+              <div className="px-7 pb-7 pt-4">
+                <p className="text-[11px] font-semibold text-[#aaa] uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                  <span className="w-3.5 h-3.5 rounded-full bg-violet-600 inline-block"/>
+                  Chatbot IA
                 </p>
-                <p>
-                  <span className="font-semibold text-gray-900">Todo en un QR.</span> Tus huéspedes escanean el código y acceden a toda la información que necesitan, cuando la necesitan. Sin esperar respuestas. Sin molestarte.
-                </p>
-                <p>
-                  <span className="font-semibold text-gray-900">Recupera tu tiempo.</span> Los anfitriones que usan Itineramio ahorran un promedio de 8 horas semanales. Tiempo que puedes dedicar a crecer tu negocio o simplemente descansar.
+                <p className="text-[15px] text-[#555] leading-relaxed font-normal">
+                  Responde las dudas del huésped en su idioma usando la información de tu propio apartamento. Tú no haces nada.
                 </p>
               </div>
             </motion.div>
           </div>
-        </div>
-      </AnimatedSection>
 
-      {/* "Cómo funciona" Section */}
-      <section id="how-it-works" className="py-24 px-6 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <AnimatedSection className="text-center max-w-3xl mx-auto mb-20">
-            <motion.div
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ type: "spring", duration: 0.6 }}
-              className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-50 to-pink-50 rounded-full border border-purple-100 mb-6"
-            >
-              <Shield className="w-4 h-4 text-purple-600" />
-              <span className="text-sm font-medium text-purple-900">Súper sencillo</span>
-            </motion.div>
+          {/* Row 2: 2 smaller cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-            <h2 className="text-5xl sm:text-6xl font-bold text-gray-900 mb-6">
-              Cómo funciona
-            </h2>
-            <p className="text-xl text-gray-600">
-              Crea tu manual digital en minutos. Sin complicaciones técnicas.
-            </p>
-          </AnimatedSection>
-
-          <div className="space-y-32">
-            {/* Step 1 */}
-            <AnimatedSection>
-              <div className="grid lg:grid-cols-2 gap-16 items-center">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="order-2 lg:order-1"
-                >
-                  <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-blue-50 to-cyan-50 relative group">
-                    <LazyVideo src="/videos/famili-check-in.mp4" className="absolute inset-0 w-full h-full" />
-                  </div>
-                </motion.div>
-
-                <div className="order-1 lg:order-2 space-y-6">
-                  <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-violet-500 to-pink-500 rounded-2xl text-white text-2xl font-bold shadow-lg">
-                    1
-                  </div>
-                  <h3 className="text-4xl font-bold text-gray-900">
-                    Crea tu propiedad
-                  </h3>
-                  <p className="text-xl text-gray-600 leading-relaxed">
-                    Añade tu alojamiento a Itineramio. Es tan simple como rellenar un formulario: nombre, dirección, y listo. Tardarás menos de 2 minutos.
-                  </p>
-                </div>
+            {/* Card 4: Multi-idioma */}
+            <motion.div initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.17 }}
+              className="rounded-[20px] overflow-hidden" style={{ backgroundColor:'#f5f3f0' }}>
+              <div className="h-36 flex items-center justify-center px-6 pt-6">
+                <MultiLangChatMini />
               </div>
-            </AnimatedSection>
-
-            {/* Step 2 - WiFi */}
-            <AnimatedSection>
-              <div className="grid lg:grid-cols-2 gap-16 items-center">
-                <div className="space-y-6">
-                  <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl text-white text-2xl font-bold shadow-lg">
-                    2
-                  </div>
-                  <h3 className="text-4xl font-bold text-gray-900">
-                    Organiza por zonas
-                  </h3>
-                  <p className="text-xl text-gray-600 leading-relaxed">
-                    Divide tu guía en zonas: WiFi, Cocina, Baño, Parking... Cada zona puede tener instrucciones, fotos, videos y links útiles.
-                  </p>
-                </div>
-
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-purple-50 to-pink-50 relative group"
-                >
-                  <LazyVideo src="/videos/wifi.mp4" className="absolute inset-0 w-full h-full" />
-                </motion.div>
-              </div>
-            </AnimatedSection>
-
-            {/* Step 3 - Washing Machine */}
-            <AnimatedSection>
-              <div className="grid lg:grid-cols-2 gap-16 items-center">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="order-2 lg:order-1 aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-green-50 to-emerald-50 relative group"
-                >
-                  <LazyVideo src="/videos/washing-machine.mp4" className="absolute inset-0 w-full h-full" />
-                </motion.div>
-
-                <div className="order-1 lg:order-2 space-y-6">
-                  <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl text-white text-2xl font-bold shadow-lg">
-                    3
-                  </div>
-                  <h3 className="text-4xl font-bold text-gray-900">
-                    Añade instrucciones
-                  </h3>
-                  <p className="text-xl text-gray-600 leading-relaxed">
-                    Explica paso a paso cómo usar cada cosa. Puedes añadir texto, imágenes, videos, o lo que necesites. Hazlo tan detallado como quieras.
-                  </p>
-                </div>
-              </div>
-            </AnimatedSection>
-
-            {/* Step 4 - Vitro */}
-            <AnimatedSection>
-              <div className="grid lg:grid-cols-2 gap-16 items-center">
-                <div className="space-y-6">
-                  <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl text-white text-2xl font-bold shadow-lg">
-                    4
-                  </div>
-                  <h3 className="text-4xl font-bold text-gray-900">
-                    Personaliza todo
-                  </h3>
-                  <p className="text-xl text-gray-600 leading-relaxed">
-                    Añade tu toque personal. Cambialos colores, añade tu logo, personaliza los mensajes. Haz que la guía refleje el estilo de tu alojamiento.
-                  </p>
-                </div>
-
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-orange-50 to-red-50 relative group"
-                >
-                  <LazyVideo src="/videos/vitro.mp4" className="absolute inset-0 w-full h-full" />
-                </motion.div>
-              </div>
-            </AnimatedSection>
-
-            {/* Step 5 - Control Panel - Full Width Centered */}
-            <AnimatedSection className="lg:col-span-2">
-              <div className="max-w-5xl mx-auto">
-                <motion.div
-                  whileHover={{ scale: 1.01 }}
-                  className="aspect-[16/9] rounded-3xl overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 relative flex items-center justify-center shadow-2xl group"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-orange-500/10"></div>
-                  <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    whileInView={{ scale: 1, opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className="relative text-center p-12 max-w-3xl z-10"
-                  >
-                    <motion.div
-                      animate={{
-                        rotate: [0, 5, -5, 0],
-                        scale: [1, 1.1, 1]
-                      }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                      className="mb-6 flex items-center justify-center"
-                    >
-                      <Trophy className="w-20 h-20 text-yellow-400" strokeWidth={1.5} />
-                    </motion.div>
-                    <h3 className="text-4xl font-bold text-gray-900 mb-4">
-                      Un panel para controlarlo todo
-                    </h3>
-                    <p className="text-xl text-gray-600">
-                      La guía de tu apartamento te llevará unos minutos. Si es extensa entre videos, probablemente te lleve una hora, pero ya no tendrás que volver a responder siempre a las mismas preguntas.
-                    </p>
-                  </motion.div>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.3, duration: 0.6 }}
-                  className="text-center mt-12 max-w-3xl mx-auto"
-                >
-                  <h3 className="text-3xl font-bold text-gray-900 mb-8">
-                    Tu panel de control completo
-                  </h3>
-                  <div className="space-y-6 text-lg text-gray-600 leading-relaxed">
-                    <motion.p
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.4 }}
-                      className="p-6 bg-white rounded-2xl shadow-lg border border-gray-100"
-                    >
-                      <span className="font-semibold text-gray-900 text-xl inline-flex items-center gap-2">
-                        <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
-                        Itineramio Places:
-                      </span> Los mejores lugares de la ciudad recomendados por anfitriones como tú. Con solo unos clicks ¡PAM! tu manual creado.
-                    </motion.p>
-                    <motion.p
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.5 }}
-                      className="p-6 bg-white rounded-2xl shadow-lg border border-gray-100"
-                    >
-                      Evita que te sigan preguntando dónde pueden ir a comer o cenar, o si el arroz de X restaurante está bueno.
-                      <span className="font-semibold text-gray-900"> Crea zonas, recomienda o importa zonas de otros anfitriones.</span>
-                      <span className="text-sm text-orange-600"> (Próximamente)</span>
-                    </motion.p>
-                    <motion.p
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.6 }}
-                      className="p-6 bg-white rounded-2xl shadow-lg border border-gray-100"
-                    >
-                      <span className="font-semibold text-gray-900 text-xl inline-flex items-center gap-2">
-                        <BarChart3 className="w-6 h-6 text-purple-600" />
-                        Recibe reseñas
-                      </span> de tu apartamento para mejorar tu guía. Tus huéspedes pueden evaluar cada zona para que sepas si las instrucciones están bien.
-                    </motion.p>
-                  </div>
-                </motion.div>
-              </div>
-            </AnimatedSection>
-          </div>
-        </div>
-      </section>
-
-      {/* Blog Resources Section - Internal Linking */}
-      <section className="py-24 px-6 bg-white border-t border-gray-100">
-        <div className="max-w-7xl mx-auto">
-          <AnimatedSection className="text-center max-w-3xl mx-auto mb-16">
-            <motion.div
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ type: "spring", duration: 0.6 }}
-              className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-violet-50 rounded-full border border-blue-100 mb-6"
-            >
-              <Sparkles className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-900">Recursos gratuitos</span>
-            </motion.div>
-
-            <h2 className="text-5xl sm:text-6xl font-bold text-gray-900 mb-6">
-              Aprende más sobre gestión de alojamientos
-            </h2>
-            <p className="text-xl text-gray-600">
-              Guías, plantillas y recursos gratuitos para anfitriones como tú
-            </p>
-          </AnimatedSection>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            {/* Article 1: Manual Digital */}
-            <motion.div
-              variants={scaleIn}
-              whileHover={{ y: -10, scale: 1.02 }}
-              className="group"
-            >
-              <Link href="/blog/manual-digital-apartamento-turistico-guia-completa">
-                <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl p-8 border border-violet-100 hover:shadow-2xl transition-all h-full">
-                  <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center mb-4">
-                    <Sparkles className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-violet-600 transition-colors">
-                    Manual Digital: Guía Completa 2025
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    Crea manuales digitales profesionales que eliminan el 86% de consultas. Incluye plantilla descargable gratis.
-                  </p>
-                  <div className="flex items-center text-violet-600 font-semibold group-hover:translate-x-2 transition-transform">
-                    Leer guía <ArrowRight className="ml-2 w-4 h-4" />
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
-
-            {/* Article 2: Check-in Remoto */}
-            <motion.div
-              variants={scaleIn}
-              whileHover={{ y: -10, scale: 1.02 }}
-              className="group"
-            >
-              <Link href="/blog/plantilla-check-in-remoto-airbnb">
-                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-8 border border-blue-100 hover:shadow-2xl transition-all h-full">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center mb-4">
-                    <Shield className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
-                    Plantilla Check-in Remoto
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    Reduce incidencias 67% con check-in automatizado. Descarga plantilla Word + PDF lista para usar.
-                  </p>
-                  <div className="flex items-center text-blue-600 font-semibold group-hover:translate-x-2 transition-transform">
-                    Descargar plantilla <ArrowRight className="ml-2 w-4 h-4" />
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
-
-            {/* Article 3: VUT Madrid */}
-            <motion.div
-              variants={scaleIn}
-              whileHover={{ y: -10, scale: 1.02 }}
-              className="group"
-            >
-              <Link href="/blog/vut-madrid-2025-requisitos-normativa-checklist">
-                <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-8 border border-orange-100 hover:shadow-2xl transition-all h-full">
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center mb-4">
-                    <Check className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-orange-600 transition-colors">
-                    VUT Madrid 2025: Requisitos
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    Guía completa de la nueva normativa VUT Madrid. Manual digital obligatorio desde enero. Evita multas de €30,000.
-                  </p>
-                  <div className="flex items-center text-orange-600 font-semibold group-hover:translate-x-2 transition-transform">
-                    Ver requisitos <ArrowRight className="ml-2 w-4 h-4" />
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
-          </motion.div>
-
-          {/* CTA to Blog */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-            className="text-center mt-12"
-          >
-            <Link href="/blog">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-gray-900 to-gray-700 text-white rounded-full text-lg font-semibold hover:shadow-xl transition-all group"
-              >
-                Ver todos los artículos
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </motion.button>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="py-24 px-6 bg-gradient-to-b from-gray-50 to-white">
-        <div className="max-w-7xl mx-auto">
-          <AnimatedSection className="text-center max-w-3xl mx-auto mb-16">
-            <motion.div
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ type: "spring", duration: 0.6 }}
-              className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-full border border-green-100 mb-6"
-            >
-              <Crown className="w-4 h-4 text-green-600" />
-              <span className="text-sm font-medium text-green-900">Precios transparentes</span>
-            </motion.div>
-
-            <h2 className="text-5xl sm:text-6xl font-bold text-gray-900 mb-6">
-              Precio simple y justo
-            </h2>
-            <p className="text-xl text-gray-600">
-              Paga solo por lo que uses. Sin tarifas ocultas. Sin sorpresas.
-            </p>
-          </AnimatedSection>
-
-          {/* Interactive Calculator */}
-          <AnimatedSection>
-            <div className="max-w-4xl mx-auto mb-16">
-              <motion.div
-                whileHover={{ scale: 1.01 }}
-                className="p-8 sm:p-10 bg-white rounded-3xl border-2 border-gray-200 shadow-xl relative overflow-hidden"
-              >
-                {/* Trust Badge */}
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-200"
-                >
-                  <Check className="w-4 h-4 text-green-600" />
-                  <span className="text-xs font-semibold text-green-700">15 días de prueba</span>
-                </motion.div>
-
-                <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 text-center">
-                  Calcula tu precio
-                </h3>
-                <p className="text-gray-600 text-center mb-8">
-                  Ajusta el número de propiedades y descubre tu plan ideal
+              <div className="px-5 pb-5 pt-3">
+                <p className="text-[11px] font-semibold text-[#aaa] uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                  <span className="w-3 h-3 rounded-full bg-violet-600 inline-block"/>
+                  Multi-idioma
                 </p>
-
-                {/* Slider Section */}
-                <div className="mb-8">
-                  <motion.div
-                    key={propertyCount}
-                    initial={{ scale: 0.95, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="text-center mb-6"
-                  >
-                    <div className="text-7xl sm:text-8xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                      {propertyCount}
-                    </div>
-                    <div className="text-xl text-gray-500 mt-2">
-                      {propertyCount === 1 ? 'propiedad' : 'propiedades'}
-                    </div>
-                  </motion.div>
-
-                  {/* Slider */}
-                  <div className="px-4">
-                    <input
-                      type="range"
-                      min="1"
-                      max="50"
-                      value={propertyCount}
-                      onChange={(e) => setPropertyCount(parseInt(e.target.value))}
-                      className="w-full h-3 bg-gradient-to-r from-violet-200 via-purple-200 to-pink-200 rounded-full appearance-none cursor-pointer slider-thumb"
-                      style={{
-                        background: `linear-gradient(to right,
-                          rgb(139, 92, 246) 0%,
-                          rgb(168, 85, 247) ${((propertyCount - 1) / 49) * 100}%,
-                          rgb(229, 231, 235) ${((propertyCount - 1) / 49) * 100}%,
-                          rgb(229, 231, 235) 100%)`
-                      }}
-                    />
-                    <div className="flex justify-between text-sm text-gray-500 mt-2 px-1">
-                      <span>1</span>
-                      <span>25</span>
-                      <span>50+</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Price Display */}
-                <motion.div
-                  key={`${currentTier.name}-${totalPrice}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-center p-8 bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl border border-violet-500/20 mb-6"
-                >
-                  <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white mb-4">
-                    {currentTier.name}
-                  </div>
-                  <div className="text-5xl sm:text-6xl font-bold text-gray-900 mb-2">
-                    €{totalPrice}
-                    <span className="text-2xl text-gray-500 font-normal">/mes</span>
-                  </div>
-                  <div className="text-gray-600 mb-4">
-                    Hasta {currentTier.max} {currentTier.max === 1 ? 'propiedad' : 'propiedades'}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    Solo €{(totalPrice / propertyCount).toFixed(2)} por propiedad al mes
-                  </div>
-                </motion.div>
-
-                {/* ROI Indicator */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="grid grid-cols-3 gap-4 mb-6"
-                >
-                  <div className="text-center p-4 bg-green-50 rounded-xl border border-green-100">
-                    <div className="text-2xl font-bold text-green-600">4.5h</div>
-                    <div className="text-xs text-gray-600 mt-1">Ahorradas por reserva</div>
-                  </div>
-                  <div className="text-center p-4 bg-blue-50 rounded-xl border border-blue-100">
-                    <div className="text-2xl font-bold text-blue-600">98%</div>
-                    <div className="text-xs text-gray-600 mt-1">Satisfacción</div>
-                  </div>
-                  <div className="text-center p-4 bg-amber-50 rounded-xl border border-amber-100">
-                    <div className="text-2xl font-bold text-amber-600">-65%</div>
-                    <div className="text-xs text-gray-600 mt-1">Consultas menos</div>
-                  </div>
-                </motion.div>
-
-                {/* CTA */}
-                <Link href="/register">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full py-4 rounded-full font-bold text-lg bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 text-white shadow-xl hover:shadow-2xl transition-all"
-                  >
-                    Probar gratis 15 días
-                  </motion.button>
-                </Link>
-                <p className="text-center text-sm text-gray-500 mt-3">
-                  No requiere tarjeta de crédito • Prueba 15 días sin compromiso
+                <p className="text-[13px] text-[#555] leading-relaxed font-normal">
+                  El chatbot detecta el idioma del huésped y responde en el suyo. Español, inglés, francés.
                 </p>
-              </motion.div>
-            </div>
-          </AnimatedSection>
+              </div>
+            </motion.div>
 
-          {/* Social Proof Stats */}
-          <AnimatedSection>
-            <div className="max-w-5xl mx-auto mb-16">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="grid grid-cols-2 md:grid-cols-4 gap-6"
-              >
-                <div className="text-center p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
-                  <div className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                    500+
-                  </div>
-                  <div className="text-sm text-gray-600">Anfitriones activos</div>
-                </div>
-                <div className="text-center p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
-                  <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
-                    12K+
-                  </div>
-                  <div className="text-sm text-gray-600">Guías creadas</div>
-                </div>
-                <div className="text-center p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
-                  <div className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">
-                    4.9/5
-                  </div>
-                  <div className="text-sm text-gray-600">Valoración media</div>
-                </div>
-                <div className="text-center p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
-                  <div className="text-4xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mb-2">
-                    24/7
-                  </div>
-                  <div className="text-sm text-gray-600">Soporte disponible</div>
-                </div>
-              </motion.div>
-            </div>
-          </AnimatedSection>
-
-          {/* Money-back Guarantee */}
-          <AnimatedSection>
-            <div className="max-w-3xl mx-auto mb-16">
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="p-8 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-3xl border-2 border-green-200 shadow-xl text-center"
-              >
-                <motion.div
-                  animate={{ rotate: [0, 5, -5, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="inline-flex items-center justify-center w-16 h-16 bg-green-500 rounded-full mb-4"
-                >
-                  <Check className="w-8 h-8 text-white" />
-                </motion.div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                  Garantía de satisfacción 100%
-                </h3>
-                <p className="text-gray-700 text-lg">
-                  Si en los primeros 30 días no estás satisfecho, te devolvemos tu dinero. Sin preguntas.
-                </p>
-              </motion.div>
-            </div>
-          </AnimatedSection>
-
-          {/* Pricing Plans Grid */}
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
-          >
-            {PLAN_DETAILS.map((plan, index) => {
-              const isCurrentPlan = currentTier.name === plan.name
-              return (
-              <motion.div
-                key={plan.name}
-                variants={scaleIn}
-                whileHover={{
-                  scale: 1.05,
-                  rotateY: 5,
-                  z: 50
-                }}
-                style={{ perspective: 1000 }}
-                className={`relative p-8 rounded-3xl border-2 ${
-                  isCurrentPlan
-                    ? 'bg-gradient-to-br from-violet-600 via-purple-600 to-pink-600 border-transparent text-white'
-                    : 'bg-white border-gray-200 hover:border-gray-300'
-                } shadow-xl transition-all`}
-              >
-                {isCurrentPlan && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 text-sm font-bold rounded-full"
-                  >
-                    Recomendado
-                  </motion.div>
-                )}
-
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className={`text-2xl font-bold ${isCurrentPlan ? 'text-white' : 'text-gray-900'}`}>
-                    {plan.displayName}
-                  </h3>
-                  <Crown className={`w-6 h-6 ${isCurrentPlan ? 'text-white' : 'text-gray-400'}`} />
-                </div>
-
-                <div className="mb-6">
-                  <div className={`text-5xl font-bold ${isCurrentPlan ? 'text-white' : 'text-gray-900'}`}>
-                    €{plan.price}
-                    <span className={`text-xl font-normal ${isCurrentPlan ? 'text-white/80' : 'text-gray-500'}`}>
-                      /mes
-                    </span>
-                  </div>
-                  <div className={`text-sm mt-2 ${isCurrentPlan ? 'text-white/80' : 'text-gray-500'}`}>
-                    €{(plan.price / plan.maxProps).toFixed(2)} por propiedad
-                  </div>
-                </div>
-
-                <div className={`text-base mb-6 ${isCurrentPlan ? 'text-white/90' : 'text-gray-600'}`}>
-                  <div className="font-medium mb-2">Hasta {plan.maxProps} {plan.maxProps === 1 ? 'propiedad' : 'propiedades'}</div>
-                  <div className={`text-sm space-y-1 ${isCurrentPlan ? 'text-white/70' : 'text-gray-500'}`}>
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4" />
-                      Semestral: €{(plan.price * 6 * 0.9).toFixed(0)} <span className="font-semibold">(-10%)</span>
+            {/* Card 5: Sin app */}
+            <motion.div initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.22 }}
+              className="rounded-[20px] overflow-hidden" style={{ backgroundColor:'#f5f3f0' }}>
+              <div className="h-36 flex items-center justify-center px-6 pt-6">
+                <div className="w-full max-w-[200px] bg-white rounded-[14px] overflow-hidden"
+                  style={{ boxShadow:'0 4px 16px rgba(0,0,0,0.08)' }}>
+                  {/* Browser bar */}
+                  <div className="bg-[#f5f3f0] px-2.5 py-1.5 flex items-center gap-1.5">
+                    <div className="flex gap-1">
+                      {[0,1,2].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#ddd]"/>)}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      Anual: €{(plan.price * 12 * 0.8).toFixed(0)} <span className="font-semibold">(-20%)</span>
+                    <div className="flex-1 bg-white rounded-full px-2 py-0.5 text-[8px] text-[#aaa] truncate">
+                      itineramio.com/guide/tu-apto
                     </div>
                   </div>
-                </div>
-
-                <Link href="/register">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`w-full py-3 rounded-full font-semibold transition-all ${
-                      isCurrentPlan
-                        ? 'bg-white text-violet-600 hover:shadow-lg'
-                        : 'bg-gradient-to-r from-violet-500 to-purple-600 text-white hover:shadow-lg hover:shadow-violet-500/30'
-                    }`}
-                  >
-                    Empezar ahora
-                  </motion.button>
-                </Link>
-
-                <div className="mt-8 space-y-3">
-                  {['Guías ilimitadas', 'Zonas ilimitadas', 'QR personalizados', 'Analytics básicos'].map((feature, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, x: -10 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.1 }}
-                      className="flex items-center space-x-3"
-                    >
-                      <Check className={`w-5 h-5 ${plan.recommended ? 'text-white' : 'text-green-500'}`} />
-                      <span className={`text-sm ${plan.recommended ? 'text-white/90' : 'text-gray-600'}`}>
-                        {feature}
-                      </span>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-              )
-            })}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section id="testimonials" className="py-24 px-6 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <AnimatedSection className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-5xl sm:text-6xl font-bold text-gray-900 mb-6">
-              Lo que dicen nuestros usuarios
-            </h2>
-            <p className="text-xl text-gray-600">
-              Más de 500 anfitriones confían en Itineramio cada día
-            </p>
-          </AnimatedSection>
-
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="max-w-4xl mx-auto"
-          >
-            <div className="relative">
-              <motion.div
-                key={currentTestimonial}
-                initial={{ opacity: 0, x: 100 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -100 }}
-                transition={{ duration: 0.5 }}
-                className="bg-gradient-to-br from-gray-50 to-white p-12 rounded-3xl shadow-2xl border border-gray-100"
-              >
-                <div className="flex flex-col md:flex-row items-center gap-8">
-                  <motion.img
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    src={testimonials[currentTestimonial].avatar}
-                    alt={testimonials[currentTestimonial].name}
-                    className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
-                  />
-
-                  <div className="flex-1 text-center md:text-left">
-                    <div className="flex justify-center md:justify-start mb-4">
-                      {[...Array(5)].map((_, i) => (
-                        <motion.span
-                          key={i}
-                          initial={{ opacity: 0, scale: 0 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: i * 0.1 }}
-                          className="text-yellow-400 text-2xl"
-                        >
-                          ★
-                        </motion.span>
+                  {/* Content */}
+                  <div className="p-2.5 flex flex-col gap-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-4 h-4 rounded-full bg-violet-100"/>
+                      <div className="h-2 bg-[#f0f0f0] rounded-full flex-1"/>
+                    </div>
+                    <div className="grid grid-cols-3 gap-1">
+                      {['#f0efed','#e8e6e3','#ebebeb'].map((bg,i) => (
+                        <div key={i} className="rounded-[6px] h-6" style={{ backgroundColor: bg }}/>
                       ))}
                     </div>
-
-                    <p className="text-xl text-gray-700 mb-6 leading-relaxed italic">
-                      "{testimonials[currentTestimonial].comment}"
-                    </p>
-
-                    <div>
-                      <div className="font-bold text-gray-900 text-lg">
-                        {testimonials[currentTestimonial].name}
-                      </div>
-                      <div className="text-gray-600">
-                        {testimonials[currentTestimonial].role} · {testimonials[currentTestimonial].property}
-                      </div>
-                      <div className="text-sm text-gray-500 mt-1">
-                        {testimonials[currentTestimonial].location}
-                      </div>
-                    </div>
+                    <div className="h-1.5 bg-[#f0f0f0] rounded-full w-3/4"/>
                   </div>
                 </div>
-              </motion.div>
-
-              {/* Navigation */}
-              <div className="flex justify-center items-center space-x-4 mt-8">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={prevTestimonial}
-                  className="p-3 bg-white rounded-full shadow-lg border border-gray-200 hover:border-gray-300 transition-colors"
-                >
-                  <ChevronLeft className="w-6 h-6 text-gray-700" />
-                </motion.button>
-
-                <div className="flex space-x-2">
-                  {testimonials.map((_, index) => (
-                    <motion.button
-                      key={index}
-                      whileHover={{ scale: 1.2 }}
-                      onClick={() => setCurrentTestimonial(index)}
-                      className={`w-3 h-3 rounded-full transition-all ${
-                        index === currentTestimonial
-                          ? 'bg-gradient-to-r from-violet-500 to-purple-600 w-8'
-                          : 'bg-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={nextTestimonial}
-                  className="p-3 bg-white rounded-full shadow-lg border border-gray-200 hover:border-gray-300 transition-colors"
-                >
-                  <ChevronRight className="w-6 h-6 text-gray-700" />
-                </motion.button>
               </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section id="contact" className="py-32 px-6 bg-gradient-to-br from-violet-500 via-purple-600 to-pink-600 relative overflow-hidden">
-        {/* Animated background elements */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, 90, 0],
-            opacity: [0.3, 0.5, 0.3]
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            rotate: [0, -90, 0],
-            opacity: [0.2, 0.4, 0.2]
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"
-        />
-
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <motion.div
-              animate={{
-                rotate: [0, 10, -10, 0],
-                scale: [1, 1.1, 1]
-              }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="mb-8 flex items-center justify-center"
-            >
-              <Rocket className="w-20 h-20 text-white" strokeWidth={1.5} />
+              <div className="px-5 pb-5 pt-3">
+                <p className="text-[11px] font-semibold text-[#aaa] uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                  <span className="w-3 h-3 rounded-full bg-violet-600 inline-block"/>
+                  Sin app, sin descarga
+                </p>
+                <p className="text-[13px] text-[#555] leading-relaxed font-normal">
+                  El huésped lo abre en el navegador del móvil. Sin instalar nada. Sin registro.
+                </p>
+              </div>
             </motion.div>
 
-            <h2 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight">
-              Empieza hoy mismo
-            </h2>
+          </div>
+        </div>
+      </section>
 
-            <p className="text-2xl text-white/90 mb-12 max-w-2xl mx-auto leading-relaxed">
-              Únete a cientos de anfitriones que ya recuperaron su tiempo y duermen tranquilos
-            </p>
+      {/* ── SECTION 2: PROBLEM VALIDATION ── */}
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-3xl mx-auto">
+          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger}>
+            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-5">El problema</motion.p>
+            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight mb-12"
+              style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
+              <span className="font-semibold text-[#111]">Esto ya te suena.</span>
+            </motion.h2>
+          </motion.div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Link
-                  href="/register"
-                  className="inline-flex items-center justify-center px-12 py-5 bg-white text-violet-600 rounded-full text-xl font-bold hover:shadow-2xl hover:shadow-white/30 transition-all group"
-                >
-                  Crear cuenta gratis
-                  <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform" />
-                </Link>
+          <div className="space-y-8">
+            {[
+              'Hay días en los que no trabajas de anfitrión. Trabajas de copiar y pegar. El mismo WiFi. La misma entrada. Las mismas normas. Cambia el nombre del huésped y repite.',
+              'He enviado la clave del WiFi tantas veces que ya me la sé mejor que mi DNI. Si gestionas varios apartamentos, sabes lo que es repetir WiFi, normas y acceso cada día.',
+              'No agota tener huéspedes. Agota responder lo mismo veinte veces. Dónde se entra. Dónde se aparca. Cuál es la clave. Qué hacer al salir. Lo que quema no es el trabajo. Es la repetición.',
+              'El peor mensaje no es una queja. Es este: "no podemos entrar". Suele llegar cuando estás cenando, conduciendo o con otro check-in encima.',
+              'Si tu móvil manda más que tú, ya sabes de qué va esto. WhatsApp, Airbnb, Booking, llamadas, notas del check-in, preguntas repetidas. No necesitas otro chat. Necesitas que el huésped llegue con lo básico ya claro.',
+              'Una reseña de 4 estrellas por confusión duele más que una avería. No porque sea "grave", sino porque sabes que se podía haber evitado.',
+              'Mi punto de ruptura no fue un huésped. Fue el sexto piso. Con 2 o 3 apartamentos tiras. Con 6, 7 u 8, ya no. Empiezas a vivir entre mensajes, accesos, dudas y reseñas. Ahí es donde dejar de hacerlo todo manualmente deja de ser comodidad y pasa a ser necesidad.',
+            ].map((text, i) => (
+              <motion.p key={i} initial={{ opacity:0, x:-16 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.1 }}
+                className="text-[17px] text-[#333] leading-relaxed font-normal">
+                {text}
+              </motion.p>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 3: THE SHIFT ── */}
+      <section className="py-24 px-6" style={{ backgroundColor:'#f5f3f0' }}>
+        <div className="max-w-3xl mx-auto">
+          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger}>
+            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-5">La solución</motion.p>
+            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight mb-10"
+              style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
+              <span className="font-semibold text-[#111]">Cuando el huésped llega ya informado, </span>
+              <span className="font-light text-[#aaa]">se nota desde el minuto uno.</span>
+            </motion.h2>
+          </motion.div>
+
+          <div className="space-y-5">
+            {[
+              'Menos dudas. Menos interrupciones. Menos mensajes con prisas.',
+              'La diferencia no está en tener otro manual. Está en que la guía se envíe sola cuando la reserva entra, antes de que empiece el caos.',
+              'Una guía. Un envío automático. Y de repente dejas de repetirte. Pones acceso, WiFi, normas y lo importante. Cuando se confirma la reserva, el huésped lo recibe. Así llegáis los dos mucho mejor al check-in.',
+            ].map((text, i) => (
+              <motion.p key={i} initial={{ opacity:0, y:12 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:i*0.1 }}
+                className="text-[17px] text-[#333] leading-relaxed font-normal">
+                {text}
+              </motion.p>
+            ))}
+            <motion.p initial={{ opacity:0, y:12 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.3 }}
+              className="text-[19px] font-semibold text-[#111] pt-2">
+              Una guía. Un envío automático. Ese es el primer cambio real.
+            </motion.p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── STAT BLOCKS ── */}
+      <section id="why" className="py-20 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger} className="mb-12">
+            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-5">Por qué funciona</motion.p>
+            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight max-w-2xl"
+              style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
+              <span className="font-semibold text-[#111]">Los números </span>
+              <span className="font-light text-[#aaa]">ya lo dicen.</span>
+            </motion.h2>
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { stat:'86%', label:'de las preguntas se repiten en cada reserva', body:'WiFi. Acceso. Normas. Parking. Checkout. Siempre las mismas. La diferencia es si las contestas tú cada vez o si llegan resueltas antes de que el huésped aparezca.' },
+              { stat:'4,8★', label:'exige Superhost. Booking.com pesa las reseñas recientes.', body:'Una reseña de 4 estrellas por confusión en el check-in baja tu media y tu posición. Y la confusión casi siempre empieza con falta de información antes de llegar.' },
+              { stat:'93,9%', label:'de usuarios móvil en España usa WhatsApp', body:'Tus huéspedes van a escribirte por ahí. La pregunta no es si te van a contactar. Es si van a tener la información antes de necesitar hacerlo.' },
+              { stat:'0', label:'PDFs que alguien abre en el móvil', body:'Nadie abre un PDF en el móvil. Y si lo abren, no encuentran lo que buscan porque está todo junto. Sin zonas. Sin estructura. Sin chatbot que resuelva dudas.' },
+              { stat:'1', label:'momento que marca la reseña: los primeros 10 minutos', body:'Un check-in que empieza con confusión rara vez termina en 5 estrellas. No hace falta que salga mal. Basta con que no salga del todo bien.' },
+            ].map((item, i) => (
+              <motion.div key={i} initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:i*0.08 }}
+                whileHover={{ y:-3, transition:{ duration:0.18 } }}
+                className="bg-white rounded-[20px] p-8 flex flex-col gap-4 border border-black/[0.06]"
+                style={{ boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+                <p className="font-semibold text-[#7c3aed] leading-none" style={{ fontSize:'clamp(2rem, 4vw, 2.8rem)', fontFamily:'var(--font-manrope)' }}>
+                  {item.stat}
+                </p>
+                <p className="text-[13px] font-semibold text-[#111] leading-snug">{item.label}</p>
+                <p className="text-[14px] text-[#666] leading-relaxed font-normal">{item.body}</p>
               </motion.div>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Link
-                  href="/consulta"
-                  className="inline-flex items-center justify-center px-12 py-5 bg-white/10 border-2 border-white text-white rounded-full text-xl font-bold hover:bg-white/20 transition-all group"
-                >
-                  <Video className="w-6 h-6 mr-3" />
-                  Agendar videollamada
-                </Link>
-              </motion.div>
-            </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            <p className="mt-8 text-white/80 text-sm">
-              Sin tarjeta de crédito. Prueba gratis 15 días.
-            </p>
+      {/* ── SECTION 4: HOW IT WORKS ── */}
+      <section id="how" className="py-24 px-6" style={{ backgroundColor:'#f5f3f0' }}>
+        <div className="max-w-6xl mx-auto">
+          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger} className="mb-12">
+            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-5">Cómo funciona</motion.p>
+            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight"
+              style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
+              <span className="font-semibold text-[#111]">Tres pasos. </span>
+              <span className="font-light text-[#aaa]">Diez minutos.</span>
+            </motion.h2>
+          </motion.div>
+
+          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger}
+            className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-10">
+            {[
+              { n:'01', title:'Crea tu guía', body:'No tienes que montarlo todo. Empieza por la entrada. Si una parte genera tensión, suele ser esa. Añádela primero y deja lo demás para después.' },
+              { n:'02', title:'Haz que se envíe automáticamente', body:'Cuando se confirma la reserva, el huésped lo recibe. Así llegáis los dos mucho mejor al check-in.' },
+              { n:'03', title:'El huésped llega ubicado', body:'Ya llega más ubicado. Menos preguntas después. Menos caos al llegar. Todo más claro antes.' },
+            ].map((s, i) => (
+              <motion.div key={i} variants={fadeUp} whileHover={{ y:-3, transition:{ duration:0.18 } }}
+                className="rounded-[20px] p-8 flex flex-col gap-4 bg-white" style={{ boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+                <span className="font-semibold text-[#111]/[0.06] leading-none select-none" style={{ fontSize:'4.5rem', fontFamily:'var(--font-manrope)' }}>{s.n}</span>
+                <h3 className="text-[17px] font-semibold text-[#111]">{s.title}</h3>
+                <p className="text-[15px] text-[#666] leading-relaxed font-normal">{s.body}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          <motion.div initial={{ opacity:0 }} whileInView={{ opacity:1 }} viewport={{ once:true }} className="flex flex-col items-start gap-2">
+            <Link href="/register" className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm text-white transition-all"
+              style={{ backgroundColor:'#7c3aed' }}>
+              Empieza gratis <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform"/>
+            </Link>
+            <p className="text-sm text-[#bbb]">Check-in, WiFi y normas. Con eso ya puedes empezar. No necesitas montar toda la guía hoy.</p>
           </motion.div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-16 px-6 bg-gray-900 text-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
-            {/* Brand */}
-            <div className="md:col-span-1">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">I</span>
-                </div>
-                <span className="text-2xl font-semibold">Itineramio</span>
-              </div>
-              <p className="text-gray-400 text-sm">
-                Manuales digitales interactivos para alojamientos turísticos
-              </p>
-            </div>
+      {/* ── SECTION 5: WHAT CHANGES ── */}
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-3xl mx-auto">
+          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger} className="mb-10">
+            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-5">El cambio real</motion.p>
+            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight mb-8"
+              style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
+              <span className="font-semibold text-[#111]">Lo que cambia </span>
+              <span className="font-light text-[#aaa]">de verdad.</span>
+            </motion.h2>
+          </motion.div>
+          <div className="space-y-5">
+            {[
+              'Menos copiar y pegar cansa. Sal de esa rueda.',
+              'Cuando activas el envío automático, el huésped ya recibe la información antes de llegar. No es teoría. Es el momento en el que dejas de repetir lo mismo en cada reserva.',
+              'El próximo check-in viene igual. Mejor que te pille preparado. Si el huésped llega sin saber cómo entrar, vuelves al mismo bucle.',
+            ].map((text, i) => (
+              <motion.p key={i} initial={{ opacity:0, x:-12 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.1 }}
+                className="text-[17px] text-[#333] leading-relaxed font-normal">{text}</motion.p>
+            ))}
+            <motion.p initial={{ opacity:0 }} whileInView={{ opacity:1 }} viewport={{ once:true }} transition={{ delay:0.35 }}
+              className="text-[19px] font-semibold text-[#111] pt-2">
+              Deja lista la base antes de que pase otra vez.
+            </motion.p>
+          </div>
+        </div>
+      </section>
 
-            {/* Producto */}
-            <div>
-              <h3 className="font-semibold mb-4 text-white">Producto</h3>
-              <ul className="space-y-3 text-sm text-gray-400">
-                <li><Link href="/#how-it-works" className="hover:text-white transition-colors">Cómo funciona</Link></li>
-                <li><Link href="/#pricing" className="hover:text-white transition-colors">Precios</Link></li>
-                <li><Link href="/register" className="hover:text-white transition-colors">Empezar gratis</Link></li>
-              </ul>
-            </div>
+      {/* ── SECTION 5B: BEFORE / AFTER ── */}
+      <section className="py-24 px-6" style={{ backgroundColor:'#f5f3f0' }}>
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger} className="mb-12">
+            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-5">Antes y después</motion.p>
+            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight"
+              style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
+              <span className="font-semibold text-[#111]">Tu semana antes </span>
+              <span className="font-light text-[#aaa]">y después.</span>
+            </motion.h2>
+          </motion.div>
 
-            {/* Soporte */}
-            <div>
-              <h3 className="font-semibold mb-4 text-white">Soporte</h3>
-              <ul className="space-y-3 text-sm text-gray-400">
-                <li><a href="mailto:hola@itineramio.com" className="hover:text-white transition-colors">Contacto</a></li>
-                <li><Link href="/legal/billing" className="hover:text-white transition-colors">Facturación y Reembolsos</Link></li>
-              </ul>
-            </div>
-
-            {/* Legal */}
-            <div>
-              <h3 className="font-semibold mb-4 text-white">Legal</h3>
-              <ul className="space-y-3 text-sm text-gray-400">
-                <li><Link href="/legal/terms" className="hover:text-white transition-colors">Términos y Condiciones</Link></li>
-                <li><Link href="/legal/privacy" className="hover:text-white transition-colors">Política de Privacidad</Link></li>
-                <li><Link href="/legal/cookies" className="hover:text-white transition-colors">Política de Cookies</Link></li>
-                <li><Link href="/legal/legal-notice" className="hover:text-white transition-colors">Aviso Legal</Link></li>
-              </ul>
+          {/* Mobile tab switcher */}
+          <div className="flex md:hidden justify-center mb-8">
+            <div className="flex border border-black/[0.08] rounded-full p-1 bg-white">
+              {(['before','after'] as const).map(tab => (
+                <button key={tab} onClick={() => setBeforeAfterTab(tab)}
+                  className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${beforeAfterTab===tab ? 'bg-[#111] text-white' : 'text-[#999]'}`}>
+                  {tab==='before' ? 'Antes' : 'Después'}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Bottom bar */}
-          <div className="pt-8 border-t border-gray-800 text-center">
-            <p className="text-gray-500 text-sm">
-              © 2025 Itineramio. Todos los derechos reservados.
-            </p>
+          <div className="relative grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Arrow desktop */}
+            <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10
+              w-10 h-10 rounded-full bg-white border border-black/[0.08] items-center justify-center"
+              style={{ boxShadow:'0 2px 8px rgba(0,0,0,0.08)' }}>
+              <ArrowRight className="w-4 h-4 text-[#aaa]"/>
+            </div>
+
+            {/* ANTES */}
+            <motion.div initial={{ opacity:0, x:-20 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }}
+              className={`bg-white rounded-[20px] overflow-hidden ${beforeAfterTab==='after' ? 'hidden md:block' : ''}`}
+              style={{ boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+              <div className="px-8 pt-6 pb-2">
+                <div className="flex items-center gap-3 mb-1.5">
+                  <div className="flex-1 h-1.5 bg-red-50 rounded-full overflow-hidden">
+                    <div className="h-full bg-red-200 rounded-full" style={{ width:'85%' }}/>
+                  </div>
+                  <span className="text-[11px] text-red-400 font-semibold whitespace-nowrap shrink-0">85% gestionando</span>
+                </div>
+              </div>
+              <div className="px-8 pb-8">
+                <p className="text-[11px] uppercase tracking-[0.2em] text-[#999] font-semibold mb-6">Antes</p>
+                <div className="space-y-3.5">
+                  {[
+                    'Envías el WiFi a cada huésped manualmente',
+                    'Copias y pegas las instrucciones de acceso',
+                    'Recibes el "no podemos entrar" a las 22:00',
+                    'El huésped llega sin haber leído nada',
+                    'Contestas las mismas preguntas en tres idiomas',
+                    'La reseña de 4 estrellas llega sin aviso',
+                  ].map((item, i) => (
+                    <motion.div key={i} initial={{ opacity:0, x:-8 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.07 }}
+                      className="flex items-start gap-3">
+                      <XCircle className="w-4 h-4 text-[#e5e7eb] shrink-0 mt-0.5"/>
+                      <span className="text-[14px] text-[#999] leading-snug">{item}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* DESPUÉS */}
+            <motion.div initial={{ opacity:0, x:20 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }}
+              className={`bg-white rounded-[20px] overflow-hidden ${beforeAfterTab==='before' ? 'hidden md:block' : ''}`}
+              style={{ boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+              <div className="px-8 pt-6 pb-2">
+                <div className="flex items-center gap-3 mb-1.5">
+                  <div className="flex-1 h-1.5 bg-green-50 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width:0 }}
+                      whileInView={{ width:'15%' }}
+                      viewport={{ once:true }}
+                      transition={{ duration:1.2, delay:0.4, ease:'easeOut' }}
+                      className="h-full bg-green-400 rounded-full"/>
+                  </div>
+                  <span className="text-[11px] text-green-600 font-semibold whitespace-nowrap shrink-0">15% gestionando</span>
+                </div>
+              </div>
+              <div className="px-8 pb-8">
+                <p className="text-[11px] uppercase tracking-[0.2em] text-[#7c3aed] font-semibold mb-6">Después</p>
+                <div className="space-y-3.5">
+                  {[
+                    'La guía se envía sola cuando entra la reserva',
+                    'El huésped llega sabiendo cómo entrar y aparcar',
+                    'Las dudas las resuelve el chatbot en su idioma',
+                    'Tú no repites nada',
+                    'Menos llamadas tensas, menos mensajes nocturnos',
+                    'El check-in empieza bien y la reseña lo nota',
+                  ].map((item, i) => (
+                    <motion.div key={i} initial={{ opacity:0, x:8 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.07 }}
+                      className="flex items-start gap-3">
+                      <CheckCircle2 className="w-4 h-4 text-[#059669] shrink-0 mt-0.5"/>
+                      <span className="text-[14px] text-[#333] leading-snug font-medium">{item}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 5C: WHY THIS WORKS BETTER ── */}
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger} className="mb-12">
+            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-5">Alternativas</motion.p>
+            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight max-w-2xl"
+              style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
+              <span className="font-semibold text-[#111]">Lo que ya has probado </span>
+              <span className="font-light text-[#aaa]">(y por qué no bastó).</span>
+            </motion.h2>
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              { title:'Copiar y pegar en WhatsApp o Airbnb', body:'El huésped recibe un mensaje largo entre otros veinte. No lo lee. Tú acabas repitiéndolo igual. El problema no es el canal. Es que un mensaje largo compite con todo lo demás en su bandeja.' },
+              { title:'Un PDF con las instrucciones', body:'Nadie abre un PDF en el móvil. Y si lo abren, no encuentran lo que buscan porque está todo junto. Sin zonas. Sin estructura. Sin chatbot que resuelva dudas.' },
+              { title:'La guía integrada de Airbnb', body:'Funciona para un apartamento. No para ocho. No se traduce sola. No tiene chatbot. Y no cubre Booking.com.' },
+              { title:'No hacer nada y "ya va bien"', body:'Va bien hasta que no va. Un check-in mal, una reseña de 4 estrellas, y la posición baja. A partir de 6 apartamentos, "ya va bien" es una apuesta que se paga con la nota.' },
+            ].map((item, i) => (
+              <motion.div key={i} initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:i*0.08 }}
+                className="rounded-[20px] p-7 border border-black/[0.07]" style={{ backgroundColor:'#f5f3f0' }}>
+                <h3 className="text-[15px] font-semibold text-[#111] mb-3">{item.title}</h3>
+                <p className="text-[14px] text-[#666] leading-relaxed font-normal">{item.body}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 6: ICP FILTER ── */}
+      <section className="py-24 px-6" style={{ backgroundColor:'#0e0e0e' }}>
+        <div className="max-w-3xl mx-auto text-center">
+          <motion.div animate={{ opacity:[0.6,1,0.6] }} transition={{ repeat:Infinity, duration:4, ease:'easeInOut' }} className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(124,58,237,0.2) 0%, transparent 70%)' }}/>
+          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger} className="relative z-10">
+            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#555] font-medium mb-5">Para quién es</motion.p>
+            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight text-white mb-10"
+              style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
+              <span className="font-semibold">Mi punto de ruptura no fue un huésped. </span>
+              <span className="font-light" style={{ color:'#aaa' }}>Fue el sexto piso.</span>
+            </motion.h2>
+            <div className="space-y-4 text-left max-w-xl mx-auto mb-10">
+              {[
+                'Con 2 o 3 apartamentos tiras. Con 6, 7 u 8, ya no. Empiezas a vivir entre mensajes, accesos, dudas y reseñas.',
+                'Ahí es donde dejar de hacerlo todo manualmente deja de ser comodidad y pasa a ser necesidad.',
+                'Con seis apartamentos, lo manual muere. Ahí empiezan las repeticiones, los mensajes y la sensación de no llegar a todo. Si has cruzado ese punto, lo sabes.',
+              ].map((text, i) => (
+                <motion.p key={i} variants={fadeUp} className="text-[16px] text-[#999] leading-relaxed font-normal">{text}</motion.p>
+              ))}
+            </div>
+            <motion.p variants={fadeUp} className="text-[20px] font-semibold text-white">
+              Si estás ahí, este mensaje te va a sonar muy real.
+            </motion.p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── SECTION 7: FAQ ── */}
+      <section id="faq" className="py-24 px-6 bg-white">
+        <div className="max-w-3xl mx-auto">
+          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger} className="mb-12">
+            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-5">FAQ</motion.p>
+            <motion.h2 variants={fadeUp} className="font-semibold text-[#111] leading-tight"
+              style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
+              Lo que suelen preguntar.
+            </motion.h2>
+          </motion.div>
+          {[
+            { q:'¿Y si el huésped no abre la guía?', a:'La guía se envía antes de llegar, no dentro del piso. La tasa de apertura es mucho mayor cuando la reciben con la confirmación de reserva. Y dentro del apartamento, el QR está disponible como refuerzo.' },
+            { q:'¿Es otro sistema que tengo que aprender?', a:'Empieza con tres secciones: entrada, WiFi y normas. En 10 minutos tienes la primera guía lista. Luego vas añadiendo si quieres.' },
+            { q:'¿El huésped necesita descargar una app?', a:'No. Se abre en el navegador del móvil. Sin descarga. Sin registro.' },
+            { q:'¿Y si el huésped habla otro idioma?', a:'La guía se traduce automáticamente. El chatbot detecta el idioma y responde en el suyo. Funciona en tres idiomas.' },
+          ].map((faq, i) => (
+            <motion.div key={i} initial={{ opacity:0 }} whileInView={{ opacity:1 }} viewport={{ once:true }} transition={{ delay:i*0.07 }}
+              className="border-t border-black/[0.08]">
+              <button onClick={() => setFaqOpen(faqOpen===i ? null : i)}
+                className="w-full flex items-start justify-between gap-6 py-7 text-left">
+                <span className={`text-[16px] font-medium leading-snug transition-colors ${faqOpen===i ? 'text-violet-700' : 'text-[#111]'}`}>{faq.q}</span>
+                <ChevronDown className={`w-5 h-5 text-[#aaa] shrink-0 mt-0.5 transition-transform duration-200 ${faqOpen===i ? 'rotate-180' : ''}`}/>
+              </button>
+              <AnimatePresence initial={false}>
+                {faqOpen===i && (
+                  <motion.div initial={{ height:0, opacity:0 }} animate={{ height:'auto', opacity:1 }} exit={{ height:0, opacity:0 }} transition={{ duration:0.22 }} className="overflow-hidden">
+                    <p className="text-[15px] text-[#666] leading-relaxed pb-7 font-normal">{faq.a}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))}
+          <div className="border-t border-black/[0.08]"/>
+        </div>
+      </section>
+
+      {/* ── SECTION 8: LOSS FRAMING ── */}
+      <section className="py-24 px-6" style={{ backgroundColor:'#f5f3f0' }}>
+        <div className="max-w-3xl mx-auto">
+          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger}>
+            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-5">El coste de no hacer nada</motion.p>
+            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight mb-10"
+              style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
+              <span className="font-semibold text-[#111]">El coste de </span>
+              <span className="font-light text-[#aaa]">no hacer nada.</span>
+            </motion.h2>
+          </motion.div>
+          <div className="space-y-5">
+            {[
+              'El próximo check-in viene igual. Mejor que te pille preparado. Si el huésped llega sin saber cómo entrar, vuelves al mismo bucle.',
+              'Una reseña de 4 estrellas sí duele. Sobre todo cuando sabes que vino por una confusión evitable.',
+              'Menos riesgo al llegar. Protege tu nota. Haz que el huésped llegue más ubicado y no te la juegues en cada check-in.',
+            ].map((text, i) => (
+              <motion.p key={i} initial={{ opacity:0, y:12 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:i*0.1 }}
+                className="text-[17px] text-[#333] leading-relaxed font-normal">{text}</motion.p>
+            ))}
+            <motion.p initial={{ opacity:0 }} whileInView={{ opacity:1 }} viewport={{ once:true }} transition={{ delay:0.35 }}
+              className="text-[19px] font-semibold text-[#111] pt-2">
+              Haz que el huésped llegue más informado. Evita lo evitable.
+            </motion.p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 9: FINAL CTA ── */}
+      <section className="relative py-36 px-6 overflow-hidden text-center" style={{ backgroundColor:'#0e0e0e' }}>
+        <div className="absolute inset-0 pointer-events-none" style={{ background:'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(124,58,237,0.2) 0%, transparent 70%)'}}/>
+        <motion.div initial={{ opacity:0, y:24 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} className="relative z-10 max-w-4xl mx-auto">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-[#555] mb-6 font-medium">Tu próximo huésped ya tiene reserva</p>
+          <h2 className="leading-[1.05] tracking-tight text-white mb-5"
+            style={{ fontSize:'clamp(2.2rem, 6vw, 4.8rem)', fontFamily:'var(--font-manrope)' }}>
+            <span className="font-semibold">Ya empezaste tu guía. </span>
+            <span className="font-light" style={{ color:'#aaa' }}>Termínala antes de que llegue el próximo huésped.</span>
+          </h2>
+          <p className="text-[#666] text-lg mb-12 max-w-lg mx-auto leading-relaxed font-normal">
+            No hace falta dejarla perfecta. Empieza por lo básico: entrada, WiFi y normas. Ese primer paso ya te quita repeticiones y evita más de una duda de última hora.
+          </p>
+          <Link href="/register" className="group inline-flex items-center gap-3 bg-white text-[#111] px-10 py-5 rounded-full font-semibold text-lg hover:bg-violet-50 transition-all"
+            style={{ boxShadow:'0 0 50px rgba(124,58,237,0.2)' }}>
+            Empieza gratis <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform"/>
+          </Link>
+          <p className="mt-6 text-sm" style={{ color:'#444' }}>Check-in, WiFi y normas. Con eso ya puedes empezar.</p>
+        </motion.div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer className="border-t border-black/[0.06] py-14 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-10 mb-12">
+            <div className="col-span-2 sm:col-span-1">
+              <Link href="/" className="flex items-center gap-2 mb-5">
+                <img src="/isotipo-gradient.svg" alt="Itineramio" width={24} height={14} className="object-contain"/>
+                <span className="font-semibold text-sm">Itineramio</span>
+              </Link>
+              <p className="text-[#aaa] text-sm leading-relaxed">Guías digitales y chatbot IA para anfitriones con 6 o más propiedades en España.</p>
+            </div>
+            {[
+              { title:'Producto', links:[
+                { label:'Funcionalidades', href:'/funcionalidades' },
+                { label:'Precios',         href:'/#pricing' },
+                { label:'Demo',            href:'/demo' },
+                { label:'Integraciones',   href:'/funcionalidades#integraciones' },
+              ]},
+              { title:'Recursos', links:[
+                { label:'Blog',           href:'/blog' },
+                { label:'Guía de inicio', href:'/bienvenido' },
+                { label:'FAQ',            href:'/faq' },
+                { label:'Contacto',       href:'mailto:hola@itineramio.com' },
+              ]},
+              { title:'Legal', links:[
+                { label:'Privacidad', href:'/legal/privacy' },
+                { label:'Términos',   href:'/legal/terms' },
+                { label:'Cookies',    href:'/legal/cookies' },
+              ]},
+            ].map(col => (
+              <div key={col.title}>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-[#111] mb-5">{col.title}</p>
+                <ul className="space-y-3">
+                  {col.links.map(item => <li key={item.label}><Link href={item.href} className="text-[#aaa] text-sm hover:text-[#111] transition-colors">{item.label}</Link></li>)}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <div className="border-t border-black/[0.05] pt-7 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-[#ccc] text-xs">©{new Date().getFullYear()} Itineramio. Todos los derechos reservados.</p>
+            <p className="text-[#ccc] text-xs">Hecho para anfitriones serios · España 🇪🇸</p>
           </div>
         </div>
       </footer>
+
     </div>
   )
 }
