@@ -83,12 +83,6 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
       mobileOnly: true
     },
     {
-      icon: <Map className="w-5 h-5" />,
-      label: 'Guías de ciudad',
-      href: "/guides",
-      description: 'Importa lugares verificados a tus propiedades'
-    },
-    {
       icon: <Image className="w-5 h-5" />,
       label: t('sidebar.mediaLibrary'),
       href: "/media-library",
