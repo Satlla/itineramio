@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useCallback, useState } from 'react'
+import { useEffect, useCallback, useState, useRef } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 
 interface UseFormPersistenceOptions {
@@ -25,6 +25,7 @@ export function useFormPersistence({
   const [isInitialized, setIsInitialized] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [hasCheckedForData, setHasCheckedForData] = useState(false)
+  const clearedRef = useRef(false) // prevents debounce from re-saving after clearSavedData()
 
   // Check for saved data on mount (but don't restore unless autoRestore is true)
   useEffect(() => {
@@ -52,7 +53,7 @@ export function useFormPersistence({
 
   // Save data to localStorage whenever form values change (with debounce)
   useEffect(() => {
-    if (typeof window !== 'undefined' && watchedValues && isInitialized) {
+    if (typeof window !== 'undefined' && watchedValues && isInitialized && !clearedRef.current) {
       setIsSaving(true)
 
       const timeoutId = setTimeout(() => {
@@ -122,8 +123,9 @@ export function useFormPersistence({
     }
   }, [watchedValues, storageKey, excludeFields, isInitialized])
 
-  // Clear saved data
+  // Clear saved data — also sets clearedRef to prevent any pending debounce from re-saving
   const clearSavedData = useCallback(() => {
+    clearedRef.current = true
     if (typeof window !== 'undefined') {
       localStorage.removeItem(storageKey)
       localStorage.removeItem(`${storageKey}_timestamp`)
