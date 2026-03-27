@@ -884,6 +884,19 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   clave:      ['wifi', 'wi-fi', 'internet', 'contrasena', 'acceso'],
   maleta:     ['equipaje', 'storage', 'consigna', 'luggage'],
   llave:      ['acceso', 'check', 'entrada', 'puerta', 'door', 'key'],
+  // Food / dining — common Spanish query words that should find restaurant zone
+  comer:        ['restaurante', 'restaurant', 'comida', 'cenar', 'food', 'tapas', 'bar'],
+  cenar:        ['restaurante', 'restaurant', 'cena', 'dinner', 'food', 'comida'],
+  almorzar:     ['restaurante', 'restaurant', 'almuerzo', 'lunch', 'food', 'comida'],
+  desayunar:    ['restaurante', 'cafeteria', 'cafe', 'breakfast', 'desayuno'],
+  cena:         ['restaurante', 'restaurant', 'cenar', 'dinner', 'food'],
+  almuerzo:     ['restaurante', 'restaurant', 'almorzar', 'lunch', 'food'],
+  comida:       ['restaurante', 'restaurant', 'comer', 'food', 'tapas'],
+  sitios:       ['restaurante', 'restaurant', 'lugares', 'recomendacion', 'places'],
+  lugares:      ['restaurante', 'restaurant', 'sitios', 'recomendacion', 'places'],
+  recomienda:   ['restaurante', 'restaurant', 'lugares', 'sitios', 'recomendacion'],
+  recomendacion:['restaurante', 'restaurant', 'lugares', 'sitios'],
+  recomendaciones:['restaurante', 'restaurant', 'lugares', 'sitios'],
 };
 
 function rankZonesByRelevance(message: string, zones: any[], language: string): any[] {

@@ -184,6 +184,12 @@ export default function PropertyZonesPage() {
   const [propertyEvaluations, setPropertyEvaluations] = useState<any[]>([])
   const [loadingEvaluations, setLoadingEvaluations] = useState(false)
 
+  // iCal config modal state
+  const [showIcalModal, setShowIcalModal] = useState(false)
+  const [icalUrls, setIcalUrls] = useState({ airbnb: '', booking: '', vrbo: '' })
+  const [icalSaving, setIcalSaving] = useState(false)
+  const [icalMsg, setIcalMsg] = useState('')
+
   // Ref for zones section scroll
   const zonesContainerRef = useRef<HTMLDivElement>(null)
 
@@ -223,6 +229,36 @@ export default function PropertyZonesPage() {
   const [pendingZoneForSave, setPendingZoneForSave] = useState<Zone | null>(null)
   const [pendingOperation, setPendingOperation] = useState<'create' | 'update' | 'delete' | null>(null)
   const [pendingZoneData, setPendingZoneData] = useState<any>(null)
+
+  // iCal load + save handlers
+  const loadIcalConfig = async () => {
+    try {
+      const res = await fetch(`/api/calendar/ical-config?propertyId=${id}`, { credentials: 'include' })
+      if (!res.ok) return
+      const data = await res.json()
+      setIcalUrls({ airbnb: data.airbnb || '', booking: data.booking || '', vrbo: data.vrbo || '' })
+    } catch {}
+  }
+
+  const saveIcalConfig = async () => {
+    setIcalSaving(true)
+    setIcalMsg('')
+    try {
+      const res = await fetch('/api/calendar/ical-config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ propertyId: id, ...icalUrls })
+      })
+      if (!res.ok) throw new Error('Error al guardar')
+      setIcalMsg('¡Guardado!')
+      setTimeout(() => { setIcalMsg(''); setShowIcalModal(false) }, 1500)
+    } catch {
+      setIcalMsg('Error al guardar')
+    } finally {
+      setIcalSaving(false)
+    }
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -2898,6 +2934,14 @@ export default function PropertyZonesPage() {
                   <Edit className="h-4 w-4 mr-2" />
                   {t('propertyZones.editProperty')}
                 </DropdownMenu.Item>
+                <DropdownMenu.Separator className="h-px bg-gray-100 my-1" />
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={() => { loadIcalConfig(); setShowIcalModal(true) }}
+                >
+                  <Bell className="h-4 w-4 mr-2 text-[#00A699]" />
+                  Conectar iCal (Airbnb / Booking)
+                </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
           </DropdownMenu.Root>
@@ -4108,6 +4152,79 @@ export default function PropertyZonesPage() {
         currentPropertyId={id}
         onCopyComplete={handleCopyComplete}
       />
+
+      {/* iCal Config Modal */}
+      {showIcalModal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowIcalModal(false)} />
+          <div className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl p-5 sm:m-4 z-10">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h2 className="text-base font-bold text-gray-900">Conectar calendarios iCal</h2>
+                <p className="text-xs text-gray-400 mt-0.5">{propertyName}</p>
+              </div>
+              <button onClick={() => setShowIcalModal(false)} className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 mb-1.5">
+                  <span className="w-2.5 h-2.5 rounded-sm inline-block flex-shrink-0 bg-[#00A699]" />
+                  URL iCal Airbnb
+                </label>
+                <input
+                  type="url"
+                  value={icalUrls.airbnb}
+                  onChange={e => setIcalUrls(u => ({ ...u, airbnb: e.target.value }))}
+                  placeholder="https://www.airbnb.es/calendar/ical/..."
+                  className="w-full text-xs px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#00A699]/30 bg-gray-50"
+                />
+                <p className="text-[11px] text-gray-400 mt-1">Airbnb → tu anuncio → Disponibilidad → Sincronizar → Exportar</p>
+              </div>
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 mb-1.5">
+                  <span className="w-2.5 h-2.5 rounded-sm inline-block flex-shrink-0 bg-[#003580]" />
+                  URL iCal Booking.com
+                </label>
+                <input
+                  type="url"
+                  value={icalUrls.booking}
+                  onChange={e => setIcalUrls(u => ({ ...u, booking: e.target.value }))}
+                  placeholder="https://admin.booking.com/hotel/hoteladmin/ical.html?..."
+                  className="w-full text-xs px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#003580]/30 bg-gray-50"
+                />
+                <p className="text-[11px] text-gray-400 mt-1">Booking → Extranet → Propiedades → Calendario → Exportar iCal</p>
+              </div>
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 mb-1.5">
+                  <span className="w-2.5 h-2.5 rounded-sm inline-block flex-shrink-0 bg-[#1C6B8A]" />
+                  URL iCal VRBO <span className="font-normal text-gray-400">(opcional)</span>
+                </label>
+                <input
+                  type="url"
+                  value={icalUrls.vrbo}
+                  onChange={e => setIcalUrls(u => ({ ...u, vrbo: e.target.value }))}
+                  placeholder="https://www.vrbo.com/calendar/..."
+                  className="w-full text-xs px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1C6B8A]/30 bg-gray-50"
+                />
+              </div>
+            </div>
+            {icalMsg && (
+              <p className={`text-xs mt-3 font-medium ${icalMsg.includes('Error') ? 'text-red-500' : 'text-emerald-600'}`}>
+                {icalMsg}
+              </p>
+            )}
+            <button
+              onClick={saveIcalConfig}
+              disabled={icalSaving}
+              className="w-full mt-5 py-3 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {icalSaving ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Guardando…</> : 'Guardar'}
+            </button>
+          </div>
+        </div>
+      )}
 
       <ImportRecommendationsModal
         isOpen={showImportModal}

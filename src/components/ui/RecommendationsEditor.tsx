@@ -810,7 +810,7 @@ export function RecommendationsEditor({
             <CityGuidesBanner
               city={propertyCity}
               propertyId={propertyId}
-              onImported={onUpdate}
+              onImported={() => { fetchRecommendations(); onUpdate() }}
             />
           )}
 
@@ -1224,7 +1224,7 @@ export function RecommendationsEditor({
           <CityGuidesBanner
             city={propertyCity}
             propertyId={propertyId}
-            onImported={onUpdate}
+            onImported={() => { fetchRecommendations(); onUpdate() }}
           />
         )}
 
