@@ -37,12 +37,11 @@ function parseIcalUrls(raw: string | null): { airbnb?: string; booking?: string;
   return {}
 }
 
-function isSameDay(a: Date, b: Date): boolean {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  )
+const TZ = 'Europe/Madrid'
+
+// Returns YYYY-MM-DD in Spain timezone
+function dateStrMadrid(d: Date): string {
+  return d.toLocaleDateString('en-CA', { timeZone: TZ })
 }
 
 function toDateStr(d: Date): string {
@@ -54,11 +53,13 @@ export async function GET(req: NextRequest) {
   if (authResult instanceof Response) return authResult
   const userId = authResult.userId
 
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const now = new Date()
+  const todayStr = dateStrMadrid(now)  // YYYY-MM-DD in Spain timezone
 
-  const upcomingLimit = new Date(today)
-  upcomingLimit.setDate(today.getDate() + 7)
+  // upcomingLimit: 7 days from now, compared as date strings
+  const upcomingLimit = new Date(now)
+  upcomingLimit.setDate(upcomingLimit.getDate() + 7)
+  const upcomingLimitStr = dateStrMadrid(upcomingLimit)
 
   try {
     const properties = await prisma.property.findMany({
@@ -100,21 +101,19 @@ export async function GET(req: NextRequest) {
                   guestCount: res.guestCount
                 }
 
-                const checkInDay = new Date(res.checkIn)
-                checkInDay.setHours(0, 0, 0, 0)
-                const checkOutDay = new Date(res.checkOut)
-                checkOutDay.setHours(0, 0, 0, 0)
+                const checkInStr  = dateStrMadrid(res.checkIn)
+                const checkOutStr = dateStrMadrid(res.checkOut)
 
-                if (isSameDay(checkInDay, today)) {
+                if (checkInStr === todayStr) {
                   checkIns.push(base)
-                } else if (checkInDay > today && checkInDay <= upcomingLimit) {
-                  upcomingCheckIns.push({ ...base, date: toDateStr(checkInDay) })
+                } else if (checkInStr > todayStr && checkInStr <= upcomingLimitStr) {
+                  upcomingCheckIns.push({ ...base, date: checkInStr })
                 }
 
-                if (isSameDay(checkOutDay, today)) {
+                if (checkOutStr === todayStr) {
                   checkOuts.push(base)
-                } else if (checkOutDay > today && checkOutDay <= upcomingLimit) {
-                  upcomingCheckOuts.push({ ...base, date: toDateStr(checkOutDay) })
+                } else if (checkOutStr > todayStr && checkOutStr <= upcomingLimitStr) {
+                  upcomingCheckOuts.push({ ...base, date: checkOutStr })
                 }
               }
             } catch {
@@ -130,7 +129,7 @@ export async function GET(req: NextRequest) {
     upcomingCheckOuts.sort((a, b) => (a.date || '').localeCompare(b.date || ''))
 
     const response: TodayResponse = {
-      date: toDateStr(today),
+      date: todayStr,
       summary: {
         checkInsCount: checkIns.length,
         checkOutsCount: checkOuts.length

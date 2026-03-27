@@ -3,9 +3,9 @@ import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { ICalParser } from '@/lib/ical-parser'
 
-// Format date as YYYY-MM-DD using LOCAL time (not UTC) to avoid timezone shift
+// Format date as YYYY-MM-DD in Spain/Madrid timezone
 function localDateStr(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  return d.toLocaleDateString('en-CA', { timeZone: 'Europe/Madrid' })
 }
 
 function parseIcalUrls(raw: string | null): { airbnb?: string; booking?: string; vrbo?: string } {
@@ -115,14 +115,15 @@ export async function GET(req: NextRequest) {
                 })
               }
 
-              // Build per-day occupancy for mini-calendar
-              const cur = new Date(res.checkIn.getFullYear(), res.checkIn.getMonth(), res.checkIn.getDate())
-              const end = new Date(res.checkOut.getFullYear(), res.checkOut.getMonth(), res.checkOut.getDate())
+              // Build per-day occupancy — iterate using Spain-timezone date strings
+              const cur = new Date(localDateStr(res.checkIn) + 'T00:00:00Z')
+              const end = new Date(localDateStr(res.checkOut) + 'T00:00:00Z')
               while (cur < end) {
-                if (cur.getFullYear() === year && cur.getMonth() + 1 === month) {
-                  occupancy.push({ day: cur.getDate(), platform })
+                const [y, m, d] = cur.toISOString().split('T')[0].split('-').map(Number)
+                if (y === year && m === month) {
+                  occupancy.push({ day: d, platform })
                 }
-                cur.setDate(cur.getDate() + 1)
+                cur.setUTCDate(cur.getUTCDate() + 1)
               }
             }
           } catch (err: unknown) {
