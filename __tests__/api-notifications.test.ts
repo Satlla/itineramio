@@ -75,7 +75,8 @@ function makeAuthRequest(
   if (token) {
     headers['cookie'] = `auth-token=${token}`
   }
-  return new NextRequest(url, { ...rest, headers } as RequestInit)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return new NextRequest(url, { ...rest, headers, signal: rest.signal ?? undefined } as any)
 }
 
 // ---------------------------------------------------------------------------

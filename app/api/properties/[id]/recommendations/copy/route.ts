@@ -115,6 +115,8 @@ export async function POST(
               order: zoneOrder++,
               status: 'PUBLISHED',
               isPublished: true,
+              qrCode: `qr_${crypto.randomUUID()}`,
+              accessCode: `ac_${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
             },
             select: { id: true },
           })

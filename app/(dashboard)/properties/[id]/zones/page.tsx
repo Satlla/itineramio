@@ -36,9 +36,8 @@ import { StepEditor, Step } from '../../../../../src/components/ui/StepEditor'
 import { RecommendationsEditor } from '../../../../../src/components/ui/RecommendationsEditor'
 import { MobileZoneToast } from '../../../../../src/components/ui/MobileZoneToast'
 import { cn } from '../../../../../src/lib/utils'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { zoneTemplates, zoneCategories, ZoneTemplate, getZoneTemplateText, MultilingualText } from '../../../../../src/data/zoneTemplates'
-import { getZoneContentTemplate } from '../../../../../src/data/zone-content-templates'
 import { InspirationZone } from '../../../../../src/data/zoneInspiration'
 import { useAuth } from '../../../../../src/providers/AuthProvider'
 import { useNotifications } from '../../../../../src/hooks/useNotifications'
@@ -112,8 +111,8 @@ const transformZonesFromApi = (zonesData: any[], propertyId: string): Zone[] => 
   })
 }
 
-export default function PropertyZonesPage({ params }: { params: Promise<{ id: string }> }) {
-  const [id, setId] = useState<string>('')
+export default function PropertyZonesPage() {
+  const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const { user } = useAuth()
   const { addNotification } = useNotifications()
@@ -246,14 +245,6 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
     setIsClient(true)
   }, [])
 
-  // Unwrap params Promise
-  useEffect(() => {
-    if (!id) {
-      params.then(({ id: paramId }) => {
-        setId(paramId)
-      })
-    }
-  }, [params, id])
 
 
   const essentialZones = [
@@ -1618,19 +1609,15 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
 
     setIsCreatingZone(true)
     try {
-      // Get content template if available
-      const contentTemplate = getZoneContentTemplate(template.id)
-
       const zoneData = {
         name: template.name,
         description: template.description,
         icon: template.icon,
         color: 'bg-gray-100',
         status: 'ACTIVE',
-        steps: contentTemplate?.steps // Include pre-filled steps if template exists
       }
 
-      const success = await createBatchZones(id, [zoneData], !!contentTemplate)
+      const success = await createBatchZones(id, [zoneData])
 
       if (success) {
         // Refresh zones list
@@ -1640,19 +1627,9 @@ export default function PropertyZonesPage({ params }: { params: Promise<{ id: st
           const newZones = transformZonesFromApi(zonesResult.data, id)
           setZones(newZones)
 
-          // Find the newly created zone
+          // Find the newly created zone and open step editor
           const newZone = newZones.find((zone: Zone) => zone.name === getZoneTemplateText(template.name))
           if (newZone) {
-            // If template had content, show success message
-            if (contentTemplate) {
-              addNotification({
-                type: 'success',
-                title: 'Zona creada con contenido',
-                message: `"${getZoneTemplateText(template.name)}" se ha creado con texto profesional en ES/EN/FR. ¡Solo edita con tus datos!`,
-                read: false
-              })
-            }
-            // Open step editor to let user customize the content
             setEditingZoneForSteps(newZone)
             setShowStepEditor(true)
           }

@@ -11,8 +11,15 @@ if (!JWT_SECRET) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Get the current token
-    const currentToken = request.cookies.get('auth-token')?.value
+    // Get the current token (cookie first, then Bearer for mobile/PWA)
+    let currentToken = request.cookies.get('auth-token')?.value
+
+    if (!currentToken) {
+      const authHeader = request.headers.get('authorization')
+      if (authHeader?.startsWith('Bearer ')) {
+        currentToken = authHeader.substring(7)
+      }
+    }
 
     if (!currentToken) {
       return NextResponse.json({
@@ -78,6 +85,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       message: 'Token refreshed successfully',
+      token: newToken,
       user: {
         id: user.id,
         email: user.email,

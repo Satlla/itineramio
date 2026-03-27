@@ -16,7 +16,7 @@ export function SafeImage({
   className = '', 
   width = 200, 
   height = 200,
-  fallback = '/isotipe.svg'
+  fallback = '/isotipo-gradient.svg'
 }: SafeImageProps) {
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(true)

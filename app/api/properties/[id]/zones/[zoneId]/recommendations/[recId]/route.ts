@@ -63,9 +63,11 @@ export async function DELETE(
     })
     if (remaining.length > 0) {
       await prisma.$transaction(
-        remaining.map((r, i) =>
-          prisma.recommendation.update({ where: { id: r.id }, data: { order: i } })
-        ),
+        async (tx) => {
+          for (let i = 0; i < remaining.length; i++) {
+            await tx.recommendation.update({ where: { id: remaining[i].id }, data: { order: i } })
+          }
+        },
         { timeout: 10000 }
       )
     }

@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../src/lib/prisma'
 import { verifyToken } from '../../../../src/lib/auth'
+import { checkRateLimitAsync, getRateLimitKey } from '../../../../src/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
     const token = request.cookies.get('auth-token')?.value
-    
+
     if (!token) {
       return NextResponse.json({ error: 'No authentication token' }, { status: 401 })
     }
-    
+
+    // Rate limit: max 10 intentos por minuto por IP (previene brute force de cupones)
+    const rateLimitKey = getRateLimitKey(request, undefined, 'coupon')
+    const { allowed } = await checkRateLimitAsync(rateLimitKey, { maxRequests: 10, windowMs: 60 * 1000 })
+    if (!allowed) {
+      return NextResponse.json({ error: 'Demasiados intentos. Espera un momento.' }, { status: 429 })
+    }
+
     const decoded = verifyToken(token)
     const { couponCode, propertyCount = 2, planCode = 'BASIC' } = await request.json()
     

@@ -27,7 +27,9 @@ import {
   MessageCircle,
   Timer,
   Hash,
-  Sparkles
+  Sparkles,
+  LogIn,
+  LogOut
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -124,6 +126,15 @@ export default function DashboardPage(): JSX.Element {
       }
     }
   }, [searchParams])
+
+  // Today check-ins/outs widget
+  const [todaySummary, setTodaySummary] = useState<{ checkInsCount: number; checkOutsCount: number } | null>(null)
+  useEffect(() => {
+    fetch('/api/calendar/today', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.summary) setTodaySummary(d.summary) })
+      .catch(() => {})
+  }, [])
 
   // Real-time activity state - solo datos reales
   const [recentActivity, setRecentActivity] = useState<any[]>([])
@@ -585,6 +596,45 @@ export default function DashboardPage(): JSX.Element {
 
           {/* Onboarding Checklist */}
           <OnboardingChecklist />
+
+          {/* Check-ins Hoy widget */}
+          {todaySummary && (todaySummary.checkInsCount > 0 || todaySummary.checkOutsCount > 0) && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="mb-4 sm:mb-5"
+            >
+              <Link
+                href="/gestion/check-ins-hoy"
+                className="flex items-center justify-between bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl px-4 py-3.5 hover:shadow-md transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-white rounded-xl shadow-sm flex items-center justify-center flex-shrink-0">
+                    <Calendar className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">Movimientos hoy</p>
+                    <div className="flex items-center gap-3 mt-0.5">
+                      {todaySummary.checkInsCount > 0 && (
+                        <span className="flex items-center gap-1 text-xs text-emerald-700 font-medium">
+                          <LogIn className="w-3 h-3" />
+                          {todaySummary.checkInsCount} check-in{todaySummary.checkInsCount !== 1 ? 's' : ''}
+                        </span>
+                      )}
+                      {todaySummary.checkOutsCount > 0 && (
+                        <span className="flex items-center gap-1 text-xs text-orange-600 font-medium">
+                          <LogOut className="w-3 h-3" />
+                          {todaySummary.checkOutsCount} check-out{todaySummary.checkOutsCount !== 1 ? 's' : ''}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </motion.div>
+          )}
 
           {/* Stats Cards */}
           <motion.div

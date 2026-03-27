@@ -121,9 +121,11 @@ export async function POST(request: NextRequest) {
       })
 
       // Get plan name
-      const existingPlan = await prisma.subscriptionPlan.findUnique({
-        where: { id: existingSubscription.planId }
-      })
+      const existingPlan = existingSubscription.planId
+        ? await prisma.subscriptionPlan.findUnique({
+            where: { id: existingSubscription.planId }
+          })
+        : null
 
       return NextResponse.json({
         success: true,

@@ -48,7 +48,10 @@ export const metadata: Metadata = {
     title: 'Itineramio vs Touch Stay: Comparativa 2025',
     description: 'Análisis completo de precios y funcionalidades. Descubre la mejor opción para tu alojamiento.',
     images: ['https://www.itineramio.com/og-image.jpg'],
-  }
+  },
+  alternates: {
+    canonical: 'https://www.itineramio.com/comparar/itineramio-vs-touch-stay',
+  },
 }
 
 // Comparison data

@@ -6,8 +6,8 @@ const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_SERVER_KEY || process.env.NE
 export async function GET(request: NextRequest) {
   try {
     const ip = request.headers.get('x-forwarded-for') || 'unknown'
-    const { success } = await checkRateLimitAsync(`demo-places:${ip}`, { limit: 30, window: '1m' })
-    if (!success) return NextResponse.json({ success: false, error: 'Demasiadas búsquedas' }, { status: 429 })
+    const { allowed } = await checkRateLimitAsync(`demo-places:${ip}`, { maxRequests: 30, windowMs: 60 * 1000 })
+    if (!allowed) return NextResponse.json({ success: false, error: 'Demasiadas búsquedas' }, { status: 429 })
 
     const { searchParams } = new URL(request.url)
     const q = searchParams.get('q')

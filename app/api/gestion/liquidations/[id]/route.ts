@@ -97,15 +97,18 @@ export async function GET(
       )
     }
 
-    // Load BillingUnitGroup configs if any reservation has a billingUnit with groupId
+    // Load BillingUnitGroup configs + managerConfig en paralelo
     const groupIds = [...new Set(
       liquidation.reservations
         .filter(r => r.billingUnit?.groupId)
         .map(r => r.billingUnit!.groupId!)
     )]
-    const groups = groupIds.length > 0
-      ? await prisma.billingUnitGroup.findMany({ where: { id: { in: groupIds } } })
-      : []
+    const [groups, managerConfig] = await Promise.all([
+      groupIds.length > 0
+        ? prisma.billingUnitGroup.findMany({ where: { id: { in: groupIds } } })
+        : Promise.resolve([]),
+      prisma.userInvoiceConfig.findUnique({ where: { userId } }),
+    ])
     const groupMap = new Map(groups.map(g => [g.id, g]))
 
     // If reservations have no billing config, look up from owner directly (old liquidations)
@@ -230,11 +233,6 @@ export async function GET(
         || ownerFallbackConfig?.incomeReceiver
         || 'MANAGER'
     }
-
-    // Obtener configuración del gestor para datos de factura
-    const managerConfig = await prisma.userInvoiceConfig.findUnique({
-      where: { userId },
-    })
 
     return NextResponse.json({
       liquidation: {

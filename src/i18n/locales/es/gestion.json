@@ -16,6 +16,10 @@
         "title": "Reservas",
         "description": "Importar y gestionar"
       },
+      "calendario": {
+        "title": "Calendario",
+        "description": "Check-ins y check-outs"
+      },
       "settlements": {
         "title": "Liquidaciones",
         "description": "Pagos a propietarios"

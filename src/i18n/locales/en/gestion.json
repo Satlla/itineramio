@@ -16,6 +16,10 @@
         "title": "Reservations",
         "description": "Import and manage"
       },
+      "calendario": {
+        "title": "Calendar",
+        "description": "Check-ins and check-outs"
+      },
       "settlements": {
         "title": "Settlements",
         "description": "Owner payments"

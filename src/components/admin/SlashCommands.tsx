@@ -309,7 +309,7 @@ export const suggestion = {
           return true
         }
 
-        return component.ref?.onKeyDown(props)
+        return (component.ref as { onKeyDown?: (props: unknown) => boolean } | null)?.onKeyDown?.(props)
       },
 
       onExit() {

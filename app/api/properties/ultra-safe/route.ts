@@ -56,84 +56,39 @@ export async function POST(request: NextRequest) {
       slug = `property-${Date.now()}`
     }
 
-    // Step 5: Generate property ID
-    const propertyId = `prop-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`
-
-    // Step 6: Try to create property with minimal fields only
+    // Step 5: Create property with Prisma ORM (ID auto-generated as cuid)
+    let createdProperty
     try {
-      
-      await prisma.$executeRaw`
-        INSERT INTO properties (
-          id, 
-          name, 
+      createdProperty = await prisma.property.create({
+        data: {
           slug,
-          description, 
-          type,
-          street, 
-          city, 
-          state, 
-          country, 
-          "postalCode",
-          bedrooms, 
-          bathrooms, 
-          "maxGuests",
-          "hostContactName", 
-          "hostContactPhone", 
-          "hostContactEmail",
-          "profileImage",
-          "hostContactPhoto",
-          status, 
-          "isPublished",
-          "hostId",
-          "createdAt", 
-          "updatedAt"
-        ) VALUES (
-          ${propertyId},
-          ${body.name},
-          ${slug},
-          ${body.description},
-          ${body.type || 'APARTMENT'},
-          ${body.street},
-          ${body.city},
-          ${body.state || 'Madrid'},
-          ${body.country || 'España'},
-          ${body.postalCode || '28001'},
-          ${body.bedrooms || 2},
-          ${body.bathrooms || 1},
-          ${body.maxGuests || 4},
-          ${body.hostContactName},
-          ${body.hostContactPhone || '+34600000000'},
-          ${body.hostContactEmail || 'host@example.com'},
-          ${body.profileImage || null},
-          ${body.hostContactPhoto || null},
-          'DRAFT',
-          false,
-          ${userId},
-          NOW(),
-          NOW()
-        )
-      `
-      
+          name: body.name,
+          description: body.description,
+          type: body.type || 'APARTMENT',
+          street: body.street,
+          city: body.city,
+          state: body.state || 'Madrid',
+          country: body.country || 'España',
+          postalCode: body.postalCode || '28001',
+          bedrooms: body.bedrooms || 2,
+          bathrooms: body.bathrooms || 1,
+          maxGuests: body.maxGuests || 4,
+          hostContactName: body.hostContactName,
+          hostContactPhone: body.hostContactPhone || '+34600000000',
+          hostContactEmail: body.hostContactEmail || 'host@example.com',
+          profileImage: body.profileImage || null,
+          hostContactPhoto: body.hostContactPhoto || null,
+          status: 'DRAFT',
+          isPublished: false,
+          hostId: userId,
+        }
+      })
     } catch (insertError) {
       return NextResponse.json({
         success: false,
         error: 'Failed to insert property',
         details: insertError instanceof Error ? insertError.message : String(insertError)
       }, { status: 500 })
-    }
-
-    // Step 7: Try to fetch the created property
-    let createdProperty
-    try {
-      const result = await prisma.$queryRaw`
-        SELECT * FROM properties WHERE id = ${propertyId} LIMIT 1
-      ` as any[]
-      
-      createdProperty = result[0]
-
-    } catch {
-      // Don't fail here, just return basic info
-      createdProperty = { id: propertyId, name: body.name }
     }
 
     return NextResponse.json({

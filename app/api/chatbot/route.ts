@@ -151,7 +151,8 @@ export async function POST(request: NextRequest) {
       const zone = zones[0] || null;
       const response = generateFallbackResponse(message, property, zone, language);
       const media = collectRelevantMedia(zones, language);
-      const recommendations = detectRelevantRecommendations(message, response, zones, language);
+      const isUnansweredFallback = detectUnansweredQuestion(response, language);
+      const recommendations = detectRelevantRecommendations(message, response, zones, language, isUnansweredFallback);
       return NextResponse.json({
         response,
         media: media.length > 0 ? media : undefined,
@@ -286,7 +287,8 @@ export async function POST(request: NextRequest) {
         const iosData = await iosOpenaiResponse.json();
         const fullResponse = iosData.choices?.[0]?.message?.content || '';
         const media = collectRelevantMedia(zones, language);
-        const recommendations = detectRelevantRecommendations(message, fullResponse, zones, language);
+        const isUnansweredMobile = detectUnansweredQuestion(fullResponse, language);
+        const recommendations = detectRelevantRecommendations(message, fullResponse, zones, language, isUnansweredMobile);
         after(() => runAfterTasks(fullResponse));
         return NextResponse.json({
           response: fullResponse,
@@ -379,7 +381,8 @@ export async function POST(request: NextRequest) {
 
             // After stream completes, send media + recommendation cards and finish
             const media = collectRelevantMedia(zones, language);
-            const recommendations = detectRelevantRecommendations(message, fullResponse, zones, language);
+            const isUnansweredStream = detectUnansweredQuestion(fullResponse, language);
+            const recommendations = detectRelevantRecommendations(message, fullResponse, zones, language, isUnansweredStream);
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({
               done: true,
               media: media.length > 0 ? media : undefined,
@@ -413,7 +416,8 @@ export async function POST(request: NextRequest) {
       const zone = zones[0] || null;
       const response = generateFallbackResponse(message, property, zone, language);
       const media = collectRelevantMedia(zones, language);
-      const recommendations = detectRelevantRecommendations(message, response, zones, language);
+      const isUnansweredCatch = detectUnansweredQuestion(response, language);
+      const recommendations = detectRelevantRecommendations(message, response, zones, language, isUnansweredCatch);
       return NextResponse.json({
         response,
         media: media.length > 0 ? media : undefined,
@@ -532,6 +536,25 @@ function getKeywords(text: unknown): string[] {
     .filter(w => w.length >= 3);
 }
 
+// Returns word stem by stripping trailing plural suffixes (es|s) for words >= 4 chars.
+// Used to match "restaurantes" ↔ "restaurante", "playas" ↔ "playa", etc.
+// Short words (< 4 chars after strip) are returned as-is to avoid over-stemming.
+function stem(w: string): string {
+  if (w.length < 5) return w;
+  if (w.endsWith('es') && w.length > 5) return w.slice(0, -2);
+  if (w.endsWith('s') && w.length > 4) return w.slice(0, -1);
+  return w;
+}
+
+// Checks if a user keyword matches a synonym, using exact match OR stem comparison.
+// Replaces the previous .includes() bidirectional check which caused false positives
+// like "barbacoa".includes("bar") = true → pub recommendations showing for BBQ questions.
+function keywordMatchesSynonym(userKeyword: string, synonym: string): boolean {
+  if (userKeyword === synonym) return true;
+  if (userKeyword.length >= 4 && synonym.length >= 4 && stem(userKeyword) === stem(synonym)) return true;
+  return false;
+}
+
 interface RecommendationCard {
   name: string
   address: string
@@ -544,35 +567,60 @@ interface RecommendationCard {
   mapsUrl: string | null
 }
 
-function detectRelevantRecommendations(userMessage: string, aiResponse: string, zones: any[], language: string): RecommendationCard[] {
+// Patterns that signal the guest is actively looking for a place to go/visit.
+// Without one of these, a keyword match alone is not enough — the guest might just be
+// asking about a property feature (e.g. "¿hay barbacoa?" ≠ "¿dónde hay un asador?").
+const RECOMMENDATION_INTENT_PATTERNS = /\b(d[oó]nde|where|recomiend|suggest|recomend|qu[eé] hay|what.s (there|near|around)|busco|looking for|quiero (ir|comer|cenar|visitar|ver)|me gustar[íi]a|can you (suggest|recommend)|any (good|nice|restaurant|place|bar|beach|cafe|shop)|cerca|near(by)?|al lado|a pie|andando|caminando|walking|qué (restaurante|bar|playa|tienda|museo|sitio)|hay (algún|alguna|algun)|is there (a|any)|are there (any)?|o[ùu] (est|sont|se trouve|trouver|aller)|cherche|je cherche|recommande[rz]?|vous recommande|y a.t.il|il y a|pr[eè]s (de|d'ici)|[àa] (pied|proximit[eé])|en marchant|trouver (un|une|des)|meilleur[es]? (restaurant|bar|plage|caf[eé]|mus[eé]e)|dove (posso|si trova|sono|mangiare|bere|andare)|cerco|vorrei (andare|mangiare|visitare|trovare)|vicino|a piedi|nelle vicinanze|qui vicino|consiglia|mi consiglia|c'[eè] (un|una)|ci sono|miglior[ei]? (ristorante|bar|spiaggia|caf[eè]|museo))\b/i;
+
+function detectRelevantRecommendations(userMessage: string, aiResponse: string, zones: any[], language: string, isUnanswered = false): RecommendationCard[] {
   const cards: RecommendationCard[] = [];
   const userKeywords = new Set(getKeywords(userMessage));
   const userKeywordsArr = [...userKeywords]; // precomputed for bidirectional checks
 
+  // Only apply keyword-based matching when the guest is clearly seeking a recommendation.
+  // Without this guard, property-feature questions ("¿hay barbacoa?", "¿hay jardín?")
+  // would trigger restaurant/park recommendation cards by keyword collision.
+  //
+  // Exception: "qué hay" / "what's there" can refer to property contents ("¿qué hay en
+  // los armarios?") so we cancel intent if the message also contains a property-feature word.
+  const PROPERTY_FEATURE_WORDS = /\b(armario|armarios|caj[oó]n|caj[oó]ns|nevera|frigor[ií]fico|lavadora|secadora|microondas|horno|cafetera|tostadora|plancha|aspiradora|toalla|toallas|s[aá]bana|s[aá]banas|almohada|manta|mantas|enchufe|enchufes|cargador|calefacci[oó]n|aire acondicionado|termo|caldera|cuarto|habitaci[oó]n|ba[nñ]o|cocina|terraza|balc[oó]n|trastero|garaje|taquilla|caja fuerte|safe)\b/i;
+  const hasRecommendationIntent = RECOMMENDATION_INTENT_PATTERNS.test(userMessage)
+    && !PROPERTY_FEATURE_WORDS.test(userMessage);
+
   for (const zone of zones) {
     if (zone.type !== 'RECOMMENDATIONS' || !zone.recommendations?.length) continue;
 
-    const categoryId = zone.recommendationCategory || '';
+    const categoryId = (zone.recommendationCategory || '').toLowerCase();
     const zoneName = String(getLocalizedText(zone.name, language) || '').toLowerCase();
 
     // Check if user is asking about this recommendation category
     let matches = false;
 
-    // Direct category synonym match — bidirectional to handle plurals/variants
-    const synonyms = RECOMMENDATION_SYNONYMS[categoryId] || [];
-    if (synonyms.some(s => userKeywords.has(s) || userKeywordsArr.some(uk => uk.includes(s) || s.includes(uk)))) {
-      matches = true;
-    }
-
-    // Zone name match — bidirectional: "restaurantes" matches zone "Restaurante"
-    if (!matches) {
-      const zoneWords = getKeywords(zoneName);
-      if (zoneWords.some(w => userKeywords.has(w) || userKeywordsArr.some(uk => uk.includes(w) || w.includes(uk)))) {
+    // Keyword-based matching only runs when:
+    // 1. The AI did answer (not unanswered) — prevents showing playas when AI says "no sé"
+    // 2. The message signals recommendation intent — prevents showing grill restaurants
+    //    when the guest asks "¿hay barbacoa en la terraza?" (property feature question)
+    if (!isUnanswered && hasRecommendationIntent) {
+      // Direct category synonym match — uses stem comparison to handle plurals/variants
+      // (e.g. "restaurantes" matches synonym "restaurante") without false positives
+      // from substring matching (e.g. "barbacoa".includes("bar") used to match pub/bar category)
+      const synonyms = RECOMMENDATION_SYNONYMS[categoryId] || [];
+      if (synonyms.some(s => userKeywordsArr.some(uk => keywordMatchesSynonym(uk, s)))) {
         matches = true;
+      }
+
+      // Zone name match — stem-based: "restaurantes" matches zone "Restaurante"
+      if (!matches) {
+        const zoneWords = getKeywords(zoneName);
+        if (zoneWords.some(w => userKeywordsArr.some(uk => keywordMatchesSynonym(uk, w)))) {
+          matches = true;
+        }
       }
     }
 
-    // Check if AI response mentions places from this zone (AI decided to recommend them)
+    // Check if AI response mentions places from this zone (AI decided to recommend them).
+    // This always runs regardless of intent or unanswered state — if the AI named a place,
+    // we always show its card.
     if (!matches) {
       for (const rec of zone.recommendations) {
         if (!rec.place) continue;
@@ -587,7 +635,7 @@ function detectRelevantRecommendations(userMessage: string, aiResponse: string, 
     if (!matches) continue;
 
     // Detect proximity query — user wants places close to the apartment
-    const isNearbyQuery = /cerca|cercan|próxim|proxim|andando|caminando|walking|near\b|close\b|al lado|a pie/i.test(userMessage);
+    const isNearbyQuery = /cerca|cercan|próxim|proxim|andando|caminando|walking|near\b|close\b|al lado|a pie|pr[eè]s (de|d'ici)|[àa] pied|[àa] proximit[eé]|en marchant|vicino|a piedi|nelle vicinanze|qui vicino/i.test(userMessage);
     const NEARBY_MAX_METERS = 1500; // ~18 min walk
 
     // Sort by distance ascending (closest first); unknowns go to the end
@@ -803,10 +851,10 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   // WiFi / internet
   wifi:       ['wifi', 'wi-fi', 'internet', 'password', 'contrasena', 'clave'],
   internet:   ['wifi', 'wi-fi', 'internet', 'password', 'contrasena'],
-  password:   ['wifi', 'wi-fi', 'internet', 'contrasena', 'clave', 'acceso', 'entrada'],
+  password:   ['wifi', 'wi-fi', 'internet', 'contrasena', 'clave'],
   // Check-in / access
   checkin:    ['check', 'entrada', 'acceso', 'llegada', 'llave', 'key', 'door', 'puerta'],
-  checkout:   ['check', 'salida', 'checkout', 'departure', 'leaving', 'leave'],
+  checkout:   ['salida', 'checkout', 'departure', 'leaving', 'leave', 'irse', 'marcharse', 'dejar'],
   key:        ['llave', 'acceso', 'check', 'entrada', 'puerta', 'door', 'lockbox'],
   keys:       ['llave', 'acceso', 'check', 'entrada', 'puerta', 'door'],
   door:       ['puerta', 'acceso', 'entrada', 'llave', 'key', 'check', 'lockbox'],
@@ -814,6 +862,22 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   parking:    ['parking', 'aparcamiento', 'coche', 'garaje', 'car', 'garage'],
   car:        ['parking', 'aparcamiento', 'coche', 'garaje', 'garage'],
   park:       ['parking', 'aparcamiento', 'garaje'],
+  // Kitchen / appliances
+  cocina:         ['vitroceramica', 'vitro', 'cocinar', 'kitchen', 'cooking', 'placa', 'induccion', 'horno', 'oven', 'microondas', 'microwave', 'fuegos'],
+  kitchen:        ['cocina', 'vitroceramica', 'vitro', 'cocinar', 'cooking', 'placa', 'horno', 'oven', 'fuegos'],
+  vitroceramica:  ['cocina', 'vitro', 'placa', 'induccion', 'kitchen', 'cooking', 'fuegos'],
+  vitro:          ['vitroceramica', 'cocina', 'placa', 'induccion', 'kitchen', 'cooking'],
+  induccion:      ['vitroceramica', 'vitro', 'cocina', 'placa', 'kitchen', 'cooking'],
+  placa:          ['vitroceramica', 'vitro', 'cocina', 'induccion', 'kitchen', 'cooking'],
+  horno:          ['cocina', 'kitchen', 'oven', 'cooking', 'cocinar'],
+  oven:           ['horno', 'cocina', 'kitchen', 'cooking'],
+  microondas:     ['cocina', 'kitchen', 'microwave', 'cooking'],
+  microwave:      ['microondas', 'cocina', 'kitchen', 'cooking'],
+  washing:        ['lavadora', 'lavar', 'laundry', 'lavanderia'],
+  lavadora:       ['washing', 'lavar', 'laundry', 'lavanderia', 'machine'],
+  laundry:        ['lavadora', 'lavar', 'lavanderia', 'washing', 'machine'],
+  dishwasher:     ['lavavajillas', 'fregar', 'cocina', 'kitchen'],
+  lavavajillas:   ['dishwasher', 'fregar', 'cocina', 'kitchen'],
   // Spanish equivalents
   direccion:  ['llegar', 'llegada', 'ubicacion', 'location', 'directions', 'get here', 'calle', 'street'],
   contrasena: ['wifi', 'wi-fi', 'internet', 'clave'],
@@ -835,15 +899,26 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
   }
   const words = [...new Set(expandedWords)];
 
-  const ALWAYS_RELEVANT = ['wifi', 'wi-fi', 'check', 'entrada', 'salida', 'llegada', 'acceso'];
+  // Base score for zones that are commonly relevant regardless of query.
+  // 'salida' removed: too broad — "salida de emergencia" shouldn't boost checkout zone.
+  // 'entrada'/'acceso' removed: too broad — WiFi password queries expand to these and
+  // would incorrectly boost check-in zone over WiFi zone.
+  const ALWAYS_RELEVANT = ['wifi', 'wi-fi', 'check', 'llegada'];
 
   const scored = zones.map(zone => {
     const zoneName = normalize(getLocalizedText(zone.name, language) || '');
     let score = 0;
 
-    // Zone name keyword match = high relevance — bidirectional handles plurals
+    // Zone name keyword match = high relevance
+    // Bidirectional only when zone name is long enough (≥4 chars) to avoid
+    // short zone names like "Bar", "Spa", "Mar" matching unrelated queries
+    // e.g. zone "Bar" matching "barrio" or "embarcar" through word.includes(zoneName)
     for (const word of words) {
-      if (zoneName.includes(word) || word.includes(zoneName)) score += 15;
+      if (zoneName.includes(word)) {
+        score += 15;
+      } else if (zoneName.length >= 4 && word.includes(zoneName)) {
+        score += 15;
+      }
     }
 
     // Step content match = medium relevance
@@ -865,11 +940,14 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
     return { zone, score };
   });
 
-  scored.sort((a, b) => b.score - a.score);
+  scored.sort((a, b) => b.score - a.score || (a.zone.order ?? 0) - (b.zone.order ?? 0));
 
-  // Return top 5 zones (up from 3) — short queries after expansion can match more zones
-  // attach _relevanceScore so collectRelevantMedia can filter weak matches
-  return scored.slice(0, 5).map(s => ({ ...s.zone, _relevanceScore: s.score }));
+  // Return top 5 zones — attach _relevanceScore so collectRelevantMedia can filter weak matches.
+  // If any zone scored > 0, drop score-0 zones to avoid sending unrelated context to the AI.
+  // If ALL zones scored 0 (totally generic query), keep them all so AI at least has something.
+  const hasAnyMatch = scored[0]?.score > 0;
+  const filtered = hasAnyMatch ? scored.filter(s => s.score > 0) : scored;
+  return filtered.slice(0, 5).map(s => ({ ...s.zone, _relevanceScore: s.score }));
 }
 
 // ========================================

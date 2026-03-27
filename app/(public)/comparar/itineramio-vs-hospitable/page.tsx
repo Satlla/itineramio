@@ -28,6 +28,9 @@ export const metadata: Metadata = {
     'software gestión airbnb',
     'hospitable precios'
   ],
+  alternates: {
+    canonical: 'https://www.itineramio.com/comparar/itineramio-vs-hospitable',
+  },
   openGraph: {
     title: 'Itineramio vs Hospitable: Comparativa 2025',
     description: 'PMS completo vs Especialista en manuales digitales. Descubre cuál es mejor para ti.',

@@ -16,6 +16,10 @@
         "title": "Réservations",
         "description": "Importer et gérer"
       },
+      "calendario": {
+        "title": "Calendrier",
+        "description": "Arrivées et départs"
+      },
       "settlements": {
         "title": "Règlements",
         "description": "Paiements aux propriétaires"
