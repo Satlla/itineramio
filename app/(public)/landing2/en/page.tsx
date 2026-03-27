@@ -1119,14 +1119,28 @@ export default function Landing2En() {
               <p className="text-[#aaa] text-sm leading-relaxed">Digital guides and AI chatbot for hosts with 6 or more properties in Spain.</p>
             </div>
             {[
-              { title:'Product',   links:['Features','Pricing','Demo','Integrations'] },
-              { title:'Resources', links:['Blog','Getting started','FAQ','Contact'] },
-              { title:'Legal',     links:['Privacy','Terms','Cookies'] },
+              { title:'Product', links:[
+                { label:'Features',     href:'/en/features' },
+                { label:'Pricing',      href:'/en/#pricing' },
+                { label:'Demo',         href:'/demo' },
+                { label:'Integrations', href:'/en/features#integrations' },
+              ]},
+              { title:'Resources', links:[
+                { label:'Blog',            href:'/blog' },
+                { label:'Getting started', href:'/bienvenido' },
+                { label:'FAQ',             href:'/faq' },
+                { label:'Contact',         href:'mailto:hola@itineramio.com' },
+              ]},
+              { title:'Legal', links:[
+                { label:'Privacy', href:'/legal/privacy' },
+                { label:'Terms',   href:'/legal/terms' },
+                { label:'Cookies', href:'/legal/cookies' },
+              ]},
             ].map(col => (
               <div key={col.title}>
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-[#111] mb-5">{col.title}</p>
                 <ul className="space-y-3">
-                  {col.links.map(item => <li key={item}><Link href="#" className="text-[#aaa] text-sm hover:text-[#111] transition-colors">{item}</Link></li>)}
+                  {col.links.map(item => <li key={item.label}><Link href={item.href} className="text-[#aaa] text-sm hover:text-[#111] transition-colors">{item.label}</Link></li>)}
                 </ul>
               </div>
             ))}

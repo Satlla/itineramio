@@ -1124,14 +1124,28 @@ export default function Landing2() {
               <p className="text-[#aaa] text-sm leading-relaxed">Guías digitales y chatbot IA para anfitriones con 6 o más propiedades en España.</p>
             </div>
             {[
-              { title:'Producto', links:['Funcionalidades','Precios','Demo','Integraciones'] },
-              { title:'Recursos', links:['Blog','Guía de inicio','FAQ','Contacto'] },
-              { title:'Legal',    links:['Privacidad','Términos','Cookies'] },
+              { title:'Producto', links:[
+                { label:'Funcionalidades', href:'/funcionalidades' },
+                { label:'Precios',         href:'/#pricing' },
+                { label:'Demo',            href:'/demo' },
+                { label:'Integraciones',   href:'/funcionalidades#integraciones' },
+              ]},
+              { title:'Recursos', links:[
+                { label:'Blog',           href:'/blog' },
+                { label:'Guía de inicio', href:'/bienvenido' },
+                { label:'FAQ',            href:'/faq' },
+                { label:'Contacto',       href:'mailto:hola@itineramio.com' },
+              ]},
+              { title:'Legal', links:[
+                { label:'Privacidad', href:'/legal/privacy' },
+                { label:'Términos',   href:'/legal/terms' },
+                { label:'Cookies',    href:'/legal/cookies' },
+              ]},
             ].map(col => (
               <div key={col.title}>
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-[#111] mb-5">{col.title}</p>
                 <ul className="space-y-3">
-                  {col.links.map(item => <li key={item}><Link href="#" className="text-[#aaa] text-sm hover:text-[#111] transition-colors">{item}</Link></li>)}
+                  {col.links.map(item => <li key={item.label}><Link href={item.href} className="text-[#aaa] text-sm hover:text-[#111] transition-colors">{item.label}</Link></li>)}
                 </ul>
               </div>
             ))}
