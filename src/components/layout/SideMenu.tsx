@@ -68,13 +68,13 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
       description: t('sidebar.setsDesc'),
       mobileOnly: true
     },
-    {
+    ...(user?.email === 'alejandrosatlla@gmail.com' ? [{
       icon: <CalendarDays className="w-5 h-5" />,
       label: 'Calendario',
       href: "/calendario",
       description: 'Check-ins y check-outs por iCal',
       mobileOnly: true
-    },
+    }] : []),
     {
       icon: <Briefcase className="w-5 h-5" />,
       label: t('sidebar.gestion'),

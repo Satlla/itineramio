@@ -53,12 +53,13 @@ export class ICalParser {
   /**
    * Fetch and parse iCal from URL
    */
-  static async fetchAndParseICal(url: string, source: 'AIRBNB' | 'BOOKING' | 'VRBO' | 'OTHER' = 'OTHER'): Promise<ParsedReservation[]> {
+  static async fetchAndParseICal(url: string, source: 'AIRBNB' | 'BOOKING' | 'VRBO' | 'OTHER' = 'OTHER', signal?: AbortSignal): Promise<ParsedReservation[]> {
     try {
       const response = await fetch(url, {
         headers: {
           'User-Agent': 'Itineramio Calendar Sync/1.0'
-        }
+        },
+        signal
       })
       
       if (!response.ok) {
