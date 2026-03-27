@@ -15,7 +15,11 @@ import {
   ChevronRight,
   Trash2,
   CheckCircle,
-  Send
+  Send,
+  Brain,
+  Pencil,
+  Check,
+  Sparkles
 } from 'lucide-react'
 import { Button } from '../../../../../src/components/ui/Button'
 import { Card, CardContent } from '../../../../../src/components/ui/Card'
@@ -58,7 +62,7 @@ interface Stats {
   last30Days: number
 }
 
-type Tab = 'conversations' | 'unanswered' | 'guests' | 'summary'
+type Tab = 'conversations' | 'unanswered' | 'intelligence' | 'guests' | 'summary'
 
 export default function ChatbotDashboardPage() {
   const router = useRouter()
@@ -72,6 +76,7 @@ export default function ChatbotDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [propertyName, setPropertyName] = useState('')
   const [activeTab, setActiveTab] = useState<Tab>('conversations')
+  const [customQA, setCustomQA] = useState<{ question: string; answer: string; addedAt: string; updatedAt?: string }[]>([])
 
   // Open unanswered tab automatically if URL has ?tab=unanswered
   useEffect(() => {
@@ -111,7 +116,16 @@ export default function ChatbotDashboardPage() {
   useEffect(() => {
     fetchData()
     fetchPropertyInfo()
+    fetchCustomQA()
   }, [propertyId])
+
+  const fetchCustomQA = async () => {
+    try {
+      const res = await fetch(`/api/properties/${propertyId}/chatbot-qa`, { credentials: 'include' })
+      const result = await res.json()
+      if (result.ok) setCustomQA(result.data)
+    } catch {}
+  }
 
   const fetchPropertyInfo = async () => {
     try {
@@ -194,6 +208,7 @@ export default function ChatbotDashboardPage() {
   const tabs: { key: Tab; label: string; count?: number }[] = [
     { key: 'conversations', label: t('chatbot.tabs.conversations', 'Conversaciones'), count: stats?.totalConversations },
     { key: 'unanswered', label: t('chatbot.tabs.unanswered', 'Sin respuesta'), count: stats?.totalUnanswered },
+    { key: 'intelligence', label: 'Inteligencia', count: customQA.length },
     { key: 'guests', label: t('chatbot.tabs.guests', 'Huéspedes'), count: stats?.capturedGuests },
     { key: 'summary', label: t('chatbot.tabs.summary', 'Resumen') }
   ]
@@ -319,8 +334,18 @@ export default function ChatbotDashboardPage() {
             const conv = conversations.find(c => c.id === id)
             if (conv) setSelectedConversation(conv)
           }}
+          onAnswerSaved={() => { fetchCustomQA(); setActiveTab('intelligence') }}
           formatDate={formatDate}
           t={t}
+        />
+      )}
+
+      {activeTab === 'intelligence' && (
+        <IntelligenceTab
+          propertyId={propertyId}
+          propertyName={propertyName}
+          items={customQA}
+          onRefresh={fetchCustomQA}
         />
       )}
 
@@ -457,12 +482,14 @@ function UnansweredTab({
   items,
   propertyId,
   onViewConversation,
+  onAnswerSaved,
   formatDate,
   t
 }: {
   items: { question: string; conversationId: string; guestName: string | null; guestEmail: string | null; date: string; language: string }[]
   propertyId: string
   onViewConversation: (id: string) => void
+  onAnswerSaved: () => void
   formatDate: (d: string) => string
   t: any
 }) {
@@ -481,6 +508,8 @@ function UnansweredTab({
         body: JSON.stringify({ question, answer })
       })
       setSaved(s => ({ ...s, [idx]: true }))
+      // After 2s redirect to intelligence tab
+      setTimeout(() => onAnswerSaved(), 2000)
     } finally {
       setSaving(s => ({ ...s, [idx]: false }))
     }
@@ -489,7 +518,7 @@ function UnansweredTab({
   if (items.length === 0) {
     return (
       <Card className="p-8 text-center">
-        <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+        <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
           {t('chatbot.empty.unanswered', 'Sin preguntas sin respuesta')}
         </h3>
@@ -502,7 +531,9 @@ function UnansweredTab({
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-gray-500 mb-1">Añade una respuesta y el chatbot la usará automáticamente en futuras preguntas similares.</p>
+      <p className="text-sm text-gray-500 mb-1">
+        Preguntas que los huéspedes hicieron y el chatbot no supo responder. Añade la respuesta y se guardará en la inteligencia de este apartamento.
+      </p>
       {items.map((item, idx) => {
         const guestDisplay = item.guestName || item.guestEmail || t('chatbot.anonymous', 'Anónimo')
         return (
@@ -529,35 +560,211 @@ function UnansweredTab({
                     {t('chatbot.viewConversation', 'Ver conversación')}
                   </button>
                 </div>
-                {saved[idx] ? (
-                  <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
-                    <CheckCircle className="w-4 h-4" />
-                    Respuesta guardada — el chatbot ya la usará
-                  </div>
-                ) : (
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={answers[idx] || ''}
-                      onChange={e => setAnswers(a => ({ ...a, [idx]: e.target.value }))}
-                      onKeyDown={e => e.key === 'Enter' && handleSave(idx, item.question)}
-                      placeholder="Escribe la respuesta para el chatbot..."
-                      className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-violet-400"
-                    />
-                    <button
-                      onClick={() => handleSave(idx, item.question)}
-                      disabled={!answers[idx]?.trim() || saving[idx]}
-                      className="px-3 py-2 bg-violet-600 text-white rounded-lg disabled:opacity-40 hover:bg-violet-700 transition-colors"
+                <AnimatePresence mode="wait">
+                  {saved[idx] ? (
+                    <motion.div
+                      key="saved"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="flex items-center gap-2 bg-violet-50 border border-violet-200 rounded-lg px-3 py-2"
                     >
-                      <Send className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
+                      <Brain className="w-4 h-4 text-violet-600 flex-shrink-0" />
+                      <span className="text-sm text-violet-700 font-medium">Añadida a inteligencia — yendo a la sección...</span>
+                    </motion.div>
+                  ) : (
+                    <motion.div key="input" className="flex gap-2">
+                      <input
+                        type="text"
+                        value={answers[idx] || ''}
+                        onChange={e => setAnswers(a => ({ ...a, [idx]: e.target.value }))}
+                        onKeyDown={e => e.key === 'Enter' && handleSave(idx, item.question)}
+                        placeholder="Escribe la respuesta para el chatbot..."
+                        className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-violet-400"
+                      />
+                      <button
+                        onClick={() => handleSave(idx, item.question)}
+                        disabled={!answers[idx]?.trim() || saving[idx]}
+                        className="px-3 py-2 bg-violet-600 text-white rounded-lg disabled:opacity-40 hover:bg-violet-700 transition-colors"
+                      >
+                        <Send className="w-4 h-4" />
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </CardContent>
             </Card>
           </motion.div>
         )
       })}
+    </div>
+  )
+}
+
+// ─── Tab: Intelligence ───────────────────────────────────────────────────
+
+function IntelligenceTab({
+  propertyId,
+  propertyName,
+  items,
+  onRefresh
+}: {
+  propertyId: string
+  propertyName: string
+  items: { question: string; answer: string; addedAt: string; updatedAt?: string }[]
+  onRefresh: () => void
+}) {
+  const [editingIdx, setEditingIdx] = useState<number | null>(null)
+  const [editAnswer, setEditAnswer] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState<number | null>(null)
+
+  const handleEdit = (idx: number) => {
+    setEditingIdx(idx)
+    setEditAnswer(items[idx].answer)
+  }
+
+  const handleSaveEdit = async (idx: number) => {
+    if (!editAnswer.trim()) return
+    setSaving(true)
+    try {
+      await fetch(`/api/properties/${propertyId}/chatbot-qa`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ originalQuestion: items[idx].question, answer: editAnswer.trim() })
+      })
+      setEditingIdx(null)
+      onRefresh()
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDelete = async (idx: number) => {
+    setDeleting(idx)
+    try {
+      await fetch(`/api/properties/${propertyId}/chatbot-qa`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: items[idx].question })
+      })
+      onRefresh()
+    } finally {
+      setDeleting(null)
+    }
+  }
+
+  if (items.length === 0) {
+    return (
+      <Card className="p-10 text-center border-dashed">
+        <Brain className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Sin inteligencia personalizada aún</h3>
+        <p className="text-gray-500 text-sm max-w-sm mx-auto">
+          Cuando respondas preguntas del tab &ldquo;Sin respuesta&rdquo;, se guardarán aquí. El chatbot las usará con prioridad máxima.
+        </p>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="bg-violet-50 border border-violet-200 rounded-xl p-4 flex items-start gap-3">
+        <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <Sparkles className="w-4 h-4 text-violet-600" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-violet-900">
+            Inteligencia de {propertyName || 'este apartamento'}
+          </p>
+          <p className="text-xs text-violet-700 mt-0.5">
+            {items.length} {items.length === 1 ? 'respuesta personalizada' : 'respuestas personalizadas'} — el chatbot las usa con prioridad máxima sobre cualquier otra fuente
+          </p>
+        </div>
+      </div>
+
+      {/* Q&A list */}
+      <div className="space-y-3">
+        {items.map((item, idx) => (
+          <motion.div
+            key={item.question + idx}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2, delay: idx * 0.04 }}
+          >
+            <Card className="border border-black/[0.06] hover:shadow-sm transition-shadow">
+              <CardContent className="p-4 space-y-3">
+                {/* Question */}
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-[13px] text-gray-500 font-medium leading-snug">
+                    P: &ldquo;{item.question}&rdquo;
+                  </p>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {editingIdx !== idx && (
+                      <>
+                        <button
+                          onClick={() => handleEdit(idx)}
+                          className="p-1.5 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
+                          title="Editar respuesta"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(idx)}
+                          disabled={deleting === idx}
+                          className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Answer */}
+                {editingIdx === idx ? (
+                  <div className="space-y-2">
+                    <textarea
+                      value={editAnswer}
+                      onChange={e => setEditAnswer(e.target.value)}
+                      rows={3}
+                      className="w-full text-sm border border-violet-300 rounded-lg px-3 py-2 outline-none focus:border-violet-500 resize-none"
+                      autoFocus
+                    />
+                    <div className="flex gap-2 justify-end">
+                      <button
+                        onClick={() => setEditingIdx(null)}
+                        className="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        onClick={() => handleSaveEdit(idx)}
+                        disabled={!editAnswer.trim() || saving}
+                        className="px-3 py-1.5 text-xs bg-violet-600 text-white rounded-lg hover:bg-violet-700 disabled:opacity-40 transition-colors flex items-center gap-1.5"
+                      >
+                        <Check className="w-3 h-3" />
+                        Guardar
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 rounded-lg px-3 py-2">
+                    <p className="text-sm text-gray-800 leading-relaxed">R: {item.answer}</p>
+                  </div>
+                )}
+
+                {/* Meta */}
+                <p className="text-[11px] text-gray-400">
+                  Añadida {new Date(item.addedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  {item.updatedAt && ' · editada'}
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
     </div>
   )
 }

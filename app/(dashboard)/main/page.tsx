@@ -606,7 +606,7 @@ export default function DashboardPage(): JSX.Element {
               className="mb-4 sm:mb-5"
             >
               <Link
-                href="/gestion/check-ins-hoy"
+                href="/check-ins-hoy"
                 className="flex items-center justify-between bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl px-4 py-3.5 hover:shadow-md transition-all group"
               >
                 <div className="flex items-center gap-3">

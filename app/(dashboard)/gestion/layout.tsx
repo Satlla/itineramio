@@ -68,12 +68,6 @@ const navCategories: NavCategory[] = [
         badgeKey: 'unliquidatedReservations'
       },
       {
-        href: '/gestion/calendario',
-        labelKey: 'nav.items.calendario.title',
-        icon: <CalendarDays className="w-5 h-5" />,
-        descriptionKey: 'nav.items.calendario.description'
-      },
-      {
         href: '/gestion/liquidaciones',
         labelKey: 'nav.items.settlements.title',
         icon: <Receipt className="w-5 h-5" />,

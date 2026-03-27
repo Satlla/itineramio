@@ -19,7 +19,8 @@ import {
   Layers,
   Image,
   Briefcase,
-  Map
+  Map,
+  CalendarDays
 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
@@ -65,6 +66,13 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
       label: t('sidebar.sets'),
       href: "/properties?tab=sets",
       description: t('sidebar.setsDesc'),
+      mobileOnly: true
+    },
+    {
+      icon: <CalendarDays className="w-5 h-5" />,
+      label: 'Calendario',
+      href: "/calendario",
+      description: 'Check-ins y check-outs por iCal',
       mobileOnly: true
     },
     {
