@@ -1,5 +1,14 @@
 import React from 'react'
 import {
+  WashingMachineIcon,
+  BoilerIcon,
+  RangeHoodIcon,
+  CeramicHobIcon,
+  GasBurnerIcon,
+  ToiletIcon,
+  SmartLockIcon,
+} from '@/components/ui/icons/CustomHomeIcons'
+import {
   // Kitchen
   ChefHat,
   Utensils,
@@ -287,7 +296,21 @@ export const ZONE_ICONS: ZoneIcon[] = [
   {
     id: 'cooktop',
     name: 'Vitrocerámica',
-    icon: Flame,
+    icon: CeramicHobIcon,
+    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    color: 'text-orange-600'
+  },
+  {
+    id: 'gas-burner',
+    name: 'Fogones de gas',
+    icon: GasBurnerIcon,
+    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
+    color: 'text-orange-600'
+  },
+  {
+    id: 'range-hood',
+    name: 'Campana extractora',
+    icon: RangeHoodIcon,
     category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
     color: 'text-orange-600'
   },
@@ -360,8 +383,8 @@ export const ZONE_ICONS: ZoneIcon[] = [
   },
   {
     id: 'toilet',
-    name: 'Inodoro',
-    icon: Bath, // Using Bath as placeholder for toilet
+    name: 'WC / Inodoro',
+    icon: ToiletIcon,
     category: { id: 'bathroom', name: 'Baño', color: 'bg-teal-100 text-teal-800 border-teal-200' },
     color: 'text-teal-600'
   },
@@ -447,6 +470,13 @@ export const ZONE_ICONS: ZoneIcon[] = [
     color: 'text-red-600'
   },
   {
+    id: 'smart-lock',
+    name: 'Cerradura electrónica',
+    icon: SmartLockIcon,
+    category: { id: 'access', name: 'Acceso y seguridad', color: 'bg-red-100 text-red-800 border-red-200' },
+    color: 'text-red-600'
+  },
+  {
     id: 'lock',
     name: 'Caja fuerte',
     icon: Lock,
@@ -509,7 +539,14 @@ export const ZONE_ICONS: ZoneIcon[] = [
   {
     id: 'washing',
     name: 'Lavadora',
-    icon: Washing,
+    icon: WashingMachineIcon,
+    category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+    color: 'text-yellow-600'
+  },
+  {
+    id: 'boiler',
+    name: 'Caldera',
+    icon: BoilerIcon,
     category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
     color: 'text-yellow-600'
   },

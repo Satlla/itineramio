@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
-import { ArrowRight, ChevronDown, ChevronLeft, Wifi, DoorOpen, MessageCircle, X, Bot, Car, FileText, UtensilsCrossed, Check, LogOut, XCircle, CheckCircle2, LogIn, Flame, ClipboardList, Wind, Shirt, Microwave, Compass, Coffee } from 'lucide-react'
+import { ArrowRight, ChevronDown, ChevronLeft, Wifi, DoorOpen, MessageCircle, X, Bot, Car, FileText, UtensilsCrossed, Check, LogOut, XCircle, CheckCircle2, LogIn, Flame, ClipboardList, Wind, Microwave, Compass, Coffee } from 'lucide-react'
+import { WashingMachineIcon, CeramicHobIcon } from '@/components/ui/icons/CustomHomeIcons'
 import { Inter, Manrope } from 'next/font/google'
 
 const inter   = Inter({ subsets: ['latin'], display: 'swap' })
@@ -331,8 +332,8 @@ const ALL_ZONE_SETS_EN = [
     { label:'A/C',         icon:<Wind className="w-4 h-4"/> },
   ],
   [
-    { label:'Cooktop',      icon:<Flame className="w-4 h-4"/> },
-    { label:'Washer',       icon:<Shirt className="w-4 h-4"/> },
+    { label:'Cooktop',      icon:<CeramicHobIcon className="w-4 h-4"/> },
+    { label:'Washer',       icon:<WashingMachineIcon className="w-4 h-4"/> },
     { label:'Microwave',    icon:<Microwave className="w-4 h-4"/> },
     { label:'Restaurants',  icon:<UtensilsCrossed className="w-4 h-4"/> },
     { label:'What to See',  icon:<Compass className="w-4 h-4"/> },
