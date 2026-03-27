@@ -39,7 +39,10 @@ export function IconSelector({ selectedIconId, onSelect, onClose, className }: I
     { id: 'access', name: 'Acceso', color: 'bg-red-100 text-red-800 border-red-200' },
     { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' },
     { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-    { id: 'general', name: 'General', color: 'bg-gray-100 text-gray-800 border-gray-200' }
+    { id: 'general', name: 'General', color: 'bg-gray-100 text-gray-800 border-gray-200' },
+    { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' },
+    { id: 'safety', name: 'Seguridad y normas', color: 'bg-rose-100 text-rose-800 border-rose-200' },
+    { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }
   ]
 
   return (

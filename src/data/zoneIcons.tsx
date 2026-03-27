@@ -7,6 +7,15 @@ import {
   GasBurnerIcon,
   ToiletIcon,
   SmartLockIcon,
+  CeilingFanIcon,
+  JacuzziIcon,
+  HotTubIcon,
+  LockerIcon,
+  VaultIcon,
+  OvenIcon,
+  DryerIcon,
+  IronIcon,
+  HammockIcon,
 } from '@/components/ui/icons/CustomHomeIcons'
 import {
   // Kitchen
@@ -180,6 +189,48 @@ import {
   Satellite,
   HardDrive,
   Mailbox,
+  // New imports — expansión masiva de iconos
+  LockKeyhole,
+  KeySquare,
+  LampCeiling,
+  LampDesk,
+  LampFloor,
+  GlassWater,
+  RockingChair,
+  VolumeX,
+  CigaretteOff,
+  Siren,
+  LifeBuoy,
+  HeartPulse,
+  Stethoscope,
+  ShieldAlert,
+  ShieldCheck,
+  ListChecks,
+  ScrollText,
+  ParkingMeter,
+  Scale,
+  Coins,
+  PiggyBank,
+  Ticket,
+  Percent,
+  Paintbrush,
+  Paintbrush2,
+  UserCheck,
+  UsersRound,
+  PersonStanding,
+  Newspaper,
+  SlidersHorizontal,
+  Cable,
+  AlarmCheck,
+  AlarmClockOff,
+  FileCheck,
+  AlertOctagon,
+  Accessibility,
+  Landmark,
+  Cigarette,
+  DoorClosed,
+  Disc2,
+  Hotel,
 } from 'lucide-react'
 import { ZoneIcon } from '@/types/zones'
 
@@ -194,13 +245,10 @@ const Desk = Archive
 const Candle = Flame
 const Flashlight = Lightbulb
 const AlarmClock = Clock
-const Stethoscope = Heart
 const Pill = Circle
 const Table = Archive
 const Joystick = Gamepad2
 const Library = Book
-const Newspaper = FileText
-const Accessibility = Users
 const Palmtree = TreePine
 const PalmTree = TreePine
 const Cactus = Flower2
@@ -223,21 +271,17 @@ const Suitcase = Briefcase
 const Passport = FileText
 const PhotoCamera = Camera
 const ParkingCircle = Circle
-const Hotel = Building
 const Beach = Umbrella
 const Door = DoorOpen
-const DoorClosed = DoorOpen
 const Window = Package
 const Balcony = Package
 const Stairs = Package
 const Elevator = Package
 const CoffeeCup = Coffee
-const Oven = Package
 const Dishwasher = Sparkles
 const Freezer = Snowflake
 const Heater = Flame
 const AirVent = Wind
-const Iron = Package
 const Safe = Lock
 const AccessCard = CreditCard
 const Taxi = Car
@@ -1274,7 +1318,7 @@ export const ZONE_ICONS: ZoneIcon[] = [
   {
     id: 'appliance-oven',
     name: 'Horno',
-    icon: Oven,
+    icon: OvenIcon,
     category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
     color: 'text-orange-600'
   },
@@ -1316,7 +1360,7 @@ export const ZONE_ICONS: ZoneIcon[] = [
   {
     id: 'appliance-iron',
     name: 'Plancha',
-    icon: Iron,
+    icon: IronIcon,
     category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
     color: 'text-yellow-600'
   },
@@ -1383,7 +1427,7 @@ export const ZONE_ICONS: ZoneIcon[] = [
   {
     id: 'horno',
     name: 'Horno',
-    icon: Oven,
+    icon: OvenIcon,
     category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' },
     color: 'text-orange-600'
   },
@@ -1718,4 +1762,221 @@ export const ZONE_ICONS: ZoneIcon[] = [
     category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' },
     color: 'text-green-600'
   },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE A — Fix templates: IDs usados en zoneTemplates sin entrada propia
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'door-exit',     name: 'Salida / Check-out',       icon: DoorClosed,      category: { id: 'access',   name: 'Acceso',    color: 'bg-red-100 text-red-800 border-red-200' },       color: 'text-red-600' },
+  { id: 'navigation',    name: 'Cómo llegar',              icon: Navigation,      category: { id: 'travel',   name: 'Viajes',    color: 'bg-sky-100 text-sky-800 border-sky-200' },        color: 'text-sky-600' },
+  { id: 'washing-machine', name: 'Lavadora',               icon: WashingMachineIcon, category: { id: 'cleaning', name: 'Limpieza',  color: 'bg-lime-100 text-lime-800 border-lime-200' },  color: 'text-lime-600' },
+  { id: 'oven',          name: 'Horno',                    icon: OvenIcon,        category: { id: 'kitchen',  name: 'Cocina',    color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'rules',         name: 'Normas',                   icon: ScrollText,      category: { id: 'safety',   name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' },     color: 'text-rose-600' },
+  { id: 'volume-off',    name: 'Horario de silencio',      icon: VolumeX,         category: { id: 'safety',   name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' },     color: 'text-rose-600' },
+  { id: 'smoking',       name: 'Política de fumadores',    icon: Cigarette,       category: { id: 'safety',   name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' },     color: 'text-rose-600' },
+  { id: 'pet',           name: 'Mascotas',                 icon: PawPrint,        category: { id: 'safety',   name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' },     color: 'text-rose-600' },
+  { id: 'recycle',       name: 'Reciclaje',                icon: Recycle,         category: { id: 'cleaning', name: 'Limpieza',  color: 'bg-lime-100 text-lime-800 border-lime-200' },     color: 'text-lime-600' },
+  { id: 'shopping-cart', name: 'Supermercado',             icon: ShoppingCart,    category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'restaurant',    name: 'Restaurantes',             icon: UtensilsCrossed, category: { id: 'kitchen',  name: 'Cocina',    color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'medical',       name: 'Salud / Médico',           icon: Stethoscope,     category: { id: 'safety',   name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' },     color: 'text-rose-600' },
+  { id: 'landmark',      name: 'Lugares de interés',       icon: Landmark,        category: { id: 'travel',   name: 'Viajes',    color: 'bg-sky-100 text-sky-800 border-sky-200' },        color: 'text-sky-600' },
+  { id: 'ticket',        name: 'Transporte / Tickets',     icon: Ticket,          category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'piggy-bank',    name: 'Ahorro / Presupuesto',     icon: PiggyBank,       category: { id: 'general',  name: 'General',   color: 'bg-gray-100 text-gray-800 border-gray-200' },      color: 'text-gray-600' },
+  { id: 'discount',      name: 'Descuentos / Ofertas',     icon: Percent,         category: { id: 'general',  name: 'General',   color: 'bg-gray-100 text-gray-800 border-gray-200' },      color: 'text-gray-600' },
+  { id: 'emergency',     name: 'Emergencias',              icon: Siren,           category: { id: 'safety',   name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' },     color: 'text-rose-600' },
+  { id: 'first-aid',     name: 'Botiquín',                 icon: HeartPulse,      category: { id: 'safety',   name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' },     color: 'text-rose-600' },
+  { id: 'electrical',    name: 'Cuadro eléctrico',         icon: PlugZap,         category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'water-off',     name: 'Llave de paso',            icon: Droplets,        category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE B — Cocina ampliada
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'kitchen-scale',   name: 'Báscula cocina',    icon: Scale,       category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'kitchen-timer',   name: 'Temporizador',      icon: Timer,       category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'kitchen-kettle',  name: 'Hervidor',          icon: GlassWater,  category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'kitchen-blender', name: 'Batidora / Licuadora', icon: Wind,     category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'kitchen-storage', name: 'Despensa / Almacén', icon: Archive,    category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'kitchen-bar',     name: 'Barra americana',   icon: Wine,        category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'kitchen-toaster', name: 'Tostadora',         icon: Flame,       category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+  { id: 'kitchen-water',   name: 'Agua / Hidratación', icon: GlassWater, category: { id: 'kitchen', name: 'Cocina', color: 'bg-orange-100 text-orange-800 border-orange-200' }, color: 'text-orange-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE C — Baño ampliado
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'bathroom-mirror',   name: 'Espejo',            icon: SlidersHorizontal, category: { id: 'bathroom', name: 'Baño', color: 'bg-teal-100 text-teal-800 border-teal-200' }, color: 'text-teal-600' },
+  { id: 'bathroom-towels',   name: 'Toallas',           icon: Droplets,          category: { id: 'bathroom', name: 'Baño', color: 'bg-teal-100 text-teal-800 border-teal-200' }, color: 'text-teal-600' },
+  { id: 'bathroom-hairdryer', name: 'Secador de pelo',  icon: Wind,              category: { id: 'bathroom', name: 'Baño', color: 'bg-teal-100 text-teal-800 border-teal-200' }, color: 'text-teal-600' },
+  { id: 'bathroom-soap',     name: 'Jabón / Amenities', icon: Sparkles,          category: { id: 'bathroom', name: 'Baño', color: 'bg-teal-100 text-teal-800 border-teal-200' }, color: 'text-teal-600' },
+  { id: 'bathroom-scales',   name: 'Báscula baño',      icon: Scale,             category: { id: 'bathroom', name: 'Baño', color: 'bg-teal-100 text-teal-800 border-teal-200' }, color: 'text-teal-600' },
+  { id: 'bathroom-jacuzzi',  name: 'Jacuzzi',           icon: JacuzziIcon,       category: { id: 'bathroom', name: 'Baño', color: 'bg-teal-100 text-teal-800 border-teal-200' }, color: 'text-teal-600' },
+  { id: 'bathroom-sauna',    name: 'Sauna',             icon: Thermometer,       category: { id: 'bathroom', name: 'Baño', color: 'bg-teal-100 text-teal-800 border-teal-200' }, color: 'text-teal-600' },
+  { id: 'bathroom-hamam',    name: 'Hammam / Baño turco', icon: Cloud,           category: { id: 'bathroom', name: 'Baño', color: 'bg-teal-100 text-teal-800 border-teal-200' }, color: 'text-teal-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE D — Dormitorio ampliado
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'bedroom-safe',         name: 'Caja fuerte',            icon: LockKeyhole,   category: { id: 'bedroom', name: 'Dormitorio', color: 'bg-blue-100 text-blue-800 border-blue-200' }, color: 'text-blue-600' },
+  { id: 'bedroom-locker',       name: 'Taquilla / Locker',      icon: LockerIcon,    category: { id: 'bedroom', name: 'Dormitorio', color: 'bg-blue-100 text-blue-800 border-blue-200' }, color: 'text-blue-600' },
+  { id: 'bedroom-ceiling-fan',  name: 'Ventilador de techo',    icon: CeilingFanIcon, category: { id: 'bedroom', name: 'Dormitorio', color: 'bg-blue-100 text-blue-800 border-blue-200' }, color: 'text-blue-600' },
+  { id: 'bedroom-reading-lamp', name: 'Lámpara de lectura',     icon: LampDesk,      category: { id: 'bedroom', name: 'Dormitorio', color: 'bg-blue-100 text-blue-800 border-blue-200' }, color: 'text-blue-600' },
+  { id: 'bedroom-floor-lamp',   name: 'Lámpara de pie',         icon: LampFloor,     category: { id: 'bedroom', name: 'Dormitorio', color: 'bg-blue-100 text-blue-800 border-blue-200' }, color: 'text-blue-600' },
+  { id: 'bedroom-ceiling-lamp', name: 'Lámpara de techo',       icon: LampCeiling,   category: { id: 'bedroom', name: 'Dormitorio', color: 'bg-blue-100 text-blue-800 border-blue-200' }, color: 'text-blue-600' },
+  { id: 'bedroom-blackout',     name: 'Persianas / Blackout',   icon: Blinds,        category: { id: 'bedroom', name: 'Dormitorio', color: 'bg-blue-100 text-blue-800 border-blue-200' }, color: 'text-blue-600' },
+  { id: 'bedroom-ac',           name: 'Aire acond. habitación', icon: Wind,          category: { id: 'bedroom', name: 'Dormitorio', color: 'bg-blue-100 text-blue-800 border-blue-200' }, color: 'text-blue-600' },
+  { id: 'bedroom-crib',         name: 'Cuna / Bebé',            icon: Baby,          category: { id: 'bedroom', name: 'Dormitorio', color: 'bg-blue-100 text-blue-800 border-blue-200' }, color: 'text-blue-600' },
+  { id: 'bedroom-wardrobe',     name: 'Armario empotrado',      icon: Shirt,         category: { id: 'bedroom', name: 'Dormitorio', color: 'bg-blue-100 text-blue-800 border-blue-200' }, color: 'text-blue-600' },
+  { id: 'bedroom-mirror',       name: 'Espejo habitación',      icon: Album,         category: { id: 'bedroom', name: 'Dormitorio', color: 'bg-blue-100 text-blue-800 border-blue-200' }, color: 'text-blue-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE E — Salón ampliado
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'living-fireplace',     name: 'Chimenea',              icon: Flame,         category: { id: 'living', name: 'Salón', color: 'bg-purple-100 text-purple-800 border-purple-200' }, color: 'text-purple-600' },
+  { id: 'living-speakers',      name: 'Altavoces / Sonido',   icon: Volume2,        category: { id: 'living', name: 'Salón', color: 'bg-purple-100 text-purple-800 border-purple-200' }, color: 'text-purple-600' },
+  { id: 'living-rocking-chair', name: 'Mecedora / Sillón',    icon: RockingChair,   category: { id: 'living', name: 'Salón', color: 'bg-purple-100 text-purple-800 border-purple-200' }, color: 'text-purple-600' },
+  { id: 'living-bar',           name: 'Bar / Minibar',        icon: Wine,           category: { id: 'living', name: 'Salón', color: 'bg-purple-100 text-purple-800 border-purple-200' }, color: 'text-purple-600' },
+  { id: 'living-vinyl',         name: 'Tocadiscos / Vinilo',  icon: Disc2,          category: { id: 'living', name: 'Salón', color: 'bg-purple-100 text-purple-800 border-purple-200' }, color: 'text-purple-600' },
+  { id: 'living-dining-table',  name: 'Mesa de comedor',      icon: Archive,        category: { id: 'living', name: 'Salón', color: 'bg-purple-100 text-purple-800 border-purple-200' }, color: 'text-purple-600' },
+  { id: 'living-piano',         name: 'Piano / Instrumento',  icon: Music,          category: { id: 'living', name: 'Salón', color: 'bg-purple-100 text-purple-800 border-purple-200' }, color: 'text-purple-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE F — Acceso y seguridad ampliado
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'access-intercom',       name: 'Interfono',             icon: Bell,           category: { id: 'access', name: 'Acceso', color: 'bg-red-100 text-red-800 border-red-200' }, color: 'text-red-600' },
+  { id: 'access-video-intercom', name: 'Videoportero',          icon: Camera,         category: { id: 'access', name: 'Acceso', color: 'bg-red-100 text-red-800 border-red-200' }, color: 'text-red-600' },
+  { id: 'access-keypad',         name: 'Teclado numérico',      icon: SlidersHorizontal, category: { id: 'access', name: 'Acceso', color: 'bg-red-100 text-red-800 border-red-200' }, color: 'text-red-600' },
+  { id: 'access-key-box',        name: 'Caja de llaves',        icon: KeySquare,      category: { id: 'access', name: 'Acceso', color: 'bg-red-100 text-red-800 border-red-200' }, color: 'text-red-600' },
+  { id: 'access-locker',         name: 'Taquilla acceso',       icon: LockerIcon,     category: { id: 'access', name: 'Acceso', color: 'bg-red-100 text-red-800 border-red-200' }, color: 'text-red-600' },
+  { id: 'access-gate',           name: 'Verja / Cancela',       icon: Shield,         category: { id: 'access', name: 'Acceso', color: 'bg-red-100 text-red-800 border-red-200' }, color: 'text-red-600' },
+  { id: 'access-garage-door',    name: 'Puerta garaje',         icon: Car,            category: { id: 'access', name: 'Acceso', color: 'bg-red-100 text-red-800 border-red-200' }, color: 'text-red-600' },
+  { id: 'access-code',           name: 'Código de acceso',      icon: QrCode,         category: { id: 'access', name: 'Acceso', color: 'bg-red-100 text-red-800 border-red-200' }, color: 'text-red-600' },
+  { id: 'access-fingerprint',    name: 'Huella dactilar',       icon: Fingerprint,    category: { id: 'access', name: 'Acceso', color: 'bg-red-100 text-red-800 border-red-200' }, color: 'text-red-600' },
+  { id: 'access-card',           name: 'Tarjeta de acceso',     icon: CreditCard,     category: { id: 'access', name: 'Acceso', color: 'bg-red-100 text-red-800 border-red-200' }, color: 'text-red-600' },
+  { id: 'access-alarm',          name: 'Alarma de seguridad',   icon: ShieldAlert,    category: { id: 'access', name: 'Acceso', color: 'bg-red-100 text-red-800 border-red-200' }, color: 'text-red-600' },
+  { id: 'access-cctv',           name: 'Videovigilancia',       icon: Camera,         category: { id: 'access', name: 'Acceso', color: 'bg-red-100 text-red-800 border-red-200' }, color: 'text-red-600' },
+  { id: 'access-safe',           name: 'Caja fuerte acceso',    icon: VaultIcon,      category: { id: 'access', name: 'Acceso', color: 'bg-red-100 text-red-800 border-red-200' }, color: 'text-red-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE G — Exterior ampliado
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'exterior-terrace',          name: 'Terraza',                 icon: Flower,         category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' }, color: 'text-green-600' },
+  { id: 'exterior-bbq',              name: 'Barbacoa exterior',       icon: Flame,          category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' }, color: 'text-green-600' },
+  { id: 'exterior-hammock',          name: 'Hamaca',                  icon: HammockIcon,    category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' }, color: 'text-green-600' },
+  { id: 'exterior-sun-lounger',      name: 'Tumbonas',                icon: Umbrella,       category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' }, color: 'text-green-600' },
+  { id: 'exterior-outdoor-shower',   name: 'Ducha exterior',          icon: ShowerHead,     category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' }, color: 'text-green-600' },
+  { id: 'exterior-outdoor-kitchen',  name: 'Cocina exterior',         icon: ChefHat,        category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' }, color: 'text-green-600' },
+  { id: 'exterior-pergola',          name: 'Pérgola / Porche',        icon: Umbrella,       category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' }, color: 'text-green-600' },
+  { id: 'exterior-sea-view',         name: 'Vistas al mar',           icon: Waves,          category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' }, color: 'text-green-600' },
+  { id: 'exterior-panoramic-view',   name: 'Vistas panorámicas',      icon: Mountain,       category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' }, color: 'text-green-600' },
+  { id: 'exterior-city-view',        name: 'Vistas a la ciudad',      icon: Building,       category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' }, color: 'text-green-600' },
+  { id: 'exterior-private-entrance', name: 'Entrada privada',         icon: DoorOpen,       category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' }, color: 'text-green-600' },
+  { id: 'exterior-bicycle-storage',  name: 'Garaje bicicletas',       icon: Bike,           category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' }, color: 'text-green-600' },
+  { id: 'exterior-clothesline',      name: 'Tendedero exterior',      icon: Wind,           category: { id: 'exterior', name: 'Exterior', color: 'bg-green-100 text-green-800 border-green-200' }, color: 'text-green-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE H — NUEVA categoría: Piscina y spa
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'pool-main',      name: 'Piscina',                   icon: Waves,          category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-indoor',    name: 'Piscina cubierta',          icon: Waves,          category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-heated',    name: 'Piscina climatizada',       icon: Thermometer,    category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-infinity',  name: 'Piscina infinita',          icon: Waves,          category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-children',  name: 'Piscina infantil',          icon: Baby,           category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-jacuzzi',   name: 'Jacuzzi / Hidromasaje',     icon: JacuzziIcon,    category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-hot-tub',   name: 'Hot tub / Bañera spa',      icon: HotTubIcon,     category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-sauna',     name: 'Sauna',                     icon: Thermometer,    category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-hammam',    name: 'Hammam / Baño turco',       icon: Cloud,          category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-steam',     name: 'Sala de vapor',             icon: Cloud,          category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-lifeguard', name: 'Socorrista / Seguridad',    icon: LifeBuoy,       category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-shower',    name: 'Duchas piscina',            icon: ShowerHead,     category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-spa',       name: 'Spa / Centro de bienestar', icon: Sparkles,       category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-gym',       name: 'Gimnasio / Fitness',        icon: Dumbbell,       category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-yoga',      name: 'Yoga / Clases',             icon: PersonStanding, category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-rules',     name: 'Normas piscina',            icon: ScrollText,     category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-hours',     name: 'Horario piscina',           icon: Clock,          category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+  { id: 'pool-towels',    name: 'Toallas piscina',           icon: Droplets,       category: { id: 'pool', name: 'Piscina y spa', color: 'bg-cyan-100 text-cyan-800 border-cyan-200' }, color: 'text-cyan-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE I — NUEVA categoría: Seguridad y normas
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'safety-rules',              name: 'Normas generales',          icon: ScrollText,    category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-house-rules',        name: 'Normas de la casa',         icon: ListChecks,    category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-quiet-hours',        name: 'Horario de silencio',       icon: VolumeX,       category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-no-smoking',         name: 'Prohibido fumar',           icon: CigaretteOff,  category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-smoking-area',       name: 'Zona de fumadores',         icon: Cigarette,     category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-pets-allowed',       name: 'Mascotas permitidas',       icon: PawPrint,      category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-no-parties',         name: 'Sin fiestas',               icon: BellOff,       category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-max-guests',         name: 'Máx. huéspedes',            icon: UsersRound,    category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-check-in-time',      name: 'Hora de check-in',          icon: Clock,         category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-check-out-time',     name: 'Hora de check-out',         icon: AlarmClockOff, category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-deposit',            name: 'Fianza / Depósito',         icon: Coins,         category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-emergency-exit',     name: 'Salida de emergencia',      icon: DoorOpen,      category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-fire-extinguisher',  name: 'Extintor',                  icon: ShieldCheck,   category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-smoke-detector',     name: 'Detector de humo',          icon: Siren,         category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-co-detector',        name: 'Detector de CO',            icon: AlertOctagon,  category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-first-aid',          name: 'Botiquín de primeros auxilios', icon: HeartPulse, category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-emergency-contacts', name: 'Contactos de emergencia',   icon: Phone,         category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-electrical-panel',   name: 'Cuadro eléctrico',          icon: PlugZap,       category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-water-shutoff',      name: 'Llave de paso del agua',    icon: Droplets,      category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-gas-shutoff',        name: 'Llave del gas',             icon: Flame,         category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-accessibility',      name: 'Accesibilidad',             icon: Accessibility, category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+  { id: 'safety-damages',            name: 'Daños / Responsabilidad',   icon: ShieldAlert,   category: { id: 'safety', name: 'Seguridad', color: 'bg-rose-100 text-rose-800 border-rose-200' }, color: 'text-rose-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE J — NUEVA categoría: Limpieza
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'cleaning-washing-machine', name: 'Lavadora',               icon: WashingMachineIcon, category: { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }, color: 'text-lime-600' },
+  { id: 'cleaning-dryer',           name: 'Secadora',               icon: DryerIcon,          category: { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }, color: 'text-lime-600' },
+  { id: 'cleaning-iron',            name: 'Plancha de ropa',        icon: IronIcon,           category: { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }, color: 'text-lime-600' },
+  { id: 'cleaning-ironing-board',   name: 'Tabla de planchar',      icon: Archive,            category: { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }, color: 'text-lime-600' },
+  { id: 'cleaning-vacuum',          name: 'Aspiradora',             icon: Wind,               category: { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }, color: 'text-lime-600' },
+  { id: 'cleaning-supplies',        name: 'Productos de limpieza',  icon: Paintbrush,         category: { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }, color: 'text-lime-600' },
+  { id: 'cleaning-mop',             name: 'Fregona / Escoba',       icon: Paintbrush2,        category: { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }, color: 'text-lime-600' },
+  { id: 'cleaning-trash',           name: 'Basura / Contenedores',  icon: Trash2,             category: { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }, color: 'text-lime-600' },
+  { id: 'cleaning-recycle',         name: 'Reciclaje',              icon: Recycle,            category: { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }, color: 'text-lime-600' },
+  { id: 'cleaning-recycle-glass',   name: 'Reciclaje vidrio',       icon: Wine,               category: { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }, color: 'text-lime-600' },
+  { id: 'cleaning-recycle-organic', name: 'Residuos orgánicos',     icon: Leaf,               category: { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }, color: 'text-lime-600' },
+  { id: 'cleaning-schedule',        name: 'Horario de limpieza',    icon: Calendar,           category: { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }, color: 'text-lime-600' },
+  { id: 'cleaning-laundry-room',    name: 'Lavandería',             icon: Shirt,              category: { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }, color: 'text-lime-600' },
+  { id: 'cleaning-clotheshorse',    name: 'Tendedero interior',     icon: Wind,               category: { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }, color: 'text-lime-600' },
+  { id: 'cleaning-extra-towels',    name: 'Toallas extra',          icon: Droplets,           category: { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }, color: 'text-lime-600' },
+  { id: 'cleaning-extra-linen',     name: 'Ropa de cama extra',     icon: Bed,                category: { id: 'cleaning', name: 'Limpieza', color: 'bg-lime-100 text-lime-800 border-lime-200' }, color: 'text-lime-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE K — Servicios ampliados
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'services-concierge',      name: 'Conserjería / Recepción',   icon: UserCheck,   category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'services-breakfast',      name: 'Desayuno incluido',         icon: Coffee,      category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'services-airport',        name: 'Transfer aeropuerto',       icon: Plane,       category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'services-babysitter',     name: 'Canguro / Niñera',          icon: Baby,        category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'services-grocery',        name: 'Compra a domicilio',        icon: ShoppingCart, category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'services-chef',           name: 'Chef privado',              icon: ChefHat,     category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'services-newspaper',      name: 'Periódico diario',          icon: Newspaper,   category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'services-late-checkout',  name: 'Late check-out',            icon: Clock,       category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'services-early-checkin',  name: 'Early check-in',            icon: AlarmCheck,  category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'services-reception-24h',  name: 'Recepción 24h',             icon: Bell,        category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'services-wheelchair',     name: 'Acceso silla de ruedas',    icon: Accessibility, category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'services-ev-charger',     name: 'Cargador vehículo eléctrico', icon: PlugZap,   category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'services-parking-meter',  name: 'Parquímetro / Parking zona', icon: ParkingMeter, category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'services-bike-rental',    name: 'Alquiler bicicletas',       icon: Bike,        category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'services-laundry',        name: 'Servicio lavandería',       icon: Shirt,       category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+  { id: 'services-hotel',          name: 'Hotel / Alojamiento',       icon: Hotel,       category: { id: 'services', name: 'Servicios', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' }, color: 'text-yellow-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE L — Viajes ampliados
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'travel-metro',        name: 'Metro / Suburbano',    icon: Train,    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' }, color: 'text-sky-600' },
+  { id: 'travel-ferry',        name: 'Ferry / Barca',        icon: Ship,     category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' }, color: 'text-sky-600' },
+  { id: 'travel-cable-car',    name: 'Teleférico / Cable',   icon: Cable,    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' }, color: 'text-sky-600' },
+  { id: 'travel-cruise',       name: 'Crucero',              icon: Ship,     category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' }, color: 'text-sky-600' },
+  { id: 'travel-airport-bus',  name: 'Autobús aeropuerto',   icon: Bus,      category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' }, color: 'text-sky-600' },
+  { id: 'travel-hotel-nearby', name: 'Hotel cercano',        icon: Hotel,    category: { id: 'travel', name: 'Viajes', color: 'bg-sky-100 text-sky-800 border-sky-200' }, color: 'text-sky-600' },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BLOQUE M — Naturaleza ampliada
+  // ─────────────────────────────────────────────────────────────────────────
+  { id: 'nature-lake',          name: 'Lago / Pantano',       icon: Waves,    category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' }, color: 'text-amber-600' },
+  { id: 'nature-river',         name: 'Río / Arroyo',         icon: Droplets, category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' }, color: 'text-amber-600' },
+  { id: 'nature-jungle',        name: 'Selva / Bosque',       icon: Trees,    category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' }, color: 'text-amber-600' },
+  { id: 'nature-national-park', name: 'Parque natural',       icon: Leaf,     category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' }, color: 'text-amber-600' },
+  { id: 'nature-wildlife',      name: 'Fauna salvaje',        icon: PawPrint, category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' }, color: 'text-amber-600' },
+  { id: 'nature-stargazing',    name: 'Astroturismo / Estrellas', icon: Star, category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' }, color: 'text-amber-600' },
+  { id: 'nature-aurora',        name: 'Aurora boreal',        icon: Sparkles, category: { id: 'nature', name: 'Naturaleza', color: 'bg-amber-100 text-amber-800 border-amber-200' }, color: 'text-amber-600' },
 ]
