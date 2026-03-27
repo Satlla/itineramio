@@ -189,15 +189,7 @@ export default function CalendarioPage() {
   const [error, setError] = useState<string | null>(null)
   const [editingPropId, setEditingPropId] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const headerScrollRef = useRef<HTMLDivElement>(null)
   const colW = 32
-
-  // Sync horizontal scroll between header and body
-  const onBodyScroll = () => {
-    if (headerScrollRef.current && scrollRef.current) {
-      headerScrollRef.current.scrollLeft = scrollRef.current.scrollLeft
-    }
-  }
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -217,17 +209,14 @@ export default function CalendarioPage() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
-  // Scroll to show today on desktop (scroll so today is 3 days from left edge)
+  // Scroll to show today on load (3 days before today visible)
   useEffect(() => {
     if (!scrollRef.current || loading) return
     const today = new Date()
     if (today.getFullYear() === year && today.getMonth() + 1 === month) {
-      const scrollX = Math.max(0, (today.getDate() - 4)) * colW
-      scrollRef.current.scrollLeft = scrollX
-      if (headerScrollRef.current) headerScrollRef.current.scrollLeft = scrollX
+      scrollRef.current.scrollLeft = Math.max(0, (today.getDate() - 4)) * colW
     } else {
       scrollRef.current.scrollLeft = 0
-      if (headerScrollRef.current) headerScrollRef.current.scrollLeft = 0
     }
   }, [year, month, loading])
 
@@ -287,16 +276,15 @@ export default function CalendarioPage() {
         <>
           {/* ══ DESKTOP VIEW ══ */}
           <div className="hidden lg:block">
-            {/* ── Day-header row: sticky vertically, scrolls horizontally in sync ── */}
-            <div className="sticky z-10 bg-gray-50 border-b border-gray-100 overflow-hidden" style={{ top: 57 }}>
-              {/* This div mirrors the body scroll but is overflow:hidden so no scrollbar */}
-              <div ref={headerScrollRef} style={{ overflowX: 'hidden', overflowY: 'visible' }}>
-                <div className="flex" style={{ width: 208 + daysInMonth * colW }}>
-                  {/* Left label column */}
-                  <div className="w-52 flex-shrink-0 border-r border-gray-100 px-3 py-2 bg-gray-50">
+            {/* Single overflow-x-auto — header + rows scroll together */}
+            <div className="overflow-x-auto" ref={scrollRef}>
+              <div style={{ width: 208 + daysInMonth * colW }}>
+
+                {/* Header row */}
+                <div className="flex border-b border-gray-100 bg-gray-50">
+                  <div className="w-52 flex-shrink-0 sticky left-0 z-20 bg-gray-50 border-r border-gray-100 px-3 py-2">
                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Propiedad</p>
                   </div>
-                  {/* Day columns */}
                   {days.map(d => {
                     const date = new Date(year, month - 1, d)
                     const dow = ['D','L','M','X','J','V','S'][date.getDay()]
@@ -314,15 +302,11 @@ export default function CalendarioPage() {
                     )
                   })}
                 </div>
-              </div>
-            </div>
 
-            {/* ── Property rows: scroll horizontally ── */}
-            <div className="overflow-x-auto" ref={scrollRef} onScroll={onBodyScroll}>
-              <div style={{ width: 208 + daysInMonth * colW }}>
+                {/* Property rows */}
                 {properties.map(prop => (
                   <div key={prop.id} className="flex border-b border-gray-100 hover:bg-gray-50/30 transition-colors" style={{ height: 56 }}>
-                    {/* Left: property name — sticky */}
+                    {/* Left: property name — sticky horizontally */}
                     <div className="w-52 flex-shrink-0 sticky left-0 z-10 bg-white border-r border-gray-100 flex items-center gap-2.5 px-3">
                       <div className="w-8 h-8 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                         {prop.profileImage
@@ -362,6 +346,7 @@ export default function CalendarioPage() {
                     </div>
                   </div>
                 ))}
+
               </div>
             </div>
           </div>
