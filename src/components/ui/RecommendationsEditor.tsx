@@ -172,6 +172,7 @@ const INSPIRATION_CHIPS = [
   { emoji: '🏧', label: 'Cajero',            query: 'cajero automático', categoryId: 'atm' },
   { emoji: '🎨', label: 'Arte & Cultura',    query: 'museo galería',  categoryId: 'museum' },
   { emoji: '🧳', label: 'Consigna',          query: 'consigna maletas luggage storage', categoryId: 'luggage_storage' },
+  { emoji: '💻', label: 'Teletrabajar',      query: 'coworking café con wifi biblioteca', categoryId: 'coworking' },
 ]
 
 // --- Pending item (selected but not yet saved) ---
