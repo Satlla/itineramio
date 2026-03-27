@@ -7,6 +7,7 @@ import { MediaSelector } from './MediaSelector'
 import { DuplicateMediaModal } from './DuplicateMediaModal'
 import { useNotifications } from '../../hooks/useNotifications'
 import { compressVideoFFmpeg, isFFmpegSupported, preloadFFmpeg } from '../../utils/ffmpegCompression'
+import { compressVideo } from '../../utils/videoCompression'
 
 interface VideoUploadProps {
   value?: string
@@ -309,42 +310,59 @@ export function VideoUpload({
       return
     }
 
-    // Only compress if file is larger than 4MB and FFmpeg is supported
-    if (fileSizeMB > 4 && isFFmpegSupported()) {
+    // Compress videos larger than 4MB
+    if (fileSizeMB > 4) {
       try {
         setIsCompressing(true)
         setUploadStage('compressing')
         setCompressionProgress(0)
 
-        addNotification({
-          type: 'info',
-          title: '🗜️ Optimizando video',
-          message: 'Comprimiendo con FFmpeg...',
-          read: false
-        })
+        if (isFFmpegSupported()) {
+          // FFmpeg.wasm — Chrome/Firefox
+          addNotification({
+            type: 'info',
+            title: '🗜️ Optimizando video',
+            message: 'Comprimiendo con FFmpeg...',
+            read: false
+          })
 
-        const quality = fileSizeMB > 30 ? 'low' : fileSizeMB > 15 ? 'medium' : 'high'
+          const quality = fileSizeMB > 30 ? 'low' : fileSizeMB > 15 ? 'medium' : 'high'
+          let compressionActive = true
 
-        // Flag to ignore progress callbacks from background FFmpeg after timeout/failure
-        let compressionActive = true
-
-        fileToUpload = await compressVideoFFmpeg(file, {
-          maxSizeMB: 4,
-          quality,
-          onProgress: (message) => {
-            if (!compressionActive) return
-            setVideoError(message)
-            const match = message.match(/(\d+)%/)
-            if (match) {
-              setCompressionProgress(parseInt(match[1]))
+          fileToUpload = await compressVideoFFmpeg(file, {
+            maxSizeMB: 4,
+            quality,
+            onProgress: (message) => {
+              if (!compressionActive) return
+              setVideoError(message)
+              const match = message.match(/(\d+)%/)
+              if (match) setCompressionProgress(parseInt(match[1]))
             }
-          }
-        })
+          })
+          compressionActive = false
+        } else {
+          // Canvas + MediaRecorder fallback — Safari
+          addNotification({
+            type: 'info',
+            title: '🗜️ Optimizando video',
+            message: 'Comprimiendo para Safari...',
+            read: false
+          })
+          setVideoError('Comprimiendo vídeo…')
 
-        compressionActive = false
+          fileToUpload = await compressVideo(file, {
+            maxSizeMB: 8,
+            scale: fileSizeMB > 30 ? 0.5 : fileSizeMB > 15 ? 0.65 : 0.8,
+            fps: 24,
+            onProgress: (p) => {
+              setVideoError(`Comprimiendo… ${Math.round(p * 100)}%`)
+              setCompressionProgress(Math.round(p * 100))
+            }
+          })
+        }
+
         const finalCompressedSizeMB = fileToUpload.size / (1024 * 1024)
         setVideoError(null)
-
         addNotification({
           type: 'info',
           title: '✅ Video optimizado',
@@ -353,7 +371,7 @@ export function VideoUpload({
         })
 
       } catch (compressionError) {
-        // Compression failed (timeout or CSP block) — upload original
+        // Compression failed — upload original
         setVideoError(null)
         addNotification({
           type: 'warning',

@@ -5,6 +5,7 @@ import { Upload, X, Video, CheckCircle, Loader2, AlertCircle, Copy } from 'lucid
 import { Button } from './Button'
 // Dynamically imported below to avoid Safari bundling issues
 import { compressVideoFFmpeg, isFFmpegSupported, preloadFFmpeg } from '../../utils/ffmpegCompression'
+import { compressVideo } from '../../utils/videoCompression'
 
 interface VideoUploadProps {
   value?: string
@@ -330,21 +331,35 @@ export function VideoUploadSimple({
     let fileToUpload = file
     const sizeMB = file.size / (1024 * 1024)
 
-    // Compress videos larger than 4MB using FFmpeg.wasm (Vercel has 4.5MB body limit)
-    if (sizeMB > 4 && isFFmpegSupported()) {
+    // Compress videos larger than 4MB
+    if (sizeMB > 4) {
       setIsCompressing(true)
 
       try {
-        fileToUpload = await compressVideoFFmpeg(file, {
-          maxSizeMB: 4,
-          quality: sizeMB > 30 ? 'low' : sizeMB > 15 ? 'medium' : 'high',
-          onProgress: (message) => {
-            setVideoError(message) // Show progress messages
-          }
-        })
+        if (isFFmpegSupported()) {
+          // FFmpeg.wasm — best quality, requires SharedArrayBuffer (Chrome/Firefox)
+          fileToUpload = await compressVideoFFmpeg(file, {
+            maxSizeMB: 4,
+            quality: sizeMB > 30 ? 'low' : sizeMB > 15 ? 'medium' : 'high',
+            onProgress: (message) => {
+              setVideoError(message)
+            }
+          })
+        } else {
+          // Canvas + MediaRecorder fallback — works in Safari
+          setVideoError('Comprimiendo vídeo…')
+          fileToUpload = await compressVideo(file, {
+            maxSizeMB: 8,
+            scale: sizeMB > 30 ? 0.5 : sizeMB > 15 ? 0.65 : 0.8,
+            fps: 24,
+            onProgress: (p) => {
+              setVideoError(`Comprimiendo… ${Math.round(p * 100)}%`)
+            }
+          })
+        }
         setVideoError(null)
       } catch (error) {
-        // Compression failed - upload original (limit is 100MB checked above)
+        // Compression failed — upload original
         setVideoError(null)
       } finally {
         setIsCompressing(false)
