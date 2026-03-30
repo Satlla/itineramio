@@ -445,43 +445,49 @@ export async function POST(request: NextRequest) {
  * If the top zone is a RECOMMENDATIONS zone (e.g. user asked about restaurants),
  * there are no step-media to show, so we return [].
  */
-// Minimum relevance score to show media — avoids showing unrelated zone videos
-// Score >= 8 means: name keyword match (15pts) OR 2+ step content matches (4pts each)
-// Pure ALWAYS_RELEVANT base score (2pts) is NOT enough to show media
+// Minimum relevance score for AI context filtering (unchanged)
 const MIN_MEDIA_SCORE = 8;
 
 function collectRelevantMedia(zones: any[], language: string): MediaItem[] {
-  if (!zones.length || zones[0].type === 'RECOMMENDATIONS') return [];
+  if (!zones.length) return [];
 
-  const zone = zones[0];
+  // Iterate ALL zones in relevance order — return media from the first zone that has any.
+  // We use `continue` (not `break`) so low-scoring zones with videos are still tried.
+  // Zones with score=0 are already excluded by getRelevantZones when any zone matched.
+  for (const zone of zones) {
+    if (zone.type === 'RECOMMENDATIONS') continue;
+    if ((zone._relevanceScore ?? 0) < 1) continue; // skip truly irrelevant zones
 
-  // Don't show media if the top zone doesn't strongly match the question
-  if ((zone._relevanceScore ?? 0) < MIN_MEDIA_SCORE) return [];
-  const items: MediaItem[] = [];
-  let stepNumber = 0;
+    const items: MediaItem[] = [];
+    let stepNumber = 0;
 
-  for (const step of (zone.steps || [])) {
-    const content = step.content as any;
-    if (!content?.mediaUrl) continue;
-    const stepType = (step.type || '').toUpperCase();
-    if (stepType !== 'IMAGE' && stepType !== 'VIDEO') continue;
+    for (const step of (zone.steps || [])) {
+      const content = step.content as any;
+      if (!content?.mediaUrl) continue;
+      const stepType = (step.type || '').toUpperCase();
+      if (stepType !== 'IMAGE' && stepType !== 'VIDEO') continue;
 
-    stepNumber++;
-    const title = getLocalizedText(step.title, language) || '';
-    // Step text: prefer content text, fall back to title
-    const contentText = getLocalizedText(content, language) || '';
-    const stepText = contentText || title || undefined;
+      stepNumber++;
+      const title = getLocalizedText(step.title, language) || '';
+      // Step text: prefer content text, fall back to title
+      const contentText = getLocalizedText(content, language) || '';
+      const stepText = contentText || title || undefined;
 
-    items.push({
-      type: stepType as 'IMAGE' | 'VIDEO',
-      url: content.mediaUrl,
-      caption: title || getLocalizedText(zone.name, language) || '',
-      stepText,
-      stepIndex: stepNumber,
-    });
-    if (items.length >= 8) break;
+      items.push({
+        type: stepType as 'IMAGE' | 'VIDEO',
+        url: content.mediaUrl,
+        caption: title || getLocalizedText(zone.name, language) || '',
+        stepText,
+        stepIndex: stepNumber,
+      });
+      if (items.length >= 8) break;
+    }
+
+    // Found media in this zone — return it
+    if (items.length > 0) return items;
+    // Otherwise try the next zone
   }
-  return items;
+  return [];
 }
 
 // Synonyms for recommendation categories
@@ -1202,17 +1208,50 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
       if (zoneName.includes(term)) score += 2;
     }
 
+    // Zones with video/image steps get +1 so they're never filtered out entirely —
+    // even if the query doesn't match the zone name, we might still want to show the media
+    const hasMedia = (zone.steps || []).some((step: any) => {
+      const content = step.content as any;
+      const stepType = (step.type || '').toUpperCase();
+      return content?.mediaUrl && (stepType === 'IMAGE' || stepType === 'VIDEO');
+    });
+    if (hasMedia) score += 1;
+
     return { zone, score };
   });
 
   scored.sort((a, b) => b.score - a.score || (a.zone.order ?? 0) - (b.zone.order ?? 0));
 
-  // Return top 5 zones — attach _relevanceScore so collectRelevantMedia can filter weak matches.
+  // Return top 5 zones for AI context — attach _relevanceScore so collectRelevantMedia can use it.
   // If any zone scored > 0, drop score-0 zones to avoid sending unrelated context to the AI.
   // If ALL zones scored 0 (totally generic query), keep them all so AI at least has something.
   const hasAnyMatch = scored[0]?.score > 0;
   const filtered = hasAnyMatch ? scored.filter(s => s.score > 0) : scored;
-  return filtered.slice(0, 5).map(s => ({ ...s.zone, _relevanceScore: s.score }));
+  const top5 = filtered.slice(0, 5);
+
+  // Guarantee at least one zone with video/image steps is included so collectRelevantMedia
+  // can always show media when the property has videos — even if that zone scored low.
+  const hasMediaZone = top5.some(s =>
+    (s.zone.steps || []).some((step: any) => {
+      const content = step.content as any;
+      const t = (step.type || '').toUpperCase();
+      return content?.mediaUrl && (t === 'IMAGE' || t === 'VIDEO');
+    })
+  );
+  if (!hasMediaZone) {
+    // Find the highest-scoring zone (outside top5) that has media
+    const bonus = filtered.find(s =>
+      !top5.includes(s) &&
+      (s.zone.steps || []).some((step: any) => {
+        const content = step.content as any;
+        const t = (step.type || '').toUpperCase();
+        return content?.mediaUrl && (t === 'IMAGE' || t === 'VIDEO');
+      })
+    );
+    if (bonus) top5.push(bonus);
+  }
+
+  return top5.map(s => ({ ...s.zone, _relevanceScore: s.score }));
 }
 
 // ========================================

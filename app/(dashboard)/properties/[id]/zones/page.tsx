@@ -2872,6 +2872,13 @@ export default function PropertyZonesPage() {
           </button>
 
           <button
+            onClick={() => router.push(`/properties/${id}/settings`)}
+            className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
+          >
+            Configuración
+          </button>
+
+          <button
             onClick={() => {
               const publicUrl = `${window.location.origin}/guide/${id}`
               window.open(publicUrl, '_blank')

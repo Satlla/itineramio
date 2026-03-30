@@ -864,6 +864,7 @@ export async function generateManual(
           icon: zoneConfig.icon,
           color: 'bg-gray-100',
           status: 'ACTIVE',
+          isPublished: true,
           order: order++,
           qrCode: `qr_${timestamp}_${random1}`,
           accessCode: `ac_${timestamp}_${random2}`,
@@ -889,6 +890,7 @@ export async function generateManual(
             fr: stepConfig.content.fr || stepConfig.content.es,
           },
           order: idx,
+          isPublished: true,
         })),
       })
       totalSteps += zoneConfig.steps.length
