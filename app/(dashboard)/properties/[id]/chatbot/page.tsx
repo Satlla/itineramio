@@ -87,6 +87,7 @@ export default function ChatbotDashboardPage() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
   const [confirmDeleteAll, setConfirmDeleteAll] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [weeklyInsight, setWeeklyInsight] = useState<any>(null)
 
   const deleteConversations = async (ids: string[]) => {
     setDeleting(true)
@@ -116,6 +117,11 @@ export default function ChatbotDashboardPage() {
     fetchData()
     fetchPropertyInfo()
     fetchCustomQA()
+    // Fetch weekly insight
+    fetch(`/api/properties/${propertyId}/chatbot/insights`, { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.insight) setWeeklyInsight(d.insight) })
+      .catch(() => {})
   }, [propertyId])
 
   const fetchCustomQA = async () => {
@@ -351,7 +357,7 @@ export default function ChatbotDashboardPage() {
       )}
 
       {activeTab === 'summary' && stats && (
-        <SummaryTab stats={stats} t={t} />
+        <SummaryTab stats={stats} weeklyInsight={weeklyInsight} propertyId={propertyId} t={t} />
       )}
 
       {/* Conversation Detail Modal */}
@@ -496,6 +502,39 @@ function IntelligenceTab({
   const [pendingSaved, setPendingSaved] = useState<Record<number, boolean>>({})
   const [pendingSaving, setPendingSaving] = useState<Record<number, boolean>>({})
 
+  // Property context state (for chatbot personalization)
+  const [propCtx, setPropCtx] = useState({ environment: '', typicalGuest: '', localInsiderTip: '', uniqueFeature: '' })
+  const [ctxSaving, setCtxSaving] = useState(false)
+  const [ctxSaved, setCtxSaved] = useState(false)
+
+  useEffect(() => {
+    fetch(`/api/properties/${propertyId}`, { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        const ctx = d?.data?.intelligence?.propertyContext
+        if (ctx) setPropCtx({ environment: ctx.environment || '', typicalGuest: ctx.typicalGuest || '', localInsiderTip: ctx.localInsiderTip || '', uniqueFeature: ctx.uniqueFeature || '' })
+      }).catch(() => {})
+  }, [propertyId])
+
+  const savePropertyContext = async () => {
+    setCtxSaving(true)
+    try {
+      const propRes = await fetch(`/api/properties/${propertyId}`, { credentials: 'include' })
+      const propData = propRes.ok ? await propRes.json() : {}
+      const currentIntel = propData?.data?.intelligence || {}
+      await fetch(`/api/properties/${propertyId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ intelligence: { ...currentIntel, propertyContext: propCtx } })
+      })
+      setCtxSaved(true)
+      setTimeout(() => setCtxSaved(false), 2500)
+    } finally {
+      setCtxSaving(false)
+    }
+  }
+
   const handleAnswerUnanswered = async (idx: number, question: string) => {
     const answer = pendingAnswers[idx]?.trim()
     if (!answer) return
@@ -562,6 +601,82 @@ function IntelligenceTab({
 
   return (
     <div className="space-y-6">
+      {/* Property Context — chatbot personalization */}
+      <Card className="border-violet-200">
+        <CardContent className="p-5">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-4 h-4 text-violet-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-900">Contexto de la propiedad</p>
+              <p className="text-xs text-gray-500 mt-0.5">El chatbot usa esta info para personalizar respuestas y hacer mejores preguntas a los huéspedes</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">🌍 Tipo de entorno</label>
+              <select
+                value={propCtx.environment}
+                onChange={e => setPropCtx(c => ({ ...c, environment: e.target.value }))}
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-1 focus:ring-violet-400"
+              >
+                <option value="">Seleccionar...</option>
+                <option value="Ciudad (centro urbano)">Ciudad (centro urbano)</option>
+                <option value="Ciudad (barrio local/residencial)">Ciudad (barrio local/residencial)</option>
+                <option value="Playa / Costa">Playa / Costa</option>
+                <option value="Montaña / Naturaleza">Montaña / Naturaleza</option>
+                <option value="Rural / Campo">Rural / Campo</option>
+                <option value="Pueblo con encanto">Pueblo con encanto</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">👥 Perfil habitual de huéspedes</label>
+              <select
+                value={propCtx.typicalGuest}
+                onChange={e => setPropCtx(c => ({ ...c, typicalGuest: e.target.value }))}
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-1 focus:ring-violet-400"
+              >
+                <option value="">Seleccionar...</option>
+                <option value="Principalmente parejas">Principalmente parejas</option>
+                <option value="Familias con niños">Familias con niños</option>
+                <option value="Grupos de amigos">Grupos de amigos</option>
+                <option value="Viajeros en solitario">Viajeros en solitario</option>
+                <option value="Viajeros de negocios">Viajeros de negocios</option>
+                <option value="Mix variado">Mix variado</option>
+              </select>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-gray-600 mb-1">💡 Tip local que marcará la diferencia</label>
+              <input
+                type="text"
+                value={propCtx.localInsiderTip}
+                onChange={e => setPropCtx(c => ({ ...c, localInsiderTip: e.target.value }))}
+                placeholder='Ej: "El mercado del lunes en Plaza Mayor es el mejor para probar productos locales"'
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-violet-400"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-gray-600 mb-1">⭐ ¿Qué hace especial esta ubicación?</label>
+              <input
+                type="text"
+                value={propCtx.uniqueFeature}
+                onChange={e => setPropCtx(c => ({ ...c, uniqueFeature: e.target.value }))}
+                placeholder='Ej: "A 3 min del casco histórico, barrio sin turistas"'
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-violet-400"
+              />
+            </div>
+          </div>
+          <button
+            onClick={savePropertyContext}
+            disabled={ctxSaving}
+            className="mt-3 flex items-center gap-1.5 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
+          >
+            {ctxSaving ? '...' : ctxSaved ? '✅ Guardado' : '💾 Guardar contexto'}
+          </button>
+        </CardContent>
+      </Card>
+
       {/* Header */}
       {items.length > 0 && (
         <div className="bg-violet-50 border border-violet-200 rounded-xl p-4 flex items-start gap-3">
@@ -835,7 +950,7 @@ function GuestsTab({
 
 // ─── Tab: Summary ────────────────────────────────────────────────────────
 
-function SummaryTab({ stats, t }: { stats: Stats; t: any }) {
+function SummaryTab({ stats, weeklyInsight, propertyId, t }: { stats: Stats; weeklyInsight: any; propertyId: string; t: any }) {
   const statCards = [
     {
       icon: MessageCircle,
@@ -948,6 +1063,83 @@ function SummaryTab({ stats, t }: { stats: Stats; t: any }) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Weekly AI Insight */}
+      {weeklyInsight && (
+        <Card className="border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-lg">✨</span>
+              <h3 className="font-semibold text-violet-900">Informe semanal IA</h3>
+              {weeklyInsight.generatedAt && (
+                <span className="ml-auto text-xs text-violet-400">
+                  {new Date(weeklyInsight.generatedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                </span>
+              )}
+            </div>
+
+            {weeklyInsight.aiNarrative && (
+              <p className="text-sm text-violet-800 leading-relaxed mb-4 bg-white/60 rounded-lg p-3">{weeklyInsight.aiNarrative}</p>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              {/* Guest profiles */}
+              {weeklyInsight.profiles && (
+                <div className="bg-white/70 rounded-xl p-4">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">👥 Perfil de huéspedes</p>
+                  <div className="space-y-1.5 text-sm text-gray-700">
+                    {weeklyInsight.profiles.couples > 0 && <div>💑 Parejas: <strong>{weeklyInsight.profiles.couples}</strong></div>}
+                    {weeklyInsight.profiles.families > 0 && <div>👨‍👩‍👧 Familias: <strong>{weeklyInsight.profiles.families}</strong></div>}
+                    {weeklyInsight.profiles.groups > 0 && <div>👯 Grupos: <strong>{weeklyInsight.profiles.groups}</strong></div>}
+                    {weeklyInsight.profiles.withKids > 0 && <div>🧒 Con niños: <strong>{weeklyInsight.profiles.withKids}</strong></div>}
+                    {weeklyInsight.profiles.languages && Object.entries(weeklyInsight.profiles.languages as Record<string,number>)
+                      .sort((a,b) => b[1]-a[1]).slice(0,3)
+                      .map(([lang, count]) => (
+                        <div key={lang} className="text-gray-500 text-xs">{lang.toUpperCase()}: {count as number}</div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Top topics */}
+              {weeklyInsight.topTopics?.length > 0 && (
+                <div className="bg-white/70 rounded-xl p-4">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">💬 Temas más consultados</p>
+                  <div className="space-y-1.5">
+                    {(weeklyInsight.topTopics as Array<{topic:string;count:number}>).slice(0,5).map((t) => (
+                      <div key={t.topic} className="flex items-center justify-between text-sm">
+                        <span className="text-gray-700 truncate">{t.topic}</span>
+                        <span className="ml-2 text-xs font-bold text-violet-600 flex-shrink-0">{t.count}x</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* AI Gaps / Suggestions */}
+            {weeklyInsight.aiGaps?.length > 0 && (
+              <div className="bg-white/70 rounded-xl p-4">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">🚀 Mejoras recomendadas</p>
+                <ul className="space-y-2">
+                  {(weeklyInsight.aiGaps as string[]).map((gap, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                      <span className="text-green-500 mt-0.5 flex-shrink-0">⚡</span>
+                      {gap}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => window.location.href = `/properties/${propertyId}/chatbot?tab=intelligence`}
+                  className="mt-3 text-xs font-semibold text-violet-600 hover:text-violet-800 underline underline-offset-2"
+                >
+                  Mejorar el manual →
+                </button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

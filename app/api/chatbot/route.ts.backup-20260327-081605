@@ -160,11 +160,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Extract guest profile from conversation history (cheap, rule-based)
-    const guestProfileSection = extractGuestProfile(conversationHistory as any[]);
-
     // Build context for OpenAI — always use property mode with relevant zones
-    const systemPrompt = buildPropertySystemPrompt(property, zones, language, guestProfileSection);
+    const systemPrompt = buildPropertySystemPrompt(property, zones, language);
 
     const learnedContext = await getLearnedContext(propertyId);
     const fullSystemPrompt = learnedContext
@@ -448,49 +445,43 @@ export async function POST(request: NextRequest) {
  * If the top zone is a RECOMMENDATIONS zone (e.g. user asked about restaurants),
  * there are no step-media to show, so we return [].
  */
-// Minimum relevance score for AI context filtering (unchanged)
+// Minimum relevance score to show media — avoids showing unrelated zone videos
+// Score >= 8 means: name keyword match (15pts) OR 2+ step content matches (4pts each)
+// Pure ALWAYS_RELEVANT base score (2pts) is NOT enough to show media
 const MIN_MEDIA_SCORE = 8;
 
 function collectRelevantMedia(zones: any[], language: string): MediaItem[] {
-  if (!zones.length) return [];
+  if (!zones.length || zones[0].type === 'RECOMMENDATIONS') return [];
 
-  // Iterate ALL zones in relevance order — return media from the first zone that has any.
-  // We use `continue` (not `break`) so low-scoring zones with videos are still tried.
-  // Zones with score=0 are already excluded by getRelevantZones when any zone matched.
-  for (const zone of zones) {
-    if (zone.type === 'RECOMMENDATIONS') continue;
-    if ((zone._relevanceScore ?? 0) < 1) continue; // skip truly irrelevant zones
+  const zone = zones[0];
 
-    const items: MediaItem[] = [];
-    let stepNumber = 0;
+  // Don't show media if the top zone doesn't strongly match the question
+  if ((zone._relevanceScore ?? 0) < MIN_MEDIA_SCORE) return [];
+  const items: MediaItem[] = [];
+  let stepNumber = 0;
 
-    for (const step of (zone.steps || [])) {
-      const content = step.content as any;
-      if (!content?.mediaUrl) continue;
-      const stepType = (step.type || '').toUpperCase();
-      if (stepType !== 'IMAGE' && stepType !== 'VIDEO') continue;
+  for (const step of (zone.steps || [])) {
+    const content = step.content as any;
+    if (!content?.mediaUrl) continue;
+    const stepType = (step.type || '').toUpperCase();
+    if (stepType !== 'IMAGE' && stepType !== 'VIDEO') continue;
 
-      stepNumber++;
-      const title = getLocalizedText(step.title, language) || '';
-      // Step text: prefer content text, fall back to title
-      const contentText = getLocalizedText(content, language) || '';
-      const stepText = contentText || title || undefined;
+    stepNumber++;
+    const title = getLocalizedText(step.title, language) || '';
+    // Step text: prefer content text, fall back to title
+    const contentText = getLocalizedText(content, language) || '';
+    const stepText = contentText || title || undefined;
 
-      items.push({
-        type: stepType as 'IMAGE' | 'VIDEO',
-        url: content.mediaUrl,
-        caption: title || getLocalizedText(zone.name, language) || '',
-        stepText,
-        stepIndex: stepNumber,
-      });
-      if (items.length >= 8) break;
-    }
-
-    // Found media in this zone — return it
-    if (items.length > 0) return items;
-    // Otherwise try the next zone
+    items.push({
+      type: stepType as 'IMAGE' | 'VIDEO',
+      url: content.mediaUrl,
+      caption: title || getLocalizedText(zone.name, language) || '',
+      stepText,
+      stepIndex: stepNumber,
+    });
+    if (items.length >= 8) break;
   }
-  return [];
+  return items;
 }
 
 // Synonyms for recommendation categories
@@ -545,25 +536,6 @@ function getKeywords(text: unknown): string[] {
     .filter(w => w.length >= 3);
 }
 
-// Returns word stem by stripping trailing plural suffixes (es|s) for words >= 4 chars.
-// Used to match "restaurantes" ↔ "restaurante", "playas" ↔ "playa", etc.
-// Short words (< 4 chars after strip) are returned as-is to avoid over-stemming.
-function stem(w: string): string {
-  if (w.length < 5) return w;
-  if (w.endsWith('es') && w.length > 5) return w.slice(0, -2);
-  if (w.endsWith('s') && w.length > 4) return w.slice(0, -1);
-  return w;
-}
-
-// Checks if a user keyword matches a synonym, using exact match OR stem comparison.
-// Replaces the previous .includes() bidirectional check which caused false positives
-// like "barbacoa".includes("bar") = true → pub recommendations showing for BBQ questions.
-function keywordMatchesSynonym(userKeyword: string, synonym: string): boolean {
-  if (userKeyword === synonym) return true;
-  if (userKeyword.length >= 4 && synonym.length >= 4 && stem(userKeyword) === stem(synonym)) return true;
-  return false;
-}
-
 interface RecommendationCard {
   name: string
   address: string
@@ -579,7 +551,7 @@ interface RecommendationCard {
 // Patterns that signal the guest is actively looking for a place to go/visit.
 // Without one of these, a keyword match alone is not enough — the guest might just be
 // asking about a property feature (e.g. "¿hay barbacoa?" ≠ "¿dónde hay un asador?").
-const RECOMMENDATION_INTENT_PATTERNS = /\b(d[oó]nde|where|recomiend|suggest|recomend|qu[eé] hay|what.s (there|near|around)|busco|looking for|quiero (ir|comer|cenar|visitar|ver)|me gustar[íi]a|can you (suggest|recommend)|any (good|nice|restaurant|place|bar|beach|cafe|shop)|cerca|near(by)?|al lado|a pie|andando|caminando|walking|qué (restaurante|bar|playa|tienda|museo|sitio)|hay (algún|alguna|algun)|is there (a|any)|are there (any)?|o[ùu] (est|sont|se trouve|trouver|aller)|cherche|je cherche|recommande[rz]?|vous recommande|y a.t.il|il y a|pr[eè]s (de|d'ici)|[àa] (pied|proximit[eé])|en marchant|trouver (un|une|des)|meilleur[es]? (restaurant|bar|plage|caf[eé]|mus[eé]e)|dove (posso|si trova|sono|mangiare|bere|andare)|cerco|vorrei (andare|mangiare|visitare|trovare)|vicino|a piedi|nelle vicinanze|qui vicino|consiglia|mi consiglia|c'[eè] (un|una)|ci sono|miglior[ei]? (ristorante|bar|spiaggia|caf[eè]|museo))\b/i;
+const RECOMMENDATION_INTENT_PATTERNS = /\b(d[oó]nde|where|recomiend|suggest|recomend|qu[eé] hay|what.s (there|near|around)|busco|looking for|quiero (ir|comer|cenar|visitar|ver)|me gustar[íi]a|can you (suggest|recommend)|any (good|nice|restaurant|place|bar|beach|cafe|shop)|cerca|near(by)?|al lado|a pie|andando|caminando|walking|qué (restaurante|bar|playa|tienda|museo|sitio)|hay (algún|alguna|algun)|is there (a|any)|are there (any)?|o[ùu] (est|sont|se trouve|trouver|aller)|cherche|je cherche|recommande[rz]?|vous recommande|y a.t.il|il y a|pr[eè]s (de|d'ici)|[àa] (pied|proximit[eé])|en marchant|trouver (un|une|des)|meilleur[es]? (restaurant|bar|plage|caf[eé]|mus[eé]e))\b/i;
 
 function detectRelevantRecommendations(userMessage: string, aiResponse: string, zones: any[], language: string, isUnanswered = false): RecommendationCard[] {
   const cards: RecommendationCard[] = [];
@@ -589,12 +561,7 @@ function detectRelevantRecommendations(userMessage: string, aiResponse: string, 
   // Only apply keyword-based matching when the guest is clearly seeking a recommendation.
   // Without this guard, property-feature questions ("¿hay barbacoa?", "¿hay jardín?")
   // would trigger restaurant/park recommendation cards by keyword collision.
-  //
-  // Exception: "qué hay" / "what's there" can refer to property contents ("¿qué hay en
-  // los armarios?") so we cancel intent if the message also contains a property-feature word.
-  const PROPERTY_FEATURE_WORDS = /\b(armario|armarios|caj[oó]n|caj[oó]ns|nevera|frigor[ií]fico|lavadora|secadora|microondas|horno|cafetera|tostadora|plancha|aspiradora|toalla|toallas|s[aá]bana|s[aá]banas|almohada|manta|mantas|enchufe|enchufes|cargador|calefacci[oó]n|aire acondicionado|termo|caldera|cuarto|habitaci[oó]n|ba[nñ]o|cocina|terraza|balc[oó]n|trastero|garaje|taquilla|caja fuerte|safe)\b/i;
-  const hasRecommendationIntent = RECOMMENDATION_INTENT_PATTERNS.test(userMessage)
-    && !PROPERTY_FEATURE_WORDS.test(userMessage);
+  const hasRecommendationIntent = RECOMMENDATION_INTENT_PATTERNS.test(userMessage);
 
   for (const zone of zones) {
     if (zone.type !== 'RECOMMENDATIONS' || !zone.recommendations?.length) continue;
@@ -610,18 +577,16 @@ function detectRelevantRecommendations(userMessage: string, aiResponse: string, 
     // 2. The message signals recommendation intent — prevents showing grill restaurants
     //    when the guest asks "¿hay barbacoa en la terraza?" (property feature question)
     if (!isUnanswered && hasRecommendationIntent) {
-      // Direct category synonym match — uses stem comparison to handle plurals/variants
-      // (e.g. "restaurantes" matches synonym "restaurante") without false positives
-      // from substring matching (e.g. "barbacoa".includes("bar") used to match pub/bar category)
+      // Direct category synonym match — bidirectional to handle plurals/variants
       const synonyms = RECOMMENDATION_SYNONYMS[categoryId] || [];
-      if (synonyms.some(s => userKeywordsArr.some(uk => keywordMatchesSynonym(uk, s)))) {
+      if (synonyms.some(s => userKeywords.has(s) || userKeywordsArr.some(uk => uk.includes(s) || s.includes(uk)))) {
         matches = true;
       }
 
-      // Zone name match — stem-based: "restaurantes" matches zone "Restaurante"
+      // Zone name match — bidirectional: "restaurantes" matches zone "Restaurante"
       if (!matches) {
         const zoneWords = getKeywords(zoneName);
-        if (zoneWords.some(w => userKeywordsArr.some(uk => keywordMatchesSynonym(uk, w)))) {
+        if (zoneWords.some(w => userKeywords.has(w) || userKeywordsArr.some(uk => uk.includes(w) || w.includes(uk)))) {
           matches = true;
         }
       }
@@ -644,7 +609,7 @@ function detectRelevantRecommendations(userMessage: string, aiResponse: string, 
     if (!matches) continue;
 
     // Detect proximity query — user wants places close to the apartment
-    const isNearbyQuery = /cerca|cercan|próxim|proxim|andando|caminando|walking|near\b|close\b|al lado|a pie|pr[eè]s (de|d'ici)|[àa] pied|[àa] proximit[eé]|en marchant|vicino|a piedi|nelle vicinanze|qui vicino/i.test(userMessage);
+    const isNearbyQuery = /cerca|cercan|próxim|proxim|andando|caminando|walking|near\b|close\b|al lado|a pie/i.test(userMessage);
     const NEARBY_MAX_METERS = 1500; // ~18 min walk
 
     // Sort by distance ascending (closest first); unknowns go to the end
@@ -845,319 +810,54 @@ async function getCachedProperty(propertyId: string): Promise<any | null> {
 // Without this, single-word queries like "Address" or "Luggage" score 0 against zone names
 // and get cut before GPT ever sees the relevant content.
 const QUERY_EXPANSIONS: Record<string, string[]> = {
-
-  // ── CHECK-IN / ENTRADA ──────────────────────────────────────────────────
-  checkin:      ['check', 'entrada', 'acceso', 'llegada', 'llave', 'key', 'door', 'puerta', 'codigo', 'code'],
-  'check-in':   ['check', 'entrada', 'acceso', 'llegada', 'llave', 'puerta'],
-  entro:        ['check', 'entrada', 'acceso', 'llave', 'puerta', 'llegada'],
-  entrar:       ['check', 'entrada', 'acceso', 'llave', 'puerta', 'llegada'],
-  entre:        ['check', 'entrada', 'acceso', 'llave', 'puerta'],
-  entramos:     ['check', 'entrada', 'acceso', 'llave', 'puerta'],
-  entras:       ['check', 'entrada', 'acceso', 'llave', 'puerta'],
-  ingreso:      ['check', 'entrada', 'acceso', 'llave'],
-  ingresar:     ['check', 'entrada', 'acceso', 'llave'],
-  abrir:        ['check', 'llave', 'puerta', 'acceso', 'entrada', 'door', 'codigo'],
-  abre:         ['check', 'llave', 'puerta', 'acceso', 'entrada', 'door'],
-  abro:         ['check', 'llave', 'puerta', 'acceso', 'entrada'],
-  open:         ['check', 'llave', 'puerta', 'acceso', 'entrada', 'door'],
-  acceder:      ['check', 'acceso', 'entrada', 'llave', 'puerta', 'llegada'],
-  accedo:       ['check', 'acceso', 'entrada', 'llave', 'puerta'],
-  llego:        ['check', 'llegada', 'acceso', 'entrada', 'llave'],
-  llegar:       ['check', 'llegada', 'acceso', 'entrada', 'llave'],
-  llegada:      ['check', 'entrada', 'acceso', 'llave'],
-  llegamos:     ['check', 'llegada', 'acceso', 'entrada', 'llave'],
-  llegare:      ['check', 'llegada', 'acceso', 'entrada'],
-  entrada:      ['check', 'acceso', 'llave', 'puerta', 'door'],
-  acceso:       ['check', 'entrada', 'llave', 'puerta', 'door'],
-  puerta:       ['check', 'llave', 'acceso', 'entrada', 'door', 'lockbox', 'codigo'],
-  door:         ['puerta', 'acceso', 'entrada', 'llave', 'key', 'check', 'lockbox', 'codigo'],
-  key:          ['llave', 'acceso', 'check', 'entrada', 'puerta', 'door', 'lockbox', 'codigo'],
-  keys:         ['llave', 'acceso', 'check', 'entrada', 'puerta', 'door'],
-  llave:        ['acceso', 'check', 'entrada', 'puerta', 'door', 'lockbox', 'codigo'],
-  lockbox:      ['llave', 'check', 'entrada', 'puerta', 'codigo', 'caja'],
-  codigo:       ['check', 'llave', 'entrada', 'puerta', 'acceso', 'lockbox'],
-  code:         ['check', 'llave', 'entrada', 'puerta', 'acceso', 'lockbox', 'codigo'],
-  pin:          ['check', 'codigo', 'llave', 'acceso', 'puerta', 'entrada'],
-  caja:         ['check', 'lockbox', 'llave', 'entrada', 'acceso'],
-  'caja fuerte':['check', 'lockbox', 'llave', 'acceso'],
-  instrucciones:['check', 'entrada', 'acceso', 'salida', 'normas'],
-  instruccion:  ['check', 'entrada', 'acceso', 'salida'],
-  como:         ['check', 'entrada', 'acceso', 'wifi', 'cocina', 'salida'],
-
-  // ── CHECK-OUT / SALIDA ──────────────────────────────────────────────────
-  checkout:     ['salida', 'departure', 'leaving', 'leave', 'irse', 'marcharse', 'dejar'],
-  'check-out':  ['salida', 'departure', 'leaving', 'irse', 'marcharse'],
-  salgo:        ['salida', 'checkout', 'irse', 'marcharse', 'departure'],
-  salir:        ['salida', 'checkout', 'irse', 'marcharse', 'departure', 'leaving'],
-  sale:         ['salida', 'checkout', 'irse'],
-  salimos:      ['salida', 'checkout', 'irse', 'marcharse'],
-  saldré:       ['salida', 'checkout', 'departure'],
-  marcho:       ['salida', 'checkout', 'irse', 'marcharse'],
-  marcharme:    ['salida', 'checkout', 'irse', 'marcharse'],
-  marchamos:    ['salida', 'checkout', 'irse', 'marcharse'],
-  irse:         ['salida', 'checkout', 'departure', 'leaving'],
-  irme:         ['salida', 'checkout', 'departure', 'leaving'],
-  irnos:        ['salida', 'checkout', 'departure', 'leaving'],
-  voy:          ['salida', 'checkout', 'irse'],
-  vamos:        ['salida', 'checkout', 'irse'],
-  dejar:        ['salida', 'checkout', 'irse', 'llave'],
-  dejo:         ['salida', 'checkout', 'llave', 'irse'],
-  dejamos:      ['salida', 'checkout', 'llave', 'irse'],
-  leave:        ['salida', 'checkout', 'departure', 'leaving', 'irse'],
-  leaving:      ['salida', 'checkout', 'departure', 'irse'],
-  departure:    ['salida', 'checkout', 'leaving', 'irse'],
-  partir:       ['salida', 'checkout', 'irse'],
-  parto:        ['salida', 'checkout', 'irse'],
-  partimos:     ['salida', 'checkout', 'irse'],
-  salida:       ['checkout', 'departure', 'leaving', 'irse'],
-
-  // ── WIFI / INTERNET ─────────────────────────────────────────────────────
-  wifi:         ['wifi', 'wi-fi', 'internet', 'password', 'contrasena', 'clave', 'red', 'network', 'conexion'],
-  'wi-fi':      ['wifi', 'internet', 'password', 'contrasena', 'clave'],
-  internet:     ['wifi', 'wi-fi', 'internet', 'password', 'contrasena', 'red', 'conexion'],
-  password:     ['wifi', 'wi-fi', 'internet', 'contrasena', 'clave'],
-  contrasena:   ['wifi', 'wi-fi', 'internet', 'clave', 'password'],
-  clave:        ['wifi', 'wi-fi', 'internet', 'contrasena', 'password'],
-  red:          ['wifi', 'wi-fi', 'internet', 'red', 'network', 'conexion'],
-  network:      ['wifi', 'wi-fi', 'internet', 'red', 'conexion'],
-  conexion:     ['wifi', 'wi-fi', 'internet', 'red'],
-  conectar:     ['wifi', 'wi-fi', 'internet', 'conexion', 'red'],
-  conecto:      ['wifi', 'wi-fi', 'internet', 'conexion'],
-  conectarse:   ['wifi', 'wi-fi', 'internet', 'conexion'],
-
-  // ── PARKING / COCHE ─────────────────────────────────────────────────────
-  parking:      ['parking', 'aparcamiento', 'coche', 'garaje', 'car', 'garage', 'aparcar', 'estacionamiento'],
-  aparcar:      ['parking', 'aparcamiento', 'coche', 'garaje', 'estacionamiento'],
-  aparco:       ['parking', 'aparcamiento', 'coche', 'garaje'],
-  aparcamiento: ['parking', 'coche', 'garaje', 'aparcar', 'estacionamiento'],
-  estacionamiento: ['parking', 'aparcamiento', 'coche', 'garaje'],
-  estacionar:   ['parking', 'aparcamiento', 'coche', 'garaje'],
-  coche:        ['parking', 'aparcamiento', 'garaje', 'car', 'garage'],
-  car:          ['parking', 'aparcamiento', 'coche', 'garaje', 'garage'],
-  garaje:       ['parking', 'aparcamiento', 'coche', 'car', 'garage'],
-  garage:       ['parking', 'aparcamiento', 'coche', 'garaje', 'car'],
-  park:         ['parking', 'aparcamiento', 'garaje'],
-  moto:         ['parking', 'aparcamiento', 'garaje'],
-  bici:         ['parking', 'aparcamiento', 'bicicleta'],
-  bicicleta:    ['parking', 'aparcamiento', 'bici'],
-
-  // ── COCINA / ELECTRODOMÉSTICOS ──────────────────────────────────────────
-  cocina:         ['cocina', 'kitchen', 'cocinar', 'vitro', 'horno', 'microondas', 'nevera', 'frigorifico', 'cafetera'],
-  kitchen:        ['cocina', 'cocinar', 'vitro', 'horno', 'microondas', 'cooking', 'oven'],
-  cocinar:        ['cocina', 'kitchen', 'vitro', 'horno', 'microondas', 'placa', 'fuegos'],
-  cocinamos:      ['cocina', 'kitchen', 'vitro', 'horno'],
-  vitroceramica:  ['cocina', 'vitro', 'placa', 'induccion', 'kitchen', 'fuegos'],
-  vitro:          ['cocina', 'vitroceramica', 'placa', 'induccion', 'kitchen'],
-  induccion:      ['cocina', 'vitroceramica', 'vitro', 'placa', 'kitchen'],
-  placa:          ['cocina', 'vitroceramica', 'vitro', 'induccion', 'kitchen', 'fuegos'],
-  fuegos:         ['cocina', 'vitro', 'placa', 'kitchen'],
-  horno:          ['cocina', 'kitchen', 'oven', 'cocinar'],
+  // Address / location
+  address:    ['llegar', 'llegada', 'ubicacion', 'location', 'directions', 'get here', 'calle', 'street', 'how to get'],
+  location:   ['llegar', 'llegada', 'ubicacion', 'location', 'directions', 'get here'],
+  where:      ['llegar', 'llegada', 'ubicacion', 'location', 'get here'],
+  directions: ['llegar', 'llegada', 'ubicacion', 'como llegar', 'get here'],
+  map:        ['llegar', 'llegada', 'ubicacion', 'location', 'get here'],
+  // Luggage / storage
+  luggage:    ['equipaje', 'maleta', 'storage', 'consigna', 'bag'],
+  bag:        ['equipaje', 'maleta', 'storage', 'consigna', 'luggage'],
+  bags:       ['equipaje', 'maleta', 'storage', 'consigna', 'luggage'],
+  suitcase:   ['equipaje', 'maleta', 'storage', 'consigna'],
+  storage:    ['equipaje', 'maleta', 'consigna', 'luggage', 'almacen'],
+  // WiFi / internet
+  wifi:       ['wifi', 'wi-fi', 'internet', 'password', 'contrasena', 'clave'],
+  internet:   ['wifi', 'wi-fi', 'internet', 'password', 'contrasena'],
+  password:   ['wifi', 'wi-fi', 'internet', 'contrasena', 'clave'],
+  // Check-in / access
+  checkin:    ['check', 'entrada', 'acceso', 'llegada', 'llave', 'key', 'door', 'puerta'],
+  checkout:   ['salida', 'checkout', 'departure', 'leaving', 'leave', 'irse', 'marcharse', 'dejar'],
+  key:        ['llave', 'acceso', 'check', 'entrada', 'puerta', 'door', 'lockbox'],
+  keys:       ['llave', 'acceso', 'check', 'entrada', 'puerta', 'door'],
+  door:       ['puerta', 'acceso', 'entrada', 'llave', 'key', 'check', 'lockbox'],
+  // Parking
+  parking:    ['parking', 'aparcamiento', 'coche', 'garaje', 'car', 'garage'],
+  car:        ['parking', 'aparcamiento', 'coche', 'garaje', 'garage'],
+  park:       ['parking', 'aparcamiento', 'garaje'],
+  // Kitchen / appliances
+  cocina:         ['vitroceramica', 'vitro', 'cocinar', 'kitchen', 'cooking', 'placa', 'induccion', 'horno', 'oven', 'microondas', 'microwave', 'fuegos'],
+  kitchen:        ['cocina', 'vitroceramica', 'vitro', 'cocinar', 'cooking', 'placa', 'horno', 'oven', 'fuegos'],
+  vitroceramica:  ['cocina', 'vitro', 'placa', 'induccion', 'kitchen', 'cooking', 'fuegos'],
+  vitro:          ['vitroceramica', 'cocina', 'placa', 'induccion', 'kitchen', 'cooking'],
+  induccion:      ['vitroceramica', 'vitro', 'cocina', 'placa', 'kitchen', 'cooking'],
+  placa:          ['vitroceramica', 'vitro', 'cocina', 'induccion', 'kitchen', 'cooking'],
+  horno:          ['cocina', 'kitchen', 'oven', 'cooking', 'cocinar'],
   oven:           ['horno', 'cocina', 'kitchen', 'cooking'],
-  microondas:     ['cocina', 'kitchen', 'microwave'],
-  microwave:      ['microondas', 'cocina', 'kitchen'],
-  nevera:         ['cocina', 'kitchen', 'frigorifico', 'fridge', 'refrigerador'],
-  frigorifico:    ['cocina', 'kitchen', 'nevera', 'fridge', 'refrigerador'],
-  fridge:         ['nevera', 'frigorifico', 'cocina', 'kitchen', 'refrigerador'],
-  cafetera:       ['cocina', 'kitchen', 'cafe', 'coffee', 'capsula', 'nespresso'],
-  cafe:           ['cafetera', 'cocina', 'coffee', 'capsula', 'nespresso', 'desayuno'],
-  coffee:         ['cafetera', 'cocina', 'cafe', 'kitchen'],
-  nespresso:      ['cafetera', 'cocina', 'cafe', 'coffee', 'capsula'],
-  capsula:        ['cafetera', 'cocina', 'cafe', 'coffee', 'nespresso'],
-  lavavajillas:   ['cocina', 'kitchen', 'dishwasher', 'fregar'],
-  dishwasher:     ['lavavajillas', 'cocina', 'kitchen', 'fregar'],
-  fregar:         ['lavavajillas', 'cocina', 'kitchen'],
-  lavadora:       ['lavadora', 'laundry', 'washing', 'lavar', 'ropa', 'lavanderia'],
-  washing:        ['lavadora', 'laundry', 'lavar', 'lavanderia'],
-  laundry:        ['lavadora', 'washing', 'lavar', 'lavanderia'],
-  lavar:          ['lavadora', 'laundry', 'washing', 'lavanderia'],
-  lavanderia:     ['lavadora', 'laundry', 'washing', 'lavar'],
-
-  // ── AIRE ACONDICIONADO / CALEFACCIÓN / TEMPERATURA ──────────────────────
-  aire:           ['aire', 'acondicionado', 'climatizacion', 'temperatura', 'frio', 'calor', 'calefaccion', 'ac'],
-  acondicionado:  ['aire', 'climatizacion', 'temperatura', 'frio', 'calor', 'ac'],
-  'aire acondicionado': ['clima', 'temperatura', 'frio', 'calor', 'ac'],
-  calefaccion:    ['calefaccion', 'calor', 'temperatura', 'termostato', 'radiador', 'heating'],
-  calor:          ['aire', 'acondicionado', 'calefaccion', 'temperatura', 'termostato', 'ventilador'],
-  frio:           ['aire', 'acondicionado', 'calefaccion', 'temperatura', 'calor'],
-  temperatura:    ['aire', 'acondicionado', 'calefaccion', 'termostato', 'calor', 'frio'],
-  termostato:     ['calefaccion', 'temperatura', 'calor', 'frio', 'aire'],
-  heating:        ['calefaccion', 'calor', 'temperatura', 'termostato'],
-  radiador:       ['calefaccion', 'calor', 'temperatura'],
-  ventilador:     ['aire', 'calor', 'temperatura'],
-  climatizacion:  ['aire', 'acondicionado', 'calefaccion', 'temperatura'],
-  climatizar:     ['aire', 'acondicionado', 'calefaccion', 'temperatura'],
-
-  // ── PISCINA / JACUZZI / TERRAZA ──────────────────────────────────────────
-  piscina:        ['piscina', 'pool', 'bano', 'nadar', 'jacuzzi', 'spa'],
-  pool:           ['piscina', 'nadar', 'bano', 'jacuzzi', 'spa'],
-  nadar:          ['piscina', 'pool', 'bano', 'playa'],
-  jacuzzi:        ['piscina', 'jacuzzi', 'spa', 'bano'],
-  spa:            ['piscina', 'jacuzzi', 'spa', 'bano'],
-  terraza:        ['terraza', 'balcon', 'patio', 'exterior', 'jardin'],
-  balcon:         ['terraza', 'balcon', 'patio', 'exterior'],
-  jardin:         ['terraza', 'jardin', 'patio', 'exterior'],
-
-  // ── NORMAS / REGLAS DE LA CASA ───────────────────────────────────────────
-  normas:         ['normas', 'reglas', 'rules', 'prohibido', 'permitido', 'casa'],
-  reglas:         ['normas', 'reglas', 'rules', 'prohibido', 'permitido'],
-  rules:          ['normas', 'reglas', 'prohibido', 'permitido'],
-  prohibido:      ['normas', 'reglas', 'rules', 'prohibido'],
-  permitido:      ['normas', 'reglas', 'rules', 'permitido'],
-  mascotas:       ['normas', 'reglas', 'mascotas', 'perro', 'gato', 'animales', 'pets'],
-  pets:           ['normas', 'mascotas', 'perro', 'gato', 'animales'],
-  perro:          ['normas', 'mascotas', 'pets', 'animales'],
-  gato:           ['normas', 'mascotas', 'pets', 'animales'],
-  animales:       ['normas', 'mascotas', 'pets', 'perro', 'gato'],
-  fumar:          ['normas', 'reglas', 'fumar', 'tabaco', 'smoking'],
-  fumo:           ['normas', 'reglas', 'fumar', 'tabaco', 'smoking'],
-  smoking:        ['normas', 'reglas', 'fumar', 'tabaco'],
-  tabaco:         ['normas', 'reglas', 'fumar', 'smoking'],
-  ruido:          ['normas', 'reglas', 'ruido', 'silencio', 'musica'],
-  silencio:       ['normas', 'reglas', 'ruido', 'silencio'],
-  musica:         ['normas', 'reglas', 'ruido', 'silencio'],
-  fiesta:         ['normas', 'reglas', 'fiesta', 'ruido'],
-  party:          ['normas', 'reglas', 'fiesta', 'ruido'],
-
-  // ── BASURA / RECICLAJE ───────────────────────────────────────────────────
-  basura:         ['basura', 'reciclaje', 'residuos', 'contenedor', 'cubo', 'trash', 'recycling'],
-  reciclaje:      ['basura', 'reciclaje', 'residuos', 'contenedor'],
-  reciclar:       ['basura', 'reciclaje', 'residuos', 'contenedor'],
-  residuos:       ['basura', 'reciclaje', 'contenedor'],
-  contenedor:     ['basura', 'reciclaje', 'residuos', 'cubo'],
-  trash:          ['basura', 'reciclaje', 'residuos', 'contenedor'],
-  recycling:      ['reciclaje', 'basura', 'residuos'],
-
-  // ── RESTAURANTES / COMIDA ────────────────────────────────────────────────
-  comer:          ['restaurante', 'restaurant', 'comida', 'cenar', 'food', 'tapas', 'bar', 'gastronomia'],
-  cenar:          ['restaurante', 'restaurant', 'cena', 'dinner', 'food', 'comida'],
-  almorzar:       ['restaurante', 'restaurant', 'almuerzo', 'lunch', 'food', 'comida'],
-  desayunar:      ['restaurante', 'cafeteria', 'cafe', 'breakfast', 'desayuno'],
-  cena:           ['restaurante', 'restaurant', 'cenar', 'dinner', 'food'],
-  almuerzo:       ['restaurante', 'restaurant', 'lunch', 'food'],
-  desayuno:       ['cafe', 'cafeteria', 'desayunar', 'breakfast', 'restaurante'],
-  comida:         ['restaurante', 'restaurant', 'comer', 'food', 'tapas', 'gastronomia'],
-  food:           ['restaurante', 'restaurant', 'comida', 'comer', 'tapas', 'bar'],
-  tapas:          ['restaurante', 'bar', 'tapas', 'comida', 'food'],
-  bar:            ['restaurante', 'bar', 'tapas', 'comida', 'cafe'],
-  gastronomia:    ['restaurante', 'restaurant', 'comida', 'comer', 'tapas'],
-  dinner:         ['restaurante', 'cenar', 'cena', 'comida', 'food'],
-  lunch:          ['restaurante', 'almorzar', 'almuerzo', 'comida', 'food'],
-  breakfast:      ['cafe', 'cafeteria', 'desayuno', 'desayunar', 'restaurante'],
-  brunch:         ['cafe', 'cafeteria', 'desayuno', 'restaurante'],
-
-  // ── TURISMO / QUÉ VER / ACTIVIDADES ─────────────────────────────────────
-  ver:            ['visitas', 'turismo', 'monumentos', 'lugares', 'actividades', 'pasear'],
-  visitar:        ['visitas', 'turismo', 'monumentos', 'lugares', 'actividades'],
-  visita:         ['visitas', 'turismo', 'monumentos', 'lugares', 'actividades'],
-  visitas:        ['turismo', 'monumentos', 'lugares', 'actividades', 'pasear'],
-  turismo:        ['visitas', 'monumentos', 'lugares', 'actividades', 'pasear'],
-  turistico:      ['visitas', 'turismo', 'monumentos', 'lugares'],
-  monumento:      ['visitas', 'turismo', 'monumentos', 'lugares'],
-  monumentos:     ['visitas', 'turismo', 'monumento', 'lugares'],
-  museo:          ['visitas', 'turismo', 'museos', 'monumentos', 'lugares'],
-  museos:         ['visitas', 'turismo', 'museo', 'monumentos'],
-  actividades:    ['visitas', 'turismo', 'actividades', 'pasear', 'ocio'],
-  actividad:      ['visitas', 'turismo', 'actividades', 'ocio'],
-  pasear:         ['visitas', 'turismo', 'actividades', 'paseo'],
-  paseo:          ['visitas', 'turismo', 'actividades', 'pasear'],
-  ocio:           ['visitas', 'turismo', 'actividades', 'ocio'],
-  sightseeing:    ['visitas', 'turismo', 'monumentos', 'lugares'],
-  playa:          ['playa', 'mar', 'arena', 'bano', 'nadar', 'beach'],
-  beach:          ['playa', 'mar', 'arena', 'bano', 'nadar'],
-  mar:            ['playa', 'beach', 'nadar', 'bano'],
-  excursion:      ['visitas', 'turismo', 'actividades', 'excursion'],
-  excursiones:    ['visitas', 'turismo', 'actividades', 'excursion'],
-  hacer:          ['actividades', 'visitas', 'turismo', 'ocio'],
-  hacemos:        ['actividades', 'visitas', 'turismo', 'ocio'],
-
-  // ── SUPERMERCADO / COMPRAS ───────────────────────────────────────────────
-  supermercado:   ['supermercado', 'compras', 'tienda', 'mercado', 'shopping'],
-  compras:        ['supermercado', 'tienda', 'mercado', 'shopping', 'comprar'],
-  comprar:        ['supermercado', 'tienda', 'mercado', 'compras', 'shopping'],
-  tienda:         ['supermercado', 'compras', 'mercado', 'shopping'],
-  mercado:        ['supermercado', 'tienda', 'compras', 'mercado'],
-  shopping:       ['supermercado', 'tienda', 'compras', 'mercado'],
-  farmacia:       ['farmacia', 'medicamentos', 'pastillas', 'medico'],
-  medico:         ['farmacia', 'medico', 'urgencias', 'hospital', 'emergencias'],
-  hospital:       ['emergencias', 'urgencias', 'medico', 'hospital'],
-
-  // ── TRANSPORTE ───────────────────────────────────────────────────────────
-  bus:            ['bus', 'autobus', 'transporte', 'metro', 'parada'],
-  autobus:        ['bus', 'transporte', 'metro', 'parada'],
-  metro:          ['metro', 'transporte', 'bus', 'parada', 'estacion'],
-  taxi:           ['taxi', 'transporte', 'uber', 'cab'],
-  uber:           ['taxi', 'transporte', 'cab'],
-  transporte:     ['bus', 'metro', 'taxi', 'transporte', 'uber'],
-  tren:           ['tren', 'transporte', 'estacion', 'metro'],
-  estacion:       ['tren', 'metro', 'bus', 'transporte', 'estacion'],
-  aeropuerto:     ['aeropuerto', 'airport', 'vuelo', 'transporte'],
-  airport:        ['aeropuerto', 'transporte', 'taxi', 'bus'],
-
-  // ── DIRECCIÓN / UBICACIÓN ────────────────────────────────────────────────
-  address:        ['llegar', 'llegada', 'ubicacion', 'location', 'directions', 'calle', 'street', 'mapa'],
-  location:       ['llegar', 'llegada', 'ubicacion', 'directions', 'mapa'],
-  where:          ['llegar', 'llegada', 'ubicacion', 'location', 'mapa'],
-  directions:     ['llegar', 'llegada', 'ubicacion', 'mapa', 'calle'],
-  map:            ['llegar', 'llegada', 'ubicacion', 'location', 'mapa'],
-  mapa:           ['llegar', 'llegada', 'ubicacion', 'location', 'directions'],
-  ubicacion:      ['llegar', 'llegada', 'location', 'mapa', 'directions'],
-  direccion:      ['llegar', 'llegada', 'ubicacion', 'location', 'mapa', 'calle'],
-  calle:          ['llegar', 'llegada', 'ubicacion', 'location', 'mapa'],
-
-  // ── EQUIPAJE / MALETAS ───────────────────────────────────────────────────
-  luggage:        ['equipaje', 'maleta', 'storage', 'consigna', 'bag', 'maletas'],
-  bag:            ['equipaje', 'maleta', 'storage', 'consigna', 'luggage'],
-  bags:           ['equipaje', 'maleta', 'storage', 'consigna', 'luggage'],
-  suitcase:       ['equipaje', 'maleta', 'storage', 'consigna'],
-  storage:        ['equipaje', 'maleta', 'consigna', 'luggage', 'almacen'],
-  maleta:         ['equipaje', 'storage', 'consigna', 'luggage', 'maletas'],
-  maletas:        ['equipaje', 'storage', 'consigna', 'luggage', 'maleta'],
-  equipaje:       ['maleta', 'storage', 'consigna', 'luggage', 'maletas'],
-  consigna:       ['equipaje', 'maleta', 'storage', 'luggage'],
-
-  // ── TOALLAS / ROPA DE CAMA ───────────────────────────────────────────────
-  toallas:        ['toallas', 'ropa', 'cama', 'sabanas', 'limpieza', 'towels'],
-  toalla:         ['toallas', 'ropa', 'cama', 'sabanas', 'towels'],
-  towels:         ['toallas', 'ropa', 'cama', 'sabanas', 'limpieza'],
-  sabanas:        ['toallas', 'ropa', 'cama', 'sabanas', 'cama'],
-  cama:           ['sabanas', 'toallas', 'ropa', 'cama'],
-  bedding:        ['sabanas', 'toallas', 'ropa', 'cama'],
-  almohada:       ['cama', 'sabanas', 'ropa', 'almohada'],
-  manta:          ['cama', 'sabanas', 'ropa', 'manta'],
-
-  // ── EMERGENCIAS ─────────────────────────────────────────────────────────
-  emergencia:     ['emergencias', 'urgencias', 'medico', 'hospital', 'incendio', 'policia'],
-  emergencias:    ['urgencias', 'medico', 'hospital', 'incendio', 'policia'],
-  urgencias:      ['emergencias', 'medico', 'hospital'],
-  incendio:       ['emergencias', 'urgencias', 'evacuacion', 'salida'],
-  policia:        ['emergencias', 'urgencias', 'policia'],
-
-  // ── SITIOS / RECOMENDACIONES (genérico) ──────────────────────────────────
-  sitios:         ['restaurante', 'visitas', 'lugares', 'recomendacion', 'actividades'],
-  lugares:        ['restaurante', 'visitas', 'sitios', 'recomendacion', 'actividades'],
-  recomienda:     ['restaurante', 'visitas', 'lugares', 'sitios', 'recomendacion'],
-  recomendacion:  ['restaurante', 'visitas', 'lugares', 'sitios'],
-  recomendaciones:['restaurante', 'visitas', 'lugares', 'sitios'],
-  recomendar:     ['restaurante', 'visitas', 'lugares', 'sitios', 'recomendacion'],
-  recomendais:    ['restaurante', 'visitas', 'lugares', 'sitios'],
-  recomendas:     ['restaurante', 'visitas', 'lugares', 'sitios'],
-  mejor:          ['restaurante', 'visitas', 'lugares', 'recomendacion'],
-  mejores:        ['restaurante', 'visitas', 'lugares', 'recomendacion'],
-  cerca:          ['restaurante', 'visitas', 'lugares', 'supermercado', 'farmacia'],
-  cercano:        ['restaurante', 'visitas', 'lugares', 'supermercado'],
-  cercanos:       ['restaurante', 'visitas', 'lugares', 'supermercado'],
-
-  // ── FRANCÉS (huéspedes internacionales) ─────────────────────────────────
-  entrer:         ['check', 'entrada', 'acceso', 'llave', 'puerta'],
-  entree:         ['check', 'entrada', 'acceso', 'llave'],
-  sortir:         ['salida', 'checkout', 'irse', 'departure'],
-  arriver:        ['check', 'llegada', 'acceso', 'entrada'],
-  repartir:       ['salida', 'checkout', 'irse', 'departure'],
-  manger:         ['restaurante', 'restaurant', 'comida', 'comer', 'food'],
-  voir:           ['visitas', 'turismo', 'monumentos', 'lugares'],
-  stationnement:  ['parking', 'aparcamiento', 'coche', 'garaje'],
-  cle:            ['llave', 'check', 'entrada', 'acceso', 'puerta'],
-  voiture:        ['parking', 'aparcamiento', 'coche', 'garaje'],
+  microondas:     ['cocina', 'kitchen', 'microwave', 'cooking'],
+  microwave:      ['microondas', 'cocina', 'kitchen', 'cooking'],
+  washing:        ['lavadora', 'lavar', 'laundry', 'lavanderia'],
+  lavadora:       ['washing', 'lavar', 'laundry', 'lavanderia', 'machine'],
+  laundry:        ['lavadora', 'lavar', 'lavanderia', 'washing', 'machine'],
+  dishwasher:     ['lavavajillas', 'fregar', 'cocina', 'kitchen'],
+  lavavajillas:   ['dishwasher', 'fregar', 'cocina', 'kitchen'],
+  // Spanish equivalents
+  direccion:  ['llegar', 'llegada', 'ubicacion', 'location', 'directions', 'get here', 'calle', 'street'],
+  contrasena: ['wifi', 'wi-fi', 'internet', 'clave'],
+  clave:      ['wifi', 'wi-fi', 'internet', 'contrasena', 'acceso'],
+  maleta:     ['equipaje', 'storage', 'consigna', 'luggage'],
+  llave:      ['acceso', 'check', 'entrada', 'puerta', 'door', 'key'],
 };
 
 function rankZonesByRelevance(message: string, zones: any[], language: string): any[] {
@@ -1211,50 +911,14 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
       if (zoneName.includes(term)) score += 2;
     }
 
-    // Zones with video/image steps get +1 so they're never filtered out entirely —
-    // even if the query doesn't match the zone name, we might still want to show the media
-    const hasMedia = (zone.steps || []).some((step: any) => {
-      const content = step.content as any;
-      const stepType = (step.type || '').toUpperCase();
-      return content?.mediaUrl && (stepType === 'IMAGE' || stepType === 'VIDEO');
-    });
-    if (hasMedia) score += 1;
-
     return { zone, score };
   });
 
-  scored.sort((a, b) => b.score - a.score || (a.zone.order ?? 0) - (b.zone.order ?? 0));
+  scored.sort((a, b) => b.score - a.score);
 
-  // Return top 5 zones for AI context — attach _relevanceScore so collectRelevantMedia can use it.
-  // If any zone scored > 0, drop score-0 zones to avoid sending unrelated context to the AI.
-  // If ALL zones scored 0 (totally generic query), keep them all so AI at least has something.
-  const hasAnyMatch = scored[0]?.score > 0;
-  const filtered = hasAnyMatch ? scored.filter(s => s.score > 0) : scored;
-  const top5 = filtered.slice(0, 5);
-
-  // Guarantee at least one zone with video/image steps is included so collectRelevantMedia
-  // can always show media when the property has videos — even if that zone scored low.
-  const hasMediaZone = top5.some(s =>
-    (s.zone.steps || []).some((step: any) => {
-      const content = step.content as any;
-      const t = (step.type || '').toUpperCase();
-      return content?.mediaUrl && (t === 'IMAGE' || t === 'VIDEO');
-    })
-  );
-  if (!hasMediaZone) {
-    // Find the highest-scoring zone (outside top5) that has media
-    const bonus = filtered.find(s =>
-      !top5.includes(s) &&
-      (s.zone.steps || []).some((step: any) => {
-        const content = step.content as any;
-        const t = (step.type || '').toUpperCase();
-        return content?.mediaUrl && (t === 'IMAGE' || t === 'VIDEO');
-      })
-    );
-    if (bonus) top5.push(bonus);
-  }
-
-  return top5.map(s => ({ ...s.zone, _relevanceScore: s.score }));
+  // Return top 5 zones (up from 3) — short queries after expansion can match more zones
+  // attach _relevanceScore so collectRelevantMedia can filter weak matches
+  return scored.slice(0, 5).map(s => ({ ...s.zone, _relevanceScore: s.score }));
 }
 
 // ========================================
@@ -1709,105 +1373,7 @@ CRITICAL RULES:
   return prompt;
 }
 
-// ========================================
-// GUEST PROFILE EXTRACTION — rule-based, no AI cost
-// ========================================
-
-function extractGuestProfile(conversationHistory: any[]): string {
-  if (!conversationHistory.length) return '';
-
-  const fullText = conversationHistory
-    .filter((m: any) => m.role === 'user')
-    .map((m: any) => (typeof m.content === 'string' ? m.content : ''))
-    .join(' ')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-
-  if (!fullText || fullText.length < 5) return '';
-
-  const profile: string[] = [];
-
-  // Group size
-  const groupMatch = fullText.match(
-    /somos\s+(\w+)|we(?:'re| are)\s+(\d+)|(\d+)\s+(?:personas|people|adults|adultos|viajeros)|estamos\s+(\d+)/
-  );
-  if (groupMatch) {
-    const raw = groupMatch[1] || groupMatch[2] || groupMatch[3] || groupMatch[4];
-    const numWords: Record<string, number> = { dos: 2, tres: 3, cuatro: 4, cinco: 5, seis: 6, two: 2, three: 3, four: 4, five: 5, six: 6 };
-    const num = parseInt(raw) || numWords[raw] || null;
-    if (num && num > 0 && num < 20) profile.push(`Grupo de ${num} personas`);
-  }
-
-  // With kids / babies
-  if (/\b(ninos|ninas|hijos|hijas|kids|children|bebes|bebe|infants|toddler|infant)\b/.test(fullText)) {
-    profile.push('Viajan con niños/bebés');
-  }
-
-  // Trip type
-  if (/\b(pareja|couple|romantic|romantico|aniversario|anniversary|honeymoon|luna de miel)\b/.test(fullText)) {
-    profile.push('Viaje en pareja/romántico');
-  } else if (/\b(familia|family)\b/.test(fullText)) {
-    profile.push('Viaje familiar');
-  } else if (/\b(amigos|friends|grupo de amigos|bachelor|bachelorette|despedida)\b/.test(fullText)) {
-    profile.push('Grupo de amigos');
-  } else if (/\b(trabajo|business|negocios|conference|congreso|conferencia)\b/.test(fullText)) {
-    profile.push('Viaje de negocios');
-  }
-
-  // Food preferences
-  if (/\b(vegetarian|vegetariano|vegano|vegan|plant.based)\b/.test(fullText)) {
-    profile.push('Preferencia: vegetariano/vegano');
-  }
-  if (/\b(alerg|gluten|celiac|celiaco|intolerancia|sin gluten)\b/.test(fullText)) {
-    profile.push('Posible alergia/intolerancia alimentaria');
-  }
-  if (/\b(marisco|seafood|pescado|mariscos)\b/.test(fullText)) {
-    profile.push('Le gusta: marisco/pescado');
-  }
-
-  // Budget / style
-  if (/\b(economico|barato|cheap|budget|affordable|precio bajo)\b/.test(fullText)) {
-    profile.push('Presupuesto: económico');
-  } else if (/\b(gourmet|lujo|luxury|especial|fine dining|high.end|precio no importa)\b/.test(fullText)) {
-    profile.push('Presupuesto: premium/gourmet');
-  }
-
-  // Experience type
-  if (/\b(tranquilo|quiet|relax|descansar|descanso|chill|relajado)\b/.test(fullText)) {
-    profile.push('Busca: ambiente tranquilo/relajado');
-  } else if (/\b(marcha|party|fiesta|nightlife|vida nocturna|discoteca|club|bares)\b/.test(fullText)) {
-    profile.push('Busca: vida nocturna/marcha');
-  }
-
-  if (/\b(cultura|cultural|museo|monument|historia|history|arte|art)\b/.test(fullText)) {
-    profile.push('Interés: cultura/historia/arte');
-  }
-  if (/\b(naturaleza|nature|senderismo|hiking|outdoor|aire libre|montana|playa)\b/.test(fullText)) {
-    profile.push('Interés: naturaleza/outdoor');
-  }
-
-  if (profile.length === 0) return '';
-
-  return `\nPERFIL DETECTADO DEL HUÉSPED:\n${profile.map(p => `- ${p}`).join('\n')}\nUsa este perfil para personalizar tus respuestas. No preguntes de nuevo algo que ya sabes.\n`;
-}
-
-// Build inventory of configured recommendation categories
-function buildCapabilityInventory(zones: any[], language: string): string {
-  const recZones = zones.filter(
-    (z: any) => z.type === 'RECOMMENDATIONS' && Array.isArray(z.recommendations) && z.recommendations.length > 0
-  );
-  if (recZones.length === 0) return '';
-
-  const categories = recZones.map((z: any) => {
-    const name = getLocalizedText(z.name, language);
-    return `✅ ${name} (${z.recommendations.length} lugares)`;
-  });
-
-  return `\nRECOMENDACIONES DISPONIBLES:\n${categories.join('\n')}\nSolo ofrece recomendaciones de estas categorías. Si preguntan por algo no listado, sé honesto: no tienes esa información.\n`;
-}
-
-function buildPropertySystemPrompt(property: any, zones: any[], language: string, guestProfileSection = ''): string {
+function buildPropertySystemPrompt(property: any, zones: any[], language: string): string {
   const hostInfo = buildHostInfo(property.host, language);
 
   // Build all zones content — limit per zone to avoid one zone eating all context
@@ -1853,17 +1419,6 @@ function buildPropertySystemPrompt(property: any, zones: any[], language: string
   const propertyName = getLocalizedText(property.name, language);
 
   const intelligenceSection = buildIntelligenceSection(property);
-  const capabilityInventory = buildCapabilityInventory(zones, language);
-
-  // Property context (set by host in Intelligence section)
-  const intel = property.intelligence as Record<string, any> | null;
-  const propContext = intel?.propertyContext;
-  const propertyContextSection = propContext ? `\nCONTEXTO DE LA PROPIEDAD:\n${[
-    propContext.environment ? `- Entorno: ${propContext.environment}` : '',
-    propContext.typicalGuest ? `- Perfil habitual: ${propContext.typicalGuest}` : '',
-    propContext.localInsiderTip ? `- Tip local del anfitrión: ${propContext.localInsiderTip}` : '',
-    propContext.uniqueFeature ? `- Lo especial: ${propContext.uniqueFeature}` : '',
-  ].filter(Boolean).join('\n')}\n` : '';
 
   const prompt = `You are the virtual concierge for "${propertyName}" in ${property.city}${property.country ? ', ' + property.country : ''}.
 You have access to the complete property manual with all zones and sections.
@@ -1873,9 +1428,6 @@ YOUR KNOWLEDGE BASE — use ONLY this information to answer:
 PROPERTY:
 ${getLocalizedText(property.description, language) || 'N/A'}
 ${intelligenceSection}
-${propertyContextSection}
-${capabilityInventory}
-${guestProfileSection}
 ${hostInfo}
 
 MANUAL ZONES:
@@ -1890,12 +1442,7 @@ CRITICAL RULES:
 5. STAY FOCUSED: Answer ONLY what was asked, using the most relevant zone. DO NOT add information from other unrelated zones. If the question is about checkout, answer only about checkout — never add kitchen, lights, or other zone info unless the guest explicitly asks about it.
 6. STYLE: Be friendly and direct like a WhatsApp chat. Use **bold** for key info. Use bullet lists with -. Max 3 short paragraphs. Use emojis sparingly (📍🏠✅☕🍽️).
 7. HONESTY: If the specific information is NOT in the knowledge base above, tell the guest you don't have that information and recommend contacting the host — always in their language, NEVER hardcoded in Spanish.
-8. ⚠️ ABSOLUTE RULE — NO HALLUCINATION: NEVER invent, assume, or use information from your training data. If check-in times, door codes, addresses, or any detail are NOT explicitly written in the knowledge base above, do NOT mention them. Telling the guest "I don't know, please contact the host" is always better than inventing data.
-9. CONVERSATIONAL INTELLIGENCE — ask ONE question when it genuinely improves your answer:
-   - Guest asks for restaurant/bar recs and you don't know food preference or budget → ask "¿Qué tipo de cocina preferís, o algo concreto que busquéis (ambiente, precio)?"
-   - Guest asks for activities and you don't know group type (kids, couple, etc.) → ask "¿Venís en pareja, con familia o en grupo?"
-   - Guest asks for nightlife and you don't know the vibe they want → ask "¿Buscáis algo tranquilo para tomar algo, o con más marcha?"
-   - ONLY ask if (a) the answer changes significantly AND (b) the guest profile above doesn't already tell you. NEVER ask more than 1 question per reply.`;
+8. ⚠️ ABSOLUTE RULE — NO HALLUCINATION: NEVER invent, assume, or use information from your training data. If check-in times, door codes, addresses, or any detail are NOT explicitly written in the knowledge base above, do NOT mention them. Telling the guest "I don't know, please contact the host" is always better than inventing data.`;
 
   return prompt;
 }

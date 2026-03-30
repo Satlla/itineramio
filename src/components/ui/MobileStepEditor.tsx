@@ -446,7 +446,7 @@ export function MobileStepEditor({
       </div>
 
       {/* Main Content - Carousel Style */}
-      <div className="flex-1 overflow-y-auto p-4 pb-24">
+      <div className="flex-1 overflow-y-auto p-4 pb-32">
         <div className="max-w-md mx-auto">
           {/* Step Indicator */}
           <div className="flex justify-center items-center gap-2 mb-6">

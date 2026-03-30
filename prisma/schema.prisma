@@ -2975,6 +2975,7 @@ model Place {
   address         String
   phone           String?
   website         String?
+  instagramUrl    String?
   photoUrl        String?
   photoUrls       Json?            // Array of photo URLs from Google (up to 5)
   rating          Float?

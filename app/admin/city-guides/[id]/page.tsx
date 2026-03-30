@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, MapPin, Trash2, Loader2, CheckCircle, Plus, ChevronDown, Star, Globe,
   MessageSquare, Pencil, X, Check, ExternalLink, Tag, ChevronLeft, ChevronRight, Utensils, RefreshCw,
-  FolderPlus
+  FolderPlus, Instagram
 } from 'lucide-react'
 import Link from 'next/link'
 import { PlaceSearchInput, PlaceSearchResult } from '../../../../src/components/ui/PlaceSearchInput'
@@ -27,6 +27,8 @@ interface GuidePlace {
     priceLevel?: number | null
     photoUrl?: string | null
     photoUrls?: string[] | null
+    googlePlaceId?: string | null
+    instagramUrl?: string | null
   }
 }
 
@@ -125,6 +127,8 @@ export default function AdminGuideDetailPage() {
   const [adding, setAdding] = useState(false)
   const [removingId, setRemovingId] = useState<string | null>(null)
   const [syncing, setSyncing] = useState(false)
+  const [extracting, setExtracting] = useState(false)
+  const [extractStatus, setExtractStatus] = useState('')
   const [toast, setToast] = useState('')
   const [savedPlaceId, setSavedPlaceId] = useState<string | null>(null)
   const [pendingPlace, setPendingPlace] = useState<PlaceSearchResult | null>(null)
@@ -371,6 +375,40 @@ export default function AdminGuideDetailPage() {
     }
   }
 
+  const handleExtractInstagram = async () => {
+    if (!guide) return
+    setExtracting(true)
+    let offset = 0
+    let totalFound = 0
+    let totalProcessed = 0
+
+    try {
+      while (true) {
+        setExtractStatus(`${totalFound} encontrados (${totalProcessed} procesados)`)
+        const res = await fetch('/api/admin/places/backfill-instagram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ guideId: id, offset }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'Error')
+
+        totalFound += data.found
+        totalProcessed += data.processed
+        if (data.done) break
+        offset = data.nextOffset
+      }
+      showToast(`Instagram extraído: ${totalFound} perfiles encontrados`)
+      fetchGuide()
+    } catch (e: any) {
+      showToast(`Error: ${e.message}`)
+    } finally {
+      setExtracting(false)
+      setExtractStatus('')
+    }
+  }
+
   const handleCopyToCategory = async (gp: GuidePlace, targetCategory: string) => {
     if (!guide || !targetCategory) return
     setCopyingId(gp.id)
@@ -449,8 +487,16 @@ export default function AdminGuideDetailPage() {
               </div>
             </div>
             <button
+              onClick={handleExtractInstagram}
+              disabled={extracting || syncing}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium bg-pink-50 text-pink-700 hover:bg-pink-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
+            >
+              {extracting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Instagram className="w-4 h-4" />}
+              {extracting ? (extractStatus || 'Extrayendo...') : 'Extraer Instagram'}
+            </button>
+            <button
               onClick={handleSync}
-              disabled={syncing}
+              disabled={syncing || extracting}
               className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium bg-violet-50 text-violet-700 hover:bg-violet-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
             >
               {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
@@ -516,6 +562,9 @@ export default function AdminGuideDetailPage() {
                                 setPendingTags([])
                                 setCategoryDropdownOpen(false)
                                 setCategorySearch('')
+                                setTimeout(() => {
+                                  document.getElementById(`section-${c.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                                }, 120)
                               }}
                               className={`w-full text-left px-4 py-2 text-sm hover:bg-violet-50 hover:text-violet-700 transition-colors ${selectedCategory === c.id ? 'bg-violet-50 text-violet-700 font-medium' : 'text-gray-700'}`}
                             >
@@ -540,7 +589,9 @@ export default function AdminGuideDetailPage() {
               propertyLng={null}
               onSelect={handleSelect}
               placeholder={`Buscar lugar para añadir como ${getCatLabel(selectedCategory).toLowerCase()}...`}
-              excludePlaceIds={[]}
+              excludePlaceIds={(grouped[selectedCategory] ?? [])
+                .map(gp => gp.place.googlePlaceId)
+                .filter((id): id is string => Boolean(id))}
             />
           )}
 
@@ -700,8 +751,8 @@ export default function AdminGuideDetailPage() {
           ) : (
             <div>
               {Object.entries(grouped).map(([cat, places]) => (
-                <div key={cat}>
-                  <div className="px-6 py-2 bg-gray-50 border-b border-gray-100">
+                <div key={cat} id={`section-${cat}`}>
+                  <div className="px-6 py-2 bg-gray-50 border-b border-gray-100 scroll-mt-4">
                     <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                       {getCatLabel(cat)} ({places.length})
                     </span>
@@ -733,6 +784,18 @@ export default function AdminGuideDetailPage() {
                                   )}
                                   {photos.length > 1 && (
                                     <span className="text-xs text-violet-500">{photos.length} fotos</span>
+                                  )}
+                                  {gp.place.instagramUrl && (
+                                    <a
+                                      href={gp.place.instagramUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      onClick={e => e.stopPropagation()}
+                                      className="flex items-center gap-0.5 text-xs text-pink-500 hover:text-pink-700 font-medium"
+                                    >
+                                      <Instagram className="w-3 h-3" />
+                                      Instagram
+                                    </a>
                                   )}
                                 </div>
                               </div>

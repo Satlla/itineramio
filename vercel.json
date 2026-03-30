@@ -58,6 +58,10 @@
     {
       "path": "/api/cron/email-sequence",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/chatbot-insights",
+      "schedule": "0 9 * * 1"
     }
   ],
   "headers": [

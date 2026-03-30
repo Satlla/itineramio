@@ -14,8 +14,8 @@ import {
   X,
   ChevronDown,
   CheckCircle,
-  Eye,
   ImageIcon,
+  Pencil,
 } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -36,15 +36,15 @@ interface CityGuide {
 
 function StatusBadge({ status }: { status: CityGuide['status'] }) {
   const map = {
-    VERIFIED: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-    PUBLISHED: 'bg-violet-500/20 text-violet-400 border-violet-500/30',
-    DRAFT: 'bg-zinc-700/60 text-zinc-400 border-zinc-600/40',
-    SUSPENDED: 'bg-red-500/20 text-red-400 border-red-500/30',
+    VERIFIED: 'bg-amber-100 text-amber-700 border-amber-200',
+    PUBLISHED: 'bg-violet-100 text-violet-700 border-violet-200',
+    DRAFT: 'bg-gray-100 text-gray-600 border-gray-200',
+    SUSPENDED: 'bg-red-100 text-red-600 border-red-200',
   }
   const labels = { VERIFIED: 'Verificada', PUBLISHED: 'Publicada', DRAFT: 'Borrador', SUSPENDED: 'Suspendida' }
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${map[status]}`}>
-      {status === 'VERIFIED' && <Star className="w-3 h-3 fill-amber-400" />}
+      {status === 'VERIFIED' && <Star className="w-3 h-3 fill-amber-500 text-amber-500" />}
       {labels[status]}
     </span>
   )
@@ -138,93 +138,93 @@ function GuideFormModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 16 }}
-        className="relative bg-[#0f0f17] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md p-6"
+        className="relative bg-white border border-gray-200 rounded-2xl shadow-xl w-full max-w-md p-6"
       >
-        <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg text-zinc-400 hover:text-white hover:bg-white/8 transition-colors">
+        <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
           <X className="w-4 h-4" />
         </button>
 
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-xl bg-violet-500/15 flex items-center justify-center">
-            <Map className="w-5 h-5 text-violet-400" />
+          <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center">
+            <Map className="w-5 h-5 text-violet-600" />
           </div>
           <div>
-            <h2 className="text-white font-semibold">{guide ? 'Editar guía' : 'Nueva guía de ciudad'}</h2>
-            <p className="text-zinc-500 text-sm">Gestionada por Itineramio</p>
+            <h2 className="text-gray-900 font-semibold">{guide ? 'Editar guía' : 'Nueva guía de ciudad'}</h2>
+            <p className="text-gray-500 text-sm">Gestionada por Itineramio</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs text-zinc-400 font-medium uppercase tracking-wide mb-1.5">Título *</label>
+            <label className="block text-xs text-gray-500 font-medium uppercase tracking-wide mb-1.5">Título *</label>
             <input
               type="text"
               placeholder="Ej: Alicante — Lo esencial"
               value={form.title}
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-              className="w-full bg-[#1a1a2e] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-violet-500/50 transition-colors"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 transition-colors"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-zinc-400 font-medium uppercase tracking-wide mb-1.5">Ciudad *</label>
+              <label className="block text-xs text-gray-500 font-medium uppercase tracking-wide mb-1.5">Ciudad *</label>
               <input
                 type="text"
                 placeholder="Ej: Alicante"
                 value={form.city}
                 onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
-                className="w-full bg-[#1a1a2e] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-violet-500/50 transition-colors"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 transition-colors"
               />
             </div>
             <div>
-              <label className="block text-xs text-zinc-400 font-medium uppercase tracking-wide mb-1.5">País</label>
+              <label className="block text-xs text-gray-500 font-medium uppercase tracking-wide mb-1.5">País</label>
               <div className="relative">
                 <select
                   value={form.country}
                   onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))}
-                  className="w-full bg-[#1a1a2e] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm appearance-none focus:outline-none focus:border-violet-500/50 transition-colors"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm appearance-none focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 transition-colors"
                 >
                   {countries.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
               </div>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs text-zinc-400 font-medium uppercase tracking-wide mb-1.5">Estado</label>
+            <label className="block text-xs text-gray-500 font-medium uppercase tracking-wide mb-1.5">Estado</label>
             <div className="relative">
               <select
                 value={form.status}
                 onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as any }))}
-                className="w-full bg-[#1a1a2e] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm appearance-none focus:outline-none focus:border-violet-500/50 transition-colors"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm appearance-none focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 transition-colors"
               >
                 {statuses.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs text-zinc-400 font-medium uppercase tracking-wide mb-1.5">Descripción</label>
+            <label className="block text-xs text-gray-500 font-medium uppercase tracking-wide mb-1.5">Descripción</label>
             <textarea
               placeholder="Describe qué hace especial esta guía..."
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               rows={3}
-              className="w-full bg-[#1a1a2e] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-violet-500/50 transition-colors resize-none"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 transition-colors resize-none"
             />
           </div>
 
           {/* Cover image */}
           <div>
-            <label className="block text-xs text-zinc-400 font-medium uppercase tracking-wide mb-1.5">Imagen de portada</label>
+            <label className="block text-xs text-gray-500 font-medium uppercase tracking-wide mb-1.5">Imagen de portada</label>
             {form.coverImage ? (
               <div className="relative rounded-xl overflow-hidden mb-2 h-28">
                 <img src={form.coverImage} alt="Portada" className="w-full h-full object-cover" />
@@ -237,13 +237,13 @@ function GuideFormModal({
                 </button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center h-24 border border-dashed border-white/20 rounded-xl cursor-pointer hover:border-violet-500/50 hover:bg-violet-500/5 transition-colors">
+              <label className="flex flex-col items-center justify-center h-24 border border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-violet-400 hover:bg-violet-50 transition-colors">
                 {uploadingImage ? (
-                  <Loader2 className="w-5 h-5 text-violet-400 animate-spin" />
+                  <Loader2 className="w-5 h-5 text-violet-500 animate-spin" />
                 ) : (
                   <>
-                    <span className="text-zinc-500 text-xs">Subir foto</span>
-                    <span className="text-zinc-600 text-[11px] mt-0.5">JPG, PNG — máx 5MB</span>
+                    <span className="text-gray-400 text-xs">Subir foto</span>
+                    <span className="text-gray-300 text-[11px] mt-0.5">JPG, PNG — máx 5MB</span>
                   </>
                 )}
                 <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploadingImage} />
@@ -252,11 +252,11 @@ function GuideFormModal({
           </div>
 
           {error && (
-            <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>
+            <p className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
           )}
 
           <div className="flex gap-3 pt-1">
-            <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 rounded-xl border border-white/10 text-zinc-400 hover:text-white hover:border-white/20 transition-colors text-sm">
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-colors text-sm">
               Cancelar
             </button>
             <button type="submit" disabled={submitting} className="flex-1 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white font-medium text-sm transition-colors flex items-center justify-center gap-2">
@@ -290,7 +290,6 @@ export default function AdminCityGuidesPage() {
   const fetchGuides = useCallback(async () => {
     setLoading(true)
     try {
-      // Fetch all statuses including DRAFT and SUSPENDED — use admin param
       const res = await fetch('/api/city-guides?all=true', { credentials: 'include' })
       const data = await res.json()
       setGuides(data.data || [])
@@ -358,24 +357,24 @@ export default function AdminCityGuidesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070710] text-white p-6">
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-violet-500/15 border border-violet-500/20 flex items-center justify-center">
-              <Map className="w-5 h-5 text-violet-400" />
+            <div className="w-10 h-10 rounded-xl bg-violet-100 border border-violet-200 flex items-center justify-center">
+              <Map className="w-5 h-5 text-violet-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">Guías de ciudad</h1>
-              <p className="text-zinc-500 text-sm">Gestiona las guías oficiales de Itineramio</p>
+              <h1 className="text-2xl font-bold text-gray-900">Guías de ciudad</h1>
+              <p className="text-gray-500 text-sm">Gestiona las guías oficiales de Itineramio</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handleBackfillPhotos}
               disabled={backfilling}
-              className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-white/10 text-zinc-400 hover:text-white hover:border-white/20 text-sm transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-600 hover:text-gray-900 hover:border-gray-300 text-sm transition-colors disabled:opacity-50 shadow-sm"
               title="Actualizar fotos de lugares existentes"
             >
               {backfilling ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
@@ -383,7 +382,7 @@ export default function AdminCityGuidesPage() {
             </button>
             <button
               onClick={() => { setEditingGuide(undefined); setShowForm(true) }}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" />
               Nueva guía
@@ -391,30 +390,52 @@ export default function AdminCityGuidesPage() {
           </div>
         </div>
 
+        {/* Stats summary */}
+        {!loading && guides.length > 0 && (
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="bg-white rounded-xl border border-gray-200 px-4 py-3 shadow-sm">
+              <div className="text-2xl font-bold text-gray-900">{guides.length}</div>
+              <div className="text-xs text-gray-500 mt-0.5">Guías totales</div>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-200 px-4 py-3 shadow-sm">
+              <div className="text-2xl font-bold text-violet-600">{guides.filter(g => g.status === 'PUBLISHED' || g.status === 'VERIFIED').length}</div>
+              <div className="text-xs text-gray-500 mt-0.5">Publicadas</div>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-200 px-4 py-3 shadow-sm">
+              <div className="text-2xl font-bold text-gray-900">{guides.reduce((acc, g) => acc + g.subscriberCount, 0)}</div>
+              <div className="text-xs text-gray-500 mt-0.5">Propiedades suscritas</div>
+            </div>
+          </div>
+        )}
+
         {/* List */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-6 h-6 text-violet-400 animate-spin" />
+            <Loader2 className="w-6 h-6 text-violet-500 animate-spin" />
           </div>
         ) : guides.length === 0 ? (
           <div className="text-center py-20">
-            <Map className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
-            <p className="text-zinc-400">No hay guías creadas aún</p>
+            <Map className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-400">No hay guías creadas aún</p>
           </div>
         ) : (
           <div className="space-y-3">
             {guides.map((guide) => (
               <div
                 key={guide.id}
-                className="bg-[#0f0f17] border border-white/8 rounded-2xl p-5 flex items-start gap-4 hover:border-white/12 transition-colors"
+                className="bg-white border border-gray-200 rounded-2xl p-5 flex items-start gap-4 hover:border-violet-200 hover:shadow-sm transition-all"
               >
+                <div className="w-10 h-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center shrink-0 mt-0.5">
+                  <MapPin className="w-5 h-5 text-violet-500" />
+                </div>
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <StatusBadge status={guide.status} />
-                    <span className="text-zinc-600 text-xs">v{guide.version}</span>
+                    <span className="text-gray-400 text-xs">v{guide.version}</span>
                   </div>
-                  <h3 className="text-white font-semibold text-base">{guide.title}</h3>
-                  <div className="flex items-center gap-4 text-xs text-zinc-500 mt-1.5">
+                  <h3 className="text-gray-900 font-semibold text-base">{guide.title}</h3>
+                  <div className="flex items-center gap-4 text-xs text-gray-400 mt-1.5">
                     <span className="flex items-center gap-1">
                       <MapPin className="w-3 h-3 text-violet-400" />
                       {guide.city}, {guide.country}
@@ -432,21 +453,22 @@ export default function AdminCityGuidesPage() {
 
                 <div className="flex items-center gap-2 shrink-0">
                   <Link href={`/admin/city-guides/${guide.id}`}>
-                    <button className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-400 hover:text-violet-400 hover:bg-violet-500/10 transition-colors" title="Gestionar lugares">
-                      <Eye className="w-4 h-4" />
+                    <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-50 border border-violet-200 text-violet-700 hover:bg-violet-100 transition-colors text-sm font-medium">
+                      <Pencil className="w-3.5 h-3.5" />
+                      Editar
                     </button>
                   </Link>
                   <button
                     onClick={() => { setEditingGuide(guide); setShowForm(true) }}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-400 hover:text-white hover:bg-white/8 transition-colors"
-                    title="Editar"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                    title="Editar metadatos"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(guide.id)}
                     disabled={deletingId === guide.id}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
                     title="Eliminar"
                   >
                     {deletingId === guide.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
@@ -471,10 +493,10 @@ export default function AdminCityGuidesPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-[#1a1a2e] border border-emerald-500/30 rounded-2xl px-4 py-3 shadow-xl"
+            className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-white border border-emerald-200 rounded-2xl px-4 py-3 shadow-xl"
           >
-            <CheckCircle className="w-5 h-5 text-emerald-400" />
-            <span className="text-white text-sm">{toast}</span>
+            <CheckCircle className="w-5 h-5 text-emerald-500" />
+            <span className="text-gray-800 text-sm">{toast}</span>
           </motion.div>
         )}
       </AnimatePresence>

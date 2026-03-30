@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/>
+<style>
+body { font-family: -apple-system, sans-serif; background: #f5f5f7; padding: 40px; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1000px; }
+.card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.card h3 { font-size: 12px; color: #888; margin: 0 0 16px; font-weight: 600; letter-spacing: 0.05em; word-break: break-all; }
+.preview { display: flex; gap: 12px; align-items: center; }
+.light { background: #fff; padding: 12px; border-radius: 8px; border: 1px solid #eee; flex: 1; display: flex; align-items: center; justify-content: center; min-height: 80px; }
+.dark { background: #1d1d1f; padding: 12px; border-radius: 8px; flex: 1; display: flex; align-items: center; justify-content: center; min-height: 80px; }
+img { max-width: 100%; max-height: 60px; }
+.tag { display: inline-block; margin-top: 8px; font-size: 11px; padding: 3px 8px; border-radius: 100px; }
+.tag.bad { background: #fee2e2; color: #dc2626; }
+.tag.good { background: #d1fae5; color: #065f46; }
+.tag.unknown { background: #fef3c7; color: #92400e; }
+</style>
+</head>
+<body>
+<h1 style="font-size:24px;font-weight:700;margin-bottom:8px;">Logos e isotipos — Itineramio</h1>
+<p style="color:#666;margin-bottom:32px;">Revisa cuáles son correctos y cuáles hay que borrar</p>
+<div class="grid">
+
+  <div class="card">
+    <h3>isotipo-black.svg</h3>
+    <div class="preview">
+      <div class="light"><img src="../public/isotipo-black.svg"/></div>
+      <div class="dark"><img src="../public/isotipo-black.svg"/></div>
+    </div>
+    <span class="tag unknown">¿Correcto?</span>
+  </div>
+
+  <div class="card">
+    <h3>isotipo-white.svg</h3>
+    <div class="preview">
+      <div class="light"><img src="../public/isotipo-white.svg"/></div>
+      <div class="dark"><img src="../public/isotipo-white.svg"/></div>
+    </div>
+    <span class="tag unknown">¿Correcto?</span>
+  </div>
+
+  <div class="card">
+    <h3>isotipo-gradient.svg</h3>
+    <div class="preview">
+      <div class="light"><img src="../public/isotipo-gradient.svg"/></div>
+      <div class="dark"><img src="../public/isotipo-gradient.svg"/></div>
+    </div>
+    <span class="tag unknown">¿Correcto?</span>
+  </div>
+
+  <div class="card">
+    <h3>isotipo-itineramio.svg</h3>
+    <div class="preview">
+      <div class="light"><img src="../public/isotipo-itineramio.svg"/></div>
+      <div class="dark"><img src="../public/isotipo-itineramio.svg"/></div>
+    </div>
+    <span class="tag unknown">¿Correcto?</span>
+  </div>
+
+  <div class="card">
+    <h3>isotipe.svg (typo en nombre)</h3>
+    <div class="preview">
+      <div class="light"><img src="../public/isotipe.svg"/></div>
+      <div class="dark"><img src="../public/isotipe.svg"/></div>
+    </div>
+    <span class="tag unknown">¿Correcto?</span>
+  </div>
+
+  <div class="card">
+    <h3>logo.svg</h3>
+    <div class="preview">
+      <div class="light"><img src="../public/logo.svg"/></div>
+      <div class="dark" style="background:#1d1d1f"><img src="../public/logo.svg"/></div>
+    </div>
+    <span class="tag unknown">¿Correcto?</span>
+  </div>
+
+  <div class="card">
+    <h3>logo-itineramio.svg</h3>
+    <div class="preview">
+      <div class="light"><img src="../public/logo-itineramio.svg"/></div>
+      <div class="dark"><img src="../public/logo-itineramio.svg"/></div>
+    </div>
+    <span class="tag unknown">¿Correcto?</span>
+  </div>
+
+  <div class="card">
+    <h3>logo-itineramio-bg.svg</h3>
+    <div class="preview">
+      <div class="light"><img src="../public/logo-itineramio-bg.svg"/></div>
+      <div class="dark"><img src="../public/logo-itineramio-bg.svg"/></div>
+    </div>
+    <span class="tag unknown">¿Correcto?</span>
+  </div>
+
+  <div class="card">
+    <h3>logo-itineramio-square.svg</h3>
+    <div class="preview">
+      <div class="light"><img src="../public/logo-itineramio-square.svg"/></div>
+      <div class="dark"><img src="../public/logo-itineramio-square.svg"/></div>
+    </div>
+    <span class="tag unknown">¿Correcto?</span>
+  </div>
+
+  <div class="card">
+    <h3>logo-light.svg</h3>
+    <div class="preview">
+      <div class="light"><img src="../public/logo-light.svg"/></div>
+      <div class="dark"><img src="../public/logo-light.svg"/></div>
+    </div>
+    <span class="tag unknown">¿Correcto?</span>
+  </div>
+
+  <div class="card">
+    <h3>favicon.svg</h3>
+    <div class="preview">
+      <div class="light"><img src="../public/favicon.svg"/></div>
+      <div class="dark"><img src="../public/favicon.svg"/></div>
+    </div>
+    <span class="tag unknown">¿Correcto?</span>
+  </div>
+
+  <div class="card">
+    <h3>favicon-new.svg</h3>
+    <div class="preview">
+      <div class="light"><img src="../public/favicon-new.svg"/></div>
+      <div class="dark"><img src="../public/favicon-new.svg"/></div>
+    </div>
+    <span class="tag unknown">¿Correcto?</span>
+  </div>
+
+  <div class="card">
+    <h3>icon-base.svg</h3>
+    <div class="preview">
+      <div class="light"><img src="../public/icon-base.svg"/></div>
+      <div class="dark"><img src="../public/icon-base.svg"/></div>
+    </div>
+    <span class="tag unknown">¿Correcto?</span>
+  </div>
+
+</div>
+</body></html>
