@@ -13,36 +13,15 @@ import {
   Save,
   Play,
   Image as ImageIcon,
-  Key,
-  LogOut,
-  Wifi,
-  ScrollText,
-  Phone,
-  Droplets,
-  Package,
-  Car,
   MapPin,
-  Bus,
-  Utensils,
-  ShoppingBag,
-  Heart,
-  Star,
   Zap,
-  Thermometer,
   Loader2,
-  Coffee,
-  Banknote,
-  Fuel,
-  Dumbbell,
-  Shirt,
-  ShoppingCart,
-  TreePine,
-  Waves,
-  Building2,
   Plus,
   Search,
   Clock,
 } from 'lucide-react'
+import { IconSelector } from '@/components/ui/IconSelector'
+import { ZONE_ICONS } from '@/data/zoneIcons'
 import type { Step1Data } from './Step1Address'
 import type { Step2Data } from './Step2Details'
 import { PREDEFINED_ZONES, type MediaItem } from './Step2Media'
@@ -568,33 +547,14 @@ ${step2.recyclingContainerLocation ? `\n📍 **Contenedores más cercanos:** ${s
   return zones
 }
 
-// Icon resolver
-const iconComponents: Record<string, React.ReactNode> = {
-  'key': <Key className="w-5 h-5" />,
-  'log-out': <LogOut className="w-5 h-5" />,
-  'wifi': <Wifi className="w-5 h-5" />,
-  'scroll-text': <ScrollText className="w-5 h-5" />,
-  'phone': <Phone className="w-5 h-5" />,
-  'droplets': <Droplets className="w-5 h-5" />,
-  'package': <Package className="w-5 h-5" />,
-  'car': <Car className="w-5 h-5" />,
-  'map-pin': <MapPin className="w-5 h-5" />,
-  'bus': <Bus className="w-5 h-5" />,
-  'utensils': <Utensils className="w-5 h-5" />,
-  'shopping-bag': <ShoppingBag className="w-5 h-5" />,
-  'heart': <Heart className="w-5 h-5" />,
-  'star': <Star className="w-5 h-5" />,
-  'zap': <Zap className="w-5 h-5" />,
-  'thermometer': <Thermometer className="w-5 h-5" />,
-  'coffee': <Coffee className="w-5 h-5" />,
-  'banknote': <Banknote className="w-5 h-5" />,
-  'fuel': <Fuel className="w-5 h-5" />,
-  'dumbbell': <Dumbbell className="w-5 h-5" />,
-  'washing-machine': <Shirt className="w-5 h-5" />,
-  'shopping-cart': <ShoppingCart className="w-5 h-5" />,
-  'tree-pine': <TreePine className="w-5 h-5" />,
-  'waves': <Waves className="w-5 h-5" />,
-  'building-2': <Building2 className="w-5 h-5" />,
+// Icon resolver — uses full ZONE_ICONS library (~400 icons)
+function renderZoneIcon(iconId: string) {
+  const found = ZONE_ICONS.find(i => i.id === iconId)
+  if (found) {
+    const IconComp = found.icon
+    return <IconComp className="w-5 h-5" />
+  }
+  return <Zap className="w-5 h-5" />
 }
 
 // Predefined zone IDs that map to built-in review zones (template-generated)
@@ -617,9 +577,6 @@ function matchMediaToZone(zoneId: string, media: MediaItem[]): MediaItem[] {
 // ============================================
 // MAIN COMPONENT
 // ============================================
-
-// Available icon names for the icon picker
-const ICON_OPTIONS = Object.keys(iconComponents)
 
 export default function Step4Review({
   step1Data,
@@ -795,6 +752,7 @@ export default function Step4Review({
   }, [allZones, initialExpanded])
 
   return (
+    <>
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -936,34 +894,8 @@ export default function Step4Review({
                     className={`${isDisabled ? 'text-gray-600' : 'text-violet-400 hover:text-violet-300 cursor-pointer'}`}
                     title={!isDisabled ? t('step4.changeIcon') : undefined}
                   >
-                    {iconComponents[customIcons[zone.id] || zone.iconName] || <Zap className="w-5 h-5" />}
+                    {renderZoneIcon(customIcons[zone.id] || zone.iconName)}
                   </button>
-                  {/* Icon picker dropdown */}
-                  {iconPickerZone === zone.id && (
-                    <div
-                      className="absolute top-8 left-0 z-50 bg-white border border-gray-200 rounded-xl p-2 shadow-xl grid grid-cols-5 gap-1 w-[200px]"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {ICON_OPTIONS.map((iconName) => (
-                        <button
-                          key={iconName}
-                          type="button"
-                          onClick={() => {
-                            onCustomIconsChange({ ...customIcons, [zone.id]: iconName })
-                            setIconPickerZone(null)
-                          }}
-                          className={`p-1.5 rounded-lg transition-colors ${
-                            (customIcons[zone.id] || zone.iconName) === iconName
-                              ? 'bg-violet-50 text-violet-700'
-                              : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
-                          }`}
-                          title={iconName}
-                        >
-                          {iconComponents[iconName]}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
                 {/* Title — editable for all zones */}
@@ -1292,5 +1224,25 @@ export default function Step4Review({
         </button>
       </div>
     </motion.div>
+
+    {/* Icon picker modal — full IconSelector with ~400 icons, search & categories */}
+    {iconPickerZone !== null && (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        onClick={() => setIconPickerZone(null)}
+      >
+        <div onClick={(e) => e.stopPropagation()}>
+          <IconSelector
+            selectedIconId={customIcons[iconPickerZone] || undefined}
+            onSelect={(iconId) => {
+              onCustomIconsChange({ ...customIcons, [iconPickerZone]: iconId })
+              setIconPickerZone(null)
+            }}
+            onClose={() => setIconPickerZone(null)}
+          />
+        </div>
+      </div>
+    )}
+    </>
   )
 }
