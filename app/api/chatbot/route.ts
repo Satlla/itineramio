@@ -144,6 +144,10 @@ export async function POST(request: NextRequest) {
         : rankZonesByRelevance(message, allZones, language)
       : rankZonesByRelevance(message, allZones, language);
 
+    // Extract guest profile from conversation history (cheap, rule-based)
+    // Extracted early so all paths (fallback, mobile, stream) can use transportMode
+    const guestProfile = extractGuestProfile(conversationHistory as any[]);
+
     // Check if OpenAI API key is configured
     const openaiApiKey = process.env.OPENAI_API_KEY;
     if (!openaiApiKey) {
@@ -152,7 +156,7 @@ export async function POST(request: NextRequest) {
       const response = generateFallbackResponse(message, property, zone, language);
       const media = collectRelevantMedia(zones, language);
       const isUnansweredFallback = detectUnansweredQuestion(response, language);
-      const recommendations = detectRelevantRecommendations(message, response, zones, language, isUnansweredFallback);
+      const recommendations = detectRelevantRecommendations(message, response, zones, language, isUnansweredFallback, guestProfile.transportMode);
       return NextResponse.json({
         response,
         media: media.length > 0 ? media : undefined,
@@ -160,11 +164,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Extract guest profile from conversation history (cheap, rule-based)
-    const guestProfileSection = extractGuestProfile(conversationHistory as any[]);
-
     // Build context for OpenAI — always use property mode with relevant zones
-    const systemPrompt = buildPropertySystemPrompt(property, zones, language, guestProfileSection);
+    const systemPrompt = buildPropertySystemPrompt(property, zones, language, guestProfile.section);
 
     const learnedContext = await getLearnedContext(propertyId);
     const fullSystemPrompt = learnedContext
@@ -291,7 +292,7 @@ export async function POST(request: NextRequest) {
         const fullResponse = iosData.choices?.[0]?.message?.content || '';
         const media = collectRelevantMedia(zones, language);
         const isUnansweredMobile = detectUnansweredQuestion(fullResponse, language);
-        const recommendations = detectRelevantRecommendations(message, fullResponse, zones, language, isUnansweredMobile);
+        const recommendations = detectRelevantRecommendations(message, fullResponse, zones, language, isUnansweredMobile, guestProfile.transportMode);
         after(() => runAfterTasks(fullResponse));
         return NextResponse.json({
           response: fullResponse,
@@ -385,7 +386,7 @@ export async function POST(request: NextRequest) {
             // After stream completes, send media + recommendation cards and finish
             const media = collectRelevantMedia(zones, language);
             const isUnansweredStream = detectUnansweredQuestion(fullResponse, language);
-            const recommendations = detectRelevantRecommendations(message, fullResponse, zones, language, isUnansweredStream);
+            const recommendations = detectRelevantRecommendations(message, fullResponse, zones, language, isUnansweredStream, guestProfile.transportMode);
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({
               done: true,
               media: media.length > 0 ? media : undefined,
@@ -420,7 +421,7 @@ export async function POST(request: NextRequest) {
       const response = generateFallbackResponse(message, property, zone, language);
       const media = collectRelevantMedia(zones, language);
       const isUnansweredCatch = detectUnansweredQuestion(response, language);
-      const recommendations = detectRelevantRecommendations(message, response, zones, language, isUnansweredCatch);
+      const recommendations = detectRelevantRecommendations(message, response, zones, language, isUnansweredCatch, guestProfile.transportMode);
       return NextResponse.json({
         response,
         media: media.length > 0 ? media : undefined,
@@ -581,7 +582,7 @@ interface RecommendationCard {
 // asking about a property feature (e.g. "¿hay barbacoa?" ≠ "¿dónde hay un asador?").
 const RECOMMENDATION_INTENT_PATTERNS = /\b(d[oó]nde|where|recomiend|suggest|recomend|qu[eé] hay|what.s (there|near|around)|busco|looking for|quiero (ir|comer|cenar|visitar|ver)|me gustar[íi]a|can you (suggest|recommend)|any (good|nice|restaurant|place|bar|beach|cafe|shop)|cerca|near(by)?|al lado|a pie|andando|caminando|walking|qué (restaurante|bar|playa|tienda|museo|sitio)|hay (algún|alguna|algun)|is there (a|any)|are there (any)?|o[ùu] (est|sont|se trouve|trouver|aller)|cherche|je cherche|recommande[rz]?|vous recommande|y a.t.il|il y a|pr[eè]s (de|d'ici)|[àa] (pied|proximit[eé])|en marchant|trouver (un|une|des)|meilleur[es]? (restaurant|bar|plage|caf[eé]|mus[eé]e)|dove (posso|si trova|sono|mangiare|bere|andare)|cerco|vorrei (andare|mangiare|visitare|trovare)|vicino|a piedi|nelle vicinanze|qui vicino|consiglia|mi consiglia|c'[eè] (un|una)|ci sono|miglior[ei]? (ristorante|bar|spiaggia|caf[eè]|museo))\b/i;
 
-function detectRelevantRecommendations(userMessage: string, aiResponse: string, zones: any[], language: string, isUnanswered = false): RecommendationCard[] {
+function detectRelevantRecommendations(userMessage: string, aiResponse: string, zones: any[], language: string, isUnanswered = false, transportMode: 'walking' | 'car' | null = null): RecommendationCard[] {
   const cards: RecommendationCard[] = [];
   const userKeywords = new Set(getKeywords(userMessage));
   const userKeywordsArr = [...userKeywords]; // precomputed for bidirectional checks
@@ -643,8 +644,10 @@ function detectRelevantRecommendations(userMessage: string, aiResponse: string, 
 
     if (!matches) continue;
 
-    // Detect proximity query — user wants places close to the apartment
+    // Detect proximity query — user wants places close to the apartment (current message)
     const isNearbyQuery = /cerca|cercan|próxim|proxim|andando|caminando|walking|near\b|close\b|al lado|a pie|pr[eè]s (de|d'ici)|[àa] pied|[àa] proximit[eé]|en marchant|vicino|a piedi|nelle vicinanze|qui vicino/i.test(userMessage);
+    // Apply walking filter if: (a) explicit "cerca" in current message, OR (b) guest said they have no car earlier
+    const applyWalkingFilter = isNearbyQuery || transportMode === 'walking';
     const NEARBY_MAX_METERS = 1500; // ~18 min walk
 
     // Sort by distance ascending (closest first); unknowns go to the end
@@ -655,8 +658,8 @@ function detectRelevantRecommendations(userMessage: string, aiResponse: string, 
       return 0;
     });
 
-    // Filter by proximity if requested
-    const recsToShow = isNearbyQuery
+    // Filter by proximity if requested or if guest travels on foot
+    const recsToShow = applyWalkingFilter
       ? sortedRecs.filter(r => r.distanceMeters == null || r.distanceMeters <= NEARBY_MAX_METERS)
       : sortedRecs;
 
@@ -1713,8 +1716,13 @@ CRITICAL RULES:
 // GUEST PROFILE EXTRACTION — rule-based, no AI cost
 // ========================================
 
-function extractGuestProfile(conversationHistory: any[]): string {
-  if (!conversationHistory.length) return '';
+interface GuestProfile {
+  section: string;
+  transportMode: 'walking' | 'car' | null;
+}
+
+function extractGuestProfile(conversationHistory: any[]): GuestProfile {
+  if (!conversationHistory.length) return { section: '', transportMode: null };
 
   const fullText = conversationHistory
     .filter((m: any) => m.role === 'user')
@@ -1724,7 +1732,7 @@ function extractGuestProfile(conversationHistory: any[]): string {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
 
-  if (!fullText || fullText.length < 5) return '';
+  if (!fullText || fullText.length < 5) return { section: '', transportMode: null };
 
   const profile: string[] = [];
 
@@ -1787,9 +1795,21 @@ function extractGuestProfile(conversationHistory: any[]): string {
     profile.push('Interés: naturaleza/outdoor');
   }
 
-  if (profile.length === 0) return '';
+  // Transport mode — affects proximity filtering of recommendation cards
+  let transportMode: 'walking' | 'car' | null = null;
+  if (/\b(no tenemos coche|sin coche|no car|a pie|andando|caminando|walking|en metro|en bus|en transporte|no tenemos vehiculo|no tenemos vehiculo|no tenemos transporte|vamos caminando|iremos andando|moving on foot|on foot)\b/.test(fullText)) {
+    transportMode = 'walking';
+    profile.push('Transporte: a pie (sin coche)');
+  } else if (/\b(tenemos coche|vamos en coche|iremos en coche|alquilamos coche|alquiler de coche|rental car|we have a car|by car|en coche|en auto|en vehiculo|con coche)\b/.test(fullText)) {
+    transportMode = 'car';
+    profile.push('Transporte: en coche');
+  }
 
-  return `\nPERFIL DETECTADO DEL HUÉSPED:\n${profile.map(p => `- ${p}`).join('\n')}\nUsa este perfil para personalizar tus respuestas. No preguntes de nuevo algo que ya sabes.\n`;
+  const section = profile.length === 0
+    ? ''
+    : `\nPERFIL DETECTADO DEL HUÉSPED:\n${profile.map(p => `- ${p}`).join('\n')}\nUsa este perfil para personalizar tus respuestas. No preguntes de nuevo algo que ya sabes.\n`;
+
+  return { section, transportMode };
 }
 
 // Build inventory of configured recommendation categories
@@ -1886,7 +1906,7 @@ CRITICAL RULES:
 1. LANGUAGE: ALWAYS respond in the EXACT language the guest uses in their message — not the language of this prompt, not Spanish by default. The UI hint is "${language === 'en' ? 'English' : language === 'fr' ? 'French' : 'Spanish'}", but if the guest writes in English, respond in English. If they write in French, respond in French. If they write in Spanish, respond in Spanish. Match the guest's language 100% of the time, no exceptions.
 2. ANSWER FROM DATA: Your answers MUST come EXCLUSIVELY from the knowledge base above. Quote specific details (WiFi name, codes, locations, times, step-by-step instructions).
 3. MEDIA: Do NOT include image or video URLs in your text response. Media is shown automatically as cards below your message — never embed URLs or markdown images/videos in your text.
-4. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any category, list ALL places from that zone. Show name, rating (★), distance, and walk time for each. If the guest asks for places "cerca", "near", "close" or mentions walking distance, prioritize places with low distanceMeters/walkMinutes and only list those within ~1.5km (18 min walk).
+4. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any category, list ALL places from that zone. Show name, rating (★), distance, and walk time for each. ALWAYS mention distance so guests can judge. If a place is >3km away, add a note like "(requires car)" or "(necesita coche)". If the guest has indicated they travel on foot (no car) OR asks for places "cerca", "near", "close", prioritize places within ~1.5km and skip far ones.
 5. STAY FOCUSED: Answer ONLY what was asked, using the most relevant zone. DO NOT add information from other unrelated zones. If the question is about checkout, answer only about checkout — never add kitchen, lights, or other zone info unless the guest explicitly asks about it.
 6. STYLE: Be friendly and direct like a WhatsApp chat. Use **bold** for key info. Use bullet lists with -. Max 3 short paragraphs. Use emojis sparingly (📍🏠✅☕🍽️).
 7. HONESTY: If the specific information is NOT in the knowledge base above, tell the guest you don't have that information and recommend contacting the host — always in their language, NEVER hardcoded in Spanish.
@@ -1895,7 +1915,8 @@ CRITICAL RULES:
    - Guest asks for restaurant/bar recs and you don't know food preference or budget → ask "¿Qué tipo de cocina preferís, o algo concreto que busquéis (ambiente, precio)?"
    - Guest asks for activities and you don't know group type (kids, couple, etc.) → ask "¿Venís en pareja, con familia o en grupo?"
    - Guest asks for nightlife and you don't know the vibe they want → ask "¿Buscáis algo tranquilo para tomar algo, o con más marcha?"
-   - ONLY ask if (a) the answer changes significantly AND (b) the guest profile above doesn't already tell you. NEVER ask more than 1 question per reply.`;
+   - Guest asks for recommendations and transport mode is unknown AND some places are >2km away → ask "¿Venís en coche o vais a ir todo a pie?" so you can tailor the list.
+   - ONLY ask if (a) the answer changes significantly AND (b) the guest profile above doesn't already tell you their transport. NEVER ask more than 1 question per reply.`;
 
   return prompt;
 }
