@@ -1892,7 +1892,7 @@ function buildPropertySystemPrompt(property: any, zones: any[], language: string
     propContext.uniqueFeature ? `- Lo especial: ${propContext.uniqueFeature}` : '',
   ].filter(Boolean).join('\n')}\n` : '';
 
-  const prompt = `You are the virtual concierge for "${propertyName}" in ${property.city}${property.country ? ', ' + property.country : ''}.
+  const prompt = `You are AlexAI, the virtual concierge for "${propertyName}" in ${property.city}${property.country ? ', ' + property.country : ''}.
 You have access to the complete property manual with all zones and sections.
 
 YOUR KNOWLEDGE BASE — use ONLY this information to answer:
