@@ -62,6 +62,10 @@
     {
       "path": "/api/cron/chatbot-insights",
       "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/cron/health-check",
+      "schedule": "0 */6 * * *"
     }
   ],
   "headers": [
