@@ -309,7 +309,7 @@ export async function POST(request: NextRequest) {
 
       // Desktop: SSE streaming
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000);
+      const timeout = setTimeout(() => controller.abort(), 45000);
 
       const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -455,12 +455,17 @@ const MIN_MEDIA_SCORE = 8;
 function collectRelevantMedia(zones: any[], language: string): MediaItem[] {
   if (!zones.length) return [];
 
-  // Iterate ALL zones in relevance order — return media from the first zone that has any.
-  // We use `continue` (not `break`) so low-scoring zones with videos are still tried.
-  // Zones with score=0 are already excluded by getRelevantZones when any zone matched.
+  // Return media from the zone with the HIGHEST relevance score that has any media.
+  // Previously this returned from the first zone in order with media, which could skip
+  // the most relevant zone (e.g. "Climatización" with a video) if a less relevant zone
+  // with many text steps had accumulated score from common keywords and had a photo.
+  let bestItems: MediaItem[] = [];
+  let bestScore = -1;
+
   for (const zone of zones) {
     if (zone.type === 'RECOMMENDATIONS') continue;
-    if ((zone._relevanceScore ?? 0) < 1) continue; // skip truly irrelevant zones
+    const score = zone._relevanceScore ?? 0;
+    if (score < 1) continue; // skip truly irrelevant zones
 
     const items: MediaItem[] = [];
     let stepNumber = 0;
@@ -487,11 +492,13 @@ function collectRelevantMedia(zones: any[], language: string): MediaItem[] {
       if (items.length >= 8) break;
     }
 
-    // Found media in this zone — return it
-    if (items.length > 0) return items;
-    // Otherwise try the next zone
+    if (items.length > 0 && score > bestScore) {
+      bestScore = score;
+      bestItems = items;
+    }
   }
-  return [];
+
+  return bestItems;
 }
 
 // Synonyms for recommendation categories
@@ -1909,8 +1916,8 @@ CRITICAL RULES:
 4. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any category, list ALL places from that zone. Show name, rating (★), distance, and walk time for each. ALWAYS mention distance so guests can judge. If a place is >3km away, add a note like "(requires car)" or "(necesita coche)". If the guest has indicated they travel on foot (no car) OR asks for places "cerca", "near", "close", prioritize places within ~1.5km and skip far ones.
 5. STAY FOCUSED: Answer ONLY what was asked, using the most relevant zone. DO NOT add information from other unrelated zones. If the question is about checkout, answer only about checkout — never add kitchen, lights, or other zone info unless the guest explicitly asks about it.
 6. STYLE: Be friendly and direct like a WhatsApp chat. Use **bold** for key info. Use bullet lists with -. Max 3 short paragraphs. Use emojis sparingly (📍🏠✅☕🍽️).
-7. HONESTY: If the specific information is NOT in the knowledge base above, tell the guest you don't have that information and recommend contacting the host — always in their language, NEVER hardcoded in Spanish.
-8. ⚠️ ABSOLUTE RULE — NO HALLUCINATION: NEVER invent, assume, or use information from your training data. If check-in times, door codes, addresses, or any detail are NOT explicitly written in the knowledge base above, do NOT mention them. Telling the guest "I don't know, please contact the host" is always better than inventing data.
+7. HONESTY: Use the zone content in the knowledge base to give a REAL answer. NEVER tell the guest to "check the manual" or "read the sections" — they ARE in the manual right now. Only suggest contacting the host when a specific critical detail (a door code, a PIN, an exact address) is completely missing from the knowledge base. For everything else, use what IS available and answer directly.
+8. ⚠️ NO HALLUCINATION: NEVER invent specific data (door codes, exact times, prices, PINs) that is NOT written in the knowledge base above. But for general instructions and how-to questions, the zone steps contain the answer — read them carefully and explain them to the guest. DO NOT say "I don't know, contact the host" if the answer is in the MANUAL ZONES section above.
 9. CONVERSATIONAL INTELLIGENCE — ask ONE question when it genuinely improves your answer:
    - Guest asks for restaurant/bar recs and you don't know food preference or budget → ask "¿Qué tipo de cocina preferís, o algo concreto que busquéis (ambiente, precio)?"
    - Guest asks for activities and you don't know group type (kids, couple, etc.) → ask "¿Venís en pareja, con familia o en grupo?"
@@ -1922,61 +1929,34 @@ CRITICAL RULES:
 }
 
 function generateFallbackResponse(message: string, property: any, zone: any | null, language: string): string {
-  const lowerMessage = String(message || '').toLowerCase();
-  const zoneName = zone ? getLocalizedText(zone.name, language) : '';
-  const propertyName = getLocalizedText(property.name, language);
-
-  const responses: Record<string, Record<string, string>> = {
-    es: {
-      wifi: zone
-        ? `Para información sobre Wi-Fi, revisa los pasos específicos en la zona "${zoneName}". Si no encuentras la información, contacta al anfitrión.`
-        : `Para información sobre Wi-Fi, revisa las secciones del manual de "${propertyName}". Si no encuentras la información, contacta al anfitrión.`,
-      checkin: `Las instrucciones de check-in están detalladas en los pasos de la zona de acceso. Sigue cada paso numerado para completar tu llegada.`,
-      parking: `La información sobre parking está disponible en las instrucciones de la propiedad. Revisa los pasos correspondientes o contacta al anfitrión.`,
-      contact: `Puedes contactar al anfitrión a través de los datos de contacto proporcionados en la información de la propiedad.`,
-      default: zone
-        ? `Gracias por tu pregunta sobre "${propertyName}". Para obtener la información más actualizada sobre "${zoneName}", te recomiendo revisar los pasos detallados o contactar directamente al anfitrión.`
-        : `Gracias por tu pregunta sobre "${propertyName}". Te recomiendo revisar las distintas secciones del manual o contactar directamente al anfitrión.`
-    },
-    en: {
-      wifi: zone
-        ? `For Wi-Fi information, check the specific steps in the "${zoneName}" zone. If you can't find the information, contact the host.`
-        : `For Wi-Fi information, check the manual sections for "${propertyName}". If you can't find the information, contact the host.`,
-      checkin: `Check-in instructions are detailed in the access zone steps. Follow each numbered step to complete your arrival.`,
-      parking: `Parking information is available in the property instructions. Check the corresponding steps or contact the host.`,
-      contact: `You can contact the host through the contact details provided in the property information.`,
-      default: zone
-        ? `Thank you for your question about "${propertyName}". For the most up-to-date information about "${zoneName}", I recommend reviewing the detailed steps or contacting the host directly.`
-        : `Thank you for your question about "${propertyName}". I recommend reviewing the different manual sections or contacting the host directly.`
-    },
-    fr: {
-      wifi: zone
-        ? `Pour les informations Wi-Fi, consultez les étapes spécifiques dans la zone "${zoneName}". Si vous ne trouvez pas l'information, contactez l'hôte.`
-        : `Pour les informations Wi-Fi, consultez les sections du manuel de "${propertyName}". Si vous ne trouvez pas l'information, contactez l'hôte.`,
-      checkin: `Les instructions d'enregistrement sont détaillées dans les étapes de la zone d'accès. Suivez chaque étape numérotée pour compléter votre arrivée.`,
-      parking: `Les informations de parking sont disponibles dans les instructions de la propriété. Consultez les étapes correspondantes ou contactez l'hôte.`,
-      contact: `Vous pouvez contacter l'hôte via les coordonnées fournies dans les informations de la propriété.`,
-      default: zone
-        ? `Merci pour votre question sur "${propertyName}". Pour les informations les plus récentes sur "${zoneName}", je recommande de consulter les étapes détaillées ou de contacter l'hôte directement.`
-        : `Merci pour votre question sur "${propertyName}". Je recommande de consulter les différentes sections du manuel ou de contacter l'hôte directement.`
+  // If we have a zone with steps, extract and return the actual content.
+  // This fires when OpenAI is unavailable — the guest should still get real info.
+  if (zone && zone.steps && zone.steps.length > 0) {
+    const zoneName = getLocalizedText(zone.name, language);
+    let content = '';
+    for (const [i, step] of zone.steps.entries()) {
+      const desc = buildStepDescription(step, i, language);
+      if (desc && desc.trim()) {
+        content += `${desc.trim()}\n`;
+      }
+      if (content.length > 1200) break;
     }
+    if (content.trim()) {
+      const intro: Record<string, string> = {
+        es: `**${zoneName}**\n\n`,
+        en: `**${zoneName}**\n\n`,
+        fr: `**${zoneName}**\n\n`,
+      };
+      return (intro[language] || intro.es) + content.trim();
+    }
+  }
+
+  // True last resort: no zone data — apologise briefly
+  const sorry: Record<string, string> = {
+    es: `Lo siento, estoy teniendo problemas técnicos. Por favor, intenta de nuevo en un momento o contacta al anfitrión.`,
+    en: `Sorry, I'm having technical difficulties right now. Please try again in a moment or contact the host.`,
+    fr: `Désolé, je rencontre des difficultés techniques. Veuillez réessayer dans un instant ou contacter l'hôte.`,
   };
-
-  const langResponses = responses[language] || responses.es;
-
-  if (lowerMessage.includes('wifi') || lowerMessage.includes('internet')) {
-    return langResponses.wifi;
-  }
-  if (lowerMessage.includes('check') || lowerMessage.includes('llegada') || lowerMessage.includes('arrival')) {
-    return langResponses.checkin;
-  }
-  if (lowerMessage.includes('parking') || lowerMessage.includes('aparcamiento') || lowerMessage.includes('estacionamiento')) {
-    return langResponses.parking;
-  }
-  if (lowerMessage.includes('contacto') || lowerMessage.includes('contact') || lowerMessage.includes('teléfono') || lowerMessage.includes('phone')) {
-    return langResponses.contact;
-  }
-
-  return langResponses.default;
+  return sorry[language] || sorry.es;
 }
 
