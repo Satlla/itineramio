@@ -135,6 +135,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Propiedad no encontrada' }, { status: 404 });
     }
 
+    // Short-circuit: pure greetings get a fixed response — no zone context needed.
+    // Without this, score-0 queries dump ALL zones into GPT context and it "introduces" them.
+    const GREETING_RE = /^(hola|hello|hi|hey|bonjour|salut|buenos días|buenas tardes|buenas noches|good morning|good afternoon|good evening|ciao|ola)[!¡?¿.,\s]*$/i;
+    if (GREETING_RE.test(message.trim()) && conversationHistory.length === 0) {
+      const greetings: Record<string, string> = {
+        es: `¡Hola! 👋 Soy AlexAI, tu asistente virtual. ¿En qué puedo ayudarte?`,
+        en: `Hi! 👋 I'm AlexAI, your virtual concierge. How can I help you?`,
+        fr: `Bonjour! 👋 Je suis AlexAI, votre concierge virtuel. Comment puis-je vous aider?`,
+      };
+      return NextResponse.json({ response: greetings[language] || greetings.es });
+    }
+
     // Select relevant zones based on message keywords (RAG-lite)
     const allZones: any[] = Array.isArray(property.zones) ? property.zones : [];
     const zones = zoneId
