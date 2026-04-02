@@ -777,60 +777,163 @@ export default function Landing4() {
         </div>
       </section>
 
-      {/* ── SECTION 2: PROBLEM VALIDATION ── */}
+      {/* ── SECTION 2: ESTO YA TE SUENA (red X bullets) ── */}
       <section className="py-24 px-6 bg-white">
-        <div className="max-w-3xl mx-auto">
-          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger}>
-            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-5">El problema</motion.p>
-            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight mb-12"
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger}>
+              <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-5">El problema</motion.p>
+              <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight mb-10"
+                style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
+                <span className="font-semibold text-[#111]">Esto ya te suena.</span>
+              </motion.h2>
+              <div className="space-y-4">
+                {[
+                  'Copias el mismo mensaje de entrada a cada huésped',
+                  'Te preguntan el WiFi aunque lo mandaste antes',
+                  'Recibes el "no podemos entrar" a las 22:00',
+                  'Un PDF que nadie abre en el móvil',
+                  'Reseña de 4 estrellas por una confusión evitable',
+                  'Con 6 pisos, lo manual ya no funciona',
+                ].map((item, i) => (
+                  <motion.div key={i} initial={{ opacity:0, x:-16 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.07 }}
+                    className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
+                      <XCircle className="w-3.5 h-3.5 text-red-500"/>
+                    </div>
+                    <span className="text-[15px] text-[#444] leading-snug">{item}</span>
+                  </motion.div>
+                ))}
+              </div>
+              <motion.div initial={{ opacity:0 }} whileInView={{ opacity:1 }} viewport={{ once:true }} transition={{ delay:0.5 }}
+                className="mt-8 p-5 rounded-2xl border-l-4 border-violet-500 bg-violet-50">
+                <p className="text-[14px] text-violet-700 font-semibold">No es el trabajo en sí. Es la repetición.</p>
+              </motion.div>
+            </motion.div>
+            <motion.div initial={{ opacity:0, y:24 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.2 }}>
+              <p className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-6">Lo que cambia de verdad</p>
+              <div className="space-y-4">
+                {[
+                  'El huésped llega más informado',
+                  'Menos mensajes de WiFi a las 23:00',
+                  'Menos reseñas de 4 estrellas por confusión',
+                  'El móvil de noche ya no te interrumpe igual',
+                  'Menos llamadas de "no podemos entrar"',
+                  'Más huéspedes que se resuelven solos',
+                ].map((item, i) => (
+                  <motion.div key={i} initial={{ opacity:0, x:16 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.07 }}
+                    className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center shrink-0 mt-0.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-green-600"/>
+                    </div>
+                    <span className="text-[15px] text-[#333] leading-snug font-medium">{item}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── BEFORE / AFTER ── */}
+      <section className="py-20 px-6" style={{ backgroundColor:'#f5f3f0' }}>
+        <div className="max-w-4xl mx-auto">
+          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger} className="mb-10">
+            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-4">Tu semana</motion.p>
+            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight"
               style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
-              <span className="font-semibold text-[#111]">Esto ya te suena.</span>
+              <span className="font-semibold text-[#111]">Antes y </span>
+              <span className="font-light text-[#aaa]">después.</span>
             </motion.h2>
           </motion.div>
-
-          <div className="space-y-8">
+          <div className="rounded-[24px] overflow-hidden border border-black/[0.06]" style={{ boxShadow:'0 1px 3px rgba(0,0,0,0.04)' }}>
+            <div className="grid grid-cols-2">
+              <div className="bg-red-50 px-6 py-4 border-b border-black/[0.06]">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-red-500">Antes</p>
+              </div>
+              <div className="bg-green-50 px-6 py-4 border-b border-l border-black/[0.06]">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-green-600">Después</p>
+              </div>
+            </div>
             {[
-              'No agota tener huéspedes. Agota responder lo mismo veinte veces. Dónde se entra. Dónde se aparca. Cuál es la clave. Qué hacer al salir. Lo que quema no es el trabajo. Es la repetición.',
-              'El peor mensaje no es una queja. Es este: "no podemos entrar". Suele llegar cuando estás cenando, conduciendo o con otro check-in encima.',
-              'Mi punto de ruptura no fue un huésped. Fue el sexto piso. Con 2 o 3 apartamentos tiras. Con 6, 7 u 8, ya no. Empiezas a vivir entre mensajes, accesos, dudas y reseñas. Ahí es donde dejar de hacerlo todo manualmente deja de ser comodidad y pasa a ser necesidad.',
-            ].map((text, i) => (
-              <motion.p key={i} initial={{ opacity:0, x:-16 }} whileInView={{ opacity:1, x:0 }} viewport={{ once:true }} transition={{ delay:i*0.1 }}
-                className="text-[17px] text-[#333] leading-relaxed font-normal">
-                {text}
-              </motion.p>
+              { before:'WiFi manual a cada huésped', after:'La guía se envía automáticamente' },
+              { before:'El huésped llega sin saber nada', after:'El huésped llega ya informado' },
+              { before:'Mensajes nocturnos de acceso', after:'AlexAI responde en su idioma' },
+              { before:'Mismas preguntas cada semana', after:'Menos interrupciones, mejor nota' },
+            ].map((row, i) => (
+              <motion.div key={i} initial={{ opacity:0 }} whileInView={{ opacity:1 }} viewport={{ once:true }} transition={{ delay:i*0.08 }}
+                className="grid grid-cols-2">
+                <div className={`flex items-start gap-2.5 px-6 py-4 bg-red-50 ${i < 3 ? 'border-b' : ''} border-black/[0.06]`}>
+                  <XCircle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5"/>
+                  <span className="text-[13px] text-[#666] leading-snug">{row.before}</span>
+                </div>
+                <div className={`flex items-start gap-2.5 px-6 py-4 bg-green-50 border-l ${i < 3 ? 'border-b' : ''} border-black/[0.06]`}>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600 shrink-0 mt-0.5"/>
+                  <span className="text-[13px] text-[#333] leading-snug font-medium">{row.after}</span>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── SECTION 3: THE SHIFT ── */}
-      <section className="py-24 px-6" style={{ backgroundColor:'#f5f3f0' }}>
-        <div className="max-w-3xl mx-auto">
-          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger}>
-            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-5">La solución</motion.p>
-            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight mb-10"
+      {/* ── SECTION 3: OBJECTIONS ── */}
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger} className="mb-12">
+            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#aaa] font-medium mb-5">Alternativas</motion.p>
+            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight max-w-2xl"
               style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
-              <span className="font-semibold text-[#111]">Cuando el huésped llega ya informado, </span>
-              <span className="font-light text-[#aaa]">se nota desde el minuto uno.</span>
+              <span className="font-semibold text-[#111]">Lo que ya has probado </span>
+              <span className="font-light text-[#aaa]">y por qué no bastó.</span>
             </motion.h2>
           </motion.div>
-
-          <div className="space-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
-              'Menos dudas. Menos interrupciones. Menos mensajes con prisas.',
-              'La diferencia no está en tener otro manual. Está en que la guía se envíe sola cuando la reserva entra, antes de que empiece el caos.',
-              'Una guía. Un envío automático. Y de repente dejas de repetirte. Pones acceso, WiFi, normas y lo importante. Cuando se confirma la reserva, el huésped lo recibe. Así llegáis los dos mucho mejor al check-in.',
+              { title:'Copiar y pegar en WhatsApp o Airbnb', body:'El huésped recibe un mensaje largo entre otros veinte. No lo lee. Tú acabas repitiéndolo igual. El problema no es el canal. Es que un mensaje largo compite con todo lo demás.' },
+              { title:'Un PDF con las instrucciones', body:'Nadie abre un PDF en el móvil. Y si lo abren, no encuentran lo que buscan porque está todo junto. Sin zonas. Sin estructura. Sin chatbot que resuelva dudas.' },
+              { title:'La guía integrada de Airbnb', body:'Funciona para un apartamento. No para ocho. No se traduce sola. No tiene chatbot. Y no cubre Booking.com ni Vrbo.' },
+              { title:'"Ya va bien" sin sistema', body:'Va bien hasta que no va. Un check-in mal, una reseña de 4 estrellas, y la posición baja. A partir de 6 apartamentos, "ya va bien" es una apuesta que se paga con la nota.' },
+            ].map((item, i) => (
+              <motion.div key={i} initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:i*0.08 }}
+                whileHover={{ y:-3, transition:{ duration:0.18 } }}
+                className="rounded-[20px] p-8 flex flex-col gap-3 border border-black/[0.06]"
+                style={{ backgroundColor:'#f5f3f0' }}>
+                <h3 className="text-[15px] font-semibold text-[#111] leading-snug">{item.title}</h3>
+                <p className="text-[14px] text-[#666] leading-relaxed font-normal">{item.body}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── ICP DARK ── */}
+      <section className="py-24 px-6 bg-[#111]">
+        <div className="max-w-4xl mx-auto">
+          <motion.div initial="hidden" whileInView="show" viewport={{ once:true }} variants={stagger}>
+            <motion.p variants={fadeUp} className="text-[11px] uppercase tracking-[0.2em] text-[#555] font-medium mb-5">Para quién es</motion.p>
+            <motion.h2 variants={fadeUp} className="leading-[1.08] tracking-tight mb-8"
+              style={{ fontSize:'clamp(1.9rem, 4vw, 3.2rem)', fontFamily:'var(--font-manrope)' }}>
+              <span className="font-semibold text-white">Hecho para quien gestiona </span>
+              <span className="font-light text-violet-400">6, 7 u 8 pisos solo.</span>
+            </motion.h2>
+          </motion.div>
+          <div className="space-y-5 mb-10">
+            {[
+              'Gestionas varios apartamentos. Contestas cada mensaje tú. Tu juego es no perder ninguno por mala gestión.',
+              'No tienes equipo. No tienes sistema. Tienes el móvil y las ganas del momento. Para el anfitrión que está en el punto donde la guía manual ya no aguanta y necesita que lo básico salga solo.',
+              'No necesitas más software. Necesitas dejar de repetirte.',
             ].map((text, i) => (
               <motion.p key={i} initial={{ opacity:0, y:12 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:i*0.1 }}
-                className="text-[17px] text-[#333] leading-relaxed font-normal">
-                {text}
-              </motion.p>
+                className="text-[17px] text-[#888] leading-relaxed font-normal">{text}</motion.p>
             ))}
-            <motion.p initial={{ opacity:0, y:12 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:0.3 }}
-              className="text-[19px] font-semibold text-[#111] pt-2">
-              Una guía. Un envío automático. Ese es el primer cambio real.
-            </motion.p>
           </div>
+          <motion.div initial={{ opacity:0, y:10 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }}>
+            <Link href="/register" className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-white transition-all"
+              style={{ backgroundColor:'#7c3aed', boxShadow:'0 4px 20px rgba(124,58,237,0.35)' }}>
+              Empieza gratis <ArrowRight className="w-4 h-4"/>
+            </Link>
+          </motion.div>
         </div>
       </section>
 
