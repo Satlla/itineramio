@@ -1274,8 +1274,11 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
     })
   );
   if (!hasMediaZone) {
-    // Find the highest-scoring zone (outside top5) that has media
-    const bonus = filtered.find(s =>
+    // Find the highest-scoring zone (outside top5) that has media.
+    // Search within relevantFiltered first to respect the relevance threshold;
+    // only fall back to filtered if nothing relevant has media.
+    const bonusSource = relevantFiltered.some(s => !top5.includes(s)) ? relevantFiltered : filtered;
+    const bonus = bonusSource.find(s =>
       !top5.includes(s) &&
       (s.zone.steps || []).some((step: any) => {
         const content = step.content as any;
