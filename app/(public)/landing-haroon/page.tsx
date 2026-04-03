@@ -119,30 +119,22 @@ export default function LandingHaroon() {
       </nav>
 
       {/* ── HERO ── */}
-      <section className="pt-16 pb-0 px-6 bg-white overflow-hidden">
+      <section className="pt-16 pb-10 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-end">
-            <div className="pb-16">
-              <h1 className="font-bold text-[#111] leading-[1.05] mb-6"
-                style={{ fontSize: 'clamp(2.8rem, 5.5vw, 4.4rem)' }}>
-                Los huéspedes no leen.<br/>
-                Pero llegan preguntando{' '}
-                <span style={gradientStyle}>lo mismo.</span>
-              </h1>
-              <p className="text-[#555] text-[17px] leading-relaxed mb-8">
-                Crea una guía una vez. Se envía sola cuando entra la reserva. El huésped llega sabiendo cómo entrar, dónde aparcar y cuál es el WiFi.
-              </p>
-              <Link href="/register"
-                className="inline-flex items-center px-8 py-4 rounded-full font-semibold text-white text-[15px]"
-                style={{ backgroundColor: '#7c3aed' }}>
-                Prueba gratis 15 días
-              </Link>
-            </div>
-            <div className="h-[420px] rounded-t-2xl overflow-hidden">
-              <img src="/landing-haroon/hero-frustrated.png" alt="Anfitrión estresado"
-                className="w-full h-full object-cover object-top"/>
-            </div>
-          </div>
+          <h1 className="font-bold text-[#111] leading-[1.05] mb-6"
+            style={{ fontSize: 'clamp(2.8rem, 5.5vw, 4.4rem)' }}>
+            Los huéspedes no leen.<br/>
+            Pero llegan preguntando{' '}
+            <span style={gradientStyle}>lo mismo.</span>
+          </h1>
+          <p className="text-[#555] text-[17px] leading-relaxed mb-8 max-w-xl">
+            Crea una guía una vez. Se envía sola cuando entra la reserva. El huésped llega sabiendo cómo entrar, dónde aparcar y cuál es el WiFi.
+          </p>
+          <Link href="/register"
+            className="inline-flex items-center px-8 py-4 rounded-full font-semibold text-white text-[15px]"
+            style={{ backgroundColor: '#7c3aed' }}>
+            Prueba gratis 15 días
+          </Link>
         </div>
       </section>
 
