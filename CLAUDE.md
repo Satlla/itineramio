@@ -155,6 +155,32 @@ import { ComponentName } from '@/components/ui/ComponentName'
 
 ---
 
+## Bugs recurrentes documentados
+
+### "Guardando borrador" infinito en creación de propiedad
+**Archivo**: `src/hooks/useFormPersistence.ts`
+**Causa**: `watch()` de react-hook-form devuelve nueva referencia de objeto en cada render,
+lo que hace que el `useEffect` del debounce se re-ejecute indefinidamente, ciclando
+`isSaving` entre `true` y `false` sin parar.
+**Solución aplicada**: Comparar `JSON.stringify(watchedValues)` con `lastValuesRef.current`
+antes de arrancar el timer. Usar `saveTimerRef` externo en lugar del cleanup del `useEffect`.
+`clearSavedData()` debe limpiar `saveTimerRef` y llamar `setIsSaving(false)`.
+**Archivos clave**: `src/hooks/useFormPersistence.ts`
+
+### Zonas esenciales no se crean en nueva propiedad
+**Archivo**: `src/utils/crearZonasEsenciales.ts`, `app/(dashboard)/properties/[id]/zones/page.tsx`
+**Causa 1**: El refetch de zonas tras crearlas (`/api/properties/${id}/zones`) no llevaba
+`credentials: 'include'` ni `Authorization` header → fallaba silenciosamente.
+**Causa 2**: `crearZonasEsenciales` no pasaba el token de localStorage en las peticiones
+al batch API → auth fallaba en algunos contextos.
+**Solución**: Añadir `credentials: 'include'` + `getAuthHeaders()` en el refetch,
+y añadir función `getToken()` en `crearZonasEsenciales.ts` para incluir el header.
+**Nota**: El trigger del auto-create usa `localStorage` key `property_${id}_zones_created`.
+Si esa key existe (property antigua con zonas borradas), NO se auto-crean. El usuario
+puede usar el botón "Elementos Predefinidos" en el estado vacío.
+
+---
+
 ## Flujo de autenticación
 
 1. Login → `POST /api/auth/login` → JWT en cookie httpOnly `token`

@@ -29,6 +29,13 @@ export function useFormPersistence({
   const lastValuesRef = useRef<string>('') // tracks last saved JSON to avoid spurious saves
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    }
+  }, [])
+
   // Check for saved data on mount (but don't restore unless autoRestore is true)
   useEffect(() => {
     if (typeof window !== 'undefined' && !isInitialized) {
@@ -125,6 +132,11 @@ export function useFormPersistence({
   // Clear saved data — also sets clearedRef to prevent any pending debounce from re-saving
   const clearSavedData = useCallback(() => {
     clearedRef.current = true
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current)
+      saveTimerRef.current = null
+    }
+    setIsSaving(false)
     if (typeof window !== 'undefined') {
       localStorage.removeItem(storageKey)
       localStorage.removeItem(`${storageKey}_timestamp`)
