@@ -904,7 +904,8 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   'caja fuerte':['check', 'lockbox', 'llave', 'acceso'],
   instrucciones:['check', 'entrada', 'acceso', 'salida', 'normas'],
   instruccion:  ['check', 'entrada', 'acceso', 'salida'],
-  como:         ['check', 'entrada', 'acceso', 'wifi', 'cocina', 'salida'],
+  // NOTE: 'como' (how) is a Spanish question word — do NOT expand it to zone topics.
+  // Expanding it caused 'como va la vitro' to boost check-in, WiFi, etc. artificially.
 
   // ── CHECK-OUT / SALIDA ──────────────────────────────────────────────────
   checkout:     ['salida', 'departure', 'leaving', 'leave', 'irse', 'marcharse', 'dejar'],
@@ -1199,7 +1200,10 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
   // 'salida' removed: too broad — "salida de emergencia" shouldn't boost checkout zone.
   // 'entrada'/'acceso' removed: too broad — WiFi password queries expand to these and
   // would incorrectly boost check-in zone over WiFi zone.
-  const ALWAYS_RELEVANT = ['wifi', 'wi-fi', 'check', 'llegada'];
+  // 'check' and 'llegada' removed: they artificially boosted the check-in zone for
+  // every query (e.g. 'como va la vitro' was boosting check-in by 2 pts baseline).
+  // WiFi kept because guests often need it regardless of what they're asking.
+  const ALWAYS_RELEVANT = ['wifi', 'wi-fi'];
 
   const scored = zones.map(zone => {
     const zoneName = normalize(getLocalizedText(zone.name, language) || '');
