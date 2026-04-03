@@ -509,7 +509,7 @@ export default function Landing2() {
             ))}
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/login" className="hidden sm:block text-sm text-[#666] hover:text-[#111] font-medium transition-colors">Entrar</Link>
+            <Link href="/login" className="text-sm text-[#666] hover:text-[#111] font-medium transition-colors">Entrar</Link>
             <Link href="/register" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all"
               style={{ backgroundColor:'#7c3aed', boxShadow:'0 2px 12px rgba(124,58,237,0.3)' }}>
               Empieza gratis <ArrowRight className="w-3.5 h-3.5"/>
