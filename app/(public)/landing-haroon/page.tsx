@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
 import { X, Star, RefreshCw, MessageSquare, Award, ArrowRight, Key, Wifi, Car, ChefHat, ClipboardList, MessageCircle, PenLine, Rocket, Home, FileText, HelpCircle, Utensils, PhoneCall, Moon } from 'lucide-react'
 
 // ─── GRADIENT TEXT HELPER ────────────────────────────────────────────────────
@@ -99,6 +100,8 @@ function PhoneMockup() {
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 export default function LandingHaroon() {
+  const [mob, setMob] = useState(false)
+
   return (
     <div className="min-h-screen bg-white text-[#111] overflow-x-hidden"
       style={{ fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif", WebkitFontSmoothing: 'antialiased' } as React.CSSProperties}>
@@ -106,16 +109,35 @@ export default function LandingHaroon() {
       {/* ── NAV ── */}
       <nav className="sticky top-0 left-0 right-0 z-50 bg-white border-b border-black/[0.08]">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2.5">
             <img src="/isotipo-gradient.svg" alt="Itineramio" width={26} height={15} className="object-contain"/>
-            <span className="font-bold text-[15px] tracking-tight">Itineramio</span>
+            <span className="font-semibold text-[15px]">Itineramio</span>
           </Link>
-          <Link href="/register"
-            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold text-white"
-            style={{ backgroundColor: '#7c3aed' }}>
-            Prueba gratis 15 días
-          </Link>
+          <div className="hidden md:flex items-center gap-7">
+            {[['Cómo funciona','/#how'],['Por qué funciona','/#why'],['Precios','/#pricing'],['FAQ','/#faq']].map(([l,h]) => (
+              <a key={l} href={h} className="text-sm text-[#666] hover:text-[#111] transition-colors font-medium">{l}</a>
+            ))}
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="text-sm text-[#666] hover:text-[#111] font-medium transition-colors">Entrar</Link>
+            <Link href="/register"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all"
+              style={{ backgroundColor: '#7c3aed', boxShadow: '0 2px 12px rgba(124,58,237,0.3)' }}>
+              Empieza gratis <ArrowRight className="w-3.5 h-3.5"/>
+            </Link>
+            <button className="md:hidden p-1" onClick={() => setMob(!mob)}>
+              {mob ? <X className="w-5 h-5"/> : <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16"/></svg>}
+            </button>
+          </div>
         </div>
+        {mob && (
+          <div className="md:hidden bg-white border-t border-black/5 px-6 py-5 flex flex-col gap-5">
+            {[['Cómo funciona','/#how'],['Por qué funciona','/#why'],['Precios','/#pricing'],['FAQ','/#faq']].map(([l,h]) => (
+              <a key={l} href={h} className="text-sm text-[#666] font-medium" onClick={() => setMob(false)}>{l}</a>
+            ))}
+            <Link href="/login" className="text-sm text-[#666] font-medium" onClick={() => setMob(false)}>Entrar</Link>
+          </div>
+        )}
       </nav>
 
       {/* ── HERO ── */}
