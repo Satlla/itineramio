@@ -524,6 +524,7 @@ export default function Landing2() {
             <motion.div initial={{ opacity:0, height:0 }} animate={{ opacity:1, height:'auto' }} exit={{ opacity:0, height:0 }}
               className="md:hidden bg-white border-t border-black/5 px-6 py-5 flex flex-col gap-5">
               {['Cómo funciona','Por qué funciona','FAQ'].map(l => <button key={l} className="text-sm text-[#666] text-left font-medium">{l}</button>)}
+              <Link href="/login" className="text-sm text-[#111] font-semibold">Entrar</Link>
             </motion.div>
           )}
         </AnimatePresence>

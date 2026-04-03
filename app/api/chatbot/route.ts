@@ -1247,12 +1247,22 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
 
   scored.sort((a, b) => b.score - a.score || (a.zone.order ?? 0) - (b.zone.order ?? 0));
 
-  // Return top 5 zones for AI context — attach _relevanceScore so collectRelevantMedia can use it.
+  // Return top zones for AI context — attach _relevanceScore so collectRelevantMedia can use it.
   // If any zone scored > 0, drop score-0 zones to avoid sending unrelated context to the AI.
   // If ALL zones scored 0 (totally generic query), keep them all so AI at least has something.
   const hasAnyMatch = scored[0]?.score > 0;
   const filtered = hasAnyMatch ? scored.filter(s => s.score > 0) : scored;
-  const top5 = filtered.slice(0, 5);
+
+  // Relative threshold: when the top zone has a strong name match (score ≥ 15),
+  // drop zones scoring less than 40% of the top score. This prevents unrelated zones
+  // (e.g. check-in zone scoring 2 from a media bonus) from polluting the context
+  // when the user is clearly asking about a specific zone (e.g. vitrocerámica).
+  const topScore = scored[0]?.score ?? 0;
+  const relevantFiltered = topScore >= 15
+    ? filtered.filter(s => s.score >= topScore * 0.4)
+    : filtered;
+
+  const top5 = relevantFiltered.slice(0, 5);
 
   // Guarantee at least one zone with video/image steps is included so collectRelevantMedia
   // can always show media when the property has videos — even if that zone scored low.
@@ -1853,10 +1863,12 @@ function buildPropertySystemPrompt(property: any, zones: any[], language: string
   const MAX_ZONE_CHARS = 3000;
   const MAX_TOTAL_CHARS = 50000;
   let zonesContent = '';
-  for (const zone of zones) {
+  for (const [zoneIndex, zone] of zones.entries()) {
     const zoneName = getLocalizedText(zone.name, language);
     const zoneDesc = getLocalizedText(zone.description, language);
-    let zoneSection = `\n--- ${zoneName} ---\n`;
+    // Mark the first zone as primary so the LLM knows which to prioritize
+    const zoneLabel = zoneIndex === 0 ? `[PRIMARY ZONE — answer from here first]` : `[SECONDARY — use only if directly relevant to the question]`;
+    let zoneSection = `\n--- ${zoneName} ${zoneLabel} ---\n`;
     if (zoneDesc) zoneSection += `${zoneDesc}\n`;
 
     if (zone.type === 'RECOMMENDATIONS' && zone.recommendations?.length > 0) {
@@ -1926,7 +1938,7 @@ CRITICAL RULES:
 2. ANSWER FROM DATA: Your answers MUST come EXCLUSIVELY from the knowledge base above. Quote specific details (WiFi name, codes, locations, times, step-by-step instructions).
 3. MEDIA: Do NOT include image or video URLs in your text response. Media is shown automatically as cards below your message — never embed URLs or markdown images/videos in your text.
 4. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any category, list ALL places from that zone. Show name, rating (★), distance, and walk time for each. ALWAYS mention distance so guests can judge. If a place is >3km away, add a note like "(requires car)" or "(necesita coche)". If the guest has indicated they travel on foot (no car) OR asks for places "cerca", "near", "close", prioritize places within ~1.5km and skip far ones.
-5. STAY FOCUSED: Answer ONLY what was asked, using the most relevant zone. DO NOT add information from other unrelated zones. If the question is about checkout, answer only about checkout — never add kitchen, lights, or other zone info unless the guest explicitly asks about it.
+5. STAY FOCUSED: Answer ONLY what was asked, using the PRIMARY ZONE marked above. NEVER include steps, instructions, or details from SECONDARY zones unless the guest explicitly asks about them. If the primary zone answers the question, stop there — do not append content from other zones. Example: if asked about the ceramic hob, answer ONLY from the kitchen/vitrocerámica zone, not from check-in or access zones.
 6. STYLE: Be friendly and direct like a WhatsApp chat. Use **bold** for key info. Use bullet lists with -. Max 3 short paragraphs. Use emojis sparingly (📍🏠✅☕🍽️).
 7. HONESTY: Use the zone content in the knowledge base to give a REAL answer. NEVER tell the guest to "check the manual" or "read the sections" — they ARE in the manual right now. Only suggest contacting the host when a specific critical detail (a door code, a PIN, an exact address) is completely missing from the knowledge base. For everything else, use what IS available and answer directly.
 8. ⚠️ NO HALLUCINATION: NEVER invent specific data (door codes, exact times, prices, PINs) that is NOT written in the knowledge base above. But for general instructions and how-to questions, the zone steps contain the answer — read them carefully and explain them to the guest. DO NOT say "I don't know, contact the host" if the answer is in the MANUAL ZONES section above.
