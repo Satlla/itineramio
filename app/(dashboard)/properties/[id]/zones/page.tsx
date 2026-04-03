@@ -509,15 +509,18 @@ export default function PropertyZonesPage() {
           // Note: this runs inside useEffect (always client-side), so isClient check is redundant
           const hasExistingZones = transformedZones.length > 0
           const propertyZonesKey = `property_${id}_zones_created`
-          const hasCreatedZonesForThisProperty = typeof window !== 'undefined' ?
-            !!window.localStorage.getItem(propertyZonesKey) : false
+          let hasCreatedZonesForThisProperty = false
+          let hasShownWelcomeGlobal = false
+          const propertyWelcomeKey = `property_${id}_welcome_shown`
+          try {
+            hasCreatedZonesForThisProperty = !!localStorage.getItem(propertyZonesKey)
+            hasShownWelcomeGlobal = !!localStorage.getItem(propertyWelcomeKey)
+          } catch { /* Safari private mode or restricted localStorage */ }
 
           if (!hasExistingZones && !hasCreatedZonesForThisProperty) {
             // Property has no zones and we haven't created them yet
             // Show modal immediately and create zones in background
-            const propertyWelcomeKey = `property_${id}_welcome_shown`
-            const hasShownWelcome = typeof window !== 'undefined' ? 
-              !!window.localStorage.getItem(propertyWelcomeKey) : false
+            const hasShownWelcome = hasShownWelcomeGlobal
             
             if (!hasShownWelcome) {
               setShowZonasEsencialesModal(true)
@@ -535,10 +538,10 @@ export default function PropertyZonesPage() {
                   })
                   if (success) {
                     // Mark that we've created zones for this property
-                    if (typeof window !== 'undefined') {
-                      window.localStorage.setItem(propertyZonesKey, 'true')
-                      window.localStorage.setItem(propertyWelcomeKey, 'true')
-                    }
+                    try {
+                      localStorage.setItem(propertyZonesKey, 'true')
+                      localStorage.setItem(propertyWelcomeKey, 'true')
+                    } catch { /* Safari private mode */ }
                     
                     // Refetch zones to show them
                     const newResponse = await fetch(`/api/properties/${id}/zones`, {
@@ -1029,10 +1032,10 @@ export default function PropertyZonesPage() {
         if (newZones.length === 0) {
           const propertyZonesKey = `property_${id}_zones_created`
           const propertyWelcomeKey = `property_${id}_welcome_shown`
-          if (typeof window !== 'undefined') {
-            window.localStorage.setItem(propertyZonesKey, 'true') // Prevent auto-creation
-            window.localStorage.setItem(propertyWelcomeKey, 'true') // Prevent welcome banner
-          }
+          try {
+            localStorage.setItem(propertyZonesKey, 'true') // Prevent auto-creation
+            localStorage.setItem(propertyWelcomeKey, 'true') // Prevent welcome banner
+          } catch { /* Safari private mode */ }
         }
 
         addNotification({
@@ -2131,10 +2134,10 @@ export default function PropertyZonesPage() {
         if (newZones.length === 0) {
           const propertyZonesKey = `property_${id}_zones_created`
           const propertyWelcomeKey = `property_${id}_welcome_shown`
-          if (typeof window !== 'undefined') {
-            window.localStorage.setItem(propertyZonesKey, 'true')
-            window.localStorage.setItem(propertyWelcomeKey, 'true')
-          }
+          try {
+            localStorage.setItem(propertyZonesKey, 'true')
+            localStorage.setItem(propertyWelcomeKey, 'true')
+          } catch { /* Safari private mode */ }
         }
 
         setShowDeleteModal(false)
