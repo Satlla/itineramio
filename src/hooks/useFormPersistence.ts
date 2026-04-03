@@ -118,7 +118,6 @@ export function useFormPersistence({
 
       return () => {
         clearTimeout(timeoutId)
-        setIsSaving(false)
       }
     }
   }, [watchedValues, storageKey, excludeFields, isInitialized])
