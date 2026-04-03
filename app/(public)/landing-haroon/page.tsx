@@ -119,23 +119,29 @@ export default function LandingHaroon() {
       </nav>
 
       {/* ── HERO ── */}
-      <section className="pt-16 pb-10 px-6 bg-white">
+      <section className="pt-16 pb-0 px-6 bg-white overflow-hidden">
         <div className="max-w-6xl mx-auto">
-          <div>
-            <h1 className="font-bold text-[#111] leading-[1.05] mb-6"
-              style={{ fontSize: 'clamp(2.8rem, 5.5vw, 4.4rem)' }}>
-              Los huéspedes no leen.<br/>
-              Pero llegan preguntando{' '}
-              <span style={gradientStyle}>lo mismo.</span>
-            </h1>
-            <p className="text-[#555] text-[17px] leading-relaxed mb-8">
-              Crea una guía una vez. Se envía sola cuando entra la reserva. El huésped llega sabiendo cómo entrar, dónde aparcar y cuál es el WiFi.
-            </p>
-            <Link href="/register"
-              className="inline-flex items-center px-8 py-4 rounded-full font-semibold text-white text-[15px]"
-              style={{ backgroundColor: '#7c3aed' }}>
-              Prueba gratis 15 días
-            </Link>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-end">
+            <div className="pb-16">
+              <h1 className="font-bold text-[#111] leading-[1.05] mb-6"
+                style={{ fontSize: 'clamp(2.8rem, 5.5vw, 4.4rem)' }}>
+                Los huéspedes no leen.<br/>
+                Pero llegan preguntando{' '}
+                <span style={gradientStyle}>lo mismo.</span>
+              </h1>
+              <p className="text-[#555] text-[17px] leading-relaxed mb-8">
+                Crea una guía una vez. Se envía sola cuando entra la reserva. El huésped llega sabiendo cómo entrar, dónde aparcar y cuál es el WiFi.
+              </p>
+              <Link href="/register"
+                className="inline-flex items-center px-8 py-4 rounded-full font-semibold text-white text-[15px]"
+                style={{ backgroundColor: '#7c3aed' }}>
+                Prueba gratis 15 días
+              </Link>
+            </div>
+            <div className="h-[420px] rounded-t-2xl overflow-hidden">
+              <img src="/landing-haroon/hero-frustrated.png" alt="Anfitrión estresado"
+                className="w-full h-full object-cover object-top"/>
+            </div>
           </div>
         </div>
       </section>
@@ -234,34 +240,36 @@ export default function LandingHaroon() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left mb-10">
             {[
               {
-                img: '/landing-haroon/paso1-crea-guia.png',
+                icon: <PenLine className="w-6 h-6 text-white"/>,
+                iconBg: 'linear-gradient(135deg, #a3e635, #4ade80)',
                 n: '01', titleColor: '#16a34a',
                 title: 'Crea tu guía',
                 body: 'Entrada, WiFi, normas, parking. Organizado por zonas. Sin textos largos. Empieza solo con lo básico.',
               },
               {
-                img: '/landing-haroon/paso2-se-envia.png',
+                icon: <Rocket className="w-6 h-6 text-white"/>,
+                iconBg: 'linear-gradient(135deg, #7dd3fc, #3b82f6)',
                 n: '02', titleColor: '#2563eb',
                 title: 'Se envía sola',
                 body: 'Cuando se confirma una reserva, el huésped recibe la guía automáticamente. Sin que toques nada.',
               },
               {
-                img: '/landing-haroon/paso3-huesped-llega.png',
+                icon: <Home className="w-6 h-6 text-white"/>,
+                iconBg: 'linear-gradient(135deg, #fdba74, #ea580c)',
                 n: '03', titleColor: '#ea580c',
                 title: 'El huésped llega ubicado',
                 body: 'Sabe cómo entrar. Tiene el WiFi. Conoce las normas. Y si pregunta algo, el chatbot le responde en su idioma.',
               },
             ].map((s, i) => (
-              <div key={i} className="bg-white rounded-2xl overflow-hidden border border-black/[0.06]"
+              <div key={i} className="bg-white rounded-2xl p-8 border border-black/[0.06]"
                 style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-                <div className="h-[180px] overflow-hidden">
-                  <img src={s.img} alt={s.title} className="w-full h-full object-cover object-top"/>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5"
+                  style={{ background: s.iconBg }}>
+                  {s.icon}
                 </div>
-                <div className="p-6">
-                  <p className="text-[#ccc] font-bold text-[2rem] leading-none mb-2">{s.n}</p>
-                  <h3 className="font-bold text-[17px] mb-2" style={{ color: s.titleColor }}>{s.title}</h3>
-                  <p className="text-[14px] text-[#666] leading-relaxed">{s.body}</p>
-                </div>
+                <p className="text-[#ccc] font-bold text-[2.5rem] leading-none mb-3">{s.n}</p>
+                <h3 className="font-bold text-[17px] mb-3" style={{ color: s.titleColor }}>{s.title}</h3>
+                <p className="text-[14px] text-[#666] leading-relaxed">{s.body}</p>
               </div>
             ))}
           </div>
