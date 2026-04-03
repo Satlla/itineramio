@@ -308,18 +308,18 @@ export default function LandingHaroon() {
       </section>
 
       {/* ── ANTES / DESPUÉS ── */}
-      <section className="py-20 px-6 bg-white">
-        <div className="max-w-4xl mx-auto p-10" style={{ background: 'radial-gradient(ellipse 120% 80% at 50% 40%, #c4b5fd 0%, #ede9fe 50%, #f8f7ff 100%)', borderRadius: '48px' }}>
-          <h2 className="text-[#111] text-center leading-tight mb-10"
-            style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)' }}>
+      <section className="py-20 px-4 sm:px-6 bg-white">
+        <div className="max-w-4xl mx-auto p-5 sm:p-10" style={{ background: 'radial-gradient(ellipse 120% 80% at 50% 40%, #c4b5fd 0%, #ede9fe 50%, #f8f7ff 100%)', borderRadius: '32px' }}>
+          <h2 className="text-[#111] text-center leading-tight mb-8"
+            style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.8rem)' }}>
             Tu semana <strong>antes</strong> y <strong>después</strong>
           </h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="rounded-xl overflow-hidden" style={{ border: '1.5px solid #fca5a5' }}>
               <div className="px-6 py-3" style={{ backgroundColor: '#fff1f2' }}>
                 <p className="text-red-400 text-[12px] font-bold uppercase tracking-widest">ANTES</p>
               </div>
-              <div className="px-6 pb-6 pt-3 bg-white divide-y divide-gray-100">
+              <div className="px-4 sm:px-6 pb-5 pt-3 bg-white divide-y divide-gray-100">
                 {[
                   'WiFi manual a cada huésped',
                   '"No podemos entrar" a las 22:00',
@@ -341,7 +341,7 @@ export default function LandingHaroon() {
               <div className="px-6 py-3" style={{ backgroundColor: '#f0fdf4' }}>
                 <p className="text-green-500 text-[12px] font-bold uppercase tracking-widest">DESPUÉS</p>
               </div>
-              <div className="px-6 pb-6 pt-3 bg-white divide-y divide-gray-100">
+              <div className="px-4 sm:px-6 pb-5 pt-3 bg-white divide-y divide-gray-100">
                 {[
                   'La guía sale sola al confirmar',
                   'El huésped llega ya informado',
@@ -480,7 +480,7 @@ export default function LandingHaroon() {
                 className="w-full h-full object-cover object-center"/>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-6 text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
             {[
               { stat: '22:00', label: 'hora del "no podemos entrar"' },
               { stat: '4.8★', label: 'mínimo para Superhost' },
