@@ -119,7 +119,7 @@ export default function LandingHaroon() {
       </nav>
 
       {/* ── HERO ── */}
-      <section className="pt-16 pb-10 px-6 bg-white">
+      <section className="pt-16 pb-4 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <h1 className="font-bold text-[#111] leading-[1.05] mb-6"
             style={{ fontSize: 'clamp(2.8rem, 5.5vw, 4.4rem)' }}>
@@ -139,7 +139,7 @@ export default function LandingHaroon() {
       </section>
 
       {/* ── ESTO YA TE SUENA ── */}
-      <section className="py-20 px-6 bg-white">
+      <section className="pt-12 pb-20 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="h-[300px] lg:h-[420px] rounded-2xl overflow-hidden">
@@ -373,67 +373,22 @@ export default function LandingHaroon() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {[
               {
-                icon: (
-                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                    <defs><linearGradient id="grad-lqhp-0" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#db2777"/><stop offset="1" stopColor="#7c3aed"/></linearGradient></defs>
-                    {/* Airbnb bélo — top teardrop */}
-                    <path d="M20 4C17 4 14.5 6.5 14.5 9.5C14.5 14 20 21 20 21C20 21 25.5 14 25.5 9.5C25.5 6.5 23 4 20 4Z" stroke="url(#grad-lqhp-0)" strokeWidth="2" fill="none" strokeLinejoin="round"/>
-                    {/* Left wing */}
-                    <path d="M20 21C20 21 7 29 7 22.5C7 18.8 10.5 16.5 14 18" stroke="url(#grad-lqhp-0)" strokeWidth="2" strokeLinecap="round" fill="none"/>
-                    {/* Right wing */}
-                    <path d="M20 21C20 21 33 29 33 22.5C33 18.8 29.5 16.5 26 18" stroke="url(#grad-lqhp-0)" strokeWidth="2" strokeLinecap="round" fill="none"/>
-                  </svg>
-                ),
+                icon: <img src="/landing-haroon/icon-phone-chat.png" alt="Chat" className="w-10 h-10 object-contain"/>,
                 title: 'Copiar y pegar en WhatsApp o Airbnb',
                 body: 'El huésped recibe un mensaje largo entre otros veinte. No lo lee. Tú acabas repitiéndolo igual. El problema no es el canal. Es que un mensaje largo compite con todo lo demás en su bandeja.',
               },
               {
-                icon: (
-                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                    <defs><linearGradient id="grad-lqhp-1" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#db2777"/><stop offset="1" stopColor="#7c3aed"/></linearGradient></defs>
-                    {/* Document body */}
-                    <path d="M22 4H10a2 2 0 0 0-2 2v28a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V14L22 4z" stroke="url(#grad-lqhp-1)" strokeWidth="2" fill="none" strokeLinejoin="round"/>
-                    {/* Folded corner */}
-                    <path d="M22 4v10h10" stroke="url(#grad-lqhp-1)" strokeWidth="2" fill="none"/>
-                    {/* X mark */}
-                    <path d="M14 19l6 6M20 19l-6 6" stroke="url(#grad-lqhp-1)" strokeWidth="2" strokeLinecap="round"/>
-                    {/* Magnifier */}
-                    <circle cx="26" cy="27" r="4" stroke="url(#grad-lqhp-1)" strokeWidth="2"/>
-                    <path d="M29 30l2.5 2.5" stroke="url(#grad-lqhp-1)" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
-                ),
+                icon: <img src="/landing-haroon/icon-pdf.png" alt="PDF" className="w-10 h-10 object-contain"/>,
                 title: 'Un PDF con las instrucciones',
                 body: 'Nadie abre un PDF en el móvil. Y si lo abren, no encuentran lo que buscan porque está todo junto. Sin zonas. Sin estructura. Sin chatbot que resuelva dudas.',
               },
               {
-                icon: (
-                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                    <defs><linearGradient id="grad-lqhp-2" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#db2777"/><stop offset="1" stopColor="#7c3aed"/></linearGradient></defs>
-                    {/* Phone */}
-                    <rect x="5" y="5" width="18" height="30" rx="3" stroke="url(#grad-lqhp-2)" strokeWidth="2" fill="none"/>
-                    {/* Chat bubble overlapping right */}
-                    <path d="M20 12h13a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3l-3 3v-3h-7a2 2 0 0 1-2-2V14a2 2 0 0 1 2-2z" stroke="url(#grad-lqhp-2)" strokeWidth="2" fill="white" strokeLinejoin="round"/>
-                  </svg>
-                ),
+                icon: <img src="/landing-haroon/icon-airbnb.png" alt="Airbnb" className="w-10 h-10 object-contain"/>,
                 title: 'La guía integrada de Airbnb',
                 body: 'Funciona para un piso. No para ocho. No se traduce sola. No se envía automáticamente al confirmar. No tiene chatbot. Y no cubre Booking.com.',
               },
               {
-                icon: (
-                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                    <defs><linearGradient id="grad-lqhp-3" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#db2777"/><stop offset="1" stopColor="#7c3aed"/></linearGradient></defs>
-                    {/* Person head */}
-                    <circle cx="20" cy="25" r="4" stroke="url(#grad-lqhp-3)" strokeWidth="2"/>
-                    {/* Arms raised */}
-                    <path d="M8 20l5 7M32 20l-5 7" stroke="url(#grad-lqhp-3)" strokeWidth="2" strokeLinecap="round"/>
-                    {/* Body */}
-                    <path d="M13 36c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke="url(#grad-lqhp-3)" strokeWidth="2" strokeLinecap="round"/>
-                    {/* 3 stars */}
-                    <path d="M12 10l1 2.8h3l-2.4 1.7.9 2.8-2.5-1.8-2.5 1.8.9-2.8L8 12.8h3z" fill="url(#grad-lqhp-3)"/>
-                    <path d="M20 7l1 2.8h3l-2.4 1.7.9 2.8-2.5-1.8-2.5 1.8.9-2.8-2.4-1.7h3z" fill="url(#grad-lqhp-3)"/>
-                    <path d="M28 10l1 2.8h3l-2.4 1.7.9 2.8-2.5-1.8-2.5 1.8.9-2.8-2.4-1.7h3z" fill="url(#grad-lqhp-3)"/>
-                  </svg>
-                ),
+                icon: <img src="/landing-haroon/icon-stars.png" alt="Estrellas" className="w-10 h-10 object-contain"/>,
                 title: 'No hacer nada y "ya va bien"',
                 body: 'Va bien hasta que no va. Un check-in mal, una reseña de 4 estrellas, y la posición baja. A partir de 6 pisos, "ya va bien" es una apuesta que se paga con la nota.',
               },
