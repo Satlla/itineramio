@@ -1174,6 +1174,8 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   entrer:         ['check', 'entrada', 'acceso', 'llave', 'puerta'],
   entree:         ['check', 'entrada', 'acceso', 'llave'],
   sortir:         ['salida', 'checkout', 'irse', 'departure'],
+  partons:        ['salida', 'checkout', 'irse', 'departure'],
+  part:           ['salida', 'checkout', 'departure'], // fr: "on part" = we're leaving
   arriver:        ['check', 'llegada', 'acceso', 'entrada'],
   repartir:       ['salida', 'checkout', 'irse', 'departure'],
   manger:         ['restaurante', 'restaurant', 'comida', 'comer', 'food'],
@@ -1278,11 +1280,14 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
     })
   );
   if (!hasMediaZone) {
-    // Find the highest-scoring zone (outside top5) that has media.
-    // Search within relevantFiltered first to respect the relevance threshold;
-    // only fall back to filtered if nothing relevant has media.
-    const bonusSource = relevantFiltered.some(s => !top5.includes(s)) ? relevantFiltered : filtered;
-    const bonus = bonusSource.find(s =>
+    // Only look for a bonus zone within the already-filtered relevant set.
+    // If the relevance threshold was applied (topScore >= 15), do NOT fall back to
+    // the broader `filtered` list — adding an unrelated zone just because it has a
+    // video (e.g. check-in video when asking about the ceramic hob) is worse than
+    // showing no media at all.
+    const thresholdWasApplied = topScore >= 15;
+    const bonusPool = thresholdWasApplied ? relevantFiltered : filtered;
+    const bonus = bonusPool.find(s =>
       !top5.includes(s) &&
       (s.zone.steps || []).some((step: any) => {
         const content = step.content as any;
