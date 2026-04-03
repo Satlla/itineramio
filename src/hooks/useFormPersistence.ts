@@ -26,6 +26,8 @@ export function useFormPersistence({
   const [isSaving, setIsSaving] = useState(false)
   const [hasCheckedForData, setHasCheckedForData] = useState(false)
   const clearedRef = useRef(false) // prevents debounce from re-saving after clearSavedData()
+  const lastValuesRef = useRef<string>('') // tracks last saved JSON to avoid spurious saves
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Check for saved data on mount (but don't restore unless autoRestore is true)
   useEffect(() => {
@@ -52,74 +54,72 @@ export function useFormPersistence({
   }, [storageKey, setValue, excludeFields, isInitialized, autoRestore])
 
   // Save data to localStorage whenever form values change (with debounce)
+  // Uses a ref-based approach to avoid re-running when watch() returns a new object reference
   useEffect(() => {
-    if (typeof window !== 'undefined' && watchedValues && isInitialized && !clearedRef.current) {
+    if (typeof window === 'undefined' || !isInitialized || clearedRef.current) return
+
+    const currentJSON = JSON.stringify(watchedValues)
+    if (currentJSON === lastValuesRef.current) return // no real change, skip
+
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+
+    saveTimerRef.current = setTimeout(() => {
       setIsSaving(true)
-
-      const timeoutId = setTimeout(() => {
-        try {
-          const defaultValues = {
-            'country': 'España',
-            'hostContactLanguage': 'es',
-            'type': 'APARTMENT'
-          }
-
-          const significantFields = [
-            'name', 'description', 'street', 'city', 'state', 'postalCode',
-            'bedrooms', 'bathrooms', 'maxGuests', 'squareMeters', 'profileImage',
-            'hostContactName', 'hostContactPhone', 'hostContactEmail', 'hostContactPhoto',
-            'checkInInstructions', 'checkOutInstructions', 'houseRules',
-            'wifiName', 'wifiPassword'
-          ]
-
-          const dataToSave = Object.keys(watchedValues).reduce((acc, key) => {
-            const value = watchedValues[key]
-            if (!excludeFields.includes(key) && value !== undefined && value !== null && (typeof value === 'number' || value !== '')) {
-              acc[key] = value
-            }
-            return acc
-          }, {} as Record<string, any>)
-
-          const hasMeaningfulData = Object.keys(dataToSave).some(key => {
-            const value = dataToSave[key]
-            const defaultValue = defaultValues[key as keyof typeof defaultValues]
-
-            if (significantFields.includes(key)) {
-              return value !== null && value !== undefined && value !== ''
-            }
-
-            if (defaultValue !== undefined) {
-              return value !== defaultValue
-            }
-
-            return false
-          })
-
-          if (Object.keys(dataToSave).length > 0 && hasMeaningfulData) {
-            const currentSaved = localStorage.getItem(storageKey)
-            const newData = JSON.stringify(dataToSave)
-
-            if (currentSaved !== newData) {
-              localStorage.setItem(storageKey, newData)
-              const now = new Date()
-              setLastSaved(now)
-              localStorage.setItem(`${storageKey}_timestamp`, now.toISOString())
-            }
-          } else {
-            localStorage.removeItem(storageKey)
-            localStorage.removeItem(`${storageKey}_timestamp`)
-          }
-        } catch (error) {
-          // save error handled silently
-        } finally {
-          setIsSaving(false)
+      try {
+        const defaultValues = {
+          'country': 'España',
+          'hostContactLanguage': 'es',
+          'type': 'APARTMENT'
         }
-      }, 800)
 
-      return () => {
-        clearTimeout(timeoutId)
+        const significantFields = [
+          'name', 'description', 'street', 'city', 'state', 'postalCode',
+          'bedrooms', 'bathrooms', 'maxGuests', 'squareMeters', 'profileImage',
+          'hostContactName', 'hostContactPhone', 'hostContactEmail', 'hostContactPhoto',
+          'checkInInstructions', 'checkOutInstructions', 'houseRules',
+          'wifiName', 'wifiPassword'
+        ]
+
+        const dataToSave = Object.keys(watchedValues).reduce((acc, key) => {
+          const value = watchedValues[key]
+          if (!excludeFields.includes(key) && value !== undefined && value !== null && (typeof value === 'number' || value !== '')) {
+            acc[key] = value
+          }
+          return acc
+        }, {} as Record<string, any>)
+
+        const hasMeaningfulData = Object.keys(dataToSave).some(key => {
+          const value = dataToSave[key]
+          const defaultValue = defaultValues[key as keyof typeof defaultValues]
+          if (significantFields.includes(key)) {
+            return value !== null && value !== undefined && value !== ''
+          }
+          if (defaultValue !== undefined) {
+            return value !== defaultValue
+          }
+          return false
+        })
+
+        if (Object.keys(dataToSave).length > 0 && hasMeaningfulData) {
+          const newData = JSON.stringify(dataToSave)
+          const currentSaved = localStorage.getItem(storageKey)
+          if (currentSaved !== newData) {
+            localStorage.setItem(storageKey, newData)
+            const now = new Date()
+            setLastSaved(now)
+            localStorage.setItem(`${storageKey}_timestamp`, now.toISOString())
+          }
+          lastValuesRef.current = currentJSON
+        } else {
+          localStorage.removeItem(storageKey)
+          localStorage.removeItem(`${storageKey}_timestamp`)
+        }
+      } catch (error) {
+        // save error handled silently
+      } finally {
+        setIsSaving(false)
       }
-    }
+    }, 800)
   }, [watchedValues, storageKey, excludeFields, isInitialized])
 
   // Clear saved data — also sets clearedRef to prevent any pending debounce from re-saving
