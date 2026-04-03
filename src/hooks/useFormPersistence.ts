@@ -71,6 +71,7 @@ export function useFormPersistence({
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
 
     saveTimerRef.current = setTimeout(() => {
+      lastValuesRef.current = currentJSON // always update to stop re-runs
       setIsSaving(true)
       try {
         const defaultValues = {

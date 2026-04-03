@@ -167,17 +167,37 @@ antes de arrancar el timer. Usar `saveTimerRef` externo en lugar del cleanup del
 `clearSavedData()` debe limpiar `saveTimerRef` y llamar `setIsSaving(false)`.
 **Archivos clave**: `src/hooks/useFormPersistence.ts`
 
+### Creación de propiedad silenciosa (no crea, no da error)
+**Archivo**: `app/(dashboard)/properties/new/page.tsx`
+**Causa**: `squareMeters` usa `register('squareMeters', { valueAsNumber: true })`. Cuando el campo
+está vacío, react-hook-form devuelve `NaN`. El schema zod `z.number().min(10).optional()` acepta el
+tipo (typeof NaN === 'number') pero falla el `.min(10)` (NaN >= 10 es false). `handleSubmit` no llama
+a `onSubmit`. Sin spinner, sin error, sin feedback — el usuario cree que no funciona.
+**Solución aplicada**:
+1. `z.preprocess(v => isNaN(v) ? undefined : v, z.number().min(10).max(1000).optional())`
+2. `register('squareMeters', { setValueAs: v => isNaN(Number(v)) ? undefined : Number(v) })`
+3. `onInvalid` handler en `handleSubmit` que navega al step con el error
+**Regla general**: Todos los campos numéricos opcionales con `valueAsNumber: true` necesitan este tratamiento de NaN.
+
 ### Zonas esenciales no se crean en nueva propiedad
 **Archivo**: `src/utils/crearZonasEsenciales.ts`, `app/(dashboard)/properties/[id]/zones/page.tsx`
-**Causa 1**: El refetch de zonas tras crearlas (`/api/properties/${id}/zones`) no llevaba
-`credentials: 'include'` ni `Authorization` header → fallaba silenciosamente.
-**Causa 2**: `crearZonasEsenciales` no pasaba el token de localStorage en las peticiones
-al batch API → auth fallaba en algunos contextos.
-**Solución**: Añadir `credentials: 'include'` + `getAuthHeaders()` en el refetch,
-y añadir función `getToken()` en `crearZonasEsenciales.ts` para incluir el header.
-**Nota**: El trigger del auto-create usa `localStorage` key `property_${id}_zones_created`.
-Si esa key existe (property antigua con zonas borradas), NO se auto-crean. El usuario
-puede usar el botón "Elementos Predefinidos" en el estado vacío.
+**Causa 1**: El refetch de zonas tras crearlas no llevaba auth headers → fallaba silenciosamente.
+**Solución 1**: Añadir `credentials: 'include'` + `getAuthHeaders()` en el refetch.
+**Causa 2**: `crearZonasEsenciales` no pasaba el token de localStorage → auth fallaba.
+**Solución 2**: Añadir `getToken()` en `crearZonasEsenciales.ts`.
+**Causa 3 (NUEVA)**: La condición de auto-creación en `zones/page.tsx` incluía `isClient &&`.
+Como el primer fetch ocurre con `isClient = false` (el setState es asíncrono), la condición
+nunca se cumplía. Cuando `isClient` cambia a `true`, `hasFetchedDataRef = true` bloquea el re-run.
+**Solución 3**: Eliminar `isClient` de la condición — `useEffect` siempre corre en cliente.
+**Nota**: El trigger usa `localStorage` key `property_${id}_zones_created`. Si existe (propiedad
+con zonas borradas manualmente), NO se auto-crean. Usar "Elementos Predefinidos".
+
+### AutoSaveIndicator pillado mostrando "Guardando borrador..."
+**Archivo**: `src/components/ui/AutoSaveIndicator.tsx`
+**Causa**: `showIndicator` era state separado. Cuando `isSaving` volvía a `false` sin haber
+guardado datos, nadie ponía `showIndicator = false`. El indicador se quedaba visible para siempre.
+**Solución**: Eliminar `showIndicator` state. Derivar: `const isActive = isSaving || showSaved`.
+El indicador se oculta automáticamente cuando `isSaving = false` y no hay datos recién guardados.
 
 ---
 

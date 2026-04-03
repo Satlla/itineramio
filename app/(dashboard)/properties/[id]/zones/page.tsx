@@ -506,12 +506,13 @@ export default function PropertyZonesPage() {
           })
 
           // Check if property has no zones and create essential zones automatically
+          // Note: this runs inside useEffect (always client-side), so isClient check is redundant
           const hasExistingZones = transformedZones.length > 0
           const propertyZonesKey = `property_${id}_zones_created`
-          const hasCreatedZonesForThisProperty = isClient && typeof window !== 'undefined' ? 
+          const hasCreatedZonesForThisProperty = typeof window !== 'undefined' ?
             !!window.localStorage.getItem(propertyZonesKey) : false
-          
-          if (isClient && !hasExistingZones && !hasCreatedZonesForThisProperty) {
+
+          if (!hasExistingZones && !hasCreatedZonesForThisProperty) {
             // Property has no zones and we haven't created them yet
             // Show modal immediately and create zones in background
             const propertyWelcomeKey = `property_${id}_welcome_shown`

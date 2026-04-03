@@ -14,28 +14,18 @@ interface AutoSaveIndicatorProps {
 export function AutoSaveIndicator({ isVisible, lastSaved, isSaving = false }: AutoSaveIndicatorProps) {
   const { t } = useTranslation('common')
   const [showSaved, setShowSaved] = useState(false)
-  const [showIndicator, setShowIndicator] = useState(false)
 
   // Show "Guardado" message briefly when lastSaved changes
   useEffect(() => {
     if (lastSaved) {
       setShowSaved(true)
-      setShowIndicator(true)
-      const timer = setTimeout(() => {
-        setShowSaved(false)
-        // Hide indicator completely after showing "Guardado"
-        setTimeout(() => setShowIndicator(false), 300)
-      }, 2000)
+      const timer = setTimeout(() => setShowSaved(false), 2000)
       return () => clearTimeout(timer)
     }
   }, [lastSaved])
 
-  // Show indicator when saving
-  useEffect(() => {
-    if (isSaving) {
-      setShowIndicator(true)
-    }
-  }, [isSaving])
+  // isActive is derived: show when actively saving OR briefly after a real save
+  const isActive = isSaving || showSaved
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('es-ES', { 
@@ -47,7 +37,7 @@ export function AutoSaveIndicator({ isVisible, lastSaved, isSaving = false }: Au
 
   return (
     <AnimatePresence>
-      {showIndicator && isVisible && (
+      {isActive && isVisible && (
         <motion.div
           initial={{ opacity: 0, scale: 0.8, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}

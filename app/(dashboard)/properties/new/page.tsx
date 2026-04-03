@@ -65,7 +65,7 @@ const createPropertySchemaFn = (t: (key: string) => string) => z.object({
   bedrooms: z.number().min(0, t('propertyForm.validation.bedroomsMin')).max(20, t('propertyForm.validation.bedroomsMax')),
   bathrooms: z.number().min(0, t('propertyForm.validation.bathroomsMin')).max(10, t('propertyForm.validation.bathroomsMax')),
   maxGuests: z.number().min(1, t('propertyForm.validation.maxGuestsMin')).max(50, t('propertyForm.validation.maxGuestsMax')),
-  squareMeters: z.number().min(10, t('propertyForm.validation.squareMetersMin')).max(1000, t('propertyForm.validation.squareMetersMax')).optional(),
+  squareMeters: z.preprocess(v => (typeof v === 'number' && isNaN(v)) ? undefined : v, z.number().min(10, t('propertyForm.validation.squareMetersMin')).max(1000, t('propertyForm.validation.squareMetersMax')).optional()),
 
   // Imagen de la propiedad
   profileImage: z.string().optional(),
@@ -639,7 +639,16 @@ function NewPropertyPageContent() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
+        <form onSubmit={handleSubmit(onSubmit, (fieldErrors) => {
+          // Navigate to the first step that has validation errors
+          const step1Keys = ['name', 'description', 'type', 'bedrooms', 'bathrooms', 'maxGuests', 'squareMeters', 'profileImage']
+          const step2Keys = ['street', 'city', 'state', 'country', 'postalCode']
+          if (step1Keys.some(k => (fieldErrors as Record<string, unknown>)[k])) {
+            setCurrentStep(1)
+          } else if (step2Keys.some(k => (fieldErrors as Record<string, unknown>)[k])) {
+            setCurrentStep(2)
+          }
+        })} className="space-y-6 sm:space-y-8">
           {/* Step 1: Información Básica */}
           {currentStep === 1 && (
             <motion.div
@@ -956,7 +965,7 @@ function NewPropertyPageContent() {
                       </label>
                       <Input
                         type="number"
-                        {...register('squareMeters', { valueAsNumber: true })}
+                        {...register('squareMeters', { setValueAs: v => (v === '' || v == null || (typeof v === 'number' && isNaN(v)) || isNaN(Number(v))) ? undefined : Number(v) })}
                         min="10"
                         max="1000"
                         placeholder={t('propertyForm.optional')}
