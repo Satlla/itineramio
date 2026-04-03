@@ -162,6 +162,15 @@ const getZoneName = (name: string | { es: string; en: string; fr: string }): str
   return name.es || name.en || name.fr || ''
 }
 
+const getToken = (): HeadersInit => {
+  const headers: HeadersInit = { 'Content-Type': 'application/json' }
+  try {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth-token') : null
+    if (token) headers['Authorization'] = `Bearer ${token}`
+  } catch { /* ignore */ }
+  return headers
+}
+
 export async function crearZonasEsenciales(
   propertyId: string,
   onProgress?: (current: number, total: number) => void
@@ -169,7 +178,8 @@ export async function crearZonasEsenciales(
   try {
     // First, get existing zones to avoid duplicates
     const existingResponse = await fetch(`/api/properties/${propertyId}/zones`, {
-      credentials: 'include'
+      credentials: 'include',
+      headers: getToken()
     })
     const existingResult = await existingResponse.json()
     const existingZoneNames = existingResult.success ?
@@ -197,7 +207,7 @@ export async function crearZonasEsenciales(
       const response = await fetch(`/api/properties/${propertyId}/zones/batch`, {
         method: 'POST',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getToken(),
         body: JSON.stringify({
           zones: [{
             name: zona.name,        // Pass full multilingual object

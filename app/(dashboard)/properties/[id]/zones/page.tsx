@@ -540,7 +540,10 @@ export default function PropertyZonesPage() {
                     }
                     
                     // Refetch zones to show them
-                    const newResponse = await fetch(`/api/properties/${id}/zones`)
+                    const newResponse = await fetch(`/api/properties/${id}/zones`, {
+                      credentials: 'include',
+                      headers: getAuthHeaders()
+                    })
                     const newResult = await newResponse.json()
                     if (newResult.success) {
                       const newZones = newResult.data.map((zone: any) => {
