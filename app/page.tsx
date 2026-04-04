@@ -509,8 +509,8 @@ export default function Landing2() {
             ))}
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm text-[#666] hover:text-[#111] font-medium transition-colors">Entrar</Link>
-            <Link href="/register" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all"
+            <Link href="/login" className="text-sm text-[#444] hover:text-[#111] font-semibold transition-colors border border-black/10 hover:border-black/20 px-4 py-2 rounded-full">Entrar</Link>
+            <Link href="/register" className="hidden sm:inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all"
               style={{ backgroundColor:'#7c3aed', boxShadow:'0 2px 12px rgba(124,58,237,0.3)' }}>
               Empieza gratis <ArrowRight className="w-3.5 h-3.5"/>
             </Link>
@@ -570,8 +570,14 @@ export default function Landing2() {
             Ver demo
           </Link>
         </motion.div>
-        <motion.p initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.55 }} className="text-sm text-[#bbb] mb-16">
+        <motion.p initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.55 }} className="text-sm text-[#bbb] mb-4">
           No necesitas tarjeta. Configúralo en 10 minutos.
+        </motion.p>
+        <motion.p initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.65 }} className="text-sm text-[#999] mb-16">
+          ¿Ya tienes cuenta?{' '}
+          <Link href="/login" className="text-violet-600 font-semibold hover:text-violet-700 transition-colors underline underline-offset-2">
+            Entrar →
+          </Link>
         </motion.p>
 
         <motion.div initial={{ opacity:0, y:40 }} animate={{ opacity:1, y:0 }} transition={{ duration:1, delay:0.5 }} className="w-full px-4 lg:px-16">

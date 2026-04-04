@@ -881,24 +881,24 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   abrir:        ['check', 'llave', 'puerta', 'acceso', 'entrada', 'door', 'codigo'],
   abre:         ['check', 'llave', 'puerta', 'acceso', 'entrada', 'door'],
   abro:         ['check', 'llave', 'puerta', 'acceso', 'entrada'],
-  open:         ['check', 'llave', 'puerta', 'acceso', 'entrada', 'door'],
+  open:         ['check', 'llave', 'puerta', 'acceso', 'entrada', 'door', 'access'],
   acceder:      ['check', 'acceso', 'entrada', 'llave', 'puerta', 'llegada'],
   accedo:       ['check', 'acceso', 'entrada', 'llave', 'puerta'],
-  llego:        ['check', 'llegada', 'acceso', 'entrada', 'llave'],
-  llegar:       ['check', 'llegada', 'acceso', 'entrada', 'llave'],
+  llego:        ['check', 'llegada', 'llave'],
+  llegar:       ['check', 'llegada', 'llave'],
   llegada:      ['check', 'entrada', 'acceso', 'llave'],
   llegamos:     ['check', 'llegada', 'acceso', 'entrada', 'llave'],
   llegare:      ['check', 'llegada', 'acceso', 'entrada'],
   entrada:      ['check', 'acceso', 'llave', 'puerta', 'door'],
   acceso:       ['check', 'entrada', 'llave', 'puerta', 'door'],
   puerta:       ['check', 'llave', 'acceso', 'entrada', 'door', 'lockbox', 'codigo'],
-  door:         ['puerta', 'acceso', 'entrada', 'llave', 'key', 'check', 'lockbox', 'codigo'],
+  door:         ['puerta', 'acceso', 'entrada', 'llave', 'check', 'lockbox', 'codigo', 'access'],
   key:          ['llave', 'acceso', 'check', 'entrada', 'puerta', 'door', 'lockbox', 'codigo'],
   keys:         ['llave', 'acceso', 'check', 'entrada', 'puerta', 'door'],
   llave:        ['acceso', 'check', 'entrada', 'puerta', 'door', 'lockbox', 'codigo'],
   lockbox:      ['llave', 'check', 'entrada', 'puerta', 'codigo', 'caja'],
   codigo:       ['check', 'llave', 'entrada', 'puerta', 'acceso', 'lockbox'],
-  code:         ['check', 'llave', 'entrada', 'puerta', 'acceso', 'lockbox', 'codigo'],
+  code:         ['check', 'llave', 'entrada', 'puerta', 'lockbox', 'codigo'],
   pin:          ['check', 'codigo', 'llave', 'acceso', 'puerta', 'entrada'],
   caja:         ['check', 'lockbox', 'llave', 'entrada', 'acceso'],
   'caja fuerte':['check', 'lockbox', 'llave', 'acceso'],
@@ -926,9 +926,9 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   dejar:        ['salida', 'checkout', 'irse', 'llave'],
   dejo:         ['salida', 'checkout', 'llave', 'irse'],
   dejamos:      ['salida', 'checkout', 'llave', 'irse'],
-  leave:        ['salida', 'checkout', 'departure', 'leaving', 'irse'],
-  leaving:      ['salida', 'checkout', 'departure', 'irse'],
-  departure:    ['salida', 'checkout', 'leaving', 'irse'],
+  leave:        ['salida', 'checkout', 'departure', 'leaving', 'irse', 'check-out'],
+  leaving:      ['salida', 'checkout', 'departure', 'irse', 'check-out'],
+  departure:    ['salida', 'checkout', 'leaving', 'irse', 'check-out'],
   partir:       ['salida', 'checkout', 'irse'],
   parto:        ['salida', 'checkout', 'irse'],
   partimos:     ['salida', 'checkout', 'irse'],
@@ -999,7 +999,7 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   aire:           ['aire', 'acondicionado', 'climatizacion', 'temperatura', 'frio', 'calor', 'calefaccion', 'ac'],
   acondicionado:  ['aire', 'climatizacion', 'temperatura', 'frio', 'calor', 'ac'],
   'aire acondicionado': ['clima', 'temperatura', 'frio', 'calor', 'ac'],
-  calefaccion:    ['calefaccion', 'calor', 'temperatura', 'termostato', 'radiador', 'heating'],
+  calefaccion:    ['climatizacion', 'calefaccion', 'calor', 'temperatura', 'termostato', 'radiador', 'heating'],
   calor:          ['aire', 'acondicionado', 'calefaccion', 'temperatura', 'termostato', 'ventilador'],
   frio:           ['aire', 'acondicionado', 'calefaccion', 'temperatura', 'calor'],
   temperatura:    ['aire', 'acondicionado', 'calefaccion', 'termostato', 'calor', 'frio'],
@@ -1009,6 +1009,7 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   ventilador:     ['aire', 'calor', 'temperatura'],
   climatizacion:  ['aire', 'acondicionado', 'calefaccion', 'temperatura'],
   climatizar:     ['aire', 'acondicionado', 'calefaccion', 'temperatura'],
+  ac:             ['aire', 'acondicionado', 'climatizacion', 'calefaccion', 'temperatura'],
 
   // ── PISCINA / JACUZZI / TERRAZA ──────────────────────────────────────────
   piscina:        ['piscina', 'pool', 'bano', 'nadar', 'jacuzzi', 'spa'],
@@ -1113,7 +1114,7 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   transporte:     ['bus', 'metro', 'taxi', 'transporte', 'uber'],
   tren:           ['tren', 'transporte', 'estacion', 'metro'],
   estacion:       ['tren', 'metro', 'bus', 'transporte', 'estacion'],
-  aeropuerto:     ['aeropuerto', 'airport', 'vuelo', 'transporte'],
+  aeropuerto:     ['aeropuerto', 'airport', 'vuelo', 'transporte', 'taxi', 'metro', 'bus'],
   airport:        ['aeropuerto', 'transporte', 'taxi', 'bus'],
 
   // ── DIRECCIÓN / UBICACIÓN ────────────────────────────────────────────────
@@ -1174,8 +1175,9 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   entrer:         ['check', 'entrada', 'acceso', 'llave', 'puerta'],
   entree:         ['check', 'entrada', 'acceso', 'llave'],
   sortir:         ['salida', 'checkout', 'irse', 'departure'],
-  partons:        ['salida', 'checkout', 'irse', 'departure'],
-  part:           ['salida', 'checkout', 'departure'], // fr: "on part" = we're leaving
+  partons:        ['salida', 'checkout', 'irse', 'departure', 'check-out'],
+  part:           ['salida', 'checkout', 'departure', 'check-out'], // fr: "on part" = we're leaving
+  depart:         ['salida', 'checkout', 'departure', 'leaving', 'check-out'],
   arriver:        ['check', 'llegada', 'acceso', 'entrada'],
   repartir:       ['salida', 'checkout', 'irse', 'departure'],
   manger:         ['restaurante', 'restaurant', 'comida', 'comer', 'food'],
@@ -1185,10 +1187,32 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   voiture:        ['parking', 'aparcamiento', 'coche', 'garaje'],
 };
 
+// Function words that cause false zone-name substring matches (e.g. "we"→"towels",
+// "on"→"conditioning", "no"→"normas", "la"→"toallas"). Keep this in sync with chatbot-utils.ts.
+const QUERY_STOPWORDS_ROUTE = new Set([
+  'la', 'el', 'en', 'es', 'al', 'no', 'de', 'se', 'me', 'te', 'le', 'lo',
+  'un', 'si', 'ya', 'mi',
+  'que', 'qui', 'cual', 'con', 'los', 'las', 'del', 'una', 'hay', 'por',
+  'sin', 'nos', 'sus', 'les', 'mas', 'son', 'fue', 'han', 'hoy', 'ese',
+  'eso', 'esa', 'uno', 'muy', 'vez', 'asi', 'tra', 'dos', 'ser', 'sea',
+  'era', 'dar', 'soy', 'vas', 'van',
+  'como', 'hace', 'hacer', 'podemos', 'tenemos', 'queremos', 'pueden', 'tiene', 'tienen',
+  'quiero', 'quiere', 'necesito', 'necesita', 'busco', 'busca',
+  'we', 'on', 'is', 'to', 'do', 'it', 'an', 'at', 'in', 'of', 'up',
+  'as', 'be', 'by', 'if', 'go', 'so',
+  'the', 'and', 'are', 'for', 'was', 'but', 'not', 'can', 'its',
+  'had', 'his', 'her', 'she', 'him', 'who', 'all', 'any', 'out',
+  'did', 'has', 'get', 'put', 'may', 'see', 'too', 'now', 'our',
+  'use', 'how', 'let',
+  'les', 'des', 'une', 'est', 'pas', 'sur', 'par', 'son', 'ses',
+  'lui', 'mon', 'ton', 'quelle', 'quel',
+]);
+
 function rankZonesByRelevance(message: string, zones: any[], language: string): any[] {
   const normalize = (s: string) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-  const rawWords = normalize(message).split(/\s+/).filter(w => w.length > 2);
+  const cleaned = normalize(message).replace(/['\u2018\u2019]/g, ' ');
+  const rawWords = cleaned.split(/\s+/).filter(w => w.length >= 2 && !QUERY_STOPWORDS_ROUTE.has(w));
 
   // Expand with semantic synonyms so short/ambiguous queries find the right zone
   const expandedWords = [...rawWords];

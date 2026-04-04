@@ -59,24 +59,24 @@ export const QUERY_EXPANSIONS: Record<string, string[]> = {
   abrir:        ['check', 'llave', 'puerta', 'acceso', 'entrada', 'door', 'codigo'],
   abre:         ['check', 'llave', 'puerta', 'acceso', 'entrada', 'door'],
   abro:         ['check', 'llave', 'puerta', 'acceso', 'entrada'],
-  open:         ['check', 'llave', 'puerta', 'acceso', 'entrada', 'door'],
+  open:         ['check', 'llave', 'puerta', 'acceso', 'entrada', 'door', 'access'],
   acceder:      ['check', 'acceso', 'entrada', 'llave', 'puerta', 'llegada'],
   accedo:       ['check', 'acceso', 'entrada', 'llave', 'puerta'],
-  llego:        ['check', 'llegada', 'acceso', 'entrada', 'llave'],
-  llegar:       ['check', 'llegada', 'acceso', 'entrada', 'llave'],
+  llego:        ['check', 'llegada', 'llave'],
+  llegar:       ['check', 'llegada', 'llave'],
   llegada:      ['check', 'entrada', 'acceso', 'llave'],
   llegamos:     ['check', 'llegada', 'acceso', 'entrada', 'llave'],
   llegare:      ['check', 'llegada', 'acceso', 'entrada'],
   entrada:      ['check', 'acceso', 'llave', 'puerta', 'door'],
   acceso:       ['check', 'entrada', 'llave', 'puerta', 'door'],
   puerta:       ['check', 'llave', 'acceso', 'entrada', 'door', 'lockbox', 'codigo'],
-  door:         ['puerta', 'acceso', 'entrada', 'llave', 'key', 'check', 'lockbox', 'codigo'],
+  door:         ['puerta', 'acceso', 'entrada', 'llave', 'check', 'lockbox', 'codigo', 'access'],
   key:          ['llave', 'acceso', 'check', 'entrada', 'puerta', 'door', 'lockbox', 'codigo'],
   keys:         ['llave', 'acceso', 'check', 'entrada', 'puerta', 'door'],
   llave:        ['acceso', 'check', 'entrada', 'puerta', 'door', 'lockbox', 'codigo'],
   lockbox:      ['llave', 'check', 'entrada', 'puerta', 'codigo', 'caja'],
   codigo:       ['check', 'llave', 'entrada', 'puerta', 'acceso', 'lockbox'],
-  code:         ['check', 'llave', 'entrada', 'puerta', 'acceso', 'lockbox', 'codigo'],
+  code:         ['check', 'llave', 'entrada', 'puerta', 'lockbox', 'codigo'],
   pin:          ['check', 'codigo', 'llave', 'acceso', 'puerta', 'entrada'],
   caja:         ['check', 'lockbox', 'llave', 'entrada', 'acceso'],
   instrucciones:['check', 'entrada', 'acceso', 'salida', 'normas'],
@@ -96,13 +96,15 @@ export const QUERY_EXPANSIONS: Record<string, string[]> = {
   irse:         ['salida', 'checkout', 'departure', 'leaving'],
   irme:         ['salida', 'checkout', 'departure', 'leaving'],
   irnos:        ['salida', 'checkout', 'departure', 'leaving'],
-  leave:        ['salida', 'checkout', 'departure', 'leaving', 'irse'],
-  leaving:      ['salida', 'checkout', 'departure', 'irse'],
-  departure:    ['salida', 'checkout', 'leaving', 'irse'],
+  leave:        ['salida', 'checkout', 'departure', 'leaving', 'irse', 'check-out'],
+  leaving:      ['salida', 'checkout', 'departure', 'irse', 'check-out'],
+  departure:    ['salida', 'checkout', 'leaving', 'irse', 'check-out'],
   salida:       ['checkout', 'departure', 'leaving', 'irse'],
   dejar:        ['salida', 'checkout', 'irse', 'llave'],
   dejo:         ['salida', 'checkout', 'llave', 'irse'],
   dejamos:      ['salida', 'checkout', 'llave', 'irse'],
+  voy:          ['salida', 'checkout', 'irse'],
+  vamos:        ['salida', 'checkout', 'irse'],
 
   // ── WIFI / INTERNET ─────────────────────────────────────────────────────
   wifi:         ['wifi', 'wi-fi', 'internet', 'password', 'contrasena', 'clave', 'red', 'network', 'conexion'],
@@ -161,13 +163,14 @@ export const QUERY_EXPANSIONS: Record<string, string[]> = {
   // ── AIRE ACONDICIONADO / CALEFACCIÓN ────────────────────────────────────
   aire:           ['aire', 'acondicionado', 'climatizacion', 'temperatura', 'frio', 'calor', 'calefaccion', 'ac'],
   acondicionado:  ['aire', 'climatizacion', 'temperatura', 'frio', 'calor', 'ac'],
-  calefaccion:    ['calefaccion', 'calor', 'temperatura', 'termostato', 'radiador', 'heating'],
+  calefaccion:    ['climatizacion', 'calefaccion', 'calor', 'temperatura', 'termostato', 'radiador', 'heating', 'aire'],
   calor:          ['aire', 'acondicionado', 'calefaccion', 'temperatura', 'termostato', 'ventilador'],
   frio:           ['aire', 'acondicionado', 'calefaccion', 'temperatura', 'calor'],
   temperatura:    ['aire', 'acondicionado', 'calefaccion', 'termostato', 'calor', 'frio'],
   termostato:     ['calefaccion', 'temperatura', 'calor', 'frio', 'aire'],
   heating:        ['calefaccion', 'calor', 'temperatura', 'termostato'],
   climatizacion:  ['aire', 'acondicionado', 'calefaccion', 'temperatura'],
+  ac:             ['aire', 'acondicionado', 'climatizacion', 'calefaccion', 'temperatura'],
 
   // ── PISCINA / JACUZZI / TERRAZA ──────────────────────────────────────────
   piscina:        ['piscina', 'pool', 'bano', 'nadar', 'jacuzzi', 'spa'],
@@ -234,7 +237,7 @@ export const QUERY_EXPANSIONS: Record<string, string[]> = {
   metro:          ['metro', 'transporte', 'bus', 'parada', 'estacion'],
   taxi:           ['taxi', 'transporte', 'uber', 'cab'],
   transporte:     ['bus', 'metro', 'taxi', 'transporte', 'uber'],
-  aeropuerto:     ['aeropuerto', 'airport', 'vuelo', 'transporte'],
+  aeropuerto:     ['aeropuerto', 'airport', 'vuelo', 'transporte', 'taxi', 'metro', 'bus'],
   airport:        ['aeropuerto', 'transporte', 'taxi', 'bus'],
 
   // ── DIRECCIÓN / UBICACIÓN ────────────────────────────────────────────────
@@ -248,6 +251,7 @@ export const QUERY_EXPANSIONS: Record<string, string[]> = {
   bag:            ['equipaje', 'maleta', 'storage', 'consigna', 'luggage'],
   storage:        ['equipaje', 'maleta', 'consigna', 'luggage', 'almacen'],
   maleta:         ['equipaje', 'storage', 'consigna', 'luggage', 'maletas'],
+  maletas:        ['equipaje', 'storage', 'consigna', 'luggage', 'maleta'],
   equipaje:       ['maleta', 'storage', 'consigna', 'luggage', 'maletas'],
 
   // ── TOALLAS / ROPA DE CAMA ───────────────────────────────────────────────
@@ -261,6 +265,11 @@ export const QUERY_EXPANSIONS: Record<string, string[]> = {
   emergencias:    ['urgencias', 'medico', 'hospital', 'incendio', 'policia'],
   urgencias:      ['emergencias', 'medico', 'hospital'],
   incendio:       ['emergencias', 'urgencias', 'evacuacion', 'salida'],
+  extintor:       ['emergencias', 'urgencias', 'incendio', 'fuego', 'fire'],
+  fuego:          ['emergencias', 'incendio', 'extintor', 'urgencias'],
+  fire:           ['emergencias', 'incendio', 'extintor', 'urgencias'],
+  urgente:        ['emergencias', 'urgencias', 'medico', 'policia'],
+  accidente:      ['emergencias', 'urgencias', 'medico', 'hospital'],
 
   // ── RECOMENDACIONES GENÉRICAS ────────────────────────────────────────────
   sitios:         ['restaurante', 'visitas', 'lugares', 'recomendacion', 'actividades'],
@@ -277,6 +286,7 @@ export const QUERY_EXPANSIONS: Record<string, string[]> = {
   partons:        ['salida', 'checkout', 'irse', 'departure'],
   partir:         ['salida', 'checkout', 'irse'],
   part:           ['salida', 'checkout', 'departure'], // fr: "on part" = we're leaving
+  depart:         ['salida', 'checkout', 'departure', 'leaving'],  // fr: départ → depart after normalize
   arriver:        ['check', 'llegada', 'acceso', 'entrada'],
   manger:         ['restaurante', 'restaurant', 'comida', 'comer', 'food'],
   voir:           ['visitas', 'turismo', 'monumentos', 'lugares'],
@@ -289,11 +299,44 @@ export const QUERY_EXPANSIONS: Record<string, string[]> = {
 // rankZonesByRelevance
 // ---------------------------------------------------------------------------
 
+// Words that match too broadly and cause zone contamination.
+// E.g. "que" matches "Qué ver y hacer"; "are" matches "ceramic"; "hacer" matches zone name.
+// These are function words, articles, and common verbs with no zone-specific meaning.
+const QUERY_STOPWORDS = new Set([
+  // Spanish 2-char function words (short enough to substring-match zone names falsely)
+  // e.g. "la" matches "toallas", "no" matches "normas", "es" matches "acceso"
+  'la', 'el', 'en', 'es', 'al', 'no', 'de', 'se', 'me', 'te', 'le', 'lo',
+  'un', 'si', 'ya', 'mi',
+  // Spanish function/question words (3+ chars)
+  'que', 'qui', 'cual', 'con', 'los', 'las', 'del', 'una', 'hay', 'por',
+  'sin', 'nos', 'sus', 'les', 'mas', 'son', 'fue', 'han', 'hoy', 'ese',
+  'eso', 'esa', 'uno', 'muy', 'vez', 'asi', 'tra', 'dos', 'ser', 'sea',
+  'era', 'dar', 'soy', 'vas', 'van',
+  // Spanish question/common words
+  'como',
+  // Spanish common verbs that pollute zone-name matching
+  'hace', 'hacer', 'podemos', 'tenemos', 'queremos', 'pueden', 'tiene', 'tienen',
+  'quiero', 'quiere', 'necesito', 'necesita', 'busco', 'busca',
+  // English 2-char function words (e.g. "we"→"towels", "on"→"conditioning", "to"→"towels")
+  'we', 'on', 'is', 'to', 'do', 'it', 'an', 'at', 'in', 'of', 'up',
+  'as', 'be', 'by', 'if', 'go', 'so',
+  // English articles/prepositions/pronouns (3+ chars)
+  'the', 'and', 'are', 'for', 'was', 'but', 'not', 'can', 'its',
+  'had', 'his', 'her', 'she', 'him', 'who', 'all', 'any', 'out',
+  'did', 'has', 'get', 'put', 'may', 'see', 'too', 'now', 'our',
+  'use', 'how', 'let',
+  // French articles/prepositions
+  'les', 'des', 'une', 'est', 'pas', 'sur', 'par', 'son', 'ses',
+  'lui', 'mon', 'ton', 'quelle', 'quel',
+]);
+
 export function rankZonesByRelevance(message: string, zones: unknown[], language: string): unknown[] {
   const normalize = (s: string) =>
     String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-  const rawWords = normalize(message).split(/\s+/).filter(w => w.length > 2);
+  // Replace apostrophes/curly quotes with space so "j'entrer" splits into "j" + "entrer"
+  const cleaned = normalize(message).replace(/['\u2018\u2019]/g, ' ');
+  const rawWords = cleaned.split(/\s+/).filter(w => w.length >= 2 && !QUERY_STOPWORDS.has(w));
 
   const expandedWords = [...rawWords];
   for (const word of rawWords) {
@@ -454,6 +497,7 @@ export function detectUnansweredQuestion(aiResponse: string, _language: string):
     'contacta al anfitrión',
     'contacta directamente',
     'te recomiendo que contactes',
+    'recomiendo que contactes',
     'lo siento, no tengo',
     'lo siento, no dispongo',
     // English
@@ -463,9 +507,11 @@ export function detectUnansweredQuestion(aiResponse: string, _language: string):
     "don't have specific information",
     "don't have information",
     "do not have specific information",
+    "do not have that information",
     "i don't have information",
     "i don't have the specific",
     "i'm sorry, but i don't",
+    "i am sorry, but i don't",
     'i recommend contacting',
     // French
     "contactez l'hôte",
@@ -475,4 +521,104 @@ export function detectUnansweredQuestion(aiResponse: string, _language: string):
   ];
 
   return fallbackPhrases.some(phrase => lower.includes(phrase));
+}
+
+// ---------------------------------------------------------------------------
+// GuestProfile + extractGuestProfile
+// ---------------------------------------------------------------------------
+
+export interface GuestProfile {
+  section: string;
+  transportMode: 'walking' | 'car' | null;
+}
+
+export function extractGuestProfile(conversationHistory: Array<{ role: string; content: string }>): GuestProfile {
+  if (!conversationHistory.length) return { section: '', transportMode: null };
+
+  const fullText = conversationHistory
+    .filter(m => m.role === 'user')
+    .map(m => (typeof m.content === 'string' ? m.content : ''))
+    .join(' ')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  if (!fullText || fullText.length < 5) return { section: '', transportMode: null };
+
+  const profile: string[] = [];
+
+  // Group size
+  const groupMatch = fullText.match(
+    /somos\s+(\w+)|we(?:'re| are)\s+(\d+)|(\d+)\s+(?:personas|people|adults|adultos|viajeros)|estamos\s+(\d+)/
+  );
+  if (groupMatch) {
+    const raw = groupMatch[1] || groupMatch[2] || groupMatch[3] || groupMatch[4];
+    const numWords: Record<string, number> = { dos: 2, tres: 3, cuatro: 4, cinco: 5, seis: 6, two: 2, three: 3, four: 4, five: 5, six: 6 };
+    const num = parseInt(raw) || numWords[raw] || null;
+    if (num && num > 0 && num < 20) profile.push(`Grupo de ${num} personas`);
+  }
+
+  // With kids/babies
+  if (/\b(ninos|ninas|hijos|hijas|kids|children|bebes|bebe|infants|toddler|infant)\b/.test(fullText)) {
+    profile.push('Viajan con niños/bebés');
+  }
+
+  // Trip type
+  if (/\b(pareja|couple|romantic|romantico|aniversario|anniversary|honeymoon|luna de miel)\b/.test(fullText)) {
+    profile.push('Viaje en pareja/romántico');
+  } else if (/\b(familia|family)\b/.test(fullText)) {
+    profile.push('Viaje familiar');
+  } else if (/\b(amigos|friends|grupo de amigos|bachelor|bachelorette|despedida)\b/.test(fullText)) {
+    profile.push('Grupo de amigos');
+  } else if (/\b(trabajo|business|negocios|conference|congreso|conferencia)\b/.test(fullText)) {
+    profile.push('Viaje de negocios');
+  }
+
+  // Food preferences
+  if (/\b(vegetarian|vegetariano[s]?|vegano[s]?|vegan[s]?|plant.based)\b/.test(fullText)) {
+    profile.push('Preferencia: vegetariano/vegano');
+  }
+  if (/\b(alerg|gluten|celiac|celiaco|intolerancia|sin gluten)\b/.test(fullText)) {
+    profile.push('Posible alergia/intolerancia alimentaria');
+  }
+  if (/\b(marisco[s]?|seafood|pescado[s]?)\b/.test(fullText)) {
+    profile.push('Le gusta: marisco/pescado');
+  }
+
+  // Budget / style
+  if (/\b(economico[s]?|barato[s]?|cheap|budget|affordable|precio bajo)\b/.test(fullText)) {
+    profile.push('Presupuesto: económico');
+  } else if (/\b(gourmet|lujo|luxury|especial|fine dining|high.end|precio no importa)\b/.test(fullText)) {
+    profile.push('Presupuesto: premium/gourmet');
+  }
+
+  // Experience type
+  if (/\b(tranquilo|quiet|relax|descansar|descanso|chill|relajado)\b/.test(fullText)) {
+    profile.push('Busca: ambiente tranquilo/relajado');
+  } else if (/\b(marcha|party|fiesta|nightlife|vida nocturna|discoteca|club|bares)\b/.test(fullText)) {
+    profile.push('Busca: vida nocturna/marcha');
+  }
+
+  if (/\b(cultura|cultural|museo|monument|historia|history|arte|art)\b/.test(fullText)) {
+    profile.push('Interés: cultura/historia/arte');
+  }
+  if (/\b(naturaleza|nature|senderismo|hiking|outdoor|aire libre|montana|playa)\b/.test(fullText)) {
+    profile.push('Interés: naturaleza/outdoor');
+  }
+
+  // Transport mode
+  let transportMode: 'walking' | 'car' | null = null;
+  if (/\b(no tenemos coche|sin coche|no car|a pie|andando|caminando|walking|en metro|en bus|en transporte|no tenemos vehiculo|no tenemos transporte|vamos caminando|iremos andando|moving on foot|on foot)\b/.test(fullText)) {
+    transportMode = 'walking';
+    profile.push('Transporte: a pie (sin coche)');
+  } else if (/\b(tenemos coche|vamos en coche|iremos en coche|alquilamos coche|alquiler de coche|rental car|we have a car|by car|en coche|en auto|en vehiculo|con coche)\b/.test(fullText)) {
+    transportMode = 'car';
+    profile.push('Transporte: en coche');
+  }
+
+  const section = profile.length === 0
+    ? ''
+    : `\nPERFIL DETECTADO DEL HUÉSPED:\n${profile.map(p => `- ${p}`).join('\n')}\nUsa este perfil para personalizar tus respuestas. No preguntes de nuevo algo que ya sabes.\n`;
+
+  return { section, transportMode };
 }
