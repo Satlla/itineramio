@@ -137,14 +137,30 @@ export async function POST(request: NextRequest) {
 
     // Short-circuit: pure greetings get a fixed response — no zone context needed.
     // Without this, score-0 queries dump ALL zones into GPT context and it "introduces" them.
-    const GREETING_RE = /^(hola|hello|hi|hey|bonjour|salut|buenos días|buenas tardes|buenas noches|good morning|good afternoon|good evening|ciao|ola)[!¡?¿.,\s]*$/i;
+    const GREETING_RE = /^(hola|hello|hi|hey|bonjour|salut|buenos días|buenas tardes|buenas noches|good morning|good afternoon|good evening|ciao|ola|olá|bom dia|boa tarde|boa noite|hallo|guten tag|guten morgen|guten abend|buongiorno|buonasera|buona sera|salve|dag|goedemorgen|goedenmiddag|goedenavond|привет|здравствуйте|こんにちは|你好|مرحبا)[!¡?¿.,\s]*$/i;
     if (GREETING_RE.test(message.trim()) && conversationHistory.length === 0) {
-      const greetings: Record<string, string> = {
-        es: `¡Hola! 👋 Soy AlexAI, tu asistente virtual. ¿En qué puedo ayudarte?`,
-        en: `Hi! 👋 I'm AlexAI, your virtual concierge. How can I help you?`,
-        fr: `Bonjour! 👋 Je suis AlexAI, votre concierge virtuel. Comment puis-je vous aider?`,
-      };
-      return NextResponse.json({ response: greetings[language] || greetings.es });
+      // Detect guest language from the greeting word to respond in the same language
+      const greetingLower = message.trim().toLowerCase();
+      let greetingResponse: string;
+      if (/hallo|guten|servus/i.test(greetingLower)) {
+        greetingResponse = `Hallo! 👋 Ich bin AlexAI, Ihr virtueller Concierge. Wie kann ich Ihnen helfen?`;
+      } else if (/ciao|buongiorno|buonasera|salve/i.test(greetingLower)) {
+        greetingResponse = `Ciao! 👋 Sono AlexAI, il tuo concierge virtuale. Come posso aiutarti?`;
+      } else if (/olá|bom dia|boa tarde|boa noite/i.test(greetingLower)) {
+        greetingResponse = `Olá! 👋 Sou AlexAI, seu concierge virtual. Como posso ajudá-lo?`;
+      } else if (/dag|goedemorgen|goedemiddag|goedenavond/i.test(greetingLower)) {
+        greetingResponse = `Hallo! 👋 Ik ben AlexAI, uw virtuele concierge. Hoe kan ik u helpen?`;
+      } else if (/bonjour|salut/i.test(greetingLower)) {
+        greetingResponse = `Bonjour! 👋 Je suis AlexAI, votre concierge virtuel. Comment puis-je vous aider?`;
+      } else if (/hello|hi|hey|good morning|good afternoon|good evening/i.test(greetingLower)) {
+        greetingResponse = `Hi! 👋 I'm AlexAI, your virtual concierge. How can I help you?`;
+      } else {
+        // For any other language (Russian, Japanese, Arabic, etc.), use a multilingual greeting
+        greetingResponse = `¡Hola! 👋 Soy AlexAI, tu asistente virtual. ¿En qué puedo ayudarte?`;
+        if (language === 'en') greetingResponse = `Hi! 👋 I'm AlexAI, your virtual concierge. How can I help you?`;
+        if (language === 'fr') greetingResponse = `Bonjour! 👋 Je suis AlexAI, votre concierge virtuel. Comment puis-je vous aider?`;
+      }
+      return NextResponse.json({ response: greetingResponse });
     }
 
     // Select relevant zones based on message keywords (RAG-lite)
@@ -763,6 +779,29 @@ function detectUnansweredQuestion(aiResponse: string, language: string): boolean
     "je n'ai pas d'information",
     "je n'ai pas les détails",
     "je vous recommande de contacter",
+    // German
+    'ich habe keine information',
+    'ich weiß es nicht',
+    'kontaktieren sie den gastgeber',
+    'bitte kontaktieren sie',
+    'leider habe ich keine',
+    'diese information habe ich nicht',
+    // Italian
+    'non ho informazioni',
+    'non dispongo di questa informazione',
+    'contatta il proprietario',
+    'ti consiglio di contattare',
+    'mi dispiace, non ho',
+    // Portuguese
+    'não tenho informações',
+    'não tenho essa informação',
+    'entre em contato com o anfitrião',
+    'recomendo que contacte',
+    'infelizmente não tenho',
+    // Dutch
+    'ik heb geen informatie',
+    'neem contact op met de host',
+    'helaas heb ik geen',
   ];
 
   return fallbackPhrases.some(phrase => lower.includes(phrase));
@@ -1185,6 +1224,104 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   stationnement:  ['parking', 'aparcamiento', 'coche', 'garaje'],
   cle:            ['llave', 'check', 'entrada', 'acceso', 'puerta'],
   voiture:        ['parking', 'aparcamiento', 'coche', 'garaje'],
+
+  // ── ALEMÁN (DE) ─────────────────────────────────────────────────────────
+  eingang:        ['check', 'entrada', 'acceso', 'llave', 'puerta'],
+  schlussel:      ['llave', 'check', 'entrada', 'acceso', 'puerta', 'lockbox'],
+  tur:            ['puerta', 'check', 'llave', 'acceso', 'entrada', 'door'],
+  zugang:         ['check', 'acceso', 'entrada', 'llave', 'puerta'],
+  ankunft:        ['check', 'llegada', 'acceso', 'entrada'],
+  einchecken:     ['check', 'entrada', 'acceso', 'llave', 'llegada'],
+  ankommen:       ['check', 'llegada', 'acceso', 'entrada'],
+  abreise:        ['salida', 'checkout', 'departure', 'irse', 'check-out'],
+  auschecken:     ['salida', 'checkout', 'departure', 'check-out'],
+  verlassen:      ['salida', 'checkout', 'departure', 'check-out'],
+  abfahrt:        ['salida', 'checkout', 'departure', 'check-out'],
+  wlan:           ['wifi', 'wi-fi', 'internet', 'contrasena', 'password', 'red', 'network'],
+  kennwort:       ['wifi', 'wi-fi', 'contrasena', 'password', 'internet'],
+  passwort:       ['wifi', 'wi-fi', 'contrasena', 'password', 'internet'],
+  verbindung:     ['wifi', 'wi-fi', 'internet', 'red', 'conexion'],
+  kuche:          ['cocina', 'kitchen', 'vitro', 'horno', 'microondas'],
+  kochen:         ['cocina', 'kitchen', 'vitro', 'horno'],
+  herd:           ['cocina', 'vitro', 'placa', 'kitchen'],
+  backofen:       ['horno', 'cocina', 'kitchen', 'oven'],
+  kuhlschrank:    ['nevera', 'frigorifico', 'cocina', 'kitchen'],
+  geschirrspuler: ['lavavajillas', 'cocina', 'kitchen'],
+  waschmaschine:  ['lavadora', 'laundry', 'washing'],
+  heizung:        ['calefaccion', 'climatizacion', 'temperatura', 'termostato'],
+  klimaanlage:    ['aire', 'acondicionado', 'climatizacion', 'ac', 'temperatura'],
+  temperatur:     ['temperatura', 'climatizacion', 'calefaccion', 'termostato'],
+  parkplatz:      ['parking', 'aparcamiento', 'coche', 'garaje'],
+  parken:         ['parking', 'aparcamiento', 'coche', 'garaje'],
+  essen:          ['restaurante', 'comida', 'comer', 'food', 'tapas'],
+  trinken:        ['bar', 'restaurante', 'cafe', 'comida'],
+  sehenswurdigkeiten: ['visitas', 'turismo', 'monumentos', 'lugares'],
+  ausflug:        ['visitas', 'turismo', 'actividades', 'lugares'],
+  notfall:        ['emergencias', 'urgencias', 'medico', 'policia'],
+  feuerwehr:      ['emergencias', 'incendio', 'extintor', 'fuego'],
+  handtucher:     ['toallas', 'ropa', 'cama', 'sabanas'],
+
+  // ── ITALIANO (IT) ───────────────────────────────────────────────────────
+  entrata:        ['check', 'entrada', 'acceso', 'llave', 'puerta'],
+  chiave:         ['llave', 'check', 'entrada', 'acceso', 'puerta', 'lockbox'],
+  porta:          ['puerta', 'check', 'llave', 'acceso', 'entrada', 'door'],
+  arrivo:         ['check', 'llegada', 'acceso', 'entrada'],
+  accesso:        ['check', 'acceso', 'entrada', 'llave', 'puerta'],
+  codice:         ['check', 'llave', 'entrada', 'puerta', 'lockbox', 'codigo'],
+  partenza:       ['salida', 'checkout', 'departure', 'irse', 'check-out'],
+  uscita:         ['salida', 'checkout', 'departure', 'check-out'],
+  andare:         ['salida', 'checkout', 'departure', 'check-out'],
+  lasciare:       ['salida', 'checkout', 'llave', 'irse'],
+  rete:           ['wifi', 'wi-fi', 'internet', 'red', 'network'],
+  cucina:         ['cocina', 'kitchen', 'vitro', 'horno', 'microondas'],
+  cucinare:       ['cocina', 'kitchen', 'vitro', 'horno'],
+  fornello:       ['cocina', 'vitro', 'placa', 'kitchen'],
+  forno:          ['horno', 'cocina', 'kitchen', 'oven'],
+  frigorifero:    ['nevera', 'frigorifico', 'cocina', 'kitchen'],
+  lavatrice:      ['lavadora', 'laundry', 'washing'],
+  riscaldamento:  ['calefaccion', 'climatizacion', 'temperatura', 'termostato'],
+  condizionatore: ['aire', 'acondicionado', 'climatizacion', 'ac', 'temperatura'],
+  parcheggio:     ['parking', 'aparcamiento', 'coche', 'garaje'],
+  ristorante:     ['restaurante', 'comida', 'comer', 'food'],
+  mangiare:       ['restaurante', 'comida', 'comer', 'food'],
+  visitare:       ['visitas', 'turismo', 'monumentos', 'lugares'],
+  emergenza:      ['emergencias', 'urgencias', 'medico', 'policia'],
+  asciugamani:    ['toallas', 'ropa', 'cama', 'sabanas'],
+  lenzuola:       ['sabanas', 'cama', 'ropa', 'toallas'],
+
+  // ── PORTUGUÉS (PT) ──────────────────────────────────────────────────────
+  chave:          ['llave', 'check', 'entrada', 'acceso', 'puerta', 'lockbox'],
+  chegada:        ['check', 'llegada', 'acceso', 'entrada'],
+  acesso:         ['check', 'acceso', 'entrada', 'llave', 'puerta'],
+  saida:          ['salida', 'checkout', 'departure', 'irse', 'check-out'],
+  sair:           ['salida', 'checkout', 'departure', 'check-out'],
+  partida:        ['salida', 'checkout', 'departure', 'check-out'],
+  senha:          ['wifi', 'wi-fi', 'contrasena', 'password', 'internet'],
+  cozinha:        ['cocina', 'kitchen', 'vitro', 'horno', 'microondas'],
+  cozinhar:       ['cocina', 'kitchen', 'vitro', 'horno'],
+  fogao:          ['cocina', 'vitro', 'placa', 'kitchen'],
+  geladeira:      ['nevera', 'frigorifico', 'cocina', 'kitchen'],
+  aquecimento:    ['calefaccion', 'climatizacion', 'temperatura', 'termostato'],
+  arcondicionado: ['aire', 'acondicionado', 'climatizacion', 'ac', 'temperatura'],
+  estacionamento: ['parking', 'aparcamiento', 'coche', 'garaje'],
+  vaga:           ['parking', 'aparcamiento', 'garaje'],
+  toalhas:        ['toallas', 'ropa', 'cama', 'sabanas'],
+  lencois:        ['sabanas', 'cama', 'ropa', 'toallas'],
+
+  // ── NEERLANDÉS (NL) ─────────────────────────────────────────────────────
+  sleutel:        ['llave', 'check', 'entrada', 'acceso', 'puerta', 'lockbox'],
+  deur:           ['puerta', 'check', 'llave', 'acceso', 'entrada', 'door'],
+  aankomst:       ['check', 'llegada', 'acceso', 'entrada'],
+  inchecken:      ['check', 'entrada', 'acceso', 'llave', 'llegada'],
+  uitchecken:     ['salida', 'checkout', 'departure', 'check-out'],
+  vertrek:        ['salida', 'checkout', 'departure', 'check-out'],
+  keuken:         ['cocina', 'kitchen', 'vitro', 'horno'],
+  wasmachine:     ['lavadora', 'laundry', 'washing'],
+  verwarming:     ['calefaccion', 'climatizacion', 'temperatura'],
+  airco:          ['aire', 'acondicionado', 'climatizacion', 'ac'],
+  parkeren:       ['parking', 'aparcamiento', 'coche', 'garaje'],
+  noodgeval:      ['emergencias', 'urgencias', 'medico'],
+  handdoeken:     ['toallas', 'ropa', 'cama', 'sabanas'],
 };
 
 // Function words that cause false zone-name substring matches (e.g. "we"→"towels",
@@ -1206,6 +1343,14 @@ const QUERY_STOPWORDS_ROUTE = new Set([
   'use', 'how', 'let',
   'les', 'des', 'une', 'est', 'pas', 'sur', 'par', 'son', 'ses',
   'lui', 'mon', 'ton', 'quelle', 'quel',
+  // German 2-char function words
+  'zu', 'im', 'am', 'um', 'ab', 'ob', 'da', 'wo', 'du', 'er', 'ihr',
+  // Italian 2-char function words
+  'di', 'il', 'ci', 'mi', 'ti', 'ne', 'ho', 'ha',
+  // Portuguese 2-char function words
+  'ao', 'os', 'as', 'eu', 'tu', 'ele', 'ela',
+  // Dutch 2-char function words
+  'op', 'te', 'aan', 'bij', 'met', 'van',
 ]);
 
 function rankZonesByRelevance(message: string, zones: any[], language: string): any[] {
@@ -1766,7 +1911,7 @@ ${hostInfo}
 ${EMERGENCY_KNOWLEDGE}
 
 CRITICAL RULES:
-1. LANGUAGE: ALWAYS respond in the EXACT language the guest uses in their message — not the language of this prompt, not Spanish by default. The UI hint is "${language === 'en' ? 'English' : language === 'fr' ? 'French' : 'Spanish'}", but if the guest writes in English, respond in English. If they write in French, respond in French. If they write in Spanish, respond in Spanish. Match the guest's language 100% of the time, no exceptions.
+1. LANGUAGE: ALWAYS respond in the EXACT language the guest uses in their message — detect it automatically from what they write. If they write in German, respond in German. Italian → Italian. Portuguese → Portuguese. Dutch → Dutch. Russian → Russian. Japanese → Japanese. Arabic → Arabic. The UI hint "${language === 'en' ? 'English' : language === 'fr' ? 'French' : 'Spanish'}" is just a default — the guest's actual message language always takes priority. Never respond in a different language than what the guest wrote. No exceptions.
 2. ANSWER FROM DATA: Your answers MUST come from the knowledge base above. Quote specific details (names, codes, locations, times).
 3. MEDIA: Do NOT include image or video URLs in your text response. Media is shown automatically as cards below your message — never embed URLs or markdown images/videos in your text.
 4. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any place category, list ALL places from that zone — every single one. Never pick just 1 or 2. Show name, rating (★), distance, and walk time for each.
@@ -1970,7 +2115,7 @@ ${zonesContent || 'No zones available'}
 ${EMERGENCY_KNOWLEDGE}
 
 CRITICAL RULES:
-1. LANGUAGE: ALWAYS respond in the EXACT language the guest uses in their message — not the language of this prompt, not Spanish by default. The UI hint is "${language === 'en' ? 'English' : language === 'fr' ? 'French' : 'Spanish'}", but if the guest writes in English, respond in English. If they write in French, respond in French. If they write in Spanish, respond in Spanish. Match the guest's language 100% of the time, no exceptions.
+1. LANGUAGE: ALWAYS respond in the EXACT language the guest uses in their message — detect it automatically from what they write. If they write in German, respond in German. Italian → Italian. Portuguese → Portuguese. Dutch → Dutch. Russian → Russian. Japanese → Japanese. Arabic → Arabic. The UI hint "${language === 'en' ? 'English' : language === 'fr' ? 'French' : 'Spanish'}" is just a default — the guest's actual message language always takes priority. Never respond in a different language than what the guest wrote. No exceptions.
 2. ANSWER FROM DATA: Your answers MUST come EXCLUSIVELY from the knowledge base above. Quote specific details (WiFi name, codes, locations, times, step-by-step instructions).
 3. MEDIA: Do NOT include image or video URLs in your text response. Media is shown automatically as cards below your message — never embed URLs or markdown images/videos in your text.
 4. RECOMMENDATIONS: When the guest asks about restaurants, cafés, attractions or any category, list ALL places from that zone. Show name, rating (★), distance, and walk time for each. ALWAYS mention distance so guests can judge. If a place is >3km away, add a note like "(requires car)" or "(necesita coche)". If the guest has indicated they travel on foot (no car) OR asks for places "cerca", "near", "close", prioritize places within ~1.5km and skip far ones.

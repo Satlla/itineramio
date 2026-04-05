@@ -283,16 +283,153 @@ export const QUERY_EXPANSIONS: Record<string, string[]> = {
   // ── FRANCÉS ─────────────────────────────────────────────────────────────
   entrer:         ['check', 'entrada', 'acceso', 'llave', 'puerta'],
   sortir:         ['salida', 'checkout', 'irse', 'departure'],
-  partons:        ['salida', 'checkout', 'irse', 'departure'],
+  partons:        ['salida', 'checkout', 'irse', 'departure', 'check-out'],
   partir:         ['salida', 'checkout', 'irse'],
-  part:           ['salida', 'checkout', 'departure'], // fr: "on part" = we're leaving
-  depart:         ['salida', 'checkout', 'departure', 'leaving'],  // fr: départ → depart after normalize
+  part:           ['salida', 'checkout', 'departure', 'check-out'], // fr: "on part" = we're leaving
+  depart:         ['salida', 'checkout', 'departure', 'leaving', 'check-out'],
   arriver:        ['check', 'llegada', 'acceso', 'entrada'],
   manger:         ['restaurante', 'restaurant', 'comida', 'comer', 'food'],
   voir:           ['visitas', 'turismo', 'monumentos', 'lugares'],
   stationnement:  ['parking', 'aparcamiento', 'coche', 'garaje'],
   cle:            ['llave', 'check', 'entrada', 'acceso', 'puerta'],
   voiture:        ['parking', 'aparcamiento', 'coche', 'garaje'],
+
+  // ── ALEMÁN (DE) ─────────────────────────────────────────────────────────
+  // Check-in
+  eingang:        ['check', 'entrada', 'acceso', 'llave', 'puerta'],
+  schlussel:      ['llave', 'check', 'entrada', 'acceso', 'puerta', 'lockbox'],  // Schlüssel
+  tur:            ['puerta', 'check', 'llave', 'acceso', 'entrada', 'door'],     // Tür
+  zugang:         ['check', 'acceso', 'entrada', 'llave', 'puerta'],
+  ankunft:        ['check', 'llegada', 'acceso', 'entrada'],
+  einchecken:     ['check', 'entrada', 'acceso', 'llave', 'llegada'],
+  ankommen:       ['check', 'llegada', 'acceso', 'entrada'],
+  // Check-out
+  abreise:        ['salida', 'checkout', 'departure', 'irse', 'check-out'],
+  auschecken:     ['salida', 'checkout', 'departure', 'check-out'],
+  verlassen:      ['salida', 'checkout', 'departure', 'check-out'],
+  abfahrt:        ['salida', 'checkout', 'departure', 'check-out'],
+  // WiFi
+  wlan:           ['wifi', 'wi-fi', 'internet', 'contrasena', 'password', 'red', 'network'],
+  kennwort:       ['wifi', 'wi-fi', 'contrasena', 'password', 'internet'],
+  passwort:       ['wifi', 'wi-fi', 'contrasena', 'password', 'internet'],
+  verbindung:     ['wifi', 'wi-fi', 'internet', 'red', 'conexion'],
+  // Cocina
+  kuche:          ['cocina', 'kitchen', 'vitro', 'horno', 'microondas'],         // Küche
+  kochen:         ['cocina', 'kitchen', 'vitro', 'horno'],
+  herd:           ['cocina', 'vitro', 'placa', 'kitchen'],                       // Herd = hob
+  backofen:       ['horno', 'cocina', 'kitchen', 'oven'],
+  kuhlschrank:    ['nevera', 'frigorifico', 'cocina', 'kitchen'],                 // Kühlschrank
+  geschirrspuler: ['lavavajillas', 'cocina', 'kitchen'],                          // Geschirrspüler
+  waschmaschine:  ['lavadora', 'laundry', 'washing'],
+  // Clima
+  heizung:        ['calefaccion', 'climatizacion', 'temperatura', 'termostato'],
+  klimaanlage:    ['aire', 'acondicionado', 'climatizacion', 'ac', 'temperatura'],
+  temperatur:     ['temperatura', 'climatizacion', 'calefaccion', 'termostato'],
+  // Parking
+  parkplatz:      ['parking', 'aparcamiento', 'coche', 'garaje'],
+  parken:         ['parking', 'aparcamiento', 'coche', 'garaje'],
+  // Restaurantes
+  restaurant:     ['restaurante', 'comida', 'comer', 'food', 'dinner'],
+  essen:          ['restaurante', 'comida', 'comer', 'food', 'tapas'],
+  trinken:        ['bar', 'restaurante', 'cafe', 'comida'],
+  // Turismo
+  sehenswurdigkeiten: ['visitas', 'turismo', 'monumentos', 'lugares'],
+  ausflug:        ['visitas', 'turismo', 'actividades', 'lugares'],
+  // Emergencias
+  notfall:        ['emergencias', 'urgencias', 'medico', 'policia'],
+  feuerwehr:      ['emergencias', 'incendio', 'extintor', 'fuego'],
+  // Toallas/ropa
+  handtucher:     ['toallas', 'ropa', 'cama', 'sabanas'],                        // Handtücher
+  bettwäsche:     ['sabanas', 'cama', 'ropa', 'toallas'],
+  laken:          ['sabanas', 'cama', 'ropa'],
+
+  // ── ITALIANO (IT) ───────────────────────────────────────────────────────
+  // Check-in
+  entrata:        ['check', 'entrada', 'acceso', 'llave', 'puerta'],
+  chiave:         ['llave', 'check', 'entrada', 'acceso', 'puerta', 'lockbox'],
+  porta:          ['puerta', 'check', 'llave', 'acceso', 'entrada', 'door'],
+  arrivo:         ['check', 'llegada', 'acceso', 'entrada'],
+  accesso:        ['check', 'acceso', 'entrada', 'llave', 'puerta'],
+  codice:         ['check', 'llave', 'entrada', 'puerta', 'lockbox', 'codigo'],
+  // Check-out
+  partenza:       ['salida', 'checkout', 'departure', 'irse', 'check-out'],
+  uscita:         ['salida', 'checkout', 'departure', 'check-out'],
+  andare:         ['salida', 'checkout', 'departure', 'check-out'],
+  lasciare:       ['salida', 'checkout', 'llave', 'irse'],
+  // WiFi
+  rete:           ['wifi', 'wi-fi', 'internet', 'red', 'network'],
+  parola:         ['wifi', 'wi-fi', 'contrasena', 'password'],                   // parola d'ordine
+  // Cocina
+  cucina:         ['cocina', 'kitchen', 'vitro', 'horno', 'microondas'],
+  cucinare:       ['cocina', 'kitchen', 'vitro', 'horno'],
+  fornello:       ['cocina', 'vitro', 'placa', 'kitchen'],
+  forno:          ['horno', 'cocina', 'kitchen', 'oven'],
+  frigorifero:    ['nevera', 'frigorifico', 'cocina', 'kitchen'],
+  lavatrice:      ['lavadora', 'laundry', 'washing'],
+  // Clima
+  riscaldamento:  ['calefaccion', 'climatizacion', 'temperatura', 'termostato'],
+  condizionatore: ['aire', 'acondicionado', 'climatizacion', 'ac', 'temperatura'],
+  aria:           ['aire', 'acondicionado', 'climatizacion', 'temperatura'],
+  // Parking
+  parcheggio:     ['parking', 'aparcamiento', 'coche', 'garaje'],
+  // Restaurantes
+  ristorante:     ['restaurante', 'comida', 'comer', 'food'],
+  mangiare:       ['restaurante', 'comida', 'comer', 'food'],
+  // Turismo
+  visitare:       ['visitas', 'turismo', 'monumentos', 'lugares'],
+  // Emergencias
+  emergenza:      ['emergencias', 'urgencias', 'medico', 'policia'],
+  // Toallas
+  asciugamani:    ['toallas', 'ropa', 'cama', 'sabanas'],
+  lenzuola:       ['sabanas', 'cama', 'ropa', 'toallas'],
+
+  // ── PORTUGUÉS (PT) ──────────────────────────────────────────────────────
+  // Check-in
+  chave:          ['llave', 'check', 'entrada', 'acceso', 'puerta', 'lockbox'],
+  porta2:         ['puerta', 'check', 'llave', 'acceso', 'entrada'],              // alias, 'porta' is IT
+  chegada:        ['check', 'llegada', 'acceso', 'entrada'],
+  acesso:         ['check', 'acceso', 'entrada', 'llave', 'puerta'],
+  // Check-out
+  saida:          ['salida', 'checkout', 'departure', 'irse', 'check-out'],
+  sair:           ['salida', 'checkout', 'departure', 'check-out'],
+  partida:        ['salida', 'checkout', 'departure', 'check-out'],
+  // WiFi
+  senha:          ['wifi', 'wi-fi', 'contrasena', 'password', 'internet'],
+  // Cocina
+  cozinha:        ['cocina', 'kitchen', 'vitro', 'horno', 'microondas'],
+  cozinhar:       ['cocina', 'kitchen', 'vitro', 'horno'],
+  fogao:          ['cocina', 'vitro', 'placa', 'kitchen'],                        // fogão
+  geladeira:      ['nevera', 'frigorifico', 'cocina', 'kitchen'],
+  maquina:        ['lavadora', 'laundry', 'washing'],
+  // Clima
+  aquecimento:    ['calefaccion', 'climatizacion', 'temperatura', 'termostato'],
+  arcondicionado: ['aire', 'acondicionado', 'climatizacion', 'ac', 'temperatura'],
+  // Parking
+  estacionamento: ['parking', 'aparcamiento', 'coche', 'garaje'],
+  vaga:           ['parking', 'aparcamiento', 'garaje'],
+  // Restaurantes
+  restaurante2:   ['restaurante', 'comida', 'comer', 'food'],                     // shared with ES
+  comer2:         ['restaurante', 'comida', 'food'],
+  // Emergencias
+  emergencia2:    ['emergencias', 'urgencias', 'medico', 'policia'],
+  // Toallas
+  toalhas:        ['toallas', 'ropa', 'cama', 'sabanas'],
+  lencois:        ['sabanas', 'cama', 'ropa', 'toallas'],                         // lençóis
+
+  // ── NEERLANDÉS (NL) ─────────────────────────────────────────────────────
+  sleutel:        ['llave', 'check', 'entrada', 'acceso', 'puerta', 'lockbox'],
+  deur:           ['puerta', 'check', 'llave', 'acceso', 'entrada', 'door'],
+  aankomst:       ['check', 'llegada', 'acceso', 'entrada'],
+  inchecken:      ['check', 'entrada', 'acceso', 'llave', 'llegada'],
+  uitchecken:     ['salida', 'checkout', 'departure', 'check-out'],
+  vertrek:        ['salida', 'checkout', 'departure', 'check-out'],
+  keuken:         ['cocina', 'kitchen', 'vitro', 'horno'],
+  wasmachine:     ['lavadora', 'laundry', 'washing'],
+  verwarming:     ['calefaccion', 'climatizacion', 'temperatura'],
+  airco:          ['aire', 'acondicionado', 'climatizacion', 'ac'],
+  parkeren:       ['parking', 'aparcamiento', 'coche', 'garaje'],
+  noodgeval:      ['emergencias', 'urgencias', 'medico'],
+  handdoeken:     ['toallas', 'ropa', 'cama', 'sabanas'],
 };
 
 // ---------------------------------------------------------------------------
@@ -328,6 +465,14 @@ const QUERY_STOPWORDS = new Set([
   // French articles/prepositions
   'les', 'des', 'une', 'est', 'pas', 'sur', 'par', 'son', 'ses',
   'lui', 'mon', 'ton', 'quelle', 'quel',
+  // German 2-char function words
+  'zu', 'im', 'am', 'um', 'ab', 'ob', 'da', 'wo', 'du', 'er', 'es', 'ihr',
+  // Italian 2-char function words
+  'di', 'il', 'lo', 'la', 'li', 'ci', 'mi', 'ti', 'si', 'ne', 'ho', 'ha',
+  // Portuguese 2-char function words
+  'em', 'ao', 'os', 'as', 'um', 'eu', 'tu', 'ele', 'ela',
+  // Dutch 2-char function words
+  'de', 'het', 'een', 'van', 'op', 'in', 'te', 'aan', 'bij',
 ]);
 
 export function rankZonesByRelevance(message: string, zones: unknown[], language: string): unknown[] {
@@ -518,6 +663,29 @@ export function detectUnansweredQuestion(aiResponse: string, _language: string):
     "je n'ai pas cette information",
     "je ne dispose pas de cette information",
     "je n'ai pas d'information",
+    // German
+    'ich habe keine information',
+    'ich weiß es nicht',
+    'kontaktieren sie den gastgeber',
+    'bitte kontaktieren sie',
+    'leider habe ich keine',
+    'diese information habe ich nicht',
+    // Italian
+    'non ho informazioni',
+    'non dispongo di questa informazione',
+    'contatta il proprietario',
+    'ti consiglio di contattare',
+    'mi dispiace, non ho',
+    // Portuguese
+    'não tenho informações',
+    'não tenho essa informação',
+    'entre em contato com o anfitrião',
+    'recomendo que contacte',
+    'infelizmente não tenho',
+    // Dutch
+    'ik heb geen informatie',
+    'neem contact op met de host',
+    'helaas heb ik geen',
   ];
 
   return fallbackPhrases.some(phrase => lower.includes(phrase));
