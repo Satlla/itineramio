@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Sparkles, ArrowLeft, Loader2, CheckCircle, ChevronRight,
-  User, Mail, Phone, Gift, AlertCircle, X, Zap, Star, Shield,
-  MessageCircle, Users, Flame, KeyRound, RotateCcw,
+  ArrowLeft, Loader2, CheckCircle,
+  User, Mail, Phone, Gift, AlertCircle, X, Shield,
+  Flame, RotateCcw,
 } from 'lucide-react'
 import { Turnstile } from '@marsidev/react-turnstile'
 import { I18nProvider } from '../../../src/providers/I18nProvider'
@@ -116,27 +116,6 @@ function ConfettiBurst({ active }: { active: boolean }) {
   )
 }
 
-// ============================================
-// ANIMATED BACKGROUND ORBS
-// ============================================
-
-function AnimatedOrbs() {
-  return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none">
-      {/* Subtle light orbs */}
-      <motion.div
-        animate={{ x: [0, 60, -30, 0], y: [0, -50, 40, 0], scale: [1, 1.2, 0.9, 1] }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-violet-200/30 blur-[120px]"
-      />
-      <motion.div
-        animate={{ x: [0, -80, 50, 0], y: [0, 40, -30, 0], scale: [1, 0.8, 1.2, 1] }}
-        transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-1/3 -right-32 w-[500px] h-[500px] rounded-full bg-purple-200/20 blur-[120px]"
-      />
-    </div>
-  )
-}
 
 // ============================================
 // PROGRESS BAR
@@ -146,30 +125,12 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
   const progress = ((step - 1) / (total - 1)) * 100
 
   return (
-    <div className="relative w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-      {/* Glow behind the bar */}
+    <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
       <motion.div
-        className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500"
+        className="h-full rounded-full bg-violet-500"
         initial={{ width: '0%' }}
         animate={{ width: `${progress}%` }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        style={{ filter: 'blur(6px)', opacity: 0.6 }}
-      />
-      {/* Actual bar */}
-      <motion.div
-        className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500"
-        initial={{ width: '0%' }}
-        animate={{ width: `${progress}%` }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-      />
-      {/* Shimmer effect */}
-      <motion.div
-        className="absolute top-0 left-0 h-full w-20 rounded-full"
-        style={{
-          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
-        }}
-        animate={{ left: ['-20%', '120%'] }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
       />
     </div>
   )
@@ -966,19 +927,16 @@ function DemoPageInner() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 relative">
-      {/* Animated background */}
-      <AnimatedOrbs />
-
-      {/* Confetti */}
+    <div className="min-h-screen bg-gray-50">
+      {/* Confetti — solo al finalizar */}
       <ConfettiBurst active={confettiBurst > 0} key={confettiBurst} />
 
       {/* Content */}
       <div className="relative z-10">
-        {/* Top bar — glassmorphism */}
-        <div className="sticky top-0 z-40 border-b border-gray-200 bg-white/90 backdrop-blur-xl shadow-sm">
+        {/* Top bar */}
+        <div className="sticky top-0 z-40 border-b border-gray-200 bg-white">
           <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-2.5">
               <button
                 type="button"
                 onClick={() => {
@@ -986,79 +944,46 @@ function DemoPageInner() {
                   if (wizardStep > 1) setWizardStep(wizardStep - 1)
                   else window.location.href = '/'
                 }}
-                className="flex items-center gap-2 text-gray-400 hover:text-gray-700 transition-colors group"
+                className="text-gray-400 hover:text-gray-700 transition-colors"
               >
-                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+                <ArrowLeft className="w-5 h-5" />
               </button>
 
               {/* Logo */}
               <div className="flex items-center gap-2">
-                <div className="relative">
-                  <Sparkles className="w-5 h-5 text-violet-500" />
-                  <motion.div
-                    className="absolute inset-0 rounded-full bg-violet-400/30 blur-md"
-                    animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0.2, 0.5] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
-                </div>
-                <span className="text-gray-900 font-bold text-sm sm:text-base tracking-tight">itineramio</span>
-                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-600 border border-violet-200">DEMO</span>
+                <img src="/isotipo-gradient.svg" alt="Itineramio" width={24} height={14} className="object-contain" />
+                <span className="text-gray-900 font-semibold text-sm tracking-tight">itineramio</span>
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">DEMO</span>
               </div>
 
-              {/* Right side: step counter + lang switcher */}
+              {/* Right side */}
               <div className="flex items-center gap-2 sm:gap-3">
-              <DemoLangSwitcher />
-              {phase === 'wizard' && (
-                <div className="flex items-center gap-1.5">
-                  {[1, 2, 3, 4].map((step) => (
-                    <div key={step} className="flex items-center gap-1">
-                      <motion.div
-                        layout
-                        className={`relative flex items-center justify-center rounded-full text-[10px] sm:text-xs font-bold transition-all duration-500 ${
+                <DemoLangSwitcher />
+                {phase === 'wizard' && (
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4].map((step) => (
+                      <div key={step} className="flex items-center gap-1">
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold transition-all ${
                           step === wizardStep
-                            ? 'w-7 h-7 sm:w-8 sm:h-8'
-                            : 'w-6 h-6 sm:w-7 sm:h-7'
-                        }`}
-                      >
-                        {/* Glow ring for active step */}
-                        {step === wizardStep && (
-                          <motion.div
-                            className="absolute inset-0 rounded-full bg-violet-500/30 blur-md"
-                            animate={{ scale: [1, 1.3, 1], opacity: [0.6, 0.2, 0.6] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                          />
-                        )}
-                        <div className={`relative z-10 w-full h-full rounded-full flex items-center justify-center ${
-                          step === wizardStep
-                            ? 'bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-500/30'
+                            ? 'bg-violet-600 text-white'
                             : step < wizardStep
                             ? 'bg-violet-100 text-violet-600'
                             : 'bg-gray-100 text-gray-400'
                         }`}>
-                          {step < wizardStep ? (
-                            <CheckCircle className="w-3.5 h-3.5" />
-                          ) : step}
+                          {step < wizardStep ? <CheckCircle className="w-3 h-3" /> : step}
                         </div>
-                      </motion.div>
-                      {step < 4 && (
-                        <div className={`w-3 sm:w-4 h-px transition-colors duration-500 ${
-                          step < wizardStep ? 'bg-violet-400' : 'bg-gray-200'
-                        }`} />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Spacer when not in wizard phase */}
-              {phase !== 'wizard' && <div />}
+                        {step < 4 && (
+                          <div className={`w-3 h-px ${step < wizardStep ? 'bg-violet-300' : 'bg-gray-200'}`} />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {phase !== 'wizard' && <div />}
               </div>
             </div>
 
-            {/* Animated progress bar */}
-            {phase === 'wizard' && (
-              <ProgressBar step={wizardStep} total={4} />
-            )}
+            {phase === 'wizard' && <ProgressBar step={wizardStep} total={4} />}
           </div>
         </div>
 
@@ -1066,90 +991,32 @@ function DemoPageInner() {
         {phase === 'wizard' && wizardStep === 1 && (
           <div className="max-w-4xl mx-auto px-3 sm:px-4 pt-6 sm:pt-10 pb-2">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-center space-y-4"
+              transition={{ duration: 0.4 }}
+              className="text-center space-y-3"
             >
-              {/* Badges */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-                className="flex items-center justify-center gap-2 flex-wrap"
-              >
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 border border-violet-200 text-violet-700 text-xs font-medium">
-                  <Zap className="w-3 h-3" />
-                  {t('badge1')}
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium">
-                  <Gift className="w-3 h-3" />
-                  {t('badge2')}
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 text-xs font-medium">
-                  <MessageCircle className="w-3 h-3" />
-                  {t('badge3')}
-                </span>
-              </motion.div>
+              {/* Badge único */}
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 border border-violet-200 text-violet-700 text-xs font-medium">
+                <Gift className="w-3 h-3" />
+                {t('badge2')} · {t('badge3')}
+              </span>
 
               {/* Title */}
-              <motion.h1
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-2xl sm:text-4xl font-extrabold text-gray-900 leading-tight"
-              >
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
                 {t('heroTitle')}
-              </motion.h1>
+              </h1>
 
               {/* Subtitle */}
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="text-gray-500 text-sm sm:text-base max-w-lg mx-auto"
-              >
+              <p className="text-gray-500 text-sm sm:text-base max-w-lg mx-auto">
                 {t('heroSubtitle')}
-              </motion.p>
+              </p>
 
-              {/* Limited spots counter */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.6 }}
-                className="inline-flex items-center gap-3 px-4 py-2.5 rounded-xl bg-orange-50 border border-orange-200"
-              >
-                <div className="flex items-center gap-1.5">
-                  <Flame className="w-4 h-4 text-orange-500" />
-                  <span className="text-xs font-bold text-orange-700">{t('limitedOffer')}</span>
-                </div>
-                <div className="h-4 w-px bg-orange-200" />
-                <div className="flex items-center gap-2">
-                  {/* Mini progress bar */}
-                  <div className="w-20 h-1.5 rounded-full bg-orange-100 overflow-hidden">
-                    <motion.div
-                      className="h-full rounded-full bg-gradient-to-r from-orange-500 to-red-500"
-                      initial={{ width: '0%' }}
-                      animate={{ width: `${(spotsUsed / spotsTotal) * 100}%` }}
-                      transition={{ duration: 1.5, delay: 0.8, ease: 'easeOut' }}
-                    />
-                  </div>
-                  <span className="text-xs font-mono font-bold text-orange-600">
-                    {spotsUsed}/{spotsTotal}
-                  </span>
-                </div>
-              </motion.div>
-
-              {/* Trust line */}
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 }}
-                className="text-gray-400 text-xs flex items-center justify-center gap-2"
-              >
-                <Shield className="w-3 h-3" />
-                {t('trustLine')}
-              </motion.p>
+              {/* Spots — discreto */}
+              <p className="text-xs text-gray-400 flex items-center justify-center gap-1.5">
+                <Flame className="w-3 h-3 text-orange-400" />
+                {spotsUsed}/{spotsTotal} {t('spotsUsed')} · {t('trustLine')}
+              </p>
             </motion.div>
           </div>
         )}
@@ -1286,20 +1153,10 @@ function DemoPageInner() {
                         transition={{ duration: 0.25 }}
                         className="space-y-6"
                       >
-                        <div className="relative text-center space-y-3">
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ type: 'spring', damping: 12, delay: 0.1 }}
-                            className="relative w-16 h-16 rounded-2xl bg-violet-50 flex items-center justify-center mx-auto border border-violet-200"
-                          >
-                            <Gift className="w-8 h-8 text-violet-500" />
-                            <motion.div
-                              className="absolute inset-0 rounded-2xl bg-violet-500/20 blur-xl"
-                              animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0, 0.3] }}
-                              transition={{ duration: 2, repeat: Infinity }}
-                            />
-                          </motion.div>
+                        <div className="text-center space-y-2">
+                          <div className="w-12 h-12 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center mx-auto">
+                            <Gift className="w-6 h-6 text-violet-500" />
+                          </div>
                           <h2 className="text-xl font-bold text-gray-900">{t('leadTitle')}</h2>
                           <p className="text-sm text-gray-500">{t('leadSubtitle')}</p>
                         </div>
@@ -1377,41 +1234,24 @@ function DemoPageInner() {
                             />
                           </div>
 
-                          {/* Scarcity + Discount badges */}
-                          <div className="space-y-2">
-                            <motion.div
-                              initial={{ opacity: 0, x: -10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.3 }}
-                              className="flex items-center justify-center gap-2 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded-lg py-2"
-                            >
-                              <Flame className="w-3.5 h-3.5" />
-                              <span className="font-semibold">{t('onlyXLeft')} {spotsTotal - spotsUsed} {t('spots')}</span>
-                              <span className="text-orange-400">·</span>
-                              <span className="font-mono text-orange-600">{spotsUsed}/{spotsTotal}</span>
-                            </motion.div>
-
-                            <div className="flex items-center justify-center gap-2 text-xs text-violet-700 bg-violet-50 border border-violet-200 rounded-lg py-2.5">
-                              <Gift className="w-3.5 h-3.5" />
-                              {t('discount')}
-                            </div>
+                          {/* Info discreta */}
+                          <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
+                            <Gift className="w-3 h-3 text-violet-400" />
+                            <span>{t('discount')}</span>
                           </div>
 
                           {/* Send OTP button */}
                           <button
                             type="submit"
                             disabled={!leadData.name || !leadData.email || !leadData.phone || !!emailError || !!phoneError || otpSending}
-                            className="relative w-full h-13 py-3.5 rounded-xl text-base font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white shadow-xl shadow-violet-500/20 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-violet-500/40 hover:scale-[1.02] active:scale-[0.98] overflow-hidden group"
+                            className="w-full py-3 rounded-xl text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                           >
-                            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                             {otpSending ? (
-                              <Loader2 className="w-5 h-5 animate-spin relative z-10" />
+                              <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
-                              <Mail className="w-5 h-5 relative z-10" />
+                              <Mail className="w-4 h-4" />
                             )}
-                            <span className="relative z-10">
-                              {otpSending ? 'Enviando...' : 'Enviar código de verificación'}
-                            </span>
+                            {otpSending ? 'Enviando...' : 'Enviar código de verificación'}
                           </button>
                         </form>
                       </motion.div>
@@ -1427,55 +1267,18 @@ function DemoPageInner() {
                         transition={{ duration: 0.3 }}
                         className="space-y-8"
                       >
-                        {/* Header — minimal, clean */}
-                        <div className="relative text-center space-y-4">
-                          {/* Animated shield icon */}
-                          <motion.div
-                            initial={{ scale: 0, rotate: -180 }}
-                            animate={{ scale: 1, rotate: 0 }}
-                            transition={{ type: 'spring', damping: 14, stiffness: 200, delay: 0.1 }}
-                            className="relative w-20 h-20 mx-auto"
-                          >
-                            {/* Outer ring pulse */}
-                            <motion.div
-                              className="absolute inset-0 rounded-full border border-violet-500/30"
-                              animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0, 0.4] }}
-                              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-                            />
-                            {/* Inner glow */}
-                            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-violet-500/10 to-fuchsia-500/5 blur-xl" />
-                            {/* Icon container */}
-                            <div className="relative w-full h-full rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
-                              <Shield className="w-9 h-9 text-violet-500" />
+                        {/* Header */}
+                        <div className="text-center space-y-3">
+                          <div className="w-12 h-12 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center mx-auto">
+                            <Shield className="w-6 h-6 text-violet-500" />
+                          </div>
+                          <div>
+                            <h2 className="text-xl font-bold text-gray-900">Verificación</h2>
+                            <p className="text-sm text-gray-500 mt-1">Código enviado a</p>
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gray-50 border border-gray-200 mt-1.5">
+                              <Mail className="w-3.5 h-3.5 text-gray-400" />
+                              <span className="text-sm text-gray-700">{leadData.email}</span>
                             </div>
-                          </motion.div>
-
-                          <div className="space-y-2">
-                            <motion.h2
-                              initial={{ opacity: 0, y: 8 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: 0.2 }}
-                              className="text-xl font-bold text-gray-900 tracking-tight"
-                            >
-                              Verificación
-                            </motion.h2>
-                            <motion.p
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: 0.3 }}
-                              className="text-sm text-gray-500"
-                            >
-                              Código enviado a
-                            </motion.p>
-                            <motion.div
-                              initial={{ opacity: 0, scale: 0.95 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ delay: 0.35 }}
-                              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-violet-50 border border-violet-200"
-                            >
-                              <Mail className="w-3.5 h-3.5 text-violet-500" />
-                              <span className="text-sm font-medium text-violet-700">{leadData.email}</span>
-                            </motion.div>
                           </div>
                         </div>
 
@@ -1497,53 +1300,28 @@ function DemoPageInner() {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.25 }}
                         >
-                          <div className="flex justify-center gap-2.5 sm:gap-3">
+                          <div className="flex justify-center gap-2">
                             {otpDigits.map((digit, i) => (
-                              <motion.div
+                              <input
                                 key={i}
-                                initial={{ opacity: 0, y: 16 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 + i * 0.05 }}
-                                className="relative"
-                              >
-                                {/* Glow under focused/filled digit */}
-                                {(otpFocusedIndex === i || digit) && (
-                                  <motion.div
-                                    layoutId={otpFocusedIndex === i ? 'otp-glow' : undefined}
-                                    className="absolute -inset-1 rounded-2xl bg-violet-500/15 blur-md"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: digit ? 0.6 : 0.4 }}
-                                    transition={{ duration: 0.2 }}
-                                  />
-                                )}
-                                <input
-                                  ref={(el) => { otpInputRefs.current[i] = el }}
-                                  type="text"
-                                  inputMode="numeric"
-                                  autoComplete={i === 0 ? 'one-time-code' : 'off'}
-                                  maxLength={i === 0 ? 6 : 1}
-                                  value={digit}
-                                  onChange={(e) => handleOtpDigitChange(i, e.target.value)}
-                                  onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                                  onFocus={() => setOtpFocusedIndex(i)}
-                                  onBlur={() => setOtpFocusedIndex(-1)}
-                                  className={`relative z-10 w-11 h-14 sm:w-13 sm:h-16 text-center text-xl sm:text-2xl font-semibold rounded-xl bg-gray-50 border transition-all duration-200 outline-none text-gray-900 caret-violet-500 ${
-                                    digit
-                                      ? 'border-violet-500 bg-white'
-                                      : otpFocusedIndex === i
-                                      ? 'border-violet-500 ring-2 ring-violet-100 bg-white'
-                                      : 'border-gray-200 hover:border-gray-300'
-                                  }`}
-                                />
-                                {/* Bottom accent line for filled digits */}
-                                {digit && (
-                                  <motion.div
-                                    initial={{ scaleX: 0 }}
-                                    animate={{ scaleX: 1 }}
-                                    className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500"
-                                  />
-                                )}
-                              </motion.div>
+                                ref={(el) => { otpInputRefs.current[i] = el }}
+                                type="text"
+                                inputMode="numeric"
+                                autoComplete={i === 0 ? 'one-time-code' : 'off'}
+                                maxLength={i === 0 ? 6 : 1}
+                                value={digit}
+                                onChange={(e) => handleOtpDigitChange(i, e.target.value)}
+                                onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                                onFocus={() => setOtpFocusedIndex(i)}
+                                onBlur={() => setOtpFocusedIndex(-1)}
+                                className={`w-11 h-14 text-center text-xl font-semibold rounded-xl bg-gray-50 border transition-colors outline-none text-gray-900 ${
+                                  digit
+                                    ? 'border-violet-500 bg-white'
+                                    : otpFocusedIndex === i
+                                    ? 'border-violet-500 ring-2 ring-violet-100 bg-white'
+                                    : 'border-gray-200'
+                                }`}
+                              />
                             ))}
                           </div>
 
@@ -1621,89 +1399,42 @@ function DemoPageInner() {
           )}
         </AnimatePresence>
 
-        {/* Generating screen — cinematic */}
+        {/* Generating screen */}
         {phase === 'generating' && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white">
-            <AnimatedOrbs />
-            <div className="relative z-10 text-center space-y-10 max-w-md">
-              {/* Animated concentric rings */}
-              <div className="relative mx-auto w-32 h-32">
-                <motion.div
-                  className="absolute inset-0 rounded-full border-2 border-violet-400/50"
-                  animate={{ scale: [1, 1.4, 1], opacity: [0.6, 0, 0.6] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-                <motion.div
-                  className="absolute inset-2 rounded-full border-2 border-purple-400/50"
-                  animate={{ scale: [1, 1.3, 1], opacity: [0.6, 0, 0.6] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
-                />
-                <motion.div
-                  className="absolute inset-4 rounded-full border-2 border-fuchsia-400/50"
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.7, 0, 0.7] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
-                />
-                {/* Spinning gradient ring */}
-                <motion.div
-                  className="absolute inset-3 rounded-full"
-                  style={{
-                    background: 'conic-gradient(from 0deg, transparent, #8b5cf6, #a855f7, #d946ef, transparent)',
-                    WebkitMaskImage: 'radial-gradient(transparent 60%, black 62%, black 70%, transparent 72%)',
-                    maskImage: 'radial-gradient(transparent 60%, black 62%, black 70%, transparent 72%)',
-                  }}
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-                />
-                {/* Center icon */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    <Sparkles className="w-10 h-10 text-violet-500" />
-                  </motion.div>
-                </div>
+            <div className="text-center space-y-8 max-w-sm w-full">
+              {/* Spinner simple */}
+              <div className="flex justify-center">
+                <Loader2 className="w-10 h-10 text-violet-500 animate-spin" />
               </div>
 
-              <div className="space-y-3">
-                <motion.h2
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-2xl font-bold text-gray-900"
-                >
-                  {t('generating')}
-                </motion.h2>
+              <div className="space-y-2">
+                <h2 className="text-xl font-bold text-gray-900">{t('generating')}</h2>
                 <AnimatePresence mode="wait">
                   <motion.p
                     key={loadingMessageIndex}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="text-gray-600 text-lg"
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.25 }}
+                    className="text-gray-500 text-sm"
                   >
                     {(loadingMsg as any)[lang] || loadingMsg.es}
                   </motion.p>
                 </AnimatePresence>
-                <p className="text-xs text-gray-400">{t('generatingSubtitle')}</p>
               </div>
 
-              {/* Animated progress bar */}
-              <div className="max-w-xs mx-auto">
-                <div className="relative w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full rounded-full bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500"
-                    initial={{ width: '5%' }}
-                    animate={{ width: `${Math.min(95, (loadingMessageIndex + 1) / LOADING_MESSAGES.length * 100)}%` }}
-                    transition={{ duration: 2.5, ease: 'easeOut' }}
-                  />
-                  <motion.div
-                    className="absolute top-0 left-0 h-full w-24 rounded-full"
-                    style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)' }}
-                    animate={{ left: ['-20%', '120%'] }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                  />
-                </div>
+              {/* Progress bar simple */}
+              <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full rounded-full bg-violet-500"
+                  initial={{ width: '5%' }}
+                  animate={{ width: `${Math.min(95, (loadingMessageIndex + 1) / LOADING_MESSAGES.length * 100)}%` }}
+                  transition={{ duration: 2.5, ease: 'easeOut' }}
+                />
               </div>
+
+              <p className="text-xs text-gray-400">{t('generatingSubtitle')}</p>
             </div>
           </div>
         )}
