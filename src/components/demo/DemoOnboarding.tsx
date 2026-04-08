@@ -33,7 +33,7 @@ function GuideVisual() {
     { icon: '🏠', label: 'Normas', info: '5 reglas' },
   ]
   return (
-    <div className="w-full max-w-[200px] mx-auto">
+    <div className="w-full max-w-[200px] md:max-w-[240px] mx-auto">
       <div className="rounded-2xl overflow-hidden shadow-xl border border-purple-100" style={{ background: '#fff' }}>
         <div className="px-3 py-2 flex items-center gap-1.5" style={{ background: 'linear-gradient(135deg,#7c3aed,#db2777)' }}>
           <div className="w-1.5 h-1.5 rounded-full bg-white/40" />
@@ -65,7 +65,7 @@ function GuideVisual() {
 function VideoVisual() {
   const zones = ['Lavadora', 'Check-in', 'Microondas', 'Caldera', 'TV']
   return (
-    <div className="w-full max-w-[200px] mx-auto space-y-2">
+    <div className="w-full max-w-[200px] md:max-w-[240px] mx-auto space-y-2">
       {zones.map((z, i) => (
         <div key={i} className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 shadow-sm border border-purple-50">
           <div className="w-8 h-6 rounded-md bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shrink-0">
@@ -81,7 +81,7 @@ function VideoVisual() {
 
 function ChatbotVisual() {
   return (
-    <div className="w-full max-w-[200px] mx-auto space-y-2">
+    <div className="w-full max-w-[200px] md:max-w-[240px] mx-auto space-y-2">
       <div className="flex items-start gap-1.5">
         <div className="w-5 h-5 rounded-full shrink-0 flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#db2777)' }}>
           <MessageCircle className="w-2.5 h-2.5 text-white" />
@@ -112,7 +112,7 @@ function ChatbotVisual() {
 
 function AgentVisual() {
   return (
-    <div className="w-full max-w-[200px] mx-auto space-y-3">
+    <div className="w-full max-w-[200px] md:max-w-[240px] mx-auto space-y-3">
       <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-purple-50 text-center">
         <div className="w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center text-lg" style={{ background: 'linear-gradient(135deg,#7c3aed22,#db277722)' }}>
           🧑‍💼
@@ -261,12 +261,12 @@ export default function DemoOnboarding({ onComplete }: DemoOnboardingProps) {
     exit: (d: number) => ({ x: d > 0 ? '-100%' : '100%', opacity: 0 }),
   }
 
-  // Altura total fija = header(56) + slides(390) + nav(134) = 580px
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-50/60 to-white px-4 py-8">
-      <div className="w-full max-w-sm bg-white rounded-3xl shadow-xl border border-purple-100/60 overflow-hidden flex flex-col" style={{ height: 620 }}>
+      {/* Mobile: max-w-sm fijo 620px | Desktop: max-w-2xl altura auto */}
+      <div className="w-full max-w-sm md:max-w-2xl bg-white rounded-3xl shadow-xl border border-purple-100/60 overflow-hidden flex flex-col h-[620px] md:h-[560px]">
 
-        {/* ── HEADER — altura fija 56px ── */}
+        {/* ── HEADER ── */}
         <div className="h-14 flex items-center justify-between px-5 shrink-0 border-b border-gray-50">
           <div className="flex items-center gap-2">
             <img src="/isotipo-gradient.svg" alt="Itineramio" width={28} height={16} className="object-contain" />
@@ -280,8 +280,8 @@ export default function DemoOnboarding({ onComplete }: DemoOnboardingProps) {
           </button>
         </div>
 
-        {/* ── SLIDES — altura fija 430px, overflow hidden para las transiciones ── */}
-        <div className="relative overflow-hidden shrink-0" style={{ height: 430 }}>
+        {/* ── SLIDES — mobile: column | desktop: row (visual izq, texto dcha) ── */}
+        <div className="relative overflow-hidden shrink-0 h-[430px] md:h-[370px]">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={current}
@@ -295,10 +295,10 @@ export default function DemoOnboarding({ onComplete }: DemoOnboardingProps) {
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.15}
               onDragEnd={handleDragEnd}
-              className="absolute inset-0 flex flex-col cursor-grab active:cursor-grabbing"
+              className="absolute inset-0 flex flex-col md:flex-row cursor-grab active:cursor-grabbing"
             >
-              {/* Visual — altura fija 220px */}
-              <div className="h-56 shrink-0 flex items-center justify-center px-4 pt-3 overflow-hidden">
+              {/* Visual — mobile: h-56 arriba | desktop: columna izquierda con fondo sutil */}
+              <div className="h-56 md:h-full md:w-[300px] shrink-0 flex items-center justify-center px-6 pt-3 md:pt-0 overflow-hidden md:border-r md:border-purple-100/40 md:bg-gradient-to-b md:from-purple-50/60 md:to-pink-50/30">
                 <motion.div
                   initial={{ scale: 0.92, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -308,22 +308,22 @@ export default function DemoOnboarding({ onComplete }: DemoOnboardingProps) {
                 </motion.div>
               </div>
 
-              {/* Text — ocupa el resto (390-180=210px) */}
-              <div className="flex-1 px-5 pt-3 pb-2 overflow-hidden">
-                <p className="text-[11px] font-semibold uppercase tracking-wider mb-1" style={{ color: '#7c3aed' }}>
+              {/* Text — mobile: resto vertical | desktop: columna derecha centrada */}
+              <div className="flex-1 px-5 pt-3 pb-2 overflow-hidden md:flex md:flex-col md:justify-center md:px-10 md:py-8">
+                <p className="text-[11px] md:text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: '#7c3aed' }}>
                   {slide.eyebrow}
                 </p>
-                <h2 className="text-[18px] font-bold text-gray-900 leading-snug mb-1.5">
+                <h2 className="text-[18px] md:text-2xl font-bold text-gray-900 leading-snug mb-2">
                   {slide.title}
                 </h2>
-                <p className="text-[13px] text-gray-500 leading-relaxed mb-3">
+                <p className="text-[13px] md:text-sm text-gray-500 leading-relaxed mb-4">
                   {slide.subtitle}
                 </p>
-                <ul className="space-y-1.5">
+                <ul className="space-y-2 md:space-y-3">
                   {slide.bullets.map((b, i) => (
                     <li key={i} className="flex items-center gap-2">
                       <div className="shrink-0">{b.icon}</div>
-                      <span className="text-[13px] text-gray-700">{b.text}</span>
+                      <span className="text-[13px] md:text-sm text-gray-700">{b.text}</span>
                     </li>
                   ))}
                 </ul>
@@ -332,8 +332,8 @@ export default function DemoOnboarding({ onComplete }: DemoOnboardingProps) {
           </AnimatePresence>
         </div>
 
-        {/* ── NAV — altura fija 134px ── */}
-        <div className="shrink-0 px-5 pt-3 pb-5 border-t border-gray-100" style={{ height: 134 }}>
+        {/* ── NAV ── mobile: h-[134px] | desktop: h-[76px] en una sola fila ── */}
+        <div className="shrink-0 px-5 md:px-8 pt-3 pb-5 md:pb-4 border-t border-gray-100 h-[134px] md:h-[116px]">
           <div className="flex items-center justify-between mb-3">
             <Dots current={current} total={SLIDES.length} onDot={goTo} />
             <span className="text-xs text-gray-400">{current + 1} / {SLIDES.length}</span>
