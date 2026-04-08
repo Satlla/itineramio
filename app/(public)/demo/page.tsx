@@ -18,13 +18,14 @@ import Step4Review, { type LocationData, type DemoPlace } from '../../(dashboard
 import { isDisposableEmail, isValidEmailFormat } from '../../../src/utils/email-validation'
 import DemoResultsScreen from '../../../src/components/demo/DemoResultsScreen'
 import DemoShareModal from '../../../src/components/demo/DemoShareModal'
+import DemoOnboarding from '../../../src/components/demo/DemoOnboarding'
 import { buildIntelligenceFromImport } from '../../../src/types/intelligence'
 
 // ============================================
 // TYPES
 // ============================================
 
-type Phase = 'wizard' | 'lead-capture' | 'generating' | 'results' | 'redirect'
+type Phase = 'onboarding' | 'wizard' | 'lead-capture' | 'generating' | 'results' | 'redirect'
 
 type LeadCaptureStep = 'info' | 'verify'
 
@@ -473,7 +474,7 @@ function DemoPageInner() {
   const router = useRouter()
 
   // Phase & step state
-  const [phase, setPhase] = useState<Phase>('wizard')
+  const [phase, setPhase] = useState<Phase>('onboarding')
   const [wizardStep, setWizardStepRaw] = useState(1)
   const [prevStep, setPrevStep] = useState(0)
   const [confettiBurst, setConfettiBurst] = useState(0)
@@ -888,16 +889,16 @@ function DemoPageInner() {
         return
       }
 
-      // Success — store token and trigger generation
+      // Success — store token and go to wizard (lead was captured before wizard)
       const token = data.verificationToken
       setEmailVerificationToken(token)
-      handleGenerate(token)
+      setPhase('wizard')
     } catch {
       setOtpError('Error de conexión. Inténtalo de nuevo.')
     } finally {
       setOtpVerifying(false)
     }
-  }, [otpDigits, leadData.email, handleGenerate])
+  }, [otpDigits, leadData.email])
 
   // OTP digit input handlers
   const handleOtpDigitChange = useCallback((index: number, value: string) => {
@@ -952,6 +953,17 @@ function DemoPageInner() {
 
   const lang = typeof window !== 'undefined' ? getLang() : 'es'
   const loadingMsg = LOADING_MESSAGES[loadingMessageIndex]
+
+  // ──────────────────────────────────────────────
+  // ONBOARDING PHASE — full screen slides before wizard
+  // ──────────────────────────────────────────────
+  if (phase === 'onboarding') {
+    return (
+      <I18nProvider>
+        <DemoOnboarding onComplete={() => setPhase('lead-capture')} />
+      </I18nProvider>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 relative">
@@ -1217,7 +1229,7 @@ function DemoPageInner() {
                     onCustomTitlesChange={setCustomTitles}
                     customIcons={customIcons}
                     onCustomIconsChange={setCustomIcons}
-                    onNext={() => setPhase('lead-capture')}
+                    onNext={() => handleGenerate(emailVerificationToken || undefined)}
                     onBack={() => setWizardStep(3)}
                     demoMode={true}
                     demoPlaces={demoPlaces}
@@ -1252,7 +1264,9 @@ function DemoPageInner() {
                   <button
                     type="button"
                     onClick={() => {
-                      setPhase('wizard')
+                      // If wizard hasn't been filled yet, go back to onboarding
+                      const backPhase = step1Data.propertyName ? 'wizard' : 'onboarding'
+                      setPhase(backPhase)
                       setLeadCaptureStep('info')
                       setOtpError(null)
                       setOtpDigits(['', '', '', '', '', ''])

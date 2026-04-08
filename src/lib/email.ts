@@ -1188,4 +1188,126 @@ export const emailTemplates = {
     </body>
     </html>
   `,
+
+  // Demo activation email (T+24h) — enfocado en Intelligence + próximos pasos
+  demoActivation: (params: {
+    leadName: string,
+    propertyName: string,
+    couponCode: string,
+    registerUrl: string,
+    guideUrl: string,
+  }) => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Tu manual de ${params.propertyName} espera — Itineramio</title>
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #f9fafb;">
+      <div style="max-width: 600px; margin: 0 auto; padding: 24px 16px;">
+
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 28px; padding-top: 8px;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #7c3aed, #db2777); padding: 8px 16px; border-radius: 20px;">
+            <span style="color: white; font-weight: 800; font-size: 16px; letter-spacing: -0.5px;">Itineramio</span>
+          </div>
+        </div>
+
+        <!-- Main card -->
+        <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); margin-bottom: 20px;">
+
+          <!-- Top accent -->
+          <div style="height: 4px; background: linear-gradient(90deg, #7c3aed, #db2777);"></div>
+
+          <div style="padding: 32px 28px;">
+            <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0;">Hola ${params.leadName} 👋</p>
+            <h1 style="color: #111827; font-size: 22px; font-weight: 800; margin: 0 0 12px 0; line-height: 1.3;">
+              Tu manual de <span style="background: linear-gradient(135deg, #7c3aed, #db2777); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${params.propertyName}</span> está listo
+            </h1>
+            <p style="color: #4b5563; font-size: 15px; margin: 0 0 24px 0; line-height: 1.6;">
+              Creaste tu guía digital ayer. Ahora te explicamos los <strong>3 pasos que marcan la diferencia</strong> entre un manual que funciona y uno que nadie usa.
+            </p>
+
+            <!-- Step 1 -->
+            <div style="background: #faf5ff; border-radius: 14px; padding: 20px; margin-bottom: 16px; border-left: 4px solid #7c3aed;">
+              <div style="display: flex; align-items: flex-start; gap: 12px;">
+                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #7c3aed, #db2777); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <span style="color: white; font-weight: 800; font-size: 14px;">1</span>
+                </div>
+                <div>
+                  <p style="color: #111827; font-weight: 700; margin: 0 0 6px 0; font-size: 15px;">Nutre el chatbot desde Intelligence</p>
+                  <p style="color: #6b7280; font-size: 14px; margin: 0; line-height: 1.5;">
+                    Cuando actives tu cuenta, ve a la sección <strong style="color: #7c3aed;">Intelligence</strong> de tu propiedad. Ahí puedes añadir preguntas frecuentes, respuestas personalizadas y contexto que el chatbot usará para responder a tus huéspedes.
+                  </p>
+                  <p style="color: #9333ea; font-size: 13px; margin: 8px 0 0 0; font-weight: 600;">
+                    💡 Cuanto más completo esté, menos preguntas recibirás.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div style="background: #fff1f2; border-radius: 14px; padding: 20px; margin-bottom: 16px; border-left: 4px solid #db2777;">
+              <div style="display: flex; align-items: flex-start; gap: 12px;">
+                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #db2777, #f43f5e); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <span style="color: white; font-weight: 800; font-size: 14px;">2</span>
+                </div>
+                <div>
+                  <p style="color: #111827; font-weight: 700; margin: 0 0 6px 0; font-size: 15px;">El chatbot responde y envía vídeos automáticamente</p>
+                  <p style="color: #6b7280; font-size: 14px; margin: 0; line-height: 1.5;">
+                    Tu huésped pregunta "¿cómo funciona la lavadora?" — el chatbot responde en su idioma <em>y</em> envía el vídeo que subiste. Sin que toques el móvil. En <strong>7 idiomas</strong> (ES, EN, FR, DE, IT, PT, NL).
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div style="background: #f0fdf4; border-radius: 14px; padding: 20px; margin-bottom: 28px; border-left: 4px solid #22c55e;">
+              <div style="display: flex; align-items: flex-start; gap: 12px;">
+                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #16a34a, #22c55e); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <span style="color: white; font-weight: 800; font-size: 14px;">3</span>
+                </div>
+                <div>
+                  <p style="color: #111827; font-weight: 700; margin: 0 0 6px 0; font-size: 15px;">Un agente de Itineramio te contactará hoy</p>
+                  <p style="color: #6b7280; font-size: 14px; margin: 0; line-height: 1.5;">
+                    Uno de nuestros agentes analizará tu caso y te ayudará a optimizar el manual. La llamada es corta — ya tienes el manual creado, solo nos falta ajustar los detalles.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- CTA buttons -->
+            <div style="text-align: center; margin-bottom: 16px;">
+              <a href="${params.registerUrl}"
+                 style="display: inline-block; background: linear-gradient(135deg, #7c3aed, #db2777); color: white; padding: 15px 36px; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 16px; letter-spacing: -0.3px; box-shadow: 0 4px 20px rgba(124,58,237,0.3);">
+                Activar mi manual permanente →
+              </a>
+            </div>
+            <div style="text-align: center; margin-bottom: 24px;">
+              <a href="${params.guideUrl}"
+                 style="display: inline-block; color: #7c3aed; padding: 10px 24px; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px; border: 1.5px solid #ddd6fe;">
+                Ver mi guía ahora
+              </a>
+            </div>
+
+            <!-- Coupon -->
+            <div style="background: linear-gradient(135deg, #faf5ff, #fff1f2); border-radius: 12px; padding: 16px 20px; text-align: center; border: 1.5px dashed #d8b4fe;">
+              <p style="color: #6b7280; font-size: 12px; margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 0.5px;">Tu cupón de 20% de descuento</p>
+              <span style="font-family: 'Courier New', monospace; font-size: 22px; font-weight: 800; color: #7c3aed; letter-spacing: 3px;">${params.couponCode}</span>
+              <p style="color: #9ca3af; font-size: 12px; margin: 6px 0 0 0;">Aplica al registrarte · Válido 48h más</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; color: #9ca3af; font-size: 13px; padding-bottom: 20px;">
+          <p style="margin: 0 0 4px 0;">&copy; 2026 Itineramio · <a href="https://itineramio.com" style="color: #9ca3af;">itineramio.com</a></p>
+          <p style="margin: 0; font-size: 12px;">Recibes este email porque creaste una demo en itineramio.com</p>
+        </div>
+
+      </div>
+    </body>
+    </html>
+  `,
 }

@@ -309,12 +309,65 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // ========================================
+    // 6. Email activación (20-22h después) — Intelligence + agente + próximos pasos
+    // Slot diferente al urgency (23-25h) para evitar duplicar emails en el mismo batch
+    // ========================================
+    let activationSent = 0
+    const twentyHoursAgo = new Date(now.getTime() - 20 * 60 * 60 * 1000)
+    const twentyTwoHoursAgo = new Date(now.getTime() - 22 * 60 * 60 * 1000)
+    const activationLeads = await prisma.lead.findMany({
+      where: {
+        source: 'demo',
+        createdAt: { gte: twentyTwoHoursAgo, lte: twentyHoursAgo },
+      },
+      take: 100,
+    })
+
+    for (const lead of activationLeads) {
+      try {
+        const metadata = (lead.metadata as Record<string, unknown>) || {}
+        if (metadata.activationEmailSentAt || !metadata.demoGeneratedAt) continue
+
+        const existingUser = await prisma.user.findUnique({ where: { email: lead.email }, select: { id: true } })
+        if (existingUser) continue
+
+        const leadName = lead.name || lead.email.split('@')[0]
+        const propertyName = (metadata.propertyName as string) || 'tu propiedad'
+        const couponCode = (metadata.couponCode as string) || ''
+        const propertyId = (metadata.propertyId as string) || ''
+        const registerUrl = `${baseUrl}/register?coupon=${couponCode}${propertyId ? `&propertyId=${propertyId}` : ''}&email=${encodeURIComponent(lead.email)}&name=${encodeURIComponent(leadName)}&utm_source=demo&utm_medium=email&utm_campaign=activation`
+        const guideUrl = propertyId ? `${baseUrl}/guide/${propertyId}?demo=1` : `${baseUrl}/demo`
+
+        await sendEmail({
+          to: lead.email,
+          subject: `${leadName}, 3 pasos para que tu manual de ${propertyName} funcione al 100%`,
+          html: emailTemplates.demoActivation({
+            leadName,
+            propertyName,
+            couponCode,
+            registerUrl,
+            guideUrl,
+          }),
+        })
+
+        await prisma.lead.update({
+          where: { id: lead.id },
+          data: { metadata: { ...metadata, activationEmailSentAt: new Date().toISOString() } },
+        })
+        activationSent++
+      } catch (err) {
+        errors++
+      }
+    }
+
     return NextResponse.json({
       success: true,
       feedbackSent,
       chatbotSent,
       fomoSent,
       urgencySent,
+      activationSent,
       lastChanceSent,
       errors,
     })
