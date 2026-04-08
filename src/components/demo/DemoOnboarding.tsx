@@ -262,113 +262,113 @@ export default function DemoOnboarding({ onComplete }: DemoOnboardingProps) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-purple-50/50 to-white overflow-hidden">
+    // Fondo full-screen centrado — en desktop se muestra como card centrada
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-50/60 to-white px-4 py-8">
+      <div className="w-full max-w-sm flex flex-col bg-white rounded-3xl shadow-xl overflow-hidden border border-purple-100/60" style={{ minHeight: 600 }}>
 
-      {/* Header */}
-      <div className="flex items-center justify-between px-5 pt-5 pb-2 shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#db2777)' }}>
-            <span className="text-white text-[10px] font-black">i</span>
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pt-5 pb-2 shrink-0">
+          <div className="flex items-center gap-2">
+            <img src="/isotipo-gradient.svg" alt="Itineramio" width={28} height={16} className="object-contain" />
+            <span className="text-sm font-semibold text-gray-800">Itineramio</span>
           </div>
-          <span className="text-sm font-semibold text-gray-800">Itineramio</span>
-        </div>
-        <button
-          onClick={onComplete}
-          className="text-xs text-gray-400 hover:text-gray-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-gray-100"
-        >
-          Saltar intro →
-        </button>
-      </div>
-
-      {/* Slide area */}
-      <div className="flex-1 flex flex-col overflow-hidden relative">
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={current}
-            custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.15}
-            onDragEnd={handleDragEnd}
-            className="absolute inset-0 flex flex-col px-5 pt-4 pb-2 cursor-grab active:cursor-grabbing"
+          <button
+            onClick={onComplete}
+            className="text-xs text-gray-400 hover:text-gray-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-gray-100"
           >
-            {/* Visual */}
-            <div className="flex-1 flex items-center justify-center py-2 min-h-0">
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.15, duration: 0.4 }}
-              >
-                {slide.visual}
-              </motion.div>
-            </div>
-
-            {/* Text content */}
-            <div className="shrink-0 pb-4">
-              <motion.p
-                initial={{ y: 8, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.1 }}
-                className="text-xs font-semibold uppercase tracking-wider mb-1.5"
-                style={{ color: '#7c3aed' }}
-              >
-                {slide.eyebrow}
-              </motion.p>
-              <motion.h2
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.15 }}
-                className="text-xl font-bold text-gray-900 leading-tight mb-2"
-              >
-                {slide.title}
-              </motion.h2>
-              <motion.p
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="text-sm text-gray-500 leading-relaxed mb-4"
-              >
-                {slide.subtitle}
-              </motion.p>
-              <motion.ul
-                initial={{ y: 8, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.25 }}
-                className="space-y-2"
-              >
-                {slide.bullets.map((b, i) => (
-                  <li key={i} className="flex items-center gap-2.5">
-                    <div className="shrink-0">{b.icon}</div>
-                    <span className="text-sm text-gray-700">{b.text}</span>
-                  </li>
-                ))}
-              </motion.ul>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* Bottom nav */}
-      <div className="shrink-0 px-5 pb-8 pt-3 bg-white border-t border-gray-100">
-        <div className="flex items-center justify-between mb-4">
-          <Dots current={current} total={SLIDES.length} onDot={goTo} />
-          <span className="text-xs text-gray-400">{current + 1} / {SLIDES.length}</span>
+            Saltar →
+          </button>
         </div>
 
-        <div className="flex gap-3">
-          {current > 0 && (
-            <button
-              onClick={prev}
-              className="flex items-center justify-center w-11 h-11 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors shrink-0"
+        {/* Slide area */}
+        <div className="flex-1 flex flex-col overflow-hidden relative">
+          <AnimatePresence mode="wait" custom={direction}>
+            <motion.div
+              key={current}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.15}
+              onDragEnd={handleDragEnd}
+              className="absolute inset-0 flex flex-col px-5 pt-4 pb-2 cursor-grab active:cursor-grabbing"
             >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-          )}
+              {/* Visual */}
+              <div className="flex-1 flex items-center justify-center py-2 min-h-0">
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.15, duration: 0.4 }}
+                >
+                  {slide.visual}
+                </motion.div>
+              </div>
+
+              {/* Text content */}
+              <div className="shrink-0 pb-4">
+                <motion.p
+                  initial={{ y: 8, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                  className="text-xs font-semibold uppercase tracking-wider mb-1.5"
+                  style={{ color: '#7c3aed' }}
+                >
+                  {slide.eyebrow}
+                </motion.p>
+                <motion.h2
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.15 }}
+                  className="text-xl font-bold text-gray-900 leading-tight mb-2"
+                >
+                  {slide.title}
+                </motion.h2>
+                <motion.p
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-sm text-gray-500 leading-relaxed mb-4"
+                >
+                  {slide.subtitle}
+                </motion.p>
+                <motion.ul
+                  initial={{ y: 8, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.25 }}
+                  className="space-y-2"
+                >
+                  {slide.bullets.map((b, i) => (
+                    <li key={i} className="flex items-center gap-2.5">
+                      <div className="shrink-0">{b.icon}</div>
+                      <span className="text-sm text-gray-700">{b.text}</span>
+                    </li>
+                  ))}
+                </motion.ul>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Bottom nav */}
+        <div className="shrink-0 px-5 pb-7 pt-3 border-t border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <Dots current={current} total={SLIDES.length} onDot={goTo} />
+            <span className="text-xs text-gray-400">{current + 1} / {SLIDES.length}</span>
+          </div>
+
+          <div className="flex gap-3">
+            {current > 0 && (
+              <button
+                onClick={prev}
+                className="flex items-center justify-center w-11 h-11 rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors shrink-0"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+            )}
           <button
             onClick={next}
             className="flex-1 h-11 rounded-xl font-semibold text-white text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
@@ -382,10 +382,11 @@ export default function DemoOnboarding({ onComplete }: DemoOnboardingProps) {
           </button>
         </div>
 
-        {/* Trust line */}
-        <p className="text-center text-[11px] text-gray-400 mt-3">
-          Sin tarjeta de crédito · Sin compromiso · Resultado en 3 minutos
-        </p>
+          {/* Trust line */}
+          <p className="text-center text-[11px] text-gray-400 mt-3">
+            Sin tarjeta de crédito · Sin compromiso · Resultado en 3 minutos
+          </p>
+        </div>
       </div>
     </div>
   )
