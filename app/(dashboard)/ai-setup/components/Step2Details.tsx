@@ -453,8 +453,8 @@ export default function Step2Details({ data, onChange, onNext, onBack, hasParkin
       </Section>
 
       {/* Translation notice */}
-      <div className="bg-violet-900/20 border border-violet-800/30 rounded-xl p-4 text-center">
-        <p className="text-sm text-violet-300" dangerouslySetInnerHTML={{ __html: t('step2.translationNotice') }} />
+      <div className="bg-violet-50 border border-violet-200 rounded-xl p-4 text-center">
+        <p className="text-sm text-violet-800 font-medium" dangerouslySetInnerHTML={{ __html: t('step2.translationNotice') }} />
       </div>
 
       {/* Navigation buttons */}

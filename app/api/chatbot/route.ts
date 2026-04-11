@@ -259,7 +259,7 @@ export async function POST(request: NextRequest) {
                 message: `"${substantiveQuestion.slice(0, 120)}"`,
                 data: { propertyId, actionUrl: `/gestion/apartamentos/${propertyId}?tab=chatbot` }
               }
-            }).catch(() => {/* non-critical */});
+            }).catch((err: unknown) => { console.error('[chatbot] Error al crear notificación para el host:', err); });
           }
           if (hostEmail) {
             await sendEmail({
@@ -280,7 +280,7 @@ export async function POST(request: NextRequest) {
                   <p style="color:#999;font-size:12px;margin-top:24px">Itineramio · Asistente IA</p>
                 </div>
               `
-            }).catch(() => {/* non-critical */});
+            }).catch((err: unknown) => { console.error('[chatbot] Error al enviar email de pregunta sin respuesta al host:', err); });
           }
         } catch (e) {
           // ignore unanswered question save errors
@@ -493,7 +493,7 @@ function collectRelevantMedia(zones: any[], language: string): MediaItem[] {
   for (const zone of zones) {
     if (zone.type === 'RECOMMENDATIONS') continue;
     const score = zone._relevanceScore ?? 0;
-    if (score < 1) continue; // skip truly irrelevant zones
+    if (score < 2) continue; // score=1 means only the media bonus (+1), no keyword match — skip
 
     const items: MediaItem[] = [];
     let stepNumber = 0;
@@ -524,6 +524,40 @@ function collectRelevantMedia(zones: any[], language: string): MediaItem[] {
       bestScore = score;
       bestItems = items;
     }
+  }
+
+  // Fallback: if no relevant media found (all zones scored < 2), include the first
+  // 2-3 images from any zone so the chatbot always has visual content to show.
+  // IMPORTANT: if the query matched a specific zone (top score >= 8), skip the fallback —
+  // showing check-in media when asking about AC (or vice versa) is worse than no media.
+  if (bestItems.length === 0) {
+    const topRelevanceScore = Math.max(...zones.map(z => (z._relevanceScore ?? 0)));
+    if (topRelevanceScore >= 8) return [];
+    const fallbackItems: MediaItem[] = [];
+    for (const zone of zones) {
+      if (zone.type === 'RECOMMENDATIONS') continue;
+      let stepNumber = 0;
+      for (const step of (zone.steps || [])) {
+        const content = step.content as any;
+        if (!content?.mediaUrl) continue;
+        const stepType = (step.type || '').toUpperCase();
+        if (stepType !== 'IMAGE' && stepType !== 'VIDEO') continue;
+        stepNumber++;
+        const title = getLocalizedText(step.title, language) || '';
+        const contentText = getLocalizedText(content, language) || '';
+        const stepText = contentText || title || undefined;
+        fallbackItems.push({
+          type: stepType as 'IMAGE' | 'VIDEO',
+          url: content.mediaUrl,
+          caption: title || getLocalizedText(zone.name, language) || '',
+          stepText,
+          stepIndex: stepNumber,
+        });
+        if (fallbackItems.length >= 3) break;
+      }
+      if (fallbackItems.length >= 3) break;
+    }
+    return fallbackItems;
   }
 
   return bestItems;
@@ -1013,6 +1047,11 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   induccion:      ['cocina', 'vitroceramica', 'vitro', 'placa', 'kitchen'],
   placa:          ['cocina', 'vitroceramica', 'vitro', 'induccion', 'kitchen', 'fuegos'],
   fuegos:         ['cocina', 'vitro', 'placa', 'kitchen'],
+  fuego:          ['cocina', 'vitro', 'placa', 'induccion', 'kitchen', 'fuegos'],
+  encender:       ['cocina', 'vitro', 'placa', 'induccion', 'kitchen', 'fuego'],
+  enciendo:       ['cocina', 'vitro', 'placa', 'kitchen', 'fuego'],
+  poner:          ['cocina', 'vitro', 'placa', 'kitchen'],
+  pongo:          ['cocina', 'vitro', 'placa', 'kitchen'],
   horno:          ['cocina', 'kitchen', 'oven', 'cocinar'],
   oven:           ['horno', 'cocina', 'kitchen', 'cooking'],
   microondas:     ['cocina', 'kitchen', 'microwave'],
@@ -1327,30 +1366,39 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
 // Function words that cause false zone-name substring matches (e.g. "we"→"towels",
 // "on"→"conditioning", "no"→"normas", "la"→"toallas"). Keep this in sync with chatbot-utils.ts.
 const QUERY_STOPWORDS_ROUTE = new Set([
+  // Spanish 2-char function words (short enough to substring-match zone names falsely)
+  // e.g. "la" matches "toallas", "no" matches "normas", "es" matches "acceso"
   'la', 'el', 'en', 'es', 'al', 'no', 'de', 'se', 'me', 'te', 'le', 'lo',
   'un', 'si', 'ya', 'mi',
+  // Spanish function/question words (3+ chars)
   'que', 'qui', 'cual', 'con', 'los', 'las', 'del', 'una', 'hay', 'por',
   'sin', 'nos', 'sus', 'les', 'mas', 'son', 'fue', 'han', 'hoy', 'ese',
   'eso', 'esa', 'uno', 'muy', 'vez', 'asi', 'tra', 'dos', 'ser', 'sea',
   'era', 'dar', 'soy', 'vas', 'van',
-  'como', 'hace', 'hacer', 'podemos', 'tenemos', 'queremos', 'pueden', 'tiene', 'tienen',
+  // Spanish question/common words
+  'como',
+  // Spanish common verbs that pollute zone-name matching
+  'hace', 'hacer', 'podemos', 'tenemos', 'queremos', 'pueden', 'tiene', 'tienen',
   'quiero', 'quiere', 'necesito', 'necesita', 'busco', 'busca',
+  // English 2-char function words (e.g. "we"→"towels", "on"→"conditioning", "to"→"towels")
   'we', 'on', 'is', 'to', 'do', 'it', 'an', 'at', 'in', 'of', 'up',
   'as', 'be', 'by', 'if', 'go', 'so',
+  // English articles/prepositions/pronouns (3+ chars)
   'the', 'and', 'are', 'for', 'was', 'but', 'not', 'can', 'its',
   'had', 'his', 'her', 'she', 'him', 'who', 'all', 'any', 'out',
   'did', 'has', 'get', 'put', 'may', 'see', 'too', 'now', 'our',
   'use', 'how', 'let',
+  // French articles/prepositions
   'les', 'des', 'une', 'est', 'pas', 'sur', 'par', 'son', 'ses',
   'lui', 'mon', 'ton', 'quelle', 'quel',
   // German 2-char function words
-  'zu', 'im', 'am', 'um', 'ab', 'ob', 'da', 'wo', 'du', 'er', 'ihr',
+  'zu', 'im', 'am', 'um', 'ab', 'ob', 'da', 'wo', 'du', 'er', 'es', 'ihr',
   // Italian 2-char function words
-  'di', 'il', 'ci', 'mi', 'ti', 'ne', 'ho', 'ha',
+  'di', 'il', 'lo', 'la', 'li', 'ci', 'mi', 'ti', 'si', 'ne', 'ho', 'ha',
   // Portuguese 2-char function words
-  'ao', 'os', 'as', 'eu', 'tu', 'ele', 'ela',
+  'em', 'ao', 'os', 'as', 'um', 'eu', 'tu', 'ele', 'ela',
   // Dutch 2-char function words
-  'op', 'te', 'aan', 'bij', 'met', 'van',
+  'de', 'het', 'een', 'van', 'op', 'in', 'te', 'aan', 'bij', 'met',
 ]);
 
 function rankZonesByRelevance(message: string, zones: any[], language: string): any[] {
@@ -2123,12 +2171,14 @@ CRITICAL RULES:
 6. STYLE: Be friendly and direct like a WhatsApp chat. Use **bold** for key info. Use bullet lists with -. Max 3 short paragraphs. Use emojis sparingly (📍🏠✅☕🍽️).
 7. HONESTY: Use the zone content in the knowledge base to give a REAL answer. NEVER tell the guest to "check the manual" or "read the sections" — they ARE in the manual right now. Only suggest contacting the host when a specific critical detail (a door code, a PIN, an exact address) is completely missing from the knowledge base. For everything else, use what IS available and answer directly.
 8. ⚠️ NO HALLUCINATION: NEVER invent specific data (door codes, exact times, prices, PINs) that is NOT written in the knowledge base above. But for general instructions and how-to questions, the zone steps contain the answer — read them carefully and explain them to the guest. DO NOT say "I don't know, contact the host" if the answer is in the MANUAL ZONES section above.
-9. CONVERSATIONAL INTELLIGENCE — ask ONE question when it genuinely improves your answer:
+9. CONVERSATIONAL INTELLIGENCE — ask ONE short question when it genuinely improves your answer:
    - Guest asks for restaurant/bar recs and you don't know food preference or budget → ask "¿Qué tipo de cocina preferís, o algo concreto que busquéis (ambiente, precio)?"
    - Guest asks for activities and you don't know group type (kids, couple, etc.) → ask "¿Venís en pareja, con familia o en grupo?"
    - Guest asks for nightlife and you don't know the vibe they want → ask "¿Buscáis algo tranquilo para tomar algo, o con más marcha?"
    - Guest asks for recommendations and transport mode is unknown AND some places are >2km away → ask "¿Venís en coche o vais a ir todo a pie?" so you can tailor the list.
-   - ONLY ask if (a) the answer changes significantly AND (b) the guest profile above doesn't already tell you their transport. NEVER ask more than 1 question per reply.`;
+   - Guest uses a vague or colloquial term for a property feature (e.g. "el fuego", "eso de la cocina", "como va esto", "cómo enciendo aquello") → confirm what they mean with ONE focused question before answering. Example: if they ask "como va el fuego?", reply: "¿Te refieres a la placa de inducción/vitrocerámica para cocinar? 🍳" — then, once confirmed, explain step by step and show the relevant video or image.
+   - If in the next message the guest confirms your interpretation (e.g. "sí", "exacto", "eso es"), immediately give the full detailed answer including all steps from the relevant zone.
+   - ONLY ask if (a) the answer changes significantly AND (b) the guest profile above doesn't already tell you their intent. NEVER ask more than 1 question per reply.`;
 
   return prompt;
 }
