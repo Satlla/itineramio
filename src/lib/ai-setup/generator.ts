@@ -198,7 +198,9 @@ async function buildUserMediaZones(
   for (const item of mediaItems) {
     if (!item.zoneId && !item.customZoneName?.trim()) continue
 
-    const key = item.zoneId || `custom-${item.customZoneName}`
+    const key = (item.zoneId && item.zoneId !== '__custom__')
+      ? item.zoneId
+      : `custom-${item.customZoneName?.trim() || 'unnamed'}`
     if (!zoneGroups.has(key)) {
       const predefined = PREDEFINED_ZONES.find(z => z.id === item.zoneId)
       // Support both old emoji values and new icon ID strings (e.g. 'shower', 'bath')

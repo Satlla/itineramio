@@ -506,41 +506,18 @@ ${step2.recyclingContainerLocation ? `\n📍 **Contenedores más cercanos:** ${s
       })
     }
   } else {
-    // Loading or no data — show placeholder
-    const loadingText = locationDataLoading
-      ? '⏳ Cargando lugares cercanos...'
-      : 'Se generará automáticamente al cargar datos de ubicación.'
+    // No locationData yet — show only the real zones that will always be created
     const source: 'auto' = 'auto'
-    const lp = locationDataLoading // shorthand
     zones.push(
-      { id: 'directions', title: 'Cómo llegar', iconName: 'map-pin', content: lp ? '⏳ Cargando direcciones...' : loadingText, source },
-      { id: 'public-transport', title: 'Transporte público', iconName: 'bus', content: lp ? '⏳ Cargando transporte cercano...' : loadingText, source },
-    )
-    if (!hasRecommendations) {
-      zones.push(
-        { id: 'restaurants', title: 'Restaurantes', iconName: 'utensils', content: lp ? '⏳ Cargando restaurantes cercanos...' : loadingText, source },
-      )
-    }
-    zones.push(
-      { id: 'supermarkets', title: 'Supermercados y tiendas', iconName: 'shopping-bag', content: lp ? '⏳ Cargando supermercados cercanos...' : loadingText, source },
-      { id: 'pharmacies', title: 'Farmacias', iconName: 'heart', content: lp ? '⏳ Cargando farmacias cercanas...' : loadingText, source },
-    )
-    if (!hasRecommendations) {
-      zones.push(
-        { id: 'things-to-do', title: 'Qué ver y hacer', iconName: 'star', content: lp ? '⏳ Cargando atracciones cercanas...' : loadingText, source },
-      )
-    }
-    zones.push(
-      { id: 'parks', title: 'Parques y jardines', iconName: 'tree-pine', content: lp ? '⏳ Cargando parques...' : loadingText, source },
-      { id: 'beaches', title: 'Playas', iconName: 'waves', content: lp ? '⏳ Cargando playas...' : loadingText, source },
-      { id: 'cafes', title: 'Cafeterías', iconName: 'coffee', content: lp ? '⏳ Cargando cafeterías...' : loadingText, source },
-      { id: 'hospitals', title: 'Centros de salud', iconName: 'building-2', content: lp ? '⏳ Cargando centros de salud...' : loadingText, source },
-      { id: 'atms', title: 'Cajeros automáticos', iconName: 'banknote', content: lp ? '⏳ Cargando cajeros...' : loadingText, source },
-      { id: 'gas-stations', title: 'Gasolineras', iconName: 'fuel', content: lp ? '⏳ Cargando gasolineras...' : loadingText, source },
-      { id: 'gyms', title: 'Gimnasios', iconName: 'dumbbell', content: lp ? '⏳ Cargando gimnasios...' : loadingText, source },
-      { id: 'laundry', title: 'Lavanderías', iconName: 'washing-machine', content: lp ? '⏳ Cargando lavanderías...' : loadingText, source },
-      { id: 'shopping-malls', title: 'Centros comerciales', iconName: 'shopping-cart', content: lp ? '⏳ Cargando centros comerciales...' : loadingText, source },
-      { id: 'public-parking', title: 'Parking público cercano', iconName: 'car', content: lp ? '⏳ Cargando parkings cercanos...' : loadingText, source },
+      {
+        id: 'directions',
+        title: 'Cómo llegar',
+        iconName: 'map-pin',
+        content: locationDataLoading
+          ? '⏳ Cargando direcciones...'
+          : 'Se generará automáticamente con tu dirección (aeropuerto, tren, autobús y GPS).',
+        source,
+      },
     )
   }
 
