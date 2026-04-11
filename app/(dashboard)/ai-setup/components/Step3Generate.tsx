@@ -17,10 +17,46 @@ import {
   MapPin,
   Heart,
   X,
+  Share2,
+  Languages,
+  Smartphone,
+  Star,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { PREDEFINED_ZONES, type MediaItem } from './Step2Media'
+
+// ── Slides para mostrar durante la generación ──
+const CONCEPT_SLIDES = [
+  {
+    icon: Languages,
+    color: 'from-violet-500 to-purple-600',
+    title: 'Traduciendo a 3 idiomas',
+    subtitle: 'Español · English · Français',
+    detail: 'Cada zona quedará perfecta para huéspedes de todo el mundo',
+  },
+  {
+    icon: QrCode,
+    color: 'from-blue-500 to-indigo-600',
+    title: 'Generando QR únicos',
+    subtitle: 'Un código por zona',
+    detail: 'Tus huéspedes escanean y ven las instrucciones al instante',
+  },
+  {
+    icon: Smartphone,
+    color: 'from-emerald-500 to-teal-600',
+    title: 'Manual listo para móvil',
+    subtitle: 'Optimizado para cualquier dispositivo',
+    detail: 'Sin apps, sin descargas — funciona desde el navegador',
+  },
+  {
+    icon: Star,
+    color: 'from-amber-500 to-orange-500',
+    title: 'Instrucciones profesionales',
+    subtitle: 'Generadas con IA',
+    detail: 'Claras, estructuradas y listas para compartir',
+  },
+]
 
 interface ZoneEvent {
   name: string
@@ -88,9 +124,30 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
   const [propertyId, setPropertyId] = useState<string | null>(null)
   const [elapsed, setElapsed] = useState(0)
   const [retryCount, setRetryCount] = useState(0)
+  const [slideIndex, setSlideIndex] = useState(0)
   const startTimeRef = useRef(Date.now())
   const scrollRef = useRef<HTMLDivElement>(null)
   const onCompleteRef = useRef(onComplete)
+
+  // Build all slides: user photos first, then concept slides
+  const userPhotoUrls = useMemo(
+    () => mediaAnalysis.filter(m => m.type === 'image' && m.url).map(m => m.url),
+    [mediaAnalysis],
+  )
+  const allSlides = useMemo(() => {
+    type PhotoSlide = { type: 'photo'; url: string }
+    type ConceptSlide = (typeof CONCEPT_SLIDES)[number] & { type: 'concept' }
+    const photoSlides: PhotoSlide[] = userPhotoUrls.map(url => ({ type: 'photo', url }))
+    const conceptSlides: ConceptSlide[] = CONCEPT_SLIDES.map(s => ({ type: 'concept', ...s }))
+    // Interleave: concept, photo, concept, photo...
+    const result: Array<PhotoSlide | ConceptSlide> = []
+    const maxLen = Math.max(conceptSlides.length, photoSlides.length)
+    for (let i = 0; i < maxLen; i++) {
+      if (conceptSlides[i]) result.push(conceptSlides[i])
+      if (photoSlides[i]) result.push(photoSlides[i])
+    }
+    return result.length > 0 ? result : conceptSlides
+  }, [userPhotoUrls])
   onCompleteRef.current = onComplete
 
   // Compute user zones from media for the confirmation modal
@@ -115,6 +172,15 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
     }, 1000)
     return () => clearInterval(interval)
   }, [confirmed, stats])
+
+  // Slider auto-advance during generation
+  useEffect(() => {
+    if (!confirmed || stats || error) return
+    const interval = setInterval(() => {
+      setSlideIndex(i => (i + 1) % allSlides.length)
+    }, 3500)
+    return () => clearInterval(interval)
+  }, [confirmed, stats, error, allSlides.length])
 
   // Auto-scroll to latest zone
   useEffect(() => {
@@ -357,16 +423,17 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
   // ── Generation Progress ──
   const isComplete = !!stats
   const totalSteps = zones.reduce((sum, z) => sum + z.stepsCount, 0)
+  const currentSlide = allSlides[slideIndex % allSlides.length]
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="max-w-3xl mx-auto space-y-8"
+      className="max-w-3xl mx-auto space-y-6"
     >
       {/* Header */}
-      <div className="text-center space-y-4">
+      <div className="text-center space-y-3">
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -397,7 +464,7 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
           </h2>
           <p className="text-gray-500 mt-2 text-sm sm:text-base">
             {isComplete
-              ? t('step5.statsFormat', { zones: stats.zones, steps: stats.steps, languages: stats.languages, time: stats.time })
+              ? `${stats.zones} zonas · ${stats.steps} instrucciones · ES/EN/FR · ${stats.time}s`
               : error
               ? error
               : status}
@@ -405,35 +472,131 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
         </div>
       </div>
 
+      {/* ── SLIDER durante generación ── */}
+      {!isComplete && !error && (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={slideIndex}
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.02 }}
+            transition={{ duration: 0.6 }}
+            className="rounded-2xl overflow-hidden h-44 sm:h-52 relative"
+          >
+            {currentSlide.type === 'photo' ? (
+              // User's own photo
+              <div className="w-full h-full relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={currentSlide.url}
+                  alt="Tu alojamiento"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute bottom-3 left-4 right-4">
+                  <p className="text-white text-xs font-medium opacity-80">Tu alojamiento</p>
+                  <p className="text-white/70 text-[10px]">La IA está perfeccionando las instrucciones...</p>
+                </div>
+              </div>
+            ) : (
+              // Concept slide — extract icon into capitalized var for JSX
+              (() => {
+                const ConceptIcon = currentSlide.icon
+                return (
+                  <div className={`w-full h-full bg-gradient-to-br ${currentSlide.color} flex flex-col items-center justify-center text-center px-6 gap-3`}>
+                    <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                      <ConceptIcon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-white font-bold text-lg leading-tight">{currentSlide.title}</p>
+                      <p className="text-white/80 text-sm mt-0.5">{currentSlide.subtitle}</p>
+                      <p className="text-white/60 text-xs mt-2 max-w-xs">{currentSlide.detail}</p>
+                    </div>
+                  </div>
+                )
+              })()
+            )}
+
+            {/* Slide dots */}
+            <div className="absolute bottom-2 right-3 flex gap-1">
+              {allSlides.map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-1.5 h-1.5 rounded-full transition-all ${i === slideIndex % allSlides.length ? 'bg-white' : 'bg-white/30'}`}
+                />
+              ))}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      )}
+
+      {/* ── Post-gen celebración ── */}
+      {isComplete && propertyId && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, type: 'spring', damping: 20 }}
+          className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-5 sm:p-6 space-y-4"
+        >
+          {/* Stats celebración */}
+          <div className="grid grid-cols-3 gap-3 text-center">
+            <div className="bg-white/80 rounded-xl p-3">
+              <p className="text-2xl font-bold text-violet-600">{stats?.zones}</p>
+              <p className="text-xs text-gray-500 mt-0.5">zonas</p>
+            </div>
+            <div className="bg-white/80 rounded-xl p-3">
+              <p className="text-2xl font-bold text-blue-600">3</p>
+              <p className="text-xs text-gray-500 mt-0.5">idiomas</p>
+            </div>
+            <div className="bg-white/80 rounded-xl p-3">
+              <p className="text-2xl font-bold text-green-600">{stats?.zones}</p>
+              <p className="text-xs text-gray-500 mt-0.5">QR únicos</p>
+            </div>
+          </div>
+
+          {/* Qué hacer ahora */}
+          <div className="space-y-1.5">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">¿Qué hacer ahora?</p>
+            {[
+              { icon: '✏️', text: 'Revisa y edita el contenido de cada zona' },
+              { icon: '🔗', text: 'Comparte el enlace o QR con tu próximo huésped' },
+              { icon: '📸', text: 'Añade más fotos para mejorar las instrucciones' },
+            ].map((tip, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm text-gray-600">
+                <span>{tip.icon}</span>
+                <span>{tip.text}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       {/* Progress stats bar */}
-      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-sm">
-        <div className="flex items-center gap-2 text-gray-500">
-          <Globe className="w-4 h-4" />
-          <span>ES &#10003;</span>
-          <span>EN {translations.en !== undefined ? (translations.en >= 100 ? '✓' : '...') : ''}</span>
-          <span>FR {translations.fr !== undefined ? (translations.fr >= 100 ? '✓' : '...') : ''}</span>
+      {!isComplete && (
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-sm">
+          <div className="flex items-center gap-2 text-gray-500">
+            <Globe className="w-4 h-4" />
+            <span>ES ✓</span>
+            <span>EN {translations.en !== undefined ? (translations.en >= 100 ? '✓' : '...') : ''}</span>
+            <span>FR {translations.fr !== undefined ? (translations.fr >= 100 ? '✓' : '...') : ''}</span>
+          </div>
+          <div className="w-px h-4 bg-gray-200 hidden sm:block" />
+          <div className="flex items-center gap-2 text-gray-500">
+            <Layers className="w-4 h-4" />
+            <span>{zones.length} {t('step5.zones')}</span>
+          </div>
+          <div className="w-px h-4 bg-gray-200 hidden sm:block" />
+          <div className="flex items-center gap-2 text-gray-500">
+            <Clock className="w-4 h-4" />
+            <span>{elapsed}s</span>
+          </div>
         </div>
-        <div className="w-px h-4 bg-gray-200 hidden sm:block" />
-        <div className="flex items-center gap-2 text-gray-500">
-          <Layers className="w-4 h-4" />
-          <span>{zones.length} {t('step5.zones')}</span>
-        </div>
-        <div className="w-px h-4 bg-gray-200 hidden sm:block" />
-        <div className="flex items-center gap-2 text-gray-500">
-          <ListChecks className="w-4 h-4" />
-          <span>{totalSteps} {t('step5.steps')}</span>
-        </div>
-        <div className="w-px h-4 bg-gray-200 hidden sm:block" />
-        <div className="flex items-center gap-2 text-gray-500">
-          <Clock className="w-4 h-4" />
-          <span>{stats?.time || elapsed}s</span>
-        </div>
-      </div>
+      )}
 
       {/* Zone cards */}
       <div
         ref={scrollRef}
-        className="max-h-[50vh] overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+        className="max-h-[40vh] overflow-y-auto space-y-2 pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
       >
         <AnimatePresence>
           {zones.map((zone, index) => (
@@ -441,30 +604,21 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
               key={index}
               initial={{ opacity: 0, y: 30, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{
-                type: 'spring',
-                damping: 20,
-                stiffness: 200,
-                delay: 0.05,
-              }}
-              className="bg-white backdrop-blur-xl border border-gray-200 rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4"
+              transition={{ type: 'spring', damping: 20, stiffness: 200, delay: 0.05 }}
+              className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4"
             >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-violet-600/20 flex items-center justify-center text-lg sm:text-xl flex-shrink-0">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-violet-600/20 flex items-center justify-center text-lg flex-shrink-0">
                 {iconMap[zone.icon] || '📋'}
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-gray-900 font-semibold truncate text-sm sm:text-base">{zone.name}</h3>
                 <p className="text-gray-500 text-xs sm:text-sm truncate">{zone.description}</p>
               </div>
-              <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-                <span className="text-[10px] sm:text-xs text-gray-400">{zone.stepsCount}</span>
-                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
-              </div>
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 flex-shrink-0" />
             </motion.div>
           ))}
         </AnimatePresence>
 
-        {/* Loading indicator */}
         {!isComplete && !error && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -477,27 +631,35 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
         )}
       </div>
 
-      {/* Complete action */}
+      {/* CTAs post-generación */}
       <AnimatePresence>
         {isComplete && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, type: 'spring', damping: 20, stiffness: 200 }}
-            className="pt-4 space-y-3"
+            transition={{ delay: 0.4, type: 'spring', damping: 20 }}
+            className="space-y-3"
           >
             {propertyId ? (
-              <button
-                type="button"
-                onClick={() => {
-                  if (!propertyId) return
-                  router.push(`/properties/${propertyId}/zones`)
-                }}
-                className="w-full h-14 rounded-xl text-lg font-semibold bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25 transition-all duration-300 flex items-center justify-center gap-2"
-              >
-                {t('step5.viewManual')}
-                <ArrowRight className="w-5 h-5" />
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => router.push(`/properties/${propertyId}/zones`)}
+                  className="w-full h-14 rounded-xl text-base sm:text-lg font-semibold bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25 transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-5 h-5" />
+                  Ver mi manual
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push(`/properties/${propertyId}/zones`)}
+                  className="w-full h-11 rounded-xl text-sm font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Compartir con huésped
+                </button>
+              </>
             ) : (
               <div className="w-full rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-center">
                 <p className="text-red-600 text-sm font-medium">

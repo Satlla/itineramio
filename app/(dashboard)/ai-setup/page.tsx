@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, Sparkles, Crown } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '../../../src/providers/AuthProvider'
+import Step0Intro from './components/Step0Intro'
 import Step1Address, { type Step1Data } from './components/Step1Address'
 import Step2Details, { type Step2Data } from './components/Step2Details'
 import Step3Media, { type MediaItem } from './components/Step2Media'
@@ -43,7 +44,7 @@ export default function AISetupPage() {
     { label: t('steps.generate'), number: 5 },
   ]
 
-  const [currentStep, setCurrentStepRaw] = useState(1)
+  const [currentStep, setCurrentStepRaw] = useState(0)
   const setCurrentStep = (stepOrFn: number | ((prev: number) => number)) => {
     setCurrentStepRaw(stepOrFn)
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
@@ -285,7 +286,8 @@ export default function AISetupPage() {
 
     const draft = loadDraft()
     if (!draft) return
-    if (draft.currentStep > 1) setCurrentStepRaw(draft.currentStep)
+    // If there's a saved draft with progress, skip intro and restore step
+    if (draft.currentStep >= 1) setCurrentStepRaw(draft.currentStep)
     if (draft.step1Data) setStep1Data(draft.step1Data)
     if (draft.step2Data) setStep2Data(draft.step2Data)
     if (draft.media) {
@@ -323,9 +325,9 @@ export default function AISetupPage() {
     }
   }, [])
 
-  // Save draft to localStorage on every change (skip step 5 = generation in progress)
+  // Save draft to localStorage on every change (skip step 0 = intro, skip step 5 = generation)
   useEffect(() => {
-    if (currentStep >= 5) return // Don't save once generation starts
+    if (currentStep === 0 || currentStep >= 5) return // Don't save on intro or during generation
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         currentStep,
@@ -439,13 +441,13 @@ export default function AISetupPage() {
           <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
             <button
               type="button"
-              onClick={() => currentStep > 1 ? setCurrentStep(s => s - 1) : router.push('/properties')}
-              aria-label={currentStep > 1 ? 'Paso anterior' : 'Mis propiedades'}
+              onClick={() => currentStep > 0 ? setCurrentStep(s => s - 1) : router.push('/properties')}
+              aria-label={currentStep > 0 ? 'Paso anterior' : 'Mis propiedades'}
               className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               <span className="hidden sm:inline">
-                {currentStep > 1 ? t('topBar.previousStep') : t('topBar.myProperties')}
+                {currentStep > 0 ? t('topBar.previousStep') : t('topBar.myProperties')}
               </span>
             </button>
 
@@ -512,6 +514,15 @@ export default function AISetupPage() {
         {/* Step content */}
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-12">
           <AnimatePresence mode="wait">
+            {currentStep === 0 && (
+              <Step0Intro
+                key="step0"
+                onStart={() => setCurrentStep(1)}
+                onAirbnbImport={handleAirbnbImport}
+                airbnbImport={airbnbImport}
+              />
+            )}
+
             {currentStep === 1 && (
               <Step1Address
                 key="step1"
@@ -543,6 +554,12 @@ export default function AISetupPage() {
                 onBack={() => setCurrentStep(2)}
                 clientUpload={true}
                 uploadEndpoint="/api/upload-token"
+                propertyContext={{
+                  hasAC: step1Data.hasAC,
+                  hasPool: step1Data.hasPool,
+                  hasParking: step1Data.hasParking,
+                  items: step2Data.items,
+                }}
               />
             )}
 
