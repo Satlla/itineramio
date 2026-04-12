@@ -271,8 +271,9 @@ export default function CalculadoraPage() {
       <main className="min-h-screen text-white flex flex-col" style={{ backgroundColor: '#0D0D1F' }}>
         {/* Nav */}
         <nav className="px-6 py-5 flex items-center justify-between max-w-6xl mx-auto w-full">
-          <div className="flex items-center">
-            <img src="/isotipo-gradient.svg" alt="Itineramio" width={120} height={66} style={{ objectFit: 'contain' }} />
+          <div className="flex items-center gap-2">
+            <img src="/isotipo-gradient.svg" alt="Itineramio" width={32} height={18} style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+            <span className="font-semibold text-white text-base tracking-tight">itineramio</span>
           </div>
           <span className="text-xs text-white/30 bg-white/5 px-3 py-1 rounded-full border border-white/10">
             Estudio 2024 · España
@@ -373,8 +374,9 @@ export default function CalculadoraPage() {
           >
             ← Atrás
           </button>
-          <div className="flex items-center">
-            <img src="/isotipo-gradient.svg" alt="Itineramio" width={120} height={66} style={{ objectFit: 'contain' }} />
+          <div className="flex items-center gap-2">
+            <img src="/isotipo-gradient.svg" alt="Itineramio" width={32} height={18} style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+            <span className="font-semibold text-white text-base tracking-tight">itineramio</span>
           </div>
         </nav>
 
@@ -683,8 +685,9 @@ export default function CalculadoraPage() {
     return (
       <main ref={resultsRef} className="min-h-screen bg-[#0D0D1F] text-white">
         <nav className="px-6 py-5 flex items-center justify-between max-w-3xl mx-auto">
-          <div className="flex items-center">
-            <img src="/isotipo-gradient.svg" alt="Itineramio" width={120} height={66} style={{ objectFit: 'contain' }} />
+          <div className="flex items-center gap-2">
+            <img src="/isotipo-gradient.svg" alt="Itineramio" width={32} height={18} style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+            <span className="font-semibold text-white text-base tracking-tight">itineramio</span>
           </div>
           <span className="text-xs text-white/30 bg-white/5 px-3 py-1 rounded-full border border-white/10">
             Diagnóstico personalizado
