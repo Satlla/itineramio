@@ -21,7 +21,8 @@ interface ChecklistData {
   allCompleted: boolean
 }
 
-const DISMISSED_KEY = 'onboarding_checklist_v2_dismissed'
+const COMPLETED_KEY = 'onboarding_checklist_v2_completed'
+const SESSION_DISMISSED_KEY = 'onboarding_checklist_v2_session_dismissed'
 
 export function OnboardingChecklist() {
   const [data, setData] = useState<ChecklistData | null>(null)
@@ -30,8 +31,15 @@ export function OnboardingChecklist() {
   const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
-    const isDismissed = localStorage.getItem(DISMISSED_KEY) === '1'
-    if (isDismissed) {
+    const isCompleted = localStorage.getItem(COMPLETED_KEY) === '1'
+    if (isCompleted) {
+      setDismissed(true)
+      setLoading(false)
+      return
+    }
+
+    const isSessionDismissed = sessionStorage.getItem(SESSION_DISMISSED_KEY) === '1'
+    if (isSessionDismissed) {
       setDismissed(true)
       setLoading(false)
       return
@@ -39,13 +47,20 @@ export function OnboardingChecklist() {
 
     fetch('/api/user/onboarding-checklist', { credentials: 'include' })
       .then(r => r.ok ? r.json() : null)
-      .then(json => { if (json) setData(json) })
+      .then(json => {
+        if (json) {
+          setData(json)
+          if (json.allCompleted) {
+            localStorage.setItem(COMPLETED_KEY, '1')
+          }
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 
   function dismiss() {
-    localStorage.setItem(DISMISSED_KEY, '1')
+    sessionStorage.setItem(SESSION_DISMISSED_KEY, '1')
     setDismissed(true)
   }
 
