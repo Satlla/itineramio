@@ -223,11 +223,8 @@ export default function Step2Media({
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [portraitVideos, setPortraitVideos] = useState<Set<string>>(new Set())
   const [playingVideo, setPlayingVideo] = useState<string | null>(null)
-  const [pendingSuggestionZone, setPendingSuggestionZone] = useState<string | null>(null)
-  const pendingSuggestionZoneRef = useRef<string | null>(null)
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const suggestedZones = buildSuggestedZones(propertyContext)
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -396,13 +393,11 @@ export default function Step2Media({
           }
         }
 
-        const autoZone = pendingSuggestionZoneRef.current
         updateMedia(current => [...current, {
           id,
           url: mediaUrl,
           type: isVideo ? 'video' : 'image',
           fileSize: fileToUpload.size,
-          ...(autoZone ? { zoneId: autoZone } : {}),
         }])
       } catch (err) {
         const msg = err instanceof Error ? err.message : ''
@@ -414,8 +409,6 @@ export default function Step2Media({
 
     if (errors.length > 0) setUploadErrors(errors)
     setUploading(false)
-    pendingSuggestionZoneRef.current = null
-    setPendingSuggestionZone(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }, [updateMedia, t, uploadEndpoint, clientUpload])
 
@@ -484,62 +477,12 @@ export default function Step2Media({
         </p>
       </div>
 
-      {/* Suggested zones — contextual cards based on property data */}
-      {suggestedZones.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-gray-700">
-              Zonas sugeridas para tu alojamiento
-            </p>
-            <span className="text-xs text-gray-400">Una foto = una zona</span>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {suggestedZones.map((zone) => {
-              const alreadyAdded = media.some(m => m.zoneId === zone.zoneId)
-              const ZIcon = ZONE_ICON_MAP[zone.icon]
-              return (
-                <button
-                  key={zone.zoneId}
-                  type="button"
-                  disabled={alreadyAdded}
-                  onClick={() => {
-                    pendingSuggestionZoneRef.current = zone.zoneId
-                    setPendingSuggestionZone(zone.zoneId)
-                    fileInputRef.current?.click()
-                  }}
-                  className={`flex flex-col items-start gap-2 p-3 rounded-xl border text-left transition-all ${
-                    alreadyAdded
-                      ? 'border-green-200 bg-green-50 opacity-60 cursor-default'
-                      : pendingSuggestionZone === zone.zoneId
-                      ? 'border-violet-400 bg-violet-50 ring-1 ring-violet-400/30'
-                      : 'border-gray-200 bg-white hover:border-violet-300 hover:bg-violet-50/50 cursor-pointer'
-                  }`}
-                >
-                  <div className="flex items-center gap-2 w-full">
-                    <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
-                      {ZIcon ? <ZIcon className="w-3.5 h-3.5 text-violet-600" /> : null}
-                    </div>
-                    <span className="text-xs font-semibold text-gray-900 truncate">{zone.name}</span>
-                    {alreadyAdded && <span className="ml-auto text-green-500 text-xs">✓</span>}
-                  </div>
-                  <p className="text-[10px] text-gray-400 leading-snug">{zone.hint}</p>
-                </button>
-              )
-            })}
-          </div>
-          <p className="text-xs text-gray-400 flex items-center gap-1.5">
-            <Sparkles className="w-3 h-3 text-violet-400" />
-            Haz clic en una zona para subir su foto directamente asignada
-          </p>
-        </div>
-      )}
-
       {/* Upload area */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={() => { setPendingSuggestionZone(null); pendingSuggestionZoneRef.current = null; fileInputRef.current?.click() }}
+        onClick={() => { fileInputRef.current?.click() }}
         className={`relative border-2 border-dashed rounded-2xl p-5 sm:p-8 text-center cursor-pointer transition-all duration-300 ${
           isDragging
             ? 'border-violet-400 bg-violet-50'

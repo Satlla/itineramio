@@ -9,18 +9,43 @@ import {
   QrCode,
   Clock,
   Layers,
-  ListChecks,
   AlertCircle,
   ArrowRight,
   Loader2,
   Crown,
   MapPin,
   Heart,
-  X,
   Share2,
   Languages,
   Smartphone,
   Star,
+  Key,
+  LogOut,
+  Wifi,
+  ScrollText,
+  Car,
+  Snowflake,
+  Coffee,
+  Flame,
+  Tv,
+  Wind,
+  Thermometer,
+  Lock,
+  Waves,
+  Umbrella,
+  TreePine,
+  Bath,
+  Shirt,
+  Utensils,
+  Home,
+  Phone,
+  Recycle,
+  Wrench,
+  Bike,
+  ShowerHead,
+  Bed,
+  Sofa,
+  type LucideIcon,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
@@ -79,36 +104,48 @@ interface Step3GenerateProps {
   onBack?: () => void
 }
 
-// Map icon names to emojis
-const iconMap: Record<string, string> = {
-  'key': '🔑',
-  'log-out': '🚪',
-  'wifi': '📶',
-  'map-pin': '📍',
-  'scroll-text': '📜',
-  'car': '🚗',
-  'chef-hat': '👨‍🍳',
-  'shopping-bag': '🛒',
-  'utensils-crossed': '🍽️',
-  'heart': '💊',
-  'star': '⭐',
-  'phone': '📞',
-  'bus': '🚌',
-  'waves': '🏊',
-  'umbrella': '☂️',
-  'droplets': '🚿',
-  'bed': '🛏️',
-  'sofa': '🛋️',
-  'door-open': '🚪',
-  'trees': '🌳',
-  'shirt': '👕',
-  'utensils': '🍴',
-  'monitor': '💻',
-  'dumbbell': '💪',
-  'fence': '🏠',
-  'home': '🏠',
-  'thermometer': '🌡️',
-  'snowflake': '❄️',
+// Map icon names to Lucide icon components — Airbnb-style (vector, neutral)
+const ZONE_ICON_MAP: Record<string, LucideIcon> = {
+  'key': Key,
+  'log-out': LogOut,
+  'wifi': Wifi,
+  'map-pin': MapPin,
+  'scroll-text': ScrollText,
+  'car': Car,
+  'snowflake': Snowflake,
+  'coffee': Coffee,
+  'flame': Flame,
+  'tv': Tv,
+  'wind': Wind,
+  'thermometer': Thermometer,
+  'lock': Lock,
+  'waves': Waves,
+  'umbrella': Umbrella,
+  'trees': TreePine,
+  'tree-pine': TreePine,
+  'bath': Bath,
+  'shirt': Shirt,
+  'utensils': Utensils,
+  'utensils-crossed': Utensils,
+  'home': Home,
+  'phone': Phone,
+  'recycle': Recycle,
+  'wrench': Wrench,
+  'bike': Bike,
+  'shower': ShowerHead,
+  'shower-head': ShowerHead,
+  'bed': Bed,
+  'sofa': Sofa,
+  'globe': Globe,
+  'star': Star,
+  'heart': Heart,
+  'qr-code': QrCode,
+}
+
+function ZoneCardIcon({ iconName }: { iconName: string }) {
+  const Icon = ZONE_ICON_MAP[iconName]
+  if (!Icon) return <MapPin className="w-4 h-4 text-gray-500" />
+  return <Icon className="w-4 h-4 text-gray-600" />
 }
 
 export default function Step3Generate({ propertyData, mediaAnalysis, onComplete, onBack }: Step3GenerateProps) {
@@ -319,25 +356,26 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
         transition={{ duration: 0.5 }}
         className="max-w-2xl mx-auto"
       >
-        <div className="bg-white/80 border border-gray-200 rounded-2xl overflow-hidden backdrop-blur-xl">
-          {/* Header */}
-          <div className="p-6 sm:p-8 text-center space-y-3 border-b border-gray-200/50">
-            <div className="w-16 h-16 mx-auto rounded-full bg-violet-500/20 flex items-center justify-center">
-              <Sparkles className="w-8 h-8 text-violet-400" />
+        {/* Card: flex column, max height = viewport - top bar - step bar - padding */}
+        <div className="bg-white/80 border border-gray-200 rounded-2xl overflow-hidden backdrop-blur-xl flex flex-col max-h-[calc(100dvh-180px)]">
+          {/* Header — fixed */}
+          <div className="flex-shrink-0 px-6 pt-6 pb-4 text-center space-y-2 border-b border-gray-100">
+            <div className="w-12 h-12 mx-auto rounded-full bg-violet-500/15 flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-violet-500" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900">
               {t('step5.confirmTitle')}
             </h2>
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-500 text-xs sm:text-sm">
               {t('step5.confirmSubtitle')}
             </p>
           </div>
 
-          {/* Content */}
-          <div className="p-6 sm:p-8 space-y-4">
+          {/* Content — scrollable */}
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
             {/* Essential zones */}
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-green-50 border border-green-200">
-              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-green-50 border border-green-100">
+              <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
               <div>
                 <p className="text-sm font-medium text-green-800">{t('step5.essentialZones')}</p>
                 <p className="text-xs text-gray-500 mt-0.5">{t('step5.essentialZonesList')}</p>
@@ -346,8 +384,8 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
 
             {/* User zones (from media) */}
             {userZoneNames.length > 0 && (
-              <div className="flex items-start gap-3 p-3 rounded-xl bg-violet-500/5 border border-violet-500/20">
-                <CheckCircle className="w-5 h-5 text-violet-400 flex-shrink-0 mt-0.5" />
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-violet-50 border border-violet-100">
+                <CheckCircle className="w-4 h-4 text-violet-500 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-medium text-violet-700">
                     {t('step5.userZones', { count: userZoneNames.length })}
@@ -357,51 +395,40 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
               </div>
             )}
 
-            {/* Nearby services */}
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-blue-500/5 border border-blue-500/20">
-              <Heart className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium text-blue-700">{t('step5.nearbyServices')}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{t('step5.nearbyServicesList')}</p>
-              </div>
-            </div>
-
             {/* Directions */}
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20">
-              <MapPin className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 border border-amber-100">
+              <MapPin className="w-4 h-4 text-amber-500 flex-shrink-0" />
               <div>
                 <p className="text-sm font-medium text-amber-700">{t('step5.directions')}</p>
                 <p className="text-xs text-gray-500 mt-0.5">{t('step5.directionsList')}</p>
               </div>
             </div>
 
-            {/* AI actions */}
-            <div className="mt-6 p-4 rounded-xl bg-gray-50 border border-gray-200 space-y-2">
-              <p className="text-sm font-medium text-gray-600">{t('step5.aiWillDo')}</p>
-              <ul className="space-y-1.5 text-sm text-gray-500">
-                <li className="flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5 text-violet-400 flex-shrink-0" />
-                  {t('step5.aiAction1')}
-                </li>
-                <li className="flex items-center gap-2">
-                  <Globe className="w-3.5 h-3.5 text-violet-400 flex-shrink-0" />
-                  {t('step5.aiAction2')}
-                </li>
-                <li className="flex items-center gap-2">
-                  <MapPin className="w-3.5 h-3.5 text-violet-400 flex-shrink-0" />
-                  {t('step5.aiAction3')}
-                </li>
-              </ul>
+            {/* AI actions — compact */}
+            <div className="p-3 rounded-xl bg-gray-50 border border-gray-100 space-y-1.5">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('step5.aiWillDo')}</p>
+              <div className="space-y-1">
+                {[
+                  { Icon: Sparkles, text: t('step5.aiAction1') },
+                  { Icon: Globe, text: t('step5.aiAction2') },
+                  { Icon: MapPin, text: t('step5.aiAction3') },
+                ].map(({ Icon, text }, i) => (
+                  <div key={i} className="flex items-center gap-2 text-xs text-gray-500">
+                    <Icon className="w-3 h-3 text-violet-400 flex-shrink-0" />
+                    {text}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="p-6 sm:p-8 pt-0 flex gap-3">
+          {/* Actions — always visible at bottom */}
+          <div className="flex-shrink-0 px-6 py-4 border-t border-gray-100 flex gap-3">
             {onBack && (
               <button
                 type="button"
                 onClick={onBack}
-                className="flex-1 h-12 sm:h-14 rounded-xl text-base font-semibold border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+                className="flex-1 h-12 rounded-xl text-sm font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
               >
                 {t('step5.cancel')}
               </button>
@@ -409,9 +436,9 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
             <button
               type="button"
               onClick={() => setConfirmed(true)}
-              className="flex-1 h-12 sm:h-14 rounded-xl text-base sm:text-lg font-semibold bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25 transition-all duration-300 flex items-center justify-center gap-2"
+              className="flex-1 h-12 rounded-xl text-sm sm:text-base font-semibold bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-md shadow-violet-500/20 transition-all duration-200 flex items-center justify-center gap-2"
             >
-              <Sparkles className="w-5 h-5" />
+              <Sparkles className="w-4 h-4" />
               {t('step5.generate')}
             </button>
           </div>
@@ -477,14 +504,13 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
         <AnimatePresence mode="wait">
           <motion.div
             key={slideIndex}
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.02 }}
-            transition={{ duration: 0.6 }}
-            className="rounded-2xl overflow-hidden h-44 sm:h-52 relative"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.4 }}
+            className="rounded-2xl overflow-hidden h-32 sm:h-36 relative"
           >
             {currentSlide.type === 'photo' ? (
-              // User's own photo
               <div className="w-full h-full relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -492,40 +518,40 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
                   alt="Tu alojamiento"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <div className="absolute bottom-3 left-4 right-4">
-                  <p className="text-white text-xs font-medium opacity-80">Tu alojamiento</p>
-                  <p className="text-white/70 text-[10px]">La IA está perfeccionando las instrucciones...</p>
+                <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
+                <div className="absolute inset-0 flex items-center px-5">
+                  <div>
+                    <p className="text-white text-sm font-semibold">Tu alojamiento</p>
+                    <p className="text-white/70 text-xs mt-0.5">La IA está generando las instrucciones...</p>
+                  </div>
                 </div>
               </div>
             ) : (
-              // Concept slide — extract icon into capitalized var for JSX
               (() => {
                 const ConceptIcon = currentSlide.icon
                 return (
-                  <div className={`w-full h-full bg-gradient-to-br ${currentSlide.color} flex flex-col items-center justify-center text-center px-6 gap-3`}>
-                    <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
-                      <ConceptIcon className="w-6 h-6 text-white" />
+                  <div className={`w-full h-full bg-gradient-to-br ${currentSlide.color} flex items-center px-6 gap-4`}>
+                    <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                      <ConceptIcon className="w-5 h-5 text-white" />
                     </div>
-                    <div>
-                      <p className="text-white font-bold text-lg leading-tight">{currentSlide.title}</p>
-                      <p className="text-white/80 text-sm mt-0.5">{currentSlide.subtitle}</p>
-                      <p className="text-white/60 text-xs mt-2 max-w-xs">{currentSlide.detail}</p>
+                    <div className="text-left">
+                      <p className="text-white font-bold text-sm leading-tight">{currentSlide.title}</p>
+                      <p className="text-white/80 text-xs mt-0.5">{currentSlide.subtitle}</p>
+                      <p className="text-white/60 text-[11px] mt-1 max-w-xs leading-snug">{currentSlide.detail}</p>
+                    </div>
+                    {/* Dots — right side */}
+                    <div className="ml-auto flex flex-col gap-1">
+                      {allSlides.map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-1 h-1 rounded-full transition-all ${i === slideIndex % allSlides.length ? 'bg-white' : 'bg-white/30'}`}
+                        />
+                      ))}
                     </div>
                   </div>
                 )
               })()
             )}
-
-            {/* Slide dots */}
-            <div className="absolute bottom-2 right-3 flex gap-1">
-              {allSlides.map((_, i) => (
-                <div
-                  key={i}
-                  className={`w-1.5 h-1.5 rounded-full transition-all ${i === slideIndex % allSlides.length ? 'bg-white' : 'bg-white/30'}`}
-                />
-              ))}
-            </div>
           </motion.div>
         </AnimatePresence>
       )}
@@ -602,19 +628,19 @@ export default function Step3Generate({ propertyData, mediaAnalysis, onComplete,
           {zones.map((zone, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ type: 'spring', damping: 20, stiffness: 200, delay: 0.05 }}
-              className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300, delay: 0.03 }}
+              className="bg-white border border-gray-100 rounded-xl p-3 flex items-center gap-3"
             >
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-violet-600/20 flex items-center justify-center text-lg flex-shrink-0">
-                {iconMap[zone.icon] || '📋'}
+              <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <ZoneCardIcon iconName={zone.icon} />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-gray-900 font-semibold truncate text-sm sm:text-base">{zone.name}</h3>
-                <p className="text-gray-500 text-xs sm:text-sm truncate">{zone.description}</p>
+                <h3 className="text-gray-900 font-medium truncate text-sm">{zone.name}</h3>
+                <p className="text-gray-400 text-xs truncate">{zone.description}</p>
               </div>
-              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 flex-shrink-0" />
+              <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
             </motion.div>
           ))}
         </AnimatePresence>
