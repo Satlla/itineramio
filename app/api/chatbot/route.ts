@@ -981,8 +981,8 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   // Expanding it caused 'como va la vitro' to boost check-in, WiFi, etc. artificially.
 
   // ── CHECK-OUT / SALIDA ──────────────────────────────────────────────────
-  checkout:     ['salida', 'departure', 'leaving', 'leave', 'irse', 'marcharse', 'dejar'],
-  'check-out':  ['salida', 'departure', 'leaving', 'irse', 'marcharse'],
+  checkout:     ['salida', 'check out', 'departure', 'leaving', 'leave', 'irse', 'marcharse', 'dejar'],
+  'check-out':  ['salida', 'check out', 'departure', 'leaving', 'irse', 'marcharse'],
   salgo:        ['salida', 'checkout', 'irse', 'marcharse', 'departure'],
   salir:        ['salida', 'checkout', 'irse', 'marcharse', 'departure', 'leaving'],
   sale:         ['salida', 'checkout', 'irse'],
@@ -1005,7 +1005,7 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   partir:       ['salida', 'checkout', 'irse'],
   parto:        ['salida', 'checkout', 'irse'],
   partimos:     ['salida', 'checkout', 'irse'],
-  salida:       ['checkout', 'departure', 'leaving', 'irse'],
+  salida:       ['checkout', 'check out', 'departure', 'leaving', 'irse'],
 
   // ── WIFI / INTERNET ─────────────────────────────────────────────────────
   wifi:         ['wifi', 'wi-fi', 'internet', 'password', 'contrasena', 'clave', 'red', 'network', 'conexion'],
@@ -1102,9 +1102,9 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   sleep:          ['dormitorio', 'cama', 'habitacion', 'bedroom'],
 
   // ── AIRE ACONDICIONADO / CALEFACCIÓN / TEMPERATURA ──────────────────────
-  aire:           ['aire', 'acondicionado', 'climatizacion', 'temperatura', 'frio', 'calor', 'calefaccion', 'ac'],
-  acondicionado:  ['aire', 'climatizacion', 'temperatura', 'frio', 'calor', 'ac'],
-  'aire acondicionado': ['clima', 'temperatura', 'frio', 'calor', 'ac'],
+  aire:           ['aire', 'acondicionado', 'climatizacion', 'temperatura', 'frio', 'calor', 'calefaccion'],
+  acondicionado:  ['aire', 'climatizacion', 'temperatura', 'frio', 'calor'],
+  'aire acondicionado': ['clima', 'temperatura', 'frio', 'calor', 'acondicionado'],
   calefaccion:    ['climatizacion', 'calefaccion', 'calor', 'temperatura', 'termostato', 'radiador', 'heating'],
   calor:          ['aire', 'acondicionado', 'calefaccion', 'temperatura', 'termostato', 'ventilador'],
   frio:           ['aire', 'acondicionado', 'calefaccion', 'temperatura', 'calor'],
@@ -1246,13 +1246,9 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   consigna:       ['equipaje', 'maleta', 'storage', 'luggage'],
 
   // ── TOALLAS / ROPA DE CAMA ───────────────────────────────────────────────
-  toallas:        ['toallas', 'ropa', 'cama', 'sabanas', 'limpieza', 'towels'],
-  toalla:         ['toallas', 'ropa', 'cama', 'sabanas', 'towels'],
+  // toalla/toallas/sabanas/cama/almohada defined in BAÑO and DORMIR sections above
   towels:         ['toallas', 'ropa', 'cama', 'sabanas', 'limpieza'],
-  sabanas:        ['toallas', 'ropa', 'cama', 'sabanas', 'cama'],
-  cama:           ['sabanas', 'toallas', 'ropa', 'cama'],
   bedding:        ['sabanas', 'toallas', 'ropa', 'cama'],
-  almohada:       ['cama', 'sabanas', 'ropa', 'almohada'],
   manta:          ['cama', 'sabanas', 'ropa', 'manta'],
 
   // ── EMERGENCIAS ─────────────────────────────────────────────────────────
@@ -1316,7 +1312,7 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   geschirrspuler: ['lavavajillas', 'cocina', 'kitchen'],
   waschmaschine:  ['lavadora', 'laundry', 'washing'],
   heizung:        ['calefaccion', 'climatizacion', 'temperatura', 'termostato'],
-  klimaanlage:    ['aire', 'acondicionado', 'climatizacion', 'ac', 'temperatura'],
+  klimaanlage:    ['aire', 'acondicionado', 'climatizacion', 'temperatura'],
   temperatur:     ['temperatura', 'climatizacion', 'calefaccion', 'termostato'],
   parkplatz:      ['parking', 'aparcamiento', 'coche', 'garaje'],
   parken:         ['parking', 'aparcamiento', 'coche', 'garaje'],
@@ -1347,7 +1343,7 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   frigorifero:    ['nevera', 'frigorifico', 'cocina', 'kitchen'],
   lavatrice:      ['lavadora', 'laundry', 'washing'],
   riscaldamento:  ['calefaccion', 'climatizacion', 'temperatura', 'termostato'],
-  condizionatore: ['aire', 'acondicionado', 'climatizacion', 'ac', 'temperatura'],
+  condizionatore: ['aire', 'acondicionado', 'climatizacion', 'temperatura'],
   parcheggio:     ['parking', 'aparcamiento', 'coche', 'garaje'],
   ristorante:     ['restaurante', 'comida', 'comer', 'food'],
   mangiare:       ['restaurante', 'comida', 'comer', 'food'],
@@ -1369,7 +1365,7 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   fogao:          ['cocina', 'vitro', 'placa', 'kitchen'],
   geladeira:      ['nevera', 'frigorifico', 'cocina', 'kitchen'],
   aquecimento:    ['calefaccion', 'climatizacion', 'temperatura', 'termostato'],
-  arcondicionado: ['aire', 'acondicionado', 'climatizacion', 'ac', 'temperatura'],
+  arcondicionado: ['aire', 'acondicionado', 'climatizacion', 'temperatura'],
   estacionamento: ['parking', 'aparcamiento', 'coche', 'garaje'],
   vaga:           ['parking', 'aparcamiento', 'garaje'],
   toalhas:        ['toallas', 'ropa', 'cama', 'sabanas'],
@@ -1385,7 +1381,7 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   keuken:         ['cocina', 'kitchen', 'vitro', 'horno'],
   wasmachine:     ['lavadora', 'laundry', 'washing'],
   verwarming:     ['calefaccion', 'climatizacion', 'temperatura'],
-  airco:          ['aire', 'acondicionado', 'climatizacion', 'ac'],
+  airco:          ['aire', 'acondicionado', 'climatizacion'],
   parkeren:       ['parking', 'aparcamiento', 'coche', 'garaje'],
   noodgeval:      ['emergencias', 'urgencias', 'medico'],
   handdoeken:     ['toallas', 'ropa', 'cama', 'sabanas'],
@@ -1398,16 +1394,19 @@ const QUERY_STOPWORDS_ROUTE = new Set([
   // e.g. "la" matches "toallas", "no" matches "normas", "es" matches "acceso"
   'la', 'el', 'en', 'es', 'al', 'no', 'de', 'se', 'me', 'te', 'le', 'lo',
   'un', 'si', 'ya', 'mi',
+  // Spanish 2-char VERB forms that cause false substring matches:
+  // "va"→"lavadora", "ir"→"aire", "ve"→"clave", "vi"→"wifi", "he"→"check"
+  'va', 've', 'vi', 'ir', 'he', 'di',
   // Spanish function/question words (3+ chars)
   'que', 'qui', 'cual', 'con', 'los', 'las', 'del', 'una', 'hay', 'por',
   'sin', 'nos', 'sus', 'les', 'mas', 'son', 'fue', 'han', 'hoy', 'ese',
   'eso', 'esa', 'uno', 'muy', 'vez', 'asi', 'tra', 'dos', 'ser', 'sea',
   'era', 'dar', 'soy', 'vas', 'van',
-  // Spanish question/common words
-  'como',
+  // Spanish question words — never carry zone-matching value
+  'como', 'donde', 'cuando', 'cuanto', 'esta', 'esto',
   // Spanish common verbs that pollute zone-name matching
   'hace', 'hacer', 'podemos', 'tenemos', 'queremos', 'pueden', 'tiene', 'tienen',
-  'quiero', 'quiere', 'necesito', 'necesita', 'busco', 'busca',
+  'quiero', 'quiere', 'necesito', 'necesita', 'busco', 'busca', 'funciona',
   // English 2-char function words (e.g. "we"→"towels", "on"→"conditioning", "to"→"towels")
   'we', 'on', 'is', 'to', 'do', 'it', 'an', 'at', 'in', 'of', 'up',
   'as', 'be', 'by', 'if', 'go', 'so',
@@ -1459,25 +1458,29 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
     let score = 0;
 
     // Zone name keyword match = high relevance
+    // Require word.length >= 3 for substring matching to prevent false positives:
+    // "ac"→"acceso", "va"→"lavadora", "ir"→"aire". Exact matches always allowed.
     // Bidirectional only when zone name is long enough (≥4 chars) to avoid
     // short zone names like "Bar", "Spa", "Mar" matching unrelated queries
-    // e.g. zone "Bar" matching "barrio" or "embarcar" through word.includes(zoneName)
     for (const word of words) {
-      if (zoneName.includes(word)) {
+      if (zoneName === word) {
         score += 15;
-      } else if (zoneName.length >= 4 && word.includes(zoneName)) {
+      } else if (word.length >= 3 && zoneName.includes(word)) {
+        score += 15;
+      } else if (zoneName.length >= 4 && word.length >= 3 && word.includes(zoneName)) {
         score += 15;
       }
     }
 
     // Step content match = medium relevance
+    // Require word.length >= 3 to prevent "ac" matching every step mentioning "acceso"
     for (const step of (zone.steps || [])) {
       const content = step.content as any;
       const title = normalize(getLocalizedText(step.title, language) || '');
       const text = normalize(getLocalizedText(content, language) || '');
       const combined = `${title} ${text}`;
       for (const word of words) {
-        if (combined.includes(word)) score += 4;
+        if (word.length >= 3 && combined.includes(word)) score += 4;
       }
     }
 
