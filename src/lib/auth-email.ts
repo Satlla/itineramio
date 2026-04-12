@@ -116,11 +116,8 @@ export class EmailVerificationService {
         <p>Itineramio no es una guía más. Es el sistema que manda esa información antes de que el huésped te pregunte. Cuando confirma la reserva, ya tiene todo. Tú no haces nada.</p>
         <p>La primera vez que un huésped llega sin preguntarte nada, lo entiendes.</p>
         <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 24px 0;">
-        <p><strong>Cuatro pasos. Una vez. Para siempre.</strong></p>
-        <p>01 — Configura tu alojamiento ← estás aquí<br>El sistema lo construye contigo en 10 minutos.</p>
-        <p>02 — Añade las zonas<br>Cada sección en su sitio.</p>
-        <p>03 — Activa el asistente<br>Responde en el idioma del huésped.</p>
-        <p>04 — Comparte el enlace<br>Un QR o un link. Funciona siempre.</p>
+        <p><strong>Un paso. Una vez. Para siempre.</strong></p>
+        <p>Cuéntale a la IA cómo es tu alojamiento y en 8 minutos tienes un manual completo: instrucciones por zona, traducido a 3 idiomas y con QR únicos para cada zona.</p>
         <a href="${appUrl}/ai-setup" style="display: inline-block; background: #1a1a1a; color: #fff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 500; margin: 20px 0;">Crear mi manual con IA →</a>
         <p style="font-size: 14px; color: #666;">Sin tarjeta. Sin instalación.</p>
         <p style="color: #666; margin-top: 32px; font-size: 14px;">Si tienes cualquier pregunta, responde a este email.</p>

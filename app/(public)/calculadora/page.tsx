@@ -271,13 +271,8 @@ export default function CalculadoraPage() {
       <main className="min-h-screen text-white flex flex-col" style={{ backgroundColor: '#0D0D1F' }}>
         {/* Nav */}
         <nav className="px-6 py-5 flex items-center justify-between max-w-6xl mx-auto w-full">
-          <div className="flex items-center gap-2">
-            <svg width="28" height="28" viewBox="0 0 40 40">
-              <circle cx="14" cy="20" r="12" fill="none" stroke="#FF1A8C" strokeWidth="3" opacity="0.7" />
-              <circle cx="26" cy="20" r="12" fill="none" stroke="#FF1A8C" strokeWidth="3" />
-              <circle cx="20" cy="20" r="3" fill="#FF1A8C" />
-            </svg>
-            <span className="font-semibold text-white/90 text-sm">itineramio</span>
+          <div className="flex items-center">
+            <img src="/isotipo-gradient.svg" alt="Itineramio" width={120} height={66} style={{ objectFit: 'contain' }} />
           </div>
           <span className="text-xs text-white/30 bg-white/5 px-3 py-1 rounded-full border border-white/10">
             Estudio 2024 · España
@@ -378,13 +373,8 @@ export default function CalculadoraPage() {
           >
             ← Atrás
           </button>
-          <div className="flex items-center gap-2">
-            <svg width="22" height="22" viewBox="0 0 40 40">
-              <circle cx="14" cy="20" r="12" fill="none" stroke="#FF1A8C" strokeWidth="3" opacity="0.7" />
-              <circle cx="26" cy="20" r="12" fill="none" stroke="#FF1A8C" strokeWidth="3" />
-              <circle cx="20" cy="20" r="3" fill="#FF1A8C" />
-            </svg>
-            <span className="font-semibold text-white/70 text-sm">itineramio</span>
+          <div className="flex items-center">
+            <img src="/isotipo-gradient.svg" alt="Itineramio" width={120} height={66} style={{ objectFit: 'contain' }} />
           </div>
         </nav>
 
@@ -643,10 +633,7 @@ export default function CalculadoraPage() {
               transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <svg width="24" height="24" viewBox="0 0 40 40">
-                <circle cx="14" cy="20" r="10" fill="none" stroke="#FF1A8C" strokeWidth="2.5" opacity="0.6" />
-                <circle cx="26" cy="20" r="10" fill="none" stroke="#FF1A8C" strokeWidth="2.5" />
-              </svg>
+              <img src="/isotipo-gradient.svg" alt="Itineramio" width={32} height={18} style={{ objectFit: 'contain' }} />
             </div>
           </div>
 
@@ -696,13 +683,8 @@ export default function CalculadoraPage() {
     return (
       <main ref={resultsRef} className="min-h-screen bg-[#0D0D1F] text-white">
         <nav className="px-6 py-5 flex items-center justify-between max-w-3xl mx-auto">
-          <div className="flex items-center gap-2">
-            <svg width="22" height="22" viewBox="0 0 40 40">
-              <circle cx="14" cy="20" r="12" fill="none" stroke="#FF1A8C" strokeWidth="3" opacity="0.7" />
-              <circle cx="26" cy="20" r="12" fill="none" stroke="#FF1A8C" strokeWidth="3" />
-              <circle cx="20" cy="20" r="3" fill="#FF1A8C" />
-            </svg>
-            <span className="font-semibold text-white/70 text-sm">itineramio</span>
+          <div className="flex items-center">
+            <img src="/isotipo-gradient.svg" alt="Itineramio" width={120} height={66} style={{ objectFit: 'contain' }} />
           </div>
           <span className="text-xs text-white/30 bg-white/5 px-3 py-1 rounded-full border border-white/10">
             Diagnóstico personalizado

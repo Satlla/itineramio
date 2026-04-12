@@ -75,7 +75,6 @@ export async function evaluateOnboardingState(userId: string): Promise<{
           isPublished: true,
           trialEndsAt: true,
           zones: {
-            where: { deletedAt: null },
             select: { id: true },
           },
           chatbotConversations: {
@@ -390,12 +389,9 @@ function getEmailHtml(emailType: OnboardingEmailType, state: OnboardingState): s
         <p>Itineramio no es una guía más. Es el sistema que manda esa información antes de que el huésped te pregunte. Cuando confirma la reserva, ya tiene todo. Tú no haces nada.</p>
         <p>La primera vez que un huésped llega sin preguntarte nada, lo entiendes.</p>
         <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 24px 0;">
-        <p><strong>Cuatro pasos. Una vez. Para siempre.</strong></p>
-        <p>01 — Configura tu alojamiento ← estás aquí<br>El sistema lo construye contigo en 10 minutos.</p>
-        <p>02 — Añade las zonas<br>Cada sección en su sitio.</p>
-        <p>03 — Activa el asistente<br>Responde en el idioma del huésped.</p>
-        <p>04 — Comparte el enlace<br>Un QR o un link. Funciona siempre.</p>
-        ${cta('Configurar mi alojamiento con el sistema →', `${appUrl}/properties/new`)}
+        <p><strong>Un paso. Una vez. Para siempre.</strong></p>
+        <p>Cuéntale a la IA cómo es tu alojamiento y en 8 minutos tienes un manual completo: instrucciones por zona, traducido a 3 idiomas y con QR únicos para cada zona.</p>
+        ${cta('Crear mi manual con IA →', `${appUrl}/ai-setup`)}
         <p style="font-size: 14px; color: #666;">Sin tarjeta. Sin instalación.</p>
       `)
 
@@ -404,7 +400,7 @@ function getEmailHtml(emailType: OnboardingEmailType, state: OnboardingState): s
         <p>Ayer te registraste. Hoy sigues contestando lo mismo de siempre.</p>
         <p>No es culpa tuya. Es que todavía no has puesto la información donde el huésped la encuentre solo.</p>
         <p>Necesitas tres cosas para empezar: el nombre de tu alojamiento, la dirección y cómo se entra. Nada más. En 5 minutos tienes el primer paso hecho.</p>
-        ${cta('Configurar mi alojamiento →', `${appUrl}/properties/new`)}
+        ${cta('Crear mi manual con IA →', `${appUrl}/ai-setup`)}
       `)
 
     case ONBOARDING_EMAIL_TYPES.NO_PROPERTY_REMINDER_2:
@@ -412,7 +408,7 @@ function getEmailHtml(emailType: OnboardingEmailType, state: OnboardingState): s
         <p>Da igual si tienes uno o seis. Si cada huésped te escribe las mismas preguntas, el problema es el mismo.</p>
         <p>Llevas 3 días registrado. El sistema está esperando. Tú solo tienes que escribir el nombre de tu alojamiento y darle a guardar.</p>
         <p>Un paso. Menos de un minuto.</p>
-        ${cta('Crear mi alojamiento →', `${appUrl}/properties/new`)}
+        ${cta('Crear mi manual con IA →', `${appUrl}/ai-setup`)}
         <p>Si hay algo que no funciona, responde a este email. Lo leo yo.</p>
       `)
 
