@@ -15,15 +15,34 @@ const ADMIN_EMAILS = ['alejandrosatlla@gmail.com']
 
 /**
  * Envía notificación a los admins cuando hay un nuevo usuario registrado
- * DESACTIVADO temporalmente para ahorrar cuota de Resend
  */
 export async function notifyNewUserRegistration(user: {
   email: string
   name: string
   source?: string
 }) {
-  // DESACTIVADO - Ver usuarios en /admin/users
-  return
+  try {
+    const now = new Date().toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })
+    await getResend().emails.send({
+      from: 'Itineramio <hola@itineramio.com>',
+      to: ADMIN_EMAILS,
+      subject: `🟢 Nuevo usuario: ${user.name}`,
+      html: `
+        <div style="font-family: -apple-system, sans-serif; max-width: 480px; padding: 24px; color: #1a1a1a;">
+          <p style="font-size: 20px; font-weight: 700; margin: 0 0 16px;">🟢 Nuevo usuario registrado</p>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr><td style="padding: 8px 0; color: #666; width: 80px;">Nombre</td><td style="padding: 8px 0; font-weight: 600;">${user.name}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Email</td><td style="padding: 8px 0;">${user.email}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Origen</td><td style="padding: 8px 0;">${user.source || 'Registro directo'}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Hora</td><td style="padding: 8px 0;">${now}</td></tr>
+          </table>
+          <a href="https://www.itineramio.com/admin/users" style="display: inline-block; margin-top: 16px; background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 14px;">Ver en admin →</a>
+        </div>
+      `
+    })
+  } catch {
+    // notification send failed silently
+  }
 }
 
 /**
