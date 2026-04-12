@@ -20,7 +20,8 @@ import {
   Image,
   Briefcase,
   Map,
-  CalendarDays
+  CalendarDays,
+  Sparkles,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
@@ -54,6 +55,13 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
   const { unreadCount } = useRealNotifications()
 
   const menuItems: MenuItem[] = [
+    {
+      icon: <Sparkles className="w-5 h-5" />,
+      label: 'Crear alojamiento',
+      href: "/ai-setup",
+      description: 'Genera tu manual con IA en 8 minutos',
+      mobileOnly: true
+    },
     {
       icon: <Home className="w-5 h-5" />,
       label: t('sidebar.properties'),

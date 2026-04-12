@@ -219,6 +219,9 @@ export async function POST(request: NextRequest) {
       source: 'Registro directo'
     }).catch(() => {})
 
+    // Send welcome email (async, non-blocking — after verification email is sent)
+    EmailVerificationService.sendWelcomeEmail(user.email, user.name).catch(() => {})
+
     return NextResponse.json({
       success: true,
       message: '¡Enhorabuena! Gracias por registrarte en Itineramio. Te hemos enviado un correo de confirmación.',

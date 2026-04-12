@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, User, Bell } from 'lucide-react'
+import { Menu, X, User, Bell, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useTranslation } from 'react-i18next'
@@ -185,6 +185,14 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
 
             {/* Right Side - Notifications, User Profile & Menu */}
             <div className="flex items-center space-x-2 sm:space-x-4">
+              {/* Crear con IA — siempre visible en desktop */}
+              <Link
+                href="/ai-setup"
+                className="hidden md:flex items-center gap-1.5 h-8 px-3 rounded-lg bg-gray-900 text-white text-xs font-semibold hover:bg-gray-700 transition-colors"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                Crear con IA
+              </Link>
               {/* Notifications Bell */}
               <motion.div
                 initial={{ opacity: 0, x: 20 }}

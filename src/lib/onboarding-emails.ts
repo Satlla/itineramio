@@ -250,6 +250,7 @@ export async function processOnboardingEmails(): Promise<{
       isActive: true,
       emailVerified: { not: null },
       createdAt: { gte: cutoffDate },
+      onboardingCompletedAt: null, // Skip users who finished onboarding
     },
     select: { id: true },
     take: 200, // Procesar en batches

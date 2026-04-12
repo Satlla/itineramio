@@ -50,7 +50,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     setIsOnboarding(true)
     setCurrentStep('create-property')
     saveState(true, 'create-property')
-    router.push('/properties/new?onboarding=true')
+    router.push('/ai-setup')
   }, [router])
 
   const nextStep = useCallback((step: string) => {
