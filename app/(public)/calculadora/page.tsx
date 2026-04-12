@@ -8,7 +8,7 @@ type Step = 'hero' | 'q1' | 'q2' | 'q3' | 'q4' | 'q5' | 'loading' | 'results'
 
 interface FormData {
   alojamientos: number | null
-  noches: number
+  reservas: number | null
   mensajesNivel: 'bajo' | 'medio' | 'alto' | 'muy_alto' | null
   horarios: string[]
   internacional: number
@@ -36,11 +36,11 @@ interface Resultado {
 const MENSAJES_MAP = { bajo: 3, medio: 6, alto: 10, muy_alto: 15 }
 
 function calcular(data: FormData): Resultado {
-  const { alojamientos, noches, mensajesNivel, horarios, internacional } = data
+  const { alojamientos, reservas, mensajesNivel, horarios, internacional } = data
   const aloj = alojamientos ?? 8
   const msgs = MENSAJES_MAP[mensajesNivel ?? 'medio']
 
-  const reservasMes = noches / 3.2
+  const reservasMes = reservas ?? 20
   const minutosMensaje = 4.8
   const horasMensajes = (reservasMes * msgs * minutosMensaje) / 60
 
@@ -168,7 +168,7 @@ export default function CalculadoraPage() {
   const [step, setStep] = useState<Step>('hero')
   const [form, setForm] = useState<FormData>({
     alojamientos: null,
-    noches: 60,
+    reservas: null,
     mensajesNivel: null,
     horarios: [],
     internacional: 30,
@@ -241,7 +241,7 @@ export default function CalculadoraPage() {
           resultado,
           formData: {
             alojamientos: form.alojamientos,
-            noches: form.noches,
+            reservas: form.reservas,
             mensajesNivel: form.mensajesNivel,
             horarios: form.horarios,
             internacional: form.internacional,
@@ -268,7 +268,7 @@ export default function CalculadoraPage() {
   // ─── HERO ─────────────────────────────────────────────────────────────────
   if (step === 'hero') {
     return (
-      <main className="min-h-screen bg-[#0D0D1F] text-white flex flex-col">
+      <main className="min-h-screen text-white flex flex-col" style={{ backgroundColor: '#0D0D1F' }}>
         {/* Nav */}
         <nav className="px-6 py-5 flex items-center justify-between max-w-6xl mx-auto w-full">
           <div className="flex items-center gap-2">
@@ -366,7 +366,7 @@ export default function CalculadoraPage() {
   // ─── QUESTIONS ────────────────────────────────────────────────────────────
   if (['q1', 'q2', 'q3', 'q4', 'q5'].includes(step)) {
     return (
-      <main className="min-h-screen bg-[#0D0D1F] text-white flex flex-col">
+      <main className="min-h-screen text-white flex flex-col" style={{ backgroundColor: '#0D0D1F' }}>
         <nav className="px-6 py-5 flex items-center justify-between max-w-xl mx-auto w-full">
           <button
             onClick={() => {
@@ -428,55 +428,38 @@ export default function CalculadoraPage() {
               </QuestionCard>
             )}
 
-            {/* Q2: Noches */}
+            {/* Q2: Reservas */}
             {step === 'q2' && (
               <QuestionCard
                 key="q2"
-                title="¿Cuántas noches reservadas tienes al mes en total?"
-                subtitle="Suma todas tus propiedades. Una propiedad con ocupación del 80% = ~24 noches/mes"
+                title="¿Cuántas reservas recibes al mes en total?"
+                subtitle="Suma todas tus propiedades. Una entrada = una reserva, independientemente de cuántas noches dure."
               >
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <span className="text-6xl font-bold text-white">{form.noches}</span>
-                    <span className="text-white/40 text-xl ml-2">noches/mes</span>
-                  </div>
-                  <div className="text-center text-white/30 text-sm">
-                    ≈ {Math.round(form.noches / 3.2)} reservas/mes · {Math.round(form.noches / 3.2 * 12)} reservas/año
-                  </div>
-                  <input
-                    type="range"
-                    min={5}
-                    max={400}
-                    step={5}
-                    value={form.noches}
-                    onChange={e => setForm(f => ({ ...f, noches: Number(e.target.value) }))}
-                    className="w-full accent-[#FF1A8C]"
-                  />
-                  <div className="flex justify-between text-xs text-white/30">
-                    <span>5 noches</span>
-                    <span>400 noches</span>
-                  </div>
-                  <div className="grid grid-cols-4 gap-2">
-                    {[30, 60, 120, 200].map(n => (
-                      <button
-                        key={n}
-                        onClick={() => setForm(f => ({ ...f, noches: n }))}
-                        className={`text-sm py-2 rounded-lg border transition-all ${
-                          form.noches === n
-                            ? 'border-[#FF1A8C] bg-[#FF1A8C]/10 text-white'
-                            : 'border-white/10 text-white/40 hover:border-white/30'
-                        }`}
-                      >
-                        {n}
-                      </button>
-                    ))}
-                  </div>
-                  <button
-                    onClick={() => setStep('q3')}
-                    className="w-full bg-[#FF1A8C] hover:bg-[#ff3399] text-white font-semibold py-4 rounded-xl transition-all duration-200"
-                  >
-                    Continuar →
-                  </button>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { label: 'Menos de 10', value: 7, desc: 'Ocupación baja' },
+                    { label: '10 – 20', value: 15, desc: 'Ocupación media' },
+                    { label: '20 – 40', value: 30, desc: 'Ocupación alta' },
+                    { label: '40 – 70', value: 55, desc: 'Muy activo' },
+                    { label: '70 – 100', value: 85, desc: 'Gestor intensivo' },
+                    { label: '+100', value: 120, desc: 'Gran volumen' },
+                  ].map((opt) => (
+                    <button
+                      key={opt.label}
+                      onClick={() => {
+                        setForm(f => ({ ...f, reservas: opt.value }))
+                        setTimeout(() => setStep('q3'), 180)
+                      }}
+                      className={`p-4 rounded-xl border text-left transition-all duration-200 ${
+                        form.reservas === opt.value
+                          ? 'border-[#FF1A8C] bg-[#FF1A8C]/10 text-white'
+                          : 'border-white/10 bg-white/5 text-white/70 hover:border-white/30'
+                      }`}
+                    >
+                      <div className="font-bold text-lg">{opt.label}</div>
+                      <div className="text-xs text-white/40 mt-0.5">{opt.desc}</div>
+                    </button>
+                  ))}
                 </div>
               </QuestionCard>
             )}
