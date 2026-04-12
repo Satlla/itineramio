@@ -970,8 +970,8 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   keys:         ['llave', 'acceso', 'check', 'entrada', 'puerta', 'door'],
   llave:        ['acceso', 'check', 'entrada', 'puerta', 'door', 'lockbox', 'codigo'],
   lockbox:      ['llave', 'check', 'entrada', 'puerta', 'codigo', 'caja'],
-  codigo:       ['check', 'llave', 'entrada', 'puerta', 'acceso', 'lockbox'],
-  code:         ['check', 'llave', 'entrada', 'puerta', 'lockbox', 'codigo'],
+  codigo:       ['check', 'llave', 'entrada', 'puerta', 'acceso', 'lockbox', 'wifi', 'contrasena'],
+  code:         ['check', 'llave', 'entrada', 'puerta', 'lockbox', 'codigo', 'wifi'],
   pin:          ['check', 'codigo', 'llave', 'acceso', 'puerta', 'entrada'],
   caja:         ['check', 'lockbox', 'llave', 'entrada', 'acceso'],
   'caja fuerte':['check', 'lockbox', 'llave', 'acceso'],
@@ -1072,6 +1072,34 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   laundry:        ['lavadora', 'washing', 'lavar', 'lavanderia'],
   lavar:          ['lavadora', 'laundry', 'washing', 'lavanderia'],
   lavanderia:     ['lavadora', 'laundry', 'washing', 'lavar'],
+
+  // ── BAÑO / DUCHA / AGUA ─────────────────────────────────────────────────
+  bano:           ['bano', 'ducha', 'shower', 'bathroom', 'banera', 'water', 'agua', 'toalla'],
+  ducha:          ['bano', 'ducha', 'shower', 'bathroom', 'agua', 'caliente'],
+  shower:         ['ducha', 'bano', 'bathroom', 'agua', 'water'],
+  bathroom:       ['bano', 'ducha', 'shower', 'agua', 'toalla'],
+  banera:         ['bano', 'ducha', 'bathroom', 'agua'],
+  toalla:         ['bano', 'bathroom', 'toallas'],
+  toallas:        ['bano', 'bathroom', 'toalla'],
+  agua:           ['bano', 'ducha', 'shower', 'agua', 'caliente', 'kitchen', 'cocina'],
+  caliente:       ['bano', 'ducha', 'agua', 'calefaccion', 'temperatura'],
+
+  // ── LUZ / ELECTRICIDAD ──────────────────────────────────────────────────
+  luz:            ['luz', 'electricidad', 'encender', 'apagar', 'interruptor', 'lampara'],
+  luces:          ['luz', 'electricidad', 'interruptor', 'lampara'],
+  electricidad:   ['luz', 'electricidad', 'panel', 'fusible', 'interruptor'],
+  interruptor:    ['luz', 'electricidad', 'encender', 'apagar'],
+
+  // ── DORMIR / HABITACIÓN / CAMA ──────────────────────────────────────────
+  dormir:         ['cama', 'habitacion', 'dormitorio', 'sabanas', 'almohada', 'bedroom'],
+  cama:           ['dormitorio', 'habitacion', 'sabanas', 'almohada', 'manta', 'bedroom'],
+  habitacion:     ['dormitorio', 'cama', 'sabanas', 'almohada', 'bedroom'],
+  dormitorio:     ['habitacion', 'cama', 'sabanas', 'almohada', 'bedroom'],
+  bedroom:        ['dormitorio', 'habitacion', 'cama', 'sabanas', 'almohada'],
+  sabanas:        ['cama', 'dormitorio', 'ropa', 'bedding'],
+  almohada:       ['cama', 'dormitorio', 'sabanas', 'pillow'],
+  pillow:         ['almohada', 'cama', 'dormitorio', 'bedroom'],
+  sleep:          ['dormitorio', 'cama', 'habitacion', 'bedroom'],
 
   // ── AIRE ACONDICIONADO / CALEFACCIÓN / TEMPERATURA ──────────────────────
   aire:           ['aire', 'acondicionado', 'climatizacion', 'temperatura', 'frio', 'calor', 'calefaccion', 'ac'],
@@ -1405,7 +1433,9 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
   const normalize = (s: string) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   const cleaned = normalize(message).replace(/['\u2018\u2019]/g, ' ');
-  const rawWords = cleaned.split(/\s+/).filter(w => w.length >= 2 && !QUERY_STOPWORDS_ROUTE.has(w));
+  // Strip emojis and non-word characters so "😀😀" doesn't return all zones
+  const textOnly = cleaned.replace(/[\p{Emoji}\p{So}]+/gu, ' ').trim();
+  const rawWords = textOnly.split(/\s+/).filter(w => w.length >= 2 && !QUERY_STOPWORDS_ROUTE.has(w));
 
   // Expand with semantic synonyms so short/ambiguous queries find the right zone
   const expandedWords = [...rawWords];
@@ -1813,22 +1843,19 @@ function buildIntelligenceSection(property: any): string {
     lines.push(`- Amenities: ${intel.allAmenities.slice(0, 30).join(', ')}`);
   }
 
-  // Details (check-in, checkout, parking, services)
+  // Details — only truly global facts (codes, emergency, panel).
+  // Check-in/checkout narrative details live in the zone steps — exclude them here
+  // to avoid the LLM injecting check-in info into unrelated responses.
   if (intel.details) {
     const d = intel.details;
     if (d.hotWaterType && !intel.waterBathroom?.hotWaterType) lines.push(`- Agua caliente: ${d.hotWaterType}`);
     if (d.electricalPanelLocation) lines.push(`- Panel eléctrico: ${d.electricalPanelLocation}`);
-    if (d.checkoutInstructions) lines.push(`- Checkout: ${d.checkoutInstructions}`);
-    if (d.keyReturn) lines.push(`- Devolución llave: ${d.keyReturn}${d.keyReturnDetails ? ' — ' + d.keyReturnDetails : ''}`);
     if (d.lockboxCode) lines.push(`- Lockbox: código ${d.lockboxCode}${d.lockboxLocation ? ', ' + d.lockboxLocation : ''}`);
     if (d.doorCode) lines.push(`- Código puerta: ${d.doorCode}`);
     if (d.recyclingContainerLocation) lines.push(`- Reciclaje: ${d.recyclingContainerLocation}`);
     if (d.parkingSpotNumber) lines.push(`- Parking: plaza ${d.parkingSpotNumber}${d.parkingFloor ? ', planta ' + d.parkingFloor : ''}${d.parkingAccess ? ', acceso: ' + d.parkingAccess : ''}${d.parkingAccessCode ? ' (código: ' + d.parkingAccessCode + ')' : ''}`);
     if (d.supportHoursFrom && d.supportHoursTo) lines.push(`- Soporte: ${d.supportHoursFrom}-${d.supportHoursTo}`);
     if (d.emergencyPhone) lines.push(`- Emergencia: ${d.emergencyPhone}`);
-    if (d.lateCheckout) lines.push(`- Late checkout: ${d.lateCheckout}${d.lateCheckoutPrice ? ' (' + d.lateCheckoutPrice + ')' : ''}${d.lateCheckoutUntil ? ' hasta ' + d.lateCheckoutUntil : ''}`);
-    if (d.luggageAfterCheckout) lines.push(`- Equipaje: ${d.luggageAfterCheckout}${d.luggageUntil ? ' hasta ' + d.luggageUntil : ''}${d.luggageConsignaInfo ? ' — ' + d.luggageConsignaInfo : ''}`);
-    if (d.latePlan) lines.push(`- Llegada tarde: ${d.latePlan}${d.latePlanDetails ? ' — ' + d.latePlanDetails : ''}`);
   }
 
   // Security
