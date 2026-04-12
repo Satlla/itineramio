@@ -1,19 +1,17 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Sparkles,
-  Home,
+  QrCode,
   Globe,
-  MessageCircle,
-  Bell,
-  ChevronRight,
+  Zap,
+  Check,
   X,
-  Check
+  ArrowRight,
+  type LucideIcon,
 } from 'lucide-react'
-import { Button } from './Button'
 import { useRouter } from 'next/navigation'
 
 interface UnifiedWelcomeModalProps {
@@ -23,346 +21,270 @@ interface UnifiedWelcomeModalProps {
   trialDaysRemaining?: number
 }
 
-const slideConfig = [
+interface Slide {
+  icon: LucideIcon
+  iconBg: string
+  iconColor: string
+  tag?: string
+  heading: string
+  body: string
+  items: string[]
+}
+
+const SLIDES: Slide[] = [
   {
-    id: 'welcome',
     icon: Sparkles,
-    gradient: 'from-violet-600 via-purple-600 to-fuchsia-600',
-    iconColor: 'text-violet-500',
-    featureIcons: ['🔁', '📱', '⚡']
+    iconBg: 'bg-violet-100',
+    iconColor: 'text-violet-600',
+    heading: 'El manual digital que tus huéspedes necesitan',
+    body: 'Sin más repeticiones. Sin más llamadas por la noche. Todo lo que necesita tu huésped, organizado y accesible desde su móvil.',
+    items: [
+      'Listo en 8 minutos con IA',
+      'Sin conocimientos técnicos',
+      '14 días de prueba gratuita',
+    ],
   },
   {
-    id: 'zones',
-    icon: Home,
-    gradient: 'from-blue-600 via-cyan-600 to-teal-600',
-    iconColor: 'text-blue-500',
-    featureIcons: ['🎬', '📸', '📝']
+    icon: QrCode,
+    iconBg: 'bg-gray-100',
+    iconColor: 'text-gray-800',
+    tag: 'Cómo funciona',
+    heading: 'Un QR por zona. Pégalo donde toca.',
+    body: 'Lavadora, vitrocerámica, caja de llaves, piscina… Tu huésped escanea y ve las instrucciones al instante. Sin apps, sin descargas.',
+    items: [
+      'Check-in autónomo sin contacto',
+      'Cualquier móvil lo lee',
+      'Cada zona tiene su propio QR',
+    ],
   },
   {
-    id: 'multilang',
     icon: Globe,
-    gradient: 'from-emerald-600 via-green-600 to-lime-600',
-    iconColor: 'text-emerald-500',
-    featureIcons: ['🇪🇸', '🇬🇧', '🇫🇷']
+    iconBg: 'bg-blue-50',
+    iconColor: 'text-blue-600',
+    tag: 'Multiidioma',
+    heading: '3 idiomas, cero esfuerzo extra',
+    body: 'La IA traduce el manual completo a Español, Inglés y Francés. El huésped lo ve en su idioma de forma automática.',
+    items: [
+      'Traducción automática con IA',
+      'Español · English · Français',
+      'Alcanza huéspedes de todo el mundo',
+    ],
   },
   {
-    id: 'whatsapp',
-    icon: MessageCircle,
-    gradient: 'from-green-600 via-emerald-600 to-teal-600',
-    iconColor: 'text-green-500',
-    featureIcons: ['💬', '🚀', '✅']
-  },
-  {
-    id: 'announcements',
-    icon: Bell,
-    gradient: 'from-amber-600 via-orange-600 to-red-600',
+    icon: Zap,
+    iconBg: 'bg-amber-50',
     iconColor: 'text-amber-500',
-    featureIcons: ['🔔', '⚠️', '📌']
-  }
+    tag: 'Para empezar',
+    heading: 'La IA crea tu manual en 8 minutos',
+    body: 'Cuéntale cómo es tu alojamiento y la IA genera instrucciones profesionales para cada zona, ya traducidas y con QR.',
+    items: [
+      'Manual completo y personalizado',
+      'Instrucciones en 3 idiomas',
+      'QR únicos para cada zona',
+    ],
+  },
 ]
+
+async function markOnboardingComplete() {
+  try {
+    await fetch('/api/user/complete-onboarding', {
+      method: 'POST',
+      credentials: 'include',
+    })
+  } catch {
+    // silently fail — localStorage is the backup
+  }
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('hasSeenUnifiedWelcome', 'true')
+    localStorage.setItem('hasSeenWelcomeModal', 'true')
+    localStorage.setItem('hasCompletedOnboarding', 'true')
+  }
+}
 
 export function UnifiedWelcomeModal({
   isOpen,
   onClose,
   userName,
-  trialDaysRemaining
+  trialDaysRemaining,
 }: UnifiedWelcomeModalProps) {
-  const { t } = useTranslation('dashboard')
   const router = useRouter()
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const [direction, setDirection] = useState(0)
+  const [current, setCurrent] = useState(0)
 
-  const slides = slideConfig.map((cfg) => ({
-    ...cfg,
-    title: t(`unifiedWelcome.slides.${cfg.id}.title`),
-    subtitle: t(`unifiedWelcome.slides.${cfg.id}.subtitle`),
-    description: t(`unifiedWelcome.slides.${cfg.id}.description`),
-    features: cfg.featureIcons.map((icon, i) => ({
-      icon,
-      text: t(`unifiedWelcome.slides.${cfg.id}.features.${i}`)
-    }))
-  }))
-
-  const isLastSlide = currentSlide === slides.length - 1
-  const isFirstSlide = currentSlide === 0
-  const slide = slides[currentSlide]
-
-  useEffect(() => {
-    if (isOpen && currentSlide === 0) {
-      // Confetti only on first slide
-      const loadConfetti = async () => {
-        const confetti = (await import('canvas-confetti')).default
-        confetti({
-          particleCount: 60,
-          spread: 60,
-          origin: { y: 0.7 },
-          colors: ['#8B5CF6', '#06B6D4', '#10B981']
-        })
-      }
-      loadConfetti()
-    }
-  }, [isOpen, currentSlide])
+  const slide = SLIDES[current]
+  const isLast = current === SLIDES.length - 1
+  const IconComponent = slide.icon
 
   const handleNext = () => {
-    if (!isLastSlide) {
-      setDirection(1)
-      setCurrentSlide(prev => prev + 1)
-    }
-  }
-
-  const handlePrevious = () => {
-    if (!isFirstSlide) {
-      setDirection(-1)
-      setCurrentSlide(prev => prev - 1)
-    }
-  }
-
-  const handleComplete = async () => {
-    // Save to database
-    try {
-      await fetch('/api/user/complete-onboarding', {
-        method: 'POST',
-        credentials: 'include'
-      })
-    } catch (error) {
-      // completion error suppressed
-    }
-
-    // Save to localStorage as backup
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('hasSeenUnifiedWelcome', 'true')
-      localStorage.setItem('hasSeenWelcomeModal', 'true')
-      localStorage.setItem('hasCompletedOnboarding', 'true')
-    }
-    onClose()
-    router.push('/properties/new')
+    if (!isLast) setCurrent(c => c + 1)
   }
 
   const handleSkip = async () => {
-    // Save to database
-    try {
-      await fetch('/api/user/complete-onboarding', {
-        method: 'POST',
-        credentials: 'include'
-      })
-    } catch (error) {
-      // completion error suppressed
-    }
-
-    // Save to localStorage as backup
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('hasSeenUnifiedWelcome', 'true')
-      localStorage.setItem('hasSeenWelcomeModal', 'true')
-      localStorage.setItem('hasCompletedOnboarding', 'true')
-    }
+    await markOnboardingComplete()
     onClose()
   }
 
-  const slideVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 1000 : -1000,
-      opacity: 0
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1
-    },
-    exit: (direction: number) => ({
-      zIndex: 0,
-      x: direction < 0 ? 1000 : -1000,
-      opacity: 0
-    })
+  const handleStart = async () => {
+    await markOnboardingComplete()
+    onClose()
+    router.push('/ai-setup')
   }
 
-  const IconComponent = slide.icon
+  // Swipe support
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const handleTouchStart = (e: React.TouchEvent) => setTouchStart(e.touches[0].clientX)
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStart === null) return
+    const delta = touchStart - e.changedTouches[0].clientX
+    if (delta > 50 && !isLast) setCurrent(c => c + 1)
+    if (delta < -50 && current > 0) setCurrent(c => c - 1)
+    setTouchStart(null)
+  }
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[100] p-4"
-          onClick={handleSkip}
-        >
+        <>
+          {/* Overlay */}
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-[95vw] sm:max-w-lg md:max-w-xl overflow-hidden max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/40 z-[99]"
+            onClick={handleSkip}
+          />
+
+          {/* Modal — bottom sheet on mobile, centered dialog on desktop */}
+          <motion.div
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
+            transition={{ type: 'spring', damping: 32, stiffness: 300 }}
+            className="fixed inset-x-0 bottom-0 z-[100] sm:inset-0 sm:flex sm:items-center sm:justify-center sm:p-4"
+            onClick={e => e.stopPropagation()}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
           >
-            {/* Close button */}
-            <button
-              onClick={handleSkip}
-              className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-            >
-              <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-            </button>
+            <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm shadow-2xl flex flex-col overflow-hidden max-h-[92dvh] sm:max-h-[85dvh]">
 
-            {/* Progress dots */}
-            <div className="absolute top-3 sm:top-3 sm:p-4 md:p-6 left-1/2 -translate-x-1/2 flex gap-1.5 sm:gap-2 z-10">
-              {slides.map((_, index) => (
-                <motion.div
-                  key={index}
-                  className={`h-1.5 rounded-full transition-all ${
-                    index === currentSlide
-                      ? 'bg-white w-8'
-                      : 'bg-white/40 w-1.5'
-                  }`}
-                  layout
-                />
-              ))}
-            </div>
+              {/* Handle bar — mobile only */}
+              <div className="flex-shrink-0 flex justify-center pt-3 pb-1 sm:hidden">
+                <div className="w-10 h-1 rounded-full bg-gray-200" />
+              </div>
 
-            {/* Header with gradient */}
-            <div className={`relative bg-gradient-to-br ${slide.gradient} text-white pt-10 sm:pt-14 pb-6 sm:pb-10 px-4 sm:px-6`}>
-              {/* Animated Icon */}
-              <motion.div
-                key={currentSlide}
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 200,
-                  damping: 20
-                }}
-                className="w-14 h-14 sm:w-18 md:w-20 sm:h-18 md:h-20 mx-auto mb-4 sm:mb-6 bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center"
-              >
-                <motion.div
-                  animate={{
-                    y: [0, -10, 0],
-                    rotate: [0, 5, -5, 0]
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
+              {/* Top bar: progress + close */}
+              <div className="flex-shrink-0 flex items-center justify-between px-5 pt-3 pb-2 sm:pt-5">
+                {/* Progress dots */}
+                <div className="flex items-center gap-1.5">
+                  {SLIDES.map((_, i) => (
+                    <motion.div
+                      key={i}
+                      animate={{
+                        width: i === current ? 20 : 6,
+                        backgroundColor: i === current ? '#7c3aed' : '#e5e7eb',
+                      }}
+                      transition={{ duration: 0.25 }}
+                      className="h-1.5 rounded-full"
+                    />
+                  ))}
+                </div>
+
+                {/* Close */}
+                <button
+                  onClick={handleSkip}
+                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+                  aria-label="Cerrar"
                 >
-                  <IconComponent className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white" />
-                </motion.div>
-              </motion.div>
+                  <X className="w-4 h-4 text-gray-500" />
+                </button>
+              </div>
 
-              {/* Trial badge - only on first slide */}
-              {currentSlide === 0 && trialDaysRemaining && (
+              {/* Content — scrollable */}
+              <AnimatePresence mode="wait">
                 <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-white/20 backdrop-blur-sm rounded-full px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2"
+                  key={current}
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -30 }}
+                  transition={{ duration: 0.22, ease: 'easeOut' }}
+                  className="flex-1 overflow-y-auto px-5 pt-4 pb-2"
                 >
-                  <p className="text-xs sm:text-sm font-semibold text-white">
-                    {t('unifiedWelcome.trialDays', { count: trialDaysRemaining })}
-                  </p>
-                </motion.div>
-              )}
+                  {/* Icon */}
+                  <div className={`w-14 h-14 rounded-2xl ${slide.iconBg} flex items-center justify-center mb-5`}>
+                    <IconComponent className={`w-7 h-7 ${slide.iconColor}`} />
+                  </div>
 
-              <AnimatePresence mode="wait" custom={direction}>
-                <motion.div
-                  key={currentSlide}
-                  custom={direction}
-                  variants={slideVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{
-                    x: { type: "spring", stiffness: 300, damping: 30 },
-                    opacity: { duration: 0.2 }
-                  }}
-                  className="text-center"
-                >
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2">
-                    {currentSlide === 0 && userName ? t('unifiedWelcome.greeting', { name: userName }) : slide.title}
-                  </h1>
-                  <p className="text-sm sm:text-base md:text-lg opacity-90">{slide.subtitle}</p>
-                </motion.div>
-              </AnimatePresence>
-            </div>
+                  {/* Tag */}
+                  {slide.tag && (
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">
+                      {slide.tag}
+                    </p>
+                  )}
 
-            {/* Content */}
-            <div className="p-4 sm:p-6">
-              <AnimatePresence mode="wait" custom={direction}>
-                <motion.div
-                  key={currentSlide}
-                  custom={direction}
-                  variants={slideVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{
-                    x: { type: "spring", stiffness: 300, damping: 30 },
-                    opacity: { duration: 0.2 }
-                  }}
-                >
-                  <p className="text-gray-600 text-center mb-4 sm:mb-6 md:mb-8 text-xs sm:text-sm md:text-base lg:text-lg">
-                    {slide.description}
+                  {/* Heading */}
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight mb-3">
+                    {current === 0 && userName
+                      ? `Hola ${userName}, bienvenido a Itineramio`
+                      : slide.heading}
+                  </h2>
+
+                  {/* Trial badge */}
+                  {current === 0 && trialDaysRemaining && (
+                    <div className="inline-flex items-center gap-1.5 bg-violet-50 text-violet-700 text-xs font-semibold rounded-full px-3 py-1 mb-3">
+                      <Sparkles className="w-3 h-3" />
+                      {trialDaysRemaining} días de prueba gratis
+                    </div>
+                  )}
+
+                  {/* Body */}
+                  <p className="text-gray-500 text-sm leading-relaxed mb-5">
+                    {slide.body}
                   </p>
 
-                  {/* Features */}
-                  <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
-                    {slide.features.map((feature, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ x: -20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.1 + index * 0.1 }}
-                        className="flex items-center gap-3 sm:gap-4 bg-gray-50 rounded-xl p-3 sm:p-4 hover:bg-gray-100 transition-colors"
-                      >
-                        <span className="text-lg sm:text-xl flex-shrink-0">{feature.icon}</span>
-                        <span className="text-gray-700 font-medium text-xs sm:text-sm md:text-base">{feature.text}</span>
-                      </motion.div>
+                  {/* Items */}
+                  <div className="space-y-2.5">
+                    {slide.items.map((item, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <div className="w-5 h-5 rounded-full bg-gray-900 flex items-center justify-center flex-shrink-0">
+                          <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                        </div>
+                        <span className="text-sm text-gray-700 font-medium">{item}</span>
+                      </div>
                     ))}
                   </div>
                 </motion.div>
               </AnimatePresence>
 
-              {/* Navigation */}
-              <div className="flex flex-row items-center justify-between gap-3">
-                <Button
+              {/* Footer actions — always visible */}
+              <div className="flex-shrink-0 px-5 py-4 border-t border-gray-100 space-y-2">
+                {isLast ? (
+                  <button
+                    onClick={handleStart}
+                    className="w-full h-12 rounded-xl bg-gray-900 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors"
+                  >
+                    Crear mi primer manual
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleNext}
+                    className="w-full h-12 rounded-xl bg-gray-900 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors"
+                  >
+                    Siguiente
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                )}
+
+                <button
                   onClick={handleSkip}
-                  variant="ghost"
-                  className="text-gray-500 hover:text-gray-700 text-sm px-3 py-2"
+                  className="w-full h-10 text-sm text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  {t('unifiedWelcome.skip')}
-                </Button>
-
-                <div className="flex gap-3">
-                  {!isFirstSlide && (
-                    <Button
-                      onClick={handlePrevious}
-                      variant="outline"
-                      className="border-gray-300 text-sm px-4 py-2"
-                    >
-                      {t('unifiedWelcome.previous')}
-                    </Button>
-                  )}
-
-                  {!isLastSlide ? (
-                    <Button
-                      onClick={handleNext}
-                      className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all text-sm px-5 py-2"
-                    >
-                      {t('unifiedWelcome.next')}
-                      <ChevronRight className="w-4 h-4 ml-1" />
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={handleComplete}
-                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all text-sm px-5 py-2"
-                    >
-                      <Check className="w-4 h-4 mr-1" />
-                      {t('unifiedWelcome.start')}
-                    </Button>
-                  )}
-                </div>
+                  {isLast ? 'Ahora no' : 'Saltar introducción'}
+                </button>
               </div>
+
             </div>
           </motion.div>
-        </motion.div>
+        </>
       )}
     </AnimatePresence>
   )
