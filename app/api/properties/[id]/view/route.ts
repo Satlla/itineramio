@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../src/lib/prisma'
+import { isBot, isHostReferrer } from '../../../../../src/lib/bot-filter'
 
 export async function POST(
   request: NextRequest,
@@ -24,6 +25,18 @@ export async function POST(
       screenWidth = null,
       screenHeight = null
     } = body
+
+    // Filter bots and crawlers — don't count them as real visits
+    if (isBot(userAgent)) {
+      return NextResponse.json({
+        success: true,
+        message: 'Bot detected, view not recorded',
+        isBot: true
+      })
+    }
+
+    // Flag if this is likely the host viewing their own property
+    const isHostView = isHostReferrer(referrer)
 
     // Check if property exists
     const property = await prisma.property.findUnique({

@@ -75,13 +75,13 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
       description: 'Check-ins y check-outs por iCal',
       mobileOnly: true
     }] : []),
-    {
+    ...(user?.email === 'alejandrosatlla@gmail.com' ? [{
       icon: <Briefcase className="w-5 h-5" />,
       label: t('sidebar.gestion'),
       href: "/gestion",
       description: t('sidebar.gestionDesc'),
       mobileOnly: true
-    },
+    }] : []),
     {
       icon: <Image className="w-5 h-5" />,
       label: t('sidebar.mediaLibrary'),

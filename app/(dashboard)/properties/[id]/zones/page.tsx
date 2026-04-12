@@ -652,7 +652,7 @@ export default function PropertyZonesPage() {
     }
 
     fetchData()
-  }, [id, addNotification, isClient, router])
+  }, [id, addNotification, router])
 
   const handleCreateZone = async () => {
     if (!formData.name || !formData.iconId) return

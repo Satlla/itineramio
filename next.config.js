@@ -32,6 +32,12 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // Landing URL rename
+      {
+        source: '/landing-haroon',
+        destination: '/guests-dont-read',
+        permanent: true,
+      },
       // Gestion module renames
       {
         source: '/gestion/configuracion',

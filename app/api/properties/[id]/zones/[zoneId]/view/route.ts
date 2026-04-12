@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../../../../src/lib/prisma'
+import { isBot } from '../../../../../../../src/lib/bot-filter'
 
 export async function POST(
   request: NextRequest,
@@ -27,8 +28,17 @@ export async function POST(
       timeSpent = 0
     } = body
 
+    // Filter bots and crawlers
+    if (isBot(userAgent)) {
+      return NextResponse.json({
+        success: true,
+        message: 'Bot detected, view not recorded',
+        isBot: true
+      })
+    }
+
     // Detect if this is a host view (from dashboard)
-    const dashboardPatterns = ['/properties/', '/dashboard', '/zones/', '/admin']
+    const dashboardPatterns = ['/properties/', '/dashboard', '/zones/', '/admin', '/gestion/', '/settings']
     const isHostView = referrer ? dashboardPatterns.some(pattern => referrer.includes(pattern)) : false
 
     // Check if zone exists and belongs to property

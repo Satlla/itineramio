@@ -835,6 +835,14 @@ describe('collectRelevantMedia', () => {
     expect(collectRelevantMedia([z], 'es')).toEqual([]);
   });
 
+  it('score = 1 (solo bonus de media, sin keyword match) → ignorado', () => {
+    const z = {
+      ...zone({ es: 'Piscina' }, [imageStep('foto piscina', 'https://x.com/pool.jpg')]),
+      _relevanceScore: 1,
+    };
+    expect(collectRelevantMedia([z], 'es')).toEqual([]);
+  });
+
   it('RECOMMENDATIONS → ignorado aunque tenga score', () => {
     const z = { ...Z_RESTAURANTES, _relevanceScore: 20 };
     expect(collectRelevantMedia([z], 'es')).toEqual([]);
@@ -944,10 +952,13 @@ describe('detectUnansweredQuestion', () => {
     'No dispongo de esa información, por favor contacta al anfitrión.',
     'No dispongo de información sobre ese tema.',
     'No cuento con esa información en este momento.',
+    'No cuento con información al respecto.',
     'No tengo los detalles exactos sobre esto.',
     'Te recomiendo que contactes al anfitrión directamente.',
     'Recomiendo que contactes al anfitrión para confirmar.',
     'Contacta al anfitrión para más información.',
+    'Contactar al anfitrión sería lo más adecuado.',
+    'Lo mejor es que contactes al anfitrión.',
     'Contacta directamente con el propietario.',
     'Lo siento, no tengo acceso a esa información.',
     'Lo siento, no dispongo de ese detalle.',
@@ -964,10 +975,14 @@ describe('detectUnansweredQuestion', () => {
     "I don't have specific information about that.",
     "I don't have information about this.",
     "I don't have the specific details.",
+    "I don't have details about that.",
     "I'm sorry, but I don't have access to that.",
     "I am sorry, but I don't know.",
     'Please contact the host for this information.',
     'You should contact your host directly.',
+    'Please reach out to the host for this.',
+    'I suggest contacting the host directly.',
+    'Please consider contacting the host.',
     "I recommend contacting the host.",
     "Do not have that information right now.",
     "Do not have specific information about checkout.",
@@ -984,11 +999,69 @@ describe('detectUnansweredQuestion', () => {
     "Je ne dispose pas de cette information.",
     "Je n'ai pas d'information sur ce sujet.",
     "Contactez l'hôte pour plus d'informations.",
+    "Il faudrait contacter l'hôte directement.",
+    "Je n'ai pas les détails précis.",
+    "Je vous recommande de contacter le propriétaire.",
   ];
 
   for (const phrase of fr_unanswered) {
     it(`detecta (fr): "${phrase.slice(0, 60)}..."`, () =>
       expect(detectUnansweredQuestion(phrase, 'fr')).toBe(true));
+  }
+
+  // ── Alemán ────────────────────────────────────────────────────────────────
+  const de_unanswered = [
+    'Ich habe keine information darüber.',
+    'Leider habe ich keine Angaben dazu.',
+    'Ich weiß es nicht, bitte fragen Sie den Gastgeber.',
+    'Bitte kontaktieren Sie den Gastgeber direkt.',
+    'Kontaktieren Sie den Gastgeber für weitere Informationen.',
+    'Diese information habe ich nicht zur Hand.',
+  ];
+
+  for (const phrase of de_unanswered) {
+    it(`detecta (de): "${phrase.slice(0, 60)}..."`, () =>
+      expect(detectUnansweredQuestion(phrase, 'de')).toBe(true));
+  }
+
+  // ── Italiano ──────────────────────────────────────────────────────────────
+  const it_unanswered = [
+    'Non ho informazioni su questo.',
+    'Non dispongo di questa informazione.',
+    'Ti consiglio di contattare il proprietario.',
+    'Contatta il proprietario per maggiori dettagli.',
+    'Mi dispiace, non ho questa informazione.',
+  ];
+
+  for (const phrase of it_unanswered) {
+    it(`detecta (it): "${phrase.slice(0, 60)}..."`, () =>
+      expect(detectUnansweredQuestion(phrase, 'it')).toBe(true));
+  }
+
+  // ── Portugués ─────────────────────────────────────────────────────────────
+  const pt_unanswered = [
+    'Não tenho informações sobre isso.',
+    'Não tenho essa informação disponível.',
+    'Por favor, entre em contato com o anfitrião.',
+    'Recomendo que contacte o anfitrião.',
+    'Infelizmente não tenho essa informação.',
+  ];
+
+  for (const phrase of pt_unanswered) {
+    it(`detecta (pt): "${phrase.slice(0, 60)}..."`, () =>
+      expect(detectUnansweredQuestion(phrase, 'pt')).toBe(true));
+  }
+
+  // ── Neerlandés ────────────────────────────────────────────────────────────
+  const nl_unanswered = [
+    'Ik heb geen informatie hierover.',
+    'Neem contact op met de host voor meer informatie.',
+    'Helaas heb ik geen details hierover.',
+  ];
+
+  for (const phrase of nl_unanswered) {
+    it(`detecta (nl): "${phrase.slice(0, 60)}..."`, () =>
+      expect(detectUnansweredQuestion(phrase, 'nl')).toBe(true));
   }
 
   // ── Respuestas normales → false ───────────────────────────────────────────

@@ -588,7 +588,7 @@ export function collectRelevantMedia(zones: unknown[], language: string): MediaI
   for (const zone of zones as any[]) {
     if (zone.type === 'RECOMMENDATIONS') continue;
     const score = zone._relevanceScore ?? 0;
-    if (score < 1) continue;
+    if (score < 2) continue; // score=1 means only the media bonus (+1), no keyword match — skip
 
     const items: MediaItem[] = [];
     let stepNumber = 0;
@@ -638,8 +638,11 @@ export function detectUnansweredQuestion(aiResponse: string, _language: string):
     'no dispongo de esa información',
     'no dispongo de información',
     'no cuento con esa información',
+    'no cuento con información',
     'no tengo los detalles',
     'contacta al anfitrión',
+    'contactar al anfitrión',
+    'contactes al anfitrión',
     'contacta directamente',
     'te recomiendo que contactes',
     'recomiendo que contactes',
@@ -648,6 +651,8 @@ export function detectUnansweredQuestion(aiResponse: string, _language: string):
     // English
     'contact the host',
     'contact your host',
+    'reach out to the host',
+    'contacting the host',
     "don't have that information",
     "don't have specific information",
     "don't have information",
@@ -655,14 +660,19 @@ export function detectUnansweredQuestion(aiResponse: string, _language: string):
     "do not have that information",
     "i don't have information",
     "i don't have the specific",
+    "i don't have details",
     "i'm sorry, but i don't",
     "i am sorry, but i don't",
     'i recommend contacting',
+    'suggest contacting the host',
     // French
     "contactez l'hôte",
+    "contacter l'hôte",
     "je n'ai pas cette information",
     "je ne dispose pas de cette information",
     "je n'ai pas d'information",
+    "je n'ai pas les détails",
+    "je vous recommande de contacter",
     // German
     'ich habe keine information',
     'ich weiß es nicht',

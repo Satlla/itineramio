@@ -9,111 +9,198 @@ interface Day0WelcomeProps {
 export default function Day0Welcome({ name, source, email }: Day0WelcomeProps) {
   const firstName = name?.split(' ')[0] || 'Hola'
   const baseUrl = 'https://www.itineramio.com'
+  const ctaUrl = `${baseUrl}/ai-setup`
 
-  // Dynamic intro based on source
-  const getIntroText = () => {
-    if (source?.includes('time')) {
-      return 'Gracias por usar la calculadora de tiempo.'
-    }
-    if (source?.includes('checklist') || source?.includes('cleaning')) {
-      return 'Gracias por descargar tu checklist de limpieza.'
-    }
-    if (source?.includes('wifi')) {
-      return 'Gracias por crear tu tarjeta WiFi.'
-    }
-    if (source?.includes('pricing')) {
-      return 'Gracias por usar nuestra calculadora de precios.'
-    }
-    if (source?.includes('qr')) {
-      return 'Gracias por generar tu código QR.'
-    }
-    if (source?.includes('rules') || source?.includes('normas')) {
-      return 'Gracias por crear tus normas del alojamiento.'
-    }
-    if (source?.includes('reviews')) {
-      return 'Gracias por descargar tu plantilla de respuestas.'
-    }
-    if (source?.includes('roi')) {
-      return 'Gracias por usar la calculadora de rentabilidad.'
-    }
-    return 'Gracias por unirte a la comunidad de anfitriones.'
-  }
+  const steps = [
+    { num: '01', label: 'Crea tu guía con IA', sublabel: '10 minutos', done: false, active: true },
+    { num: '02', label: 'Añade tus zonas', sublabel: 'WiFi, acceso, normas...', done: false, active: false },
+    { num: '03', label: 'Activa el chatbot', sublabel: 'Responde en su idioma', done: false, active: false },
+    { num: '04', label: 'Comparte con el huésped', sublabel: 'QR o enlace directo', done: false, active: false },
+  ]
 
   return (
-    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', backgroundColor: '#f8f8f8', padding: '40px 16px' }}>
-      <table width="100%" cellPadding={0} cellSpacing={0} style={{ maxWidth: '580px', margin: '0 auto' }}>
-        {/* Header */}
+    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', backgroundColor: '#f5f5f5', padding: '40px 16px', margin: 0 }}>
+      <table width="100%" cellPadding={0} cellSpacing={0} style={{ maxWidth: '600px', margin: '0 auto' }}>
+
+        {/* Logo */}
         <tr>
-          <td style={{ textAlign: 'center', paddingBottom: '24px' }}>
-            <p style={{ margin: '0', color: '#717171', fontSize: '13px', letterSpacing: '0.5px' }}>ITINERAMIO</p>
+          <td style={{ textAlign: 'center', paddingBottom: '28px' }}>
+            <p style={{ margin: 0, color: '#888', fontSize: '12px', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600 }}>
+              Itineramio
+            </p>
           </td>
         </tr>
 
-        {/* Content */}
+        {/* Main card */}
         <tr>
-          <td style={{ backgroundColor: '#ffffff', borderRadius: '12px', padding: '40px 32px', border: '1px solid #DDDDDD' }}>
-            <h1 style={{ margin: '0 0 24px 0', color: '#222222', fontSize: '24px', fontWeight: 600, lineHeight: 1.3 }}>
-              {firstName}, bienvenido
-            </h1>
+          <td style={{ backgroundColor: '#ffffff', borderRadius: '16px', border: '1px solid #e8e8e8', overflow: 'hidden' }}>
 
-            <p style={{ margin: '0 0 20px 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
-              {getIntroText()}
-            </p>
+            {/* Top accent bar */}
+            <div style={{ backgroundColor: '#6B46C1', height: '4px', width: '100%' }} />
 
-            <p style={{ margin: '0 0 24px 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
-              Soy Alejandro, fundador de Itineramio. Creamos manuales digitales para anfitriones de alquiler vacacional.
-            </p>
+            <div style={{ padding: '40px 36px' }}>
 
-            <p style={{ margin: '0 0 20px 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
-              <strong>La idea es simple:</strong> en vez de responder las mismas preguntas una y otra vez (WiFi, electrodomesticos, parking...), le das a tus huéspedes un enlace donde encuentran todo.
-            </p>
-
-            <p style={{ margin: '0 0 24px 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
-              Resultado: menos mensajes repetitivos, mejor experiencia para el huésped, y tu con más tiempo libre.
-            </p>
-
-            <div style={{ backgroundColor: '#F7F7F7', borderRadius: '8px', padding: '20px', marginBottom: '24px' }}>
-              <p style={{ margin: '0 0 12px 0', color: '#222222', fontSize: '14px', fontWeight: 600 }}>
-                Recursos gratuitos:
+              {/* Greeting */}
+              <h1 style={{ margin: '0 0 8px 0', color: '#111', fontSize: '26px', fontWeight: 700, lineHeight: 1.2 }}>
+                Bienvenido, {firstName}
+              </h1>
+              <p style={{ margin: '0 0 32px 0', color: '#888', fontSize: '15px' }}>
+                Soy Alejandro, fundador de Itineramio.
               </p>
-              <p style={{ margin: '0', color: '#717171', fontSize: '14px', lineHeight: 1.6 }}>
-                <a href={`${baseUrl}/hub/tools`} style={{ color: '#222222', textDecoration: 'underline' }}>Herramientas</a> ·
-                <a href={`${baseUrl}/blog`} style={{ color: '#222222', textDecoration: 'underline', marginLeft: '8px' }}>Blog</a> ·
-                <a href={`${baseUrl}/p/white-coast-suite-101`} style={{ color: '#222222', textDecoration: 'underline', marginLeft: '8px' }}>Ver ejemplo de manual</a>
+
+              {/* Personal message */}
+              <p style={{ margin: '0 0 16px 0', color: '#222', fontSize: '16px', lineHeight: 1.7 }}>
+                Creé Itineramio porque gestionaba varios apartamentos y me harté de enviar el WiFi, el código de entrada y las normas cada semana. Siempre lo mismo. Siempre a mano.
               </p>
+              <p style={{ margin: '0 0 32px 0', color: '#222', fontSize: '16px', lineHeight: 1.7 }}>
+                La solución es simple: <strong>una guía digital que el huésped recibe sola cuando confirma su reserva.</strong> Sin mensajes. Sin repetirte.
+              </p>
+
+              {/* Divider */}
+              <div style={{ height: '1px', backgroundColor: '#f0f0f0', margin: '0 0 32px 0' }} />
+
+              {/* Milestone roadmap */}
+              <p style={{ margin: '0 0 20px 0', color: '#111', fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Tu hoja de ruta — 4 pasos
+              </p>
+
+              <table width="100%" cellPadding={0} cellSpacing={0} style={{ marginBottom: '32px' }}>
+                {steps.map((step, i) => (
+                  <tr key={step.num}>
+                    <td style={{ paddingBottom: i < steps.length - 1 ? '12px' : '0' }}>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        backgroundColor: step.active ? '#F5F0FF' : '#FAFAFA',
+                        border: `1px solid ${step.active ? '#6B46C1' : '#E8E8E8'}`,
+                        borderRadius: '10px',
+                        padding: '14px 16px',
+                      }}>
+                        <div style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '50%',
+                          backgroundColor: step.active ? '#6B46C1' : '#E8E8E8',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                          marginRight: '14px',
+                        }}>
+                          <span style={{ color: step.active ? '#fff' : '#999', fontSize: '13px', fontWeight: 700 }}>
+                            {step.num}
+                          </span>
+                        </div>
+                        <div>
+                          <p style={{ margin: 0, color: step.active ? '#111' : '#888', fontSize: '15px', fontWeight: step.active ? 600 : 400 }}>
+                            {step.label}
+                            {step.active && (
+                              <span style={{ marginLeft: '8px', backgroundColor: '#6B46C1', color: '#fff', fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', verticalAlign: 'middle' }}>
+                                Ahora
+                              </span>
+                            )}
+                          </p>
+                          <p style={{ margin: '2px 0 0 0', color: '#aaa', fontSize: '13px' }}>
+                            {step.sublabel}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </table>
+
+              {/* CTA */}
+              <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                <a
+                  href={ctaUrl}
+                  style={{
+                    display: 'inline-block',
+                    backgroundColor: '#6B46C1',
+                    color: '#ffffff',
+                    textDecoration: 'none',
+                    padding: '16px 40px',
+                    borderRadius: '10px',
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    letterSpacing: '0.3px',
+                  }}
+                >
+                  Crear mi primera guía →
+                </a>
+                <p style={{ margin: '10px 0 0 0', color: '#aaa', fontSize: '13px' }}>
+                  Con IA · En 10 minutos · Sin tarjeta de crédito
+                </p>
+              </div>
+
+              {/* Divider */}
+              <div style={{ height: '1px', backgroundColor: '#f0f0f0', margin: '0 0 28px 0' }} />
+
+              {/* Example */}
+              <p style={{ margin: '0 0 12px 0', color: '#111', fontSize: '14px', fontWeight: 600 }}>
+                ¿Quieres ver cómo queda?
+              </p>
+              <p style={{ margin: '0 0 20px 0', color: '#555', fontSize: '14px', lineHeight: 1.6 }}>
+                Aquí tienes la guía real de uno de mis apartamentos. Esto es lo que verá tu huésped desde el día uno:
+              </p>
+              <a
+                href={`${baseUrl}/p/white-coast-suite-101`}
+                style={{
+                  display: 'inline-block',
+                  backgroundColor: '#FAFAFA',
+                  border: '1px solid #E0E0E0',
+                  borderRadius: '8px',
+                  padding: '12px 20px',
+                  color: '#6B46C1',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                }}
+              >
+                Ver ejemplo de guía real →
+              </a>
+
+              {/* Divider */}
+              <div style={{ height: '1px', backgroundColor: '#f0f0f0', margin: '28px 0' }} />
+
+              {/* Sign off */}
+              <p style={{ margin: '0 0 4px 0', color: '#222', fontSize: '15px', lineHeight: 1.7 }}>
+                Si tienes cualquier duda, responde a este email. Lo leo yo.
+              </p>
+              <p style={{ margin: '0', color: '#222', fontSize: '15px' }}>
+                Un saludo,
+              </p>
+              <p style={{ margin: '4px 0 0 0', color: '#111', fontSize: '15px', fontWeight: 600 }}>
+                Alejandro
+              </p>
+              <p style={{ margin: '2px 0 0 0', color: '#aaa', fontSize: '13px' }}>
+                Fundador de Itineramio
+              </p>
+
             </div>
-
-            <p style={{ margin: '0 0 24px 0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
-              En los próximos días te enviaré algunos emails con contenido práctico. Sin spam.
-            </p>
-
-            <p style={{ margin: '0', color: '#222222', fontSize: '16px', lineHeight: 1.6 }}>
-              Un saludo,<br />
-              <strong>Alejandro</strong><br />
-              <span style={{ color: '#717171', fontSize: '14px' }}>Fundador de Itineramio</span>
-            </p>
-
-            <p style={{ margin: '24px 0 0 0', color: '#717171', fontSize: '13px', fontStyle: 'italic' }}>
-              PD: Si tienes alguna pregunta, responde a este email.
-            </p>
           </td>
         </tr>
 
         {/* Footer */}
         <tr>
           <td style={{ textAlign: 'center', paddingTop: '24px' }}>
-            <p style={{ margin: 0, color: '#717171', fontSize: '12px' }}>
-              <a href={`${baseUrl}/api/email/unsubscribe?email=${encodeURIComponent(email || '')}`} style={{ color: '#717171', textDecoration: 'none' }}>Cancelar suscripcion</a>
+            <p style={{ margin: 0, color: '#bbb', fontSize: '12px' }}>
+              <a href={`${baseUrl}/api/email/unsubscribe?email=${encodeURIComponent(email || '')}`} style={{ color: '#bbb', textDecoration: 'none' }}>
+                Cancelar suscripción
+              </a>
               {' · '}
-              <a href={baseUrl} style={{ color: '#717171', textDecoration: 'none' }}>itineramio.com</a>
+              <a href={baseUrl} style={{ color: '#bbb', textDecoration: 'none' }}>
+                itineramio.com
+              </a>
             </p>
           </td>
         </tr>
+
       </table>
     </div>
   )
 }
 
 export function getSubject(): string {
-  return 'Bienvenido a Itineramio'
+  return 'Bienvenido, {firstName} — tu hoja de ruta está lista'
 }
