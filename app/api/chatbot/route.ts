@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
 
     // Select relevant zones based on message keywords (RAG-lite)
     const allZones: any[] = Array.isArray(property.zones) ? property.zones : [];
-    const zones = zoneId
+    let zones = zoneId
       ? allZones.filter((z: any) => z.id === zoneId).length > 0
         // Exact zone match — set high relevance score so media always shows
         ? allZones.filter((z: any) => z.id === zoneId).map((z: any) => ({ ...z, _relevanceScore: 20 }))
@@ -178,6 +178,17 @@ export async function POST(request: NextRequest) {
 
     // Check if OpenAI API key is configured
     const openaiApiKey = process.env.OPENAI_API_KEY;
+
+    // Semantic embedding fallback — when keyword matching is weak, use embeddings
+    // to find the right zone. Only costs ~$0.001 and adds ~50ms latency.
+    const topKeywordScore = zones[0]?._relevanceScore ?? 0;
+    if (topKeywordScore < 8 && !zoneId && openaiApiKey && allZones.length > 0) {
+      try {
+        zones = await semanticZoneRanking(message, allZones, language, openaiApiKey, propertyId);
+      } catch {
+        // Embedding failed — keep keyword results
+      }
+    }
     if (!openaiApiKey) {
       // Fallback to rule-based responses if no OpenAI
       const zone = zones[0] || null;
@@ -1549,6 +1560,111 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
   }
 
   return top5.map(s => ({ ...s.zone, _relevanceScore: s.score }));
+}
+
+// ========================================
+// SEMANTIC EMBEDDINGS — fallback when keyword matching is weak
+// ========================================
+
+const EMBEDDING_MODEL = 'text-embedding-3-small';
+const zoneEmbeddingCache = new Map<string, { embeddings: number[][]; textHash: string; expires: number }>();
+const EMBEDDING_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
+function simpleHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0;
+  }
+  return hash.toString(36);
+}
+
+function cosineSimilarity(a: number[], b: number[]): number {
+  let dot = 0, normA = 0, normB = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    normA += a[i] * a[i];
+    normB += b[i] * b[i];
+  }
+  return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+}
+
+function buildZoneEmbeddingText(zone: any, language: string): string {
+  const name = getLocalizedText(zone.name, language) || '';
+  const desc = getLocalizedText(zone.description, language) || '';
+  const stepParts: string[] = [];
+  for (const step of (zone.steps || [])) {
+    const title = getLocalizedText(step.title, language) || '';
+    const content = step.content as any;
+    const text = getLocalizedText(content, language) || '';
+    if (title) stepParts.push(title);
+    if (text) stepParts.push(text.slice(0, 200));
+  }
+  if (zone.type === 'RECOMMENDATIONS' && zone.recommendations?.length) {
+    for (const rec of zone.recommendations.slice(0, 5)) {
+      if (rec.place?.name) stepParts.push(rec.place.name);
+    }
+  }
+  return [name, desc, ...stepParts].filter(Boolean).join('. ').slice(0, 1000);
+}
+
+/**
+ * Semantic zone ranking using OpenAI embeddings.
+ * Called only when keyword score is low (< 8) — adds ~50ms latency.
+ */
+async function semanticZoneRanking(
+  query: string,
+  zones: any[],
+  language: string,
+  apiKey: string,
+  propertyId: string
+): Promise<any[]> {
+  if (!zones.length) return [];
+
+  const zoneTexts = zones.map(zone => buildZoneEmbeddingText(zone, language));
+  const textHash = simpleHash(zoneTexts.join('|'));
+
+  let zoneEmbeddings: number[][];
+  let queryEmbedding: number[];
+
+  const cached = zoneEmbeddingCache.get(propertyId);
+  if (cached && cached.textHash === textHash && cached.expires > Date.now()) {
+    // Cache hit: only compute query embedding
+    zoneEmbeddings = cached.embeddings;
+    const qRes = await fetch('https://api.openai.com/v1/embeddings', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: EMBEDDING_MODEL, input: query }),
+    });
+    if (!qRes.ok) throw new Error(`Embedding API: ${qRes.status}`);
+    queryEmbedding = (await qRes.json()).data[0].embedding;
+  } else {
+    // Cache miss: batch query + all zones in one API call
+    const allTexts = [query, ...zoneTexts];
+    const res = await fetch('https://api.openai.com/v1/embeddings', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: EMBEDDING_MODEL, input: allTexts }),
+    });
+    if (!res.ok) throw new Error(`Embedding API: ${res.status}`);
+    const data = await res.json();
+    queryEmbedding = data.data[0].embedding;
+    zoneEmbeddings = data.data.slice(1).map((d: any) => d.embedding);
+    zoneEmbeddingCache.set(propertyId, { embeddings: zoneEmbeddings, textHash, expires: Date.now() + EMBEDDING_CACHE_TTL });
+  }
+
+  // Rank by cosine similarity
+  const scored = zones.map((zone, idx) => ({
+    zone,
+    similarity: cosineSimilarity(queryEmbedding, zoneEmbeddings[idx]),
+  })).sort((a, b) => b.similarity - a.similarity);
+
+  // Return top 3 — score scaled to 0-100 so existing logic (media, threshold) works
+  return scored.slice(0, 3).map(s => ({
+    ...s.zone,
+    _relevanceScore: Math.round(s.similarity * 100),
+  }));
 }
 
 // ========================================
