@@ -102,19 +102,36 @@ export class EmailVerificationService {
 
   // Send welcome email
   static async sendWelcomeEmail(email: string, userName: string): Promise<void> {
-    // Calculate trial end date (15 days from now)
-    const trialEndDate = new Date()
-    trialEndDate.setDate(trialEndDate.getDate() + 15)
-    const formattedDate = trialEndDate.toLocaleDateString('es-ES', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    })
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.itineramio.com'
+    const name = userName || 'ahí'
+
+    const html = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 580px; margin: 0 auto; padding: 32px 20px; color: #1a1a1a; line-height: 1.6;">
+        <p>Lleva tiempo pasando.</p>
+        <p>El check-in a las 15:00. El mensaje a las 14:58: "¿Cómo se entra?". Tú respondes. Al día siguiente, otro huésped. Mismo mensaje. Misma respuesta.</p>
+        <p>WiFi. Normas. Parking. Checkout.</p>
+        <p><strong>Copiar. Pegar. Repetir.</strong></p>
+        <p>No agota tener apartamentos. Agota que cada reserva empiece igual.</p>
+        <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 24px 0;">
+        <p>Itineramio no es una guía más. Es el sistema que manda esa información antes de que el huésped te pregunte. Cuando confirma la reserva, ya tiene todo. Tú no haces nada.</p>
+        <p>La primera vez que un huésped llega sin preguntarte nada, lo entiendes.</p>
+        <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 24px 0;">
+        <p><strong>Cuatro pasos. Una vez. Para siempre.</strong></p>
+        <p>01 — Configura tu alojamiento ← estás aquí<br>El sistema lo construye contigo en 10 minutos.</p>
+        <p>02 — Añade las zonas<br>Cada sección en su sitio.</p>
+        <p>03 — Activa el asistente<br>Responde en el idioma del huésped.</p>
+        <p>04 — Comparte el enlace<br>Un QR o un link. Funciona siempre.</p>
+        <a href="${appUrl}/properties/new" style="display: inline-block; background: #1a1a1a; color: #fff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 500; margin: 20px 0;">Configurar mi alojamiento con el sistema →</a>
+        <p style="font-size: 14px; color: #666;">Sin tarjeta. Sin instalación.</p>
+        <p style="color: #666; margin-top: 32px; font-size: 14px;">Si tienes cualquier pregunta, responde a este email.</p>
+        <p style="color: #1a1a1a;">Alejandro — Itineramio</p>
+      </div>
+    `
 
     await sendEmail({
       to: email,
-      subject: '¡Bienvenido a Itineramio!',
-      html: emailTemplates.welcomeEmail(userName, 'https://www.itineramio.com/main', formattedDate)
+      subject: 'Tu móvil no va a parar. Hasta que hagas esto.',
+      html,
     })
   }
 
