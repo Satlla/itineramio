@@ -1238,8 +1238,6 @@ export default function DashboardPage(): JSX.Element {
           // ALWAYS save to localStorage when closing, no matter how it was closed
           if (typeof window !== 'undefined') {
             localStorage.setItem('hasSeenUnifiedWelcome', 'true')
-            localStorage.setItem('hasSeenWelcomeModal', 'true')
-            localStorage.setItem('hasCompletedOnboarding', 'true')
           }
           setShowUnifiedWelcome(false)
         }}

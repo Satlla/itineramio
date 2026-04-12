@@ -96,8 +96,6 @@ async function markOnboardingComplete() {
   }
   if (typeof window !== 'undefined') {
     localStorage.setItem('hasSeenUnifiedWelcome', 'true')
-    localStorage.setItem('hasSeenWelcomeModal', 'true')
-    localStorage.setItem('hasCompletedOnboarding', 'true')
   }
 }
 

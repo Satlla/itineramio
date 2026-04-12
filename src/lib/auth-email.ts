@@ -121,7 +121,7 @@ export class EmailVerificationService {
         <p>02 — Añade las zonas<br>Cada sección en su sitio.</p>
         <p>03 — Activa el asistente<br>Responde en el idioma del huésped.</p>
         <p>04 — Comparte el enlace<br>Un QR o un link. Funciona siempre.</p>
-        <a href="${appUrl}/properties/new" style="display: inline-block; background: #1a1a1a; color: #fff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 500; margin: 20px 0;">Configurar mi alojamiento con el sistema →</a>
+        <a href="${appUrl}/ai-setup" style="display: inline-block; background: #1a1a1a; color: #fff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 500; margin: 20px 0;">Crear mi manual con IA →</a>
         <p style="font-size: 14px; color: #666;">Sin tarjeta. Sin instalación.</p>
         <p style="color: #666; margin-top: 32px; font-size: 14px;">Si tienes cualquier pregunta, responde a este email.</p>
         <p style="color: #1a1a1a;">Alejandro — Itineramio</p>
