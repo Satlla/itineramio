@@ -43,6 +43,8 @@ import {
   Bike,
   Wrench,
   Info,
+  Trash2,
+  DoorOpen,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -77,6 +79,8 @@ const ZONE_ICON_MAP: Record<string, LucideIcon> = {
   'bike': Bike,
   'wrench': Wrench,
   'info': Info,
+  'trash-2': Trash2,
+  'door-open': DoorOpen,
 }
 
 // Icons available for custom zones (vector SVG, shown in picker grid)
@@ -108,26 +112,29 @@ const CUSTOM_ZONE_ICONS: { id: string; Icon: LucideIcon; label: string }[] = [
 ]
 
 export const PREDEFINED_ZONES = [
-  // Template zones (auto-generated from wizard steps)
-  { id: 'checkin', name: 'Check-in', lucideIcon: 'key', icon: 'key', hasTemplate: true, group: 'template' },
-  { id: 'ac', name: 'Aire Acondicionado', lucideIcon: 'snowflake', icon: 'snowflake', hasTemplate: true, group: 'template' },
-  // Electrodomésticos comunes
-  { id: 'washing_machine', name: 'Lavadora', lucideIcon: 'shirt', icon: 'washing-machine', hasTemplate: false, group: 'appliance' },
-  { id: 'dishwasher', name: 'Lavavajillas', lucideIcon: 'utensils', icon: 'dishwasher', hasTemplate: false, group: 'appliance' },
-  { id: 'coffee_machine', name: 'Cafetera', lucideIcon: 'coffee', icon: 'coffee', hasTemplate: false, group: 'appliance' },
-  { id: 'induction_hob', name: 'Vitrocerámica', lucideIcon: 'flame', icon: 'cooktop', hasTemplate: false, group: 'appliance' },
-  { id: 'oven', name: 'Horno', lucideIcon: 'flame', icon: 'oven', hasTemplate: false, group: 'appliance' },
-  { id: 'microwave', name: 'Microondas', lucideIcon: 'flame', icon: 'microwave', hasTemplate: false, group: 'appliance' },
-  { id: 'television', name: 'Smart TV', lucideIcon: 'tv', icon: 'tv', hasTemplate: false, group: 'appliance' },
-  { id: 'dryer', name: 'Secadora', lucideIcon: 'wind', icon: 'wind', hasTemplate: false, group: 'appliance' },
-  { id: 'heater', name: 'Calefacción', lucideIcon: 'thermometer', icon: 'thermometer', hasTemplate: false, group: 'appliance' },
-  { id: 'safe', name: 'Caja Fuerte', lucideIcon: 'lock', icon: 'lock', hasTemplate: false, group: 'appliance' },
-  // Espacios
-  { id: 'pool', name: 'Piscina', lucideIcon: 'waves', icon: 'waves', hasTemplate: false, group: 'space' },
-  { id: 'terrace', name: 'Terraza', lucideIcon: 'umbrella', icon: 'umbrella', hasTemplate: false, group: 'space' },
-  { id: 'garden', name: 'Jardín', lucideIcon: 'tree-pine', icon: 'trees', hasTemplate: false, group: 'space' },
-  { id: 'bbq', name: 'Barbacoa', lucideIcon: 'flame', icon: 'flame', hasTemplate: false, group: 'space' },
-  { id: 'jacuzzi', name: 'Jacuzzi', lucideIcon: 'bath', icon: 'bath', hasTemplate: false, group: 'space' },
+  { id: 'checkin', name: 'Check-in', lucideIcon: 'key', icon: 'key', hasTemplate: true },
+  { id: 'checkout', name: 'Check-out', lucideIcon: 'door-open', icon: 'door-open', hasTemplate: true },
+  { id: 'ac', name: 'Aire Acondicionado', lucideIcon: 'snowflake', icon: 'snowflake', hasTemplate: true },
+  { id: 'wifi_zone', name: 'WiFi', lucideIcon: 'wifi', icon: 'wifi', hasTemplate: true },
+  { id: 'parking', name: 'Parking', lucideIcon: 'car', icon: 'car', hasTemplate: true },
+  { id: 'trash', name: 'Basuras', lucideIcon: 'trash-2', icon: 'trash-2', hasTemplate: false },
+  { id: 'washing_machine', name: 'Lavadora', lucideIcon: 'shirt', icon: 'washing-machine', hasTemplate: false },
+  { id: 'dishwasher', name: 'Lavavajillas', lucideIcon: 'utensils', icon: 'dishwasher', hasTemplate: false },
+  { id: 'coffee_machine', name: 'Cafetera', lucideIcon: 'coffee', icon: 'coffee', hasTemplate: false },
+  { id: 'induction_hob', name: 'Vitrocerámica', lucideIcon: 'flame', icon: 'cooktop', hasTemplate: false },
+  { id: 'oven', name: 'Horno', lucideIcon: 'flame', icon: 'oven', hasTemplate: false },
+  { id: 'microwave', name: 'Microondas', lucideIcon: 'flame', icon: 'microwave', hasTemplate: false },
+  { id: 'television', name: 'Smart TV', lucideIcon: 'tv', icon: 'tv', hasTemplate: false },
+  { id: 'refrigerator', name: 'Frigorífico', lucideIcon: 'snowflake', icon: 'refrigerator', hasTemplate: false },
+  { id: 'dryer', name: 'Secadora', lucideIcon: 'wind', icon: 'wind', hasTemplate: false },
+  { id: 'iron_appliance', name: 'Plancha', lucideIcon: 'shirt', icon: 'iron', hasTemplate: false },
+  { id: 'heater', name: 'Calefacción', lucideIcon: 'thermometer', icon: 'thermometer', hasTemplate: false },
+  { id: 'safe', name: 'Caja Fuerte', lucideIcon: 'lock', icon: 'lock', hasTemplate: false },
+  { id: 'pool', name: 'Piscina', lucideIcon: 'waves', icon: 'waves', hasTemplate: false },
+  { id: 'terrace', name: 'Terraza', lucideIcon: 'umbrella', icon: 'umbrella', hasTemplate: false },
+  { id: 'garden', name: 'Jardín', lucideIcon: 'tree-pine', icon: 'trees', hasTemplate: false },
+  { id: 'bbq', name: 'Barbacoa', lucideIcon: 'flame', icon: 'flame', hasTemplate: false },
+  { id: 'jacuzzi', name: 'Jacuzzi', lucideIcon: 'bath', icon: 'bath', hasTemplate: false },
 ] as const
 
 function ZoneIcon({ iconName, className = 'w-4 h-4' }: { iconName: string; className?: string }) {
@@ -771,12 +778,11 @@ export default function Step2Media({
                                       .filter(m => m.id !== item.id && m.zoneId)
                                       .map(m => m.zoneId)
                                   )
-                                  const available = (group: string) =>
-                                    PREDEFINED_ZONES.filter(z => z.group === group && !usedZoneIds.has(z.id))
+                                  const availableZones = PREDEFINED_ZONES.filter(z => !usedZoneIds.has(z.id))
 
                                   return (<>
-                                <div className="px-3 py-1.5 text-[10px] text-gray-500 uppercase tracking-wider bg-gray-50 sticky top-0">Zonas del wizard</div>
-                                {available('template').map(zone => (
+                                <div className="px-3 py-1.5 text-[10px] text-gray-500 uppercase tracking-wider bg-gray-50 sticky top-0">Zonas predefinidas</div>
+                                {availableZones.map(zone => (
                                   <button
                                     key={zone.id}
                                     type="button"
@@ -788,38 +794,6 @@ export default function Step2Media({
                                     <ZoneIcon iconName={zone.lucideIcon} className="w-4 h-4 flex-shrink-0" />
                                     <span>{zone.name}</span>
                                     {zone.hasTemplate && <span className="text-[10px] bg-violet-100 text-violet-600 px-1.5 py-0.5 rounded-full ml-auto">AUTO</span>}
-                                  </button>
-                                ))}
-
-                                {/* Appliance zones */}
-                                <div className="px-3 py-1.5 text-[10px] text-gray-500 uppercase tracking-wider bg-gray-50 sticky top-0 border-t border-gray-200">Electrodomésticos</div>
-                                {available('appliance').map(zone => (
-                                  <button
-                                    key={zone.id}
-                                    type="button"
-                                    onClick={() => { handleZoneChange(item.id, zone.id); setOpenDropdown(null) }}
-                                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
-                                      item.zoneId === zone.id ? 'bg-violet-50 border-violet-500 text-violet-700' : 'text-gray-600 hover:bg-gray-100'
-                                    }`}
-                                  >
-                                    <ZoneIcon iconName={zone.lucideIcon} className="w-4 h-4 flex-shrink-0" />
-                                    <span>{zone.name}</span>
-                                  </button>
-                                ))}
-
-                                {/* Space zones */}
-                                <div className="px-3 py-1.5 text-[10px] text-gray-500 uppercase tracking-wider bg-gray-50 sticky top-0 border-t border-gray-200">Espacios</div>
-                                {available('space').map(zone => (
-                                  <button
-                                    key={zone.id}
-                                    type="button"
-                                    onClick={() => { handleZoneChange(item.id, zone.id); setOpenDropdown(null) }}
-                                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
-                                      item.zoneId === zone.id ? 'bg-violet-50 border-violet-500 text-violet-700' : 'text-gray-600 hover:bg-gray-100'
-                                    }`}
-                                  >
-                                    <ZoneIcon iconName={zone.lucideIcon} className="w-4 h-4 flex-shrink-0" />
-                                    <span>{zone.name}</span>
                                   </button>
                                 ))}
 
