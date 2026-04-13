@@ -911,7 +911,7 @@ export default function ChatBot({
             initial={{ opacity: 0, y: 100, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.8 }}
-            className={`fixed z-50 overflow-hidden flex flex-col
+            className={`fixed z-[100] overflow-hidden flex flex-col
               max-sm:inset-0 max-sm:rounded-none
               sm:rounded-2xl sm:shadow-2xl sm:border sm:border-gray-200
               ${isMinimized
