@@ -207,10 +207,17 @@ async function buildUserMediaZones(
     items: Array<{ url: string; type: string; description: string }>
   }>()
 
+  console.log('[AI-SETUP] buildUserMediaZones received', mediaItems.length, 'items:', mediaItems.map((m: any) => ({ zoneId: m.zoneId, customZoneName: m.customZoneName })))
+  console.log('[AI-SETUP] TEMPLATE_ZONE_IDS:', [...TEMPLATE_ZONE_IDS])
+
   for (const item of mediaItems) {
     if (!item.zoneId && !item.customZoneName?.trim()) continue
     // Skip template zones — their media is attached to auto-generated zones later
-    if (item.zoneId && TEMPLATE_ZONE_IDS.has(item.zoneId)) continue
+    if (item.zoneId && TEMPLATE_ZONE_IDS.has(item.zoneId)) {
+      console.log('[AI-SETUP] SKIPPING template zone media:', item.zoneId)
+      continue
+    }
+    console.log('[AI-SETUP] KEEPING user zone media:', item.zoneId || item.customZoneName)
 
     const key = (item.zoneId && item.zoneId !== '__custom__')
       ? item.zoneId
