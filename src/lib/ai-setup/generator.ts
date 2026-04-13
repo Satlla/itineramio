@@ -69,8 +69,12 @@ type SendEvent = (event: GenerationEvent) => void
 
 const PREDEFINED_ZONES = [
   // Template zones (auto-generated from wizard)
-  { id: 'checkin', name: 'Check-in', icon: 'key' },
-  { id: 'ac', name: 'Aire Acondicionado', icon: 'snowflake' },
+  { id: 'check-in', name: 'Check-in', icon: 'key' },
+  { id: 'check-out', name: 'Check-out', icon: 'door-open' },
+  { id: 'air-conditioning', name: 'Aire Acondicionado', icon: 'snowflake' },
+  { id: 'wifi', name: 'WiFi', icon: 'wifi' },
+  { id: 'parking', name: 'Parking', icon: 'car' },
+  { id: 'recycling', name: 'Basura y reciclaje', icon: 'trash-2' },
   // Appliances
   { id: 'washing_machine', name: 'Lavadora', icon: 'washing-machine' },
   { id: 'dishwasher', name: 'Lavavajillas', icon: 'dishwasher' },
@@ -79,7 +83,9 @@ const PREDEFINED_ZONES = [
   { id: 'oven', name: 'Horno', icon: 'oven' },
   { id: 'microwave', name: 'Microondas', icon: 'microwave' },
   { id: 'television', name: 'Smart TV', icon: 'tv' },
+  { id: 'refrigerator', name: 'Frigorífico', icon: 'refrigerator' },
   { id: 'dryer', name: 'Secadora', icon: 'wind' },
+  { id: 'iron_appliance', name: 'Plancha', icon: 'iron' },
   { id: 'heater', name: 'Calefacción', icon: 'thermometer' },
   { id: 'safe', name: 'Caja Fuerte', icon: 'lock' },
   // Spaces
@@ -739,10 +745,9 @@ export async function generateManual(
     // User-defined zones from media (AI perfects + translates)
     const userZones = await buildUserMediaZones(mediaAnalysis, sendEvent, isMock)
     // Exclude zones whose media should be attached to auto-generated zones via assignTemplateZoneMedia
-    // These are essential zones the wizard already creates (check-in, check-out, wifi, recycling, AC, etc.)
+    // Only zones that Step4Review generates automatically — NOT appliances/spaces (those are user zones)
     const TEMPLATE_ZONE_IDS = new Set([
-      'check-in', 'check-out', 'air-conditioning', 'wifi', 'recycling',
-      'parking', 'house-rules', 'emergency-contacts', 'item-locations', 'directions',
+      'check-in', 'check-out', 'air-conditioning', 'wifi', 'recycling', 'parking',
     ])
     const nonTemplateUserZones = userZones.filter(z => {
       const matched = PREDEFINED_ZONES.find(p => p.name === z.name.es)
