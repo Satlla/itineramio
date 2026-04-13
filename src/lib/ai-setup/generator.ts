@@ -349,7 +349,8 @@ async function assignTemplateZoneMedia(
   propertyId: string,
   mediaItems: any[],
 ): Promise<void> {
-  // Map predefined zone IDs to DB zone name patterns (ES)
+  // Map ONLY auto-generated zone IDs to DB zone name patterns (ES)
+  // These are zones that Step4Review creates automatically — NOT appliances or user zones
   const TEMPLATE_TO_NAME: Record<string, string[]> = {
     'check-in': ['Check In', 'Check-in'],
     'check-out': ['Check Out', 'Check-out'],
@@ -357,23 +358,6 @@ async function assignTemplateZoneMedia(
     'wifi': ['WiFi', 'Wifi'],
     'recycling': ['Basura y reciclaje', 'Reciclaje'],
     'parking': ['Parking'],
-    'washing_machine': ['Lavadora'],
-    'dishwasher': ['Lavavajillas'],
-    'coffee_machine': ['Cafetera'],
-    'induction_hob': ['Vitrocerámica'],
-    'oven': ['Horno'],
-    'microwave': ['Microondas'],
-    'television': ['Smart TV', 'TV'],
-    'refrigerator': ['Frigorífico'],
-    'dryer': ['Secadora'],
-    'iron_appliance': ['Plancha'],
-    'heater': ['Calefacción'],
-    'safe': ['Caja Fuerte', 'Caja fuerte'],
-    'pool': ['Piscina'],
-    'terrace': ['Terraza'],
-    'garden': ['Jardín'],
-    'bbq': ['Barbacoa'],
-    'jacuzzi': ['Jacuzzi'],
   }
 
   const templateMedia = mediaItems.filter(m =>
