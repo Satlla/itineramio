@@ -627,20 +627,16 @@ export default function Step2Media({
                       const isPortrait = item.type === 'video' && portraitVideos.has(item.id)
                       const isPlaying = playingVideo === item.id
                       return (
-                    <div className={`flex flex-col ${isPortrait ? '' : 'sm:flex-row'}`}>
+                    <div className="flex flex-col sm:flex-row">
                       {/* Preview */}
-                      <div className={`relative bg-black flex-shrink-0 overflow-hidden ${
-                        isPortrait
-                          ? 'w-full rounded-t-xl'
-                          : 'w-full sm:w-48 rounded-t-xl sm:rounded-t-none sm:rounded-l-xl'
-                      }`}>
+                      <div className="relative bg-black flex-shrink-0 overflow-hidden w-full sm:w-40 rounded-t-xl sm:rounded-t-none sm:rounded-l-xl">
                         {/* Aspect ratio container */}
                         <div className={
                           item.type === 'video'
                             ? isPortrait
-                              ? 'aspect-[9/16] max-h-80 mx-auto'
+                              ? 'aspect-[9/16] max-h-48 mx-auto sm:max-h-full'
                               : 'aspect-video'
-                            : isPortrait ? 'h-36' : 'h-36 sm:h-auto sm:min-h-[9rem]'
+                            : 'h-36 sm:h-auto sm:min-h-[9rem]'
                         }>
                           {item.type === 'image' ? (
                             // eslint-disable-next-line @next/next/no-img-element
