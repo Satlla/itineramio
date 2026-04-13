@@ -343,10 +343,31 @@ async function assignTemplateZoneMedia(
   propertyId: string,
   mediaItems: any[],
 ): Promise<void> {
-  // Map template zone IDs to DB zone name patterns (ES)
+  // Map predefined zone IDs to DB zone name patterns (ES)
   const TEMPLATE_TO_NAME: Record<string, string[]> = {
-    'checkin': ['Check In', 'Check-in'],
-    'ac': ['Aire Acondicionado', 'Aire acondicionado'],
+    'check-in': ['Check In', 'Check-in'],
+    'check-out': ['Check Out', 'Check-out'],
+    'air-conditioning': ['Aire Acondicionado', 'Aire acondicionado', 'Aire acondicionado / Calefacción'],
+    'wifi': ['WiFi', 'Wifi'],
+    'recycling': ['Basura y reciclaje', 'Reciclaje'],
+    'parking': ['Parking'],
+    'washing_machine': ['Lavadora'],
+    'dishwasher': ['Lavavajillas'],
+    'coffee_machine': ['Cafetera'],
+    'induction_hob': ['Vitrocerámica'],
+    'oven': ['Horno'],
+    'microwave': ['Microondas'],
+    'television': ['Smart TV', 'TV'],
+    'refrigerator': ['Frigorífico'],
+    'dryer': ['Secadora'],
+    'iron_appliance': ['Plancha'],
+    'heater': ['Calefacción'],
+    'safe': ['Caja Fuerte', 'Caja fuerte'],
+    'pool': ['Piscina'],
+    'terrace': ['Terraza'],
+    'garden': ['Jardín'],
+    'bbq': ['Barbacoa'],
+    'jacuzzi': ['Jacuzzi'],
   }
 
   const templateMedia = mediaItems.filter(m =>
@@ -717,9 +738,12 @@ export async function generateManual(
 
     // User-defined zones from media (AI perfects + translates)
     const userZones = await buildUserMediaZones(mediaAnalysis, sendEvent, isMock)
-    // Exclude template zone IDs (checkin, ac) — their media is attached via assignTemplateZoneMedia
-    // to the essential zones already added above, preventing duplicate zones
-    const TEMPLATE_ZONE_IDS = new Set(['checkin', 'ac'])
+    // Exclude zones whose media should be attached to auto-generated zones via assignTemplateZoneMedia
+    // These are essential zones the wizard already creates (check-in, check-out, wifi, recycling, AC, etc.)
+    const TEMPLATE_ZONE_IDS = new Set([
+      'check-in', 'check-out', 'air-conditioning', 'wifi', 'recycling',
+      'parking', 'house-rules', 'emergency-contacts', 'item-locations', 'directions',
+    ])
     const nonTemplateUserZones = userZones.filter(z => {
       const matched = PREDEFINED_ZONES.find(p => p.name === z.name.es)
       return !matched || !TEMPLATE_ZONE_IDS.has(matched.id)
