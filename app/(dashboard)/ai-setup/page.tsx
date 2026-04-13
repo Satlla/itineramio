@@ -229,6 +229,10 @@ export default function AISetupPage() {
   const [locationData, setLocationData] = useState<LocationData | null>(null)
   const [locationDataLoading, setLocationDataLoading] = useState(false)
 
+  // Draft recovery dialog
+  const [showDraftDialog, setShowDraftDialog] = useState(false)
+  const [pendingDraft, setPendingDraft] = useState<any>(null)
+
   // Plan limit pre-check
   const [planLimitWarning, setPlanLimitWarning] = useState<string | null>(null)
 
@@ -285,16 +289,19 @@ export default function AISetupPage() {
     } catch {}
 
     const draft = loadDraft()
-    if (!draft) return
-    // If there's a saved draft with progress, skip intro and restore step
+    if (!draft || !draft.currentStep) return
+    // Show dialog to let user choose: continue or start fresh
+    setPendingDraft(draft)
+    setShowDraftDialog(true)
+  }, [])
+
+  const restoreDraft = useCallback((draft: any) => {
     if (draft.currentStep >= 1) setCurrentStepRaw(draft.currentStep)
     if (draft.step1Data) setStep1Data(draft.step1Data)
     if (draft.step2Data) setStep2Data(draft.step2Data)
     if (draft.media) {
-      // Validate media URLs: check local /uploads/ paths are still accessible
       const mediaToRestore = draft.media.filter((m: MediaItem) => m.url)
       if (mediaToRestore.some((m: MediaItem) => m.url.startsWith('/uploads/'))) {
-        // Verify local files still exist (dev server restart cleans them)
         Promise.all(
           mediaToRestore.map(async (m: MediaItem) => {
             if (!m.url.startsWith('/uploads/')) return m
@@ -306,10 +313,7 @@ export default function AISetupPage() {
             }
           })
         ).then(results => {
-          const valid = results.filter(Boolean) as MediaItem[]
-          if (valid.length !== mediaToRestore.length) {
-          }
-          setMedia(valid)
+          setMedia(results.filter(Boolean) as MediaItem[])
         })
       } else {
         setMedia(mediaToRestore)
@@ -319,7 +323,6 @@ export default function AISetupPage() {
     if (draft.reviewedContent) setReviewedContent(draft.reviewedContent)
     if (draft.customTitles) setCustomTitles(draft.customTitles)
     if (draft.customIcons) setCustomIcons(draft.customIcons)
-    // Only restore locationData if it has the new driving fields, otherwise re-fetch
     if (draft.locationData && draft.locationData.directions?.drivingFromAirport !== undefined) {
       setLocationData(draft.locationData)
     }
@@ -596,6 +599,51 @@ export default function AISetupPage() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Draft recovery dialog */}
+      {showDraftDialog && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4 p-6"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-violet-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">Borrador encontrado</h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-6">
+              Tienes un borrador guardado de una propiedad anterior. ¿Quieres continuar donde lo dejaste o empezar de nuevo?
+            </p>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (pendingDraft) restoreDraft(pendingDraft)
+                  setPendingDraft(null)
+                  setShowDraftDialog(false)
+                }}
+                className="w-full py-2.5 px-4 bg-violet-600 text-white rounded-xl font-semibold text-sm hover:bg-violet-700 transition-colors"
+              >
+                Continuar borrador
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  clearDraft()
+                  setPendingDraft(null)
+                  setShowDraftDialog(false)
+                }}
+                className="w-full py-2.5 px-4 bg-gray-100 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-200 transition-colors"
+              >
+                Empezar de nuevo
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   )
 }
