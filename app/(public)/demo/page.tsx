@@ -25,7 +25,7 @@ import { buildIntelligenceFromImport } from '../../../src/types/intelligence'
 // TYPES
 // ============================================
 
-type Phase = 'onboarding' | 'wizard' | 'lead-capture' | 'generating' | 'results' | 'redirect'
+type Phase = 'onboarding' | 'wizard' | 'lead-capture' | 'commitment' | 'generating' | 'results' | 'redirect'
 
 type LeadCaptureStep = 'info' | 'verify'
 
@@ -850,10 +850,10 @@ function DemoPageInner() {
         return
       }
 
-      // Success — store token and trigger generation
+      // Success — store token and go to commitment gate
       const token = data.verificationToken
       setEmailVerificationToken(token)
-      handleGenerate(token)
+      setPhase('commitment')
     } catch {
       setOtpError('Error de conexión. Inténtalo de nuevo.')
     } finally {
@@ -1399,6 +1399,67 @@ function DemoPageInner() {
           )}
         </AnimatePresence>
 
+        {/* Commitment gate — antes de generar */}
+        <AnimatePresence>
+          {phase === 'commitment' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white"
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="max-w-md w-full"
+              >
+                <div className="text-center mb-8">
+                  <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                    <Shield className="w-7 h-7 text-gray-900" />
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900 mb-2">
+                    Antes de generar tu manual
+                  </h2>
+                  <p className="text-sm text-gray-500 leading-relaxed">
+                    Vamos a crear un manual profesional con IA para <strong className="text-gray-700">{step1Data.propertyName}</strong>. Esto tiene un coste real para nosotros, así que queremos asegurarnos de que vas a aprovecharlo.
+                  </p>
+                </div>
+
+                {/* Info box */}
+                <div className="bg-gray-50 rounded-xl p-4 mb-6 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-gray-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-white text-xs font-bold">15</span>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      <strong className="text-gray-900">15 minutos para probarlo.</strong> Tu manual estará activo durante 15 minutos. Navégalo, prueba el chatbot y decide si quieres quedártelo.
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-gray-600">
+                      Si te convence, regístrate y tendrás <strong className="text-gray-900">15 días gratis</strong> + un <strong className="text-gray-900">20% de descuento</strong> para cuando quieras suscribirte.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Checklist */}
+                <CommitmentChecklist
+                  onComplete={() => handleGenerate()}
+                />
+
+                <button
+                  onClick={() => setPhase('lead-capture')}
+                  className="w-full mt-3 text-sm text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  Volver atrás
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Generating screen */}
         {phase === 'generating' && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white">
@@ -1473,6 +1534,71 @@ function DemoPageInner() {
 // ============================================
 // WRAPPER WITH I18N PROVIDER
 // ============================================
+
+// ============================================
+// COMMITMENT CHECKLIST
+// ============================================
+
+function CommitmentChecklist({ onComplete }: { onComplete: () => void }) {
+  const [checks, setChecks] = useState([false, false, false])
+
+  const items = [
+    'Quiero ahorrar tiempo en la gestión de mis huéspedes',
+    'Voy a probar el manual durante los próximos 15 minutos',
+    'Entiendo que esta demo se genera con IA y tiene un coste real',
+  ]
+
+  const allChecked = checks.every(Boolean)
+
+  const toggle = (i: number) => {
+    setChecks(prev => {
+      const next = [...prev]
+      next[i] = !next[i]
+      return next
+    })
+  }
+
+  return (
+    <div className="space-y-3">
+      {items.map((item, i) => (
+        <button
+          key={i}
+          onClick={() => toggle(i)}
+          className={`w-full flex items-start gap-3 text-left p-3 rounded-xl border transition-all ${
+            checks[i]
+              ? 'border-gray-900 bg-gray-50'
+              : 'border-gray-200 hover:border-gray-300'
+          }`}
+        >
+          <div className={`w-5 h-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
+            checks[i] ? 'bg-gray-900' : 'border-2 border-gray-300'
+          }`}>
+            {checks[i] && (
+              <CheckCircle className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+            )}
+          </div>
+          <span className={`text-sm ${checks[i] ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+            {item}
+          </span>
+        </button>
+      ))}
+
+      <motion.button
+        onClick={onComplete}
+        disabled={!allChecked}
+        animate={{ opacity: allChecked ? 1 : 0.4 }}
+        className={`w-full h-12 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 mt-4 transition-all ${
+          allChecked
+            ? 'bg-gray-900 text-white hover:bg-gray-800 cursor-pointer'
+            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+        }`}
+      >
+        <Flame className="w-4 h-4" />
+        Generar mi manual ahora
+      </motion.button>
+    </div>
+  )
+}
 
 export default function DemoPage() {
   return (

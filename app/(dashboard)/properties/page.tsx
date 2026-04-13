@@ -309,7 +309,7 @@ const generateRecommendations = (properties: Property[]): Recommendation[] => {
       title: 'Crear zona de recomendaciones locales',
       description: 'Añade valor con restaurantes, actividades y secretos locales que solo tú conoces.',
       actionText: 'Crear zona',
-      actionUrl: properties.length > 0 ? `/properties/${properties[0].id}/zones` : '/properties/new',
+      actionUrl: properties.length > 0 ? `/properties/${properties[0].id}/zones` : '/ai-setup',
       icon: <Star className="w-5 h-5 text-orange-600" />
     },
     {
@@ -406,7 +406,7 @@ const generateRecommendations = (properties: Property[]): Recommendation[] => {
       title: 'Estrategia multiidioma',
       description: 'Prioriza idiomas según tu ubicación: inglés (turistas), francés (proximidad), alemán (turismo).',
       actionText: 'Ver estrategia',
-      actionUrl: properties.length > 0 ? `/properties/${properties[0].id}/zones` : '/properties/new',
+      actionUrl: properties.length > 0 ? `/properties/${properties[0].id}/zones` : '/ai-setup',
       icon: <Languages className="w-5 h-5 text-green-600" />
     }
   ]
@@ -1216,7 +1216,7 @@ function PropertiesPageContent() {
                       ease: "easeInOut"
                     }}
                     className="flex-shrink-0 cursor-pointer"
-                    onClick={() => router.push('/properties/new')}
+                    onClick={() => router.push('/ai-setup')}
                   >
                     <div className="relative">
                       <div className="absolute inset-0 bg-yellow-400 rounded-full blur-lg opacity-60 animate-pulse" />
@@ -1225,17 +1225,10 @@ function PropertiesPageContent() {
                   </motion.div>
                 )}
                 <Link href="/ai-setup" className="w-full sm:w-auto">
-                  <Button className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 w-full sm:w-auto text-sm shadow-lg shadow-violet-500/25">
+                  <Button className="bg-gray-900 hover:bg-gray-800 w-full sm:w-auto text-sm">
                     <Sparkles className="w-4 h-4 mr-1.5 sm:mr-2" />
                     <span className="sm:hidden">Con IA</span>
                     <span className="hidden sm:inline">Crear con IA</span>
-                  </Button>
-                </Link>
-                <Link href="/properties/new" className="w-full sm:w-auto">
-                  <Button variant="outline" className="border-gray-300 w-full sm:w-auto text-sm">
-                    <Plus className="w-4 h-4 mr-1.5 sm:mr-2" />
-                    <span className="sm:hidden">Manual</span>
-                    <span className="hidden sm:inline">Crear manual</span>
                   </Button>
                 </Link>
               </div>
@@ -1445,17 +1438,17 @@ function PropertiesPageContent() {
                         ease: "easeInOut"
                       }}
                       className="flex-shrink-0 cursor-pointer"
-                      onClick={() => router.push('/properties/new')}
+                      onClick={() => router.push('/ai-setup')}
                     >
                       <div className="relative">
                         <div className="absolute inset-0 bg-yellow-400 rounded-full blur-lg opacity-60 animate-pulse" />
                         <Lightbulb className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-400 relative hover:scale-110 transition-transform" fill="currentColor" />
                       </div>
                     </motion.div>
-                    <Link href="/properties/new">
-                      <Button>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Crear primera propiedad
+                    <Link href="/ai-setup">
+                      <Button className="bg-gray-900 hover:bg-gray-800">
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Crear mi manual con IA
                       </Button>
                     </Link>
                   </div>
@@ -1488,12 +1481,12 @@ function PropertiesPageContent() {
                             <p className="text-xs text-gray-600 mb-3 leading-relaxed">
                               Añade los datos básicos de tu alojamiento y configura las zonas
                             </p>
-                            <Link href="/properties/new">
+                            <Link href="/ai-setup">
                               <Button
                                 size="sm"
-                                className="text-xs h-8 px-3 bg-blue-600 hover:bg-blue-700"
+                                className="text-xs h-8 px-3 bg-gray-900 hover:bg-gray-800"
                               >
-                                Crear propiedad
+                                Crear con IA
                                 <ArrowRight className="w-3 h-3 ml-1" />
                               </Button>
                             </Link>

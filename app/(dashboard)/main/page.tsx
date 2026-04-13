@@ -748,18 +748,6 @@ export default function DashboardPage(): JSX.Element {
                       Crear con IA
                     </Link>
                   </Button>
-                  <Button
-                    id="add-property-button"
-                    asChild
-                    size="sm"
-                    className="bg-violet-600 hover:bg-violet-700 w-full sm:w-auto"
-                    data-onboarding="create-property-button"
-                  >
-                    <Link href="/properties/new" className="flex items-center justify-center">
-                      <Plus className="w-4 h-4 mr-2" />
-                      {t('properties.addProperty')}
-                    </Link>
-                  </Button>
                 </div>
               </div>
 
@@ -794,25 +782,15 @@ export default function DashboardPage(): JSX.Element {
                     <p className="text-gray-600 mb-4">
                       {t('properties.createFirst')}
                     </p>
-                    <div className="flex items-center justify-center gap-3">
+                    <div className="flex items-center justify-center">
                       <Button
                         asChild
-                        variant="outline"
-                        className="border-violet-300 text-violet-700 hover:bg-violet-50"
+                        className="bg-gray-900 hover:bg-gray-800 text-white"
+                        data-onboarding="create-property-button"
                       >
                         <Link href="/ai-setup" className="inline-flex items-center">
                           <Sparkles className="w-4 h-4 mr-2" />
-                          Crear con IA
-                        </Link>
-                      </Button>
-                      <Button
-                        asChild
-                        className="bg-violet-600 hover:bg-violet-700"
-                        data-onboarding="create-property-button"
-                      >
-                        <Link href="/properties/new" className="inline-flex items-center">
-                          <Plus className="w-4 h-4 mr-2" />
-                          {t('properties.createFirst')}
+                          Crear mi manual con IA
                         </Link>
                       </Button>
                     </div>

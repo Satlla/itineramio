@@ -547,102 +547,61 @@ export const emailTemplates = {
     couponExpiresAt: string,
     propertyId?: string,
     leadEmail?: string,
-    zonesCount?: number
+    zonesCount?: number,
+    registerUrl?: string
   }) => `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Tu manual digital est&aacute; listo - Itineramio</title>
     </head>
-    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #0f0a1a;">
-      <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="text-align: center; margin-bottom: 30px; padding-top: 20px;">
-          <h1 style="color: #a78bfa; margin: 0; font-size: 28px;">Itineramio</h1>
-          <p style="color: #6b7280; margin: 5px 0; font-size: 14px;">Tu manual digital est&aacute; listo</p>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; margin: 0; padding: 0; background-color: #ffffff;">
+      <div style="max-width: 520px; margin: 0 auto; padding: 40px 24px;">
+        <p style="font-size: 15px; color: #1a1a1a;">Hola ${params.leadName},</p>
+        <p style="font-size: 15px; color: #374151;">El manual de <strong style="color: #1a1a1a;">${params.propertyName}</strong> est&aacute; listo. Hemos generado ${params.zonesCount || 6} zonas con instrucciones en 3 idiomas y un asistente IA que responde por ti.</p>
+        <p style="font-size: 15px; color: #374151;"><strong style="color: #1a1a1a;">Tienes 15 minutos para probarlo.</strong> Despu&eacute;s, el acceso se cierra.</p>
+
+        <div style="text-align: center; margin: 28px 0;">
+          <a href="${params.guideUrl}" style="background: #1a1a1a; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; font-size: 15px;">Abrir mi manual ahora</a>
         </div>
 
-        <div style="background: linear-gradient(135deg, #1a1025, #1e1533); padding: 35px; border-radius: 16px; margin-bottom: 20px; border: 1px solid #2d2240;">
-          <h2 style="color: #e2e8f0; margin-top: 0; font-size: 22px;">Hola ${params.leadName},</h2>
-          <p style="color: #a1a1aa; font-size: 16px;">
-            Nuestra IA ha creado un manual completo para <strong style="color: #c4b5fd;">${params.propertyName}</strong>.
+        <p style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin: 24px 0 8px;">Qu&eacute; probar en esos 15 minutos:</p>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; font-size: 14px; color: #374151; vertical-align: top; width: 24px;">1.</td>
+            <td style="padding: 8px 0; font-size: 14px; color: #374151;"><strong style="color: #1a1a1a;">Navega como tu hu&eacute;sped</strong> — abre las zonas y mira las instrucciones. As&iacute; es como lo ver&aacute; cuando escanee el QR de cada zona.</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-size: 14px; color: #374151; vertical-align: top;">2.</td>
+            <td style="padding: 8px 0; font-size: 14px; color: #374151;"><strong style="color: #1a1a1a;">Habla con el asistente IA</strong> — preg&uacute;ntale &laquo;&iquest;cu&aacute;l es el WiFi?&raquo; o &laquo;&iquest;c&oacute;mo funciona el check-in?&raquo;. Responde 24/7 en el idioma del hu&eacute;sped.</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-size: 14px; color: #374151; vertical-align: top;">3.</td>
+            <td style="padding: 8px 0; font-size: 14px; color: #374151;"><strong style="color: #1a1a1a;">Cambia de idioma</strong> — tu manual ya est&aacute; traducido a espa&ntilde;ol, ingl&eacute;s y franc&eacute;s. Comprueba que las traducciones tienen sentido.</td>
+          </tr>
+        </table>
+
+        <p style="font-size: 13px; color: #9ca3af; margin: 16px 0 0; line-height: 1.6;">Esto es solo la demo. Con tu cuenta tendr&aacute;s mucho m&aacute;s: QR f&iacute;sicos por zona, recomendaciones locales, avisos a hu&eacute;spedes, panel Intelligence para entrenar al chatbot, y conjuntos para gestionar varios apartamentos a la vez.</p>
+
+        <div style="text-align: center; margin: 32px 0 24px;">
+          <a href="${params.guideUrl}" style="background: #1a1a1a; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; font-size: 15px;">Abrir mi manual ahora</a>
+        </div>
+
+        <div style="background: #f9fafb; border-radius: 12px; padding: 16px 20px; margin-bottom: 24px;">
+          <p style="font-size: 13px; color: #6b7280; margin: 0; line-height: 1.6;">
+            <strong style="color: #374151;">Si te convence</strong>, reg&iacute;strate desde el propio manual. Tienes 15 d&iacute;as de prueba gratis y un cup&oacute;n del 20% que puedes usar cuando quieras suscribirte.
           </p>
-
-          <!-- Stats -->
-          <div style="margin: 25px 0;">
-            <div style="display: flex; margin-bottom: 8px;">
-              <div style="background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 10px; padding: 10px 16px; flex: 1; margin-right: 8px;">
-                <span style="color: #a78bfa; font-size: 20px; font-weight: 700;">${params.zonesCount || 6}</span>
-                <span style="color: #9ca3af; font-size: 13px; display: block;">zonas creadas</span>
-              </div>
-              <div style="background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 10px; padding: 10px 16px; flex: 1;">
-                <span style="color: #22d3ee; font-size: 20px; font-weight: 700;">3</span>
-                <span style="color: #9ca3af; font-size: 13px; display: block;">idiomas: ES &middot; EN &middot; FR</span>
-              </div>
-            </div>
-            <div style="display: flex;">
-              <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 10px 16px; flex: 1; margin-right: 8px;">
-                <span style="color: #34d399; font-size: 14px; font-weight: 600;">Chatbot IA</span>
-                <span style="color: #9ca3af; font-size: 13px; display: block;">activado 24/7</span>
-              </div>
-              <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 10px 16px; flex: 1;">
-                <span style="color: #fbbf24; font-size: 14px; font-weight: 600;">Servicios</span>
-                <span style="color: #9ca3af; font-size: 13px; display: block;">cercanos incluidos</span>
-              </div>
-            </div>
-          </div>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${params.guideUrl}"
-               style="background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; padding: 16px 44px; text-decoration: none; border-radius: 10px; font-weight: 700; display: inline-block; font-size: 16px;">
-              Explorar mi manual
-            </a>
-          </div>
-
-          <!-- Coupon -->
-          <div style="background: rgba(124, 58, 237, 0.1); padding: 20px; border-radius: 10px; border: 1px solid rgba(124, 58, 237, 0.2); margin-top: 20px;">
-            <p style="color: #c4b5fd; font-size: 15px; font-weight: 600; margin: 0 0 8px; text-align: center;">Cup&oacute;n exclusivo: 20% de descuento</p>
-            <div style="background: rgba(139, 92, 246, 0.15); padding: 12px 20px; border-radius: 8px; text-align: center; margin: 10px 0;">
-              <span style="font-family: monospace; font-size: 22px; font-weight: 700; color: #a78bfa; letter-spacing: 2px;">${params.couponCode}</span>
-            </div>
-            <p style="color: #6b7280; font-size: 13px; text-align: center; margin-bottom: 0;">
-              V&aacute;lido hasta: ${params.couponExpiresAt}
-            </p>
-          </div>
-
-          <div style="text-align: center; margin: 25px 0 10px;">
-            <a href="https://www.itineramio.com/register?coupon=${params.couponCode}${params.propertyId ? `&propertyId=${params.propertyId}` : ''}${params.leadEmail ? `&email=${encodeURIComponent(params.leadEmail)}` : ''}${params.leadName ? `&name=${encodeURIComponent(params.leadName)}` : ''}&utm_source=demo&utm_medium=email&utm_campaign=confirmation"
-               style="background: #10b981; color: white; padding: 14px 36px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 15px;">
-              Crear mi cuenta con descuento
-            </a>
-          </div>
-
-          <!-- Social proof -->
-          <p style="color: #6b7280; font-size: 13px; text-align: center; margin: 20px 0 5px;">
-            &Uacute;nete a +500 anfitriones que ya usan Itineramio
-          </p>
-
-          <!-- WhatsApp share -->
-          <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #2d2240;">
-            <p style="color: #9ca3af; font-size: 13px; margin: 0 0 10px;">&iquest;Conoces a otros anfitriones? Comp&aacute;rtelo</p>
-            <a href="https://wa.me/?text=${encodeURIComponent(`Mira el manual digital que he creado con IA para mi alojamiento. ¡Es increíble! ${params.guideUrl}`)}"
-               style="background: #25D366; color: white; padding: 10px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; font-size: 14px;">
-              Compartir por WhatsApp
-            </a>
-          </div>
         </div>
 
-        <div style="text-align: center; color: #4b5563; font-size: 13px; padding-bottom: 20px;">
-          <p>La demo expira en 15 minutos. Reg&iacute;strate para mantener tu manual activo.</p>
-          <p>&copy; 2026 Itineramio. Todos los derechos reservados.</p>
-        </div>
+        <p style="font-size: 14px; color: #9ca3af; margin: 0;">Si hay algo que no funciona, responde a este email.</p>
+        <p style="font-size: 15px; color: #1a1a1a; margin-top: 20px;">Equipo de Itineramio</p>
       </div>
     </body>
     </html>
   `,
 
-  // Demo feedback request email (dark/violet theme)
+  // Demo feedback request email
   demoFeedback: (params: {
     leadName: string,
     propertyName: string,
@@ -655,45 +614,22 @@ export const emailTemplates = {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>&iquest;Qu&eacute; te ha parecido? - Itineramio</title>
     </head>
-    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #0f0a1a;">
-      <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="text-align: center; margin-bottom: 30px; padding-top: 20px;">
-          <h1 style="color: #a78bfa; margin: 0; font-size: 28px;">Itineramio</h1>
-          <p style="color: #6b7280; margin: 5px 0; font-size: 14px;">Tu opini&oacute;n nos importa</p>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; margin: 0; padding: 0; background-color: #ffffff;">
+      <div style="max-width: 520px; margin: 0 auto; padding: 40px 24px;">
+        <p style="font-size: 15px; color: #1a1a1a;">Hola ${params.leadName},</p>
+        <p style="font-size: 15px; color: #374151;">Hace un rato generaste el manual de <strong style="color: #1a1a1a;">${params.propertyName}</strong>.</p>
+        <p style="font-size: 15px; color: #374151;">Queremos pedirte un favor: cu&eacute;ntanos qu&eacute; te ha parecido. Estamos construyendo esta herramienta y tu opini&oacute;n es lo que nos permite mejorarla. S&eacute; honesto &mdash; es lo &uacute;nico que funciona.</p>
+        <p style="font-size: 15px; color: #374151;">Solo te llevar&aacute; 1 minuto.</p>
+
+        <div style="text-align: center; margin: 28px 0;">
+          <a href="${params.feedbackUrl}" style="background: #1a1a1a; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; font-size: 15px;">Dejar mi opini&oacute;n</a>
         </div>
 
-        <div style="background: linear-gradient(135deg, #1a1025, #1e1533); padding: 35px; border-radius: 16px; margin-bottom: 20px; border: 1px solid #2d2240;">
-          <h2 style="color: #e2e8f0; margin-top: 0; font-size: 22px;">Hola ${params.leadName},</h2>
-          <p style="color: #a1a1aa; font-size: 16px; margin-bottom: 5px;">
-            Hace un rato generaste la demo de <strong style="color: #c4b5fd;">${params.propertyName}</strong>.
-          </p>
-          <p style="color: #a1a1aa; font-size: 16px;">
-            Queremos ser honestos contigo: estamos construyendo algo nuevo y tu feedback es
-            lo m&aacute;s valioso que podemos recibir. <strong style="color: #e2e8f0;">S&eacute; honesto, queremos mejorar.</strong>
-          </p>
+        <p style="font-size: 13px; color: #9ca3af; margin: 0 0 4px;">Recuerda que tienes un cup&oacute;n del 20% de descuento: <strong style="color: #374151; font-family: monospace;">${params.couponCode}</strong></p>
+        <p style="font-size: 13px; color: #9ca3af; margin: 0;">V&aacute;lido hasta: ${params.couponExpiresAt}</p>
 
-          <div style="text-align: center; margin: 35px 0;">
-            <a href="${params.feedbackUrl}"
-               style="background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; padding: 16px 44px; text-decoration: none; border-radius: 10px; font-weight: 700; display: inline-block; font-size: 16px;">
-              Dejar mi opini&oacute;n
-            </a>
-          </div>
-
-          <div style="background: rgba(124, 58, 237, 0.1); padding: 16px 20px; border-radius: 10px; border: 1px solid rgba(124, 58, 237, 0.2); margin-top: 25px;">
-            <p style="color: #a1a1aa; font-size: 13px; margin: 0; text-align: center;">
-              Recuerda: tienes un cup&oacute;n del <strong style="color: #c4b5fd;">20% de descuento</strong> &rarr;
-              <span style="font-family: monospace; font-size: 15px; font-weight: 700; color: #a78bfa; letter-spacing: 1px;">${params.couponCode}</span>
-              <br>V&aacute;lido hasta: ${params.couponExpiresAt}
-            </p>
-          </div>
-        </div>
-
-        <div style="text-align: center; color: #4b5563; font-size: 13px; padding-bottom: 20px;">
-          <p>Solo te pedimos 1 minuto de tu tiempo. Cada opini&oacute;n cuenta.</p>
-          <p>&copy; 2026 Itineramio. Todos los derechos reservados.</p>
-        </div>
+        <p style="font-size: 15px; color: #1a1a1a; margin-top: 28px;">Equipo de Itineramio</p>
       </div>
     </body>
     </html>
@@ -711,55 +647,26 @@ export const emailTemplates = {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Tu cup&oacute;n expira pronto - Itineramio</title>
     </head>
-    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #0f0a1a;">
-      <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="text-align: center; margin-bottom: 30px; padding-top: 20px;">
-          <h1 style="color: #fb923c; margin: 0; font-size: 28px;">Itineramio</h1>
-          <p style="color: #6b7280; margin: 5px 0; font-size: 14px;">&Uacute;ltima oportunidad</p>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; margin: 0; padding: 0; background-color: #ffffff;">
+      <div style="max-width: 520px; margin: 0 auto; padding: 40px 24px;">
+        <p style="font-size: 15px; color: #1a1a1a;">Hola ${params.leadName},</p>
+        <p style="font-size: 15px; color: #374151;">Tu cup&oacute;n del 20% para <strong style="color: #1a1a1a;">${params.propertyName}</strong> expira en menos de 1 hora.</p>
+        <p style="font-size: 15px; color: #374151;">Despu&eacute;s de eso, el c&oacute;digo deja de funcionar y no podemos recuperarlo.</p>
+
+        <div style="background: #f9fafb; border-radius: 12px; padding: 20px; margin: 24px 0; text-align: center;">
+          <p style="font-size: 12px; color: #9ca3af; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 1px;">Tu c&oacute;digo</p>
+          <p style="font-family: monospace; font-size: 24px; font-weight: 700; color: #1a1a1a; letter-spacing: 3px; margin: 0 0 8px;">${params.couponCode}</p>
+          <p style="font-size: 13px; color: #ef4444; font-weight: 600; margin: 0;">Expira en menos de 1 hora</p>
         </div>
 
-        <div style="background: linear-gradient(135deg, #1a1008, #1e1510); padding: 35px; border-radius: 16px; margin-bottom: 20px; border: 1px solid #3d2a10;">
-          <div style="text-align: center; margin-bottom: 20px;">
-            <span style="font-size: 48px;">&#9200;</span>
-          </div>
-          <h2 style="color: #e2e8f0; margin-top: 0; font-size: 22px; text-align: center;">
-            ${params.leadName}, tu cup&oacute;n expira en 1 hora
-          </h2>
-          <p style="color: #a1a1aa; font-size: 16px; text-align: center;">
-            El descuento exclusivo del <strong style="color: #fb923c;">20%</strong> que generaste para
-            <strong style="color: #fbbf24;">${params.propertyName}</strong> est&aacute; a punto de caducar.
-          </p>
+        <p style="font-size: 15px; color: #374151;">Reg&iacute;strate ahora y tienes 15 d&iacute;as gratis para probarlo con tu alojamiento real. Sin tarjeta de cr&eacute;dito.</p>
 
-          <div style="background: rgba(251, 146, 60, 0.1); padding: 24px; border-radius: 12px; border: 2px solid rgba(251, 146, 60, 0.3); margin: 25px 0; text-align: center;">
-            <p style="color: #a1a1aa; font-size: 13px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">Tu c&oacute;digo de descuento</p>
-            <div style="font-family: monospace; font-size: 32px; font-weight: 800; color: #fb923c; letter-spacing: 4px; padding: 8px 0;">
-              ${params.couponCode}
-            </div>
-            <p style="color: #ef4444; font-size: 14px; font-weight: 600; margin: 8px 0 0 0;">
-              Expira en menos de 1 hora
-            </p>
-          </div>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${params.registerUrl}"
-               style="background: linear-gradient(135deg, #f97316, #ef4444); color: white; padding: 18px 48px; text-decoration: none; border-radius: 10px; font-weight: 800; display: inline-block; font-size: 17px; text-transform: uppercase; letter-spacing: 0.5px;">
-              Activar mi descuento ahora
-            </a>
-          </div>
-
-          <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 20px;">
-            &iquest;Prefieres hacerlo m&aacute;s tarde?
-            <a href="${params.registerUrl}" style="color: #fb923c; text-decoration: underline;">Reg&iacute;strate aqu&iacute;</a>
-            antes de que caduque.
-          </p>
+        <div style="text-align: center; margin: 28px 0;">
+          <a href="${params.registerUrl}" style="background: #1a1a1a; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; font-size: 15px;">Crear mi cuenta con 20% dto</a>
         </div>
 
-        <div style="text-align: center; color: #4b5563; font-size: 13px; padding-bottom: 20px;">
-          <p>Una vez caduque el cup&oacute;n no podr&aacute; recuperarse.</p>
-          <p>&copy; 2026 Itineramio. Todos los derechos reservados.</p>
-        </div>
+        <p style="font-size: 15px; color: #1a1a1a; margin-top: 28px;">Equipo de Itineramio</p>
       </div>
     </body>
     </html>
@@ -845,71 +752,42 @@ export const emailTemplates = {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Tu chatbot IA - Itineramio</title>
     </head>
-    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #0f0a1a;">
-      <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="text-align: center; margin-bottom: 30px; padding-top: 20px;">
-          <h1 style="color: #a78bfa; margin: 0; font-size: 28px;">Itineramio</h1>
-          <p style="color: #6b7280; margin: 5px 0; font-size: 14px;">Tu asistente IA para hu&eacute;spedes</p>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; margin: 0; padding: 0; background-color: #ffffff;">
+      <div style="max-width: 520px; margin: 0 auto; padding: 40px 24px;">
+        <p style="font-size: 15px; color: #1a1a1a;">Hola ${params.leadName},</p>
+        <p style="font-size: 15px; color: #374151;">Ayer generaste el manual de <strong style="color: #1a1a1a;">${params.propertyName}</strong>. Si lo probaste, ya sabes lo que hace. Si no, esto es lo que te est&aacute;s perdiendo:</p>
+
+        <p style="font-size: 15px; color: #374151;">Cada vez que un hu&eacute;sped te escribe &laquo;&iquest;cu&aacute;l es el WiFi?&raquo; o &laquo;&iquest;c&oacute;mo se enciende la vitro?&raquo;, t&uacute; respondes. Con Itineramio, el asistente IA responde por ti. En el idioma del hu&eacute;sped. A las 3 de la ma&ntilde;ana. Sin que toques el m&oacute;vil.</p>
+
+        <p style="font-size: 15px; color: #374151;">Y eso es solo el chatbot. Con tu cuenta tambi&eacute;n tienes:</p>
+
+        <table style="width: 100%; border-collapse: collapse; margin: 8px 0 20px;">
+          <tr>
+            <td style="padding: 6px 0; font-size: 14px; color: #374151; vertical-align: top; width: 20px;">&bull;</td>
+            <td style="padding: 6px 0; font-size: 14px; color: #374151;"><strong style="color: #1a1a1a;">QR f&iacute;sicos por zona</strong> &mdash; lavadora, vitro, piscina. El hu&eacute;sped escanea y ve c&oacute;mo funciona.</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 14px; color: #374151; vertical-align: top;">&bull;</td>
+            <td style="padding: 6px 0; font-size: 14px; color: #374151;"><strong style="color: #1a1a1a;">Panel Intelligence</strong> &mdash; entrena al chatbot con tus propias respuestas y preguntas frecuentes.</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 14px; color: #374151; vertical-align: top;">&bull;</td>
+            <td style="padding: 6px 0; font-size: 14px; color: #374151;"><strong style="color: #1a1a1a;">Recomendaciones locales</strong> &mdash; restaurantes, farmacias, transporte. El hu&eacute;sped deja de preguntarte.</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-size: 14px; color: #374151; vertical-align: top;">&bull;</td>
+            <td style="padding: 6px 0; font-size: 14px; color: #374151;"><strong style="color: #1a1a1a;">Avisos y conjuntos</strong> &mdash; gestiona varios apartamentos, env&iacute;a avisos a hu&eacute;spedes activos.</td>
+          </tr>
+        </table>
+
+        <p style="font-size: 15px; color: #374151;">15 d&iacute;as de prueba gratis. Sin tarjeta. Y tu cup&oacute;n del 20% sigue activo: <strong style="font-family: monospace; color: #1a1a1a;">${params.couponCode}</strong></p>
+
+        <div style="text-align: center; margin: 28px 0;">
+          <a href="${params.registerUrl}" style="background: #1a1a1a; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; font-size: 15px;">Crear mi cuenta gratis</a>
         </div>
 
-        <div style="background: linear-gradient(135deg, #1a1025, #1e1533); padding: 35px; border-radius: 16px; margin-bottom: 20px; border: 1px solid #2d2240;">
-          <h2 style="color: #e2e8f0; margin-top: 0; font-size: 22px;">${params.leadName}, mira lo que tu chatbot IA puede hacer</h2>
-
-          <!-- Simulated conversation -->
-          <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin: 20px 0;">
-            <div style="margin-bottom: 12px;">
-              <div style="background: #374151; color: white; padding: 10px 14px; border-radius: 12px 12px 12px 4px; display: inline-block; max-width: 80%; font-size: 14px;">
-                &iquest;Cu&aacute;l es la contrase&ntilde;a del WiFi?
-              </div>
-            </div>
-            <div style="text-align: right; margin-bottom: 12px;">
-              <div style="background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; padding: 10px 14px; border-radius: 12px 12px 4px 12px; display: inline-block; max-width: 80%; font-size: 14px; text-align: left;">
-                La contrase&ntilde;a del WiFi de <strong>${params.propertyName}</strong> es: [tu-contrase&ntilde;a]. La red se llama [tu-red]. Si tienes problemas de conexi&oacute;n, reinicia el router que est&aacute; en el sal&oacute;n.
-              </div>
-            </div>
-            <div style="margin-bottom: 12px;">
-              <div style="background: #374151; color: white; padding: 10px 14px; border-radius: 12px 12px 12px 4px; display: inline-block; max-width: 80%; font-size: 14px;">
-                &iquest;D&oacute;nde puedo cenar cerca?
-              </div>
-            </div>
-            <div style="text-align: right;">
-              <div style="background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; padding: 10px 14px; border-radius: 12px 12px 4px 12px; display: inline-block; max-width: 80%; font-size: 14px; text-align: left;">
-                Cerca de ${params.propertyName} tienes varios restaurantes recomendados...
-              </div>
-            </div>
-          </div>
-
-          <p style="color: #a1a1aa; font-size: 15px; text-align: center;">
-            Tu chatbot responde <strong style="color: #c4b5fd;">24/7</strong> en <strong style="color: #c4b5fd;">3 idiomas</strong> (ES, EN, FR)
-          </p>
-
-          <!-- Testimonial -->
-          <div style="background: rgba(124, 58, 237, 0.1); padding: 16px 20px; border-radius: 10px; border: 1px solid rgba(124, 58, 237, 0.2); margin: 20px 0;">
-            <p style="color: #c4b5fd; font-size: 14px; font-style: italic; margin: 0 0 8px 0;">
-              &ldquo;Desde que activ&eacute; el chatbot, mis hu&eacute;spedes no me llaman a las 3 AM preguntando por el WiFi&rdquo;
-            </p>
-            <p style="color: #6b7280; font-size: 13px; margin: 0;">
-              &mdash; Carlos R., anfitri&oacute;n en Barcelona
-            </p>
-          </div>
-
-          <!-- Coupon -->
-          <div style="background: rgba(124, 58, 237, 0.08); padding: 12px 16px; border-radius: 8px; text-align: center; margin: 20px 0;">
-            <p style="color: #a1a1aa; font-size: 12px; margin: 0 0 4px 0;">Tu cup&oacute;n de 20% sigue activo</p>
-            <span style="font-family: monospace; font-size: 18px; font-weight: 700; color: #a78bfa; letter-spacing: 2px;">${params.couponCode}</span>
-          </div>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${params.registerUrl}"
-               style="background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; padding: 16px 44px; text-decoration: none; border-radius: 10px; font-weight: 700; display: inline-block; font-size: 16px;">
-              Activar mi manual permanente
-            </a>
-          </div>
-        </div>
-
-        <div style="text-align: center; color: #4b5563; font-size: 13px; padding-bottom: 20px;">
-          <p>&copy; 2026 Itineramio. Todos los derechos reservados.</p>
-        </div>
+        <p style="font-size: 14px; color: #9ca3af; margin: 0;">Si tienes dudas, responde a este email.</p>
+        <p style="font-size: 15px; color: #1a1a1a; margin-top: 20px;">Equipo de Itineramio</p>
       </div>
     </body>
     </html>
@@ -1000,52 +878,20 @@ export const emailTemplates = {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Tu manual ha expirado - Itineramio</title>
     </head>
-    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #0f0a1a;">
-      <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="text-align: center; margin-bottom: 30px; padding-top: 20px;">
-          <h1 style="color: #a78bfa; margin: 0; font-size: 28px;">Itineramio</h1>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; margin: 0; padding: 0; background-color: #ffffff;">
+      <div style="max-width: 520px; margin: 0 auto; padding: 40px 24px;">
+        <p style="font-size: 15px; color: #1a1a1a;">Hola ${params.leadName},</p>
+        <p style="font-size: 15px; color: #374151;">Tu demo de <strong style="color: #1a1a1a;">${params.propertyName}</strong> ha expirado. El manual y el chatbot ya no est&aacute;n accesibles.</p>
+        <p style="font-size: 15px; color: #374151;">Mientras tanto, tus hu&eacute;spedes siguen escribi&eacute;ndote las mismas preguntas de siempre. WiFi. Check-in. Normas. Vitrocer&aacute;mica.</p>
+        <p style="font-size: 15px; color: #374151;">Si creas tu cuenta, la IA genera un manual nuevo en 8 minutos con todo lo que ya configuraste. 15 d&iacute;as gratis. Sin tarjeta.</p>
+
+        <div style="text-align: center; margin: 28px 0;">
+          <a href="${params.registerUrl}" style="background: #1a1a1a; color: #ffffff; padding: 14px 40px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; font-size: 15px;">Crear mi cuenta gratis</a>
         </div>
 
-        <div style="background: linear-gradient(135deg, #1a1025, #1e1533); padding: 35px; border-radius: 16px; margin-bottom: 20px; border: 1px solid #2d2240;">
-          <div style="text-align: center; margin-bottom: 15px;">
-            <span style="font-size: 40px;">&#128276;</span>
-          </div>
-          <h2 style="color: #e2e8f0; margin-top: 0; font-size: 22px; text-align: center;">
-            Tu manual de ${params.propertyName} ha expirado
-          </h2>
-
-          <p style="color: #a1a1aa; font-size: 15px; text-align: center;">
-            ${params.leadName}, tu demo ha expirado, pero puedes crear uno permanente.
-          </p>
-
-          <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin: 25px 0;">
-            <p style="color: #e2e8f0; font-size: 15px; margin: 0 0 12px 0; font-weight: 600;">
-              Los anfitriones que usan Itineramio:
-            </p>
-            <ul style="color: #a1a1aa; font-size: 14px; padding-left: 20px; margin: 0;">
-              <li style="margin-bottom: 8px;">Ahorran <strong style="color: #c4b5fd;">5 horas/semana</strong> en consultas</li>
-              <li style="margin-bottom: 8px;">Reciben <strong style="color: #c4b5fd;">mejores rese&ntilde;as</strong> de hu&eacute;spedes</li>
-              <li style="margin-bottom: 8px;">Tienen un asistente IA <strong style="color: #c4b5fd;">24/7 en 3 idiomas</strong></li>
-            </ul>
-          </div>
-
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${params.registerUrl}"
-               style="background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; padding: 16px 44px; text-decoration: none; border-radius: 10px; font-weight: 700; display: inline-block; font-size: 16px;">
-              Crear mi cuenta
-            </a>
-          </div>
-
-          <p style="color: #6b7280; font-size: 13px; text-align: center; margin-top: 20px;">
-            P.S. Responde a este email y te damos un cup&oacute;n especial
-          </p>
-        </div>
-
-        <div style="text-align: center; color: #4b5563; font-size: 13px; padding-bottom: 20px;">
-          <p>&copy; 2026 Itineramio. Todos los derechos reservados.</p>
-        </div>
+        <p style="font-size: 13px; color: #9ca3af; margin: 24px 0 0;">P.S. Si crees que le falt&oacute; algo a la demo o hay algo que mejorar&iacute;as, responde a este email. Lo leemos todo.</p>
+        <p style="font-size: 15px; color: #1a1a1a; margin-top: 20px;">Equipo de Itineramio</p>
       </div>
     </body>
     </html>

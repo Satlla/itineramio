@@ -764,9 +764,19 @@ export default function Step2Media({
                                 </button>
 
                                 <div className="max-h-64 overflow-y-auto">
-                                {/* Template zones */}
+                                {/* Template zones — hide zones already assigned to other items */}
+                                {(() => {
+                                  const usedZoneIds = new Set(
+                                    media
+                                      .filter(m => m.id !== item.id && m.zoneId)
+                                      .map(m => m.zoneId)
+                                  )
+                                  const available = (group: string) =>
+                                    PREDEFINED_ZONES.filter(z => z.group === group && !usedZoneIds.has(z.id))
+
+                                  return (<>
                                 <div className="px-3 py-1.5 text-[10px] text-gray-500 uppercase tracking-wider bg-gray-50 sticky top-0">Zonas del wizard</div>
-                                {PREDEFINED_ZONES.filter(z => z.group === 'template').map(zone => (
+                                {available('template').map(zone => (
                                   <button
                                     key={zone.id}
                                     type="button"
@@ -783,7 +793,7 @@ export default function Step2Media({
 
                                 {/* Appliance zones */}
                                 <div className="px-3 py-1.5 text-[10px] text-gray-500 uppercase tracking-wider bg-gray-50 sticky top-0 border-t border-gray-200">Electrodomésticos</div>
-                                {PREDEFINED_ZONES.filter(z => z.group === 'appliance').map(zone => (
+                                {available('appliance').map(zone => (
                                   <button
                                     key={zone.id}
                                     type="button"
@@ -799,7 +809,7 @@ export default function Step2Media({
 
                                 {/* Space zones */}
                                 <div className="px-3 py-1.5 text-[10px] text-gray-500 uppercase tracking-wider bg-gray-50 sticky top-0 border-t border-gray-200">Espacios</div>
-                                {PREDEFINED_ZONES.filter(z => z.group === 'space').map(zone => (
+                                {available('space').map(zone => (
                                   <button
                                     key={zone.id}
                                     type="button"
@@ -813,6 +823,8 @@ export default function Step2Media({
                                   </button>
                                 ))}
 
+                                </>)
+                                })()}
                                 </div>
                               </div>
                             )}

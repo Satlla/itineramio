@@ -801,7 +801,7 @@ export default function BienvenidoPage() {
                     <div className="flex items-center justify-between pt-4 border-t">
                       <span className="text-gray-500">{t.step1.time}</span>
                       <Link
-                        href="/properties/new"
+                        href="/ai-setup"
                         className="inline-flex items-center gap-2 text-violet-600 font-medium hover:text-violet-700"
                       >
                         {t.hero.cta}

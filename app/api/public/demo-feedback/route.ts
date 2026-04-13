@@ -32,41 +32,43 @@ export async function POST(request: NextRequest) {
       where: { id: leadId },
     })
 
-    if (!lead || lead.source !== 'demo') {
-      return NextResponse.json(
-        { error: 'Lead no encontrado.' },
-        { status: 404 }
-      )
-    }
+    // If lead exists, save feedback in metadata
+    if (lead && lead.source === 'demo') {
+      const metadata = (lead.metadata as Record<string, unknown>) || {}
 
-    const metadata = (lead.metadata as Record<string, unknown>) || {}
+      // Don't allow re-submission
+      if (metadata.feedbackRating) {
+        return NextResponse.json({
+          success: true,
+          alreadySubmitted: true,
+          couponCode: (metadata.couponCode as string) || null,
+        })
+      }
 
-    // Don't allow re-submission
-    if (metadata.feedbackRating) {
+      await prisma.lead.update({
+        where: { id: leadId },
+        data: {
+          metadata: {
+            ...metadata,
+            feedbackRating: rating,
+            feedbackComment: comment || null,
+            feedbackImproveComment: improveComment || null,
+            feedbackAt: new Date().toISOString(),
+          },
+        },
+      })
+
       return NextResponse.json({
         success: true,
-        alreadySubmitted: true,
         couponCode: (metadata.couponCode as string) || null,
       })
     }
 
-    // Update lead metadata with feedback
-    await prisma.lead.update({
-      where: { id: leadId },
-      data: {
-        metadata: {
-          ...metadata,
-          feedbackRating: rating,
-          feedbackComment: comment || null,
-          feedbackImproveComment: improveComment || null,
-          feedbackAt: new Date().toISOString(),
-        },
-      },
-    })
-
+    // Lead not found — still accept the feedback gracefully
+    // (handles test emails and expired/deleted leads)
     return NextResponse.json({
       success: true,
-      couponCode: (metadata.couponCode as string) || null,
+      couponCode: null,
     })
   } catch (error) {
     return NextResponse.json(

@@ -44,7 +44,7 @@ export const SubscriptionActivatedModal: React.FC<SubscriptionActivatedModalProp
   }
 
   const handleCreateProperty = () => {
-    router.push('/properties/new')
+    router.push('/ai-setup')
     onClose()
   }
 
