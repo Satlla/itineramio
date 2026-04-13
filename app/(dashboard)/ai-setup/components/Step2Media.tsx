@@ -112,12 +112,12 @@ const CUSTOM_ZONE_ICONS: { id: string; Icon: LucideIcon; label: string }[] = [
 ]
 
 export const PREDEFINED_ZONES = [
-  { id: 'checkin', name: 'Check-in', lucideIcon: 'key', icon: 'key', hasTemplate: true },
-  { id: 'checkout', name: 'Check-out', lucideIcon: 'door-open', icon: 'door-open', hasTemplate: true },
-  { id: 'ac', name: 'Aire Acondicionado', lucideIcon: 'snowflake', icon: 'snowflake', hasTemplate: true },
-  { id: 'wifi_zone', name: 'WiFi', lucideIcon: 'wifi', icon: 'wifi', hasTemplate: true },
+  { id: 'check-in', name: 'Check-in', lucideIcon: 'key', icon: 'key', hasTemplate: true },
+  { id: 'check-out', name: 'Check-out', lucideIcon: 'door-open', icon: 'door-open', hasTemplate: true },
+  { id: 'air-conditioning', name: 'Aire Acondicionado', lucideIcon: 'snowflake', icon: 'snowflake', hasTemplate: true },
+  { id: 'wifi', name: 'WiFi', lucideIcon: 'wifi', icon: 'wifi', hasTemplate: true },
   { id: 'parking', name: 'Parking', lucideIcon: 'car', icon: 'car', hasTemplate: true },
-  { id: 'trash', name: 'Basuras', lucideIcon: 'trash-2', icon: 'trash-2', hasTemplate: false },
+  { id: 'recycling', name: 'Basura y reciclaje', lucideIcon: 'trash-2', icon: 'trash-2', hasTemplate: true },
   { id: 'washing_machine', name: 'Lavadora', lucideIcon: 'shirt', icon: 'washing-machine', hasTemplate: false },
   { id: 'dishwasher', name: 'Lavavajillas', lucideIcon: 'utensils', icon: 'dishwasher', hasTemplate: false },
   { id: 'coffee_machine', name: 'Cafetera', lucideIcon: 'coffee', icon: 'coffee', hasTemplate: false },
@@ -180,7 +180,7 @@ function buildSuggestedZones(ctx?: PropertyContext): SuggestedZone[] {
     { zoneId: 'dishwasher', name: 'Lavavajillas', icon: 'utensils', hint: 'Foto del interior y los programas' },
   ]
   if (ctx?.hasAC) {
-    suggestions.unshift({ zoneId: 'ac', name: 'Aire Acondicionado', icon: 'snowflake', hint: 'Foto del mando y la unidad interior' })
+    suggestions.unshift({ zoneId: 'air-conditioning', name: 'Aire Acondicionado', icon: 'snowflake', hint: 'Foto del mando y la unidad interior' })
   }
   if (ctx?.hasPool) {
     suggestions.push({ zoneId: 'pool', name: 'Piscina', icon: 'waves', hint: 'Foto de la piscina y el horario de uso' })
