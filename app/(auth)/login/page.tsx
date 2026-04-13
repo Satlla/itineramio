@@ -155,11 +155,9 @@ function LoginContent() {
           try {
             const moduleRes = await fetch('/api/auth/module-status', { credentials: 'include' })
             if (moduleRes.ok) {
-              const { manualesActive, gestionActive } = await moduleRes.json()
-              if (gestionActive && !manualesActive) {
+              const { gestionActive } = await moduleRes.json()
+              if (gestionActive) {
                 router.push('/gestion')
-              } else if (manualesActive || (!manualesActive && !gestionActive)) {
-                router.push(manualesActive ? '/main' : '/account/modules')
               } else {
                 router.push('/main')
               }
