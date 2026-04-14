@@ -2737,9 +2737,14 @@ export default function PropertyZonesPage() {
             <Button
               onClick={async () => {
                 try {
+                  const headers: HeadersInit = { 'Content-Type': 'application/json' }
+                  try {
+                    const token = localStorage.getItem('auth-token')
+                    if (token) headers['Authorization'] = `Bearer ${token}`
+                  } catch {}
                   const response = await fetch(`/api/properties/${id}`, {
                     method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers,
                     credentials: 'include',
                     body: JSON.stringify({ status: 'ACTIVE' })
                   })
