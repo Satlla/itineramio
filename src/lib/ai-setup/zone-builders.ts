@@ -519,7 +519,7 @@ export function buildRecyclingZone(input: PropertyInput): TrilingualZoneConfig {
   const template = getZoneContentTemplate('recycling')
   if (!template) {
     return {
-      name: { es: 'Reciclaje', en: 'Recycling', fr: 'Recyclage' },
+      name: { es: 'Basura y reciclaje', en: 'Trash & Recycling', fr: 'Déchets et recyclage' },
       icon: 'recycle',
       description: { es: 'Separación de residuos', en: 'Waste separation', fr: 'Tri des déchets' },
       steps: [{
@@ -544,7 +544,7 @@ export function buildRecyclingZone(input: PropertyInput): TrilingualZoneConfig {
 
   return templateToZoneConfig(
     template,
-    { es: 'Reciclaje', en: 'Recycling', fr: 'Recyclage' },
+    { es: 'Basura y reciclaje', en: 'Trash & Recycling', fr: 'Déchets et recyclage' },
     'recycle',
     { es: 'Separación y recogida de residuos', en: 'Waste separation and collection', fr: 'Tri et collecte des déchets' },
     vars,

@@ -769,6 +769,40 @@ export async function generateManual(
       }
     }
 
+    // Item locations zone ("Dónde están las cosas") — only if user marked items
+    const items = propertyInput.details?.items
+    if (items) {
+      const itemLabels: Record<string, { es: string; en: string; fr: string }> = {
+        iron: { es: 'Plancha', en: 'Iron', fr: 'Fer à repasser' },
+        ironingBoard: { es: 'Tabla de planchar', en: 'Ironing board', fr: 'Table à repasser' },
+        hairdryer: { es: 'Secador de pelo', en: 'Hair dryer', fr: 'Sèche-cheveux' },
+        firstAid: { es: 'Botiquín', en: 'First aid kit', fr: 'Trousse de secours' },
+        extraBlankets: { es: 'Sábanas y mantas extra', en: 'Extra sheets & blankets', fr: 'Draps et couvertures supplémentaires' },
+        broom: { es: 'Escoba y fregona', en: 'Broom & mop', fr: 'Balai et serpillière' },
+      }
+      const activeItems = Object.entries(items).filter(([, v]) => v.has)
+      if (activeItems.length > 0) {
+        const esLines = activeItems.map(([k, v]) => `• **${itemLabels[k]?.es || k}:** ${v.location || '(indicar ubicación)'}`).join('\n')
+        const enLines = activeItems.map(([k, v]) => `• **${itemLabels[k]?.en || k}:** ${v.location || '(specify location)'}`).join('\n')
+        const frLines = activeItems.map(([k, v]) => `• **${itemLabels[k]?.fr || k}:** ${v.location || '(indiquer emplacement)'}`).join('\n')
+        allZones.push({
+          name: { es: 'Dónde están las cosas', en: 'Where things are', fr: 'Où trouver les choses' },
+          icon: 'package',
+          description: { es: 'Ubicación de objetos útiles', en: 'Location of useful items', fr: 'Emplacement des objets utiles' },
+          steps: [{
+            type: 'text',
+            title: { es: 'Ubicación de objetos útiles', en: 'Location of useful items', fr: 'Emplacement des objets utiles' },
+            content: {
+              es: `🔎 **Ubicación de objetos útiles:**\n\n${esLines}`,
+              en: `🔎 **Where to find useful items:**\n\n${enLines}`,
+              fr: `🔎 **Où trouver les objets utiles:**\n\n${frLines}`,
+            },
+          }],
+          needsTranslation: false,
+        })
+      }
+    }
+
     // Recycling zone (always, already trilingual)
     allZones.push(buildRecyclingZone(propertyInput))
 
