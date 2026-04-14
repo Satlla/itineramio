@@ -41,9 +41,9 @@ export class PlanLimitsService {
         throw new Error('Usuario no encontrado')
       }
 
-      // Count all user properties (ACTIVE, INACTIVE, DRAFT, etc.)
+      // Count non-deleted user properties
       const currentProperties = await prisma.property.count({
-        where: { hostId: userId }
+        where: { hostId: userId, deletedAt: null }
       })
 
       // Check for active subscription FIRST (prioritize paid plans over trials)
