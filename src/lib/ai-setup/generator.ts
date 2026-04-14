@@ -394,12 +394,16 @@ async function assignTemplateZoneMedia(
     orderBy: { order: 'asc' },
   })
 
+  console.log('[AI-SETUP] assignTemplateZoneMedia: DB zones:', dbZones.map(z => ({ name: (z.name as any)?.es || z.name, id: z.id })))
+
   for (const item of templateMedia) {
     const namePatterns = TEMPLATE_TO_NAME[item.zoneId] || []
     const dbZone = dbZones.find(z => {
       const name = typeof z.name === 'object' ? (z.name as any).es : z.name
       return namePatterns.some(pattern => name === pattern)
     })
+
+    console.log('[AI-SETUP] assignTemplateZoneMedia:', item.zoneId, '→ patterns:', namePatterns, '→ found:', dbZone ? (dbZone.name as any)?.es : 'NOT FOUND')
 
     if (!dbZone || dbZone.steps.length === 0) continue
 
