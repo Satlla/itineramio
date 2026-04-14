@@ -24,7 +24,7 @@ export async function GET(
         street, city, state, country, "postalCode",
         bedrooms, bathrooms, "maxGuests", "squareMeters",
         "profileImage", "hostContactName", "hostContactPhone",
-        "hostContactEmail", "hostContactLanguage", "hostContactPhoto",
+        "hostContactEmail", "hostContactLanguage", "hostContactPhoto", amenities,
         status, "isPublished", "propertySetId", "hostId",
         "createdAt", "updatedAt", "publishedAt"
       FROM properties

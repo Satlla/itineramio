@@ -80,6 +80,7 @@ export interface PropertyInput {
   hostContactPhoto?: string
   details?: PropertyDetails
   intelligence?: Record<string, any>
+  amenities?: string[]
   disabledZones?: string[]
   reviewedContent?: Record<string, string>
   customTitles?: Record<string, string>

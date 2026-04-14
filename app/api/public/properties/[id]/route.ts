@@ -25,7 +25,7 @@ export async function GET(
         street: true, city: true, state: true, country: true, postalCode: true,
         bedrooms: true, bathrooms: true, maxGuests: true, squareMeters: true,
         profileImage: true, hostContactName: true, hostContactPhone: true,
-        hostContactEmail: true, hostContactLanguage: true, hostContactPhoto: true,
+        hostContactEmail: true, hostContactLanguage: true, hostContactPhoto: true, amenities: true,
         status: true, isPublished: true, propertySetId: true, hostId: true,
         createdAt: true, updatedAt: true, publishedAt: true
       }

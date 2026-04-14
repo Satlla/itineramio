@@ -703,6 +703,7 @@ export async function generateManual(
             profileImage: propertyInput.profileImage || null,
             squareMeters: propertyInput.squareMeters || null,
             intelligence: propertyInput.intelligence || undefined,
+            amenities: propertyInput.amenities || undefined,
             status: 'DRAFT',
             isPublished: false,
             hostId: userId,

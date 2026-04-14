@@ -427,6 +427,11 @@ export default function AISetupPage() {
       details: step2Data,
       // Intelligence from Airbnb import
       intelligence: buildIntelligenceFromImport(airbnbData, step2Data, airbnbUrl || undefined),
+      // Auto-mapped amenities from Airbnb import
+      amenities: airbnbData?.allAmenities ? (() => {
+        const { mapAirbnbAmenities } = require('@/data/amenities')
+        return mapAirbnbAmenities(airbnbData.allAmenities)
+      })() : undefined,
       // Step 4: disabled zones + reviewed content + custom titles/icons
       disabledZones: [...disabledZones],
       reviewedContent,

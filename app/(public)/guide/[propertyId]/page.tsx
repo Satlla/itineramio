@@ -75,6 +75,7 @@ interface Property {
   hostContactPhone: string
   hostContactEmail: string
   hostContactPhoto?: string
+  amenities?: string[]
   zones: Zone[]
   status?: 'ACTIVE' | 'DRAFT' | 'ARCHIVED'
   isPublished?: boolean
@@ -658,6 +659,7 @@ export default function PropertyGuidePage() {
   const [carouselScrollPosition, setCarouselScrollPosition] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
   const [showRatingsModal, setShowRatingsModal] = useState(false)
+  const [showAmenitiesModal, setShowAmenitiesModal] = useState(false)
   const [ratings, setRatings] = useState<any[]>([])
   const [showCompletionReward, setShowCompletionReward] = useState(false)
   const [showPublicRatingModal, setShowPublicRatingModal] = useState(false)
@@ -1267,6 +1269,40 @@ export default function PropertyGuidePage() {
               )
             })()}
 
+            {/* Amenities */}
+            {property.amenities && (property.amenities as string[]).length > 0 && (() => {
+              const amenityIds = property.amenities as string[]
+              const { getAmenityById } = require('@/data/amenities')
+              const resolved = amenityIds.map((id: string) => getAmenityById(id)).filter(Boolean)
+              const preview = resolved.slice(0, 6)
+              const hasMore = resolved.length > 6
+              return (
+                <div className={`py-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                  <h3 className={`text-[22px] font-semibold mb-4 ${darkMode ? 'text-white' : 'text-[#222222]'}`}>
+                    {language === 'fr' ? 'Services' : language === 'en' ? 'Amenities' : 'Servicios'}
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    {preview.map((a: any) => (
+                      <div key={a.id} className="flex items-center gap-3">
+                        <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${darkMode ? 'bg-gray-500' : 'bg-gray-400'}`} />
+                        <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-[#484848]'}`}>
+                          {a.name[language] || a.name.es}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  {hasMore && (
+                    <button
+                      onClick={() => setShowAmenitiesModal(true)}
+                      className={`mt-4 text-sm font-semibold underline ${darkMode ? 'text-white' : 'text-[#222222]'}`}
+                    >
+                      {language === 'fr' ? `Voir les ${resolved.length} services` : language === 'en' ? `Show all ${resolved.length} amenities` : `Ver los ${resolved.length} servicios`}
+                    </button>
+                  )}
+                </div>
+              )
+            })()}
+
             {/* Description - Hidden on mobile to reduce scroll */}
             <div className={`hidden md:block py-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
               <p className={`leading-relaxed ${darkMode ? 'text-gray-300' : 'text-[#484848]'}`}>
@@ -1755,6 +1791,55 @@ export default function PropertyGuidePage() {
       )}
 
       {/* Ratings Modal */}
+      {/* Amenities Modal */}
+      {showAmenitiesModal && property?.amenities && (() => {
+        const { getAmenityById, AMENITY_CATEGORIES } = require('@/data/amenities')
+        const amenityIds = property.amenities as string[]
+        const activeSet = new Set(amenityIds)
+        return (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowAmenitiesModal(false)}
+          >
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg max-h-[85vh] overflow-y-auto"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between rounded-t-2xl z-10">
+                <h3 className="text-lg font-bold text-gray-900">
+                  {language === 'en' ? 'What this place offers' : language === 'fr' ? 'Ce que propose ce logement' : 'Servicios del alojamiento'}
+                </h3>
+                <button onClick={() => setShowAmenitiesModal(false)} className="p-1 hover:bg-gray-100 rounded-full">
+                  <span className="text-gray-500 text-xl leading-none">&times;</span>
+                </button>
+              </div>
+              <div className="p-4 space-y-6">
+                {AMENITY_CATEGORIES.filter((cat: any) => cat.amenities.some((a: any) => activeSet.has(a.id))).map((cat: any) => (
+                  <div key={cat.id}>
+                    <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                      {cat.name[language] || cat.name.es}
+                    </h4>
+                    <div className="space-y-2">
+                      {cat.amenities.filter((a: any) => activeSet.has(a.id)).map((a: any) => (
+                        <div key={a.id} className="flex items-center gap-3 py-1">
+                          <div className="w-1.5 h-1.5 rounded-full bg-gray-400 flex-shrink-0" />
+                          <span className="text-sm text-gray-800">{a.name[language] || a.name.es}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )
+      })()}
+
       {showRatingsModal && (
         <motion.div
           initial={{ opacity: 0 }}
