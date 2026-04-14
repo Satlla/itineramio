@@ -44,7 +44,6 @@ import {
   Thermometer,
   Snowflake,
   Shirt,
-  Bed,
   Flame,
   Lock,
   Heart,
