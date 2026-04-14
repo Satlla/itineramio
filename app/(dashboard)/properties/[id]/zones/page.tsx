@@ -2845,22 +2845,22 @@ export default function PropertyZonesPage() {
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-xl sm:text-3xl font-bold text-gray-900 truncate">
             {propertyName ? `Zonas de ${propertyName}` : 'Zonas de la Propiedad'}
           </h1>
         </div>
         {propertyCode && (
-          <div className="ml-12 mb-1">
+          <div className="ml-0 sm:ml-12 mb-1">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
               <Hash className="w-4 h-4 mr-1" />
               {propertyCode}
             </span>
           </div>
         )}
-        <p className="text-gray-500 text-sm ml-12 mb-3">
+        <p className="text-gray-500 text-sm ml-0 sm:ml-12 mb-3 hidden sm:block">
           Gestiona las diferentes zonas y sus códigos QR
         </p>
-        <div className="flex items-center gap-4 ml-12">
+        <div className="flex items-center gap-3 sm:gap-4 ml-0 sm:ml-12 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
           <button
             onClick={() => router.push(`/properties/${id}/chatbot`)}
             className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
@@ -2902,10 +2902,11 @@ export default function PropertyZonesPage() {
               const publicUrl = `${window.location.origin}/guide/${id}`
               window.open(publicUrl, '_blank')
             }}
-            className="text-gray-500 hover:text-gray-700 transition-colors p-1"
-            aria-label="Vista pública"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 text-violet-700 rounded-lg text-sm font-medium hover:bg-violet-100 transition-colors"
           >
-            <Eye className="w-4 h-4" />
+            <Eye className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Ver como huesped</span>
+            <span className="sm:hidden">Vista</span>
           </button>
 
           {/* Property Options Menú */}
