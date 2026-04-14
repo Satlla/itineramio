@@ -536,8 +536,19 @@ function renderZoneIcon(iconId: string) {
 
 // Predefined zone IDs that map to built-in review zones (template-generated)
 const PREDEFINED_TO_BUILTIN: Record<string, string> = {
+  // Current IDs
+  'check-in': 'check-in',
+  'check-out': 'check-out',
+  'air-conditioning': 'air-conditioning',
+  'wifi': 'wifi',
+  'recycling': 'recycling',
+  'parking': 'parking',
+  // Legacy IDs
   'checkin': 'check-in',
+  'checkout': 'check-out',
   'ac': 'air-conditioning',
+  'wifi_zone': 'wifi',
+  'trash': 'recycling',
 }
 
 // Match media to built-in review zones by user-assigned zoneId
