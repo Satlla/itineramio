@@ -38,11 +38,40 @@ import {
   Settings,
   Key,
   Moon,
-  Sun
+  Sun,
+  Wind,
+  Droplets,
+  Thermometer,
+  Snowflake,
+  Shirt,
+  Bed,
+  Flame,
+  Lock,
+  Heart,
+  Waves,
+  Umbrella,
+  TreePine,
+  Monitor,
+  BookOpen,
+  Gamepad2,
+  Fan,
+  ArrowUp,
+  Calendar,
+  type LucideIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { useParams, useRouter } from 'next/navigation'
+
+const AMENITY_ICON_MAP: Record<string, LucideIcon> = {
+  wind: Wind, droplets: Droplets, thermometer: Thermometer, snowflake: Snowflake,
+  shirt: Shirt, bed: Bed, flame: Flame, lock: Lock, heart: Heart, waves: Waves,
+  umbrella: Umbrella, 'tree-pine': TreePine, monitor: Monitor, 'book-open': BookOpen,
+  'gamepad-2': Gamepad2, fan: Fan, 'arrow-up': ArrowUp, calendar: Calendar,
+  wifi: Wifi, tv: Tv, coffee: Coffee, utensils: Utensils, car: Car, key: Key,
+  bath: Bath, shield: Shield, sparkles: Sparkles, zap: Zap, star: Star, sun: Sun,
+  'eye-off': Eye, box: Home,
+}
 import { Button } from '../../../../src/components/ui/Button'
 import { Card } from '../../../../src/components/ui/Card'
 import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
@@ -1282,14 +1311,17 @@ export default function PropertyGuidePage() {
                     {language === 'fr' ? 'Services' : language === 'en' ? 'Amenities' : 'Servicios'}
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
-                    {preview.map((a: any) => (
-                      <div key={a.id} className="flex items-center gap-3">
-                        <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${darkMode ? 'bg-gray-500' : 'bg-gray-400'}`} />
-                        <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-[#484848]'}`}>
-                          {a.name[language] || a.name.es}
-                        </span>
-                      </div>
-                    ))}
+                    {preview.map((a: any) => {
+                      const AIcon = AMENITY_ICON_MAP[a.icon] || Zap
+                      return (
+                        <div key={a.id} className="flex items-center gap-3">
+                          <AIcon className={`w-5 h-5 flex-shrink-0 ${darkMode ? 'text-gray-400' : 'text-[#717171]'}`} />
+                          <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-[#484848]'}`}>
+                            {a.name[language] || a.name.es}
+                          </span>
+                        </div>
+                      )
+                    })}
                   </div>
                   {hasMore && (
                     <button
@@ -1825,12 +1857,15 @@ export default function PropertyGuidePage() {
                       {cat.name[language] || cat.name.es}
                     </h4>
                     <div className="space-y-2">
-                      {cat.amenities.filter((a: any) => activeSet.has(a.id)).map((a: any) => (
-                        <div key={a.id} className="flex items-center gap-3 py-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-gray-400 flex-shrink-0" />
-                          <span className="text-sm text-gray-800">{a.name[language] || a.name.es}</span>
-                        </div>
-                      ))}
+                      {cat.amenities.filter((a: any) => activeSet.has(a.id)).map((a: any) => {
+                        const MIcon = AMENITY_ICON_MAP[a.icon] || Zap
+                        return (
+                          <div key={a.id} className="flex items-center gap-3 py-1.5">
+                            <MIcon className="w-5 h-5 text-[#717171] flex-shrink-0" />
+                            <span className="text-sm text-gray-800">{a.name[language] || a.name.es}</span>
+                          </div>
+                        )
+                      })}
                     </div>
                   </div>
                 ))}
