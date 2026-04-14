@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence, useInView, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, ChevronDown, ChevronLeft, Star, Wifi, DoorOpen, MessageCircle, Menu, X, Bot, Car, FileText, UtensilsCrossed, Check, LogOut, XCircle, CheckCircle2, LogIn, Flame, ClipboardList, Wind, Microwave, Compass, Coffee } from 'lucide-react'
 import { WashingMachineIcon, CeramicHobIcon } from '@/components/ui/icons/CustomHomeIcons'
+import { Navbar } from '@/components/layout/Navbar'
 import { Inter, Manrope } from 'next/font/google'
 
 const inter   = Inter({ subsets: ['latin'], display: 'swap' })
@@ -496,39 +497,7 @@ export default function Landing2() {
       style={{ WebkitFontSmoothing:'antialiased' } as React.CSSProperties}>
 
       {/* ── NAV ── */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md' : 'bg-transparent'}`}
-        style={scrolled ? { boxShadow:'0 1px 0 rgba(0,0,0,0.06)' } : {}}>
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <img src="/isotipo-gradient.svg" alt="Itineramio" width={28} height={16} className="object-contain"/>
-            <span className="font-semibold text-[15px]">Itineramio</span>
-          </Link>
-          <div className="hidden md:flex items-center gap-7">
-            {[['Cómo funciona','#how'],['Por qué funciona','#why'],['FAQ','#faq']].map(([l,h]) => (
-              <a key={l} href={h} className="text-sm text-[#666] hover:text-[#111] transition-colors font-medium">{l}</a>
-            ))}
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm text-[#444] hover:text-[#111] font-semibold transition-colors border border-black/10 hover:border-black/20 px-4 py-2 rounded-full">Entrar</Link>
-            <Link href="/register" className="hidden sm:inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all"
-              style={{ backgroundColor:'#7c3aed', boxShadow:'0 2px 12px rgba(124,58,237,0.3)' }}>
-              Empieza gratis <ArrowRight className="w-3.5 h-3.5"/>
-            </Link>
-            <button className="md:hidden p-1" onClick={() => setMob(!mob)}>
-              {mob ? <X className="w-5 h-5"/> : <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16"/></svg>}
-            </button>
-          </div>
-        </div>
-        <AnimatePresence>
-          {mob && (
-            <motion.div initial={{ opacity:0, height:0 }} animate={{ opacity:1, height:'auto' }} exit={{ opacity:0, height:0 }}
-              className="md:hidden bg-white border-t border-black/5 px-6 py-5 flex flex-col gap-5">
-              {['Cómo funciona','Por qué funciona','FAQ'].map(l => <button key={l} className="text-sm text-[#666] text-left font-medium">{l}</button>)}
-              <Link href="/login" className="text-sm text-[#111] font-semibold">Entrar</Link>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </nav>
+      <Navbar transparent />
 
       {/* ── SECTION 1: HERO ── */}
       <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-28 pb-16 overflow-hidden">
