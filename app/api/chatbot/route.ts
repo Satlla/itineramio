@@ -504,7 +504,7 @@ function collectRelevantMedia(zones: any[], language: string): MediaItem[] {
   for (const zone of zones) {
     if (zone.type === 'RECOMMENDATIONS') continue;
     const score = zone._relevanceScore ?? 0;
-    if (score < 2) continue; // score=1 means only the media bonus (+1), no keyword match — skip
+    if (score < 5) continue; // Only show media from zones with strong keyword match
 
     const items: MediaItem[] = [];
     let stepNumber = 0;
@@ -1507,33 +1507,8 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
 
   const top5 = relevantFiltered.slice(0, 5);
 
-  // Guarantee at least one zone with video/image steps is included so collectRelevantMedia
-  // can always show media when the property has videos — even if that zone scored low.
-  const hasMediaZone = top5.some(s =>
-    (s.zone.steps || []).some((step: any) => {
-      const content = step.content as any;
-      const t = (step.type || '').toUpperCase();
-      return content?.mediaUrl && (t === 'IMAGE' || t === 'VIDEO');
-    })
-  );
-  if (!hasMediaZone) {
-    // Only look for a bonus zone within the already-filtered relevant set.
-    // If the relevance threshold was applied (topScore >= 15), do NOT fall back to
-    // the broader `filtered` list — adding an unrelated zone just because it has a
-    // video (e.g. check-in video when asking about the ceramic hob) is worse than
-    // showing no media at all.
-    const thresholdWasApplied = topScore >= 15;
-    const bonusPool = thresholdWasApplied ? relevantFiltered : filtered;
-    const bonus = bonusPool.find(s =>
-      !top5.includes(s) &&
-      (s.zone.steps || []).some((step: any) => {
-        const content = step.content as any;
-        const t = (step.type || '').toUpperCase();
-        return content?.mediaUrl && (t === 'IMAGE' || t === 'VIDEO');
-      })
-    );
-    if (bonus) top5.push(bonus);
-  }
+  // Do NOT inject unrelated zones just because they have media.
+  // Showing a coffee maker video when asking about shampoo is worse than no media.
 
   return top5.map(s => ({ ...s.zone, _relevanceScore: s.score }));
 }
