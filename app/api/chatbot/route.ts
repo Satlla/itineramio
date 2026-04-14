@@ -537,39 +537,9 @@ function collectRelevantMedia(zones: any[], language: string): MediaItem[] {
     }
   }
 
-  // Fallback: if no relevant media found (all zones scored < 2), include the first
-  // 2-3 images from any zone so the chatbot always has visual content to show.
-  // IMPORTANT: if the query matched a specific zone (top score >= 8), skip the fallback —
-  // showing check-in media when asking about AC (or vice versa) is worse than no media.
-  if (bestItems.length === 0) {
-    const topRelevanceScore = Math.max(...zones.map(z => (z._relevanceScore ?? 0)));
-    if (topRelevanceScore >= 8) return [];
-    const fallbackItems: MediaItem[] = [];
-    for (const zone of zones) {
-      if (zone.type === 'RECOMMENDATIONS') continue;
-      let stepNumber = 0;
-      for (const step of (zone.steps || [])) {
-        const content = step.content as any;
-        if (!content?.mediaUrl) continue;
-        const stepType = (step.type || '').toUpperCase();
-        if (stepType !== 'IMAGE' && stepType !== 'VIDEO') continue;
-        stepNumber++;
-        const title = getLocalizedText(step.title, language) || '';
-        const contentText = getLocalizedText(content, language) || '';
-        const stepText = contentText || title || undefined;
-        fallbackItems.push({
-          type: stepType as 'IMAGE' | 'VIDEO',
-          url: content.mediaUrl,
-          caption: title || getLocalizedText(zone.name, language) || '',
-          stepText,
-          stepIndex: stepNumber,
-        });
-        if (fallbackItems.length >= 3) break;
-      }
-      if (fallbackItems.length >= 3) break;
-    }
-    return fallbackItems;
-  }
+  // No fallback — only show media from zones that are actually relevant to the question.
+  // Showing unrelated media (e.g. coffee maker video when asking about hair dryer) is
+  // worse than showing no media at all.
 
   return bestItems;
 }
