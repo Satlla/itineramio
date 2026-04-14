@@ -209,17 +209,17 @@ async function buildUserMediaZones(
     items: Array<{ url: string; type: string; description: string }>
   }>()
 
-  console.log('[AI-SETUP] buildUserMediaZones received', mediaItems.length, 'items:', mediaItems.map((m: any) => ({ zoneId: m.zoneId, customZoneName: m.customZoneName })))
-  console.log('[AI-SETUP] TEMPLATE_ZONE_IDS:', [...TEMPLATE_ZONE_IDS])
+
+
 
   for (const item of mediaItems) {
     if (!item.zoneId && !item.customZoneName?.trim()) continue
     // Skip template zones — their media is attached to auto-generated zones later
     if (item.zoneId && TEMPLATE_ZONE_IDS.has(item.zoneId)) {
-      console.log('[AI-SETUP] SKIPPING template zone media:', item.zoneId)
+
       continue
     }
-    console.log('[AI-SETUP] KEEPING user zone media:', item.zoneId || item.customZoneName)
+
 
     const key = (item.zoneId && item.zoneId !== '__custom__')
       ? item.zoneId
@@ -394,7 +394,7 @@ async function assignTemplateZoneMedia(
     orderBy: { order: 'asc' },
   })
 
-  console.log('[AI-SETUP] assignTemplateZoneMedia: DB zones:', dbZones.map(z => ({ name: (z.name as any)?.es || z.name, id: z.id })))
+
 
   for (const item of templateMedia) {
     const namePatterns = TEMPLATE_TO_NAME[item.zoneId] || []
@@ -403,7 +403,7 @@ async function assignTemplateZoneMedia(
       return namePatterns.some(pattern => name === pattern)
     })
 
-    console.log('[AI-SETUP] assignTemplateZoneMedia:', item.zoneId, '→ patterns:', namePatterns, '→ found:', dbZone ? (dbZone.name as any)?.es : 'NOT FOUND')
+
 
     if (!dbZone || dbZone.steps.length === 0) continue
 
@@ -1056,8 +1056,14 @@ export async function generateManual(
           translateFields(stepContentFields),
         ])
 
-        await Promise.all(zone.steps.map((step, j) =>
-          prisma.step.update({
+        await Promise.all(zone.steps.map((step, j) => {
+          const existingContent = (step.content as any) || {}
+          // Preserve non-translatable fields (mediaUrl, linkUrl) set by assignTemplateZoneMedia
+          const extraFields: Record<string, unknown> = {}
+          if (existingContent.mediaUrl) extraFields.mediaUrl = existingContent.mediaUrl
+          if (existingContent.linkUrl) extraFields.linkUrl = existingContent.linkUrl
+
+          return prisma.step.update({
             where: { id: step.id },
             data: {
               title: {
@@ -1069,10 +1075,11 @@ export async function generateManual(
                 es: (step.content as any)?.es || '',
                 en: translatedContents[j].en || '',
                 fr: translatedContents[j].fr || '',
+                ...extraFields,
               },
             },
           })
-        ))
+        }))
       }
 
       sendEvent({ type: 'translation', language: 'fr', progress: 100 })
