@@ -193,6 +193,8 @@ interface UserZoneConfig extends TrilingualZoneConfig {
 // is attached via assignTemplateZoneMedia, NOT created as separate user zones
 const TEMPLATE_ZONE_IDS = new Set([
   'check-in', 'check-out', 'air-conditioning', 'wifi', 'recycling', 'parking',
+  // Legacy IDs (drafts saved before the rename)
+  'checkin', 'checkout', 'ac', 'wifi_zone', 'trash',
 ])
 
 async function buildUserMediaZones(
@@ -373,6 +375,12 @@ async function assignTemplateZoneMedia(
     'wifi': ['WiFi', 'Wifi'],
     'recycling': ['Basura y reciclaje', 'Reciclaje'],
     'parking': ['Parking'],
+    // Legacy IDs
+    'checkin': ['Check In', 'Check-in'],
+    'checkout': ['Check Out', 'Check-out'],
+    'ac': ['Aire Acondicionado', 'Aire acondicionado', 'Aire acondicionado / Calefacción'],
+    'wifi_zone': ['WiFi', 'Wifi'],
+    'trash': ['Basura y reciclaje', 'Reciclaje'],
   }
 
   const templateMedia = mediaItems.filter(m =>
