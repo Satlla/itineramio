@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { ArrowLeft, Check, Loader2 } from 'lucide-react'
+import { ArrowLeft, Check, Loader2, Link2 } from 'lucide-react'
 import { AMENITY_CATEGORIES, getAmenityById } from '@/data/amenities'
 
 export default function AmenitiesPage() {
@@ -14,6 +14,10 @@ export default function AmenitiesPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [showImport, setShowImport] = useState(false)
+  const [airbnbUrl, setAirbnbUrl] = useState('')
+  const [importing, setImporting] = useState(false)
+  const [importResult, setImportResult] = useState<string | null>(null)
 
   useEffect(() => {
     fetch(`/api/properties/${propertyId}/amenities`, { credentials: 'include' })
@@ -54,6 +58,33 @@ export default function AmenitiesPage() {
     finally { setSaving(false) }
   }
 
+  const importFromAirbnb = async () => {
+    if (!airbnbUrl.trim()) return
+    setImporting(true)
+    setImportResult(null)
+    try {
+      const res = await fetch(`/api/properties/${propertyId}/amenities/import-airbnb`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ url: airbnbUrl.trim() }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setActiveAmenities(new Set(data.amenities))
+        setImportResult(`${data.imported} amenities importados`)
+        setAirbnbUrl('')
+        setTimeout(() => { setImportResult(null); setShowImport(false) }, 3000)
+      } else {
+        setImportResult(data.error || 'Error al importar')
+      }
+    } catch {
+      setImportResult('Error de conexion')
+    } finally {
+      setImporting(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -80,11 +111,19 @@ export default function AmenitiesPage() {
               {activeAmenities.size} servicios activos
             </p>
           </div>
-          <button
-            onClick={save}
-            disabled={saving}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50"
-          >
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowImport(!showImport)}
+              className="flex items-center gap-2 px-4 py-2.5 border border-gray-200 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors"
+            >
+              <Link2 className="w-4 h-4" />
+              Importar
+            </button>
+            <button
+              onClick={save}
+              disabled={saving}
+              className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50"
+            >
             {saving ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : saved ? (
@@ -92,8 +131,36 @@ export default function AmenitiesPage() {
             ) : null}
             {saved ? 'Guardado' : 'Guardar'}
           </button>
+          </div>
         </div>
       </div>
+
+      {/* Import from Airbnb */}
+      {showImport && (
+        <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+          <p className="text-sm text-gray-600 mb-3">Pega el enlace de tu anuncio de Airbnb para importar los amenities automaticamente.</p>
+          <div className="flex gap-2">
+            <input
+              type="url"
+              value={airbnbUrl}
+              onChange={e => setAirbnbUrl(e.target.value)}
+              placeholder="https://www.airbnb.es/rooms/..."
+              className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10"
+            />
+            <button
+              onClick={importFromAirbnb}
+              disabled={importing || !airbnbUrl.trim()}
+              className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              {importing && <Loader2 className="w-4 h-4 animate-spin" />}
+              Importar
+            </button>
+          </div>
+          {importResult && (
+            <p className="text-sm mt-2 text-green-600 font-medium">{importResult}</p>
+          )}
+        </div>
+      )}
 
       {/* Categories */}
       <div className="space-y-8">
