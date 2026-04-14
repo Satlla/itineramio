@@ -2876,6 +2876,13 @@ export default function PropertyZonesPage() {
           </button>
 
           <button
+            onClick={() => router.push(`/properties/${id}/amenities`)}
+            className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
+          >
+            Amenities
+          </button>
+
+          <button
             onClick={() => router.push(`/properties/${id}/intelligence`)}
             className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors flex items-center gap-1"
           >
