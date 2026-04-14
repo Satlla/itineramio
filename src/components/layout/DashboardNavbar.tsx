@@ -181,11 +181,7 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
                 </Link>
               )}
-            </div>
-
-            {/* Right Side - Notifications, User Profile & Menu */}
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              {/* Crear con IA — siempre visible en desktop */}
+              {/* Crear con IA — después de Conjuntos */}
               <Link
                 href="/ai-setup"
                 className="hidden md:flex items-center gap-1.5 h-8 px-3 rounded-lg bg-gray-900 text-white text-xs font-semibold hover:bg-gray-700 transition-colors"
@@ -193,6 +189,10 @@ export function DashboardNavbar({ user, isTrialBarVisible = false }: DashboardNa
                 <Sparkles className="w-3.5 h-3.5" />
                 Crear con IA
               </Link>
+            </div>
+
+            {/* Right Side - Notifications, User Profile & Menu */}
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {/* Notifications Bell */}
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
