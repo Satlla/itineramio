@@ -21,6 +21,7 @@ import {
   Sparkles
 } from 'lucide-react'
 import { Button } from '../../../../../src/components/ui/Button'
+import { OnboardingInfoModal } from '../../../../../src/components/ui/OnboardingInfoModal'
 import { Card, CardContent } from '../../../../../src/components/ui/Card'
 import { useRouter, useParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
@@ -234,6 +235,18 @@ export default function ChatbotDashboardPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
+      <OnboardingInfoModal
+        storageKey="onboarding_chatbot_visited"
+        icon={MessageCircle}
+        title="Conversaciones con huespedes"
+      >
+        <p>Las conversaciones de tus huespedes con el asistente IA se guardan aqui. Puedes ver exactamente que preguntan y que responde el chatbot.</p>
+        <p>Si el chatbot no sabe responder algo, recibiras un <strong>correo electronico</strong> para que puedas añadir esa informacion.</p>
+        <div className="bg-violet-50 border border-violet-200 rounded-lg p-3">
+          <p className="text-violet-800 font-medium text-sm">Es muy importante rellenar la seccion de Intelligence para que el chat sea mas inteligente y responda mejor a tus huespedes.</p>
+        </div>
+      </OnboardingInfoModal>
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-4">

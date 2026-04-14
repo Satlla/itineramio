@@ -189,78 +189,10 @@ export function ZonasEsencialesModal({
             </div>
           </div>
 
-          {/* Features Information */}
-          <div className="mb-6">
-            <h3
-              className="font-semibold mb-4 text-center"
-              style={{ fontFamily: 'Manrope, sans-serif', color: '#111' }}
-            >
-              {t('essentialZonesModal.whatCanYouDo')}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Content Types */}
-              <div
-                className="bg-white rounded-xl p-4"
-                style={{
-                  border: '1px solid rgba(0,0,0,0.06)',
-                  borderLeft: '3px solid #059669'
-                }}
-              >
-                <h4 className="font-semibold mb-2 text-sm" style={{ color: '#111' }}>{t('essentialZonesModal.contentTypes')}</h4>
-                <ul className="text-sm space-y-1" style={{ color: '#555' }}>
-                  <li dangerouslySetInnerHTML={{ __html: `• ${t('essentialZonesModal.contentText')}` }} />
-                  <li dangerouslySetInnerHTML={{ __html: `• ${t('essentialZonesModal.contentPhotos')}` }} />
-                  <li dangerouslySetInnerHTML={{ __html: `• ${t('essentialZonesModal.contentVideos')}` }} />
-                  <li dangerouslySetInnerHTML={{ __html: `• ${t('essentialZonesModal.contentLinks')}` }} />
-                </ul>
-              </div>
-
-              {/* Sharing Options */}
-              <div
-                className="bg-white rounded-xl p-4"
-                style={{
-                  border: '1px solid rgba(0,0,0,0.06)',
-                  borderLeft: '3px solid #7c3aed'
-                }}
-              >
-                <h4 className="font-semibold mb-2 text-sm" style={{ color: '#111' }}>{t('essentialZonesModal.features')}</h4>
-                <ul className="text-sm space-y-1" style={{ color: '#555' }}>
-                  <li dangerouslySetInnerHTML={{ __html: `• ${t('essentialZonesModal.featureQR')}` }} />
-                  <li dangerouslySetInnerHTML={{ __html: `• ${t('essentialZonesModal.featureLinks')}` }} />
-                  <li dangerouslySetInnerHTML={{ __html: `• ${t('essentialZonesModal.featureMobile')}` }} />
-                  <li dangerouslySetInnerHTML={{ __html: `• ${t('essentialZonesModal.featureTranslations')}` }} />
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Start Steps */}
-          <div
-            className="rounded-xl p-4 mb-6"
-            style={{ background: '#f8f8f8', border: '1px solid rgba(0,0,0,0.06)' }}
-          >
-            <h4
-              className="font-semibold mb-3 text-sm"
-              style={{ fontFamily: 'Manrope, sans-serif', color: '#111' }}
-            >
-              {t('essentialZonesModal.nextSteps')}
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {[1, 2, 3].map((n) => (
-                <div key={n} className="flex items-start space-x-2.5">
-                  <span
-                    className="font-bold text-sm flex-shrink-0 mt-0.5"
-                    style={{ color: '#7c3aed', fontFamily: 'Manrope, sans-serif' }}
-                  >
-                    {n}.
-                  </span>
-                  <span className="text-sm" style={{ color: '#555' }}>
-                    {t(`essentialZonesModal.step${n}`)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* Simple next steps */}
+          <p className="text-sm text-center mb-6" style={{ color: '#666' }}>
+            Completa cada zona con la informacion de tu alojamiento, activa el manual y comparte el enlace con tus huespedes.
+          </p>
 
           {/* Actions */}
           <div className="flex justify-center">

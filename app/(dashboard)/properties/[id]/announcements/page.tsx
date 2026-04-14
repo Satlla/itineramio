@@ -23,6 +23,8 @@ import {
   Users
 } from 'lucide-react'
 import { Button } from '../../../../../src/components/ui/Button'
+import { OnboardingInfoModal } from '../../../../../src/components/ui/OnboardingInfoModal'
+import { Megaphone } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent } from '../../../../../src/components/ui/Card'
 import { Input } from '../../../../../src/components/ui/Input'
 import { PropertySetUpdateModal } from '../../../../../src/components/ui/PropertySetUpdateModal'
@@ -613,6 +615,15 @@ export default function PropertyAnnouncementsPage() {
 
   return (
     <div className="min-h-screen bg-white" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
+      <OnboardingInfoModal
+        storageKey="onboarding_announcements_visited"
+        icon={Megaphone}
+        title="Avisos para huespedes"
+      >
+        <p>Desde aqui puedes crear avisos que apareceran a todos los huespedes que visiten tu manual.</p>
+        <p>Usalos para comunicar cosas temporales: obras cercanas, cambio de WiFi, eventos en la zona, restricciones de agua, etc.</p>
+      </OnboardingInfoModal>
+
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
