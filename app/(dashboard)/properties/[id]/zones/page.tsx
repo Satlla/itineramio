@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash, ChevronDown, ArrowLeft, BarChart3, Download, Brain, Search } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash, ChevronDown, ArrowLeft, BarChart3, Download, Brain, Search, Link2, Loader2 as Loader2Icon } from 'lucide-react'
+import { AMENITY_CATEGORIES } from '@/data/amenities'
 import {
   DndContext,
   closestCenter,
@@ -133,6 +134,11 @@ export default function PropertyZonesPage() {
   const [selectedZoneForQR, setSelectedZoneForQR] = useState<Zone | null>(null)
   const [showQRDesigner, setShowQRDesigner] = useState(false)
   const [showPropertyQRModal, setShowPropertyQRModal] = useState(false)
+  const [showAmenitiesModal, setShowAmenitiesModal] = useState(false)
+  const [amenitiesActive, setAmenitiesActive] = useState<Set<string>>(new Set())
+  const [amenitiesSaving, setAmenitiesSaving] = useState(false)
+  const [amenitiesImportUrl, setAmenitiesImportUrl] = useState('')
+  const [amenitiesImporting, setAmenitiesImporting] = useState(false)
   const [showElementSelector, setShowElementSelector] = useState(false)
   const [showInspirationModal, setShowInspirationModal] = useState(false)
   const [selectedInspirationZone, setSelectedInspirationZone] = useState<ZoneTemplate | null>(null)
@@ -2876,7 +2882,13 @@ export default function PropertyZonesPage() {
           </button>
 
           <button
-            onClick={() => router.push(`/properties/${id}/amenities`)}
+            onClick={() => {
+              setShowAmenitiesModal(true)
+              fetch(`/api/properties/${id}/amenities`, { credentials: 'include' })
+                .then(r => r.json())
+                .then(data => { if (data.success) setAmenitiesActive(new Set(data.amenities)) })
+                .catch(() => {})
+            }}
             className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
           >
             Amenities
@@ -3670,6 +3682,137 @@ export default function PropertyZonesPage() {
 
       {/* Property QR Modal */}
       <AnimatePresence>
+        {/* Amenities Modal */}
+        {showAmenitiesModal && (
+          <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowAmenitiesModal(false)}>
+            <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+              {/* Header */}
+              <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between rounded-t-2xl z-10">
+                <h3 className="text-lg font-bold text-gray-900">Amenities</h3>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      const show = amenitiesImportUrl !== null
+                      setAmenitiesImportUrl(show ? '' : '')
+                    }}
+                    className="text-xs text-gray-500 hover:text-gray-900 flex items-center gap-1"
+                  >
+                    <Link2 className="w-3.5 h-3.5" />
+                    Importar Airbnb
+                  </button>
+                  <button onClick={() => setShowAmenitiesModal(false)} className="p-1 hover:bg-gray-100 rounded-full">
+                    <X className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Import bar */}
+              {amenitiesImportUrl !== null && (
+                <div className="px-4 pt-3 pb-2 border-b border-gray-100">
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      value={amenitiesImportUrl}
+                      onChange={e => setAmenitiesImportUrl(e.target.value)}
+                      placeholder="https://www.airbnb.es/rooms/..."
+                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10"
+                    />
+                    <button
+                      onClick={async () => {
+                        if (!amenitiesImportUrl.trim()) return
+                        setAmenitiesImporting(true)
+                        try {
+                          const res = await fetch(`/api/properties/${id}/amenities/import-airbnb`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ url: amenitiesImportUrl.trim() }),
+                          })
+                          const data = await res.json()
+                          if (data.success) {
+                            setAmenitiesActive(new Set(data.amenities))
+                            setAmenitiesImportUrl('')
+                            addNotification({ type: 'success', title: `${data.imported} amenities importados`, message: '', read: false })
+                          }
+                        } catch {}
+                        finally { setAmenitiesImporting(false) }
+                      }}
+                      disabled={amenitiesImporting || !amenitiesImportUrl.trim()}
+                      className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold disabled:opacity-50 flex items-center gap-1"
+                    >
+                      {amenitiesImporting && <Loader2Icon className="w-3.5 h-3.5 animate-spin" />}
+                      Importar
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Amenities grid */}
+              <div className="overflow-y-auto flex-1 p-4 space-y-6">
+                {AMENITY_CATEGORIES.map(cat => (
+                  <div key={cat.id}>
+                    <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{cat.name.es}</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                      {cat.amenities.map(a => {
+                        const active = amenitiesActive.has(a.id)
+                        return (
+                          <button
+                            key={a.id}
+                            onClick={() => {
+                              setAmenitiesActive(prev => {
+                                const next = new Set(prev)
+                                if (next.has(a.id)) next.delete(a.id)
+                                else next.add(a.id)
+                                return next
+                              })
+                            }}
+                            className={`flex items-center justify-between px-3 py-2 rounded-lg border text-left transition-all text-sm ${
+                              active ? 'border-gray-900 bg-gray-50 text-gray-900 font-medium' : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                            }`}
+                          >
+                            {a.name.es}
+                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                              active ? 'border-gray-900 bg-gray-900' : 'border-gray-300'
+                            }`}>
+                              {active && <Check className="w-2.5 h-2.5 text-white" />}
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer */}
+              <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 flex items-center justify-between rounded-b-2xl">
+                <span className="text-sm text-gray-500">{amenitiesActive.size} seleccionados</span>
+                <button
+                  onClick={async () => {
+                    setAmenitiesSaving(true)
+                    try {
+                      await fetch(`/api/properties/${id}/amenities`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ amenities: [...amenitiesActive] }),
+                      })
+                      addNotification({ type: 'success', title: 'Amenities guardados', message: '', read: false })
+                      setShowAmenitiesModal(false)
+                    } catch {}
+                    finally { setAmenitiesSaving(false) }
+                  }}
+                  disabled={amenitiesSaving}
+                  className="px-5 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2"
+                >
+                  {amenitiesSaving && <Loader2Icon className="w-4 h-4 animate-spin" />}
+                  Guardar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {showPropertyQRModal && (
           <motion.div
             initial={{ opacity: 0 }}
