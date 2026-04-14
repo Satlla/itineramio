@@ -797,6 +797,12 @@ function detectUnansweredQuestion(aiResponse: string, language: string): boolean
     'no tengo los detalles',
     'te recomiendo que contactes',
     'recomiendo que contactes',
+    'consultes con el anfitrión',
+    'consulta con el anfitrión',
+    'consultar con el anfitrión',
+    'te recomiendo que consultes',
+    'recomiendo que consultes',
+    'no hay información específica',
     'lo siento, no tengo',
     'lo siento, no dispongo',
     // English
