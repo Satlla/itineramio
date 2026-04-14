@@ -56,6 +56,7 @@ import {
   Fan,
   ArrowUp,
   Calendar,
+  Sparkles,
   type LucideIcon,
 } from 'lucide-react'
 import Link from 'next/link'
