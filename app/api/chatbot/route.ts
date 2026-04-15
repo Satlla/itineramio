@@ -1446,31 +1446,28 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
       }
     }
 
-    // Step content match = medium relevance
-    // Require word.length >= 3 to prevent "ac" matching every step mentioning "acceso"
+    // Step content match = low relevance (capped to prevent content accumulation
+    // from outscoring a name match). Max +8 from content to ensure name match (15) always wins.
+    let contentScore = 0;
     for (const step of (zone.steps || [])) {
       const content = step.content as any;
       const title = normalize(getLocalizedText(step.title, language) || '');
       const text = normalize(getLocalizedText(content, language) || '');
       const combined = `${title} ${text}`;
       for (const word of words) {
-        if (word.length >= 3 && combined.includes(word)) score += 4;
+        if (word.length >= 3 && combined.includes(word)) contentScore += 4;
       }
     }
+    score += Math.min(contentScore, 8);
 
     // Always-relevant zones get a small base score
     for (const term of ALWAYS_RELEVANT) {
       if (zoneName.includes(term)) score += 2;
     }
 
-    // Zones with video/image steps get +1 so they're never filtered out entirely —
-    // even if the query doesn't match the zone name, we might still want to show the media
-    const hasMedia = (zone.steps || []).some((step: any) => {
-      const content = step.content as any;
-      const stepType = (step.type || '').toUpperCase();
-      return content?.mediaUrl && (stepType === 'IMAGE' || stepType === 'VIDEO');
-    });
-    if (hasMedia) score += 1;
+    // No media bonus — zones should rank purely on relevance to the query.
+    // Adding score for having media caused unrelated zones (ventilador, cafetera)
+    // to outrank the correct zone and show wrong videos.
 
     return { zone, score };
   });
