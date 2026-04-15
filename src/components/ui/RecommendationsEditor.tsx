@@ -24,6 +24,7 @@ import {
   Bell,
   Info,
   ChevronRight,
+  Users,
 } from 'lucide-react'
 import {
   DndContext,
@@ -182,6 +183,23 @@ const INSPIRATION_CHIPS = [
   { emoji: '🧳', label: 'Consigna',          query: 'consigna maletas luggage storage', categoryId: 'luggage_storage' },
   { emoji: '💻', label: 'Teletrabajar',      query: 'coworking café con wifi biblioteca', categoryId: 'coworking' },
 ]
+
+// --- Nearby place (from other hosts) ---
+
+interface NearbyPlace {
+  placeId: string
+  googlePlaceId: string | null
+  name: string
+  address: string
+  latitude: number
+  longitude: number
+  rating: number | null
+  photoUrl: string | null
+  types: string[] | null
+  source: string
+  category: string
+  hostsCount: number
+}
 
 // --- Pending item (selected but not yet saved) ---
 
@@ -518,6 +536,11 @@ export function RecommendationsEditor({
   // Category chip → pre-fill search; key forces PlaceSearchInput remount
   const [searchSeed, setSearchSeed] = useState<{ key: string; query: string }>({ key: '', query: '' })
 
+  // Nearby places from other hosts
+  const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([])
+  const [nearbyLoading, setNearbyLoading] = useState(false)
+  const [nearbyAddingId, setNearbyAddingId] = useState<string | null>(null)
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
@@ -592,6 +615,62 @@ export function RecommendationsEditor({
   useEffect(() => {
     fetchRecommendations()
   }, [fetchRecommendations])
+
+  // --- Fetch nearby places from other hosts ---
+  useEffect(() => {
+    if (!propertyCity) return
+    const fetchNearby = async () => {
+      setNearbyLoading(true)
+      try {
+        const params = new URLSearchParams({ city: propertyCity })
+        if (propertyId) params.set('excludePropertyId', propertyId)
+        const res = await fetch(`/api/recommendations/nearby?${params}`, { credentials: 'include' })
+        const data = await res.json()
+        if (data.success && Array.isArray(data.data)) {
+          setNearbyPlaces(data.data)
+        }
+      } catch {
+        // silently ignore
+      } finally {
+        setNearbyLoading(false)
+      }
+    }
+    fetchNearby()
+  }, [propertyCity, propertyId])
+
+  // --- Add a nearby place (reuse global add flow) ---
+  const handleAddNearbyPlace = (place: NearbyPlace) => {
+    const types = Array.isArray(place.types) ? place.types : []
+    const category = place.category || suggestCategory(types)
+    const result: PlaceSearchResult = {
+      googlePlaceId: place.googlePlaceId ?? '',
+      name: place.name,
+      address: place.address,
+      lat: place.latitude,
+      lng: place.longitude,
+      rating: place.rating ?? null,
+      photoUrl: place.photoUrl ?? null,
+      photoUrls: place.photoUrl ? [place.photoUrl] : [],
+      priceLevel: null,
+      openNow: null,
+      types,
+    }
+    if (mode === 'global') {
+      handleGlobalSelect(result)
+    } else {
+      handleAddToZone(result)
+    }
+  }
+
+  // Filter nearby places: exclude those already added
+  const filteredNearbyPlaces = nearbyPlaces.filter(np => {
+    const gpId = np.googlePlaceId
+    if (!gpId) return true
+    if (mode === 'global') {
+      return !globalExcludePlaceIds.includes(gpId)
+    }
+    return !excludePlaceIds.includes(gpId)
+  })
 
   // --- Zone mode: select place → show pending card (same as global) ---
   const handleAddToZone = (result: PlaceSearchResult) => {
@@ -931,6 +1010,54 @@ export function RecommendationsEditor({
             excludePlaceIds={globalExcludePlaceIds}
             initialQuery={searchSeed.query}
           />
+
+          {/* Nearby places from other hosts */}
+          {!pending && !nearbyLoading && filteredNearbyPlaces.length > 0 && (
+            <div className="mt-5 mb-2">
+              <div className="flex items-center gap-2 mb-3">
+                <Users className="w-4 h-4 text-emerald-500" />
+                <h2 className="text-sm font-semibold text-gray-700">Otros anfitriones recomiendan cerca de ti</h2>
+              </div>
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                {filteredNearbyPlaces.map((np) => (
+                  <div
+                    key={np.placeId}
+                    className="flex items-center gap-3 px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
+                  >
+                    {np.photoUrl ? (
+                      <img src={np.photoUrl} alt={np.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-4 h-4 text-emerald-400" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{np.name}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-xs text-emerald-600 font-medium">
+                          {np.hostsCount} {np.hostsCount === 1 ? 'anfitrion' : 'anfitriones'}
+                        </span>
+                        {np.rating && (
+                          <span className="flex items-center gap-0.5 text-xs text-amber-600">
+                            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                            {np.rating.toFixed(1)}
+                          </span>
+                        )}
+                        <span className="text-xs text-gray-400 truncate">{getCategoryLabel(np.category)}</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleAddNearbyPlace(np)}
+                      className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors flex-shrink-0"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      Anadir
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Pending card */}
           <AnimatePresence>
@@ -1335,6 +1462,54 @@ export function RecommendationsEditor({
             excludePlaceIds={excludePlaceIds}
           />
         </div>
+
+        {/* Nearby places from other hosts */}
+        {!pending && !nearbyLoading && filteredNearbyPlaces.length > 0 && (
+          <div className="mb-4 sm:mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Users className="w-4 h-4 text-emerald-500" />
+              <h2 className="text-sm font-semibold text-gray-700">Otros anfitriones recomiendan cerca de ti</h2>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+              {filteredNearbyPlaces.map((np) => (
+                <div
+                  key={np.placeId}
+                  className="flex items-center gap-3 px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
+                >
+                  {np.photoUrl ? (
+                    <img src={np.photoUrl} alt={np.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-4 h-4 text-emerald-400" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{np.name}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-emerald-600 font-medium">
+                        {np.hostsCount} {np.hostsCount === 1 ? 'anfitrion' : 'anfitriones'}
+                      </span>
+                      {np.rating && (
+                        <span className="flex items-center gap-0.5 text-xs text-amber-600">
+                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                          {np.rating.toFixed(1)}
+                        </span>
+                      )}
+                      <span className="text-xs text-gray-400 truncate">{getCategoryLabel(np.category)}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleAddNearbyPlace(np)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors flex-shrink-0"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Anadir
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Pending card — same UI as global mode */}
         <AnimatePresence>
