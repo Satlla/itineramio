@@ -644,20 +644,40 @@ function IntelligenceTab({
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">👥 Perfil habitual de huéspedes</label>
-              <select
-                value={propCtx.typicalGuest}
-                onChange={e => setPropCtx(c => ({ ...c, typicalGuest: e.target.value }))}
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-1 focus:ring-violet-400"
-              >
-                <option value="">Seleccionar...</option>
-                <option value="Principalmente parejas">Principalmente parejas</option>
-                <option value="Familias con niños">Familias con niños</option>
-                <option value="Grupos de amigos">Grupos de amigos</option>
-                <option value="Viajeros en solitario">Viajeros en solitario</option>
-                <option value="Viajeros de negocios">Viajeros de negocios</option>
-                <option value="Mix variado">Mix variado</option>
-              </select>
+              <label className="block text-xs font-medium text-gray-600 mb-1">👥 Perfil habitual de huéspedes (puedes seleccionar varios)</label>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { value: 'Parejas', label: 'Parejas' },
+                  { value: 'Familias con niños', label: 'Familias' },
+                  { value: 'Grupos de amigos', label: 'Grupos de amigos' },
+                  { value: 'Viajeros en solitario', label: 'Solitarios' },
+                  { value: 'Viajeros de negocios', label: 'Negocios' },
+                  { value: 'Nómadas digitales', label: 'Nomadas digitales' },
+                  { value: 'Personas mayores', label: 'Mayores' },
+                ].map(opt => {
+                  const selected = (propCtx.typicalGuest || '').split(', ').includes(opt.value)
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => {
+                        const current = (propCtx.typicalGuest || '').split(', ').filter(Boolean)
+                        const next = selected
+                          ? current.filter(v => v !== opt.value)
+                          : [...current, opt.value]
+                        setPropCtx(c => ({ ...c, typicalGuest: next.join(', ') }))
+                      }}
+                      className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                        selected
+                          ? 'bg-violet-50 border-violet-500 text-violet-700'
+                          : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
             <div className="sm:col-span-2">
               <label className="block text-xs font-medium text-gray-600 mb-1">💡 Tip local que marcará la diferencia</label>
