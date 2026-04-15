@@ -494,17 +494,17 @@ const MIN_MEDIA_SCORE = 8;
 function collectRelevantMedia(zones: any[], language: string): MediaItem[] {
   if (!zones.length) return [];
 
-  // Return media from the zone with the HIGHEST relevance score that has any media.
-  // Previously this returned from the first zone in order with media, which could skip
-  // the most relevant zone (e.g. "Climatización" with a video) if a less relevant zone
-  // with many text steps had accumulated score from common keywords and had a photo.
+  // Only show media from zones with a VERY high relevance score (exact zone name match).
+  // Score >= 15 means the zone name directly matched the user's question.
+  // This prevents showing calefacción video when asking about secador, or
+  // cafetera video when asking about champú.
   let bestItems: MediaItem[] = [];
   let bestScore = -1;
 
   for (const zone of zones) {
     if (zone.type === 'RECOMMENDATIONS') continue;
     const score = zone._relevanceScore ?? 0;
-    if (score < 5) continue; // Only show media from zones with strong keyword match
+    if (score < 15) continue; // Only exact zone name matches
 
     const items: MediaItem[] = [];
     let stepNumber = 0;
@@ -517,7 +517,6 @@ function collectRelevantMedia(zones: any[], language: string): MediaItem[] {
 
       stepNumber++;
       const title = getLocalizedText(step.title, language) || '';
-      // Step text: prefer content text, fall back to title
       const contentText = getLocalizedText(content, language) || '';
       const stepText = contentText || title || undefined;
 
@@ -536,10 +535,6 @@ function collectRelevantMedia(zones: any[], language: string): MediaItem[] {
       bestItems = items;
     }
   }
-
-  // No fallback — only show media from zones that are actually relevant to the question.
-  // Showing unrelated media (e.g. coffee maker video when asking about hair dryer) is
-  // worse than showing no media at all.
 
   return bestItems;
 }
