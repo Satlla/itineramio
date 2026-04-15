@@ -2028,6 +2028,11 @@ function buildZoneSystemPrompt(property: any, zone: any, language: string): stri
 
   const intelligenceSection = buildIntelligenceSection(property);
 
+  const amenitiesLine = (() => {
+    const ids = (property.amenities as string[]) || [];
+    if (!ids.length) return '';
+    try { const { getAmenityById } = require('@/data/amenities'); return '\nAMENITIES: ' + ids.map((id: string) => getAmenityById(id)?.name?.es).filter(Boolean).join(', '); } catch { return ''; }
+  })();
   const prompt = `You are the virtual concierge for "${getLocalizedText(property.name, language)}" in ${property.city}${property.country ? ', ' + property.country : ''}.
 You are helping with the "${getLocalizedText(zone.name, language)}" zone.
 
@@ -2035,6 +2040,7 @@ YOUR KNOWLEDGE BASE — use ONLY this information to answer:
 
 PROPERTY:
 ${getLocalizedText(property.description, language) || 'N/A'}
+- Bedrooms: ${property.bedrooms || 'N/A'}, Bathrooms: ${property.bathrooms || 'N/A'}, Max guests: ${property.maxGuests || 'N/A'}${amenitiesLine}
 ${intelligenceSection}
 ZONE "${getLocalizedText(zone.name, language)}":
 ${getLocalizedText(zone.description, language) || ''}
@@ -2232,6 +2238,11 @@ function buildPropertySystemPrompt(property: any, zones: any[], language: string
     propContext.uniqueFeature ? `- Lo especial: ${propContext.uniqueFeature}` : '',
   ].filter(Boolean).join('\n')}\n` : '';
 
+  const mainAmenitiesLine = (() => {
+    const ids = (property.amenities as string[]) || [];
+    if (!ids.length) return '';
+    try { const { getAmenityById } = require('@/data/amenities'); return '\nAMENITIES AVAILABLE: ' + ids.map((id: string) => getAmenityById(id)?.name?.es).filter(Boolean).join(', ') + '\n'; } catch { return ''; }
+  })();
   const prompt = `You are AlexAI, the virtual concierge for "${propertyName}" in ${property.city}${property.country ? ', ' + property.country : ''}.
 You have access to the complete property manual with all zones and sections.
 
@@ -2239,6 +2250,10 @@ YOUR KNOWLEDGE BASE — use ONLY this information to answer:
 
 PROPERTY:
 ${getLocalizedText(property.description, language) || 'N/A'}
+- Bedrooms: ${property.bedrooms || 'N/A'}
+- Bathrooms: ${property.bathrooms || 'N/A'}
+- Max guests: ${property.maxGuests || 'N/A'}
+${property.squareMeters ? `- Size: ${property.squareMeters}m²` : ''}${mainAmenitiesLine}
 ${intelligenceSection}
 ${propertyContextSection}
 ${capabilityInventory}
