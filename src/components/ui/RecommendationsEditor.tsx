@@ -87,6 +87,11 @@ interface ZoneInfo {
   recommendationsCount?: number
 }
 
+interface PropertySetProperty {
+  id: string
+  name: string
+}
+
 interface RecommendationsEditorProps {
   mode: 'global' | 'zone'
   // Global mode props
@@ -100,6 +105,9 @@ interface RecommendationsEditorProps {
   propertyCity?: string
   onClose: () => void
   onUpdate: () => void
+  // Property set props (optional)
+  propertySetId?: string | null
+  propertySetProperties?: PropertySetProperty[]
 }
 
 // --- Google types → categoryId mapping ---
@@ -457,7 +465,46 @@ export function RecommendationsEditor({
   propertyCity = '',
   onClose,
   onUpdate,
+  propertySetId,
+  propertySetProperties = [],
 }: RecommendationsEditorProps) {
+  // Property set copy state
+  const [copyToSetPrompt, setCopyToSetPrompt] = useState<{
+    categoryId: string
+    placeName: string
+  } | null>(null)
+  const [copyingToSet, setCopyingToSet] = useState(false)
+
+  const otherSetProperties = propertySetProperties.filter(p => p.id !== propertyId)
+  const hasPropertySet = !!propertySetId && otherSetProperties.length > 0
+
+  const handleCopyToSet = async (categoryId: string) => {
+    setCopyingToSet(true)
+    try {
+      const res = await fetch(`/api/properties/${propertyId}/recommendations/copy`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          targetPropertyIds: otherSetProperties.map(p => p.id),
+          categories: [categoryId],
+        }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setToast(`Copiado a ${data.copiedTo} ${data.copiedTo === 1 ? 'propiedad' : 'propiedades'}`)
+      } else {
+        setToast(`Error: ${data.error || 'No se pudo copiar'}`)
+      }
+    } catch {
+      setToast('Error al copiar al conjunto')
+    } finally {
+      setCopyingToSet(false)
+      setCopyToSetPrompt(null)
+      setTimeout(() => setToast(null), 3000)
+    }
+  }
+
   // Zone mode state
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
   const [loading, setLoading] = useState(mode === 'zone')
@@ -582,9 +629,15 @@ export function RecommendationsEditor({
       if (data.success) {
         setRecommendations(prev => [...prev, data.data])
         setHasChanges(true)
+        const addedName = pending.result.name
+        const addedCategory = zone?.recommendationCategory || ''
         setPending(null)
-        setToast(`✓ "${pending.result.name}" añadido`)
+        setToast(`✓ "${addedName}" añadido`)
         setTimeout(() => setToast(null), 2500)
+        // Prompt to copy to property set
+        if (hasPropertySet && addedCategory) {
+          setCopyToSetPrompt({ categoryId: addedCategory, placeName: addedName })
+        }
       } else {
         setToast(data.error || 'Error al añadir')
         setTimeout(() => setToast(null), 3000)
@@ -651,15 +704,25 @@ export function RecommendationsEditor({
             ? prev
             : [...prev, newItem]
         )
+        const addedName = pending!.result.name
+        const addedCategory = pending!.categoryId
         setPending(null)
         setHasChanges(true)
 
         if (data.alreadyExists) {
-          setToast(`"${pending!.result.name}" ya estaba en la lista`)
+          setToast(`"${addedName}" ya estaba en la lista`)
         } else if (data.data.zoneCreated) {
           setToast(`✓ Zona "${catLabel}" creada con el lugar`)
+          // Prompt to copy to property set
+          if (hasPropertySet) {
+            setCopyToSetPrompt({ categoryId: addedCategory, placeName: addedName })
+          }
         } else {
-          setToast(`✓ "${pending!.result.name}" añadido`)
+          setToast(`✓ "${addedName}" añadido`)
+          // Prompt to copy to property set
+          if (hasPropertySet) {
+            setCopyToSetPrompt({ categoryId: addedCategory, placeName: addedName })
+          }
         }
         setTimeout(() => setToast(null), 3000)
         onUpdate()
@@ -1163,6 +1226,38 @@ export function RecommendationsEditor({
           )}
         </div>
 
+        {/* Copy to property set prompt */}
+        <AnimatePresence>
+          {copyToSetPrompt && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="fixed bottom-16 left-1/2 -translate-x-1/2 bg-white border border-violet-200 shadow-xl rounded-xl px-4 py-3 z-[201] max-w-sm w-[90vw]"
+            >
+              <p className="text-sm text-gray-700 mb-2">
+                Añadir esta recomendacion al resto del conjunto? ({otherSetProperties.length} {otherSetProperties.length === 1 ? 'propiedad' : 'propiedades'})
+              </p>
+              <div className="flex gap-2 justify-end">
+                <button
+                  onClick={() => setCopyToSetPrompt(null)}
+                  className="px-3 py-1.5 text-xs text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  No
+                </button>
+                <button
+                  onClick={() => handleCopyToSet(copyToSetPrompt.categoryId)}
+                  disabled={copyingToSet}
+                  className="px-3 py-1.5 text-xs bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors disabled:opacity-50 flex items-center gap-1"
+                >
+                  {copyingToSet && <Loader2 className="w-3 h-3 animate-spin" />}
+                  Si, copiar
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Toast */}
         <AnimatePresence>
           {toast && (
@@ -1447,6 +1542,52 @@ export function RecommendationsEditor({
           )}
         </div>
       </div>
+
+      {/* Copy to property set prompt */}
+      <AnimatePresence>
+        {copyToSetPrompt && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-16 left-1/2 -translate-x-1/2 bg-white border border-violet-200 shadow-xl rounded-xl px-4 py-3 z-[201] max-w-sm w-[90vw]"
+          >
+            <p className="text-sm text-gray-700 mb-2">
+              Añadir esta recomendacion al resto del conjunto? ({otherSetProperties.length} {otherSetProperties.length === 1 ? 'propiedad' : 'propiedades'})
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setCopyToSetPrompt(null)}
+                className="px-3 py-1.5 text-xs text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                No
+              </button>
+              <button
+                onClick={() => handleCopyToSet(copyToSetPrompt.categoryId)}
+                disabled={copyingToSet}
+                className="px-3 py-1.5 text-xs bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors disabled:opacity-50 flex items-center gap-1"
+              >
+                {copyingToSet && <Loader2 className="w-3 h-3 animate-spin" />}
+                Si, copiar
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-4 py-2.5 rounded-lg shadow-lg text-sm z-[200]"
+          >
+            {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

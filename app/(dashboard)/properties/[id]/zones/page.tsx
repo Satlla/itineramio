@@ -3787,27 +3787,79 @@ export default function PropertyZonesPage() {
               {/* Footer */}
               <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 flex items-center justify-between rounded-b-2xl">
                 <span className="text-sm text-gray-500">{amenitiesActive.size} seleccionados</span>
-                <button
-                  onClick={async () => {
-                    setAmenitiesSaving(true)
-                    try {
-                      await fetch(`/api/properties/${id}/amenities`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        credentials: 'include',
-                        body: JSON.stringify({ amenities: [...amenitiesActive] }),
-                      })
-                      addNotification({ type: 'success', title: 'Amenities guardados', message: '', read: false })
-                      setShowAmenitiesModal(false)
-                    } catch {}
-                    finally { setAmenitiesSaving(false) }
-                  }}
-                  disabled={amenitiesSaving}
-                  className="px-5 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2"
-                >
-                  {amenitiesSaving && <Loader2Icon className="w-4 h-4 animate-spin" />}
-                  Guardar
-                </button>
+                <div className="flex items-center gap-2">
+                  {propertySetId && propertySetProperties.length > 1 ? (
+                    <>
+                      <button
+                        onClick={async () => {
+                          setAmenitiesSaving(true)
+                          try {
+                            await fetch(`/api/properties/${id}/amenities`, {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              credentials: 'include',
+                              body: JSON.stringify({ amenities: [...amenitiesActive] }),
+                            })
+                            addNotification({ type: 'success', title: 'Amenities guardados', message: '', read: false })
+                            setShowAmenitiesModal(false)
+                          } catch {}
+                          finally { setAmenitiesSaving(false) }
+                        }}
+                        disabled={amenitiesSaving}
+                        className="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {amenitiesSaving && <Loader2Icon className="w-4 h-4 animate-spin" />}
+                        Guardar solo aquí
+                      </button>
+                      <button
+                        onClick={async () => {
+                          setAmenitiesSaving(true)
+                          try {
+                            const res = await fetch(`/api/properties/${id}/amenities/propagate`, {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              credentials: 'include',
+                              body: JSON.stringify({ amenities: [...amenitiesActive] }),
+                            })
+                            const data = await res.json()
+                            if (data.success) {
+                              addNotification({ type: 'success', title: `Amenities guardados en ${data.updated} propiedades`, message: '', read: false })
+                            }
+                            setShowAmenitiesModal(false)
+                          } catch {}
+                          finally { setAmenitiesSaving(false) }
+                        }}
+                        disabled={amenitiesSaving}
+                        className="px-4 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {amenitiesSaving && <Loader2Icon className="w-4 h-4 animate-spin" />}
+                        Guardar en todo el conjunto
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        setAmenitiesSaving(true)
+                        try {
+                          await fetch(`/api/properties/${id}/amenities`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ amenities: [...amenitiesActive] }),
+                          })
+                          addNotification({ type: 'success', title: 'Amenities guardados', message: '', read: false })
+                          setShowAmenitiesModal(false)
+                        } catch {}
+                        finally { setAmenitiesSaving(false) }
+                      }}
+                      disabled={amenitiesSaving}
+                      className="px-5 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 disabled:opacity-50 flex items-center gap-2"
+                    >
+                      {amenitiesSaving && <Loader2Icon className="w-4 h-4 animate-spin" />}
+                      Guardar
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -3914,6 +3966,8 @@ export default function PropertyZonesPage() {
           propertyCity={propertyCity}
           propertyLat={propertyLat}
           propertyLng={propertyLng}
+          propertySetId={propertySetId}
+          propertySetProperties={propertySetProperties}
           onClose={() => {
             setShowRecommendationsEditor(false)
             setEditingRecommendationsZone(null)
@@ -3939,6 +3993,8 @@ export default function PropertyZonesPage() {
           propertyCity={propertyCity}
           propertyLat={propertyLat}
           propertyLng={propertyLng}
+          propertySetId={propertySetId}
+          propertySetProperties={propertySetProperties}
           existingZones={zones.filter(z => z.type === 'RECOMMENDATIONS').map(z => ({
             id: z.id,
             name: z.name,
