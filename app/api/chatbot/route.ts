@@ -630,7 +630,9 @@ function detectRelevantRecommendations(userMessage: string, aiResponse: string, 
   //
   // Exception: "qué hay" / "what's there" can refer to property contents ("¿qué hay en
   // los armarios?") so we cancel intent if the message also contains a property-feature word.
-  const PROPERTY_FEATURE_WORDS = /\b(armario|armarios|caj[oó]n|caj[oó]ns|nevera|frigor[ií]fico|lavadora|secadora|microondas|horno|cafetera|tostadora|plancha|aspiradora|toalla|toallas|s[aá]bana|s[aá]banas|almohada|manta|mantas|enchufe|enchufes|cargador|calefacci[oó]n|aire acondicionado|termo|caldera|cuarto|habitaci[oó]n|ba[nñ]o|cocina|terraza|balc[oó]n|trastero|garaje|taquilla|caja fuerte|safe)\b/i;
+  // Note: "cafetera" removed — was blocking "cafetería cerca" queries from showing recommendations.
+  // "cocina" kept because "hay cocina?" is always about the apartment, not a restaurant.
+  const PROPERTY_FEATURE_WORDS = /\b(armario|armarios|caj[oó]n|caj[oó]ns|nevera|frigor[ií]fico|lavadora|secadora|microondas|horno|tostadora|plancha|aspiradora|toalla|toallas|s[aá]bana|s[aá]banas|almohada|manta|mantas|enchufe|enchufes|cargador|calefacci[oó]n|aire acondicionado|termo|caldera|cuarto|habitaci[oó]n|ba[nñ]o|cocina|terraza|balc[oó]n|trastero|garaje|taquilla|caja fuerte|safe)\b/i;
   const hasRecommendationIntent = RECOMMENDATION_INTENT_PATTERNS.test(userMessage)
     && !PROPERTY_FEATURE_WORDS.test(userMessage);
 
@@ -1148,6 +1150,10 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   lunch:          ['restaurante', 'almorzar', 'almuerzo', 'comida', 'food'],
   breakfast:      ['cafe', 'cafeteria', 'desayuno', 'desayunar', 'restaurante'],
   brunch:         ['cafe', 'cafeteria', 'desayuno', 'restaurante'],
+  teletrabajar:   ['cafeteria', 'cafe', 'coworking'],
+  teletrabajo:    ['cafeteria', 'cafe', 'coworking'],
+  coworking:      ['cafeteria', 'cafe', 'trabajar'],
+  trabajar:       ['cafeteria', 'cafe', 'coworking'],
 
   // ── TURISMO / QUÉ VER / ACTIVIDADES ─────────────────────────────────────
   ver:            ['visitas', 'turismo', 'monumentos', 'lugares', 'actividades', 'pasear'],
