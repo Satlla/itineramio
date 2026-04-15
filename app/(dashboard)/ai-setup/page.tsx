@@ -426,7 +426,7 @@ export default function AISetupPage() {
       // Step 2
       details: step2Data,
       // Intelligence from Airbnb import
-      intelligence: buildIntelligenceFromImport(airbnbData, step2Data, airbnbUrl || undefined),
+      intelligence: buildIntelligenceFromImport(airbnbData, step2Data, airbnbUrl || undefined, step1Data),
       // Auto-mapped amenities from Airbnb import
       amenities: airbnbData?.allAmenities ? (() => {
         const { mapAirbnbAmenities } = require('@/data/amenities')

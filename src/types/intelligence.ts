@@ -276,6 +276,7 @@ export function buildIntelligenceFromImport(
   airbnbData: Record<string, any> | null,
   step2Data: Record<string, any> | null,
   airbnbUrl?: string,
+  step1Data?: Record<string, any> | null,
 ): PropertyIntelligence {
   const intelligence: PropertyIntelligence = {}
 
@@ -385,6 +386,71 @@ export function buildIntelligenceFromImport(
       recyclingContainerLocation: step2Data.recyclingContainerLocation || undefined,
       recommendations: step2Data.recommendations || undefined,
     }
+  }
+
+  // From Step1 data (property basics: wifi, check-in, parking, AC, host contact)
+  if (step1Data) {
+    // WiFi
+    if (step1Data.wifiName || step1Data.wifiPassword) {
+      intelligence.wifi = {
+        ...intelligence.wifi,
+        networkName: step1Data.wifiName || intelligence.wifi?.networkName || '',
+        password: step1Data.wifiPassword || intelligence.wifi?.password || '',
+      }
+    }
+
+    // Check-in
+    if (step1Data.checkInTime || step1Data.checkInMethod) {
+      intelligence.checkIn = {
+        ...intelligence.checkIn,
+        time: step1Data.checkInTime || intelligence.checkIn?.time || '',
+        method: step1Data.checkInMethod || intelligence.checkIn?.method || '',
+        instructions: step1Data.checkInInstructions || intelligence.checkIn?.instructions || '',
+      }
+    }
+
+    // Check-out
+    if (step1Data.checkOutTime) {
+      intelligence.checkOut = {
+        ...intelligence.checkOut,
+        time: step1Data.checkOutTime || '',
+      }
+    }
+
+    // Parking
+    if (step1Data.hasParking && step1Data.hasParking !== 'no') {
+      intelligence.parking = {
+        ...intelligence.parking,
+        available: true,
+        type: step1Data.hasParking,
+      }
+    }
+
+    // AC
+    if (step1Data.hasAC) {
+      intelligence.hasAC = true
+    }
+
+    // Pool
+    if (step1Data.hasPool) {
+      intelligence.hasPool = true
+    }
+
+    // Host contact
+    if (step1Data.hostContactName || step1Data.hostContactPhone || step1Data.hostContactEmail) {
+      intelligence.hostContact = {
+        name: step1Data.hostContactName || '',
+        phone: step1Data.hostContactPhone || '',
+        email: step1Data.hostContactEmail || '',
+        language: step1Data.hostContactLanguage || 'es',
+      }
+    }
+
+    // Property basics
+    if (step1Data.maxGuests) intelligence.maxGuests = step1Data.maxGuests
+    if (step1Data.bedrooms) intelligence.bedrooms = step1Data.bedrooms
+    if (step1Data.bathrooms) intelligence.bathrooms = step1Data.bathrooms
+    if (step1Data.propertyType) intelligence.propertyType = step1Data.propertyType
   }
 
   return intelligence
