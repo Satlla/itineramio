@@ -502,7 +502,7 @@ function collectRelevantMedia(zones: any[], language: string, _userMessage: stri
   if (!topZone) return [];
 
   const score = topZone._relevanceScore ?? 0;
-  if (score < 5) return []; // Very weak match, don't show media
+  if (score < MIN_MEDIA_SCORE) return []; // Only show media for strong matches (score >= 8)
 
   const items: MediaItem[] = [];
   let stepNumber = 0;
@@ -1076,17 +1076,17 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
   sleep:          ['dormitorio', 'cama', 'habitacion', 'bedroom'],
 
   // ── AIRE ACONDICIONADO / CALEFACCIÓN / TEMPERATURA ──────────────────────
-  aire:           ['aire', 'acondicionado', 'climatizacion', 'temperatura', 'frio', 'calor', 'calefaccion'],
+  aire:           ['acondicionado', 'climatizacion'],
   acondicionado:  ['aire', 'climatizacion', 'temperatura', 'frio', 'calor'],
   'aire acondicionado': ['clima', 'temperatura', 'frio', 'calor', 'acondicionado'],
   calefaccion:    ['climatizacion', 'calefaccion', 'calor', 'temperatura', 'termostato', 'radiador', 'heating'],
-  calor:          ['aire', 'acondicionado', 'calefaccion', 'temperatura', 'termostato', 'ventilador'],
+  calor:          ['calefaccion', 'termostato'],
   frio:           ['aire', 'acondicionado', 'calefaccion', 'temperatura', 'calor'],
-  temperatura:    ['aire', 'acondicionado', 'calefaccion', 'termostato', 'calor', 'frio'],
+  temperatura:    ['termostato'],
   termostato:     ['calefaccion', 'temperatura', 'calor', 'frio', 'aire'],
   heating:        ['calefaccion', 'calor', 'temperatura', 'termostato'],
   radiador:       ['calefaccion', 'calor', 'temperatura'],
-  ventilador:     ['aire', 'calor', 'temperatura'],
+  ventilador:     [],
   climatizacion:  ['aire', 'acondicionado', 'calefaccion', 'temperatura'],
   climatizar:     ['aire', 'acondicionado', 'calefaccion', 'temperatura'],
   ac:             ['aire', 'acondicionado', 'climatizacion', 'calefaccion', 'temperatura'],
@@ -1441,7 +1441,7 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
         score += 15;
       } else if (word.length >= 3 && zoneName.includes(word)) {
         score += 15;
-      } else if (zoneName.length >= 4 && word.length >= 3 && word.includes(zoneName)) {
+      } else if (zoneName.length >= 4 && word.length >= 4 && word.includes(zoneName)) {
         score += 15;
       }
     }
@@ -1485,7 +1485,7 @@ function rankZonesByRelevance(message: string, zones: any[], language: string): 
   // (e.g. check-in zone scoring 2 from a media bonus) from polluting the context
   // when the user is clearly asking about a specific zone (e.g. vitrocerámica).
   const topScore = scored[0]?.score ?? 0;
-  const relevantFiltered = topScore >= 15
+  const relevantFiltered = topScore > 0
     ? filtered.filter(s => s.score >= topScore * 0.4)
     : filtered;
 
