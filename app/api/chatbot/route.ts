@@ -193,7 +193,7 @@ export async function POST(request: NextRequest) {
       // Fallback to rule-based responses if no OpenAI
       const zone = zones[0] || null;
       const response = generateFallbackResponse(message, property, zone, language);
-      const media = collectRelevantMedia(zones, language);
+      const media = collectRelevantMedia(zones, language, message);
       const isUnansweredFallback = detectUnansweredQuestion(response, language);
       const recommendations = detectRelevantRecommendations(message, response, zones, language, isUnansweredFallback, guestProfile.transportMode);
       return NextResponse.json({
@@ -329,7 +329,7 @@ export async function POST(request: NextRequest) {
         if (!iosOpenaiResponse.ok) throw new Error(`OpenAI API error: ${iosOpenaiResponse.status}`);
         const iosData = await iosOpenaiResponse.json();
         const fullResponse = iosData.choices?.[0]?.message?.content || '';
-        const media = collectRelevantMedia(zones, language);
+        const media = collectRelevantMedia(zones, language, message);
         const isUnansweredMobile = detectUnansweredQuestion(fullResponse, language);
         const recommendations = detectRelevantRecommendations(message, fullResponse, zones, language, isUnansweredMobile, guestProfile.transportMode);
         after(() => runAfterTasks(fullResponse));
@@ -423,7 +423,7 @@ export async function POST(request: NextRequest) {
             }
 
             // After stream completes, send media + recommendation cards and finish
-            const media = collectRelevantMedia(zones, language);
+            const media = collectRelevantMedia(zones, language, message);
             const isUnansweredStream = detectUnansweredQuestion(fullResponse, language);
             const recommendations = detectRelevantRecommendations(message, fullResponse, zones, language, isUnansweredStream, guestProfile.transportMode);
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({
@@ -458,7 +458,7 @@ export async function POST(request: NextRequest) {
     } catch (openaiError) {
       const zone = zones[0] || null;
       const response = generateFallbackResponse(message, property, zone, language);
-      const media = collectRelevantMedia(zones, language);
+      const media = collectRelevantMedia(zones, language, message);
       const isUnansweredCatch = detectUnansweredQuestion(response, language);
       const recommendations = detectRelevantRecommendations(message, response, zones, language, isUnansweredCatch, guestProfile.transportMode);
       return NextResponse.json({
@@ -491,20 +491,23 @@ export async function POST(request: NextRequest) {
 // Minimum relevance score for AI context filtering (unchanged)
 const MIN_MEDIA_SCORE = 8;
 
-function collectRelevantMedia(zones: any[], language: string): MediaItem[] {
+function collectRelevantMedia(zones: any[], language: string, userMessage: string): MediaItem[] {
   if (!zones.length) return [];
 
-  // Only show media from zones with a VERY high relevance score (exact zone name match).
-  // Score >= 15 means the zone name directly matched the user's question.
-  // This prevents showing calefacción video when asking about secador, or
-  // cafetera video when asking about champú.
-  let bestItems: MediaItem[] = [];
-  let bestScore = -1;
+  // Only show media when the user is clearly asking about a specific zone that HAS media.
+  // The zone name must appear in the user's message (or very close match).
+  // This prevents showing ventilador video when asking about secador de pelo.
+  const msgLower = userMessage.toLowerCase();
 
   for (const zone of zones) {
     if (zone.type === 'RECOMMENDATIONS') continue;
-    const score = zone._relevanceScore ?? 0;
-    if (score < 15) continue; // Only exact zone name matches
+    const zoneName = (getLocalizedText(zone.name, language) || '').toLowerCase();
+    if (!zoneName) continue;
+
+    // Check if user message mentions this zone by name
+    const nameWords = zoneName.split(/\s+/).filter(w => w.length > 3);
+    const nameMatch = nameWords.length > 0 && nameWords.every(w => msgLower.includes(w));
+    if (!nameMatch && zone._relevanceScore < 20) continue; // 20 = exact zone match from zoneId
 
     const items: MediaItem[] = [];
     let stepNumber = 0;
@@ -530,13 +533,10 @@ function collectRelevantMedia(zones: any[], language: string): MediaItem[] {
       if (items.length >= 8) break;
     }
 
-    if (items.length > 0 && score > bestScore) {
-      bestScore = score;
-      bestItems = items;
-    }
+    if (items.length > 0) return items;
   }
 
-  return bestItems;
+  return [];
 }
 
 // Synonyms for recommendation categories
