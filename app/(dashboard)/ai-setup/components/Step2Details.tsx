@@ -11,6 +11,11 @@ import {
   ChevronRight,
   ArrowLeft,
   Clock,
+  Key,
+  DoorOpen,
+  Building,
+  Smartphone,
+  MapPin,
 } from 'lucide-react'
 
 export interface Step2Data {
@@ -25,6 +30,15 @@ export interface Step2Data {
   meetingPoint: string
   latePlan: 'call' | 'lockbox_backup' | 'neighbor' | 'other'
   latePlanDetails: string
+  // App-based access
+  accessAppName: string
+  accessAppLinkAndroid: string
+  accessAppLinkIos: string
+  // Building access
+  hasPortal: boolean
+  portalCode: string
+  // Nearby parking address
+  nearbyParkingAddress: string
 
   // === HOT WATER ===
   hotWaterType: 'instant' | 'tank_small' | 'tank_large' | 'centralized'
@@ -77,6 +91,7 @@ interface Step2DetailsProps {
   onNext: () => void
   onBack: () => void
   hasParking: string
+  checkInMethod: string
 }
 
 // Reusable input style
@@ -118,7 +133,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   return <label className="block text-sm font-medium text-gray-600">{children}</label>
 }
 
-export default function Step2Details({ data, onChange, onNext, onBack, hasParking }: Step2DetailsProps) {
+export default function Step2Details({ data, onChange, onNext, onBack, hasParking, checkInMethod }: Step2DetailsProps) {
   const { t } = useTranslation('ai-setup')
   const update = (partial: Partial<Step2Data>) => {
     onChange({ ...data, ...partial })
@@ -155,6 +170,103 @@ export default function Step2Details({ data, onChange, onNext, onBack, hasParkin
         <p className="text-gray-500 text-sm sm:text-base">{t('step2.subtitle')}</p>
       </div>
 
+
+      {/* ============ ACCESS DETAILS (conditional on checkInMethod) ============ */}
+      <Section icon={Key} title="Detalles de acceso">
+        {/* Portal / Building entrance */}
+        <div className="space-y-2">
+          <FieldLabel>Hay portal o puerta de edificio?</FieldLabel>
+          <div className="flex gap-3">
+            <OptionButton selected={data.hasPortal === true} onClick={() => update({ hasPortal: true })}>Si</OptionButton>
+            <OptionButton selected={data.hasPortal === false} onClick={() => update({ hasPortal: false })}>No</OptionButton>
+          </div>
+          {data.hasPortal && (
+            <div className="space-y-2 mt-2">
+              <FieldLabel>Codigo del portal (si tiene)</FieldLabel>
+              <input type="text" value={data.portalCode} onChange={e => update({ portalCode: e.target.value })} placeholder="Ej: 1234, boton 3B, llamar al telefonillo" className={inputClass} />
+            </div>
+          )}
+        </div>
+
+        {/* Lockbox */}
+        {checkInMethod === 'lockbox' && (
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <FieldLabel>Donde esta el cajetin de llaves?</FieldLabel>
+              <input type="text" value={data.lockboxLocation} onChange={e => update({ lockboxLocation: e.target.value })} placeholder="Ej: A la derecha de la puerta principal, cajetin negro" className={inputClass} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Codigo del cajetin</FieldLabel>
+              <input type="text" value={data.lockboxCode} onChange={e => update({ lockboxCode: e.target.value })} placeholder="Ej: 1234" className={inputClass} />
+            </div>
+          </div>
+        )}
+
+        {/* Door code */}
+        {checkInMethod === 'code' && (
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <FieldLabel>Codigo de la puerta</FieldLabel>
+              <input type="text" value={data.doorCode} onChange={e => update({ doorCode: e.target.value })} placeholder="Ej: 5678#" className={inputClass} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>El codigo cambia con cada reserva?</FieldLabel>
+              <div className="flex gap-3">
+                <OptionButton selected={data.codeChangesPerReservation === true} onClick={() => update({ codeChangesPerReservation: true })}>Si, se envia antes</OptionButton>
+                <OptionButton selected={data.codeChangesPerReservation === false} onClick={() => update({ codeChangesPerReservation: false })}>No, es fijo</OptionButton>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* App-based access */}
+        {checkInMethod === 'app' && (
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <FieldLabel>Nombre de la app</FieldLabel>
+              <input type="text" value={data.accessAppName} onChange={e => update({ accessAppName: e.target.value })} placeholder="Ej: Nuki, TTLock, Yale Access, Tesa Assa Abloy" className={inputClass} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Enlace de descarga Android (opcional)</FieldLabel>
+              <input type="url" value={data.accessAppLinkAndroid} onChange={e => update({ accessAppLinkAndroid: e.target.value })} placeholder="https://play.google.com/store/apps/..." className={inputClass} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Enlace de descarga iOS (opcional)</FieldLabel>
+              <input type="url" value={data.accessAppLinkIos} onChange={e => update({ accessAppLinkIos: e.target.value })} placeholder="https://apps.apple.com/..." className={inputClass} />
+            </div>
+          </div>
+        )}
+
+        {/* In-person key handover */}
+        {checkInMethod === 'in-person' && (
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <FieldLabel>Punto de encuentro para entrega de llaves</FieldLabel>
+              <input type="text" value={data.meetingPoint} onChange={e => update({ meetingPoint: e.target.value })} placeholder="Ej: En la puerta del edificio, en la recepcion, en el bar de la esquina" className={inputClass} />
+            </div>
+            <div className="space-y-2">
+              <FieldLabel>Si el huesped llega tarde, que pasa?</FieldLabel>
+              <div className="flex flex-wrap gap-2">
+                <OptionButton selected={data.latePlan === 'call'} onClick={() => update({ latePlan: 'call' })}>Que llame</OptionButton>
+                <OptionButton selected={data.latePlan === 'lockbox_backup'} onClick={() => update({ latePlan: 'lockbox_backup' })}>Cajetin de respaldo</OptionButton>
+                <OptionButton selected={data.latePlan === 'neighbor'} onClick={() => update({ latePlan: 'neighbor' })}>Vecino/portero</OptionButton>
+                <OptionButton selected={data.latePlan === 'other'} onClick={() => update({ latePlan: 'other' })}>Otro</OptionButton>
+              </div>
+              {data.latePlan === 'other' && (
+                <input type="text" value={data.latePlanDetails} onChange={e => update({ latePlanDetails: e.target.value })} placeholder="Describe el plan alternativo" className={inputClass} />
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Key (physical key, no lockbox) */}
+        {checkInMethod === 'key' && (
+          <div className="space-y-2">
+            <FieldLabel>Donde se recogen las llaves?</FieldLabel>
+            <input type="text" value={data.meetingPoint} onChange={e => update({ meetingPoint: e.target.value })} placeholder="Ej: En la recepcion del edificio, con el portero, en la inmobiliaria" className={inputClass} />
+          </div>
+        )}
+      </Section>
 
       {/* ============ HOT WATER ============ */}
       <Section icon={Droplets} title={t('step2.hotWater.title')}>
@@ -231,6 +343,26 @@ export default function Step2Details({ data, onChange, onNext, onBack, hasParkin
 
       {/* ============ PARKING (conditional) ============ */}
       <AnimatePresence>
+        {hasParking === 'nearby' && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+          >
+            <Section icon={MapPin} title="Parking cercano">
+              <div className="space-y-2">
+                <FieldLabel>Direccion o ubicacion del parking cercano</FieldLabel>
+                <input
+                  type="text"
+                  value={data.nearbyParkingAddress}
+                  onChange={e => update({ nearbyParkingAddress: e.target.value })}
+                  placeholder="Ej: Parking Saba Calle Mayor 15, a 200m del apartamento"
+                  className={inputClass}
+                />
+              </div>
+            </Section>
+          </motion.div>
+        )}
         {hasParking === 'yes' && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}

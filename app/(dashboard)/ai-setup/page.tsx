@@ -109,6 +109,12 @@ export default function AISetupPage() {
     luggageAfterCheckout: 'no',
     luggageUntil: '',
     luggageConsignaInfo: '',
+    accessAppName: '',
+    accessAppLinkAndroid: '',
+    accessAppLinkIos: '',
+    hasPortal: false,
+    portalCode: '',
+    nearbyParkingAddress: '',
     items: {
       iron: { has: false, location: '' },
       ironingBoard: { has: false, location: '' },
@@ -550,6 +556,7 @@ export default function AISetupPage() {
                 onNext={() => setCurrentStep(3)}
                 onBack={() => setCurrentStep(1)}
                 hasParking={step1Data.hasParking}
+                checkInMethod={step1Data.checkInMethod}
               />
             )}
 
