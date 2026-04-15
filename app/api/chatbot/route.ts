@@ -491,52 +491,44 @@ export async function POST(request: NextRequest) {
 // Minimum relevance score for AI context filtering (unchanged)
 const MIN_MEDIA_SCORE = 8;
 
-function collectRelevantMedia(zones: any[], language: string, userMessage: string): MediaItem[] {
+function collectRelevantMedia(zones: any[], language: string, _userMessage: string): MediaItem[] {
   if (!zones.length) return [];
 
-  // Only show media when the user is clearly asking about a specific zone that HAS media.
-  // The zone name must appear in the user's message (or very close match).
-  // This prevents showing ventilador video when asking about secador de pelo.
-  const msgLower = userMessage.toLowerCase();
+  // Only show media from the TOP ranked zone (the one the AI uses to answer).
+  // If that zone has media, show it. If not, show nothing.
+  // NEVER show media from a different zone — that causes showing cafetera
+  // video when asking about secador, or ventilador when asking about plancha.
+  const topZone = zones.find(z => z.type !== 'RECOMMENDATIONS');
+  if (!topZone) return [];
 
-  for (const zone of zones) {
-    if (zone.type === 'RECOMMENDATIONS') continue;
-    const zoneName = (getLocalizedText(zone.name, language) || '').toLowerCase();
-    if (!zoneName) continue;
+  const score = topZone._relevanceScore ?? 0;
+  if (score < 5) return []; // Very weak match, don't show media
 
-    // Check if user message mentions this zone by name
-    const nameWords = zoneName.split(/\s+/).filter(w => w.length > 3);
-    const nameMatch = nameWords.length > 0 && nameWords.every(w => msgLower.includes(w));
-    if (!nameMatch && zone._relevanceScore < 20) continue; // 20 = exact zone match from zoneId
+  const items: MediaItem[] = [];
+  let stepNumber = 0;
 
-    const items: MediaItem[] = [];
-    let stepNumber = 0;
+  for (const step of (topZone.steps || [])) {
+    const content = step.content as any;
+    if (!content?.mediaUrl) continue;
+    const stepType = (step.type || '').toUpperCase();
+    if (stepType !== 'IMAGE' && stepType !== 'VIDEO') continue;
 
-    for (const step of (zone.steps || [])) {
-      const content = step.content as any;
-      if (!content?.mediaUrl) continue;
-      const stepType = (step.type || '').toUpperCase();
-      if (stepType !== 'IMAGE' && stepType !== 'VIDEO') continue;
+    stepNumber++;
+    const title = getLocalizedText(step.title, language) || '';
+    const contentText = getLocalizedText(content, language) || '';
+    const stepText = contentText || title || undefined;
 
-      stepNumber++;
-      const title = getLocalizedText(step.title, language) || '';
-      const contentText = getLocalizedText(content, language) || '';
-      const stepText = contentText || title || undefined;
-
-      items.push({
-        type: stepType as 'IMAGE' | 'VIDEO',
-        url: content.mediaUrl,
-        caption: title || getLocalizedText(zone.name, language) || '',
-        stepText,
-        stepIndex: stepNumber,
-      });
-      if (items.length >= 8) break;
-    }
-
-    if (items.length > 0) return items;
+    items.push({
+      type: stepType as 'IMAGE' | 'VIDEO',
+      url: content.mediaUrl,
+      caption: title || getLocalizedText(topZone.name, language) || '',
+      stepText,
+      stepIndex: stepNumber,
+    });
+    if (items.length >= 8) break;
   }
 
-  return [];
+  return items;
 }
 
 // Synonyms for recommendation categories
