@@ -84,6 +84,7 @@ export default function ChecklistPage() {
         .pop { animation: pop 0.35s ease; }
         @keyframes pulse { 0%{transform:scale(1);opacity:0.5} 100%{transform:scale(2.5);opacity:0} }
         @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+        @keyframes scanline { 0%{transform:translateY(-10px)} 100%{transform:translateY(200px)} }
       `}</style>
 
       {/* ===== NAV ===== */}
@@ -114,39 +115,52 @@ export default function ChecklistPage() {
         {/* Kitchen image with interactive hotspots */}
         <div style={{ position: 'relative', width: '100%', overflow: 'visible' }}>
           <Image src="/images/render-casa.png" alt="Apartamento equipado" width={1920} height={1080} style={{ width: '100%', height: 'auto', display: 'block' }} priority />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.1), transparent, rgba(0,0,0,0.1))' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.15), transparent, rgba(0,0,0,0.3))' }} />
 
-          {/* Hotspot dots */}
+          {/* Hotspot dots with pulse + hologram panels */}
           {[
-            { id: 'cocina', x: '25%', y: '40%', label: 'Cocina', items: ['Sartén antiadherente', 'Cazuela mediana', 'Set de cuchillos', 'Tabla de corte', 'Escurridor de pasta'] },
-            { id: 'cubiertos', x: '35%', y: '50%', label: 'Cubiertos', items: ['Cubiertos (tenedores, cuchillos, cucharas)', 'Platos llanos y hondos', 'Vasos de agua', 'Copas de vino', 'Tazas de café'] },
-            { id: 'encimera', x: '30%', y: '32%', label: 'Encimera', items: ['Cafetera', 'Tostador', 'Hervidor de agua', 'Sacacorchos', 'Aceitera'] },
-            { id: 'sofa', x: '18%', y: '60%', label: 'Salón', items: ['Manta extra', 'Cojines', 'Mando TV con pilas', 'Cargador USB'] },
-            { id: 'tv', x: '70%', y: '35%', label: 'Smart TV', items: ['Pilas para mando (AA/AAA)', 'Alargador/regleta con USB'] },
-            { id: 'mesa', x: '42%', y: '65%', label: 'Mesa', items: ['Servilletas', 'Ensaladera', 'Bol para cereales'] },
-            { id: 'limpieza', x: '12%', y: '72%', label: 'Limpieza', items: ['Escoba + recogedor', 'Fregona + cubo', 'Ambientador'] },
-            { id: 'lavanderia', x: '55%', y: '70%', label: 'Lavandería', items: ['Plancha', 'Tabla de planchar', 'Pinzas de tender', 'Cesta de ropa'] },
+            { id: 'nevera', x: '20%', y: '38%', label: 'Nevera', items: ['Aceitera', 'Set de especias (sal, pimienta)', 'Tuppers (set de 3)'] },
+            { id: 'horno', x: '30%', y: '28%', label: 'Horno / Cocina', items: ['Sartén antiadherente', 'Cazuela mediana', 'Cazo pequeño', 'Escurridor de pasta', 'Colador'] },
+            { id: 'encimera', x: '32%', y: '45%', label: 'Encimera', items: ['Set de cuchillos', 'Tabla de corte', 'Tijeras de cocina', 'Sacacorchos', 'PortaRollos de cocina'] },
+            { id: 'sofa', x: '22%', y: '58%', label: 'Sofá / Salón', items: ['Manta extra / colcha', 'Cojines', 'Perchas (mín. 12)', 'Cargador USB'] },
+            { id: 'mesa', x: '38%', y: '62%', label: 'Mesa', items: ['Cubiertos (+4 extra)', 'Platos llanos y hondos', 'Copas de vino', 'Tazas de café', 'Servilletas'] },
+            { id: 'tv', x: '70%', y: '32%', label: 'Smart TV', items: ['Pilas para mandos (AA y AAA)', 'Alargador/regleta con USB', 'Bombillas de repuesto'] },
+            { id: 'mueble', x: '68%', y: '45%', label: 'Mueble TV', items: ['Vasos de agua (+4 extra)', 'Ensaladera', 'Bol cereales'] },
+            { id: 'entrada', x: '22%', y: '72%', label: 'Entrada / General', items: ['Plancha + tabla de planchar', 'Escoba + fregona', 'Ambientador', 'Secador de pelo'] },
           ].map(spot => (
             <div key={spot.id} onClick={() => setActiveSpot(activeSpot === spot.id ? null : spot.id)}
-              style={{ position: 'absolute', left: spot.x, top: spot.y, transform: 'translate(-50%, -50%)', zIndex: activeSpot === spot.id ? 40 : 20, cursor: 'pointer' }}>
-              {/* Pulse */}
-              <div style={{ position: 'absolute', width: 28, height: 28, left: '50%', top: '50%', marginLeft: -14, marginTop: -14, borderRadius: '50%', border: '2px solid rgba(124,58,237,0.4)', animation: 'pulse 2.5s infinite ease-out' }} />
-              {/* Dot */}
-              <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#7c3aed', border: '2px solid #fff', boxShadow: '0 2px 8px rgba(124,58,237,0.4)' }} />
-              {/* Label */}
-              <div style={{ position: 'absolute', top: 18, left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
-                <span style={{ fontSize: 10, fontWeight: 500, color: '#fff', background: 'rgba(0,0,0,0.6)', padding: '2px 8px', borderRadius: 3, backdropFilter: 'blur(4px)' }}>{spot.label}</span>
+              style={{ position: 'absolute', left: spot.x, top: spot.y, transform: 'translate(-50%, -50%)', zIndex: activeSpot === spot.id ? 100 : 20, cursor: 'pointer' }}>
+              {/* Pulse ring 1 */}
+              <div style={{ position: 'absolute', width: 32, height: 32, left: '50%', top: '50%', marginLeft: -16, marginTop: -16, borderRadius: '50%', border: '2px solid rgba(124,58,237,0.5)', animation: 'pulse 2.6s infinite ease-out' }} />
+              {/* Pulse ring 2 */}
+              <div style={{ position: 'absolute', width: 32, height: 32, left: '50%', top: '50%', marginLeft: -16, marginTop: -16, borderRadius: '50%', border: '1px solid rgba(124,58,237,0.3)', animation: 'pulse 2.6s 0.8s infinite ease-out' }} />
+              {/* QR Dot */}
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(124,58,237,0.7)', backdropFilter: 'blur(4px)', border: '2px solid rgba(167,139,250,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 15px rgba(124,58,237,0.4)' }}>
+                <div style={{ width: 8, height: 8, borderRadius: 2, border: '1.5px solid rgba(255,255,255,0.8)' }} />
               </div>
-              {/* Panel */}
+              {/* Label */}
+              <div style={{ position: 'absolute', top: 34, left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: 10, fontWeight: 500, color: '#fff', background: 'rgba(0,0,0,0.65)', padding: '3px 10px', borderRadius: 4, backdropFilter: 'blur(6px)', border: '1px solid rgba(124,58,237,0.2)' }}>{spot.label}</span>
+              </div>
+              {/* Hologram Panel */}
               {activeSpot === spot.id && (
-                <div style={{ position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)', width: 220, background: '#fff', borderRadius: 8, boxShadow: '0 8px 30px rgba(0,0,0,0.15)', padding: 16, zIndex: 100 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#111', marginBottom: 8 }}>{spot.label}</div>
+                <div style={{ position: 'absolute', bottom: 40, left: '50%', transform: 'translateX(-50%)', width: 240, background: 'rgba(15,10,40,0.85)', backdropFilter: 'blur(20px)', borderRadius: 12, border: '1px solid rgba(124,58,237,0.2)', padding: 16, zIndex: 100, boxShadow: '0 12px 40px rgba(0,0,0,0.3)' }}>
+                  {/* Scan line */}
+                  <div style={{ position: 'absolute', inset: 0, borderRadius: 12, overflow: 'hidden', pointerEvents: 'none' }}>
+                    <div style={{ width: '100%', height: 10, background: 'linear-gradient(to bottom, rgba(124,58,237,0.08), transparent)', animation: 'scanline 4s linear infinite' }} />
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#7c3aed' }} />
+                    {spot.label}
+                  </div>
                   {spot.items.map((item, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 0', fontSize: 12, color: '#555' }}>
-                      <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#7c3aed', flexShrink: 0 }} />
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0', fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>
+                      <div style={{ width: 4, height: 4, borderRadius: '50%', background: 'rgba(124,58,237,0.6)', flexShrink: 0 }} />
                       {item}
                     </div>
                   ))}
+                  {/* Bottom glow line */}
+                  <div style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(124,58,237,0.2), transparent)', marginTop: 10 }} />
                 </div>
               )}
             </div>
