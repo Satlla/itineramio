@@ -269,11 +269,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         category={post.category}
       />
 
-      {/* Sticky Sidebar CTA - Desktop only */}
-      <BlogProductCTA variant="sticky" articleSlug={post.slug} />
-
-      {/* Exit Intent Popup - Lead Magnet */}
-      <BlogExitPopup />
+      {/* Sticky and Exit popup removed — too many CTAs */}
 
       {/* Header */}
       <header className="border-b border-gray-200 bg-white sticky z-40 backdrop-blur-sm bg-white/90 pwa-sticky-header">
@@ -692,7 +688,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               [&_table_table]:w-full [&_table_table]:border-collapse [&_table_table]:table
               prose-thead:bg-gray-100
               prose-th:border prose-th:border-gray-300 prose-th:px-4 prose-th:py-3 prose-th:font-semibold prose-th:text-sm prose-th:whitespace-nowrap
-              prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-3 prose-td:text-sm"
+              prose-td:border prose-td:border-gray-300 prose-td:px-4 prose-td:py-3 prose-td:text-sm
+              [&_.blog-callout]:not-prose [&_.blog-tip]:not-prose [&_.blog-warning]:not-prose [&_.blog-stat]:not-prose [&_.blog-comparison]:not-prose [&_.blog-takeaway]:not-prose"
           />
 
           {/* Newsletter CTA - Captura de leads por embudo/categoría */}
