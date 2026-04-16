@@ -205,67 +205,94 @@ export default function ChecklistPage() {
         </div>
       </section>
 
-      {/* ===== CHECKLIST ===== */}
-      <section style={{ padding: '8px 16px 64px', maxWidth: 700, margin: '0 auto' }}>
+      {/* ===== CHECKLIST — Card style like reference ===== */}
+      <section style={{ padding: '8px 16px 64px', maxWidth: 600, margin: '0 auto' }}>
         {ZONES.map(zone => {
-          const isOpen = !!openZones[zone.id]
           const customs = customItems[zone.id] || []
           const totalZone = zone.items.length + customs.length
           const zc = zone.items.filter((_, i) => checked[`${zone.id}-${i}`]).length + customs.filter((_, i) => checked[`${zone.id}-c${i}`]).length
           const allDone = zc === totalZone && totalZone > 0
+          const zonePct = totalZone ? Math.round((zc / totalZone) * 100) : 0
+          const isOpen = !!openZones[zone.id]
 
           return (
-            <div key={zone.id} style={{ marginBottom: 2, borderBottom: '1px solid #f0f0f0' }}>
-              {/* Zone header — Tesla minimal */}
+            <div key={zone.id} style={{ marginBottom: 16, background: '#fff', borderRadius: 16, border: '1px solid #eee', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+              {/* Zone header */}
               <div onClick={() => setOpenZones(p => ({ ...p, [zone.id]: !p[zone.id] }))}
-                style={{ display: 'flex', alignItems: 'center', padding: '20px 4px', cursor: 'pointer' }}>
-                <span style={{ flex: 1, fontSize: 16, fontWeight: 400, letterSpacing: '-0.01em', color: allDone ? '#22c55e' : '#111' }}>{zone.name}</span>
-                {allDone && <span style={{ fontSize: 10, fontWeight: 600, color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.1em', marginRight: 12 }}>Completo</span>}
-                <span style={{ fontSize: 12, color: '#ccc', marginRight: 12 }}>{zc}/{totalZone}</span>
-                <ChevronDown size={16} color="#ccc" style={{ transform: isOpen ? 'rotate(180deg)' : '', transition: 'transform 0.2s' }} />
+                style={{ padding: '18px 20px', cursor: 'pointer' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                  <span style={{ fontSize: 16, fontWeight: 600, color: '#111' }}>{zone.name}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {allDone && <span style={{ fontSize: 11, fontWeight: 600, color: '#22c55e' }}>Completo</span>}
+                    <span style={{ fontSize: 12, color: '#bbb' }}>{zc}/{totalZone}</span>
+                    <ChevronDown size={16} color="#ccc" style={{ transform: isOpen ? 'rotate(180deg)' : '', transition: 'transform 0.2s' }} />
+                  </div>
+                </div>
+                {/* Progress bar */}
+                <div style={{ height: 4, background: '#f0f0f0', borderRadius: 2, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${zonePct}%`, background: allDone ? '#22c55e' : '#7c3aed', borderRadius: 2, transition: 'all 0.4s ease' }} />
+                </div>
               </div>
 
+              {/* Items */}
               {isOpen && (
-                <div style={{ paddingBottom: 16 }}>
+                <div style={{ padding: '0 12px 16px' }}>
                   {zone.items.map((item, i) => {
                     const key = `${zone.id}-${i}`; const on = !!checked[key]; const b = BADGE[item.l]
                     return (
-                      <div key={key} onClick={() => { setChecked(p => ({ ...p, [key]: !p[key] })); if (!on) { setPopKey(key); setTimeout(() => setPopKey(null), 350) } }}
-                        style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 4px', cursor: 'pointer' }}>
-                        <div className={popKey === key ? 'pop' : ''} style={{ width: 18, height: 18, borderRadius: 4, border: `1.5px solid ${on ? '#111' : '#ddd'}`, background: on ? '#111' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.2s' }}>
-                          {on && <Check size={11} color="#fff" strokeWidth={3} />}
+                      <div key={key} onClick={() => { setChecked(p => ({ ...p, [key]: !p[key] })); if (!on) { setPopKey(key); setTimeout(() => setPopKey(null), 400) } }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 10px', margin: '2px 0', borderRadius: 10, cursor: 'pointer', background: on ? '#f0fdf4' : 'transparent', transition: 'background 0.2s' }}>
+                        {/* Circle checkbox */}
+                        <div className={popKey === key ? 'pop' : ''} style={{
+                          width: 24, height: 24, borderRadius: '50%',
+                          border: on ? 'none' : '2px solid #ddd',
+                          background: on ? '#22c55e' : '#fff',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                          transition: 'all 0.25s ease',
+                          boxShadow: on ? '0 2px 8px rgba(34,197,94,0.3)' : 'none',
+                        }}>
+                          {on && <Check size={13} color="#fff" strokeWidth={3} />}
                         </div>
-                        <span style={{ flex: 1, fontSize: 14, color: on ? '#ccc' : '#444', textDecoration: on ? 'line-through' : 'none', transition: 'all 0.15s' }}>{item.t}</span>
-                        <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 3, background: b.bg, color: b.color, flexShrink: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{b.label}</span>
+                        <span style={{ flex: 1, fontSize: 14, color: on ? '#aaa' : '#333', textDecoration: on ? 'line-through' : 'none', transition: 'all 0.2s' }}>{item.t}</span>
+                        {!on && <ArrowRight size={14} color="#ddd" style={{ flexShrink: 0 }} />}
+                        {on && <span style={{ fontSize: 9, fontWeight: 600, color: '#22c55e', flexShrink: 0 }}>Listo</span>}
                       </div>
                     )
                   })}
 
+                  {/* Custom items */}
                   {customs.map((item, i) => {
                     const key = `${zone.id}-c${i}`; const on = !!checked[key]
                     return (
-                      <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 4px' }}>
-                        <div onClick={() => { setChecked(p => ({ ...p, [key]: !p[key] })); if (!on) { setPopKey(key); setTimeout(() => setPopKey(null), 350) } }}
-                          className={popKey === key ? 'pop' : ''} style={{ width: 18, height: 18, borderRadius: 4, border: `1.5px solid ${on ? '#22c55e' : '#ddd'}`, background: on ? '#22c55e' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', transition: 'all 0.2s' }}>
-                          {on && <Check size={11} color="#fff" strokeWidth={3} />}
+                      <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 10px', margin: '2px 0', borderRadius: 10, background: on ? '#f0fdf4' : 'transparent' }}>
+                        <div onClick={() => { setChecked(p => ({ ...p, [key]: !p[key] })); if (!on) { setPopKey(key); setTimeout(() => setPopKey(null), 400) } }}
+                          className={popKey === key ? 'pop' : ''} style={{
+                          width: 24, height: 24, borderRadius: '50%',
+                          border: on ? 'none' : '2px solid #ddd',
+                          background: on ? '#22c55e' : '#fff',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer',
+                          transition: 'all 0.25s ease',
+                          boxShadow: on ? '0 2px 8px rgba(34,197,94,0.3)' : 'none',
+                        }}>
+                          {on && <Check size={13} color="#fff" strokeWidth={3} />}
                         </div>
-                        <span onClick={() => { setChecked(p => ({ ...p, [key]: !p[key] })) }} style={{ flex: 1, fontSize: 14, color: on ? '#ccc' : '#444', textDecoration: on ? 'line-through' : 'none', cursor: 'pointer' }}>{item}</span>
-                        <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 3, background: '#f0fdf4', color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.05em' }}>tuyo</span>
-                        <button onClick={() => removeCustomItem(zone.id, i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ddd', padding: 2 }}><Trash2 size={13} /></button>
+                        <span onClick={() => setChecked(p => ({ ...p, [key]: !p[key] }))} style={{ flex: 1, fontSize: 14, color: on ? '#aaa' : '#333', textDecoration: on ? 'line-through' : 'none', cursor: 'pointer' }}>{item}</span>
+                        {on ? <span style={{ fontSize: 9, fontWeight: 600, color: '#22c55e' }}>Listo</span> : <button onClick={() => removeCustomItem(zone.id, i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ddd', padding: 2 }}><Trash2 size={13} /></button>}
                       </div>
                     )
                   })}
 
+                  {/* Add custom */}
                   {addingTo === zone.id ? (
-                    <div style={{ display: 'flex', gap: 8, marginTop: 8, padding: '0 4px' }}>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 8, padding: '0 10px' }}>
                       <input type="text" value={newItem} onChange={e => setNewItem(e.target.value)} onKeyDown={e => e.key === 'Enter' && addCustomItem(zone.id)}
-                        placeholder="Escribe el item..." autoFocus style={{ flex: 1, padding: '8px 12px', border: '1px solid #eee', borderRadius: 4, fontSize: 14, outline: 'none' }} />
-                      <button onClick={() => addCustomItem(zone.id)} style={{ padding: '8px 14px', background: '#111', color: '#fff', border: 'none', borderRadius: 4, fontSize: 13, cursor: 'pointer' }}>Añadir</button>
-                      <button onClick={() => { setAddingTo(null); setNewItem('') }} style={{ padding: '8px', background: '#f5f5f5', border: 'none', borderRadius: 4, cursor: 'pointer', color: '#999' }}><X size={14} /></button>
+                        placeholder="Escribe el item..." autoFocus style={{ flex: 1, padding: '10px 14px', border: '1px solid #eee', borderRadius: 10, fontSize: 14, outline: 'none' }} />
+                      <button onClick={() => addCustomItem(zone.id)} style={{ padding: '10px 16px', background: '#111', color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, cursor: 'pointer' }}>Añadir</button>
+                      <button onClick={() => { setAddingTo(null); setNewItem('') }} style={{ padding: '10px', background: '#f5f5f5', border: 'none', borderRadius: 10, cursor: 'pointer', color: '#999' }}><X size={14} /></button>
                     </div>
                   ) : (
-                    <div onClick={() => setAddingTo(zone.id)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 4px', cursor: 'pointer', color: '#ccc', fontSize: 13 }}>
-                      <Plus size={13} /> Añadir item
+                    <div onClick={() => setAddingTo(zone.id)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '11px 10px', cursor: 'pointer', color: '#ccc', fontSize: 13, borderRadius: 10 }}>
+                      <Plus size={14} /> Añadir item
                     </div>
                   )}
                 </div>
