@@ -14,7 +14,9 @@ export function SupportWidget() {
   if (
     pathname?.startsWith('/admin') ||
     pathname?.startsWith('/guide') ||
-    pathname?.startsWith('/z/')
+    pathname?.startsWith('/z/') ||
+    pathname?.startsWith('/tesla-test') ||
+    pathname?.startsWith('/landing-tes')
   ) {
     return null
   }
