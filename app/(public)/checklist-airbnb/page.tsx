@@ -67,7 +67,12 @@ export default function ChecklistPage() {
 
   function getChecklist() {
     const result: Record<string, string[]> = {}
-    ZONES.forEach(zone => { const items: string[] = []; zone.items.forEach((item, i) => { if (checked[`${zone.id}-${i}`]) items.push(item.t) }); (customItems[zone.id] || []).forEach(item => items.push(item)); if (items.length > 0) result[zone.name] = items })
+    ZONES.forEach(zone => {
+      const items: string[] = []
+      zone.items.forEach(item => items.push(item.t))
+      ;(customItems[zone.id] || []).forEach(item => items.push(item))
+      if (items.length > 0) result[zone.name] = items
+    })
     return result
   }
 
