@@ -66,6 +66,7 @@ const ZONES = [
   { id: 'general', name: 'General / Entrada', items: [
     { t: 'Bombillas de repuesto', l: 'must' },
     { t: 'Alargador/regleta con USB', l: 'must' },
+    { t: 'Guía digital con videos por zonas', l: 'wow' },
   ]},
 ]
 
@@ -165,7 +166,7 @@ export default function ChecklistPage() {
       {/* HERO */}
       <div style={{ padding: '48px 24px 40px', textAlign: 'center' }}>
         <h1 style={{ fontSize: 'clamp(26px,5vw,44px)', fontWeight: 300, lineHeight: 1.15, marginBottom: 12 }}>
-          Checklist de compras para tu <span style={{ color: '#7c3aed' }}>Airbnb</span>
+          Checklist de compras para tu <span style={{ color: '#7c3aed' }}>alojamiento</span>
         </h1>
         <p style={{ fontSize: 15, color: '#999', marginBottom: 28, maxWidth: 500, margin: '0 auto 28px' }}>
           Todo lo que tienes que comprar. Marca, añade los tuyos, y descarga el PDF.
@@ -285,17 +286,20 @@ export default function ChecklistPage() {
 
       {/* SEO */}
       <div style={{ borderTop: '1px solid #f0f0f0', padding: '48px 24px', maxWidth: 700, margin: '0 auto' }}>
-        <h2 style={{ fontSize: 28, fontWeight: 300, marginBottom: 20 }}>La lista de compras definitiva para tu Airbnb</h2>
+        <h2 style={{ fontSize: 28, fontWeight: 300, marginBottom: 20 }}>La lista de compras definitiva para tu alojamiento</h2>
         <p style={{ color: '#888', fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>Un escurridor de pasta, un sacacorchos, una plancha — las cosas que solo echas en falta cuando el huésped te escribe a las 10 de la noche preguntando.</p>
-        <p style={{ color: '#888', fontSize: 15, lineHeight: 1.7 }}>Cada item clasificado en: <strong style={{ color: '#ef4444' }}>MUST</strong> (sin esto hay queja), <strong style={{ color: '#f59e0b' }}>SHOULD</strong> (marca la diferencia) y <strong style={{ color: '#7c3aed' }}>WOW</strong> (aparece en la reseña).</p>
+        <p style={{ color: '#888', fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>Cada item clasificado en: <strong style={{ color: '#ef4444' }}>MUST</strong> (sin esto hay queja), <strong style={{ color: '#f59e0b' }}>SHOULD</strong> (marca la diferencia) y <strong style={{ color: '#7c3aed' }}>WOW</strong> (aparece en la reseña).</p>
+        <h3 style={{ fontSize: 20, fontWeight: 300, marginTop: 32, marginBottom: 12 }}>Guía digital de tu apartamento turístico con videos</h3>
+        <p style={{ color: '#888', fontSize: 15, lineHeight: 1.7 }}>Una vez tienes todo comprado e instalado, el siguiente nivel es documentarlo. Una guía digital con videos por zonas — cómo funciona la vitrocerámica, dónde está la plancha, cómo se enciende el aire acondicionado. El huésped escanea un QR y lo ve todo. Sin llamarte, sin escribirte, sin repetir.</p>
       </div>
 
       {/* CTA */}
       <div style={{ borderTop: '1px solid #f0f0f0', padding: '48px 24px', textAlign: 'center' }}>
         <h2 style={{ fontSize: 28, fontWeight: 300, marginBottom: 12 }}>¿Ya tienes todo comprado?</h2>
-        <p style={{ color: '#aaa', marginBottom: 24, fontSize: 15 }}>El siguiente paso: que tu huésped sepa dónde está cada cosa sin preguntarte.</p>
+        <p style={{ color: '#aaa', marginBottom: 12, fontSize: 15 }}>El siguiente paso: que tu huésped sepa dónde está cada cosa sin preguntarte.</p>
+        <p style={{ color: '#777', marginBottom: 24, fontSize: 15 }}>Crea una <strong>guía digital de tu apartamento turístico con videos</strong> — instrucciones de cada electrodoméstico, normas, WiFi, recomendaciones locales. Todo accesible con un QR.</p>
         <a href="/landing-tes" style={{ padding: '14px 28px', background: '#111', color: '#fff', borderRadius: 8, fontSize: 14, fontWeight: 500, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-          Conoce Itineramio <ArrowRight size={14} />
+          Crea tu guía digital gratis <ArrowRight size={14} />
         </a>
       </div>
 
