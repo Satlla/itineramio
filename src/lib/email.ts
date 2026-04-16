@@ -8,14 +8,21 @@ if (!process.env.RESEND_API_KEY && process.env.NODE_ENV === 'production') {
 
 const resend = new Resend(RESEND_API_KEY)
 
+export interface EmailAttachment {
+  filename: string
+  content: Buffer
+  contentType?: string
+}
+
 export interface EmailOptions {
   to: string | string[]
   subject: string
   html: string
   from?: string
+  attachments?: EmailAttachment[]
 }
 
-export async function sendEmail({ to, subject, html, from = 'hola@itineramio.com' }: EmailOptions) {
+export async function sendEmail({ to, subject, html, from = 'hola@itineramio.com', attachments }: EmailOptions) {
   // Ensure email is properly formatted
   const formattedTo = Array.isArray(to) ? to : [to]
   const cleanEmails = formattedTo.map(email => {
@@ -35,6 +42,7 @@ export async function sendEmail({ to, subject, html, from = 'hola@itineramio.com
       to: cleanEmails[0],
       subject,
       html,
+      ...(attachments?.length ? { attachments: attachments.map(a => ({ filename: a.filename, content: a.content })) } : {}),
     })
 
     if (error) {
