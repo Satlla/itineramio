@@ -94,7 +94,7 @@ export default function ChecklistPage() {
             <img src="/isotipo-gradient.svg" alt="" width={40} height={24} />
             <span style={{ fontWeight: 600, fontSize: 20, color: '#111' }}>Itineramio</span>
           </a>
-          <button onClick={() => setShowEmailModal(true)} style={{ padding: '8px 16px', background: '#111', color: '#fff', border: 'none', borderRadius: 4, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
+          <button onClick={() => setShowEmailModal(true)} style={{ padding: '9px 18px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 20, fontSize: 13, fontWeight: 500, cursor: 'pointer', boxShadow: '0 2px 10px rgba(124,58,237,0.25)' }}>
             Recibir por email
           </button>
         </div>
@@ -163,23 +163,6 @@ export default function ChecklistPage() {
                   <div style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(124,58,237,0.2), transparent)', marginTop: 10 }} />
                 </div>
               )}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ===== STATS — Tesla style numbers ===== */}
-      <section style={{ padding: '80px 24px', borderBottom: '1px solid #f0f0f0' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 48, textAlign: 'center' }}>
-          {[
-            { value: `${allItems}`, label: 'Items', sub: 'organizados por zona' },
-            { value: '6', label: 'Zonas', sub: 'cocina, baño, dormitorio...' },
-            { value: '3', label: 'Niveles', sub: 'must, should, wow' },
-          ].map((s, i) => (
-            <div key={i}>
-              <div style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 200, color: '#111', letterSpacing: '-0.03em' }}>{s.value}</div>
-              <div style={{ fontSize: 12, fontWeight: 500, color: '#999', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 4 }}>{s.label}</div>
-              <div style={{ fontSize: 13, color: '#ccc', marginTop: 2 }}>{s.sub}</div>
             </div>
           ))}
         </div>
@@ -307,7 +290,7 @@ export default function ChecklistPage() {
         <section style={{ padding: '0 24px 48px' }}>
           <div style={{ maxWidth: 700, margin: '0 auto', padding: '24px 32px', background: '#fafafa', borderRadius: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, textAlign: 'center' }}>
             <p style={{ fontSize: 14, color: '#555' }}><strong>{checkedCount} items</strong> seleccionados. Recibe tu checklist personalizado por email.</p>
-            <button onClick={() => setShowEmailModal(true)} style={{ padding: '12px 24px', background: '#111', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', letterSpacing: '0.02em' }}>
+            <button onClick={() => setShowEmailModal(true)} style={{ padding: '12px 28px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 24, fontSize: 14, fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 15px rgba(124,58,237,0.3)' }}>
               Enviar a mi email
             </button>
           </div>
@@ -339,10 +322,10 @@ export default function ChecklistPage() {
           El siguiente paso: que tu huésped sepa dónde está cada cosa sin preguntarte.
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
-          <a href="/landing-tes" style={{ padding: '14px 32px', background: '#111', color: '#fff', borderRadius: 4, fontSize: 14, fontWeight: 500, textDecoration: 'none', letterSpacing: '0.02em' }}>
+          <a href="/landing-tes" style={{ padding: '14px 32px', background: '#7c3aed', color: '#fff', borderRadius: 24, fontSize: 14, fontWeight: 600, textDecoration: 'none', boxShadow: '0 4px 20px rgba(124,58,237,0.35)' }}>
             Crea tu guía digital gratis
           </a>
-          <a href="/demo" style={{ padding: '14px 32px', background: 'transparent', color: '#555', border: '1px solid #ddd', borderRadius: 4, fontSize: 14, fontWeight: 500, textDecoration: 'none', letterSpacing: '0.02em' }}>
+          <a href="/demo" style={{ padding: '14px 32px', background: 'transparent', color: '#666', border: '1px solid #ddd', borderRadius: 24, fontSize: 14, fontWeight: 500, textDecoration: 'none' }}>
             Ver demo
           </a>
         </div>
@@ -356,28 +339,30 @@ export default function ChecklistPage() {
       {/* ===== EMAIL MODAL ===== */}
       {showEmailModal && (
         <div onClick={() => { if (!emailSending) setShowEmailModal(false) }} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(0,0,0,0.4)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, background: '#fff', borderRadius: 4, boxShadow: '0 20px 50px rgba(0,0,0,0.15)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, background: '#fff', borderRadius: 20, boxShadow: '0 20px 60px rgba(0,0,0,0.15)', overflow: 'hidden' }}>
             {emailSent ? (
               <div style={{ padding: 40, textAlign: 'center' }}>
-                <div style={{ width: 48, height: 48, borderRadius: 4, background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}><Check size={24} color="#fff" /></div>
-                <h3 style={{ fontSize: 18, fontWeight: 400, marginBottom: 8 }}>Checklist enviado</h3>
-                <p style={{ fontSize: 13, color: '#999', marginBottom: 24 }}>Revisa tu email con tu lista personalizada.</p>
-                <button onClick={() => { setShowEmailModal(false); setEmailSent(false) }} style={{ background: 'none', border: 'none', color: '#111', cursor: 'pointer', fontSize: 13, fontWeight: 500, textDecoration: 'underline' }}>Cerrar</button>
+                <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: '0 4px 15px rgba(34,197,94,0.3)' }}><Check size={28} color="#fff" /></div>
+                <h3 style={{ fontSize: 20, fontWeight: 600, marginBottom: 8 }}>Checklist enviado</h3>
+                <p style={{ fontSize: 14, color: '#999', marginBottom: 24 }}>Revisa tu email con tu lista personalizada.</p>
+                <button onClick={() => { setShowEmailModal(false); setEmailSent(false) }} style={{ padding: '10px 24px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 20, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>Cerrar</button>
               </div>
             ) : (
               <form onSubmit={(e) => { e.preventDefault(); sendChecklist() }}>
-                <div style={{ padding: '24px 24px 0' }}>
-                  <h3 style={{ fontSize: 16, fontWeight: 400, marginBottom: 4 }}>Recibe tu checklist por email</h3>
-                  <p style={{ fontSize: 12, color: '#aaa', marginBottom: 20 }}>{checkedCount > 0 ? `${checkedCount} items seleccionados.` : 'Tu checklist personalizado.'}</p>
+                {/* Header branded */}
+                <div style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)', padding: '24px 24px 20px', textAlign: 'center' }}>
+                  <img src="/isotipo-gradient.svg" alt="" width={28} height={16} style={{ filter: 'brightness(0) invert(1)', marginBottom: 8 }} />
+                  <h3 style={{ fontSize: 18, fontWeight: 600, color: '#fff', marginBottom: 4 }}>Recibe tu checklist</h3>
+                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', margin: 0 }}>{checkedCount > 0 ? `${checkedCount} items seleccionados` : 'Tu checklist personalizado'}</p>
                 </div>
-                <div style={{ padding: '0 24px 24px' }}>
-                  <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="Tu nombre" style={{ width: '100%', padding: '12px 14px', border: '1px solid #eee', borderRadius: 4, fontSize: 14, marginBottom: 10, boxSizing: 'border-box' as const, outline: 'none' }} />
-                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="tu@email.com" style={{ width: '100%', padding: '12px 14px', border: '1px solid #eee', borderRadius: 4, fontSize: 14, marginBottom: 10, boxSizing: 'border-box' as const, outline: 'none' }} />
-                  <select value={props} onChange={e => setProps(e.target.value)} required style={{ width: '100%', padding: '12px 14px', border: '1px solid #eee', borderRadius: 4, fontSize: 14, marginBottom: 20, boxSizing: 'border-box' as const }}>
+                <div style={{ padding: '20px 24px 24px' }}>
+                  <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="Tu nombre" style={{ width: '100%', padding: '12px 16px', border: '1px solid #eee', borderRadius: 12, fontSize: 14, marginBottom: 10, boxSizing: 'border-box' as const, outline: 'none' }} />
+                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="tu@email.com" style={{ width: '100%', padding: '12px 16px', border: '1px solid #eee', borderRadius: 12, fontSize: 14, marginBottom: 10, boxSizing: 'border-box' as const, outline: 'none' }} />
+                  <select value={props} onChange={e => setProps(e.target.value)} required style={{ width: '100%', padding: '12px 16px', border: '1px solid #eee', borderRadius: 12, fontSize: 14, marginBottom: 20, boxSizing: 'border-box' as const }}>
                     <option value="">¿Cuántas propiedades gestionas?</option>
                     <option>1</option><option>2-3</option><option>4-6</option><option>7-10</option><option>Más de 10</option>
                   </select>
-                  <button type="submit" disabled={emailSending} style={{ width: '100%', padding: 14, background: '#111', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', opacity: emailSending ? 0.6 : 1, letterSpacing: '0.02em' }}>
+                  <button type="submit" disabled={emailSending} style={{ width: '100%', padding: 14, background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', opacity: emailSending ? 0.6 : 1, boxShadow: '0 4px 15px rgba(124,58,237,0.3)' }}>
                     {emailSending ? 'Enviando...' : 'Enviar mi checklist'}
                   </button>
                   <p style={{ fontSize: 10, color: '#ccc', textAlign: 'center', marginTop: 12 }}>Sin spam. Solo tu checklist.</p>
