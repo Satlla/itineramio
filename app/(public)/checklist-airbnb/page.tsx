@@ -49,6 +49,7 @@ export default function ChecklistPage() {
   const [name, setName] = useState('')
   const [props, setProps] = useState('')
   const [popKey, setPopKey] = useState<string | null>(null)
+  const [activeSpot, setActiveSpot] = useState<string | null>(null)
   const [showEmailModal, setShowEmailModal] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
   const [emailSending, setEmailSending] = useState(false)
@@ -81,45 +82,75 @@ export default function ChecklistPage() {
       <style>{`
         @keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(1.35) rotate(8deg)} 100%{transform:scale(1)} }
         .pop { animation: pop 0.35s ease; }
+        @keyframes pulse { 0%{transform:scale(1);opacity:0.5} 100%{transform:scale(2.5);opacity:0} }
+        @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
       `}</style>
 
-      {/* ===== HERO — Full screen image like Tesla ===== */}
-      <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0 }}>
-          <Image src="/images/kitchen.png" alt="Cocina equipada" fill style={{ objectFit: 'cover' }} priority />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.15), rgba(0,0,0,0.5))' }} />
+      {/* ===== NAV ===== */}
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, padding: '0 24px', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #f0f0f0' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
+            <img src="/isotipo-gradient.svg" alt="" width={40} height={24} />
+            <span style={{ fontWeight: 600, fontSize: 20, color: '#111' }}>Itineramio</span>
+          </a>
+          <button onClick={() => setShowEmailModal(true)} style={{ padding: '8px 16px', background: '#111', color: '#fff', border: 'none', borderRadius: 4, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
+            Recibir por email
+          </button>
         </div>
+      </div>
 
-        {/* Nav overlay */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, padding: '0 24px' }}>
-          <div style={{ maxWidth: 1200, margin: '0 auto', height: 72, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-              <img src="/isotipo-gradient.svg" alt="" width={36} height={20} style={{ filter: 'brightness(0) invert(1)' }} />
-              <span style={{ fontWeight: 600, fontSize: 18, color: '#fff' }}>Itineramio</span>
-            </a>
-          </div>
-        </div>
-
-        <div style={{ position: 'relative', zIndex: 5, textAlign: 'center', padding: '0 24px', maxWidth: 800 }}>
-          <h1 style={{ fontSize: 'clamp(32px, 6vw, 64px)', fontWeight: 300, lineHeight: 1.08, color: '#fff', marginBottom: 16, letterSpacing: '-0.02em' }}>
+      {/* ===== HERO — Title + Kitchen with hotspots ===== */}
+      <section style={{ paddingTop: 100, paddingBottom: 0 }}>
+        {/* Title */}
+        <div style={{ textAlign: 'center', padding: '40px 24px 48px', maxWidth: 800, margin: '0 auto' }}>
+          <h1 style={{ fontSize: 'clamp(32px, 6vw, 60px)', fontWeight: 300, lineHeight: 1.08, color: '#111', marginBottom: 16, letterSpacing: '-0.02em' }}>
             Checklist de compras para tu alojamiento
           </h1>
-          <p style={{ fontSize: 'clamp(15px, 2vw, 18px)', color: 'rgba(255,255,255,0.7)', marginBottom: 32, maxWidth: 500, margin: '0 auto 32px', lineHeight: 1.6 }}>
+          <p style={{ fontSize: 'clamp(15px, 2vw, 18px)', color: '#999', maxWidth: 480, margin: '0 auto', lineHeight: 1.6 }}>
             Todo lo que necesitas comprar. Marca lo que tienes. Descubre lo que te falta.
           </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
-            <a href="#checklist" style={{ padding: '14px 32px', background: '#fff', color: '#111', borderRadius: 4, fontSize: 14, fontWeight: 500, textDecoration: 'none', letterSpacing: '0.02em' }}>
-              Empezar checklist
-            </a>
-            <button onClick={() => setShowEmailModal(true)} style={{ padding: '14px 32px', background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', letterSpacing: '0.02em' }}>
-              Recibir por email
-            </button>
-          </div>
         </div>
 
-        {/* Scroll indicator */}
-        <div style={{ position: 'absolute', bottom: 32, left: '50%', transform: 'translateX(-50%)', zIndex: 5 }}>
-          <ChevronDown size={20} color="rgba(255,255,255,0.3)" style={{ animation: 'bounce 2s infinite' }} />
+        {/* Kitchen image with interactive hotspots */}
+        <div style={{ position: 'relative', width: '100%', overflow: 'visible' }}>
+          <Image src="/images/render-casa.png" alt="Apartamento equipado" width={1920} height={1080} style={{ width: '100%', height: 'auto', display: 'block' }} priority />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.1), transparent, rgba(0,0,0,0.1))' }} />
+
+          {/* Hotspot dots */}
+          {[
+            { id: 'cocina', x: '25%', y: '40%', label: 'Cocina', items: ['Sartén antiadherente', 'Cazuela mediana', 'Set de cuchillos', 'Tabla de corte', 'Escurridor de pasta'] },
+            { id: 'cubiertos', x: '35%', y: '50%', label: 'Cubiertos', items: ['Cubiertos (tenedores, cuchillos, cucharas)', 'Platos llanos y hondos', 'Vasos de agua', 'Copas de vino', 'Tazas de café'] },
+            { id: 'encimera', x: '30%', y: '32%', label: 'Encimera', items: ['Cafetera', 'Tostador', 'Hervidor de agua', 'Sacacorchos', 'Aceitera'] },
+            { id: 'sofa', x: '18%', y: '60%', label: 'Salón', items: ['Manta extra', 'Cojines', 'Mando TV con pilas', 'Cargador USB'] },
+            { id: 'tv', x: '70%', y: '35%', label: 'Smart TV', items: ['Pilas para mando (AA/AAA)', 'Alargador/regleta con USB'] },
+            { id: 'mesa', x: '42%', y: '65%', label: 'Mesa', items: ['Servilletas', 'Ensaladera', 'Bol para cereales'] },
+            { id: 'limpieza', x: '12%', y: '72%', label: 'Limpieza', items: ['Escoba + recogedor', 'Fregona + cubo', 'Ambientador'] },
+            { id: 'lavanderia', x: '55%', y: '70%', label: 'Lavandería', items: ['Plancha', 'Tabla de planchar', 'Pinzas de tender', 'Cesta de ropa'] },
+          ].map(spot => (
+            <div key={spot.id} onClick={() => setActiveSpot(activeSpot === spot.id ? null : spot.id)}
+              style={{ position: 'absolute', left: spot.x, top: spot.y, transform: 'translate(-50%, -50%)', zIndex: activeSpot === spot.id ? 40 : 20, cursor: 'pointer' }}>
+              {/* Pulse */}
+              <div style={{ position: 'absolute', width: 28, height: 28, left: '50%', top: '50%', marginLeft: -14, marginTop: -14, borderRadius: '50%', border: '2px solid rgba(124,58,237,0.4)', animation: 'pulse 2.5s infinite ease-out' }} />
+              {/* Dot */}
+              <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#7c3aed', border: '2px solid #fff', boxShadow: '0 2px 8px rgba(124,58,237,0.4)' }} />
+              {/* Label */}
+              <div style={{ position: 'absolute', top: 18, left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: 10, fontWeight: 500, color: '#fff', background: 'rgba(0,0,0,0.6)', padding: '2px 8px', borderRadius: 3, backdropFilter: 'blur(4px)' }}>{spot.label}</span>
+              </div>
+              {/* Panel */}
+              {activeSpot === spot.id && (
+                <div style={{ position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)', width: 220, background: '#fff', borderRadius: 8, boxShadow: '0 8px 30px rgba(0,0,0,0.15)', padding: 16, zIndex: 100 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#111', marginBottom: 8 }}>{spot.label}</div>
+                  {spot.items.map((item, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 0', fontSize: 12, color: '#555' }}>
+                      <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#7c3aed', flexShrink: 0 }} />
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </section>
 
