@@ -297,43 +297,78 @@ export default function ChecklistPage() {
         </section>
       )}
 
-      {/* ===== FULL IMAGE — Casa ===== */}
-      <section style={{ position: 'relative', minHeight: '60vh', display: 'flex', alignItems: 'flex-end' }}>
-        <div style={{ position: 'absolute', inset: 0 }}>
-          <Image src="/images/render-casa.png" alt="Apartamento equipado" fill style={{ objectFit: 'cover' }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)' }} />
-        </div>
-        <div style={{ position: 'relative', zIndex: 5, padding: '48px 32px', maxWidth: 600 }}>
-          <h2 style={{ fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 300, color: '#fff', marginBottom: 12, lineHeight: 1.15 }}>
-            Guía digital de tu apartamento turístico con videos
-          </h2>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>
-            Una vez tienes todo comprado, el siguiente nivel es documentarlo. Instrucciones de cada electrodoméstico, normas, WiFi, recomendaciones. Accesible con un QR.
-          </p>
-        </div>
-      </section>
-
-      {/* ===== CTA — Tesla style ===== */}
-      <section style={{ padding: '80px 24px', textAlign: 'center' }}>
-        <h2 style={{ fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 300, color: '#111', marginBottom: 12, letterSpacing: '-0.02em' }}>
+      {/* ===== PHONES + CTA — Dark section ===== */}
+      <section style={{ background: '#0a0a0b', padding: '80px 24px', textAlign: 'center' }}>
+        <h2 style={{ fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 300, color: '#fff', marginBottom: 8, letterSpacing: '-0.02em' }}>
           ¿Ya tienes todo comprado?
         </h2>
-        <p style={{ fontSize: 15, color: '#aaa', marginBottom: 32, maxWidth: 440, margin: '0 auto 32px', lineHeight: 1.6 }}>
-          El siguiente paso: que tu huésped sepa dónde está cada cosa sin preguntarte.
+        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', marginBottom: 48, maxWidth: 480, margin: '0 auto 48px', lineHeight: 1.6 }}>
+          El siguiente paso: crea una guía digital con videos para que tu huésped sepa dónde está cada cosa. Sin llamarte, sin escribirte.
         </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
+
+        {/* Two phones Tesla-style */}
+        <div style={{ position: 'relative', maxWidth: 520, margin: '0 auto', height: 520 }}>
+          {/* Phone back — stats */}
+          <div style={{ position: 'absolute', left: 0, top: 20, zIndex: 10, width: 200 }}>
+            <div style={{ background: '#000', borderRadius: 28, padding: 8, border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ background: '#111', borderRadius: 22, overflow: 'hidden', aspectRatio: '9/19.5', padding: '24px 16px' }}>
+                <div style={{ fontSize: 10, color: '#666', marginBottom: 4 }}>Hoy</div>
+                <div style={{ fontSize: 28, fontWeight: 200, color: '#fff', marginBottom: 12 }}>34 <span style={{ fontSize: 10, color: '#666' }}>preguntas</span></div>
+                <div style={{ height: 60, marginBottom: 12, borderRadius: 8, overflow: 'hidden', background: 'rgba(255,255,255,0.03)' }}>
+                  <svg viewBox="0 0 100 40" style={{ width: '100%', height: '100%' }} preserveAspectRatio="none">
+                    <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.4" /><stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.05" /></linearGradient></defs>
+                    <path d="M0 30 Q15 25 25 22 T45 18 T65 12 T85 10 T100 5 L100 40 L0 40 Z" fill="url(#cg)" />
+                    <path d="M0 30 Q15 25 25 22 T45 18 T65 12 T85 10 T100 5" fill="none" stroke="#8b5cf6" strokeWidth="1.5" />
+                  </svg>
+                </div>
+                {[{ l: 'WiFi', v: '12' }, { l: 'Check-in', v: '8' }, { l: 'Normas', v: '6' }, { l: 'Restaurantes', v: '5' }].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 10 }}>
+                    <span style={{ color: 'rgba(255,255,255,0.4)' }}>{item.l}</span>
+                    <span style={{ color: '#fff', fontWeight: 500 }}>{item.v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Phone front — Mi Casa */}
+          <div style={{ position: 'absolute', right: 0, top: 0, zIndex: 20, width: 240 }}>
+            <div style={{ background: '#000', borderRadius: 32, padding: 10, border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 8px 30px rgba(124,58,237,0.1)' }}>
+              <div style={{ background: '#111', borderRadius: 24, overflow: 'hidden', aspectRatio: '9/19.5' }}>
+                <div style={{ padding: '20px 16px 8px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: '#fff' }}>Mi Casa</div>
+                  <div style={{ fontSize: 10, color: '#7c3aed' }}>Conectado</div>
+                </div>
+                <div style={{ position: 'relative', margin: '0 10px', borderRadius: 10, overflow: 'hidden', aspectRatio: '3/4' }}>
+                  <Image src="/images/houses.png" alt="Casa" fill style={{ objectFit: 'cover' }} />
+                </div>
+                <div style={{ padding: '10px 14px' }}>
+                  {[{ l: 'Check-in', v: 'Lockbox 4521#' }, { l: 'WiFi', v: 'MiCasa_5G' }, { l: 'Normas', v: '3 reglas' }].map((item, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', fontSize: 10 }}>
+                      <span style={{ color: 'rgba(255,255,255,0.4)' }}>{item.l}</span>
+                      <span style={{ color: 'rgba(255,255,255,0.5)' }}>{item.v}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', marginTop: 32 }}>
           <a href="/landing-tes" style={{ padding: '14px 32px', background: '#7c3aed', color: '#fff', borderRadius: 24, fontSize: 14, fontWeight: 600, textDecoration: 'none', boxShadow: '0 4px 20px rgba(124,58,237,0.35)' }}>
             Crea tu guía digital gratis
           </a>
-          <a href="/demo" style={{ padding: '14px 32px', background: 'transparent', color: '#666', border: '1px solid #ddd', borderRadius: 24, fontSize: 14, fontWeight: 500, textDecoration: 'none' }}>
+          <a href="/demo" style={{ padding: '14px 32px', background: 'transparent', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 24, fontSize: 14, fontWeight: 500, textDecoration: 'none' }}>
             Ver demo
           </a>
         </div>
       </section>
 
       {/* FOOTER */}
-      <div style={{ borderTop: '1px solid #f0f0f0', padding: '24px', textAlign: 'center' }}>
-        <p style={{ fontSize: 11, color: '#ddd' }}>Itineramio</p>
+      <div style={{ background: '#0a0a0b', borderTop: '1px solid rgba(255,255,255,0.05)', padding: '24px', textAlign: 'center' }}>
+        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.15)' }}>Itineramio — itineramio.com</p>
       </div>
 
       {/* ===== EMAIL MODAL ===== */}
