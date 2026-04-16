@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Check, ChevronDown, Download, X, Plus, Trash2, ArrowRight, Send } from 'lucide-react'
+import { Check, ChevronDown, Download, X, Plus, Trash2, ArrowRight, Mail, Loader2 } from 'lucide-react'
 
 const ZONES = [
   { id: 'cocina', name: 'Cocina', items: [
@@ -82,14 +82,13 @@ export default function ChecklistPage() {
   const [customItems, setCustomItems] = useState<Record<string, string[]>>({})
   const [addingTo, setAddingTo] = useState<string | null>(null)
   const [newItem, setNewItem] = useState('')
-  const [showModal, setShowModal] = useState(false)
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [props, setProps] = useState('')
-  const [done, setDone] = useState(false)
-  const [sending, setSending] = useState(false)
   const [popKey, setPopKey] = useState<string | null>(null)
-  const [sent, setSent] = useState(false)
+  const [showEmailModal, setShowEmailModal] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
+  const [emailSending, setEmailSending] = useState(false)
 
   useEffect(() => {
     try {
@@ -117,19 +116,30 @@ export default function ChecklistPage() {
     setChecked(p => { const n = { ...p }; delete n[key]; return n })
   }
 
-  function copySelection() {
-    const selected: Record<string, string[]> = {}
+  function getChecklist() {
+    const result: Record<string, string[]> = {}
     ZONES.forEach(zone => {
       const items: string[] = []
       zone.items.forEach((item, i) => { if (checked[`${zone.id}-${i}`]) items.push(item.t) })
       const customs = customItems[zone.id] || []
-      customs.forEach((item, i) => { if (checked[`${zone.id}-c${i}`]) items.push(`[CUSTOM] ${item}`) })
-      customs.forEach((item, i) => { if (!checked[`${zone.id}-c${i}`]) items.push(`[CUSTOM-NEW] ${item}`) })
-      if (items.length > 0) selected[zone.name] = items
+      customs.forEach((item, i) => items.push(item))
+      if (items.length > 0) result[zone.name] = items
     })
-    const text = Object.entries(selected).map(([zone, items]) => `\n${zone}:\n${items.map(i => `  - ${i}`).join('\n')}`).join('\n')
-    const summary = `CHECKLIST SELECCIONADO (${checkedCount} de ${allItems} marcados)\n${text}`
-    navigator.clipboard.writeText(summary).then(() => { setSent(true); setTimeout(() => setSent(false), 3000) })
+    return result
+  }
+
+  async function sendChecklist() {
+    if (!email || !name) return
+    setEmailSending(true)
+    try {
+      await fetch('/api/public/checklist-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, properties: props, checklist: getChecklist() }),
+      })
+      setEmailSent(true)
+    } catch {}
+    setEmailSending(false)
   }
 
   return (
@@ -253,12 +263,21 @@ export default function ChecklistPage() {
           )
         })}
 
-        {/* Buttons */}
-        <div style={{ textAlign: 'center', marginTop: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-          <button onClick={copySelection} style={{ padding: '14px 28px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-            {sent ? <><Check size={16} /> Copiado — pégamelo en el chat</> : <><Send size={16} /> Enviar selección ({checkedCount} items)</>}
-          </button>
-          <button onClick={() => setShowModal(true)} style={{ padding: '14px 28px', background: '#111', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+        {/* Banner + Button */}
+        {checkedCount > 0 && (
+          <div style={{ marginTop: 32, padding: '20px 24px', background: '#f5f3ff', borderRadius: 12, border: '1px solid #ede9fe', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, textAlign: 'center' }}>
+            <Mail size={20} color="#7c3aed" />
+            <p style={{ fontSize: 14, color: '#555', margin: 0 }}>
+              <strong>{checkedCount} items</strong> seleccionados. Envíatelos al email para tenerlos siempre a mano.
+            </p>
+            <button onClick={() => setShowEmailModal(true)} style={{ marginTop: 4, padding: '12px 24px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Mail size={16} /> Enviar mi checklist al email
+            </button>
+          </div>
+        )}
+
+        <div style={{ textAlign: 'center', marginTop: 24 }}>
+          <button onClick={() => setShowEmailModal(true)} style={{ padding: '14px 28px', background: '#111', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, margin: '0 auto' }}>
             <Download size={16} /> Descargar checklist en PDF
           </button>
         </div>
@@ -284,34 +303,35 @@ export default function ChecklistPage() {
         <p style={{ fontSize: 11, color: '#ddd' }}>Itineramio</p>
       </div>
 
-      {/* MODAL */}
-      {showModal && (
-        <div onClick={() => setShowModal(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(0,0,0,0.35)' }}>
+      {/* EMAIL MODAL */}
+      {showEmailModal && (
+        <div onClick={() => { if (!emailSending) setShowEmailModal(false) }} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(0,0,0,0.35)' }}>
           <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, background: '#fff', borderRadius: 14, boxShadow: '0 20px 50px rgba(0,0,0,0.15)' }}>
-            {done ? (
+            {emailSent ? (
               <div style={{ padding: 32, textAlign: 'center' }}>
                 <div style={{ width: 48, height: 48, borderRadius: 12, background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}><Check size={24} color="#fff" /></div>
-                <h3 style={{ fontSize: 18, marginBottom: 6 }}>Enviado</h3>
-                <p style={{ fontSize: 13, color: '#999', marginBottom: 20 }}>Revisa tu email.</p>
-                <button onClick={() => { setShowModal(false); setDone(false) }} style={{ background: 'none', border: 'none', color: '#7c3aed', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>Cerrar</button>
+                <h3 style={{ fontSize: 18, marginBottom: 6 }}>Checklist enviado</h3>
+                <p style={{ fontSize: 13, color: '#999', marginBottom: 20 }}>Revisa tu email con tu lista personalizada.</p>
+                <button onClick={() => { setShowEmailModal(false); setEmailSent(false) }} style={{ background: 'none', border: 'none', color: '#7c3aed', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>Cerrar</button>
               </div>
             ) : (
-              <form onSubmit={async (e) => { e.preventDefault(); setSending(true); await new Promise(r => setTimeout(r, 1500)); setSending(false); setDone(true) }}>
+              <form onSubmit={(e) => { e.preventDefault(); sendChecklist() }}>
                 <div style={{ padding: '20px 20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ fontSize: 16, fontWeight: 500 }}>Descargar checklist</h3>
-                  <button type="button" onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ccc' }}><X size={18} /></button>
+                  <h3 style={{ fontSize: 16, fontWeight: 500 }}>Recibe tu checklist por email</h3>
+                  <button type="button" onClick={() => setShowEmailModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ccc' }}><X size={18} /></button>
                 </div>
-                <p style={{ fontSize: 12, color: '#aaa', padding: '4px 20px 16px' }}>Te lo enviamos al email en PDF.</p>
+                <p style={{ fontSize: 12, color: '#aaa', padding: '4px 20px 16px' }}>Te enviamos tu lista personalizada con {checkedCount} items seleccionados.</p>
                 <div style={{ padding: '0 20px 20px' }}>
                   <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="Tu nombre" style={{ width: '100%', padding: '10px 14px', border: '1px solid #eee', borderRadius: 8, fontSize: 14, marginBottom: 10, boxSizing: 'border-box' as const }} />
                   <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="tu@email.com" style={{ width: '100%', padding: '10px 14px', border: '1px solid #eee', borderRadius: 8, fontSize: 14, marginBottom: 10, boxSizing: 'border-box' as const }} />
                   <select value={props} onChange={e => setProps(e.target.value)} required style={{ width: '100%', padding: '10px 14px', border: '1px solid #eee', borderRadius: 8, fontSize: 14, marginBottom: 16, boxSizing: 'border-box' as const }}>
-                    <option value="">¿Cuántas propiedades?</option>
+                    <option value="">¿Cuántas propiedades gestionas?</option>
                     <option>1</option><option>2-3</option><option>4-6</option><option>7-10</option><option>Más de 10</option>
                   </select>
-                  <button type="submit" disabled={sending} style={{ width: '100%', padding: 12, background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', opacity: sending ? 0.6 : 1 }}>
-                    {sending ? 'Enviando...' : 'Descargar gratis'}
+                  <button type="submit" disabled={emailSending} style={{ width: '100%', padding: 12, background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', opacity: emailSending ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                    {emailSending ? <><Loader2 size={16} className="animate-spin" /> Enviando...</> : <><Mail size={16} /> Enviar mi checklist</>}
                   </button>
+                  <p style={{ fontSize: 10, color: '#ccc', textAlign: 'center', marginTop: 10 }}>Sin spam. Solo tu checklist personalizado.</p>
                 </div>
               </form>
             )}
