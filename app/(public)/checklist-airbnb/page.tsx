@@ -2,70 +2,32 @@
 
 import { useState, useEffect } from 'react'
 import { Check, ChevronDown, Download, X, Plus, Trash2, ArrowRight, Mail, Loader2 } from 'lucide-react'
+import Image from 'next/image'
 
 const ZONES = [
   { id: 'cocina', name: 'Cocina', items: [
-    { t: 'Sartén antiadherente (26-28cm)', l: 'must' },
-    { t: 'Cazuela mediana', l: 'must' },
-    { t: 'Cazo pequeño', l: 'must' },
-    { t: 'Set de cuchillos (pan, carne, puntilla)', l: 'must' },
-    { t: 'Tabla de corte', l: 'must' },
-    { t: 'Sacacorchos / abridor de vino', l: 'must' },
-    { t: 'Tijeras de cocina', l: 'must' },
-    { t: 'Escurridor de pasta', l: 'must' },
-    { t: 'Colador', l: 'must' },
-    { t: 'Cubiertos (x huéspedes + 4 extra)', l: 'must' },
-    { t: 'Platos llanos y hondos (x huéspedes + 4)', l: 'must' },
-    { t: 'Vasos de agua (x huéspedes + 4)', l: 'must' },
-    { t: 'Copas de vino', l: 'must' },
-    { t: 'Tazas de café/té', l: 'must' },
-    { t: 'Bol para cereales/ensalada', l: 'must' },
-    { t: 'Ensaladera', l: 'must' },
-    { t: 'Aceitera', l: 'must' },
-    { t: 'Set de especias (sal, pimienta)', l: 'must' },
-    { t: 'PortaRollos de cocina', l: 'must' },
-    { t: 'Cubo de basura', l: 'must' },
-    { t: 'Escoba + recogedor', l: 'must' },
-    { t: 'Fregona + cubo', l: 'must' },
-    { t: 'Servilletas / portaservilletas', l: 'should' },
-    { t: 'Tuppers (set de 3)', l: 'should' },
-    { t: 'Tostador', l: 'should' },
-    { t: 'Hervidor de agua', l: 'should' },
-    { t: 'Cafetera italiana o cápsulas', l: 'should' },
+    { t: 'Sartén antiadherente (26-28cm)', l: 'must' },{ t: 'Cazuela mediana', l: 'must' },{ t: 'Cazo pequeño', l: 'must' },{ t: 'Set de cuchillos (pan, carne, puntilla)', l: 'must' },{ t: 'Tabla de corte', l: 'must' },{ t: 'Sacacorchos / abridor de vino', l: 'must' },{ t: 'Tijeras de cocina', l: 'must' },{ t: 'Escurridor de pasta', l: 'must' },{ t: 'Colador', l: 'must' },{ t: 'Cubiertos (x huéspedes + 4 extra)', l: 'must' },{ t: 'Platos llanos y hondos (x huéspedes + 4)', l: 'must' },{ t: 'Vasos de agua (x huéspedes + 4)', l: 'must' },{ t: 'Copas de vino', l: 'must' },{ t: 'Tazas de café/té', l: 'must' },{ t: 'Bol para cereales/ensalada', l: 'must' },{ t: 'Ensaladera', l: 'must' },{ t: 'Aceitera', l: 'must' },{ t: 'Set de especias (sal, pimienta)', l: 'must' },{ t: 'PortaRollos de cocina', l: 'must' },{ t: 'Cubo de basura', l: 'must' },{ t: 'Escoba + recogedor', l: 'must' },{ t: 'Fregona + cubo', l: 'must' },
+    { t: 'Servilletas / portaservilletas', l: 'should' },{ t: 'Tuppers (set de 3)', l: 'should' },{ t: 'Tostador', l: 'should' },{ t: 'Hervidor de agua', l: 'should' },{ t: 'Cafetera italiana o cápsulas', l: 'should' },
     { t: 'Cafetera Nespresso + cápsulas', l: 'wow' },
   ]},
   { id: 'bano', name: 'Baño', items: [
-    { t: 'Secador de pelo', l: 'must' },
-    { t: 'Papelera con tapa', l: 'must' },
-    { t: 'Escobilla de WC', l: 'must' },
-    { t: 'Dispensador champú, jabón y gel ducha', l: 'must' },
-    { t: 'Alfombrines de ducha', l: 'must' },
+    { t: 'Secador de pelo', l: 'must' },{ t: 'Papelera con tapa', l: 'must' },{ t: 'Escobilla de WC', l: 'must' },{ t: 'Dispensador champú, jabón y gel ducha', l: 'must' },{ t: 'Alfombrines de ducha', l: 'must' },
     { t: 'Botiquín: tiritas, ibuprofeno, termómetro', l: 'should' },
   ]},
   { id: 'dormitorio', name: 'Dormitorio', items: [
-    { t: 'Fundas de almohada extra', l: 'must' },
-    { t: 'Protector de colchón impermeable', l: 'must' },
-    { t: 'Protector de almohada', l: 'must' },
-    { t: 'Almohadas (2 por persona)', l: 'must' },
-    { t: 'Perchas (mínimo 12)', l: 'must' },
-    { t: 'Espejo de cuerpo entero', l: 'must' },
-    { t: 'Cortinas opacas o persiana', l: 'must' },
+    { t: 'Fundas de almohada extra', l: 'must' },{ t: 'Protector de colchón impermeable', l: 'must' },{ t: 'Protector de almohada', l: 'must' },{ t: 'Almohadas (2 por persona)', l: 'must' },{ t: 'Perchas (mínimo 12)', l: 'must' },{ t: 'Espejo de cuerpo entero', l: 'must' },{ t: 'Cortinas opacas o persiana', l: 'must' },
     { t: 'Manta extra / colcha', l: 'should' },
   ]},
   { id: 'limpieza', name: 'Limpieza', items: [
-    { t: 'Escoba + recogedor', l: 'must' },
-    { t: 'Fregona + cubo escurridor', l: 'must' },
+    { t: 'Escoba + recogedor', l: 'must' },{ t: 'Fregona + cubo escurridor', l: 'must' },
     { t: 'Ambientador', l: 'should' },
   ]},
   { id: 'lavanderia', name: 'Lavandería', items: [
-    { t: 'Pinzas de tender', l: 'must' },
-    { t: 'Plancha', l: 'must' },
-    { t: 'Tabla de planchar', l: 'must' },
+    { t: 'Pinzas de tender', l: 'must' },{ t: 'Plancha', l: 'must' },{ t: 'Tabla de planchar', l: 'must' },
     { t: 'Cesta de ropa sucia', l: 'should' },
   ]},
-  { id: 'general', name: 'General / Entrada', items: [
-    { t: 'Bombillas de repuesto', l: 'must' },
-    { t: 'Alargador/regleta con USB', l: 'must' },
+  { id: 'general', name: 'General', items: [
+    { t: 'Bombillas de repuesto', l: 'must' },{ t: 'Alargador/regleta con USB', l: 'must' },
     { t: 'Guía digital con videos por zonas', l: 'wow' },
   ]},
 ]
@@ -91,12 +53,7 @@ export default function ChecklistPage() {
   const [emailSent, setEmailSent] = useState(false)
   const [emailSending, setEmailSending] = useState(false)
 
-  useEffect(() => {
-    try {
-      const s = localStorage.getItem('cl3'); if (s) setChecked(JSON.parse(s))
-      const c = localStorage.getItem('cl3-custom'); if (c) setCustomItems(JSON.parse(c))
-    } catch {}
-  }, [])
+  useEffect(() => { try { const s = localStorage.getItem('cl3'); if (s) setChecked(JSON.parse(s)); const c = localStorage.getItem('cl3-custom'); if (c) setCustomItems(JSON.parse(c)) } catch {} }, [])
   useEffect(() => { if (Object.keys(checked).length) localStorage.setItem('cl3', JSON.stringify(checked)) }, [checked])
   useEffect(() => { if (Object.keys(customItems).length) localStorage.setItem('cl3-custom', JSON.stringify(customItems)) }, [customItems])
 
@@ -104,93 +61,107 @@ export default function ChecklistPage() {
   const checkedCount = Object.values(checked).filter(Boolean).length
   const pct = allItems ? Math.round((checkedCount / allItems) * 100) : 0
 
-  function addCustomItem(zoneId: string) {
-    if (!newItem.trim()) return
-    setCustomItems(p => ({ ...p, [zoneId]: [...(p[zoneId] || []), newItem.trim()] }))
-    setNewItem('')
-    setAddingTo(null)
-  }
-
-  function removeCustomItem(zoneId: string, idx: number) {
-    setCustomItems(p => { const items = [...(p[zoneId] || [])]; items.splice(idx, 1); return { ...p, [zoneId]: items } })
-    const key = `${zoneId}-c${idx}`
-    setChecked(p => { const n = { ...p }; delete n[key]; return n })
-  }
+  function addCustomItem(zoneId: string) { if (!newItem.trim()) return; setCustomItems(p => ({ ...p, [zoneId]: [...(p[zoneId] || []), newItem.trim()] })); setNewItem(''); setAddingTo(null) }
+  function removeCustomItem(zoneId: string, idx: number) { setCustomItems(p => { const items = [...(p[zoneId] || [])]; items.splice(idx, 1); return { ...p, [zoneId]: items } }); setChecked(p => { const n = { ...p }; delete n[`${zoneId}-c${idx}`]; return n }) }
 
   function getChecklist() {
     const result: Record<string, string[]> = {}
-    ZONES.forEach(zone => {
-      const items: string[] = []
-      zone.items.forEach((item, i) => { if (checked[`${zone.id}-${i}`]) items.push(item.t) })
-      const customs = customItems[zone.id] || []
-      customs.forEach((item, i) => items.push(item))
-      if (items.length > 0) result[zone.name] = items
-    })
+    ZONES.forEach(zone => { const items: string[] = []; zone.items.forEach((item, i) => { if (checked[`${zone.id}-${i}`]) items.push(item.t) }); (customItems[zone.id] || []).forEach(item => items.push(item)); if (items.length > 0) result[zone.name] = items })
     return result
   }
 
   async function sendChecklist() {
-    if (!email || !name) return
-    setEmailSending(true)
-    try {
-      await fetch('/api/public/checklist-lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, properties: props, checklist: getChecklist() }),
-      })
-      setEmailSent(true)
-    } catch {}
+    if (!email || !name) return; setEmailSending(true)
+    try { await fetch('/api/public/checklist-lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, properties: props, checklist: getChecklist() }) }); setEmailSent(true) } catch {}
     setEmailSending(false)
   }
 
   return (
-    <div style={{ background: '#fff', color: '#111', minHeight: '100vh', fontFamily: '-apple-system,sans-serif' }}>
+    <div style={{ background: '#fff', color: '#111', minHeight: '100vh', fontFamily: '-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif' }}>
       <style>{`
         @keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(1.35) rotate(8deg)} 100%{transform:scale(1)} }
         .pop { animation: pop 0.35s ease; }
       `}</style>
 
-      {/* NAV */}
-      <div style={{ borderBottom: '1px solid #f0f0f0', padding: '0 24px' }}>
-        <div style={{ maxWidth: 800, margin: '0 auto', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', color: '#111' }}>
-            <img src="/isotipo-gradient.svg" alt="" width={24} height={14} />
-            <span style={{ fontWeight: 600, fontSize: 14 }}>Itineramio</span>
-          </a>
-          <button onClick={() => setShowModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
-            <Download size={14} /> Descargar PDF
-          </button>
+      {/* ===== HERO — Full screen image like Tesla ===== */}
+      <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0 }}>
+          <Image src="/images/kitchen.png" alt="Cocina equipada" fill style={{ objectFit: 'cover' }} priority />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.15), rgba(0,0,0,0.5))' }} />
         </div>
-      </div>
 
-      {/* HERO */}
-      <div style={{ padding: '48px 24px 40px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: 'clamp(26px,5vw,44px)', fontWeight: 300, lineHeight: 1.15, marginBottom: 12 }}>
-          Checklist de compras para tu <span style={{ color: '#7c3aed' }}>alojamiento</span>
-        </h1>
-        <p style={{ fontSize: 15, color: '#999', marginBottom: 28, maxWidth: 500, margin: '0 auto 28px' }}>
-          Todo lo que tienes que comprar. Marca, añade los tuyos, y descarga el PDF.
-        </p>
-        <div style={{ maxWidth: 360, margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6 }}>
-            <span style={{ color: '#ccc' }}>Progreso</span>
-            <span style={{ color: '#666', fontWeight: 500 }}>{checkedCount}/{allItems} — {pct}%</span>
+        {/* Nav overlay */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, padding: '0 24px' }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto', height: 72, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+              <img src="/isotipo-gradient.svg" alt="" width={36} height={20} style={{ filter: 'brightness(0) invert(1)' }} />
+              <span style={{ fontWeight: 600, fontSize: 18, color: '#fff' }}>Itineramio</span>
+            </a>
           </div>
-          <div style={{ height: 6, background: '#f0f0f0', borderRadius: 3, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${pct}%`, background: pct === 100 ? '#22c55e' : '#7c3aed', borderRadius: 3, transition: 'width 0.4s' }} />
+        </div>
+
+        <div style={{ position: 'relative', zIndex: 5, textAlign: 'center', padding: '0 24px', maxWidth: 800 }}>
+          <h1 style={{ fontSize: 'clamp(32px, 6vw, 64px)', fontWeight: 300, lineHeight: 1.08, color: '#fff', marginBottom: 16, letterSpacing: '-0.02em' }}>
+            Checklist de compras para tu alojamiento
+          </h1>
+          <p style={{ fontSize: 'clamp(15px, 2vw, 18px)', color: 'rgba(255,255,255,0.7)', marginBottom: 32, maxWidth: 500, margin: '0 auto 32px', lineHeight: 1.6 }}>
+            Todo lo que necesitas comprar. Marca lo que tienes. Descubre lo que te falta.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
+            <a href="#checklist" style={{ padding: '14px 32px', background: '#fff', color: '#111', borderRadius: 4, fontSize: 14, fontWeight: 500, textDecoration: 'none', letterSpacing: '0.02em' }}>
+              Empezar checklist
+            </a>
+            <button onClick={() => setShowEmailModal(true)} style={{ padding: '14px 32px', background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', letterSpacing: '0.02em' }}>
+              Recibir por email
+            </button>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 14, marginTop: 12 }}>
+        </div>
+
+        {/* Scroll indicator */}
+        <div style={{ position: 'absolute', bottom: 32, left: '50%', transform: 'translateX(-50%)', zIndex: 5 }}>
+          <ChevronDown size={20} color="rgba(255,255,255,0.3)" style={{ animation: 'bounce 2s infinite' }} />
+        </div>
+      </section>
+
+      {/* ===== STATS — Tesla style numbers ===== */}
+      <section style={{ padding: '80px 24px', borderBottom: '1px solid #f0f0f0' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 48, textAlign: 'center' }}>
+          {[
+            { value: `${allItems}`, label: 'Items', sub: 'organizados por zona' },
+            { value: '6', label: 'Zonas', sub: 'cocina, baño, dormitorio...' },
+            { value: '3', label: 'Niveles', sub: 'must, should, wow' },
+          ].map((s, i) => (
+            <div key={i}>
+              <div style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 200, color: '#111', letterSpacing: '-0.03em' }}>{s.value}</div>
+              <div style={{ fontSize: 12, fontWeight: 500, color: '#999', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 4 }}>{s.label}</div>
+              <div style={{ fontSize: 13, color: '#ccc', marginTop: 2 }}>{s.sub}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ===== PROGRESS BAR ===== */}
+      <section id="checklist" style={{ padding: '48px 24px 24px' }}>
+        <div style={{ maxWidth: 700, margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 8 }}>
+            <span style={{ color: '#bbb', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: 11 }}>Tu progreso</span>
+            <span style={{ color: '#555', fontWeight: 500 }}>{checkedCount} de {allItems} — {pct}%</span>
+          </div>
+          <div style={{ height: 4, background: '#f0f0f0', borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${pct}%`, background: pct === 100 ? '#22c55e' : '#111', borderRadius: 2, transition: 'width 0.5s ease' }} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 16 }}>
             {Object.entries(BADGE).map(([k, v]) => (
-              <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#aaa' }}>
-                <div style={{ width: 7, height: 7, borderRadius: '50%', background: v.color }} />{v.label}
+              <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#aaa', letterSpacing: '0.05em' }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: v.color }} />{v.label}
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* CHECKLIST */}
-      <div style={{ padding: '0 16px 48px', maxWidth: 700, margin: '0 auto' }}>
+      {/* ===== CHECKLIST ===== */}
+      <section style={{ padding: '8px 16px 64px', maxWidth: 700, margin: '0 auto' }}>
         {ZONES.map(zone => {
           const isOpen = !!openZones[zone.id]
           const customs = customItems[zone.id] || []
@@ -199,63 +170,57 @@ export default function ChecklistPage() {
           const allDone = zc === totalZone && totalZone > 0
 
           return (
-            <div key={zone.id} style={{ marginBottom: 6, borderRadius: 10, border: '1px solid #eee', overflow: 'hidden' }}>
+            <div key={zone.id} style={{ marginBottom: 2, borderBottom: '1px solid #f0f0f0' }}>
+              {/* Zone header — Tesla minimal */}
               <div onClick={() => setOpenZones(p => ({ ...p, [zone.id]: !p[zone.id] }))}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px', background: allDone ? '#f0fdf4' : '#fafafa', cursor: 'pointer' }}>
-                {allDone && <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Check size={12} color="#fff" strokeWidth={3} /></div>}
-                <span style={{ flex: 1, fontSize: 15, fontWeight: 500 }}>{zone.name}</span>
-                {allDone && <span style={{ fontSize: 11, color: '#22c55e', fontWeight: 600 }}>COMPLETO</span>}
-                <span style={{ fontSize: 11, color: '#ccc', marginRight: 8 }}>{zc}/{totalZone}</span>
-                <ChevronDown size={14} color="#ccc" style={{ transform: isOpen ? 'rotate(180deg)' : '', transition: 'transform 0.2s' }} />
+                style={{ display: 'flex', alignItems: 'center', padding: '20px 4px', cursor: 'pointer' }}>
+                <span style={{ flex: 1, fontSize: 16, fontWeight: 400, letterSpacing: '-0.01em', color: allDone ? '#22c55e' : '#111' }}>{zone.name}</span>
+                {allDone && <span style={{ fontSize: 10, fontWeight: 600, color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.1em', marginRight: 12 }}>Completo</span>}
+                <span style={{ fontSize: 12, color: '#ccc', marginRight: 12 }}>{zc}/{totalZone}</span>
+                <ChevronDown size={16} color="#ccc" style={{ transform: isOpen ? 'rotate(180deg)' : '', transition: 'transform 0.2s' }} />
               </div>
 
               {isOpen && (
-                <div style={{ padding: '4px 12px 12px' }}>
+                <div style={{ paddingBottom: 16 }}>
                   {zone.items.map((item, i) => {
-                    const key = `${zone.id}-${i}`
-                    const on = !!checked[key]
-                    const b = BADGE[item.l]
+                    const key = `${zone.id}-${i}`; const on = !!checked[key]; const b = BADGE[item.l]
                     return (
-                      <div key={key} onClick={() => {
-                        setChecked(p => ({ ...p, [key]: !p[key] }))
-                        if (!on) { setPopKey(key); setTimeout(() => setPopKey(null), 350) }
-                      }} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 8px', borderRadius: 6, cursor: 'pointer', background: on ? '#f5f3ff' : 'transparent' }}>
-                        <div className={popKey === key ? 'pop' : ''} style={{ width: 20, height: 20, borderRadius: 5, border: `2px solid ${on ? '#7c3aed' : '#ddd'}`, background: on ? '#7c3aed' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.2s' }}>
-                          {on && <Check size={12} color="#fff" strokeWidth={3} />}
+                      <div key={key} onClick={() => { setChecked(p => ({ ...p, [key]: !p[key] })); if (!on) { setPopKey(key); setTimeout(() => setPopKey(null), 350) } }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 4px', cursor: 'pointer' }}>
+                        <div className={popKey === key ? 'pop' : ''} style={{ width: 18, height: 18, borderRadius: 4, border: `1.5px solid ${on ? '#111' : '#ddd'}`, background: on ? '#111' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.2s' }}>
+                          {on && <Check size={11} color="#fff" strokeWidth={3} />}
                         </div>
-                        <span style={{ flex: 1, fontSize: 14, color: on ? '#bbb' : '#444', textDecoration: on ? 'line-through' : 'none' }}>{item.t}</span>
-                        <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 8, background: b.bg, color: b.color, flexShrink: 0 }}>{b.label}</span>
+                        <span style={{ flex: 1, fontSize: 14, color: on ? '#ccc' : '#444', textDecoration: on ? 'line-through' : 'none', transition: 'all 0.15s' }}>{item.t}</span>
+                        <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 3, background: b.bg, color: b.color, flexShrink: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{b.label}</span>
                       </div>
                     )
                   })}
 
                   {customs.map((item, i) => {
-                    const key = `${zone.id}-c${i}`
-                    const on = !!checked[key]
+                    const key = `${zone.id}-c${i}`; const on = !!checked[key]
                     return (
-                      <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 8px', borderRadius: 6, background: on ? '#f0fdf4' : 'transparent' }}>
+                      <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 4px' }}>
                         <div onClick={() => { setChecked(p => ({ ...p, [key]: !p[key] })); if (!on) { setPopKey(key); setTimeout(() => setPopKey(null), 350) } }}
-                          className={popKey === key ? 'pop' : ''} style={{ width: 20, height: 20, borderRadius: 5, border: `2px solid ${on ? '#22c55e' : '#ddd'}`, background: on ? '#22c55e' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', transition: 'all 0.2s' }}>
-                          {on && <Check size={12} color="#fff" strokeWidth={3} />}
+                          className={popKey === key ? 'pop' : ''} style={{ width: 18, height: 18, borderRadius: 4, border: `1.5px solid ${on ? '#22c55e' : '#ddd'}`, background: on ? '#22c55e' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', transition: 'all 0.2s' }}>
+                          {on && <Check size={11} color="#fff" strokeWidth={3} />}
                         </div>
-                        <span onClick={() => { setChecked(p => ({ ...p, [key]: !p[key] })); if (!on) { setPopKey(key); setTimeout(() => setPopKey(null), 350) } }}
-                          style={{ flex: 1, fontSize: 14, color: on ? '#bbb' : '#444', textDecoration: on ? 'line-through' : 'none', cursor: 'pointer' }}>{item}</span>
-                        <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 8, background: '#f0fdf4', color: '#22c55e', flexShrink: 0 }}>TUYO</span>
-                        <button onClick={() => removeCustomItem(zone.id, i)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#ddd' }}><Trash2 size={14} /></button>
+                        <span onClick={() => { setChecked(p => ({ ...p, [key]: !p[key] })) }} style={{ flex: 1, fontSize: 14, color: on ? '#ccc' : '#444', textDecoration: on ? 'line-through' : 'none', cursor: 'pointer' }}>{item}</span>
+                        <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 6px', borderRadius: 3, background: '#f0fdf4', color: '#22c55e', textTransform: 'uppercase', letterSpacing: '0.05em' }}>tuyo</span>
+                        <button onClick={() => removeCustomItem(zone.id, i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ddd', padding: 2 }}><Trash2 size={13} /></button>
                       </div>
                     )
                   })}
 
                   {addingTo === zone.id ? (
-                    <div style={{ display: 'flex', gap: 8, marginTop: 8, padding: '4px 8px' }}>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 8, padding: '0 4px' }}>
                       <input type="text" value={newItem} onChange={e => setNewItem(e.target.value)} onKeyDown={e => e.key === 'Enter' && addCustomItem(zone.id)}
-                        placeholder="Escribe el item..." autoFocus style={{ flex: 1, padding: '8px 12px', border: '1px solid #ddd', borderRadius: 6, fontSize: 14, outline: 'none' }} />
-                      <button onClick={() => addCustomItem(zone.id)} style={{ padding: '8px 14px', background: '#22c55e', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>Añadir</button>
-                      <button onClick={() => { setAddingTo(null); setNewItem('') }} style={{ padding: '8px 10px', background: '#f5f5f5', border: 'none', borderRadius: 6, cursor: 'pointer', color: '#999' }}><X size={16} /></button>
+                        placeholder="Escribe el item..." autoFocus style={{ flex: 1, padding: '8px 12px', border: '1px solid #eee', borderRadius: 4, fontSize: 14, outline: 'none' }} />
+                      <button onClick={() => addCustomItem(zone.id)} style={{ padding: '8px 14px', background: '#111', color: '#fff', border: 'none', borderRadius: 4, fontSize: 13, cursor: 'pointer' }}>Añadir</button>
+                      <button onClick={() => { setAddingTo(null); setNewItem('') }} style={{ padding: '8px', background: '#f5f5f5', border: 'none', borderRadius: 4, cursor: 'pointer', color: '#999' }}><X size={14} /></button>
                     </div>
                   ) : (
-                    <div onClick={() => setAddingTo(zone.id)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 8px', marginTop: 4, cursor: 'pointer', color: '#bbb', fontSize: 13, borderRadius: 6 }}>
-                      <Plus size={14} /> Añadir item personalizado
+                    <div onClick={() => setAddingTo(zone.id)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 4px', cursor: 'pointer', color: '#ccc', fontSize: 13 }}>
+                      <Plus size={13} /> Añadir item
                     </div>
                   )}
                 </div>
@@ -263,79 +228,87 @@ export default function ChecklistPage() {
             </div>
           )
         })}
+      </section>
 
-        {/* Banner + Button */}
-        {checkedCount > 0 && (
-          <div style={{ marginTop: 32, padding: '20px 24px', background: '#f5f3ff', borderRadius: 12, border: '1px solid #ede9fe', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, textAlign: 'center' }}>
-            <Mail size={20} color="#7c3aed" />
-            <p style={{ fontSize: 14, color: '#555', margin: 0 }}>
-              <strong>{checkedCount} items</strong> seleccionados. Envíatelos al email para tenerlos siempre a mano.
-            </p>
-            <button onClick={() => setShowEmailModal(true)} style={{ marginTop: 4, padding: '12px 24px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Mail size={16} /> Enviar mi checklist al email
+      {/* ===== SEND BANNER ===== */}
+      {checkedCount > 0 && (
+        <section style={{ padding: '0 24px 48px' }}>
+          <div style={{ maxWidth: 700, margin: '0 auto', padding: '24px 32px', background: '#fafafa', borderRadius: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, textAlign: 'center' }}>
+            <p style={{ fontSize: 14, color: '#555' }}><strong>{checkedCount} items</strong> seleccionados. Recibe tu checklist personalizado por email.</p>
+            <button onClick={() => setShowEmailModal(true)} style={{ padding: '12px 24px', background: '#111', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', letterSpacing: '0.02em' }}>
+              Enviar a mi email
             </button>
           </div>
-        )}
+        </section>
+      )}
 
-        <div style={{ textAlign: 'center', marginTop: 24 }}>
-          <button onClick={() => setShowEmailModal(true)} style={{ padding: '14px 28px', background: '#111', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, margin: '0 auto' }}>
-            <Download size={16} /> Descargar checklist en PDF
-          </button>
+      {/* ===== FULL IMAGE — Casa ===== */}
+      <section style={{ position: 'relative', minHeight: '60vh', display: 'flex', alignItems: 'flex-end' }}>
+        <div style={{ position: 'absolute', inset: 0 }}>
+          <Image src="/images/render-casa.png" alt="Apartamento equipado" fill style={{ objectFit: 'cover' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)' }} />
         </div>
-      </div>
+        <div style={{ position: 'relative', zIndex: 5, padding: '48px 32px', maxWidth: 600 }}>
+          <h2 style={{ fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 300, color: '#fff', marginBottom: 12, lineHeight: 1.15 }}>
+            Guía digital de tu apartamento turístico con videos
+          </h2>
+          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>
+            Una vez tienes todo comprado, el siguiente nivel es documentarlo. Instrucciones de cada electrodoméstico, normas, WiFi, recomendaciones. Accesible con un QR.
+          </p>
+        </div>
+      </section>
 
-      {/* SEO */}
-      <div style={{ borderTop: '1px solid #f0f0f0', padding: '48px 24px', maxWidth: 700, margin: '0 auto' }}>
-        <h2 style={{ fontSize: 28, fontWeight: 300, marginBottom: 20 }}>La lista de compras definitiva para tu alojamiento</h2>
-        <p style={{ color: '#888', fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>Un escurridor de pasta, un sacacorchos, una plancha — las cosas que solo echas en falta cuando el huésped te escribe a las 10 de la noche preguntando.</p>
-        <p style={{ color: '#888', fontSize: 15, lineHeight: 1.7, marginBottom: 16 }}>Cada item clasificado en: <strong style={{ color: '#ef4444' }}>MUST</strong> (sin esto hay queja), <strong style={{ color: '#f59e0b' }}>SHOULD</strong> (marca la diferencia) y <strong style={{ color: '#7c3aed' }}>WOW</strong> (aparece en la reseña).</p>
-        <h3 style={{ fontSize: 20, fontWeight: 300, marginTop: 32, marginBottom: 12 }}>Guía digital de tu apartamento turístico con videos</h3>
-        <p style={{ color: '#888', fontSize: 15, lineHeight: 1.7 }}>Una vez tienes todo comprado e instalado, el siguiente nivel es documentarlo. Una guía digital con videos por zonas — cómo funciona la vitrocerámica, dónde está la plancha, cómo se enciende el aire acondicionado. El huésped escanea un QR y lo ve todo. Sin llamarte, sin escribirte, sin repetir.</p>
-      </div>
+      {/* ===== CTA — Tesla style ===== */}
+      <section style={{ padding: '80px 24px', textAlign: 'center' }}>
+        <h2 style={{ fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 300, color: '#111', marginBottom: 12, letterSpacing: '-0.02em' }}>
+          ¿Ya tienes todo comprado?
+        </h2>
+        <p style={{ fontSize: 15, color: '#aaa', marginBottom: 32, maxWidth: 440, margin: '0 auto 32px', lineHeight: 1.6 }}>
+          El siguiente paso: que tu huésped sepa dónde está cada cosa sin preguntarte.
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
+          <a href="/landing-tes" style={{ padding: '14px 32px', background: '#111', color: '#fff', borderRadius: 4, fontSize: 14, fontWeight: 500, textDecoration: 'none', letterSpacing: '0.02em' }}>
+            Crea tu guía digital gratis
+          </a>
+          <a href="/demo" style={{ padding: '14px 32px', background: 'transparent', color: '#555', border: '1px solid #ddd', borderRadius: 4, fontSize: 14, fontWeight: 500, textDecoration: 'none', letterSpacing: '0.02em' }}>
+            Ver demo
+          </a>
+        </div>
+      </section>
 
-      {/* CTA */}
-      <div style={{ borderTop: '1px solid #f0f0f0', padding: '48px 24px', textAlign: 'center' }}>
-        <h2 style={{ fontSize: 28, fontWeight: 300, marginBottom: 12 }}>¿Ya tienes todo comprado?</h2>
-        <p style={{ color: '#aaa', marginBottom: 12, fontSize: 15 }}>El siguiente paso: que tu huésped sepa dónde está cada cosa sin preguntarte.</p>
-        <p style={{ color: '#777', marginBottom: 24, fontSize: 15 }}>Crea una <strong>guía digital de tu apartamento turístico con videos</strong> — instrucciones de cada electrodoméstico, normas, WiFi, recomendaciones locales. Todo accesible con un QR.</p>
-        <a href="/landing-tes" style={{ padding: '14px 28px', background: '#111', color: '#fff', borderRadius: 8, fontSize: 14, fontWeight: 500, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-          Crea tu guía digital gratis <ArrowRight size={14} />
-        </a>
-      </div>
-
+      {/* FOOTER */}
       <div style={{ borderTop: '1px solid #f0f0f0', padding: '24px', textAlign: 'center' }}>
         <p style={{ fontSize: 11, color: '#ddd' }}>Itineramio</p>
       </div>
 
-      {/* EMAIL MODAL */}
+      {/* ===== EMAIL MODAL ===== */}
       {showEmailModal && (
-        <div onClick={() => { if (!emailSending) setShowEmailModal(false) }} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(0,0,0,0.35)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, background: '#fff', borderRadius: 14, boxShadow: '0 20px 50px rgba(0,0,0,0.15)' }}>
+        <div onClick={() => { if (!emailSending) setShowEmailModal(false) }} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(0,0,0,0.4)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, background: '#fff', borderRadius: 4, boxShadow: '0 20px 50px rgba(0,0,0,0.15)' }}>
             {emailSent ? (
-              <div style={{ padding: 32, textAlign: 'center' }}>
-                <div style={{ width: 48, height: 48, borderRadius: 12, background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}><Check size={24} color="#fff" /></div>
-                <h3 style={{ fontSize: 18, marginBottom: 6 }}>Checklist enviado</h3>
-                <p style={{ fontSize: 13, color: '#999', marginBottom: 20 }}>Revisa tu email con tu lista personalizada.</p>
-                <button onClick={() => { setShowEmailModal(false); setEmailSent(false) }} style={{ background: 'none', border: 'none', color: '#7c3aed', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>Cerrar</button>
+              <div style={{ padding: 40, textAlign: 'center' }}>
+                <div style={{ width: 48, height: 48, borderRadius: 4, background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}><Check size={24} color="#fff" /></div>
+                <h3 style={{ fontSize: 18, fontWeight: 400, marginBottom: 8 }}>Checklist enviado</h3>
+                <p style={{ fontSize: 13, color: '#999', marginBottom: 24 }}>Revisa tu email con tu lista personalizada.</p>
+                <button onClick={() => { setShowEmailModal(false); setEmailSent(false) }} style={{ background: 'none', border: 'none', color: '#111', cursor: 'pointer', fontSize: 13, fontWeight: 500, textDecoration: 'underline' }}>Cerrar</button>
               </div>
             ) : (
               <form onSubmit={(e) => { e.preventDefault(); sendChecklist() }}>
-                <div style={{ padding: '20px 20px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ fontSize: 16, fontWeight: 500 }}>Recibe tu checklist por email</h3>
-                  <button type="button" onClick={() => setShowEmailModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ccc' }}><X size={18} /></button>
+                <div style={{ padding: '24px 24px 0' }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 400, marginBottom: 4 }}>Recibe tu checklist por email</h3>
+                  <p style={{ fontSize: 12, color: '#aaa', marginBottom: 20 }}>{checkedCount > 0 ? `${checkedCount} items seleccionados.` : 'Tu checklist personalizado.'}</p>
                 </div>
-                <p style={{ fontSize: 12, color: '#aaa', padding: '4px 20px 16px' }}>Te enviamos tu lista personalizada con {checkedCount} items seleccionados.</p>
-                <div style={{ padding: '0 20px 20px' }}>
-                  <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="Tu nombre" style={{ width: '100%', padding: '10px 14px', border: '1px solid #eee', borderRadius: 8, fontSize: 14, marginBottom: 10, boxSizing: 'border-box' as const }} />
-                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="tu@email.com" style={{ width: '100%', padding: '10px 14px', border: '1px solid #eee', borderRadius: 8, fontSize: 14, marginBottom: 10, boxSizing: 'border-box' as const }} />
-                  <select value={props} onChange={e => setProps(e.target.value)} required style={{ width: '100%', padding: '10px 14px', border: '1px solid #eee', borderRadius: 8, fontSize: 14, marginBottom: 16, boxSizing: 'border-box' as const }}>
+                <div style={{ padding: '0 24px 24px' }}>
+                  <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="Tu nombre" style={{ width: '100%', padding: '12px 14px', border: '1px solid #eee', borderRadius: 4, fontSize: 14, marginBottom: 10, boxSizing: 'border-box' as const, outline: 'none' }} />
+                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="tu@email.com" style={{ width: '100%', padding: '12px 14px', border: '1px solid #eee', borderRadius: 4, fontSize: 14, marginBottom: 10, boxSizing: 'border-box' as const, outline: 'none' }} />
+                  <select value={props} onChange={e => setProps(e.target.value)} required style={{ width: '100%', padding: '12px 14px', border: '1px solid #eee', borderRadius: 4, fontSize: 14, marginBottom: 20, boxSizing: 'border-box' as const }}>
                     <option value="">¿Cuántas propiedades gestionas?</option>
                     <option>1</option><option>2-3</option><option>4-6</option><option>7-10</option><option>Más de 10</option>
                   </select>
-                  <button type="submit" disabled={emailSending} style={{ width: '100%', padding: 12, background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', opacity: emailSending ? 0.6 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                    {emailSending ? <><Loader2 size={16} className="animate-spin" /> Enviando...</> : <><Mail size={16} /> Enviar mi checklist</>}
+                  <button type="submit" disabled={emailSending} style={{ width: '100%', padding: 14, background: '#111', color: '#fff', border: 'none', borderRadius: 4, fontSize: 14, fontWeight: 500, cursor: 'pointer', opacity: emailSending ? 0.6 : 1, letterSpacing: '0.02em' }}>
+                    {emailSending ? 'Enviando...' : 'Enviar mi checklist'}
                   </button>
-                  <p style={{ fontSize: 10, color: '#ccc', textAlign: 'center', marginTop: 10 }}>Sin spam. Solo tu checklist personalizado.</p>
+                  <p style={{ fontSize: 10, color: '#ccc', textAlign: 'center', marginTop: 12 }}>Sin spam. Solo tu checklist.</p>
                 </div>
               </form>
             )}
