@@ -35,7 +35,7 @@ export function Spinner({ size = 'md', color = 'primary', className = '' }: Spin
 // Spinner para pantalla completa
 export function FullPageSpinner() {
   return (
-    <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center pointer-events-none">
       <div className="flex flex-col items-center gap-4">
         <Spinner size="xl" />
         <p className="text-sm text-gray-600 font-medium">Cargando...</p>

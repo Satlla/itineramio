@@ -16,7 +16,8 @@ export function SupportWidget() {
     pathname?.startsWith('/guide') ||
     pathname?.startsWith('/z/') ||
     pathname?.startsWith('/tesla-test') ||
-    pathname?.startsWith('/landing-tes')
+    pathname?.startsWith('/landing-tes') ||
+    pathname?.startsWith('/checklist-airbnb')
   ) {
     return null
   }
