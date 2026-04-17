@@ -49,9 +49,9 @@ const createPropertySchemaFn = (t: (key: string) => string) => z.object({
   name: z.string().min(3, t('propertyForm.validation.nameMin')).max(80, t('propertyForm.validation.nameMax')),
   nameEn: z.string().max(80, t('propertyForm.validation.nameEnMax')).optional(),
   nameFr: z.string().max(80, t('propertyForm.validation.nameFrMax')).optional(),
-  description: z.string().min(10, t('propertyForm.validation.descriptionMin')).max(300, t('propertyForm.validation.descriptionMax')),
-  descriptionEn: z.string().max(300, t('propertyForm.validation.descriptionEnMax')).optional(),
-  descriptionFr: z.string().max(300, t('propertyForm.validation.descriptionFrMax')).optional(),
+  description: z.string().min(10, t('propertyForm.validation.descriptionMin')).max(1000, t('propertyForm.validation.descriptionMax')),
+  descriptionEn: z.string().max(1000, t('propertyForm.validation.descriptionEnMax')).optional(),
+  descriptionFr: z.string().max(1000, t('propertyForm.validation.descriptionFrMax')).optional(),
   type: z.enum(['APARTMENT', 'HOUSE', 'ROOM', 'VILLA']),
 
   // Dirección
