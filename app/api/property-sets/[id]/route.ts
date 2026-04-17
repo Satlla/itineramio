@@ -226,44 +226,49 @@ export async function GET(
       })
     }
 
-    // Get zones count for each property
-    const propertiesWithZoneCount = await Promise.all(
+    // Get zones count and avg rating for each property
+    const propertiesWithStats = await Promise.all(
       properties.map(async (p) => {
         try {
           const zonesCount = await prisma.zone.count({
-            where: {
-              propertyId: p.id
-            }
+            where: { propertyId: p.id }
           })
-          
+
+          // Calculate avg rating from property ratings
+          const ratingResult = await prisma.propertyRating.aggregate({
+            where: { propertyId: p.id, status: 'APPROVED' },
+            _avg: { rating: true },
+          })
+          const avgRating = ratingResult._avg.rating || 0
+
           return {
             ...p,
             zonesCount,
-            totalViews: 0, // Temporarily set to 0
-            avgRating: 0 // Temporarily set to 0
+            totalViews: 0,
+            avgRating: Number(avgRating),
           }
         } catch {
-          return {
-            ...p,
-            zonesCount: 0,
-            totalViews: 0,
-            avgRating: 0
-          }
+          return { ...p, zonesCount: 0, totalViews: 0, avgRating: 0 }
         }
       })
     )
 
     // Calculate total zones
-    const totalZones = propertiesWithZoneCount.reduce((sum, p) => sum + p.zonesCount, 0)
+    const totalZones = propertiesWithStats.reduce((sum, p) => sum + p.zonesCount, 0)
 
-    // Transform data - simplified to avoid analytics/count issues
+    // Calculate avg rating across properties (only count those with ratings > 0)
+    const propertiesWithRatings = propertiesWithStats.filter(p => p.avgRating > 0)
+    const setAvgRating = propertiesWithRatings.length > 0
+      ? propertiesWithRatings.reduce((sum, p) => sum + p.avgRating, 0) / propertiesWithRatings.length
+      : 0
+
     const transformedPropertySet = {
       ...propertySet,
-      propertiesCount: propertiesWithZoneCount.length,
-      totalViews: 0, // Temporarily set to 0
-      avgRating: 0, // Temporarily set to 0
+      propertiesCount: propertiesWithStats.length,
+      totalViews: 0,
+      avgRating: setAvgRating,
       totalZones,
-      properties: propertiesWithZoneCount
+      properties: propertiesWithStats
     }
     
     

@@ -901,7 +901,7 @@ export default function PropertySetDetailPage() {
                 </div>
               </div>
 
-              <Button variant="outline">
+              <Button variant="outline" onClick={() => router.push(`/property-sets/new?edit=${propertySetId}`)}>
                 <Settings className="w-4 h-4 mr-2" />
                 {t('common.configure')}
               </Button>
