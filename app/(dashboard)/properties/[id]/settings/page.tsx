@@ -127,7 +127,7 @@ export default function PropertySettingsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
-        <div className="animate-spin w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-4 border-gray-600 border-t-transparent rounded-full" />
       </div>
     )
   }
@@ -185,12 +185,12 @@ export default function PropertySettingsPage() {
             </button>
             <button
               onClick={() => router.push(`/properties/${id}/intelligence`)}
-              className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors flex items-center gap-1"
+              className="text-gray-600 font-medium text-sm underline underline-offset-4 hover:text-gray-700 transition-colors flex items-center gap-1"
             >
               <Brain className="w-3.5 h-3.5" />
               Inteligencia
             </button>
-            <span className="text-violet-700 font-semibold text-sm border-b-2 border-violet-600 pb-0.5">
+            <span className="text-gray-900 font-semibold text-sm border-b-2 border-gray-900 pb-0.5">
               Configuración
             </span>
             <button
@@ -223,7 +223,7 @@ export default function PropertySettingsPage() {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <User className="w-4 h-4 text-violet-600" />
+              <User className="w-4 h-4 text-gray-600" />
               Información del Anfitrión
             </CardTitle>
           </CardHeader>
@@ -295,7 +295,7 @@ export default function PropertySettingsPage() {
                 <select
                   value={form.hostContactLanguage ?? 'es'}
                   onChange={(e) => handleChange('hostContactLanguage', e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                 >
                   <option value="es">Español</option>
                   <option value="en">English</option>
@@ -310,7 +310,7 @@ export default function PropertySettingsPage() {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <Home className="w-4 h-4 text-violet-600" />
+              <Home className="w-4 h-4 text-gray-600" />
               Información del Apartamento
             </CardTitle>
           </CardHeader>
@@ -350,7 +350,7 @@ export default function PropertySettingsPage() {
                 onChange={(e) => handleChange('description', e.target.value)}
                 rows={3}
                 placeholder="Describe el apartamento..."
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none"
               />
             </div>
 
@@ -362,7 +362,7 @@ export default function PropertySettingsPage() {
               <select
                 value={form.type ?? 'APARTMENT'}
                 onChange={(e) => handleChange('type', e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
               >
                 <option value="APARTMENT">Apartamento</option>
                 <option value="HOUSE">Casa</option>
@@ -470,7 +470,7 @@ export default function PropertySettingsPage() {
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-6"
+            className="flex items-center gap-2 bg-gray-900 hover:bg-black text-white px-6"
           >
             {saving ? (
               <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />

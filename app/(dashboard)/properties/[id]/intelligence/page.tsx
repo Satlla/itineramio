@@ -131,7 +131,7 @@ function Section({ title, icon, children, defaultOpen = false, badge, subtitle }
         className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50/50 transition-colors"
       >
         <div className="flex items-center gap-3 min-w-0">
-          <div className={`p-2 rounded-lg transition-colors ${isComplete ? 'bg-green-100 text-green-600' : 'bg-violet-100 text-violet-600'}`}>
+          <div className={`p-2 rounded-lg transition-colors ${isComplete ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}>
             {icon}
           </div>
           <div className="text-left min-w-0">
@@ -221,7 +221,7 @@ function FieldRow({ label, completed, children, airbnb, chatbotTip }: {
             <motion.p
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-xs text-violet-500 mt-1.5 flex items-center gap-1"
+              className="text-xs text-gray-500 mt-1.5 flex items-center gap-1"
             >
               <Brain className="w-3 h-3" /> {chatbotTip}
             </motion.p>
@@ -275,7 +275,7 @@ function TextInput({ value, onChange, placeholder }: {
       value={value || ''}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none transition-all"
+      className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500/20 focus:border-gray-400 outline-none transition-all"
     />
   )
 }
@@ -294,7 +294,7 @@ function NumberInput({ value, onChange, placeholder }: {
         onChange(v === '' ? undefined : Number(v))
       }}
       placeholder={placeholder}
-      className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none transition-all"
+      className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500/20 focus:border-gray-400 outline-none transition-all"
     />
   )
 }
@@ -310,7 +310,7 @@ function TextArea({ value, onChange, placeholder }: {
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       rows={2}
-      className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none transition-all resize-none"
+      className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500/20 focus:border-gray-400 outline-none transition-all resize-none"
     />
   )
 }
@@ -324,7 +324,7 @@ function SelectInput({ value, onChange, options }: {
     <select
       value={value || ''}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none bg-white transition-all"
+      className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500/20 focus:border-gray-400 outline-none bg-white transition-all"
     >
       <option value="">Seleccionar...</option>
       {options.map(o => (
@@ -370,7 +370,7 @@ function EditableList({ items, onChange, placeholder }: {
             }
           }}
           placeholder={placeholder || 'Añadir...'}
-          className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none"
+          className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-gray-500/20 focus:border-gray-400 outline-none"
         />
         <button
           onClick={() => {
@@ -379,7 +379,7 @@ function EditableList({ items, onChange, placeholder }: {
               setNewItem('')
             }
           }}
-          className="text-violet-600 hover:text-violet-700 hover:bg-violet-50 rounded-lg p-1.5 transition-colors"
+          className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg p-1.5 transition-colors"
         >
           <Plus className="w-4 h-4" />
         </button>
@@ -400,14 +400,14 @@ function TimeRangeInput({ valueFrom, valueTo, onChangeFrom, onChangeTo }: {
         type="time"
         value={valueFrom || ''}
         onChange={(e) => onChangeFrom(e.target.value)}
-        className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none"
+        className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500/20 focus:border-gray-400 outline-none"
       />
       <span className="text-gray-300">—</span>
       <input
         type="time"
         value={valueTo || ''}
         onChange={(e) => onChangeTo(e.target.value)}
-        className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 outline-none"
+        className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500/20 focus:border-gray-400 outline-none"
       />
     </div>
   )
@@ -531,7 +531,7 @@ function DynamicQuestion({
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden ml-4 border-l-2 border-violet-100 pl-2"
+              className="overflow-hidden ml-4 border-l-2 border-gray-100 pl-2"
             >
               <DynamicQuestion
                 question={fu}
@@ -588,7 +588,7 @@ function DynamicSection({
       {section.id === 'items' && intel.allAmenities && intel.allAmenities.length > 0 && (
         <div className="pt-3 mt-2 border-t border-gray-100">
           <details className="group">
-            <summary className="text-sm text-violet-600 cursor-pointer hover:text-violet-700 font-medium flex items-center gap-1">
+            <summary className="text-sm text-gray-600 cursor-pointer hover:text-gray-700 font-medium flex items-center gap-1">
               <Sparkles className="w-3.5 h-3.5" />
               Ver {intel.allAmenities.length} amenities importados de Airbnb
             </summary>
@@ -819,7 +819,7 @@ export default function IntelligencePage() {
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
         >
-          <Brain className="w-8 h-8 text-violet-600" />
+          <Brain className="w-8 h-8 text-gray-600" />
         </motion.div>
       </div>
     )
@@ -840,7 +840,7 @@ export default function IntelligencePage() {
           </button>
           <div className="flex-1">
             <h1 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
-              <Brain className="w-5 h-5 text-violet-600" />
+              <Brain className="w-5 h-5 text-gray-600" />
               Inteligencia
             </h1>
             {propertyName && (
@@ -851,7 +851,7 @@ export default function IntelligencePage() {
             <AnimatePresence mode="wait">
               {saveStatus === 'saving' && (
                 <motion.span key="saving" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className="text-xs text-violet-500 flex items-center gap-1 bg-violet-50 px-2 py-1 rounded-full"
+                  className="text-xs text-gray-500 flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-full"
                 >
                   <Loader2 className="w-3 h-3 animate-spin" /> Guardando
                 </motion.span>
@@ -877,7 +877,7 @@ export default function IntelligencePage() {
                 animate={{ opacity: 1, scale: 1 }}
                 onClick={handleManualSave}
                 disabled={saveStatus === 'saving'}
-                className="text-xs bg-violet-600 hover:bg-violet-700 disabled:opacity-60 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-full font-medium transition-colors flex items-center gap-1"
+                className="text-xs bg-gray-900 hover:bg-black disabled:opacity-60 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-full font-medium transition-colors flex items-center gap-1"
               >
                 {saveStatus === 'saving' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />} Guardar
               </motion.button>
@@ -922,7 +922,7 @@ export default function IntelligencePage() {
               className={`h-3 rounded-full ${
                 completion.percentage === 100
                   ? 'bg-gradient-to-r from-green-400 to-emerald-500'
-                  : 'bg-gradient-to-r from-violet-500 to-purple-500'
+                  : 'bg-gradient-to-r from-gray-500 to-gray-600'
               }`}
               initial={{ width: 0 }}
               animate={{ width: `${completion.percentage}%` }}
@@ -955,9 +955,9 @@ export default function IntelligencePage() {
         </div>
 
         {/* Info banner */}
-        <div className="mb-4 flex items-start gap-3 bg-violet-50 border border-violet-100 rounded-xl px-4 py-3">
-          <Zap className="w-4 h-4 text-violet-500 mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-violet-700">
+        <div className="mb-4 flex items-start gap-3 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3">
+          <Zap className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-gray-600">
             Cada respuesta que completes enseña a tu chatbot a responder mejor a tus huéspedes. Con el enlace de Airbnb la mayoría se rellenan solas.
           </p>
         </div>
@@ -1005,7 +1005,7 @@ export default function IntelligencePage() {
               <button
                 onClick={handleManualSave}
                 disabled={saveStatus === 'saving'}
-                className="bg-violet-600 hover:bg-violet-500 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-1.5 rounded-xl transition-colors flex items-center gap-1.5"
+                className="bg-gray-900 hover:bg-black disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-1.5 rounded-xl transition-colors flex items-center gap-1.5"
               >
                 {saveStatus === 'saving' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />} Guardar ahora
               </button>

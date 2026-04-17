@@ -190,11 +190,11 @@ export default function ChatbotDashboardPage() {
   const langColor = (lang: string) => {
     const colors: Record<string, string> = {
       es: 'bg-yellow-100 text-yellow-800',
-      en: 'bg-blue-100 text-blue-800',
-      fr: 'bg-indigo-100 text-indigo-800',
+      en: 'bg-gray-100 text-gray-800',
+      fr: 'bg-gray-100 text-gray-800',
       de: 'bg-gray-100 text-gray-800',
-      it: 'bg-green-100 text-green-800',
-      pt: 'bg-orange-100 text-orange-800'
+      it: 'bg-gray-100 text-gray-800',
+      pt: 'bg-gray-100 text-gray-800'
     }
     return colors[lang] || 'bg-gray-100 text-gray-800'
   }
@@ -242,8 +242,8 @@ export default function ChatbotDashboardPage() {
       >
         <p>Las conversaciones de tus huespedes con el asistente IA se guardan aqui. Puedes ver exactamente que preguntan y que responde el chatbot.</p>
         <p>Si el chatbot no sabe responder algo, recibiras un <strong>correo electronico</strong> para que puedas añadir esa informacion.</p>
-        <div className="bg-violet-50 border border-violet-200 rounded-lg p-3">
-          <p className="text-violet-800 font-medium text-sm">Es muy importante rellenar la seccion de Intelligence para que el chat sea mas inteligente y responda mejor a tus huespedes.</p>
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+          <p className="text-gray-700 font-medium text-sm">Es muy importante rellenar la seccion de Intelligence para que el chat sea mas inteligente y responda mejor a tus huespedes.</p>
         </div>
       </OnboardingInfoModal>
 
@@ -278,7 +278,7 @@ export default function ChatbotDashboardPage() {
                 onClick={() => setActiveTab(tab.key)}
                 className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex items-center gap-2 ${
                   activeTab === tab.key
-                    ? 'border-violet-500 text-violet-600'
+                    ? 'border-gray-900 text-gray-900'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -286,7 +286,7 @@ export default function ChatbotDashboardPage() {
                 {tab.count !== undefined && tab.count > 0 && (
                   <span className={`text-xs px-1.5 py-0.5 rounded-full ${
                     activeTab === tab.key
-                      ? 'bg-violet-100 text-violet-700'
+                      ? 'bg-gray-100 text-gray-700'
                       : 'bg-gray-100 text-gray-600'
                   }`}>
                     {tab.count}
@@ -615,11 +615,11 @@ function IntelligenceTab({
   return (
     <div className="space-y-6">
       {/* Property Context — chatbot personalization */}
-      <Card className="border-violet-200">
+      <Card className="border-gray-200">
         <CardContent className="p-5">
           <div className="flex items-start gap-3 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
-              <Sparkles className="w-4 h-4 text-violet-600" />
+            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-4 h-4 text-gray-600" />
             </div>
             <div>
               <p className="text-sm font-semibold text-gray-900">Contexto de la propiedad</p>
@@ -632,7 +632,7 @@ function IntelligenceTab({
               <select
                 value={propCtx.environment}
                 onChange={e => setPropCtx(c => ({ ...c, environment: e.target.value }))}
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-1 focus:ring-violet-400"
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-1 focus:ring-gray-400"
               >
                 <option value="">Seleccionar...</option>
                 <option value="Ciudad (centro urbano)">Ciudad (centro urbano)</option>
@@ -669,7 +669,7 @@ function IntelligenceTab({
                       }}
                       className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
                         selected
-                          ? 'bg-violet-50 border-violet-500 text-violet-700'
+                          ? 'bg-gray-50 border-gray-500 text-gray-700'
                           : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
                       }`}
                     >
@@ -686,7 +686,7 @@ function IntelligenceTab({
                 value={propCtx.localInsiderTip}
                 onChange={e => setPropCtx(c => ({ ...c, localInsiderTip: e.target.value }))}
                 placeholder='Ej: "El mercado del lunes en Plaza Mayor es el mejor para probar productos locales"'
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-violet-400"
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-gray-400"
               />
             </div>
             <div className="sm:col-span-2">
@@ -696,14 +696,14 @@ function IntelligenceTab({
                 value={propCtx.uniqueFeature}
                 onChange={e => setPropCtx(c => ({ ...c, uniqueFeature: e.target.value }))}
                 placeholder='Ej: "A 3 min del casco histórico, barrio sin turistas"'
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-violet-400"
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-gray-400"
               />
             </div>
           </div>
           <button
             onClick={savePropertyContext}
             disabled={ctxSaving}
-            className="mt-3 flex items-center gap-1.5 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
+            className="mt-3 flex items-center gap-1.5 px-4 py-2 bg-gray-900 hover:bg-black text-white text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
           >
             {ctxSaving ? '...' : ctxSaved ? '✅ Guardado' : '💾 Guardar contexto'}
           </button>
@@ -712,15 +712,15 @@ function IntelligenceTab({
 
       {/* Header */}
       {items.length > 0 && (
-        <div className="bg-violet-50 border border-violet-200 rounded-xl p-4 flex items-start gap-3">
-          <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-            <Sparkles className="w-4 h-4 text-violet-600" />
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex items-start gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <Sparkles className="w-4 h-4 text-gray-600" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-violet-900">
+            <p className="text-sm font-semibold text-gray-900">
               Inteligencia de {propertyName || 'este apartamento'}
             </p>
-            <p className="text-xs text-violet-700 mt-0.5">
+            <p className="text-xs text-gray-600 mt-0.5">
               {items.length} {items.length === 1 ? 'respuesta personalizada' : 'respuestas personalizadas'} — el chatbot las usa con prioridad máxima sobre cualquier otra fuente
             </p>
           </div>
@@ -765,7 +765,7 @@ function IntelligenceTab({
                       </div>
                       <button
                         onClick={() => onViewConversation(item.conversationId)}
-                        className="text-xs text-violet-600 hover:text-violet-800 font-medium"
+                        className="text-xs text-gray-600 hover:text-gray-800 font-medium"
                       >
                         Ver conversación
                       </button>
@@ -777,10 +777,10 @@ function IntelligenceTab({
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0 }}
-                          className="flex items-center gap-2 bg-violet-50 border border-violet-200 rounded-lg px-3 py-2"
+                          className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2"
                         >
-                          <Brain className="w-4 h-4 text-violet-600 flex-shrink-0" />
-                          <span className="text-sm text-violet-700 font-medium">Añadida a inteligencia</span>
+                          <Brain className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                          <span className="text-sm text-gray-700 font-medium">Añadida a inteligencia</span>
                         </motion.div>
                       ) : (
                         <motion.div key="input" className="flex gap-2">
@@ -790,12 +790,12 @@ function IntelligenceTab({
                             onChange={e => setPendingAnswers(a => ({ ...a, [idx]: e.target.value }))}
                             onKeyDown={e => e.key === 'Enter' && handleAnswerUnanswered(idx, item.question)}
                             placeholder="Escribe la respuesta para el chatbot..."
-                            className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-violet-400"
+                            className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-gray-400"
                           />
                           <button
                             onClick={() => handleAnswerUnanswered(idx, item.question)}
                             disabled={!pendingAnswers[idx]?.trim() || pendingSaving[idx]}
-                            className="px-3 py-2 bg-violet-600 text-white rounded-lg disabled:opacity-40 hover:bg-violet-700 transition-colors"
+                            className="px-3 py-2 bg-gray-900 text-white rounded-lg disabled:opacity-40 hover:bg-black transition-colors"
                           >
                             <Send className="w-4 h-4" />
                           </button>
@@ -815,8 +815,8 @@ function IntelligenceTab({
       <div className="space-y-3">
         {items.length > 0 && unansweredItems.length > 0 && (
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-violet-100 flex items-center justify-center">
-              <Brain className="w-3.5 h-3.5 text-violet-600" />
+            <div className="w-6 h-6 rounded-lg bg-gray-100 flex items-center justify-center">
+              <Brain className="w-3.5 h-3.5 text-gray-600" />
             </div>
             <h3 className="text-sm font-bold text-gray-800">Respuestas guardadas</h3>
           </div>
@@ -840,7 +840,7 @@ function IntelligenceTab({
                       <>
                         <button
                           onClick={() => handleEdit(idx)}
-                          className="p-1.5 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                           title="Editar respuesta"
                         >
                           <Pencil className="w-3.5 h-3.5" />
@@ -865,7 +865,7 @@ function IntelligenceTab({
                       value={editAnswer}
                       onChange={e => setEditAnswer(e.target.value)}
                       rows={3}
-                      className="w-full text-sm border border-violet-300 rounded-lg px-3 py-2 outline-none focus:border-violet-500 resize-none"
+                      className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-gray-500 resize-none"
                       autoFocus
                     />
                     <div className="flex gap-2 justify-end">
@@ -878,7 +878,7 @@ function IntelligenceTab({
                       <button
                         onClick={() => handleSaveEdit(idx)}
                         disabled={!editAnswer.trim() || saving}
-                        className="px-3 py-1.5 text-xs bg-violet-600 text-white rounded-lg hover:bg-violet-700 disabled:opacity-40 transition-colors flex items-center gap-1.5"
+                        className="px-3 py-1.5 text-xs bg-gray-900 text-white rounded-lg hover:bg-black disabled:opacity-40 transition-colors flex items-center gap-1.5"
                       >
                         <Check className="w-3 h-3" />
                         Guardar
@@ -1007,7 +1007,7 @@ function SummaryTab({ stats, weeklyInsight, propertyId, t }: { stats: Stats; wee
       icon: Calendar,
       label: t('chatbot.stats.last7Days', 'Últimos 7 días'),
       value: stats.last7Days,
-      color: 'text-violet-500'
+      color: 'text-gray-500'
     }
   ]
 
@@ -1062,7 +1062,7 @@ function SummaryTab({ stats, weeklyInsight, propertyId, t }: { stats: Stats; wee
                       <span className="text-sm font-medium text-gray-600 w-20">{langNames[lang] || lang}</span>
                       <div className="flex-1 bg-gray-200 rounded-full h-2.5">
                         <div
-                          className="bg-violet-500 h-2.5 rounded-full transition-all duration-300"
+                          className="bg-gray-500 h-2.5 rounded-full transition-all duration-300"
                           style={{ width: `${(count / maxLangCount) * 100}%` }}
                         />
                       </div>
@@ -1099,20 +1099,20 @@ function SummaryTab({ stats, weeklyInsight, propertyId, t }: { stats: Stats; wee
 
       {/* Weekly AI Insight */}
       {weeklyInsight && (
-        <Card className="border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50">
+        <Card className="border-gray-200 bg-gray-50">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-lg">✨</span>
-              <h3 className="font-semibold text-violet-900">Informe semanal IA</h3>
+              <h3 className="font-semibold text-gray-900">Informe semanal IA</h3>
               {weeklyInsight.generatedAt && (
-                <span className="ml-auto text-xs text-violet-400">
+                <span className="ml-auto text-xs text-gray-400">
                   {new Date(weeklyInsight.generatedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
                 </span>
               )}
             </div>
 
             {weeklyInsight.aiNarrative && (
-              <p className="text-sm text-violet-800 leading-relaxed mb-4 bg-white/60 rounded-lg p-3">{weeklyInsight.aiNarrative}</p>
+              <p className="text-sm text-gray-700 leading-relaxed mb-4 bg-white/60 rounded-lg p-3">{weeklyInsight.aiNarrative}</p>
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -1142,7 +1142,7 @@ function SummaryTab({ stats, weeklyInsight, propertyId, t }: { stats: Stats; wee
                     {(weeklyInsight.topTopics as Array<{topic:string;count:number}>).slice(0,5).map((t) => (
                       <div key={t.topic} className="flex items-center justify-between text-sm">
                         <span className="text-gray-700 truncate">{t.topic}</span>
-                        <span className="ml-2 text-xs font-bold text-violet-600 flex-shrink-0">{t.count}x</span>
+                        <span className="ml-2 text-xs font-bold text-gray-600 flex-shrink-0">{t.count}x</span>
                       </div>
                     ))}
                   </div>
@@ -1164,7 +1164,7 @@ function SummaryTab({ stats, weeklyInsight, propertyId, t }: { stats: Stats; wee
                 </ul>
                 <button
                   onClick={() => window.location.href = `/properties/${propertyId}/chatbot?tab=intelligence`}
-                  className="mt-3 text-xs font-semibold text-violet-600 hover:text-violet-800 underline underline-offset-2"
+                  className="mt-3 text-xs font-semibold text-gray-600 hover:text-gray-800 underline underline-offset-2"
                 >
                   Mejorar el manual →
                 </button>
@@ -1250,7 +1250,7 @@ function ConversationModal({
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                   msg.role === 'user'
-                    ? 'bg-violet-500 text-white rounded-br-md'
+                    ? 'bg-gray-900 text-white rounded-br-md'
                     : 'bg-white text-gray-800 border border-gray-200 rounded-bl-md'
                 }`}
               >

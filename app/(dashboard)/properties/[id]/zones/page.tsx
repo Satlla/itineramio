@@ -2784,7 +2784,7 @@ export default function PropertyZonesPage() {
                 }
               }}
               size="sm"
-              className="bg-amber-600 hover:bg-amber-700 text-white w-full md:w-auto"
+              className="bg-gray-900 hover:bg-black text-white w-full md:w-auto"
             >
               Activar propiedad
             </Button>
@@ -3358,7 +3358,7 @@ export default function PropertyZonesPage() {
                       <button
                         type="button"
                         onClick={() => setFormNameLang('es')}
-                        className={`text-lg px-1.5 py-0.5 rounded transition-all ${formNameLang === 'es' ? 'bg-blue-100 ring-2 ring-blue-400' : 'hover:bg-gray-100'}`}
+                        className={`text-lg px-1.5 py-0.5 rounded transition-all ${formNameLang === 'es' ? 'bg-gray-100 ring-2 ring-gray-400' : 'hover:bg-gray-100'}`}
                         title="Español"
                       >
                         🇪🇸
@@ -3366,7 +3366,7 @@ export default function PropertyZonesPage() {
                       <button
                         type="button"
                         onClick={() => setFormNameLang('en')}
-                        className={`text-lg px-1.5 py-0.5 rounded transition-all ${formNameLang === 'en' ? 'bg-blue-100 ring-2 ring-blue-400' : 'hover:bg-gray-100'}`}
+                        className={`text-lg px-1.5 py-0.5 rounded transition-all ${formNameLang === 'en' ? 'bg-gray-100 ring-2 ring-gray-400' : 'hover:bg-gray-100'}`}
                         title="English"
                       >
                         🇬🇧
@@ -3374,7 +3374,7 @@ export default function PropertyZonesPage() {
                       <button
                         type="button"
                         onClick={() => setFormNameLang('fr')}
-                        className={`text-lg px-1.5 py-0.5 rounded transition-all ${formNameLang === 'fr' ? 'bg-blue-100 ring-2 ring-blue-400' : 'hover:bg-gray-100'}`}
+                        className={`text-lg px-1.5 py-0.5 rounded transition-all ${formNameLang === 'fr' ? 'bg-gray-100 ring-2 ring-gray-400' : 'hover:bg-gray-100'}`}
                         title="Français"
                       >
                         🇫🇷
@@ -3435,7 +3435,7 @@ export default function PropertyZonesPage() {
                 <Button
                   onClick={editingZone ? handleUpdateZone : handleCreateZone}
                   disabled={!formData.name || !formData.iconId || isCreatingZone || isUpdatingZone}
-                  className="flex-1 bg-violet-600 hover:bg-violet-700"
+                  className="flex-1 bg-gray-900 hover:bg-black"
                 >
                   {(isCreatingZone || isUpdatingZone) ? (
                     <InlineLoadingSpinner />
@@ -3571,7 +3571,7 @@ export default function PropertyZonesPage() {
                         }
                       }
                     }}
-                    className="w-full h-12 bg-violet-600 hover:bg-violet-700 text-white font-medium"
+                    className="w-full h-12 bg-gray-900 hover:bg-black text-white font-medium"
                   >
                     <Download className="h-5 w-5 mr-2" />
                     Descargar QR
@@ -3630,7 +3630,7 @@ export default function PropertyZonesPage() {
                       setShowQRModal(false)
                       setShowQRDesigner(true)
                     }}
-                    className="w-full h-12 text-violet-600 hover:text-violet-700 hover:bg-violet-50"
+                    className="w-full h-12 text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                   >
                     <Sparkles className="h-5 w-5 mr-2" />
                     Personalizar diseño
@@ -4025,8 +4025,8 @@ export default function PropertyZonesPage() {
             >
               {/* Header */}
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-violet-100 rounded-full mb-4">
-                  <Sparkles className="w-8 h-8 text-violet-600" />
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                  <Sparkles className="w-8 h-8 text-gray-600" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
                   🎯 Zonas Esenciales para tu Apartamento
@@ -4072,7 +4072,7 @@ export default function PropertyZonesPage() {
                       transition={{ delay: index * 0.05 }}
                       className={`border rounded-lg p-4 cursor-pointer transition-all ${
                         isSelected
-                          ? 'border-violet-500 bg-violet-50'
+                          ? 'border-gray-500 bg-gray-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                       onClick={() => {
@@ -4095,7 +4095,7 @@ export default function PropertyZonesPage() {
                         </div>
                         <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
                           isSelected 
-                            ? 'bg-violet-500 border-violet-500' 
+                            ? 'bg-gray-900 border-gray-900'
                             : 'border-gray-300'
                         }`}>
                           {isSelected && (
@@ -4108,10 +4108,10 @@ export default function PropertyZonesPage() {
                 })}
               </div>
 
-              <div className="bg-gradient-to-r from-violet-50 to-blue-50 border border-violet-200 rounded-lg p-4 mb-6">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
                 <div className="flex gap-3">
-                  <Info className="w-5 h-5 text-violet-600 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm text-violet-800">
+                  <Info className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-gray-700">
                     <p className="font-medium mb-1">💡 ¿Por qué estás zonas son esenciales?</p>
                     <p>Basado en miles de apartamentos, estás son las zonas que más consultan los huéspedes. Tenerlas preparadas:</p>
                     <ul className="mt-2 space-y-1 text-xs">
@@ -4136,7 +4136,7 @@ export default function PropertyZonesPage() {
                     }
                   }}
                   disabled={isCreatingZone || selectedEssentialZones.size === 0}
-                  className="w-full bg-violet-600 hover:bg-violet-700 text-white font-medium py-3"
+                  className="w-full bg-gray-900 hover:bg-black text-white font-medium py-3"
                 >
                   {isCreatingZone ? (
                     <>
@@ -4183,7 +4183,7 @@ export default function PropertyZonesPage() {
               <Button
                 onClick={() => setShowGlobalRecommendations(true)}
                 variant="outline"
-                className="border-violet-200 text-violet-700 hover:bg-violet-50 flex-1"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 flex-1"
               >
                 <Search className="w-4 h-4 mr-1" />
                 Lugar
@@ -4191,14 +4191,14 @@ export default function PropertyZonesPage() {
               <Button
                 onClick={() => setShowCreateForm(true)}
                 variant="outline"
-                className="border-violet-200 text-violet-700 hover:bg-violet-50 flex-1"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 flex-1"
               >
                 <Plus className="w-4 h-4 mr-1" />
                 Personalizada
               </Button>
               <Button
                 onClick={handleOpenMultiSelect}
-                className="bg-violet-600 hover:bg-violet-700 flex-1"
+                className="bg-gray-900 hover:bg-black flex-1"
               >
                 <Plus className="w-4 h-4 mr-1" />
                 Predefinidas
@@ -4209,7 +4209,7 @@ export default function PropertyZonesPage() {
               <Button
                 onClick={() => setShowGlobalRecommendations(true)}
                 variant="outline"
-                className="border-violet-200 text-violet-700 hover:bg-violet-50"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 title="Añadir lugar"
               >
                 <Search className="w-4 h-4" />
@@ -4217,7 +4217,7 @@ export default function PropertyZonesPage() {
               <Button
                 onClick={() => setShowImportModal(true)}
                 variant="outline"
-                className="border-violet-200 text-violet-700 hover:bg-violet-50"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 title="Importar recomendaciones"
               >
                 <Download className="w-4 h-4" />
@@ -4225,14 +4225,14 @@ export default function PropertyZonesPage() {
               <Button
                 onClick={() => setShowCreateForm(true)}
                 variant="outline"
-                className="border-violet-200 text-violet-700 hover:bg-violet-50"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 title="Zona personalizada"
               >
                 <Plus className="w-4 h-4" />
               </Button>
               <Button
                 onClick={() => setShowElementSelector(true)}
-                className="bg-violet-600 hover:bg-violet-700 flex-1"
+                className="bg-gray-900 hover:bg-black flex-1"
               >
                 <Plus className="w-5 h-5 mr-2" />
                 Añadir Elementos
@@ -4258,8 +4258,8 @@ export default function PropertyZonesPage() {
             >
               <div className="p-6">
                 <div className="text-center mb-6">
-                  <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MapPin className="w-8 h-8 text-violet-600" />
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MapPin className="w-8 h-8 text-gray-600" />
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     ¿Quieres que agreguemos zonas predefinidas?
@@ -4272,7 +4272,7 @@ export default function PropertyZonesPage() {
                 <div className="space-y-3">
                   <Button
                     onClick={handlePredefinedZonesChoice}
-                    className="w-full bg-violet-600 hover:bg-violet-700"
+                    className="w-full bg-gray-900 hover:bg-black"
                   >
                     Sí, añadir zonas predefinidas
                   </Button>
@@ -4434,7 +4434,7 @@ export default function PropertyZonesPage() {
             <button
               onClick={saveIcalConfig}
               disabled={icalSaving}
-              className="w-full mt-5 py-3 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full mt-5 py-3 bg-gray-900 hover:bg-black text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {icalSaving ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Guardando…</> : 'Guardar'}
             </button>
@@ -4500,7 +4500,7 @@ export default function PropertyZonesPage() {
             <div className="p-6 overflow-y-auto max-h-[60vh]">
               {loadingEvaluations ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full"></div>
+                  <div className="animate-spin w-8 h-8 border-4 border-gray-600 border-t-transparent rounded-full"></div>
                   <span className="ml-3 text-gray-600">Cargando evaluaciones...</span>
                 </div>
               ) : propertyEvaluations.length === 0 ? (

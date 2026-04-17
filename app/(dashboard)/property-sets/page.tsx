@@ -86,7 +86,7 @@ export default function PropertySetsPage() {
                   Gestiona hoteles, edificios y complejos con múltiples propiedades
                 </p>
               </div>
-              <Button asChild className="bg-violet-600 hover:bg-violet-700">
+              <Button asChild className="bg-gray-900 hover:bg-black text-white">
                 <Link href="/property-sets/new">
                   <Plus className="w-4 h-4 mr-2" />
                   Nuevo Conjunto
@@ -111,7 +111,7 @@ export default function PropertySetsPage() {
                   <p className="text-gray-600 mb-4">
                     Los conjuntos son perfectos para hoteles, edificios o complejos con múltiples unidades
                   </p>
-                  <Button asChild className="bg-violet-600 hover:bg-violet-700">
+                  <Button asChild className="bg-gray-900 hover:bg-black text-white">
                     <Link href="/property-sets/new">
                       <Plus className="w-4 h-4 mr-2" />
                       Crear Primer Conjunto
@@ -141,7 +141,7 @@ export default function PropertySetsPage() {
                                   className="w-12 h-12 rounded-lg object-cover"
                                 />
                               ) : (
-                                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-400 to-blue-500 flex items-center justify-center">
+                                <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center">
                                   <Building2 className="w-6 h-6 text-white" />
                                 </div>
                               )}
@@ -181,11 +181,11 @@ export default function PropertySetsPage() {
                           
                           {/* Time Saved */}
                           {propertySet.timeSavedMinutes && propertySet.timeSavedMinutes > 0 && (
-                            <div className="mb-4 p-3 bg-green-50 rounded-lg text-center">
-                              <div className="text-lg font-bold text-green-700">
+                            <div className="mb-4 p-3 bg-gray-100 rounded-lg text-center">
+                              <div className="text-lg font-bold text-gray-700">
                                 {Math.round(propertySet.timeSavedMinutes / 60)}h
                               </div>
-                              <div className="text-xs text-green-600">Tiempo Ahorrado</div>
+                              <div className="text-xs text-gray-600">Tiempo Ahorrado</div>
                             </div>
                           )}
 
@@ -201,7 +201,7 @@ export default function PropertySetsPage() {
                             </Badge>
                             {propertySet.avgRating > 0 && (
                               <div className="flex items-center text-sm text-gray-600">
-                                <Star className="w-4 h-4 text-yellow-500 mr-1" />
+                                <Star className="w-4 h-4 text-gray-400 mr-1" />
                                 <span>{Number(propertySet.avgRating).toFixed(1)}</span>
                               </div>
                             )}

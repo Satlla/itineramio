@@ -92,7 +92,7 @@ export function ElementSelector({
                 Selecciona múltiples elementos de tu apartamento turístico
               </p>
               {selectedElements.length > 0 && (
-                <p className="mt-2 text-sm font-medium text-violet-600">
+                <p className="mt-2 text-sm font-medium text-gray-900">
                   {selectedElements.length} elemento{selectedElements.length !== 1 ? 's' : ''} seleccionado{selectedElements.length !== 1 ? 's' : ''}
                 </p>
               )}
@@ -131,8 +131,8 @@ export function ElementSelector({
                   onClick={() => setActiveCategory(key)}
                   className={`
                     px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all
-                    ${activeCategory === key 
-                      ? 'bg-violet-100 text-violet-700 border-2 border-violet-200' 
+                    ${activeCategory === key
+                      ? 'bg-gray-900 text-white border-2 border-gray-900'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-transparent'
                     }
                   `}
@@ -158,7 +158,7 @@ export function ElementSelector({
                 return (
                   <div key={category}>
                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                      <div className="w-2 h-2 bg-violet-500 rounded-full mr-2" />
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mr-2" />
                       {getCategoryLabel(category)}
                       <span className="ml-2 text-sm text-gray-500">({elements.length})</span>
                     </h3>
@@ -172,9 +172,9 @@ export function ElementSelector({
                             animate={{ opacity: 1, scale: 1 }}
                             className={`
                               p-4 rounded-xl border-2 cursor-pointer transition-all
-                              ${isSelected 
-                                ? 'border-violet-500 bg-violet-50 shadow-lg shadow-violet-100' 
-                                : 'border-gray-200 hover:border-violet-300 hover:bg-violet-50/50'
+                              ${isSelected
+                                ? 'border-gray-900 bg-gray-50 shadow-lg shadow-gray-200'
+                                : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                               }
                             `}
                             onClick={() => handleToggleElement(element.id)}
@@ -193,7 +193,7 @@ export function ElementSelector({
                                     {getElementText(element.description)}
                                   </p>
                                   <div className="mt-2 flex items-center">
-                                    <div className="text-xs text-violet-600 bg-violet-100 px-2 py-1 rounded-full">
+                                    <div className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
                                       Prioridad {element.priority}
                                     </div>
                                   </div>
@@ -201,8 +201,8 @@ export function ElementSelector({
                               </div>
                               <div className={`
                                 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all
-                                ${isSelected 
-                                  ? 'border-violet-500 bg-violet-500' 
+                                ${isSelected
+                                  ? 'border-gray-900 bg-gray-900'
                                   : 'border-gray-300'
                                 }
                               `}>
@@ -231,9 +231,9 @@ export function ElementSelector({
                     animate={{ opacity: 1, scale: 1 }}
                     className={`
                       p-4 rounded-xl border-2 cursor-pointer transition-all
-                      ${isSelected 
-                        ? 'border-violet-500 bg-violet-50 shadow-lg shadow-violet-100' 
-                        : 'border-gray-200 hover:border-violet-300 hover:bg-violet-50/50'
+                      ${isSelected
+                        ? 'border-gray-900 bg-gray-50 shadow-lg shadow-gray-200'
+                        : 'border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                       }
                     `}
                     onClick={() => handleToggleElement(element.id)}
@@ -252,7 +252,7 @@ export function ElementSelector({
                             {getElementText(element.description)}
                           </p>
                           <div className="mt-2 flex items-center">
-                            <div className="text-xs text-violet-600 bg-violet-100 px-2 py-1 rounded-full">
+                            <div className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
                               Prioridad {element.priority}
                             </div>
                           </div>
@@ -260,8 +260,8 @@ export function ElementSelector({
                       </div>
                       <div className={`
                         w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all
-                        ${isSelected 
-                          ? 'border-violet-500 bg-violet-500' 
+                        ${isSelected
+                          ? 'border-gray-900 bg-gray-900'
                           : 'border-gray-300'
                         }
                       `}>
@@ -301,7 +301,7 @@ export function ElementSelector({
               <Button 
                 onClick={handleAddElements}
                 disabled={selectedElements.length === 0 || isLoading}
-                className="bg-violet-600 hover:bg-violet-700"
+                className="bg-gray-900 hover:bg-black"
               >
                 {isLoading ? (
                   <>

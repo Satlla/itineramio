@@ -321,7 +321,7 @@ function NewPropertySetPageContent() {
         {/* Loading State */}
         {isLoading && (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full"></div>
+            <div className="animate-spin w-8 h-8 border-4 border-gray-600 border-t-transparent rounded-full"></div>
             <span className="ml-3 text-gray-600">Cargando datos del conjunto...</span>
           </div>
         )}
@@ -336,8 +336,8 @@ function NewPropertySetPageContent() {
               >
                 <div className={`
                   w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
-                  ${currentStep >= step 
-                    ? 'bg-violet-600 text-white' 
+                  ${currentStep >= step
+                    ? 'bg-gray-900 text-white'
                     : 'bg-gray-200 text-gray-600'
                   }
                 `}>
@@ -352,7 +352,7 @@ function NewPropertySetPageContent() {
                 {step < 4 && (
                   <div className={`
                     flex-1 h-1 mx-4
-                    ${currentStep > step ? 'bg-violet-600' : 'bg-gray-200'}
+                    ${currentStep > step ? 'bg-gray-900' : 'bg-gray-200'}
                   `} />
                 )}
               </div>
@@ -398,7 +398,7 @@ function NewPropertySetPageContent() {
                       {...register('description')}
                       rows={4}
                       placeholder="Describe tu conjunto de propiedades, sus características principales..."
-                      className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 ${
+                      className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 ${
                         errors.description ? 'border-red-300' : ''
                       }`}
                     />
@@ -422,8 +422,8 @@ function NewPropertySetPageContent() {
                             onClick={() => setValue('type', type.value as PropertySetType)}
                             className={`p-4 border-2 rounded-lg transition-all ${
                               watchedValues.type === type.value
-                                ? 'border-violet-500 bg-violet-50 text-violet-700'
-                                : 'border-gray-200 hover:border-violet-300'
+                                ? 'border-gray-900 bg-gray-100 text-gray-900'
+                                : 'border-gray-200 hover:border-gray-400'
                             }`}
                           >
                             <IconComponent className="w-6 h-6 mx-auto mb-2" />
@@ -584,8 +584,8 @@ function NewPropertySetPageContent() {
                   Información de Contacto
                 </h2>
                 
-                <div className="bg-blue-50 rounded-lg p-4 mb-6">
-                  <p className="text-sm text-blue-800">
+                <div className="bg-gray-100 rounded-lg p-4 mb-6">
+                  <p className="text-sm text-gray-700">
                     <strong>💡 Importante:</strong> Esta información será usada para el contacto principal del conjunto de propiedades.
                   </p>
                 </div>
@@ -667,7 +667,7 @@ function NewPropertySetPageContent() {
                     </label>
                     <select
                       {...register('hostContactLanguage')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
                     >
                       <option value="es">Español</option>
                       <option value="en">English</option>
@@ -704,8 +704,8 @@ function NewPropertySetPageContent() {
                   Seleccionar Propiedades
                 </h2>
                 
-                <div className="bg-green-50 rounded-lg p-4 mb-6">
-                  <p className="text-sm text-green-800">
+                <div className="bg-gray-100 rounded-lg p-4 mb-6">
+                  <p className="text-sm text-gray-700">
                     <strong>💡 Consejo:</strong> Selecciona las propiedades que pertenecen a este conjunto. Puedes dejarlo vacío y agregar propiedades más tarde.
                   </p>
                 </div>
@@ -733,8 +733,8 @@ function NewPropertySetPageContent() {
                         key={property.id}
                         className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
                           selectedProperties.includes(property.id)
-                            ? 'border-violet-500 bg-violet-50'
-                            : 'border-gray-200 hover:border-violet-300'
+                            ? 'border-gray-900 bg-gray-100'
+                            : 'border-gray-200 hover:border-gray-400'
                         }`}
                         onClick={() => handlePropertyToggle(property.id)}
                       >
@@ -747,7 +747,7 @@ function NewPropertySetPageContent() {
                                 className="w-12 h-12 rounded-lg object-cover"
                               />
                             ) : (
-                              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
+                              <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center">
                                 <Building2 className="w-6 h-6 text-white" />
                               </div>
                             )}
@@ -761,7 +761,7 @@ function NewPropertySetPageContent() {
                           
                           <div className="flex-shrink-0">
                             {selectedProperties.includes(property.id) && (
-                              <div className="w-6 h-6 rounded-full bg-violet-600 flex items-center justify-center">
+                              <div className="w-6 h-6 rounded-full bg-gray-900 flex items-center justify-center">
                                 <Check className="w-4 h-4 text-white" />
                               </div>
                             )}

@@ -74,55 +74,55 @@ export function Navbar({ transparent = false }: NavbarProps) {
             <div className="hidden lg:flex items-center space-x-8">
               <Link
                 href="/funcionalidades"
-                className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
+                className="text-gray-700 hover:text-gray-900 font-medium transition-colors relative group"
               >
                 {t('navbar.features', 'Funcionalidades')}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 transition-all duration-300 group-hover:w-full" />
               </Link>
               <Link
                 href="/blog"
-                className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
+                className="text-gray-700 hover:text-gray-900 font-medium transition-colors relative group"
               >
                 {t('navbar.blog', 'Blog')}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 transition-all duration-300 group-hover:w-full" />
               </Link>
               {/* Academia - hidden for now
               <Link
                 href="/academia"
-                className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
+                className="text-gray-700 hover:text-gray-900 font-medium transition-colors relative group"
               >
                 {t('navbar.academy', 'Academia')}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 transition-all duration-300 group-hover:w-full" />
               </Link>
               */}
               <Link
                 href="/hub"
-                className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
+                className="text-gray-700 hover:text-gray-900 font-medium transition-colors relative group"
               >
                 {t('navbar.resources', 'Recursos')}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 transition-all duration-300 group-hover:w-full" />
               </Link>
               <Link
                 href="/#pricing"
-                className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
+                className="text-gray-700 hover:text-gray-900 font-medium transition-colors relative group"
               >
                 {t('navbar.pricing', 'Precios')}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 transition-all duration-300 group-hover:w-full" />
               </Link>
               <Link
                 href="/casos-de-exito"
-                className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
+                className="text-gray-700 hover:text-gray-900 font-medium transition-colors relative group"
               >
                 {t('navbar.successStories', 'Casos de Éxito')}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 transition-all duration-300 group-hover:w-full" />
               </Link>
               {/* Comparar - hidden for now
               <Link
                 href="/comparar"
-                className="text-gray-700 hover:text-violet-600 font-medium transition-colors relative group"
+                className="text-gray-700 hover:text-gray-900 font-medium transition-colors relative group"
               >
                 {t('navbar.compare', 'Comparar')}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-violet-600 transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 transition-all duration-300 group-hover:w-full" />
               </Link>
               */}
             </div>
@@ -132,7 +132,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
               {/* Search Icon */}
               <Link
                 href="/blog"
-                className="p-2 rounded-lg text-gray-600 hover:text-violet-600 hover:bg-violet-50 transition-colors"
+                className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
                 title={t('navbar.searchArticles', 'Buscar artículos')}
               >
                 <Search className="w-5 h-5" />
@@ -142,7 +142,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
               <div className="hidden lg:block relative">
                 <button
                   onClick={() => setShowLangMenu(!showLangMenu)}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-gray-600 hover:text-violet-600 hover:bg-violet-50 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
                 >
                   <Globe className="w-4 h-4" />
                   <span className="text-sm font-medium">
@@ -166,7 +166,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
                             onClick={() => handleLanguageChange(lang)}
                             className={`w-full flex items-center gap-2 px-4 py-2 text-sm transition-colors ${
                               currentLanguage === lang
-                                ? 'bg-violet-50 text-violet-600 font-medium'
+                                ? 'bg-gray-100 text-gray-900 font-medium'
                                 : 'text-gray-700 hover:bg-gray-50'
                             }`}
                           >
@@ -188,7 +188,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
                   </Button>
                 </Link>
                 <Link href="/register">
-                  <Button className="bg-violet-600 hover:bg-violet-700">
+                  <Button className="bg-gray-900 hover:bg-black">
                     {t('navbar.register', 'Registrarse')}
                   </Button>
                 </Link>
@@ -249,7 +249,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
                 {/* Mobile Search */}
                 <Link
                   href="/blog"
-                  className="flex items-center gap-3 px-4 py-3 bg-gray-100 rounded-xl text-gray-500 hover:bg-violet-50 hover:text-violet-600 transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 bg-gray-100 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <Search className="w-5 h-5" />
@@ -260,14 +260,14 @@ export function Navbar({ transparent = false }: NavbarProps) {
                 <div className="space-y-4">
                   <Link
                     href="/funcionalidades"
-                    className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
+                    className="block text-lg font-medium text-gray-700 hover:text-gray-900 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {t('navbar.features', 'Funcionalidades')}
                   </Link>
                   <Link
                     href="/blog"
-                    className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
+                    className="block text-lg font-medium text-gray-700 hover:text-gray-900 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {t('navbar.blog', 'Blog')}
@@ -275,7 +275,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
                   {/* Academia - hidden for now
                   <Link
                     href="/academia"
-                    className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
+                    className="block text-lg font-medium text-gray-700 hover:text-gray-900 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {t('navbar.academy', 'Academia')}
@@ -283,21 +283,21 @@ export function Navbar({ transparent = false }: NavbarProps) {
                   */}
                   <Link
                     href="/hub"
-                    className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
+                    className="block text-lg font-medium text-gray-700 hover:text-gray-900 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {t('navbar.resources', 'Recursos')}
                   </Link>
                   <Link
                     href="/#pricing"
-                    className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
+                    className="block text-lg font-medium text-gray-700 hover:text-gray-900 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {t('navbar.pricing', 'Precios')}
                   </Link>
                   <Link
                     href="/casos-de-exito"
-                    className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
+                    className="block text-lg font-medium text-gray-700 hover:text-gray-900 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {t('navbar.successStories', 'Casos de Éxito')}
@@ -305,7 +305,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
                   {/* Comparar - hidden for now
                   <Link
                     href="/comparar"
-                    className="block text-lg font-medium text-gray-700 hover:text-violet-600 transition-colors"
+                    className="block text-lg font-medium text-gray-700 hover:text-gray-900 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {t('navbar.compare', 'Comparar')}
@@ -328,7 +328,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
                           onClick={() => handleLanguageChange(lang)}
                           className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                             currentLanguage === lang
-                              ? 'bg-violet-600 text-white'
+                              ? 'bg-gray-900 text-white'
                               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                           }`}
                         >
@@ -348,7 +348,7 @@ export function Navbar({ transparent = false }: NavbarProps) {
                     </Button>
                   </Link>
                   <Link href="/register" className="block">
-                    <Button className="w-full bg-violet-600 hover:bg-violet-700">
+                    <Button className="w-full bg-gray-900 hover:bg-black">
                       {t('navbar.register', 'Registrarse')}
                     </Button>
                   </Link>
