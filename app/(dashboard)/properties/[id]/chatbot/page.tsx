@@ -25,6 +25,7 @@ import { OnboardingInfoModal } from '../../../../../src/components/ui/Onboarding
 import { Card, CardContent } from '../../../../../src/components/ui/Card'
 import { useRouter, useParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+import { IntelligencePanel } from '@/components/intelligence/IntelligencePanel'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -62,7 +63,7 @@ interface Stats {
   last30Days: number
 }
 
-type Tab = 'conversations' | 'unanswered' | 'intelligence' | 'guests' | 'summary'
+type Tab = 'conversations' | 'unanswered' | 'intelligence' | 'guests' | 'summary' | 'property-data'
 
 export default function ChatbotDashboardPage() {
   const router = useRouter()
@@ -83,6 +84,7 @@ export default function ChatbotDashboardPage() {
     if (typeof window !== 'undefined') {
       const sp = new URLSearchParams(window.location.search)
       if (sp.get('tab') === 'unanswered' || sp.get('tab') === 'intelligence') setActiveTab('intelligence')
+      if (sp.get('tab') === 'datos' || sp.get('tab') === 'property-data') setActiveTab('property-data')
     }
   }, [])
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
@@ -215,7 +217,8 @@ export default function ChatbotDashboardPage() {
     { key: 'conversations', label: t('chatbot.tabs.conversations', 'Conversaciones'), count: stats?.totalConversations },
     { key: 'intelligence', label: 'Inteligencia', count: customQA.length + allUnansweredItems.length },
     { key: 'guests', label: t('chatbot.tabs.guests', 'Huéspedes'), count: stats?.capturedGuests },
-    { key: 'summary', label: t('chatbot.tabs.summary', 'Resumen') }
+    { key: 'summary', label: t('chatbot.tabs.summary', 'Resumen') },
+    { key: 'property-data', label: 'Datos de propiedad' }
   ]
 
   if (loading) {
@@ -261,7 +264,7 @@ export default function ChatbotDashboardPage() {
         </div>
 
         <h1 className="text-3xl font-bold text-gray-900">
-          {t('chatbot.title', { name: propertyName, defaultValue: 'Chatbot — {{name}}' })}
+          {t('chatbot.title', { name: propertyName, defaultValue: 'Asistente — {{name}}' })}
         </h1>
         <p className="text-gray-600 mt-2">
           {t('chatbot.subtitle', 'Conversaciones, preguntas sin respuesta y huéspedes capturados')}
@@ -372,6 +375,10 @@ export default function ChatbotDashboardPage() {
       {activeTab === 'summary' && stats && (
         <SummaryTab stats={stats} weeklyInsight={weeklyInsight} propertyId={propertyId} t={t} />
       )}
+
+      <div style={{ display: activeTab === 'property-data' ? 'block' : 'none' }}>
+        <IntelligencePanel propertyId={propertyId} propertyName={propertyName} embedded />
+      </div>
 
       {/* Conversation Detail Modal */}
       <AnimatePresence>

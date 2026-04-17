@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash, ChevronDown, ArrowLeft, BarChart3, Download, Brain, Search, Link2, Loader2 as Loader2Icon, Clock } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash, ChevronDown, ArrowLeft, BarChart3, Download, Brain, Search, Link2, Loader2 as Loader2Icon, Clock, MessageCircle, Settings } from 'lucide-react'
 import { AMENITY_CATEGORIES } from '@/data/amenities'
 import {
   DndContext,
@@ -2862,47 +2862,20 @@ export default function PropertyZonesPage() {
         <p className="text-gray-500 text-sm ml-0 sm:ml-12 mb-3 hidden sm:block">
           Gestiona las diferentes zonas y sus códigos QR
         </p>
-        <div className="flex items-center gap-3 sm:gap-4 ml-0 sm:ml-12 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
+        <div className="flex items-center gap-3 sm:gap-4 ml-0 sm:ml-12 pb-2">
           <button
             onClick={() => router.push(`/properties/${id}/chatbot`)}
-            className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
+            className="hidden lg:inline-flex text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
           >
-            {t('propertyZones.chatbot', 'Chatbot')}
+            {t('propertyZones.chatbot', 'Asistente')}
           </button>
 
           <button
-            onClick={() => router.push(`/properties/${id}/announcements`)}
-            className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
+            onClick={() => setShowPropertyQRModal(true)}
+            className="hidden lg:inline-flex items-center gap-1 text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
           >
-            {t('propertyZones.announcements', 'Avisos')}
-          </button>
-
-          <button
-            onClick={() => {
-              setShowAmenitiesModal(true)
-              fetch(`/api/properties/${id}/amenities`, { credentials: 'include' })
-                .then(r => r.json())
-                .then(data => { if (data.success) setAmenitiesActive(new Set(data.amenities)) })
-                .catch(() => {})
-            }}
-            className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
-          >
-            Amenities
-          </button>
-
-          <button
-            onClick={() => router.push(`/properties/${id}/intelligence`)}
-            className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors flex items-center gap-1"
-          >
-            <Brain className="w-3.5 h-3.5" />
-            Inteligencia
-          </button>
-
-          <button
-            onClick={() => router.push(`/properties/${id}/settings`)}
-            className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors"
-          >
-            Configuración
+            <QrCode className="w-3.5 h-3.5" />
+            QR
           </button>
 
           <button
@@ -2926,6 +2899,59 @@ export default function PropertyZonesPage() {
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
               <DropdownMenu.Content className="w-56 bg-white rounded-md border shadow-lg p-1 z-50">
+                {/* Group 1 - Contenido */}
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer lg:hidden"
+                  onSelect={() => router.push(`/properties/${id}/chatbot`)}
+                >
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  {t('propertyZones.chatbot', 'Asistente')}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={() => router.push(`/properties/${id}/announcements`)}
+                >
+                  <Bell className="h-4 w-4 mr-2" />
+                  {t('propertyZones.announcements', 'Avisos')}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={() => {
+                    setShowAmenitiesModal(true)
+                    fetch(`/api/properties/${id}/amenities`, { credentials: 'include' })
+                      .then(r => r.json())
+                      .then(data => { if (data.success) setAmenitiesActive(new Set(data.amenities)) })
+                      .catch(() => {})
+                  }}
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Amenities
+                </DropdownMenu.Item>
+                <DropdownMenu.Separator className="h-px bg-gray-100 my-1" />
+                {/* Group 2 - Configuración */}
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={() => router.push(`/properties/${id}/settings`)}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Configuración
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={() => router.push(`/properties/new?edit=${id}`)}
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  {t('propertyZones.editProperty')}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  onSelect={() => { loadIcalConfig(); setShowIcalModal(true) }}
+                >
+                  <Bell className="h-4 w-4 mr-2 text-[#00A699]" />
+                  Conectar iCal (Airbnb / Booking)
+                </DropdownMenu.Item>
+                <DropdownMenu.Separator className="h-px bg-gray-100 my-1" />
+                {/* Group 3 - Analíticas */}
                 <DropdownMenu.Item
                   className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                   onSelect={handleViewEvaluations}
@@ -2945,6 +2971,8 @@ export default function PropertyZonesPage() {
                   <BarChart3 className="h-4 w-4 mr-2" />
                   {t('propertyZones.analytics', 'Analíticas')}
                 </DropdownMenu.Item>
+                <DropdownMenu.Separator className="h-px bg-gray-100 my-1" />
+                {/* Group 4 - Vista */}
                 <DropdownMenu.Item
                   className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
                   onSelect={() => {
@@ -2956,26 +2984,11 @@ export default function PropertyZonesPage() {
                   {t('propertyZones.publicView', 'Vista pública')}
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
-                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
+                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer lg:hidden"
                   onSelect={() => setShowPropertyQRModal(true)}
                 >
                   <QrCode className="h-4 w-4 mr-2" />
                   {t('propertyZones.propertyQr')}
-                </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                  onSelect={() => router.push(`/properties/new?edit=${id}`)}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  {t('propertyZones.editProperty')}
-                </DropdownMenu.Item>
-                <DropdownMenu.Separator className="h-px bg-gray-100 my-1" />
-                <DropdownMenu.Item
-                  className="flex items-center px-3 py-2 text-sm hover:bg-gray-100 rounded cursor-pointer"
-                  onSelect={() => { loadIcalConfig(); setShowIcalModal(true) }}
-                >
-                  <Bell className="h-4 w-4 mr-2 text-[#00A699]" />
-                  Conectar iCal (Airbnb / Booking)
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
