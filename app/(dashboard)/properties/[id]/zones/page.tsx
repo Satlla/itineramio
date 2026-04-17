@@ -2542,8 +2542,8 @@ export default function PropertyZonesPage() {
         transition={{ duration: 0.2 }}
       >
         <Card 
-          className={`hover:shadow-lg transition-shadow cursor-pointer hover:border-violet-300 h-full ${
-            isDragging ? 'shadow-xl ring-2 ring-violet-400 z-50' : ''
+          className={`hover:shadow-lg transition-shadow cursor-pointer hover:border-gray-400 h-full ${
+            isDragging ? 'shadow-xl ring-2 ring-gray-400 z-50' : ''
           }`}
           onClick={async () => {
             // For RECOMMENDATIONS zones, open recommendations editor
@@ -3130,7 +3130,7 @@ export default function PropertyZonesPage() {
                           <div>
                             <div className="flex items-center gap-3 mb-4">
                               <div className="flex items-center gap-2">
-                                <FileText className="w-4 h-4 text-blue-500" />
+                                <FileText className="w-4 h-4 text-gray-400" />
                                 <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
                                   Manual del alojamiento
                                 </h3>
