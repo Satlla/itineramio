@@ -54,6 +54,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { ShareLanguageModal } from '../../../../../src/components/ui/ShareLanguageModal'
 
 // Sortable Property Card Component
 function SortablePropertyCard({
@@ -344,6 +345,8 @@ export default function PropertySetDetailPage() {
   // General action states
   const [isSavingOrder, setIsSavingOrder] = useState(false)
   const [processingPropertyId, setProcessingPropertyId] = useState<string | null>(null)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
+  const [sharePropertyId, setSharePropertyId] = useState<string | null>(null)
 
   // Drag and drop sensors
   const sensors = useSensors(
@@ -785,32 +788,16 @@ export default function PropertySetDetailPage() {
         router.push(`/properties/${propertyId}/evaluations`)
         break
       case 'share':
-        setProcessingPropertyId(propertyId)
+        // Ensure the property is published first
         try {
-          // First ensure the property is published
           const shareProperty = propertySet?.properties.find(p => p.id === propertyId)
           if (shareProperty && shareProperty.status !== 'ACTIVE') {
-            await fetch(`/api/properties/${propertyId}/publish`, {
-              method: 'POST'
-            })
-            // Refresh data to update status
+            await fetch(`/api/properties/${propertyId}/publish`, { method: 'POST' })
             await fetchPropertySetData()
           }
-          const shareUrl = `${window.location.origin}/guide/${propertyId}`
-          await navigator.clipboard.writeText(shareUrl)
-          // Show success notification
-          const notification = document.createElement('div')
-          notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50'
-          notification.textContent = t('common.linkCopied')
-          document.body.appendChild(notification)
-          setTimeout(() => {
-            document.body.removeChild(notification)
-          }, 3000)
-        } catch (error) {
-          alert(t('common.errorSharing'))
-        } finally {
-          setProcessingPropertyId(null)
-        }
+        } catch {}
+        setSharePropertyId(propertyId)
+        setShareModalOpen(true)
         break
       case 'public':
         setProcessingPropertyId(propertyId)
@@ -1751,6 +1738,21 @@ export default function PropertySetDetailPage() {
             </div>
           </motion.div>
         </div>
+      )}
+      {/* Share Language Modal */}
+      {sharePropertyId && (
+        <ShareLanguageModal
+          isOpen={shareModalOpen}
+          onClose={() => { setShareModalOpen(false); setSharePropertyId(null) }}
+          onShare={(language) => {
+            const url = `${window.location.origin}/guide/${sharePropertyId}?lang=${language}`
+            navigator.clipboard.writeText(url).catch(() => {})
+          }}
+          title="Compartir Manual"
+          description="Selecciona el idioma en el que quieres compartir"
+          type="manual"
+          currentUrl={`${window.location.origin}/guide/${sharePropertyId}`}
+        />
       )}
     </div>
   )
