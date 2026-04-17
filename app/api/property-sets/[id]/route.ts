@@ -316,16 +316,22 @@ export async function PUT(
       }, { status: 404 })
     }
     
+    // Only update known PropertySet fields (avoid passing selectedProperties or unknown fields to Prisma)
+    const { selectedProperties, ...updateFields } = body
+    const allowedFields = ['name', 'description', 'type', 'street', 'city', 'state', 'country', 'postalCode', 'profileImage', 'hostContactName', 'hostContactPhone', 'hostContactEmail', 'hostContactLanguage', 'hostContactPhoto', 'status']
+    const safeData: Record<string, unknown> = {}
+    for (const key of allowedFields) {
+      if (updateFields[key] !== undefined) safeData[key] = updateFields[key]
+    }
+    safeData.updatedAt = new Date()
+
     const updatedPropertySet = await prisma.propertySet.update({
       where: { id },
-      data: {
-        ...body,
-        updatedAt: new Date()
-      }
+      data: safeData
     })
     
     // If properties are selected, update them
-    if (body.selectedProperties !== undefined) {
+    if (selectedProperties !== undefined) {
       // First, remove this property set from all properties
       await prisma.property.updateMany({
         where: {
@@ -338,7 +344,7 @@ export async function PUT(
       })
       
       // Then, add the selected properties to this set
-      if (body.selectedProperties.length > 0) {
+      if (selectedProperties.length > 0) {
         await prisma.property.updateMany({
           where: {
             id: { in: body.selectedProperties },

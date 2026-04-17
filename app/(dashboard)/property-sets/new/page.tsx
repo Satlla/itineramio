@@ -6,17 +6,26 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useSearchParams } from 'next/navigation'
-import { 
-  ArrowLeft, 
-  Building2, 
-  MapPin, 
-  Mail, 
+import {
+  ArrowLeft,
+  Building2,
+  MapPin,
+  Mail,
   Phone,
   Save,
   Eye,
   User,
   Check,
-  Plus
+  Plus,
+  Hotel,
+  Home,
+  Castle,
+  Palmtree,
+  BedDouble,
+  Tent,
+  Trees,
+  Users,
+  Landmark
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -28,13 +37,13 @@ import { useFormPersistence } from '../../../../src/hooks/useFormPersistence'
 import { useAuth } from '../../../../src/providers/AuthProvider'
 
 // PropertySetType as string literal type
-type PropertySetType = 'HOTEL' | 'BUILDING' | 'COMPLEX' | 'RESORT' | 'HOSTEL' | 'APARTHOTEL'
+type PropertySetType = 'HOTEL' | 'BUILDING' | 'COMPLEX' | 'RESORT' | 'HOSTEL' | 'APARTHOTEL' | 'PENSION' | 'CAMPING' | 'RURAL' | 'COLIVING' | 'VILLA_COMPLEX'
 
 // Validation schema
 const createPropertySetSchema = z.object({
   name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres').max(100, 'Máximo 100 caracteres'),
   description: z.string().min(10, 'La descripción debe tener al menos 10 caracteres').max(1000, 'Máximo 1000 caracteres'),
-  type: z.enum(['HOTEL', 'BUILDING', 'COMPLEX', 'RESORT', 'HOSTEL', 'APARTHOTEL']),
+  type: z.enum(['HOTEL', 'BUILDING', 'COMPLEX', 'RESORT', 'HOSTEL', 'APARTHOTEL', 'PENSION', 'CAMPING', 'RURAL', 'COLIVING', 'VILLA_COMPLEX']),
   
   // Dirección
   street: z.string().min(5, 'La dirección debe tener al menos 5 caracteres'),
@@ -60,12 +69,17 @@ const createPropertySetSchema = z.object({
 type CreatePropertySetFormData = z.infer<typeof createPropertySetSchema>
 
 const propertySetTypes = [
-  { value: 'HOTEL', label: 'Hotel', icon: Building2 },
+  { value: 'HOTEL', label: 'Hotel', icon: Hotel },
+  { value: 'HOSTEL', label: 'Hostal', icon: BedDouble },
+  { value: 'PENSION', label: 'Pensión', icon: Home },
+  { value: 'APARTHOTEL', label: 'Aparthotel', icon: Building2 },
   { value: 'BUILDING', label: 'Edificio', icon: Building2 },
-  { value: 'COMPLEX', label: 'Complejo', icon: Building2 },
-  { value: 'RESORT', label: 'Resort', icon: Building2 },
-  { value: 'HOSTEL', label: 'Hostel', icon: Building2 },
-  { value: 'APARTHOTEL', label: 'Aparthotel', icon: Building2 }
+  { value: 'COMPLEX', label: 'Complejo', icon: Landmark },
+  { value: 'RESORT', label: 'Resort', icon: Palmtree },
+  { value: 'RURAL', label: 'Casa Rural', icon: Trees },
+  { value: 'CAMPING', label: 'Camping', icon: Tent },
+  { value: 'VILLA_COMPLEX', label: 'Complejo Villas', icon: Castle },
+  { value: 'COLIVING', label: 'Coliving', icon: Users },
 ] as const
 
 interface Property {
@@ -412,7 +426,7 @@ function NewPropertySetPageContent() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Tipo de establecimiento *
                     </label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                       {propertySetTypes.map((type) => {
                         const IconComponent = type.icon
                         return (

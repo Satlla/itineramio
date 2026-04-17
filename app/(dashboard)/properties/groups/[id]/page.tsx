@@ -891,12 +891,12 @@ export default function PropertySetDetailPage() {
                     {propertySet.city}, {propertySet.state}
                   </p>
                   <Badge variant="secondary" className="mt-2">
-                    {propertySet.type === 'HOTEL' && t('types.hotel')}
-                    {propertySet.type === 'BUILDING' && t('types.building')}
-                    {propertySet.type === 'COMPLEX' && t('types.complex')}
-                    {propertySet.type === 'RESORT' && t('types.resort')}
-                    {propertySet.type === 'HOSTEL' && t('types.hostel')}
-                    {propertySet.type === 'APARTHOTEL' && t('types.aparthotel')}
+                    {{
+                      HOTEL: 'Hotel', HOSTEL: 'Hostal', PENSION: 'Pensión',
+                      APARTHOTEL: 'Aparthotel', BUILDING: 'Edificio', COMPLEX: 'Complejo',
+                      RESORT: 'Resort', RURAL: 'Casa Rural', CAMPING: 'Camping',
+                      VILLA_COMPLEX: 'Complejo Villas', COLIVING: 'Coliving',
+                    }[propertySet.type] || propertySet.type}
                   </Badge>
                 </div>
               </div>
