@@ -121,7 +121,7 @@ function DemoWidget() {
             {/* Header */}
             <div className="bg-white border-b border-black/[0.06] px-3.5 py-2.5 flex items-center justify-between shrink-0 z-10">
               <div className="flex items-center gap-2">
-                <img src="/isotipo-gradient.svg" alt="" width={16} height={9} className="object-contain shrink-0"/>
+                <img src="/isotipo-gradient.svg" alt="Itineramio" width={16} height={9} className="object-contain shrink-0"/>
                 <div>
                   <p className="text-[11px] font-semibold text-[#111] leading-none">Barceloneta Apartment</p>
                   <p className="text-[9px] text-[#999] mt-0.5">Barcelona · 2 bed · 4 guests</p>

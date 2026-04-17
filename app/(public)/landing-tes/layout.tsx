@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
+  robots: 'noindex, nofollow',
   title: 'Itineramio — Tu alojamiento funciona solo',
   description: 'El manual digital que responde las preguntas de tus huéspedes automáticamente. Crea tu guía, coloca los QR, y deja de repetir.',
   openGraph: {

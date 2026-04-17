@@ -146,7 +146,7 @@ const LazyVideo = ({ src, poster, fallbackText }: { src: string; poster?: string
           style={{ minHeight: '200px', maxHeight: '60vh' }}
         >
           {poster ? (
-            <img src={poster} alt="" className="w-full h-full object-cover opacity-50" />
+            <img src={poster} alt="Vista previa del paso" className="w-full h-full object-cover opacity-50" />
           ) : (
             <div className="text-white/50 text-center p-4">
               <Play className="w-12 h-12 mx-auto mb-2" />

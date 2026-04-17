@@ -96,7 +96,7 @@ export default function ChecklistPage() {
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, padding: '0 24px', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #f0f0f0' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
-            <img src="/isotipo-gradient.svg" alt="" width={40} height={24} />
+            <img src="/isotipo-gradient.svg" alt="Itineramio" width={40} height={24} />
             <span style={{ fontWeight: 600, fontSize: 20, color: '#111' }}>Itineramio</span>
           </a>
           <button onClick={() => setShowEmailModal(true)} style={{ padding: '9px 18px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 20, fontSize: 13, fontWeight: 500, cursor: 'pointer', boxShadow: '0 2px 10px rgba(124,58,237,0.25)' }}>
@@ -391,7 +391,7 @@ export default function ChecklistPage() {
               <form onSubmit={(e) => { e.preventDefault(); sendChecklist() }}>
                 {/* Header branded */}
                 <div style={{ background: 'linear-gradient(135deg, #7c3aed, #5b21b6)', padding: '24px 24px 20px', textAlign: 'center' }}>
-                  <img src="/isotipo-gradient.svg" alt="" width={28} height={16} style={{ filter: 'brightness(0) invert(1)', marginBottom: 8 }} />
+                  <img src="/isotipo-gradient.svg" alt="Itineramio" width={28} height={16} style={{ filter: 'brightness(0) invert(1)', marginBottom: 8 }} />
                   <h3 style={{ fontSize: 18, fontWeight: 600, color: '#fff', marginBottom: 4 }}>Recibe tu checklist</h3>
                   <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', margin: 0 }}>{checkedCount > 0 ? `${checkedCount} items seleccionados` : 'Tu checklist personalizado'}</p>
                 </div>

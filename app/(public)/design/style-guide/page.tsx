@@ -294,7 +294,7 @@ function DashboardScreen() {
       <div className="bg-white border-b border-neutral-100 px-4 h-12 flex items-center justify-between flex-shrink-0 shadow-sm">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-            <img src="/logo-itineramio.svg" style={{ width: 14, height: 8, objectFit: "contain", filter: "invert(1)" }} alt="" />
+            <img src="/logo-itineramio.svg" style={{ width: 14, height: 8, objectFit: "contain", filter: "invert(1)" }} alt="Logo Itineramio" />
           </div>
           <span className="font-semibold text-gray-800 text-[11px]">Itineramio</span>
         </div>

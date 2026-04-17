@@ -37,6 +37,16 @@ Disallow: /activate-property
 Disallow: /confirm-email-change
 Disallow: /unsubscribe
 Disallow: /ratings/
+Disallow: /landing2
+Disallow: /landing3
+Disallow: /landing4
+Disallow: /landing-tes
+Disallow: /landing-haroon
+Disallow: /faq2
+Disallow: /tesla-test
+Disallow: /tesla-test-2
+Disallow: /tesla-test-light
+Disallow: /design/
 
 # Disallow auth pages (no value for SEO)
 Disallow: /login
