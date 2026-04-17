@@ -140,8 +140,9 @@ export function parseDateRange(
 ): { checkIn: Date; checkOut: Date } | null {
   if (!str) return null
 
-  // Split by common range separators: " - ", " – ", " a ", " al ", " to "
-  const parts = str.split(/\s*(?:[-–]|a(?:l)?|to)\s*/i)
+  // Split by range separators requiring at least one space on each side
+  // to avoid splitting "4Mar" or "8Mar" incorrectly
+  const parts = str.split(/\s+[-–]\s+|\s+a(?:l)?\s+|\s+to\s+/i)
   if (parts.length !== 2) return null
 
   const part1 = parts[0].trim()
