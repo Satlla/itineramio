@@ -211,9 +211,6 @@ export const INTELLIGENCE_SECTIONS: SectionDef[] = [
       { id: 'houseRules.quietHours', label: 'Horario de silencio', type: 'time-range', path: 'houseRules.quietHoursStart', priority: 'essential', airbnbMapped: true },
       { id: 'houseRules.additionalRules', label: 'Reglas adicionales', type: 'textarea', placeholder: 'Ej: No tender ropa en el balcón, no usar altavoces...', path: 'houseRules.additionalRules', priority: 'important' },
       { id: 'houseRules.allowsBabies', label: '¿Se admiten bebés / niños pequeños?', type: 'yesno', path: 'houseRules.allowsBabies', priority: 'important' },
-      { id: 'houseRules.hasCrib', label: '¿Hay cuna disponible?', type: 'yesno', path: 'houseRules.hasCrib', priority: 'important' },
-      { id: 'houseRules.hasHighChair', label: '¿Hay trona (silla alta) disponible?', type: 'yesno', path: 'houseRules.hasHighChair', priority: 'important' },
-      { id: 'houseRules.hasBabyBath', label: '¿Hay bañera de bebé disponible?', type: 'yesno', path: 'houseRules.hasBabyBath', priority: 'useful' },
     ],
   },
 
@@ -224,14 +221,29 @@ export const INTELLIGENCE_SECTIONS: SectionDef[] = [
     subtitle: 'Solo tú sabes los códigos',
     icon: 'LogIn',
     questions: [
-      { id: 'details.lockboxCode', label: 'Código lockbox', type: 'text', placeholder: 'Código lockbox: 1234', path: 'details.lockboxCode', priority: 'essential' },
-      { id: 'details.doorCode', label: 'Código puerta (si es diferente)', type: 'text', placeholder: 'Código puerta: 5678#', path: 'details.doorCode', priority: 'essential' },
-      { id: 'details.lockboxLocation', label: '¿Dónde está la lockbox?', type: 'text', placeholder: 'Ej: a la derecha de la puerta, caja negra', path: 'details.lockboxLocation', priority: 'essential' },
+      {
+        id: 'checkIn.method', label: 'Método de acceso', type: 'select', path: 'checkIn.method', priority: 'essential',
+        options: [
+          { value: 'lockbox', label: 'Lockbox / Cajetín de llaves' },
+          { value: 'code', label: 'Código en la puerta' },
+          { value: 'key', label: 'Llave en mano' },
+          { value: 'in-person', label: 'Recepción en persona' },
+          { value: 'app', label: 'App móvil / Cerradura electrónica' },
+        ],
+      },
+      // Campos lockbox — solo si método es lockbox
+      { id: 'details.lockboxCode', label: 'Código lockbox', type: 'text', placeholder: 'Código lockbox: 1234', path: 'details.lockboxCode', priority: 'essential', showIf: { path: 'checkIn.method', value: 'lockbox' } },
+      { id: 'details.lockboxLocation', label: '¿Dónde está la lockbox?', type: 'text', placeholder: 'Ej: a la derecha de la puerta, caja negra', path: 'details.lockboxLocation', priority: 'essential', showIf: { path: 'checkIn.method', value: 'lockbox' } },
+      // Código puerta — si método es code
+      { id: 'details.doorCode', label: 'Código de la puerta', type: 'text', placeholder: 'Código: 5678#', path: 'details.doorCode', priority: 'essential', showIf: { path: 'checkIn.method', value: 'code' } },
+      // Punto de encuentro — si es en persona
+      { id: 'details.meetingPoint', label: 'Punto de encuentro', type: 'text', placeholder: 'Ej: en el portal del edificio', path: 'details.meetingPoint', priority: 'important', showIf: { path: 'checkIn.method', value: 'in-person' } },
+      // Campos comunes
       { id: 'details.codeChangesPerReservation', label: '¿El código cambia cada reserva?', type: 'yesno', path: 'details.codeChangesPerReservation', priority: 'important' },
       {
         id: 'details.latePlan', label: 'Si llegan tarde, ¿qué hacen?', type: 'select', path: 'details.latePlan', priority: 'important',
         options: [
-          { value: 'lockbox', label: 'La lockbox está 24h disponible' },
+          { value: 'selfaccess', label: 'Tiene entrada autónoma 24h' },
           { value: 'call', label: 'Que me llamen al llegar' },
           { value: 'neighbor', label: 'Un vecino tiene copia' },
           { value: 'other', label: 'Otro' },
@@ -241,7 +253,6 @@ export const INTELLIGENCE_SECTIONS: SectionDef[] = [
           showIf: { path: 'details.latePlan', value: 'other' }, priority: 'important',
         }],
       },
-      { id: 'details.meetingPoint', label: 'Punto de encuentro (si es en persona)', type: 'text', placeholder: 'Ej: en el portal del edificio', path: 'details.meetingPoint', priority: 'important' },
     ],
   },
 
@@ -257,7 +268,7 @@ export const INTELLIGENCE_SECTIONS: SectionDef[] = [
       {
         id: 'details.keyReturn', label: '¿Cómo devuelven la llave?', type: 'select', path: 'details.keyReturn', priority: 'essential',
         options: [
-          { value: 'lockbox', label: 'Meter en la lockbox' },
+          { value: 'lockbox', label: 'Meter en la lockbox/cajetín' },
           { value: 'table', label: 'Dejar en la mesa' },
           { value: 'auto', label: 'Se cierra sola (no hay llave)' },
           { value: 'hand', label: 'Dar en mano' },
@@ -545,7 +556,7 @@ export const INTELLIGENCE_SECTIONS: SectionDef[] = [
     subtitle: 'Detergente, tendedero, productos',
     icon: 'Shirt',
     questions: [
-      { id: 'laundry.detergentLocation', label: '¿Dónde está el detergente?', type: 'text', placeholder: 'Ej: estante encima de la lavadora', path: 'laundry.detergentLocation', priority: 'important' },
+      { id: 'laundry.detergentLocation', label: '¿Dónde está el detergente?', type: 'text', placeholder: 'Ej: estante encima de la lavadora', path: 'laundry.detergentLocation', priority: 'important', showIf: { path: 'appliances.washingMachine.has', value: true } },
       {
         id: 'laundry.dryingRack.has', label: '¿Hay tendedero?', type: 'yesno', path: 'laundry.dryingRack.has', priority: 'useful',
         followUp: [{ id: 'laundry.dryingRack.location', label: '¿Dónde está?', type: 'text', placeholder: 'Ej: balcón', path: 'laundry.dryingRack.location', showIf: { path: 'laundry.dryingRack.has', value: true }, priority: 'useful' }],
