@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash, ChevronDown, ArrowLeft, BarChart3, Download, Brain, Search, Link2, Loader2 as Loader2Icon } from 'lucide-react'
+import { Plus, Edit, Trash2, QrCode, MoreVertical, MapPin, Copy, Share2, ExternalLink, FileText, X, CheckCircle, Info, Sparkles, Check, GripVertical, AlertTriangle, Star, Eye, Lightbulb, Bell, Hash, ChevronDown, ArrowLeft, BarChart3, Download, Brain, Search, Link2, Loader2 as Loader2Icon, Clock } from 'lucide-react'
 import { AMENITY_CATEGORIES } from '@/data/amenities'
 import {
   DndContext,
@@ -2372,8 +2372,8 @@ export default function PropertyZonesPage() {
         style={style}
       >
         <Card
-          className={`hover:shadow-lg transition-all cursor-pointer hover:border-violet-300 ${
-            isDragging ? 'shadow-2xl ring-4 ring-violet-500 border-violet-500 bg-violet-50' : ''
+          className={`hover:shadow-lg transition-all cursor-pointer hover:border-gray-400 ${
+            isDragging ? 'shadow-2xl ring-4 ring-gray-400 border-gray-400 bg-gray-50' : ''
           }`}
           onClick={() => {
             // For RECOMMENDATIONS zones, open the recommendations editor
@@ -2414,18 +2414,16 @@ export default function PropertyZonesPage() {
                   <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate pr-2">{getZoneText(zone.name)}</h3>
 
                   <div className="flex flex-wrap items-center gap-2 text-sm">
-                    <div className={`inline-flex items-center rounded-full px-2 py-0.5 ${
-                      zone.type === 'RECOMMENDATIONS' ? 'bg-violet-50' : 'bg-blue-50'
-                    }`}>
+                    <div className="inline-flex items-center rounded-full px-2 py-0.5 bg-gray-100">
                       {zone.type === 'RECOMMENDATIONS' ? (
-                        <Sparkles className="w-3 h-3 mr-1 text-violet-500" />
+                        <Sparkles className="w-3 h-3 mr-1 text-gray-500" />
                       ) : (
-                        <Edit className="w-3 h-3 mr-1 text-blue-500" />
+                        <Edit className="w-3 h-3 mr-1 text-gray-500" />
                       )}
-                      <span className={`font-medium ${zone.type === 'RECOMMENDATIONS' ? 'text-violet-700' : 'text-blue-700'}`}>
+                      <span className="font-medium text-gray-700">
                         {zone.stepsCount}
                       </span>
-                      <span className={`ml-0.5 hidden xs:inline ${zone.type === 'RECOMMENDATIONS' ? 'text-violet-600' : 'text-blue-600'}`}>
+                      <span className="ml-0.5 hidden xs:inline text-gray-600">
                         {zone.type === 'RECOMMENDATIONS' ? 'recs' : 'steps'}
                       </span>
                     </div>
@@ -2641,11 +2639,9 @@ export default function PropertyZonesPage() {
                   </h3>
                 </div>
 
-                <div className={`inline-flex items-center justify-center text-xs rounded-full px-2 py-0.5 max-w-full ${
-                  zone.type === 'RECOMMENDATIONS' ? 'text-violet-600 bg-violet-50' : 'text-gray-600 bg-gray-50'
-                }`}>
+                <div className="inline-flex items-center justify-center text-xs rounded-full px-2 py-0.5 max-w-full text-gray-600 bg-gray-100">
                   {zone.type === 'RECOMMENDATIONS' ? (
-                    <Sparkles className="w-2.5 h-2.5 mr-0.5 text-violet-400 flex-shrink-0" />
+                    <Sparkles className="w-2.5 h-2.5 mr-0.5 text-gray-400 flex-shrink-0" />
                   ) : (
                     <Edit className="w-2.5 h-2.5 mr-0.5 text-gray-400 flex-shrink-0" />
                   )}
@@ -2857,7 +2853,7 @@ export default function PropertyZonesPage() {
         </div>
         {propertyCode && (
           <div className="ml-0 sm:ml-12 mb-1">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600">
               <Hash className="w-4 h-4 mr-1" />
               {propertyCode}
             </span>
@@ -2896,7 +2892,7 @@ export default function PropertyZonesPage() {
 
           <button
             onClick={() => router.push(`/properties/${id}/intelligence`)}
-            className="text-violet-600 font-medium text-sm underline underline-offset-4 hover:text-violet-700 transition-colors flex items-center gap-1"
+            className="text-gray-700 font-medium text-sm underline underline-offset-4 hover:text-gray-900 transition-colors flex items-center gap-1"
           >
             <Brain className="w-3.5 h-3.5" />
             Inteligencia
@@ -2914,7 +2910,7 @@ export default function PropertyZonesPage() {
               const publicUrl = `${window.location.origin}/guide/${id}`
               window.open(publicUrl, '_blank')
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 text-violet-700 rounded-lg text-sm font-medium hover:bg-violet-100 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-black transition-colors"
           >
             <Eye className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Ver como huesped</span>
@@ -2992,25 +2988,25 @@ export default function PropertyZonesPage() {
         <CardContent className="p-4 sm:p-6">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <div className="flex items-center">
-              <MapPin className="h-6 w-6 sm:h-8 sm:w-8 text-violet-600 flex-shrink-0" />
+              <MapPin className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 flex-shrink-0" />
               <div className="ml-3 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Zonas</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-500">Total Zonas</p>
                 <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{zones.length}</p>
               </div>
             </div>
 
             <div className="flex items-center">
-              <QrCode className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
+              <QrCode className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 flex-shrink-0" />
               <div className="ml-3 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600">QR Codes</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-500">QR Codes</p>
                 <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{zones.length}</p>
               </div>
             </div>
 
             <div className="flex items-center">
-              <Edit className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 flex-shrink-0" />
+              <Edit className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 flex-shrink-0" />
               <div className="ml-3 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Pasos</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-500">Total Pasos</p>
                 <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate">
                   {zones.reduce((acc, zone) => acc + (zone.stepsCount || 0), 0)}
                 </p>
@@ -3018,11 +3014,9 @@ export default function PropertyZonesPage() {
             </div>
 
             <div className="flex items-center">
-              <div className="h-6 w-6 sm:h-8 sm:w-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <div className="h-3 w-3 sm:h-4 sm:w-4 bg-orange-600 rounded-full"></div>
-              </div>
+              <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 flex-shrink-0" />
               <div className="ml-3 sm:ml-4 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Última Act.</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-500">Última Act.</p>
                 <p className="text-sm sm:text-lg font-semibold text-gray-900 truncate">Hoy</p>
               </div>
             </div>
@@ -3053,7 +3047,7 @@ export default function PropertyZonesPage() {
                   <Button
                     onClick={() => setShowGlobalRecommendations(true)}
                     variant="outline"
-                    className="border-violet-200 text-violet-700 hover:bg-violet-50"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
                   >
                     <Search className="w-4 h-4 mr-2" />
                     Añadir lugar
@@ -3061,14 +3055,14 @@ export default function PropertyZonesPage() {
                   <Button
                     onClick={() => setShowCreateForm(true)}
                     variant="outline"
-                    className="border-violet-200 text-violet-700 hover:bg-violet-50"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Zona Personalizada
                   </Button>
                   <Button
                     onClick={handleOpenMultiSelect}
-                    className="bg-violet-600 hover:bg-violet-700"
+                    className="bg-gray-900 hover:bg-black text-white"
                   >
                     <Plus className="w-5 h-5 mr-2" />
                     Elementos Predefinidos
@@ -3094,7 +3088,7 @@ export default function PropertyZonesPage() {
                   <Button
                     onClick={() => setShowGlobalRecommendations(true)}
                     variant="outline"
-                    className="border-violet-200 text-violet-700 hover:bg-violet-50 flex-1 sm:flex-none"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50 flex-1 sm:flex-none"
                   >
                     <Search className="w-4 h-4 mr-2" />
                     Añadir lugar
@@ -3102,14 +3096,14 @@ export default function PropertyZonesPage() {
                   <Button
                     onClick={() => setShowCreateForm(true)}
                     variant="outline"
-                    className="border-violet-200 text-violet-700 hover:bg-violet-50 flex-1 sm:flex-none"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50 flex-1 sm:flex-none"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Zona Personalizada
                   </Button>
                   <Button
                     onClick={handleOpenMultiSelect}
-                    className="bg-violet-600 hover:bg-violet-700 flex-1 sm:flex-none"
+                    className="bg-gray-900 hover:bg-black text-white flex-1 sm:flex-none"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Elementos Predefinidos
@@ -3157,12 +3151,12 @@ export default function PropertyZonesPage() {
                           <div>
                             <div className="flex items-center gap-3 mb-4">
                               <div className="flex items-center gap-2">
-                                <Sparkles className="w-4 h-4 text-violet-500" />
+                                <Sparkles className="w-4 h-4 text-gray-400" />
                                 <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
                                   Lugares recomendados
                                 </h3>
                               </div>
-                              <div className="flex-1 h-px bg-violet-100" />
+                              <div className="flex-1 h-px bg-gray-200" />
                               <span className="text-xs text-gray-400">{recsZones.length} categoría{recsZones.length !== 1 ? 's' : ''}</span>
                             </div>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -3200,7 +3194,7 @@ export default function PropertyZonesPage() {
                 !hasWifi && {
                   id: 'wifi',
                   priority: 'high',
-                  icon: <Info className="w-4 h-4 text-orange-600" />,
+                  icon: <Info className="w-4 h-4 text-gray-500" />,
                   title: 'Añade la zona WiFi',
                   description: 'Es la más consultada. Incluye red y contraseña.',
                   actionText: 'Crear zona WiFi',
@@ -3209,7 +3203,7 @@ export default function PropertyZonesPage() {
                 !hasCheckin && {
                   id: 'checkin',
                   priority: 'high',
-                  icon: <Info className="w-4 h-4 text-orange-600" />,
+                  icon: <Info className="w-4 h-4 text-gray-500" />,
                   title: 'Configura el Check-In',
                   description: 'Explica llaves, código y pasos de entrada.',
                   actionText: 'Crear zona Check-In',
@@ -3218,7 +3212,7 @@ export default function PropertyZonesPage() {
                 !hasRecs && {
                   id: 'recs',
                   priority: 'medium',
-                  icon: <Star className="w-4 h-4 text-orange-500" />,
+                  icon: <Star className="w-4 h-4 text-gray-500" />,
                   title: 'Añade recomendaciones locales',
                   description: 'Restaurantes, actividades y secretos del barrio.',
                   actionText: 'Añadir lugar',
@@ -3227,7 +3221,7 @@ export default function PropertyZonesPage() {
                 {
                   id: 'share',
                   priority: 'medium',
-                  icon: <Share2 className="w-4 h-4 text-blue-600" />,
+                  icon: <Share2 className="w-4 h-4 text-gray-500" />,
                   title: 'Comparte zonas por WhatsApp',
                   description: 'Cuando un huésped pregunte por el parking, envíale sólo esa zona.',
                   actionText: 'Ver técnica',
@@ -3258,7 +3252,7 @@ export default function PropertyZonesPage() {
                 {
                   id: 'qr',
                   priority: 'low',
-                  icon: <Eye className="w-4 h-4 text-indigo-600" />,
+                  icon: <Eye className="w-4 h-4 text-gray-500" />,
                   title: 'Coloca el QR en la entrada',
                   description: 'Recibidor, nevera y mesita de noche son los mejores sitios.',
                   actionText: 'Ver ubicaciones',
@@ -3285,16 +3279,12 @@ export default function PropertyZonesPage() {
               return (
                 <Card className="p-4">
                   <div className="flex items-center mb-3">
-                    <Lightbulb className="w-4 h-4 text-violet-600 mr-2" />
+                    <Lightbulb className="w-4 h-4 text-gray-500 mr-2" />
                     <h3 className="text-sm font-semibold text-gray-900">Recomendaciones</h3>
                   </div>
                   <div className="space-y-3">
                     {tips.slice(0, 4).map((tip: any) => (
-                      <div key={tip.id} className={`p-3 rounded-lg border text-sm ${
-                        tip.priority === 'high' ? 'border-orange-200 bg-orange-50' :
-                        tip.priority === 'medium' ? 'border-blue-200 bg-blue-50' :
-                        'border-violet-200 bg-violet-50'
-                      }`}>
+                      <div key={tip.id} className="p-3 rounded-lg border border-gray-200 bg-gray-50 text-sm">
                         <div className="flex items-start gap-2">
                           <div className="flex-shrink-0 mt-0.5">{tip.icon}</div>
                           <div className="flex-1 min-w-0">
@@ -3302,7 +3292,7 @@ export default function PropertyZonesPage() {
                             <p className="text-gray-600 text-xs mb-2">{tip.description}</p>
                             <button
                               onClick={tip.onClick}
-                              className="text-xs font-medium text-violet-700 hover:text-violet-900 underline"
+                              className="text-xs font-medium text-gray-700 hover:text-gray-900 underline"
                             >
                               {tip.actionText} →
                             </button>
@@ -3346,8 +3336,8 @@ export default function PropertyZonesPage() {
               className="bg-white rounded-lg p-6 w-full max-w-md"
             >
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-violet-100 rounded-full mb-3">
-                  <Plus className="w-6 h-6 text-violet-600" />
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full mb-3">
+                  <Plus className="w-6 h-6 text-gray-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900">
                   {editingZone ? t('zones.editZone') : t('zones.createCustomZone')}
@@ -3508,8 +3498,8 @@ export default function PropertyZonesPage() {
               {/* Header */}
               <div className="sticky top-0 bg-white px-4 py-3 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center">
-                    <QrCode className="w-4 h-4 text-violet-600" />
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <QrCode className="w-4 h-4 text-gray-600" />
                   </div>
                   <h3 className="font-semibold text-gray-900 truncate max-w-[200px]">
                     {getZoneText(selectedZoneForQR.name)}
