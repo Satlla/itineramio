@@ -374,6 +374,8 @@ export function buildIntelligenceFromImport(
       parkingFloor: step2Data.parkingFloor || undefined,
       parkingAccess: step2Data.parkingAccess || undefined,
       parkingAccessCode: step2Data.parkingAccessCode || undefined,
+      nearbyParkingName: step2Data.nearbyParkingName || undefined,
+      nearbyParkingAddress: step2Data.nearbyParkingAddress || undefined,
       checkoutInstructions: step2Data.checkoutInstructions || undefined,
       keyReturn: step2Data.keyReturn || undefined,
       keyReturnDetails: step2Data.keyReturnDetails || undefined,
@@ -417,12 +419,18 @@ export function buildIntelligenceFromImport(
       }
     }
 
-    // Parking
-    if (step1Data.hasParking && step1Data.hasParking !== 'no') {
-      intelligence.parking = {
-        ...intelligence.parking,
-        available: true,
-        type: step1Data.hasParking,
+    // Parking — map wizard values to intelligence parkingType
+    if (step1Data.hasParking) {
+      const parkingTypeMap: Record<string, string> = { yes: 'private', nearby: 'nearby', no: 'none' }
+      const mappedType = parkingTypeMap[step1Data.hasParking] || step1Data.hasParking
+      if (!intelligence.details) intelligence.details = {}
+      intelligence.details.parkingType = mappedType
+      if (step1Data.hasParking !== 'no') {
+        intelligence.parking = {
+          ...intelligence.parking,
+          available: true,
+          type: step1Data.hasParking,
+        }
       }
     }
 

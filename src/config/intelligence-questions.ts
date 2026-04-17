@@ -572,17 +572,28 @@ export const INTELLIGENCE_SECTIONS: SectionDef[] = [
     ],
   },
 
-  // ========== 14. PARKING (existente migrado) ==========
+  // ========== 14. PARKING ==========
   {
     id: 'parking',
     title: 'Parking',
-    subtitle: 'Solo si tu propiedad tiene parking',
+    subtitle: 'Información de aparcamiento para tus huéspedes',
     icon: 'Car',
     questions: [
-      { id: 'details.parkingSpotNumber', label: 'Número de plaza', type: 'text', placeholder: 'Ej: P-23', path: 'details.parkingSpotNumber', priority: 'important' },
-      { id: 'details.parkingFloor', label: 'Planta', type: 'text', placeholder: 'Ej: -1', path: 'details.parkingFloor', priority: 'important' },
+      {
+        id: 'details.parkingType', label: 'Tipo de parking', type: 'select', path: 'details.parkingType', priority: 'essential',
+        options: [
+          { value: 'private', label: 'Parking privado (incluido)' },
+          { value: 'nearby', label: 'Parking público cercano' },
+          { value: 'street', label: 'Aparcamiento en la calle' },
+          { value: 'none', label: 'No hay parking' },
+        ],
+      },
+      // Campos para parking privado
+      { id: 'details.parkingSpotNumber', label: 'Número de plaza', type: 'text', placeholder: 'Ej: P-23', path: 'details.parkingSpotNumber', priority: 'important', showIf: { path: 'details.parkingType', value: 'private' } },
+      { id: 'details.parkingFloor', label: 'Planta', type: 'text', placeholder: 'Ej: -1', path: 'details.parkingFloor', priority: 'important', showIf: { path: 'details.parkingType', value: 'private' } },
       {
         id: 'details.parkingAccess', label: 'Acceso al parking', type: 'select', path: 'details.parkingAccess', priority: 'important',
+        showIf: { path: 'details.parkingType', value: 'private' },
         options: [
           { value: 'remote', label: 'Mando a distancia (en el apartamento)' },
           { value: 'code', label: 'Código' },
@@ -595,6 +606,9 @@ export const INTELLIGENCE_SECTIONS: SectionDef[] = [
           showIf: { path: 'details.parkingAccess', value: 'code' }, priority: 'important',
         }],
       },
+      // Campos para parking cercano
+      { id: 'details.nearbyParkingName', label: 'Nombre del parking', type: 'text', placeholder: 'Ej: Parking Saba Centro', path: 'details.nearbyParkingName', priority: 'important', showIf: { path: 'details.parkingType', value: 'nearby' } },
+      { id: 'details.nearbyParkingAddress', label: 'Dirección del parking', type: 'text', placeholder: 'Ej: Calle Mayor 15', path: 'details.nearbyParkingAddress', priority: 'important', showIf: { path: 'details.parkingType', value: 'nearby' } },
     ],
   },
 

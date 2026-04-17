@@ -35,6 +35,9 @@ export interface PropertyDetails {
   parkingFloor?: string
   parkingAccess?: string
   parkingAccessCode?: string
+  parkingType?: string
+  nearbyParkingName?: string
+  nearbyParkingAddress?: string
   keyReturn?: string
   keyReturnDetails?: string
   lateCheckout?: string
