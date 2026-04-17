@@ -50,24 +50,24 @@ export async function GET(request: NextRequest) {
 
     // BATCH QUERIES: All data in PARALLEL (avoids N+1 problem)
     const [propertyCounts, zoneCounts, viewsData, analyticsData] = await Promise.all([
-      // 1. Properties count per set
+      // 1. Properties count per set (exclude soft-deleted)
       prisma.$queryRaw`
         SELECT "propertySetId", COUNT(*)::integer as count
         FROM properties
-        WHERE "propertySetId" = ANY(${propertySetIds})
+        WHERE "propertySetId" = ANY(${propertySetIds}) AND "deletedAt" IS NULL
         GROUP BY "propertySetId"
       ` as Promise<Array<{ propertySetId: string; count: number }>>,
 
-      // 2. Zones count per set
+      // 2. Zones count per set (exclude soft-deleted properties)
       prisma.$queryRaw`
         SELECT p."propertySetId", COUNT(DISTINCT z.id)::integer as count
         FROM properties p
         INNER JOIN zones z ON z."propertyId" = p.id
-        WHERE p."propertySetId" = ANY(${propertySetIds})
+        WHERE p."propertySetId" = ANY(${propertySetIds}) AND p."deletedAt" IS NULL
         GROUP BY p."propertySetId"
       ` as Promise<Array<{ propertySetId: string; count: number }>>,
 
-      // 3. Views per set (property_views + zone_views combined)
+      // 3. Views per set (exclude soft-deleted properties)
       prisma.$queryRaw`
         SELECT
           p."propertySetId",
@@ -77,11 +77,11 @@ export async function GET(request: NextRequest) {
         LEFT JOIN property_views pv ON pv."propertyId" = p.id
         LEFT JOIN zones z ON z."propertyId" = p.id
         LEFT JOIN zone_views zv ON zv."zoneId" = z.id
-        WHERE p."propertySetId" = ANY(${propertySetIds})
+        WHERE p."propertySetId" = ANY(${propertySetIds}) AND p."deletedAt" IS NULL
         GROUP BY p."propertySetId"
       ` as Promise<Array<{ propertySetId: string; property_views: number; zone_views: number }>>,
 
-      // 4. Analytics per set
+      // 4. Analytics per set (exclude soft-deleted properties)
       prisma.$queryRaw`
         SELECT
           p."propertySetId",
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
           COALESCE(AVG(pa."overallRating"), 0) as avg_rating
         FROM properties p
         LEFT JOIN property_analytics pa ON pa."propertyId" = p.id
-        WHERE p."propertySetId" = ANY(${propertySetIds})
+        WHERE p."propertySetId" = ANY(${propertySetIds}) AND p."deletedAt" IS NULL
         GROUP BY p."propertySetId"
       ` as Promise<Array<{ propertySetId: string; total_views: number; avg_rating: number }>>
     ])
