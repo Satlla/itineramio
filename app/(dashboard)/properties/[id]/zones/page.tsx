@@ -3879,7 +3879,7 @@ export default function PropertyZonesPage() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-lg w-full max-w-md"
+              className="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto"
             >
               <div className="p-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
