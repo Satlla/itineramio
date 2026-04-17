@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Generador Normas de la Casa Airbnb Gratis | House Rules Apartamento | Itineramio',
-  description: 'Crea las normas de la casa para tu apartamento turístico gratis. Plantilla profesional de normas del hogar para Airbnb y Booking: ruido, mascotas, fiestas, limpieza y más.',
+  title: 'Normas de la Casa Airbnb Gratis | Itineramio',
+  description: 'Crea normas de la casa para tu apartamento turístico gratis. Plantilla profesional para Airbnb y Booking: ruido, mascotas, fiestas y más.',
   keywords: [
     'normas de la casa apartamento airbnb',
     'house rules airbnb plantilla',

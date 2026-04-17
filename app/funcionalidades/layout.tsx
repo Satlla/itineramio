@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Funcionalidades | Software Manuales Digitales para Apartamentos | Itineramio',
-  description: 'Descubre todas las funcionalidades de Itineramio: manuales digitales por zonas, códigos QR únicos, check-in automático, traducción automática, analytics y más. Prueba gratis.',
+  title: 'Funcionalidades - Manuales Digitales | Itineramio',
+  description: 'Manuales digitales por zonas, QR únicos, check-in automático, traducción a 10 idiomas y analytics. Descubre todo lo que ofrece Itineramio. Prueba gratis.',
   keywords: [
     'funcionalidades software apartamentos turisticos',
     'características manual digital airbnb',

@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Generador de Códigos QR Gratis para Apartamentos | Herramienta Gratuita | Itineramio',
-  description: 'Crea códigos QR personalizados para tu apartamento turístico gratis. QR para WiFi, instrucciones, check-in, normas y zonas. Sin registro, descarga instantánea.',
+  title: 'Generador QR Gratis para Apartamentos | Itineramio',
+  description: 'Crea códigos QR para tu apartamento turístico gratis. QR WiFi, instrucciones, check-in y normas. Sin registro, descarga instantánea.',
   keywords: [
     'generador qr gratis apartamento',
     'crear codigo qr apartamento turistico',

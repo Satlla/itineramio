@@ -20,8 +20,8 @@ import {
 import { Navbar } from '../../../../src/components/layout/Navbar'
 
 export const metadata: Metadata = {
-  title: 'Itineramio vs Touch Stay 2025: Comparativa Completa | Mejor Alternativa',
-  description: 'Comparativa detallada entre Itineramio y Touch Stay. Descubre cuál es mejor para tu alojamiento turístico: precios, funcionalidades, QR codes por zona y más.',
+  title: 'Itineramio vs Touch Stay 2026: Comparativa | Itineramio',
+  description: 'Comparativa Itineramio vs Touch Stay. Precios, funcionalidades, QR codes por zona y más. Descubre la mejor opción para tu alojamiento.',
   keywords: [
     'touch stay alternativa',
     'itineramio vs touch stay',

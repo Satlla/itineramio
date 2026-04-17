@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Generador de Descripción Airbnb con IA Gratis | Crear Anuncio Optimizado | Itineramio',
-  description: 'Genera la descripción perfecta para tu anuncio de Airbnb gratis con IA. Descripciones optimizadas para SEO de Airbnb, atractivas y que convierten. También para Booking y Vrbo.',
+  title: 'Generador Descripción Airbnb con IA Gratis | Itineramio',
+  description: 'Genera descripciones perfectas para tu anuncio de Airbnb gratis con IA. Optimizadas para SEO, atractivas y que convierten. Para Booking y Vrbo.',
   keywords: [
     'generador descripcion airbnb',
     'crear descripcion apartamento airbnb',

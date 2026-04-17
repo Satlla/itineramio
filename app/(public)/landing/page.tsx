@@ -399,6 +399,17 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── RECURSOS ─── */}
+      <section className={`py-12 px-4 ${bg} border-t ${border}`}>
+        <div className="max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+          <span className={`text-xs uppercase tracking-widest ${textMuted}`}>Recursos</span>
+          <Link href="/blog" className={`text-sm ${textMuted} hover:${text} transition-colors underline underline-offset-4 decoration-transparent hover:decoration-current`}>Blog</Link>
+          <Link href="/hub" className={`text-sm ${textMuted} hover:${text} transition-colors underline underline-offset-4 decoration-transparent hover:decoration-current`}>Herramientas gratis</Link>
+          <Link href="/faq" className={`text-sm ${textMuted} hover:${text} transition-colors underline underline-offset-4 decoration-transparent hover:decoration-current`}>FAQ</Link>
+          <Link href="/comparar" className={`text-sm ${textMuted} hover:${text} transition-colors underline underline-offset-4 decoration-transparent hover:decoration-current`}>Comparativas</Link>
+        </div>
+      </section>
+
       {/* ─── FINAL CTA ─── */}
       <section className={`relative py-40 lg:py-56 px-4 overflow-hidden flex items-center justify-center ${d ? 'bg-black' : 'bg-violet-600'}`}>
         {d && <div className="absolute inset-0 bg-gradient-to-b from-black via-violet-950/30 to-black" />}

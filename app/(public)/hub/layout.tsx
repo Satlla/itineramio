@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Hub de Herramientas para Apartamentos Turísticos | Itineramio',
-  description: 'Herramientas gratuitas para anfitriones: calculadora de rentabilidad, generador de QR, plantillas de mensajes, checklist de limpieza y más. Optimiza tu alquiler vacacional.',
+  title: 'Herramientas Gratis para Anfitriones | Itineramio',
+  description: 'Herramientas gratuitas: calculadora rentabilidad, generador QR, plantillas mensajes y checklist limpieza. Optimiza tu alquiler vacacional.',
   keywords: [
     'herramientas apartamentos turisticos',
     'calculadora rentabilidad airbnb',

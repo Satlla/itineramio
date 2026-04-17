@@ -18,8 +18,8 @@ import {
 import { Navbar } from '../../../../src/components/layout/Navbar'
 
 export const metadata: Metadata = {
-  title: 'Itineramio vs Hospitable 2025: Comparativa | PMS vs Software Manuales',
-  description: 'Comparativa entre Itineramio y Hospitable. Descubre las diferencias: Hospitable es un PMS completo, Itineramio se especializa en manuales digitales. ¿Cuál necesitas?',
+  title: 'Itineramio vs Hospitable 2026: Comparativa | Itineramio',
+  description: 'Comparativa Itineramio vs Hospitable. PMS completo vs especialista en manuales digitales. Descubre cuál necesitas para tu alojamiento.',
   keywords: [
     'hospitable alternativa',
     'itineramio vs hospitable',

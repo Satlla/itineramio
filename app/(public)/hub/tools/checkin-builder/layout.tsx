@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Plantilla Check-In Apartamento Gratis | Instrucciones Llegada Huéspedes | Itineramio',
-  description: 'Crea instrucciones de llegada profesionales para tus huéspedes gratis. Plantilla de check-in digital: cómo llegar, entrada, normas, WiFi y más. Para Airbnb y Booking.',
+  title: 'Plantilla Check-In Apartamento Gratis | Itineramio',
+  description: 'Crea instrucciones de llegada profesionales para tus huéspedes gratis. Check-in digital: cómo llegar, normas, WiFi y más. Para Airbnb y Booking.',
   keywords: [
     'plantilla check-in apartamento',
     'instrucciones llegada huespedes',

@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Preguntas Frecuentes sobre Manuales Digitales para Apartamentos | Itineramio',
-  description: 'Resuelve todas tus dudas sobre Itineramio: cómo funciona, precios, acceso de huéspedes, compatibilidad con Airbnb y Booking, y prueba gratis. Soporte en español.',
+  title: 'Preguntas Frecuentes - Manuales Digitales | Itineramio',
+  description: 'Dudas sobre Itineramio: cómo funciona, precios, acceso huéspedes, compatibilidad Airbnb y Booking. Prueba gratis. Soporte en español.',
   keywords: [
     'faq itineramio',
     'preguntas frecuentes manuales digitales',

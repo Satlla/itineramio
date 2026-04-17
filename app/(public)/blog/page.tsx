@@ -26,8 +26,8 @@ import { Navbar } from '../../../src/components/layout/Navbar'
 import BlogContent from '../../../src/components/blog/BlogContent'
 
 export const metadata: Metadata = {
-  title: 'Blog - Guías y Consejos para Apartamentos Turísticos | Itineramio',
-  description: 'Aprende a gestionar mejor tus alojamientos turísticos. Guías, normativas, mejores prácticas y consejos para anfitriones de Airbnb, Booking y plataformas de alquiler vacacional.',
+  title: 'Blog - Consejos Apartamentos Turísticos | Itineramio',
+  description: 'Guías, normativas y consejos para anfitriones de Airbnb y Booking. Mejores prácticas para gestionar tu alquiler vacacional.',
   keywords: [
     'blog apartamentos turisticos',
     'consejos anfitriones airbnb',

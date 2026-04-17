@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Generador Tarjeta WiFi para Apartamento Gratis | Imprimible | Itineramio',
-  description: 'Crea tarjetas WiFi bonitas e imprimibles para tu apartamento turístico gratis. Diseños modernos con nombre de red y contraseña. Para Airbnb, Booking y hoteles.',
+  title: 'Tarjeta WiFi Apartamento Gratis | Itineramio',
+  description: 'Crea tarjetas WiFi imprimibles para tu apartamento turístico gratis. Diseños modernos con red y contraseña. Para Airbnb y Booking.',
   keywords: [
     'tarjeta wifi apartamento gratis',
     'crear tarjeta wifi imprimible',

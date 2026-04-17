@@ -793,6 +793,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <BlogComments slug={post.slug} />
         </div>
 
+        {/* Recursos relacionados */}
+        <div className="max-w-3xl mx-auto px-6 mb-12">
+          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Recursos relacionados</p>
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <Link href="/hub" className="text-sm text-violet-700 hover:text-violet-900 underline underline-offset-4 decoration-violet-300 hover:decoration-violet-700 transition-colors">Herramientas gratuitas</Link>
+            <Link href="/faq" className="text-sm text-violet-700 hover:text-violet-900 underline underline-offset-4 decoration-violet-300 hover:decoration-violet-700 transition-colors">Preguntas frecuentes</Link>
+            <Link href="/calculadora" className="text-sm text-violet-700 hover:text-violet-900 underline underline-offset-4 decoration-violet-300 hover:decoration-violet-700 transition-colors">Calculadora de ahorro</Link>
+          </div>
+        </div>
+
         {/* Related Articles Carousel */}
         {relatedPosts.length > 0 && (
           <RelatedArticlesCarousel

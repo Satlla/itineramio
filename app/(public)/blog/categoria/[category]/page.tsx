@@ -107,6 +107,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
       description: category.description,
       type: 'website',
       url: canonicalUrl,
+      images: ['/og-image.jpg'],
     }
   }
 }

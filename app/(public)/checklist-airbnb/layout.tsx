@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Checklist Alojamiento Turístico: Amenities y Equipamiento por Zonas [2026] | Itineramio',
-  description: 'Checklist completo de compras para tu alojamiento turístico organizado por zonas: cocina, baño, dormitorio, limpieza y lavandería. Interactivo y descargable gratis.',
+  title: 'Checklist Amenities Alojamiento Turístico | Itineramio',
+  description: 'Checklist de compras por zonas para tu alojamiento turístico: cocina, baño, dormitorio y limpieza. Interactivo y descargable gratis.',
   keywords: [
     'checklist alojamiento turistico',
     'checklist airbnb',

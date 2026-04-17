@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Calculadora Precio por Noche Airbnb Gratis | Cómo Poner Precio | Itineramio',
-  description: 'Calcula el precio óptimo por noche para tu apartamento turístico. Basado en temporada, ocupación y competencia. Herramienta gratuita para Airbnb, Booking y alquiler vacacional.',
+  title: 'Calculadora Precio Noche Airbnb Gratis | Itineramio',
+  description: 'Calcula el precio óptimo por noche para tu apartamento turístico. Basado en temporada, ocupación y competencia. Gratis para Airbnb y Booking.',
   keywords: [
     'calculadora precio noche airbnb',
     'como poner precio apartamento airbnb',

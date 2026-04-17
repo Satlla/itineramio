@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Checklist de Limpieza para Airbnb Gratis | Plantilla PDF | Itineramio',
-  description: 'Descarga gratis el checklist de limpieza para apartamentos turísticos. Protocolo profesional para Airbnb y Booking: habitaciones, baños, cocina, áreas comunes. Lista verificación imprimible.',
+  title: 'Checklist Limpieza Airbnb Gratis | Itineramio',
+  description: 'Descarga gratis el checklist de limpieza para apartamentos turísticos. Protocolo para Airbnb y Booking: baños, cocina y más. Imprimible.',
   keywords: [
     'checklist limpieza airbnb',
     'lista verificacion limpieza apartamento',

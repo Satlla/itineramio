@@ -18,8 +18,8 @@ import {
 import { Navbar } from '../../../../src/components/layout/Navbar'
 
 export const metadata: Metadata = {
-  title: 'Itineramio vs Hostfully 2025: Comparativa Completa | Mejor Alternativa',
-  description: 'Comparativa detallada entre Itineramio y Hostfully Guidebooks. Descubre cuál es mejor para tu alojamiento: precios, duplicación masiva, personalización y más.',
+  title: 'Itineramio vs Hostfully 2026: Comparativa | Itineramio',
+  description: 'Comparativa Itineramio vs Hostfully Guidebooks. Precios, duplicación masiva, personalización y más. Descubre la mejor opción.',
   keywords: [
     'hostfully alternativa',
     'itineramio vs hostfully',

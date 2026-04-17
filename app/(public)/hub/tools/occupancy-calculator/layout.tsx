@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Calculadora de Ocupación Airbnb Gratis | Tasa Ocupación Apartamento | Itineramio',
-  description: 'Calcula la tasa de ocupación de tu apartamento turístico gratis. Compara con la media del mercado en tu zona. Herramienta gratuita para anfitriones de Airbnb y Booking.',
+  title: 'Calculadora Ocupación Airbnb Gratis | Itineramio',
+  description: 'Calcula la tasa de ocupación de tu apartamento turístico gratis. Compara con la media del mercado en tu zona. Para Airbnb y Booking.',
   keywords: [
     'calculadora ocupacion airbnb',
     'tasa ocupacion apartamento turistico',

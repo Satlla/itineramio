@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Calculadora ROI Airbnb Gratis | Rentabilidad Apartamento Turístico | Itineramio',
-  description: 'Calcula el ROI de tu apartamento turístico gratis. Rentabilidad real vs Airbnb, gastos, ocupación y beneficio neto. Herramienta gratuita para anfitriones de alquiler vacacional.',
+  title: 'Calculadora ROI Airbnb Gratis | Itineramio',
+  description: 'Calcula el ROI de tu apartamento turístico gratis. Rentabilidad real, gastos, ocupación y beneficio neto. Para anfitriones de alquiler vacacional.',
   keywords: [
     'calculadora roi airbnb',
     'calcular rentabilidad apartamento turistico',

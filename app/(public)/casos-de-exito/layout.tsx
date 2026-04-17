@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Casos de Éxito | Testimonios Reales de Anfitriones | Itineramio',
-  description: 'Descubre cómo anfitriones profesionales han transformado sus apartamentos turísticos con Itineramio. Testimonios reales, métricas de mejora y resultados comprobados en Airbnb y Booking.',
+  title: 'Casos de Éxito - Testimonios Anfitriones | Itineramio',
+  description: 'Anfitriones que transformaron sus apartamentos con Itineramio. Testimonios reales, métricas de mejora y resultados en Airbnb y Booking.',
   keywords: [
     'testimonios airbnb',
     'casos exito alquiler vacacional',

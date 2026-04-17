@@ -16,8 +16,8 @@ import {
 import { Navbar } from '../../../src/components/layout/Navbar'
 
 export const metadata: Metadata = {
-  title: 'Comparativas: Itineramio vs Competencia | Touch Stay, Hostfully, Hospitable',
-  description: 'Compara Itineramio con Touch Stay, Hostfully y Hospitable. Análisis detallado de precios, funcionalidades y ventajas. Encuentra el mejor software de manuales digitales.',
+  title: 'Comparativas Software Manuales Digitales | Itineramio',
+  description: 'Compara Itineramio con Touch Stay, Hostfully y Hospitable. Precios, funcionalidades y ventajas. Encuentra el mejor software para tu alojamiento.',
   keywords: [
     'comparativa software manuales airbnb',
     'touch stay vs hostfully',

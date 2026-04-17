@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: '¿Qué tipo de anfitrión eres? | Test de Personalidad | Itineramio',
-  description: 'Descubre tu perfil como anfitrión de Airbnb en 3 minutos. Test gratuito con resultados personalizados: fortalezas, puntos ciegos y consejos para mejorar tu hosting.',
+  title: 'Test: ¿Qué Tipo de Anfitrión Eres? | Itineramio',
+  description: 'Descubre tu perfil como anfitrión en 3 minutos. Test gratis con resultados personalizados: fortalezas, puntos ciegos y consejos para mejorar.',
   keywords: [
     'test anfitrión airbnb',
     'tipo de host',
