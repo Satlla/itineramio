@@ -1244,10 +1244,7 @@ function PropertiesPageContent() {
 
         </div>
 
-        {/* Plan Limits Card */}
-        {planLimits && !loadingPlanLimits && (
-          <PlanLimitsCard limits={planLimits} />
-        )}
+        {/* Plan Limits Card — hidden (available in account/billing) */}
 
         {/* Time Savings Stats Cards */}
         {(() => {

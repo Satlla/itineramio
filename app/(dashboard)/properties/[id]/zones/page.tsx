@@ -3066,19 +3066,11 @@ export default function PropertyZonesPage() {
                     Añadir lugar
                   </Button>
                   <Button
-                    onClick={() => setShowCreateForm(true)}
-                    variant="outline"
-                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Zona Personalizada
-                  </Button>
-                  <Button
                     onClick={handleOpenMultiSelect}
                     className="bg-gray-900 hover:bg-black text-white"
                   >
                     <Plus className="w-5 h-5 mr-2" />
-                    Elementos Predefinidos
+                    Añadir zona
                   </Button>
                 </div>
               </div>
@@ -3107,19 +3099,11 @@ export default function PropertyZonesPage() {
                     Añadir lugar
                   </Button>
                   <Button
-                    onClick={() => setShowCreateForm(true)}
-                    variant="outline"
-                    className="border-gray-300 text-gray-700 hover:bg-gray-50 flex-1 sm:flex-none"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Zona Personalizada
-                  </Button>
-                  <Button
                     onClick={handleOpenMultiSelect}
                     className="bg-gray-900 hover:bg-black text-white flex-1 sm:flex-none"
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Elementos Predefinidos
+                    Añadir zona
                   </Button>
                 </div>
               </Card>
@@ -3679,6 +3663,7 @@ export default function PropertyZonesPage() {
             onSelectElements={handleSelectMultipleElements}
             existingElementNames={zones.map(z => getZoneText(z.name))}
             isLoading={isCreatingZone}
+            onCreateCustom={() => setShowCreateForm(true)}
           />
         )}
       </AnimatePresence>
@@ -4202,19 +4187,11 @@ export default function PropertyZonesPage() {
                 Lugar
               </Button>
               <Button
-                onClick={() => setShowCreateForm(true)}
-                variant="outline"
-                className="border-gray-300 text-gray-700 hover:bg-gray-50 flex-1"
-              >
-                <Plus className="w-4 h-4 mr-1" />
-                Personalizada
-              </Button>
-              <Button
                 onClick={handleOpenMultiSelect}
                 className="bg-gray-900 hover:bg-black flex-1"
               >
                 <Plus className="w-4 h-4 mr-1" />
-                Predefinidas
+                Añadir zona
               </Button>
             </div>
           ) : (
@@ -4236,19 +4213,11 @@ export default function PropertyZonesPage() {
                 <Download className="w-4 h-4" />
               </Button>
               <Button
-                onClick={() => setShowCreateForm(true)}
-                variant="outline"
-                className="border-gray-300 text-gray-700 hover:bg-gray-50"
-                title="Zona personalizada"
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
-              <Button
-                onClick={() => setShowElementSelector(true)}
+                onClick={handleOpenMultiSelect}
                 className="bg-gray-900 hover:bg-black flex-1"
               >
                 <Plus className="w-5 h-5 mr-2" />
-                Añadir Elementos
+                Añadir zona
               </Button>
             </div>
           )}

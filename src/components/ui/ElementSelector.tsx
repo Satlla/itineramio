@@ -13,13 +13,15 @@ interface ElementSelectorProps {
   onSelectElements: (elementIds: string[]) => void
   existingElementNames: string[]
   isLoading?: boolean
+  onCreateCustom?: () => void
 }
 
-export function ElementSelector({ 
-  onClose, 
+export function ElementSelector({
+  onClose,
   onSelectElements,
   existingElementNames = [],
-  isLoading = false
+  isLoading = false,
+  onCreateCustom
 }: ElementSelectorProps) {
   const [selectedElements, setSelectedElements] = useState<string[]>([])
   const [activeCategory, setActiveCategory] = useState<string>('all')
@@ -294,27 +296,40 @@ export function ElementSelector({
                 <>Se añadirán {selectedElements.length} elemento{selectedElements.length !== 1 ? 's' : ''} al manual</>
               )}
             </div>
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={onClose}>
-                Cancelar
-              </Button>
-              <Button 
-                onClick={handleAddElements}
-                disabled={selectedElements.length === 0 || isLoading}
-                className="bg-gray-900 hover:bg-black"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Añadiendo...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Añadir {selectedElements.length > 0 ? `(${selectedElements.length})` : 'Elementos'}
-                  </>
-                )}
-              </Button>
+            <div className="flex justify-between">
+              {onCreateCustom ? (
+                <Button
+                  variant="outline"
+                  onClick={() => { onClose(); onCreateCustom(); }}
+                  disabled={isLoading}
+                  className="border-gray-300 text-gray-700"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Zona personalizada
+                </Button>
+              ) : <div />}
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={onClose}>
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleAddElements}
+                  disabled={selectedElements.length === 0 || isLoading}
+                  className="bg-gray-900 hover:bg-black"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Añadiendo...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Añadir {selectedElements.length > 0 ? `(${selectedElements.length})` : 'Elementos'}
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
