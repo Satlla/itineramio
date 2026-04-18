@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import * as XLSX from 'xlsx'
 import { gestionImportRateLimiter, getRateLimitKey } from '@/lib/rate-limit'
+import { parseAnyDate } from '@/lib/universal-date-parser'
 
 interface ListingMapping {
   billingUnitId: string
@@ -519,35 +520,7 @@ function parseBookingRowFromArray(row: string[], colIndices: any): {
 }
 
 function parseDate(str: string): Date | null {
-  if (!str) return null
-  const clean = str.trim()
-
-  // ISO: YYYY-MM-DD
-  if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
-    const [y, m, d] = clean.split('-').map(Number)
-    return new Date(Date.UTC(y, m - 1, d, 12, 0, 0))
-  }
-
-  // XX/XX/YYYY or XX-XX-YYYY
-  const match = clean.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/)
-  if (match) {
-    const [, first, second, year] = match
-    const num1 = parseInt(first)
-    const num2 = parseInt(second)
-    const y = parseInt(year)
-
-    if (num2 > 12) {
-      return new Date(Date.UTC(y, num1 - 1, num2, 12, 0, 0))
-    }
-    if (num1 > 12) {
-      return new Date(Date.UTC(y, num2 - 1, num1, 12, 0, 0))
-    }
-    // Airbnb uses MM/DD/YYYY
-    return new Date(Date.UTC(y, num1 - 1, num2, 12, 0, 0))
-  }
-
-  const date = new Date(clean)
-  return isNaN(date.getTime()) ? null : date
+  return parseAnyDate(str)
 }
 
 function parseAmount(str: string): number {

@@ -4,6 +4,7 @@ import { requireAuth } from '@/lib/auth'
 import { Prisma } from '@prisma/client'
 import type { ColumnMapping, ImportConfig, UniversalImportRequest } from '@/types/import'
 import { tryParseSpanishDate, parseDateRange } from '@/lib/spanish-date-parser'
+import { parseAnyDate } from '@/lib/universal-date-parser'
 
 /**
  * POST /api/gestion/reservations/import-universal
@@ -401,56 +402,7 @@ function parseRow(
  * Parse date string - auto-detects format, with Spanish date fallback
  */
 function parseDate(str: string, format?: ImportConfig['dateFormat']): Date | null {
-  if (!str) return null
-
-  const cleanStr = str.trim()
-
-  // If format is explicitly SPANISH, try that first
-  if (format === 'SPANISH') {
-    return tryParseSpanishDate(cleanStr)
-  }
-
-  let day: number, month: number, year: number
-
-  // Try ISO format first: YYYY-MM-DD (most unambiguous)
-  const isoMatch = cleanStr.match(/^(\d{4})[/\-.](\d{1,2})[/\-.](\d{1,2})$/)
-  if (isoMatch) {
-    year = parseInt(isoMatch[1], 10)
-    month = parseInt(isoMatch[2], 10)
-    day = parseInt(isoMatch[3], 10)
-  } else {
-    // Try DD/MM/YYYY or MM/DD/YYYY
-    const match = cleanStr.match(/^(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{4})$/)
-    if (!match) {
-      // Fallback: try Spanish date format (e.g., "6Dic", "27Ene")
-      return tryParseSpanishDate(cleanStr)
-    }
-
-    const first = parseInt(match[1], 10)
-    const second = parseInt(match[2], 10)
-    year = parseInt(match[3], 10)
-
-    // Smart detection: if first > 12, it must be day (European format)
-    // if second > 12, it must be day (American format)
-    if (first > 12) {
-      day = first
-      month = second
-    } else if (second > 12) {
-      month = first
-      day = second
-    } else {
-      // Both <= 12: ambiguous, default to European (DD/MM/YYYY)
-      day = first
-      month = second
-    }
-  }
-
-  // Validate
-  if (month < 1 || month > 12) return null
-  if (day < 1 || day > 31) return null
-  if (year < 2000 || year > 2100) return null
-
-  return new Date(year, month - 1, day)
+  return parseAnyDate(str, format)
 }
 
 /**

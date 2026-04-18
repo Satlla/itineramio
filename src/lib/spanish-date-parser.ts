@@ -177,3 +177,6 @@ export function parseDateRange(
 
   return { checkIn, checkOut }
 }
+
+// Re-export universal parser for gradual migration
+export { parseAnyDate, parseAnyDateRange } from './universal-date-parser'

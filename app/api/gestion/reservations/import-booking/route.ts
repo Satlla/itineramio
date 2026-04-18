@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import * as XLSX from 'xlsx'
 import { gestionImportRateLimiter, getRateLimitKey } from '@/lib/rate-limit'
+import { parseAnyDate } from '@/lib/universal-date-parser'
 
 /**
  * POST /api/gestion/reservations/import-booking
@@ -546,33 +547,7 @@ function findValue(row: Record<string, string>, possibleKeys: string[]): string 
  * Parse a date string in various formats
  */
 function parseDate(str: string): Date | null {
-  if (!str) return null
-
-  // Try YYYY-MM-DD (Booking format)
-  const yyyymmdd = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/)
-  if (yyyymmdd) {
-    return new Date(parseInt(yyyymmdd[1]), parseInt(yyyymmdd[2]) - 1, parseInt(yyyymmdd[3]))
-  }
-
-  // Try DD/MM/YYYY
-  const ddmmyyyy = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
-  if (ddmmyyyy) {
-    return new Date(parseInt(ddmmyyyy[3]), parseInt(ddmmyyyy[2]) - 1, parseInt(ddmmyyyy[1]))
-  }
-
-  // Try DD-MM-YYYY
-  const ddmmyyyy2 = str.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/)
-  if (ddmmyyyy2) {
-    return new Date(parseInt(ddmmyyyy2[3]), parseInt(ddmmyyyy2[2]) - 1, parseInt(ddmmyyyy2[1]))
-  }
-
-  // Try native Date parsing
-  const parsed = new Date(str)
-  if (!isNaN(parsed.getTime())) {
-    return parsed
-  }
-
-  return null
+  return parseAnyDate(str)
 }
 
 /**

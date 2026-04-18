@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
 import { gestionImportRateLimiter, getRateLimitKey } from '@/lib/rate-limit'
+import { parseAnyDate } from '@/lib/universal-date-parser'
 
 // Batch size for chunked processing
 const BATCH_SIZE = 100
@@ -114,39 +115,7 @@ function parseAmount(value: string): number {
 }
 
 function parseDate(value: string): Date | null {
-  if (!value) return null
-
-  const cleanValue = value.trim()
-
-  // ISO format: YYYY-MM-DD
-  if (/^\d{4}-\d{2}-\d{2}/.test(cleanValue)) {
-    const [y, m, d] = cleanValue.split('-').map(Number)
-    return new Date(Date.UTC(y, m - 1, d, 12, 0, 0)) // Noon UTC to avoid timezone issues
-  }
-
-  // Slash or dash separated: could be DD/MM/YYYY or MM/DD/YYYY
-  const match = cleanValue.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/)
-  if (match) {
-    const [, first, second, year] = match
-    const num1 = parseInt(first)
-    const num2 = parseInt(second)
-    const y = parseInt(year)
-
-    // If second number > 12, it MUST be the day (so first is month = MM/DD/YYYY)
-    if (num2 > 12) {
-      return new Date(Date.UTC(y, num1 - 1, num2, 12, 0, 0))
-    }
-    // If first number > 12, it MUST be the day (so format is DD/MM/YYYY)
-    if (num1 > 12) {
-      return new Date(Date.UTC(y, num2 - 1, num1, 12, 0, 0))
-    }
-    // Both <= 12: AIRBNB uses MM/DD/YYYY format
-    return new Date(Date.UTC(y, num1 - 1, num2, 12, 0, 0))
-  }
-
-  // Fallback to Date.parse
-  const date = new Date(cleanValue)
-  return isNaN(date.getTime()) ? null : date
+  return parseAnyDate(value)
 }
 
 function parseCSV(content: string): string[][] {
