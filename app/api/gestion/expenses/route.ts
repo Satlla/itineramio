@@ -211,12 +211,13 @@ export async function POST(request: NextRequest) {
       finalBillingConfigId = billingConfig.id
     }
 
+    const expenseDate = new Date(date)
     const expense = await prisma.propertyExpense.create({
       data: {
         userId,
         billingConfigId: finalBillingConfigId,
         billingUnitId: finalBillingUnitId,
-        date: new Date(date),
+        date: expenseDate,
         concept,
         category,
         amount,
@@ -226,6 +227,53 @@ export async function POST(request: NextRequest) {
         invoiceNumber
       }
     })
+
+    // Auto-link to existing DRAFT liquidation of the same month/owner
+    if (chargeToOwner && finalBillingUnitId) {
+      const expenseMonth = expenseDate.getMonth() + 1
+      const expenseYear = expenseDate.getFullYear()
+
+      // Find the owner of this billing unit
+      const unit = await prisma.billingUnit.findFirst({
+        where: { id: finalBillingUnitId },
+        select: { ownerId: true }
+      })
+
+      if (unit?.ownerId) {
+        // Find DRAFT liquidation for this owner/month
+        const liquidation = await prisma.liquidation.findFirst({
+          where: {
+            userId,
+            ownerId: unit.ownerId,
+            month: expenseMonth,
+            year: expenseYear,
+            status: 'DRAFT'
+          }
+        })
+
+        if (liquidation) {
+          // Link expense to liquidation
+          await prisma.propertyExpense.update({
+            where: { id: expense.id },
+            data: { liquidationId: liquidation.id }
+          })
+
+          // Recalculate liquidation totals
+          const allExpenses = await prisma.propertyExpense.findMany({
+            where: { liquidationId: liquidation.id, chargeToOwner: true }
+          })
+          const totalExpenses = allExpenses.reduce((sum, e) => sum + Number(e.amount) + Number(e.vatAmount), 0)
+
+          await prisma.liquidation.update({
+            where: { id: liquidation.id },
+            data: {
+              totalExpenses,
+              totalAmount: Number(liquidation.totalIncome) - Number(liquidation.totalCommission) - Number(liquidation.totalCleaning) - totalExpenses
+            }
+          })
+        }
+      }
+    }
 
     return NextResponse.json({ expense })
   } catch (error) {
