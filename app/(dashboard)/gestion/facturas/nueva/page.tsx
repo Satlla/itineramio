@@ -322,16 +322,18 @@ export default function NuevaFacturaPage() {
     setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item))
   }
 
-  // Calcular neto desde base: Base + IVA - Retención
+  // Calcular total desde base: Total = Base + IVA - Retención
   const calculateNetFromBase = (base: number, vatRate: number, retentionRate: number) => {
     const vat = base * (vatRate / 100)
     const retention = base * (retentionRate / 100)
     return base + vat - retention
   }
 
-  // Calcular base desde neto: Base = Neto / (1 + IVA% - Retención%)
-  const calculateBaseFromNet = (net: number, vatRate: number, retentionRate: number) => {
-    const factor = 1 + (vatRate / 100) - (retentionRate / 100)
+  // Calcular base desde total (como Holded): Total = Base + IVA, retención se resta aparte
+  // Cuando el usuario pone 300€ en total con IVA 21%: base = 300 / 1.21 = 247,93€
+  // La retención no afecta al cálculo de la base
+  const calculateBaseFromNet = (net: number, vatRate: number, _retentionRate: number) => {
+    const factor = 1 + (vatRate / 100)
     return factor === 0 ? net : net / factor
   }
 
@@ -367,17 +369,13 @@ export default function NuevaFacturaPage() {
     }))
   }
 
-  // Recalcular cuando cambia la retención
+  // Recalcular cuando cambia la retención (como Holded: la base nunca cambia por retención)
   const updateItemRetention = (id: string, newRetentionRate: number) => {
     setItems(items.map(item => {
       if (item.id !== id) return item
-      if (item.lastEdited === 'base') {
-        const netTotal = calculateNetFromBase(item.unitPrice, item.vatRate, newRetentionRate)
-        return { ...item, retentionRate: newRetentionRate, netTotal }
-      } else {
-        const unitPrice = calculateBaseFromNet(item.netTotal, item.vatRate, newRetentionRate)
-        return { ...item, retentionRate: newRetentionRate, unitPrice }
-      }
+      // La retención siempre recalcula el total, nunca la base
+      const netTotal = calculateNetFromBase(item.unitPrice, item.vatRate, newRetentionRate)
+      return { ...item, retentionRate: newRetentionRate, netTotal }
     }))
   }
 
