@@ -5,8 +5,8 @@
 User-agent: *
 Allow: /
 
-# Allow Next.js static assets (CSS, JS) - needed for rendering
-Allow: /_next/static/
+# Disallow Next.js build artifacts from indexing
+Disallow: /_next/
 
 # Disallow admin and private routes
 Disallow: /admin/
@@ -47,6 +47,13 @@ Disallow: /tesla-test
 Disallow: /tesla-test-2
 Disallow: /tesla-test-light
 Disallow: /design/
+Disallow: /onboarding/
+Disallow: /preview/
+Disallow: /propuesta/
+Disallow: /bienvenido/
+Disallow: /promo-image/
+Disallow: /z/
+Disallow: /demo-feedback/
 
 # Disallow auth pages (no value for SEO)
 Disallow: /login
@@ -66,6 +73,9 @@ Allow: /faq
 Allow: /comparar/
 Allow: /casos-de-exito/
 Allow: /legal/
+Allow: /normativa/
+Allow: /guia/
+Allow: /funcionalidades
 
 # Sitemap location
 Sitemap: https://www.itineramio.com/sitemap.xml
