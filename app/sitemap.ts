@@ -147,6 +147,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const cityRoutes: MetadataRoute.Sitemap = [
     'madrid', 'barcelona', 'valencia', 'sevilla', 'malaga',
     'alicante', 'palma-de-mallorca', 'las-palmas', 'tenerife-sur', 'granada',
+    'marbella', 'benidorm', 'ibiza', 'cadiz', 'san-sebastian',
+    'tarragona', 'torrevieja', 'menorca', 'santander', 'a-coruna',
   ].map(city => ({
     url: `${baseUrl}/${city}`,
     lastModified: new Date(),
