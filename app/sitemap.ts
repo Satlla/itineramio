@@ -143,6 +143,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
+  // City landing pages
+  const cityRoutes: MetadataRoute.Sitemap = [
+    'madrid', 'barcelona', 'valencia', 'sevilla', 'malaga',
+    'alicante', 'palma-de-mallorca', 'las-palmas', 'tenerife-sur', 'granada',
+  ].map(city => ({
+    url: `${baseUrl}/${city}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  }))
+
   // Hub tools and recursos routes
   const hubToolsRoutes: MetadataRoute.Sitemap = [
     // Hub tools
@@ -305,5 +316,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   // Combine all routes
-  return [...staticRoutes, ...hubToolsRoutes, ...categoryRoutes, ...blogPostRoutes]
+  return [...staticRoutes, ...cityRoutes, ...hubToolsRoutes, ...categoryRoutes, ...blogPostRoutes]
 }
