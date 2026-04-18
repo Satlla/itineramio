@@ -827,7 +827,7 @@ export default function ImportarReservasPage() {
                 }
               </p>
 
-              <div className="relative">
+              <div className="relative" data-property-selector>
                 <select
                   value={selectedPropertyId}
                   onChange={(e) => setSelectedPropertyId(e.target.value)}
@@ -1134,9 +1134,22 @@ export default function ImportarReservasPage() {
 
                 <div className="flex justify-end">
                   <Button
-                    onClick={handleImport}
-                    disabled={isImporting || !selectedPropertyId}
-                    className="bg-violet-600 hover:bg-violet-700 text-white"
+                    onClick={() => {
+                      if (!selectedPropertyId) {
+                        // Scroll to property selector and highlight it
+                        const selector = document.querySelector('[data-property-selector]')
+                        if (selector) {
+                          selector.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                          selector.classList.add('ring-2', 'ring-red-500')
+                          setTimeout(() => selector.classList.remove('ring-2', 'ring-red-500'), 3000)
+                        }
+                        alert('Selecciona un apartamento antes de importar')
+                        return
+                      }
+                      handleImport()
+                    }}
+                    disabled={isImporting}
+                    className="bg-gray-900 hover:bg-black text-white"
                   >
                     {isImporting ? (
                       <>
@@ -1755,13 +1768,13 @@ export default function ImportarReservasPage() {
             </div>
 
             <div className="space-y-3 mb-6">
-              <div className="bg-violet-50 rounded-xl p-3 flex items-start gap-3">
-                <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-4 h-4 text-violet-600" />
+              <div className="bg-gray-50 rounded-xl p-3 flex items-start gap-3">
+                <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-4 h-4 text-gray-600" />
                 </div>
                 <div className="text-sm">
-                  <p className="font-medium text-violet-900">Siguiente paso: Liquidaciones</p>
-                  <p className="text-violet-700">Revisa el desglose y envíalo al propietario</p>
+                  <p className="font-medium text-gray-900">Siguiente paso: Generar liquidación</p>
+                  <p className="text-gray-600">Revisa el desglose y envíalo al propietario</p>
                 </div>
               </div>
             </div>
@@ -1774,9 +1787,9 @@ export default function ImportarReservasPage() {
               >
                 Cerrar
               </Button>
-              <Link href="/gestion/liquidaciones" className="flex-1">
-                <Button className="w-full bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800">
-                  Ir a Liquidaciones
+              <Link href="/gestion/liquidaciones/nueva" className="flex-1">
+                <Button className="w-full bg-gray-900 hover:bg-black">
+                  Generar liquidación
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
