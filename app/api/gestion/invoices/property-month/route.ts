@@ -441,7 +441,7 @@ export async function GET(request: NextRequest) {
         if (reservations.length > 0) {
           const cleaningPerUnit = Number(billingConfig.cleaningValue) || 0
           if (cleaningPerUnit > 0) {
-            // If VAT is included in config, extract the base price per unit
+            // Use config cleaning value per unit
             const cleaningUnitBase = Math.round((cleaningVatIncluded ? cleaningPerUnit / 1.21 : cleaningPerUnit) * 100) / 100
             const cleaningQuantity = reservations.length
             const cleaningTotalBase = Math.round(cleaningUnitBase * cleaningQuantity * 100) / 100
@@ -457,6 +457,24 @@ export async function GET(request: NextRequest) {
               order: items.length
             })
             totalCleaning = cleaningTotalBase
+          } else {
+            // Fallback: use cleaningFee from individual reservations (e.g. group has 0 but units have values)
+            const totalCleaningFromReservations = reservations.reduce((sum, r) => sum + Number(r.cleaningFee || 0), 0)
+            if (totalCleaningFromReservations > 0) {
+              const cleaningBase = Math.round((cleaningVatIncluded ? totalCleaningFromReservations / 1.21 : totalCleaningFromReservations) * 100) / 100
+              const cleaningWithVat = Math.round(cleaningBase * 1.21 * 100) / 100
+              const cleaningRetention = Math.round(cleaningBase * (cleaningRetentionRate / 100) * 100) / 100
+              items.push({
+                concept: 'Limpieza',
+                quantity: reservations.length,
+                unitPrice: Math.round(cleaningBase / reservations.length * 100) / 100,
+                vatRate: 21,
+                retentionRate: cleaningRetentionRate,
+                total: Math.round((cleaningWithVat - cleaningRetention) * 100) / 100,
+                order: items.length
+              })
+              totalCleaning = cleaningBase
+            }
           }
         }
 
