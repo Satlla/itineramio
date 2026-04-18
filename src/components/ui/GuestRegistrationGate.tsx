@@ -22,7 +22,7 @@ export function GuestRegistrationGate({
 }: GuestRegistrationGateProps) {
   const handleComplete = () => {
     try {
-      sessionStorage.setItem(`reg-${propertyId}`, '1')
+      localStorage.setItem(`reg-${propertyId}`, '1')
     } catch {}
     onComplete()
   }

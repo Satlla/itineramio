@@ -891,7 +891,7 @@ export default function PropertyGuidePage() {
       if (regConfig?.required && regConfig?.url) {
         let alreadyDone = false
         try {
-          alreadyDone = sessionStorage.getItem(`reg-${result.data.id}`) === '1'
+          alreadyDone = localStorage.getItem(`reg-${result.data.id}`) === '1'
         } catch {}
         if (!alreadyDone) setShowRegGate(true)
       }
