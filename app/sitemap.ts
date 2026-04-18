@@ -105,6 +105,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     // Funcionalidades page
     {
+      url: `${baseUrl}/gestion-alquiler-vacacional`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/funcionalidades`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
