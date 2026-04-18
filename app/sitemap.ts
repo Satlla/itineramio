@@ -242,6 +242,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly',
       priority: 0.7,
     },
+    {
+      url: `${baseUrl}/comparar/itineramio-vs-smoobu`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/comparar/itineramio-vs-guesty`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/comparar/itineramio-vs-yourwelcome`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
     // Recursos / Lead magnets
     {
       url: `${baseUrl}/recursos/plantilla-reviews`,
@@ -315,6 +333,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Continue with empty blog posts array if DB is not available
   }
 
+  // Guia routes
+  const guiaRoutes: MetadataRoute.Sitemap = [
+    'como-reducir-llamadas-huespedes',
+    'como-registrar-viajeros-ses-hospedajes',
+    'como-hacer-check-in-automatico-airbnb',
+    'como-conseguir-superhost-airbnb',
+    'como-crear-manual-bienvenida-apartamento',
+  ].map(slug => ({
+    url: `${baseUrl}/guia/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  }))
+
+  // Normativa CCAA routes
+  const normativaRoutes: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/normativa`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    ...['madrid', 'cataluna', 'comunitat-valenciana', 'andalucia', 'canarias', 'baleares'].map(ccaa => ({
+      url: `${baseUrl}/normativa/${ccaa}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+    })),
+  ]
+
   // Combine all routes
-  return [...staticRoutes, ...cityRoutes, ...hubToolsRoutes, ...categoryRoutes, ...blogPostRoutes]
+  return [...staticRoutes, ...cityRoutes, ...guiaRoutes, ...normativaRoutes, ...hubToolsRoutes, ...categoryRoutes, ...blogPostRoutes]
 }
