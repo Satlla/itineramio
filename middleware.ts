@@ -18,7 +18,7 @@ const protectedRoutes: string[] = [
   '/analytics',
   '/account',
   '/media-library',
-  '/gestion',
+  '/gestion/',
   '/ai-setup',
   // Note: /admin removed - handled separately
 ]
