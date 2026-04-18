@@ -234,7 +234,13 @@ export default function ImportarReservasPage() {
             hasBillingConfig: true, // BillingUnits siempre tienen config
             type: 'billingUnit'
           }))
-          setProperties([...legacyProps, ...billingUnits])
+          const allProps = [...legacyProps, ...billingUnits]
+          setProperties(allProps)
+          // Auto-select if only one property has billing config
+          const withBilling = allProps.filter(p => p.hasBillingConfig)
+          if (withBilling.length === 1 && !selectedPropertyId) {
+            setSelectedPropertyId(withBilling[0].id)
+          }
         }
       } catch (error) {
       } finally {
