@@ -447,7 +447,7 @@ function generateOwnerHTML(data: LiquidationData): string {
 <body>
 <div class="page">
 
-  ${buildHeader(data, 'Facturación de Gestión', periodLabel, data.groupName)}
+  ${buildHeader(data, 'Liquidación Mensual', periodLabel, data.groupName)}
   ${buildPartiesGrid(data, true)}
 
   ${totalNights > 0 ? `
@@ -519,11 +519,11 @@ function generateOwnerHTML(data: LiquidationData): string {
   <!-- Summary -->
   <div class="summary-wrapper">
     <div class="summary-box">
-      <div class="summary-header">Resumen de Facturación</div>
+      <div class="summary-header">Resumen de Liquidación</div>
 
       <div class="s-section" style="padding-top:8px;">Ingresos</div>
       <div class="s-row">
-        <span class="s-label">Total facturación bruta</span>
+        <span class="s-label">Total ingresos brutos</span>
         <span class="s-value">${formatCurrency(data.totals.totalIncome)}</span>
       </div>
       ${totalNights > 0 ? `
@@ -566,7 +566,7 @@ function generateOwnerHTML(data: LiquidationData): string {
         <span class="s-value">${formatCurrency(totalToPay)}</span>
       </div>
       <div class="s-row s-grand">
-        <span class="s-label">TOTAL FACTURACIÓN</span>
+        <span class="s-label">TOTAL INGRESOS</span>
         <span class="s-value">${formatCurrency(data.totals.totalIncome)}</span>
       </div>
     </div>

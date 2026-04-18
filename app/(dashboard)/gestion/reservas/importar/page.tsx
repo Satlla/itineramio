@@ -595,7 +595,12 @@ export default function ImportarReservasPage() {
           body: JSON.stringify({
             rows: filteredRows,
             mapping: universalMapping.mapping,
-            config: universalMapping.config,
+            config: {
+              ...universalMapping.config,
+              platform: universalMapping.config.platform && universalMapping.config.platform !== 'OTHER'
+                ? universalMapping.config.platform
+                : detectedPlatform || 'OTHER'
+            },
             propertyId: selectedPropertyId,
             skipDuplicates
           })
