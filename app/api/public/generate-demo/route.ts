@@ -271,7 +271,29 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // 5b. Cleanup OTPs for this email (non-blocking)
+    // 5b. Notify admin of new demo lead (non-blocking)
+    sendEmail({
+      to: 'alejandrosatlla@gmail.com',
+      subject: `Nuevo lead demo: ${leadName} - ${city || 'Sin ciudad'}`,
+      html: `
+        <div style="font-family: -apple-system, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #7c3aed; margin-bottom: 16px;">Nuevo registro en Demo</h2>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr><td style="padding: 8px 0; color: #666; width: 120px;">Nombre</td><td style="padding: 8px 0; font-weight: 600;">${leadName}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Email</td><td style="padding: 8px 0; font-weight: 600;">${leadEmail}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Teléfono</td><td style="padding: 8px 0; font-weight: 600;">${leadPhone || 'No proporcionado'}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Propiedad</td><td style="padding: 8px 0; font-weight: 600;">${propertyName}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Ciudad</td><td style="padding: 8px 0; font-weight: 600;">${city || 'No especificada'}</td></tr>
+            <tr><td style="padding: 8px 0; color: #666;">Fecha</td><td style="padding: 8px 0; font-weight: 600;">${new Date().toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })}</td></tr>
+          </table>
+          <p style="margin-top: 20px; padding: 12px; background: #f3f0ff; border-radius: 8px; font-size: 14px; color: #5b21b6;">
+            Lead ID: ${lead.id}
+          </p>
+        </div>
+      `,
+    }).catch(() => {})
+
+    // 5c. Cleanup OTPs for this email (non-blocking)
     prisma.demoOtp.deleteMany({ where: { email: normalizedEmail } }).catch(() => {})
 
     // 6. Create personalized Coupon

@@ -5,7 +5,7 @@ export default function PromoImage() {
     <div style={{ width: 2048, height: 1536, position: 'relative', overflow: 'hidden', fontFamily: '-apple-system, sans-serif' }}>
 
       {/* Background — apartment photo */}
-      <img src="/images/apto-real.png" alt="Apartamento turístico" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      <img src="/images/apto-real.webp" alt="Apartamento turístico" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
 
       {/* Subtle dark gradient at bottom for text readability */}
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '45%', background: 'linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0.1), transparent)' }} />

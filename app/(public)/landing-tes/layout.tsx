@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     description: 'El manual digital que responde las preguntas de tus huéspedes automáticamente.',
     images: [
       {
-        url: 'https://www.itineramio.com/images/neighbor.png',
+        url: 'https://www.itineramio.com/images/neighbor.webp',
         width: 1920,
         height: 1080,
         alt: 'Complejo de apartamentos conectados con Itineramio',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Itineramio — Tu alojamiento funciona solo',
     description: 'El manual digital que responde las preguntas de tus huéspedes automáticamente.',
-    images: ['https://www.itineramio.com/images/neighbor.png'],
+    images: ['https://www.itineramio.com/images/neighbor.webp'],
   },
 }
 

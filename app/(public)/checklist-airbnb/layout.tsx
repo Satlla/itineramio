@@ -21,14 +21,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Checklist de compras para tu alojamiento turístico',
     description: 'Todo lo que necesitas comprar para tu alojamiento. Interactivo, personalizable y descargable.',
-    images: [{ url: 'https://www.itineramio.com/images/neighbor.png', width: 1920, height: 1080 }],
+    images: [{ url: 'https://www.itineramio.com/images/neighbor.webp', width: 1920, height: 1080 }],
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Checklist de compras para tu alojamiento',
     description: 'Lo que necesita tu apartamento turístico. Interactivo y descargable.',
-    images: ['https://www.itineramio.com/images/neighbor.png'],
+    images: ['https://www.itineramio.com/images/neighbor.webp'],
   },
   alternates: {
     canonical: 'https://www.itineramio.com/checklist-airbnb',

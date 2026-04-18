@@ -34,9 +34,9 @@ export function BlogProductCTA({ variant, articleSlug = '' }: BlogProductCTAProp
   const handleClick = () => {
     trackCTAClicked({
       ctaId: `blog-${variant}-cta`,
-      ctaText: 'Prueba gratis',
+      ctaText: 'Solicita una prueba',
       location: variant === 'sticky' ? 'sidebar' : 'inline',
-      destination: '/register'
+      destination: '/demo'
     })
   }
 
@@ -71,12 +71,12 @@ export function BlogProductCTA({ variant, articleSlug = '' }: BlogProductCTAProp
             </div>
 
             <Link
-              href="/register"
+              href="/demo"
               onClick={handleClick}
               className="inline-flex items-center justify-center px-6 py-3 bg-white text-violet-700 font-bold rounded-xl hover:bg-violet-50 transition-all transform hover:scale-105 shadow-lg whitespace-nowrap"
             >
               <Rocket className="w-5 h-5 mr-2" />
-              Empezar gratis
+              Solicita una prueba
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
           </div>
@@ -133,11 +133,11 @@ export function BlogProductCTA({ variant, articleSlug = '' }: BlogProductCTAProp
                 </ul>
 
                 <Link
-                  href="/register"
+                  href="/demo"
                   onClick={handleClick}
                   className="block w-full py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-sm font-semibold rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all"
                 >
-                  Empezar gratis
+                  Solicita una prueba
                 </Link>
               </div>
             </div>
@@ -177,12 +177,12 @@ export function BlogProductCTA({ variant, articleSlug = '' }: BlogProductCTAProp
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
               <Link
-                href="/register"
+                href="/demo"
                 onClick={handleClick}
                 className="inline-flex items-center px-8 py-4 bg-white text-violet-700 font-bold rounded-xl hover:bg-violet-50 transition-all transform hover:scale-105 shadow-lg"
               >
                 <Rocket className="w-5 h-5 mr-2" />
-                Prueba 15 días gratis
+                Solicita una prueba gratis
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
             </div>

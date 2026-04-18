@@ -9,7 +9,7 @@ import { validateEnvironmentVariables } from '../src/lib/env-validation'
 import { Suspense } from 'react'
 import { ErrorBoundary } from '../src/components/ErrorBoundary'
 import { ChunkErrorHandler } from '../src/components/ChunkErrorHandler'
-import { Analytics } from '@vercel/analytics/next'
+// Vercel Analytics removed — using GA4 instead
 import { FacebookPixel } from '../src/components/analytics/FacebookPixel'
 import { ConditionalTracking } from '../src/components/analytics/ConditionalTracking'
 import { CookieBanner } from '../src/components/ui/CookieBanner'
@@ -292,8 +292,7 @@ export default function RootLayout({
           <SupportWidgetLazy />
         </Suspense>
 
-        {/* Vercel Analytics */}
-        <Analytics />
+        {/* Vercel Analytics removed — using GA4 */}
       </body>
     </html>
   )

@@ -119,7 +119,7 @@ export default function ChecklistPage() {
 
         {/* Kitchen image with interactive hotspots */}
         <div style={{ position: 'relative', width: '100%', overflow: 'visible' }}>
-          <Image src="/images/render-casa.png" alt="Apartamento equipado" width={1920} height={1080} style={{ width: '100%', height: 'auto', display: 'block' }} priority />
+          <Image src="/images/render-casa.webp" alt="Apartamento equipado" width={1920} height={1080} style={{ width: '100%', height: 'auto', display: 'block' }} priority />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.15), transparent, rgba(0,0,0,0.3))' }} />
 
           {/* Hotspot dots with pulse + hologram panels */}
@@ -345,7 +345,7 @@ export default function ChecklistPage() {
                   <div style={{ fontSize: 10, color: '#7c3aed' }}>Conectado</div>
                 </div>
                 <div style={{ position: 'relative', margin: '0 10px', borderRadius: 10, overflow: 'hidden', aspectRatio: '3/4' }}>
-                  <Image src="/images/houses.png" alt="Casa" fill style={{ objectFit: 'cover' }} />
+                  <Image src="/images/houses.webp" alt="Casa" fill style={{ objectFit: 'cover' }} />
                 </div>
                 <div style={{ padding: '10px 14px' }}>
                   {[{ l: 'Check-in', v: 'Lockbox 4521#' }, { l: 'WiFi', v: 'MiCasa_5G' }, { l: 'Normas', v: '3 reglas' }].map((item, i) => (

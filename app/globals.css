@@ -566,3 +566,205 @@ html.pwa-standalone::before {
   border-top: 1px solid #e5e7eb;
   margin: 0.5rem 0;
 }
+
+/* ===== Blog Article — Notion/Airbnb-inspired styles ===== */
+
+/* Numbered headings (h3) with bold numbering like Notion */
+.prose h3 {
+  position: relative;
+}
+
+/* Highlight/callout boxes — use <div class="blog-callout"> in article HTML */
+.blog-callout {
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  border-left: 4px solid #7c3aed;
+  border-radius: 0 12px 12px 0;
+  padding: 20px 24px;
+  margin: 32px 0;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #374151;
+}
+
+.blog-callout strong {
+  color: #5b21b6;
+}
+
+/* Tip/Pro-tip callout — <div class="blog-tip"> */
+.blog-tip {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-left: 4px solid #059669;
+  border-radius: 0 12px 12px 0;
+  padding: 20px 24px;
+  margin: 32px 0;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #374151;
+}
+
+.blog-tip strong {
+  color: #047857;
+}
+
+/* Warning callout — <div class="blog-warning"> */
+.blog-warning {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border-left: 4px solid #d97706;
+  border-radius: 0 12px 12px 0;
+  padding: 20px 24px;
+  margin: 32px 0;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #374151;
+}
+
+.blog-warning strong {
+  color: #b45309;
+}
+
+/* Highlight text — <mark> or <span class="blog-highlight"> */
+.prose mark,
+.blog-highlight {
+  background: linear-gradient(120deg, #c4b5fd 0%, #ddd6fe 100%);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #1f2937;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Yellow highlight variant */
+.blog-highlight-yellow {
+  background: linear-gradient(120deg, #fde68a 0%, #fef3c7 100%);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+/* Underline accent — <span class="blog-underline"> */
+.blog-underline {
+  text-decoration: underline;
+  text-decoration-color: #7c3aed;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
+}
+
+/* Key stat/number block — <div class="blog-stat"> */
+.blog-stat {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 24px;
+  margin: 32px 0;
+}
+
+.blog-stat-number {
+  font-size: 36px;
+  font-weight: 800;
+  color: #7c3aed;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.blog-stat-text {
+  font-size: 16px;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+/* Feature comparison box — Notion-style toggle/card */
+.blog-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 32px 0;
+}
+
+@media (max-width: 640px) {
+  .blog-comparison {
+    grid-template-columns: 1fr;
+  }
+}
+
+.blog-comparison-bad,
+.blog-comparison-good {
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.blog-comparison-bad {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.blog-comparison-bad strong {
+  color: #dc2626;
+}
+
+.blog-comparison-good {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.blog-comparison-good strong {
+  color: #16a34a;
+}
+
+/* Numbered list items with bold numbers — for ol inside prose */
+.prose ol > li::marker {
+  font-weight: 800;
+  color: #7c3aed;
+  font-size: 1.1em;
+}
+
+/* Section divider — <hr class="blog-divider"> */
+.blog-divider {
+  border: none;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, #ddd6fe 20%, #7c3aed 50%, #ddd6fe 80%, transparent 100%);
+  margin: 48px 0;
+  border-radius: 2px;
+}
+
+/* Key takeaway box — Notion-style page mention */
+.blog-takeaway {
+  background: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin: 40px 0;
+  position: relative;
+}
+
+.blog-takeaway::before {
+  content: '💡';
+  position: absolute;
+  top: -14px;
+  left: 20px;
+  background: white;
+  padding: 0 8px;
+  font-size: 20px;
+}
+
+.blog-takeaway h4 {
+  margin-top: 0 !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #111827 !important;
+}
+
+/* Inline badge/tag — <span class="blog-badge"> */
+.blog-badge {
+  display: inline-block;
+  background: #ede9fe;
+  color: #6d28d9;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
