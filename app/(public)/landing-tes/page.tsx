@@ -276,7 +276,7 @@ function FeatureTabsDemo() {
           >
             <h3 className="text-2xl sm:text-3xl font-light text-[#111] mb-4 leading-snug">{tab.title}</h3>
             <p className="text-base sm:text-lg text-[#555] leading-relaxed mb-6">{tab.desc}</p>
-            <a href="/demo" className="inline-flex items-center gap-2 text-violet-600 text-sm font-medium hover:gap-3 transition-all">
+            <a href="/consulta" className="inline-flex items-center gap-2 text-violet-600 text-sm font-medium hover:gap-3 transition-all">
               {tab.cta} <ArrowRight className="w-4 h-4" />
             </a>
           </motion.div>
@@ -1222,7 +1222,7 @@ export default function TeslaTest2() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: G.slow, ease: G.ease }}
           >
-            <a href="/demo" className="group inline-flex items-center gap-2 px-8 py-4 bg-white text-black text-sm font-semibold rounded-lg hover:bg-gray-100 transition-colors">
+            <a href="/consulta" className="group inline-flex items-center gap-2 px-8 py-4 bg-white text-black text-sm font-semibold rounded-lg hover:bg-gray-100 transition-colors">
               Empieza ahora <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </a>
           </motion.div>
@@ -1511,7 +1511,7 @@ export default function TeslaTest2() {
           <p className="text-base text-[#777] mb-10 max-w-lg mx-auto leading-relaxed">
             Prepara tu guía antes de que llegue. Check-in, WiFi y normas. Con eso ya puedes empezar.
           </p>
-          <a href="/demo" className="group inline-flex items-center gap-2 px-8 py-4 bg-[#111] text-white text-base font-medium rounded-lg hover:bg-black transition-colors">
+          <a href="/consulta" className="group inline-flex items-center gap-2 px-8 py-4 bg-[#111] text-white text-base font-medium rounded-lg hover:bg-black transition-colors">
             Empieza gratis <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </a>
           <p className="text-xs text-[#ccc] mt-4">No necesitas tarjeta. Configúralo en 10 minutos.</p>

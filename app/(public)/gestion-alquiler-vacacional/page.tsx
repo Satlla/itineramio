@@ -118,8 +118,11 @@ export default function GestionAlquilerVacacionalPage() {
           <Link href="/register" className="inline-flex items-center justify-center rounded-lg bg-gray-900 px-8 py-3.5 text-base font-medium text-white transition-colors hover:bg-gray-800">
             Probar gratis 15 dias
           </Link>
-          <Link href="/demo" className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-8 py-3.5 text-base font-medium text-gray-700 transition-colors hover:bg-gray-50">
-            Ver demo
+          <Link href="/guide/cmn991v2s0001ju0452vn74yn" target="_blank" className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-8 py-3.5 text-base font-medium text-gray-700 transition-colors hover:bg-gray-50">
+            Ver ejemplo
+          </Link>
+          <Link href="/consulta" className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-8 py-3.5 text-base font-medium text-gray-700 transition-colors hover:bg-gray-50">
+            Solicitar demo
           </Link>
         </div>
       </header>

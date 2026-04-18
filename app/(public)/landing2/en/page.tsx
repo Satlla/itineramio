@@ -564,8 +564,11 @@ export default function Landing2En() {
             style={{ backgroundColor:'#7c3aed', boxShadow:'0 4px 20px rgba(124,58,237,0.35)' }}>
             Start free trial <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform"/>
           </Link>
-          <Link href="/demo" className="inline-flex items-center gap-2 border border-black/10 text-[#666] hover:text-[#111] hover:border-black/20 px-8 py-4 rounded-full font-medium text-base transition-all">
-            See demo
+          <Link href="/guide/cmn991v2s0001ju0452vn74yn" target="_blank" className="inline-flex items-center gap-2 border border-black/10 text-[#666] hover:text-[#111] hover:border-black/20 px-8 py-4 rounded-full font-medium text-base transition-all">
+            See example
+          </Link>
+          <Link href="/consulta" className="inline-flex items-center gap-2 border border-black/10 text-[#666] hover:text-[#111] hover:border-black/20 px-8 py-4 rounded-full font-medium text-base transition-all">
+            Request demo
           </Link>
         </motion.div>
         <motion.p initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.55 }} className="text-sm text-[#bbb] mb-16">
@@ -1123,7 +1126,7 @@ export default function Landing2En() {
               { title:'Product', links:[
                 { label:'Features',     href:'/en/features' },
                 { label:'Pricing',      href:'/en/#pricing' },
-                { label:'Demo',         href:'/demo' },
+                { label:'Request demo', href:'/consulta' },
                 { label:'Integrations', href:'/en/features#integrations' },
               ]},
               { title:'Resources', links:[

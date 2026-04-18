@@ -365,8 +365,11 @@ export default function ChecklistPage() {
           <a href="/landing-tes" style={{ padding: '14px 32px', background: '#7c3aed', color: '#fff', borderRadius: 24, fontSize: 14, fontWeight: 600, textDecoration: 'none', boxShadow: '0 4px 20px rgba(124,58,237,0.35)' }}>
             Crea tu guía digital gratis
           </a>
-          <a href="/demo" style={{ padding: '14px 32px', background: 'transparent', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 24, fontSize: 14, fontWeight: 500, textDecoration: 'none' }}>
-            Ver demo
+          <a href="/guide/cmn991v2s0001ju0452vn74yn" target="_blank" rel="noopener noreferrer" style={{ padding: '14px 32px', background: 'transparent', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 24, fontSize: 14, fontWeight: 500, textDecoration: 'none' }}>
+            Ver ejemplo
+          </a>
+          <a href="/consulta" style={{ padding: '14px 32px', background: 'transparent', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 24, fontSize: 14, fontWeight: 500, textDecoration: 'none' }}>
+            Solicitar demo
           </a>
         </div>
       </section>

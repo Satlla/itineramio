@@ -106,10 +106,17 @@ export default function CityLandingPage({ data }: { data: CityData }) {
             Crear manual gratis
           </Link>
           <Link
-            href="/demo"
+            href="/guide/cmn991v2s0001ju0452vn74yn"
+            target="_blank"
             className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-8 py-3.5 text-base font-medium text-gray-700 transition-colors hover:bg-gray-50"
           >
-            Ver demo
+            Ver ejemplo
+          </Link>
+          <Link
+            href="/consulta"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-8 py-3.5 text-base font-medium text-gray-700 transition-colors hover:bg-gray-50"
+          >
+            Solicitar demo
           </Link>
         </div>
       </header>
@@ -299,10 +306,10 @@ export default function CityLandingPage({ data }: { data: CityData }) {
               Empezar gratis
             </Link>
             <Link
-              href="/funcionalidades"
+              href="/consulta"
               className="inline-flex items-center justify-center rounded-lg border border-gray-600 px-8 py-3.5 text-base font-medium text-gray-300 transition-colors hover:bg-gray-800"
             >
-              Ver funcionalidades
+              Solicitar demo
             </Link>
           </div>
         </div>
