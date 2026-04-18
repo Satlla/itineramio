@@ -72,8 +72,15 @@ export async function GET(request: NextRequest) {
         : null
     }))
 
+    // Filter out legacy properties that already have a BillingUnit with the same name
+    // to avoid showing duplicates like "La Casa Azul" and "La Casa Azul (nueva config)"
+    const billingUnitNames = new Set(billingUnits.map(u => u.name.toLowerCase().trim()))
+    const filteredProperties = formattedProperties.filter(
+      p => !billingUnitNames.has(p.name.toLowerCase().trim())
+    )
+
     return NextResponse.json({
-      properties: formattedProperties,
+      properties: filteredProperties,
       billingUnits: formattedBillingUnits
     })
   } catch (error) {
