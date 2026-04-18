@@ -121,7 +121,7 @@ interface Liquidation {
 
 const STATUS_CONFIG = {
   DRAFT: { key: 'status.draft', color: 'bg-gray-100 text-gray-700', icon: Clock },
-  SENT: { key: 'status.sent', color: 'bg-violet-100 text-violet-700', icon: Send },
+  SENT: { key: 'status.sent', color: 'bg-gray-100 text-gray-700', icon: Send },
   PAID: { key: 'status.paid', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
   CANCELLED: { key: 'status.cancelled', color: 'bg-red-100 text-red-700', icon: XCircle }
 }
@@ -489,7 +489,7 @@ export default function LiquidacionDetailPage() {
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center space-x-3">
-              <Receipt className="h-7 w-7 text-violet-600" />
+              <Receipt className="h-7 w-7 text-gray-600" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
                   {t('settlementDetail.settlementTitle', { month: MONTHS[liquidation.month - 1], year: liquidation.year })}
@@ -548,13 +548,13 @@ export default function LiquidacionDetailPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 bg-violet-50 border border-violet-200 rounded-lg flex items-center gap-3"
+            className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg flex items-center gap-3"
           >
-            <CheckCircle2 className="w-5 h-5 text-violet-500" />
-            <p className="text-violet-700">
+            <CheckCircle2 className="w-5 h-5 text-gray-500" />
+            <p className="text-gray-700">
               Liquidación enviada a <strong>{liquidation.owner.email}</strong>. El estado ha cambiado a SENT.
             </p>
-            <button onClick={() => setSentToOwner(false)} className="ml-auto text-violet-400 hover:text-violet-600">
+            <button onClick={() => setSentToOwner(false)} className="ml-auto text-gray-400 hover:text-gray-600">
               <XCircle className="w-4 h-4" />
             </button>
           </motion.div>
@@ -603,7 +603,7 @@ export default function LiquidacionDetailPage() {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Euro className="w-4 h-4 text-violet-600" />
+                <Euro className="w-4 h-4 text-gray-500" />
                 <span className="text-xs font-medium text-gray-500 uppercase">{t('settlementDetail.kpi.grossIncome')}</span>
               </div>
               <div className="text-2xl font-bold text-gray-900">{formatCurrency(liquidation.totals.totalIncome)}</div>
@@ -686,7 +686,7 @@ export default function LiquidacionDetailPage() {
                 variant="outline"
                 onClick={() => handleSendToOwner('email')}
                 disabled={sendingLink}
-                className="border-violet-200 text-violet-700 hover:bg-violet-50"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50"
               >
                 {sendingLink ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -789,11 +789,11 @@ export default function LiquidacionDetailPage() {
 
         {/* Emitir factura — visible when SENT */}
         {liquidation.status === 'SENT' && !isLocked && (
-          <Card className="mb-6 border-2 border-violet-200 bg-violet-50/30">
+          <Card className="mb-6 border-2 border-gray-200 bg-gray-50/30">
             <CardContent className="p-5 flex items-center justify-between gap-4">
               <div>
                 <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-violet-600" />
+                  <CheckCircle2 className="w-5 h-5 text-gray-600" />
                   Liquidación enviada
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
@@ -803,7 +803,7 @@ export default function LiquidacionDetailPage() {
               <Button
                 onClick={handleCreateInvoice}
                 disabled={creatingInvoice}
-                className="bg-violet-600 hover:bg-violet-700 text-white whitespace-nowrap"
+                className="bg-gray-900 hover:bg-black text-white whitespace-nowrap"
               >
                 {creatingInvoice ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -845,16 +845,16 @@ export default function LiquidacionDetailPage() {
             <Card>
               <CardContent className="p-4">
                 <h3 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-violet-600" />
+                  <Calendar className="w-5 h-5 text-gray-500" />
                   {t('settlementDetail.reservations.title')} ({liquidation.reservations.length})
                 </h3>
 
                 {reservationsByProperty.map((group, groupIndex) => (
                   <div key={group.property} className={groupIndex > 0 ? 'mt-6 pt-6 border-t' : ''}>
-                    <div className="flex items-center justify-between mb-3 bg-violet-50 p-3 rounded-lg">
+                    <div className="flex items-center justify-between mb-3 bg-gray-50 p-3 rounded-lg">
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
-                          <Home className="w-4 h-4 text-violet-600" />
+                          <Home className="w-4 h-4 text-gray-500" />
                           <span className="font-medium text-gray-900">{group.property}</span>
                         </div>
                         <Badge className="bg-blue-100 text-blue-700">
@@ -950,10 +950,10 @@ export default function LiquidacionDetailPage() {
           )}
 
           {/* Deductions Breakdown */}
-          <Card className="border-2 border-violet-200">
+          <Card className="border-2 border-gray-200">
             <CardContent className="p-6">
               <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Euro className="w-5 h-5 text-violet-600" />
+                <Euro className="w-5 h-5 text-gray-500" />
                 {t('settlementDetail.breakdown.title')}
               </h3>
               <div className="max-w-lg space-y-1 text-sm font-mono">
@@ -1000,7 +1000,7 @@ export default function LiquidacionDetailPage() {
                       </div>
                     )}
 
-                    <div className="border-t-2 border-violet-300 my-2" />
+                    <div className="border-t-2 border-gray-300 my-2" />
 
                     <div className="flex justify-between py-2">
                       <span className="font-bold text-gray-900 text-base">Total a transferir:</span>
@@ -1060,7 +1060,7 @@ export default function LiquidacionDetailPage() {
                       <span className="font-semibold tabular-nums">{formatCurrency(liquidation.totals.totalAmount)}</span>
                     </div>
 
-                    <div className="border-t-2 border-violet-300 my-2" />
+                    <div className="border-t-2 border-gray-300 my-2" />
 
                     <div className="flex justify-between py-2">
                       <span className="font-bold text-gray-900 text-base">{t('settlementDetail.breakdown.totalTransfer')}:</span>
@@ -1077,7 +1077,7 @@ export default function LiquidacionDetailPage() {
             <Card>
               <CardContent className="p-4">
                 <h3 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
-                  <Receipt className="w-5 h-5 text-violet-600" />
+                  <Receipt className="w-5 h-5 text-gray-500" />
                   {t('settlementDetail.expenses.title')} ({liquidation.expenses.length})
                 </h3>
 
@@ -1149,7 +1149,7 @@ export default function LiquidacionDetailPage() {
                 className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
               >
                 <h3 className="font-medium text-gray-900 flex items-center gap-2">
-                  <User className="w-5 h-5 text-violet-600" />
+                  <User className="w-5 h-5 text-gray-500" />
                   {t('settlementDetail.owner.title')}: {liquidation.owner.name}
                 </h3>
                 {showOwnerInfo ? (

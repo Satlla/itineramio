@@ -254,7 +254,7 @@ function GestionLayoutInner({
                   href={item.href}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm whitespace-nowrap transition-colors ${
                     isActive(item.href)
-                      ? 'bg-violet-100 text-violet-700 font-medium'
+                      ? 'bg-gray-100 text-gray-900 font-medium'
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
@@ -311,7 +311,7 @@ function GestionLayoutInner({
                               : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                           }`}
                         >
-                          <span className={`mr-3 flex-shrink-0 ${isActive(item.href) ? 'text-violet-600' : 'text-gray-400 group-hover:text-gray-500'}`}>
+                          <span className={`mr-3 flex-shrink-0 ${isActive(item.href) ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-500'}`}>
                             {item.icon}
                           </span>
                           <div className="flex-1 min-w-0">

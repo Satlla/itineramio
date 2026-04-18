@@ -203,7 +203,7 @@ export default function FacturasPage() {
   const STATUS_CONFIG = {
     DRAFT: { label: t('invoices.status.draft'), color: 'bg-gray-100 text-gray-700', icon: Clock },
     ISSUED: { label: t('invoices.status.issued'), color: 'bg-blue-100 text-blue-700', icon: FileText },
-    SENT: { label: t('invoices.status.sent'), color: 'bg-violet-100 text-violet-700', icon: Send },
+    SENT: { label: t('invoices.status.sent'), color: 'bg-gray-100 text-gray-700', icon: Send },
     PAID: { label: t('invoices.status.paid'), color: 'bg-green-100 text-green-700', icon: CheckCircle },
     OVERDUE: { label: t('invoices.status.overdue'), color: 'bg-red-100 text-red-700', icon: AlertCircle }
   }
@@ -249,7 +249,7 @@ export default function FacturasPage() {
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-3">
-                <FileText className="h-7 w-7 text-violet-600" />
+                <FileText className="h-7 w-7 text-gray-600" />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">{t('invoices.title')}</h1>
                   <p className="text-sm text-gray-600">
@@ -262,14 +262,14 @@ export default function FacturasPage() {
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                  className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
                 >
                   {yearOptions.map(year => (
                     <option key={year} value={year}>{year}</option>
                   ))}
                 </select>
                 <Link href="/gestion/facturas/nueva">
-                  <Button className="bg-violet-600 hover:bg-violet-700">
+                  <Button className="bg-gray-900 hover:bg-black">
                     <Plus className="w-4 h-4 mr-2" />
                     {t('invoices.actions.newInvoice')}
                   </Button>
@@ -307,7 +307,7 @@ export default function FacturasPage() {
               <CardContent className="p-3 sm:p-4">
                 <div className="text-center">
                   <p className="text-xs sm:text-sm text-gray-600">{t('invoices.stats.pendingCollection')}</p>
-                  <p className="text-lg sm:text-2xl font-bold text-orange-600">
+                  <p className="text-lg sm:text-2xl font-bold text-gray-900">
                     {formatCurrency(totals.pending)}
                   </p>
                 </div>
@@ -317,7 +317,7 @@ export default function FacturasPage() {
               <CardContent className="p-3 sm:p-4">
                 <div className="text-center">
                   <p className="text-xs sm:text-sm text-gray-600">{t('invoices.stats.invoiceCount')}</p>
-                  <p className="text-lg sm:text-2xl font-bold text-violet-600">
+                  <p className="text-lg sm:text-2xl font-bold text-gray-900">
                     {totals.count}
                   </p>
                 </div>
@@ -327,7 +327,7 @@ export default function FacturasPage() {
               <CardContent className="p-3 sm:p-4">
                 <div className="text-center">
                   <p className="text-xs sm:text-sm text-gray-600">{t('invoices.stats.collected')}</p>
-                  <p className="text-lg sm:text-2xl font-bold text-green-600">
+                  <p className="text-lg sm:text-2xl font-bold text-gray-900">
                     {totals.paid}
                   </p>
                 </div>
@@ -352,13 +352,13 @@ export default function FacturasPage() {
                       placeholder={t('invoices.search')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
                     />
                   </div>
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
                   >
                     <option value="">{t('invoices.filters.allStatuses')}</option>
                     <option value="DRAFT">{t('invoices.status.draft')}</option>
@@ -370,7 +370,7 @@ export default function FacturasPage() {
                   <select
                     value={typeFilter}
                     onChange={(e) => setTypeFilter(e.target.value)}
-                    className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
                   >
                     <option value="">{t('invoices.filters.allTypes')}</option>
                     <option value="normal">{t('invoices.filters.normalInvoices')}</option>
@@ -400,7 +400,7 @@ export default function FacturasPage() {
                 </div>
 
                 <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                  <p className="text-center text-2xl font-bold text-violet-600">
+                  <p className="text-center text-2xl font-bold text-gray-900">
                     {confirmIssue.nextNumber}
                   </p>
                 </div>
@@ -424,7 +424,7 @@ export default function FacturasPage() {
                     {t('common.cancel')}
                   </Button>
                   <Button
-                    className="flex-1 bg-violet-600 hover:bg-violet-700"
+                    className="flex-1 bg-gray-900 hover:bg-black"
                     onClick={issueInvoice}
                     disabled={actionLoading === confirmIssue.id}
                   >
@@ -450,7 +450,7 @@ export default function FacturasPage() {
                     {t('invoices.emptyState.description')}
                   </p>
                   <Link href="/gestion/facturas/nueva">
-                    <Button className="bg-violet-600 hover:bg-violet-700">
+                    <Button className="bg-gray-900 hover:bg-black">
                       <Plus className="w-4 h-4 mr-2" />
                       {t('invoices.emptyState.action')}
                     </Button>
@@ -507,18 +507,18 @@ export default function FacturasPage() {
                             </div>
                             <div className="flex justify-end gap-1 mt-3 pt-2 border-t border-gray-100">
                               <Link href={`/gestion/facturas/${invoice.id}`}>
-                                <button className="p-2 text-gray-400 hover:text-violet-600 transition-colors">
+                                <button className="p-2 text-gray-400 hover:text-gray-900 transition-colors">
                                   <Eye className="w-5 h-5" />
                                 </button>
                               </Link>
                               {!isDraft && (
-                                <button className="p-2 text-gray-400 hover:text-violet-600 transition-colors">
+                                <button className="p-2 text-gray-400 hover:text-gray-900 transition-colors">
                                   <Download className="w-5 h-5" />
                                 </button>
                               )}
                               <button
                                 onClick={() => setShowDropdown(showDropdown === invoice.id ? null : invoice.id)}
-                                className="p-2 text-gray-400 hover:text-violet-600 transition-colors"
+                                className="p-2 text-gray-400 hover:text-gray-900 transition-colors"
                                 disabled={actionLoading === invoice.id}
                               >
                                 {actionLoading === invoice.id ? (
@@ -592,18 +592,18 @@ export default function FacturasPage() {
 
                               <div className="flex items-center gap-1">
                                 <Link href={`/gestion/facturas/${invoice.id}`}>
-                                  <button className="p-2 text-gray-400 hover:text-violet-600 transition-colors">
+                                  <button className="p-2 text-gray-400 hover:text-gray-900 transition-colors">
                                     <Eye className="w-4 h-4" />
                                   </button>
                                 </Link>
                                 {!isDraft && (
-                                  <button className="p-2 text-gray-400 hover:text-violet-600 transition-colors">
+                                  <button className="p-2 text-gray-400 hover:text-gray-900 transition-colors">
                                     <Download className="w-4 h-4" />
                                   </button>
                                 )}
                                 <button
                                   onClick={() => setShowDropdown(showDropdown === invoice.id ? null : invoice.id)}
-                                  className="p-2 text-gray-400 hover:text-violet-600 transition-colors"
+                                  className="p-2 text-gray-400 hover:text-gray-900 transition-colors"
                                   disabled={actionLoading === invoice.id}
                                 >
                                   {actionLoading === invoice.id ? (
@@ -653,7 +653,7 @@ export default function FacturasPage() {
                                       onClick={() => updateStatus(invoice.id, 'SENT')}
                                       className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
                                     >
-                                      <Send className="w-4 h-4 text-violet-500" />
+                                      <Send className="w-4 h-4 text-gray-500" />
                                       {t('invoices.actions.markAsSent')}
                                     </button>
                                     <button

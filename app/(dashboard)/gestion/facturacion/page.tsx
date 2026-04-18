@@ -116,7 +116,7 @@ export default function FacturacionPage() {
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-3">
-                <Building2 className="h-7 w-7 text-violet-600" />
+                <Building2 className="h-7 w-7 text-gray-600" />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
                     {t('billing.title')}
@@ -135,13 +135,13 @@ export default function FacturacionPage() {
                     placeholder={t('billing.search')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 w-48 sm:w-64"
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 w-48 sm:w-64"
                   />
                 </div>
                 <select
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                  className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
                 >
                   {yearOptions.map(year => (
                     <option key={year} value={year}>{year}</option>
@@ -171,7 +171,7 @@ export default function FacturacionPage() {
                 <CardContent className="p-3 sm:p-4">
                   <div className="text-center">
                     <p className="text-xs sm:text-sm text-gray-600">{t('billing.stats.income', { year: selectedYear })}</p>
-                    <p className="text-lg sm:text-2xl font-bold text-green-600">
+                    <p className="text-lg sm:text-2xl font-bold text-gray-900">
                       {formatCurrency(totals.totalIncome)}
                     </p>
                   </div>
@@ -181,7 +181,7 @@ export default function FacturacionPage() {
                 <CardContent className="p-3 sm:p-4">
                   <div className="text-center">
                     <p className="text-xs sm:text-sm text-gray-600">{t('billing.stats.reservations')}</p>
-                    <p className="text-lg sm:text-2xl font-bold text-violet-600">
+                    <p className="text-lg sm:text-2xl font-bold text-gray-900">
                       {totals.totalReservations}
                     </p>
                   </div>
@@ -215,7 +215,7 @@ export default function FacturacionPage() {
                     {t('billing.emptyState.description')}
                   </p>
                   <Link href="/gestion/apartamentos">
-                    <Button className="bg-violet-600 hover:bg-violet-700">
+                    <Button className="bg-gray-900 hover:bg-black">
                       {t('billing.emptyState.action')}
                     </Button>
                   </Link>
@@ -248,7 +248,7 @@ export default function FacturacionPage() {
                   }
 
                   const cardContent = (
-                    <Card className={`transition-all ${hasOwner ? 'hover:shadow-lg cursor-pointer' : 'opacity-80'} ${isGroup ? 'border-l-4 border-l-emerald-500 bg-emerald-50/30' : hasOwner ? 'border-l-4 border-l-violet-500' : 'border-l-4 border-l-yellow-400'}`}>
+                    <Card className={`transition-all ${hasOwner ? 'hover:shadow-lg cursor-pointer' : 'opacity-80'} ${isGroup ? 'border-l-4 border-l-emerald-500 bg-emerald-50/30' : hasOwner ? 'border-l-4 border-l-gray-300' : 'border-l-4 border-l-yellow-400'}`}>
                       <CardContent className="p-4 sm:p-5">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                           {/* Property Info */}
@@ -302,7 +302,7 @@ export default function FacturacionPage() {
                                   <Link
                                     href="/gestion/apartamentos"
                                     onClick={(e) => e.stopPropagation()}
-                                    className="text-xs text-violet-600 hover:text-violet-800 font-medium underline"
+                                    className="text-xs text-gray-600 hover:text-gray-800 font-medium underline"
                                   >
                                     {t('billing.card.assignOwner')}
                                   </Link>
@@ -315,13 +315,13 @@ export default function FacturacionPage() {
                           <div className="grid grid-cols-4 gap-4 sm:gap-6 text-center">
                             <div>
                               <p className="text-xs text-gray-500 mb-1">{t('billing.card.income')}</p>
-                              <p className="font-semibold text-green-600">
+                              <p className="font-semibold text-gray-900">
                                 {formatCurrency(property.stats.totalIncome)}
                               </p>
                             </div>
                             <div>
                               <p className="text-xs text-gray-500 mb-1">{t('billing.card.occupancy')}</p>
-                              <p className="font-semibold text-violet-600">
+                              <p className="font-semibold text-gray-900">
                                 {property.stats.occupancyRate.toFixed(0)}%
                               </p>
                             </div>

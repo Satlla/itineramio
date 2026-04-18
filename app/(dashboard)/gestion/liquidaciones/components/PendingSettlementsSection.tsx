@@ -175,13 +175,13 @@ export function PendingSettlementsSection({ year, month }: Props) {
                 <button
                   key={ownerGroup.owner.id}
                   onClick={() => handleOwnerClick(ownerGroup.owner.id)}
-                  className="w-full bg-white rounded-lg border border-gray-200 p-4 hover:bg-violet-50 hover:border-violet-300 transition-all group text-left"
+                  className="w-full bg-white rounded-lg border border-gray-200 p-4 hover:bg-gray-50 hover:border-gray-300 transition-all group text-left"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <User className="h-5 w-5 text-violet-600" />
+                      <User className="h-5 w-5 text-gray-500" />
                       <div>
-                        <span className="font-medium text-gray-900 group-hover:text-violet-700">
+                        <span className="font-medium text-gray-900 group-hover:text-gray-900">
                           {ownerName}
                         </span>
                         <p className="text-sm text-gray-500">
@@ -192,9 +192,9 @@ export function PendingSettlementsSection({ year, month }: Props) {
                     <div className="flex items-center gap-4">
                       <div className="text-right">
                         <p className="text-xs text-gray-500">{t('settlements.pending.netPrice')}</p>
-                        <p className="font-semibold text-green-600">{formatCurrency(ownerGroup.totals.netEarnings)}</p>
+                        <p className="font-semibold text-gray-900">{formatCurrency(ownerGroup.totals.netEarnings)}</p>
                       </div>
-                      <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-violet-600 transition-colors" />
+                      <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
                     </div>
                   </div>
                 </button>

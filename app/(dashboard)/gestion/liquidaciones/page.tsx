@@ -71,7 +71,7 @@ interface Totals {
 const STATUS_CONFIG = {
   DRAFT: { key: 'status.draft', color: 'bg-gray-100 text-gray-700', icon: Clock },
   GENERATED: { key: 'status.generated', color: 'bg-blue-100 text-blue-700', icon: FileText },
-  SENT: { key: 'status.sent', color: 'bg-violet-100 text-violet-700', icon: Send },
+  SENT: { key: 'status.sent', color: 'bg-gray-100 text-gray-700', icon: Send },
   PAID: { key: 'status.paid', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
   CANCELLED: { key: 'status.cancelled', color: 'bg-red-100 text-red-700', icon: XCircle }
 }
@@ -202,7 +202,7 @@ export default function LiquidacionesPage() {
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-3">
-                <Receipt className="h-7 w-7 text-violet-600" />
+                <Receipt className="h-7 w-7 text-gray-600" />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
                     {t('settlements.title')}
@@ -214,7 +214,7 @@ export default function LiquidacionesPage() {
               </div>
 
               <Link href="/gestion/liquidaciones/nueva">
-                <Button className="bg-violet-600 hover:bg-violet-700">
+                <Button className="bg-gray-900 hover:bg-black">
                   <Plus className="w-4 h-4 mr-2" />
                   {t('settlements.actions.newSettlement')}
                 </Button>
@@ -246,7 +246,7 @@ export default function LiquidacionesPage() {
                       placeholder={t('settlements.search')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
                     />
                   </div>
 
@@ -254,7 +254,7 @@ export default function LiquidacionesPage() {
                   <select
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                    className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
                   >
                     {yearOptions.map(year => (
                       <option key={year} value={year}>{year}</option>
@@ -265,7 +265,7 @@ export default function LiquidacionesPage() {
                   <select
                     value={selectedMonth || ''}
                     onChange={(e) => setSelectedMonth(e.target.value ? parseInt(e.target.value) : null)}
-                    className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
                   >
                     <option value="">{t('settlements.filters.allMonths')}</option>
                     {MONTHS.map((month, index) => (
@@ -277,7 +277,7 @@ export default function LiquidacionesPage() {
                   <select
                     value={selectedOwner}
                     onChange={(e) => setSelectedOwner(e.target.value)}
-                    className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500 max-w-48"
+                    className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 max-w-48"
                   >
                     <option value="">{t('settlements.filters.allOwners')}</option>
                     {owners.map(owner => (
@@ -289,7 +289,7 @@ export default function LiquidacionesPage() {
                   <select
                     value={selectedStatus}
                     onChange={(e) => setSelectedStatus(e.target.value)}
-                    className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
                   >
                     <option value="">{t('settlements.filters.allStatuses')}</option>
                     <option value="DRAFT">{t('settlements.status.draft')}</option>
@@ -320,13 +320,13 @@ export default function LiquidacionesPage() {
               <Card>
                 <CardContent className="p-3 sm:p-4 text-center">
                   <p className="text-xs text-gray-500 mb-1">{t('settlements.stats.commissions')}</p>
-                  <p className="text-lg font-bold text-violet-600">{formatCurrency(totals.totalCommission)}</p>
+                  <p className="text-lg font-bold text-gray-900">{formatCurrency(totals.totalCommission)}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-3 sm:p-4 text-center">
                   <p className="text-xs text-gray-500 mb-1">{t('settlements.stats.netOwners')}</p>
-                  <p className="text-lg font-bold text-green-600">{formatCurrency(totals.totalAmount)}</p>
+                  <p className="text-lg font-bold text-gray-900">{formatCurrency(totals.totalAmount)}</p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -349,7 +349,7 @@ export default function LiquidacionesPage() {
                       : t('settlements.emptyState.descriptionEmpty')}
                   </p>
                   <Link href="/gestion/liquidaciones/nueva">
-                    <Button className="bg-violet-600 hover:bg-violet-700">
+                    <Button className="bg-gray-900 hover:bg-black">
                       <Plus className="w-4 h-4 mr-2" />
                       {t('settlements.actions.newSettlement')}
                     </Button>
@@ -368,13 +368,13 @@ export default function LiquidacionesPage() {
                       transition={{ duration: 0.3, delay: index * 0.05 }}
                     >
                       <Link href={`/gestion/liquidaciones/${liquidation.id}`}>
-                        <Card className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-violet-500">
+                        <Card className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-gray-300">
                           <CardContent className="p-4">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                               {/* Period and Owner */}
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <Calendar className="w-4 h-4 text-violet-600" />
+                                  <Calendar className="w-4 h-4 text-gray-500" />
                                   <span className="font-semibold text-gray-900">
                                     {MONTHS[liquidation.month - 1]} {liquidation.year}
                                   </span>
@@ -405,13 +405,13 @@ export default function LiquidacionesPage() {
                                 </div>
                                 <div>
                                   <p className="text-xs text-gray-500">{t('settlements.card.commission')}</p>
-                                  <p className="font-semibold text-violet-600">
+                                  <p className="font-semibold text-gray-900">
                                     {formatCurrency(liquidation.totalCommission)}
                                   </p>
                                 </div>
                                 <div>
                                   <p className="text-xs text-gray-500">{t('settlements.card.net')}</p>
-                                  <p className="font-semibold text-green-600">
+                                  <p className="font-semibold text-gray-900">
                                     {formatCurrency(liquidation.totalAmount)}
                                   </p>
                                 </div>
@@ -425,7 +425,7 @@ export default function LiquidacionesPage() {
                                     e.stopPropagation()
                                     handleDownloadPdf(liquidation.id)
                                   }}
-                                  className="p-2 text-gray-500 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
+                                  className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
                                   title={t('settlements.actions.downloadPdf')}
                                 >
                                   <Download className="w-4 h-4" />
@@ -464,7 +464,7 @@ export default function LiquidacionesPage() {
                   key={page}
                   className={`px-3 py-1 rounded ${
                     page === pagination.page
-                      ? 'bg-violet-600 text-white'
+                      ? 'bg-gray-900 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >

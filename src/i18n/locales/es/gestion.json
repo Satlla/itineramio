@@ -22,7 +22,7 @@
       },
       "settlements": {
         "title": "Liquidaciones",
-        "description": "Pagos a propietarios"
+        "description": "Resumen mensual"
       },
       "billing": {
         "title": "Facturación",
@@ -840,7 +840,7 @@
   },
   "settlements": {
     "title": "Liquidaciones",
-    "subtitle": "Gestiona las liquidaciones a propietarios",
+    "subtitle": "Liquidaciones mensuales",
     "loading": "Cargando liquidaciones...",
     "search": "Buscar por propietario...",
     "filters": {
