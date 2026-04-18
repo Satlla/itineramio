@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
+import { apiError } from '@/lib/api-error'
 import { getNextInvoiceNumber, previewNextNumber, formatInvoiceNumber } from '@/lib/invoice-numbering'
 import {
   computeRegistroAltaHash,
@@ -65,10 +66,7 @@ export async function GET(
       canEditNumber: true
     })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return apiError(error, 'invoice-issue-get', 'Error al emitir la factura')
   }
 }
 
@@ -146,10 +144,7 @@ export async function PUT(
         : null
     })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return apiError(error, 'invoice-issue-put', 'Error al emitir la factura')
   }
 }
 
@@ -633,9 +628,6 @@ export async function POST(
       ...(verifactiResult ? { verifacti: verifactiResult } : {}),
     })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return apiError(error, 'invoice-issue-post', 'Error al emitir la factura')
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
+import { apiError } from '@/lib/api-error'
 
 /**
  * GET /api/gestion/invoices/[id]
@@ -152,10 +153,7 @@ export async function GET(
       }
     })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return apiError(error, 'invoice-get', 'Error al obtener la factura')
   }
 }
 
@@ -367,10 +365,7 @@ export async function PUT(
       }
     })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return apiError(error, 'invoice-update', 'Error al actualizar la factura')
   }
 }
 
@@ -420,9 +415,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return apiError(error, 'invoice-delete', 'Error al eliminar la factura')
   }
 }

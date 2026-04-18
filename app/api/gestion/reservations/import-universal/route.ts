@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
+import { apiError } from '@/lib/api-error'
 import { Prisma } from '@prisma/client'
 import type { ColumnMapping, ImportConfig, UniversalImportRequest } from '@/types/import'
 import { tryParseSpanishDate, parseDateRange } from '@/lib/spanish-date-parser'
@@ -277,10 +278,7 @@ export async function POST(request: NextRequest) {
       }
     })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return apiError(error, 'reservation-import', 'Error al importar reservas')
   }
 }
 

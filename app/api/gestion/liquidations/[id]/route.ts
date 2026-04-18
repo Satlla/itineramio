@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
+import { apiError } from '@/lib/api-error'
 
 /**
  * GET /api/gestion/liquidations/[id]
@@ -314,10 +315,7 @@ export async function GET(
       } : null,
     })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return apiError(error, 'liquidation-get', 'Error al obtener la liquidación')
   }
 }
 
@@ -419,10 +417,7 @@ export async function PUT(
       },
     })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return apiError(error, 'liquidation-update', 'Error al actualizar la liquidación')
   }
 }
 
@@ -478,9 +473,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return apiError(error, 'liquidation-delete', 'Error al eliminar la liquidación')
   }
 }

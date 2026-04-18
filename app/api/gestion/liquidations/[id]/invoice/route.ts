@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
+import { apiError } from '@/lib/api-error'
 import { getOrCreateDefaultSeries, getNextInvoiceNumber } from '@/lib/invoice-numbering'
 import { Decimal } from '@prisma/client/runtime/library'
 
@@ -330,9 +331,6 @@ export async function POST(
       }
     })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return apiError(error, 'liquidation-to-invoice', 'Error al crear factura desde liquidación')
   }
 }

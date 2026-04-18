@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
+import { apiError } from '@/lib/api-error'
 import { sendEmail, emailTemplates } from '@/lib/email'
 import crypto from 'crypto'
 
@@ -109,6 +110,6 @@ export async function POST(
 
     return NextResponse.json({ success: true, portalUrl, sentTo: recipientEmail })
   } catch (error) {
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
+    return apiError(error, 'liquidation-send', 'Error al enviar la liquidación')
   }
 }

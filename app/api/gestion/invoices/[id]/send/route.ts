@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
+import { apiError } from '@/lib/api-error'
 import { Resend } from 'resend'
 import crypto from 'crypto'
 
@@ -80,10 +81,7 @@ ${businessName}`
       lastSentTo: invoice.sentTo
     })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return apiError(error, 'invoice-send-preview', 'Error al preparar el envío')
   }
 }
 
@@ -275,9 +273,6 @@ export async function POST(
       publicUrl
     })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Error al enviar la factura' },
-      { status: 500 }
-    )
+    return apiError(error, 'invoice-send', 'Error al enviar la factura')
   }
 }

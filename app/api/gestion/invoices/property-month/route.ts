@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/auth'
+import { apiError } from '@/lib/api-error'
 // Auto-creates config and series if needed - no external dependency
 // NOTE: Invoice numbers are NOT assigned to drafts - only when ISSUED (like Holded)
 
@@ -805,11 +806,8 @@ export async function GET(request: NextRequest) {
       isUnit, // Pass this so frontend knows it's a BillingUnit
       isGroup // Pass this so frontend knows it's a BillingUnitGroup
     })
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: 'Error interno del servidor', details: error?.message },
-      { status: 500 }
-    )
+  } catch (error) {
+    return apiError(error, 'invoice-property-month', 'Error al generar la factura')
   }
 }
 
