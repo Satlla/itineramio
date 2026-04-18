@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify all reservations belong to user and are not in a liquidation
+    // Verify all reservations belong to user
     const reservations = await prisma.reservation.findMany({
       where: {
         id: { in: ids },
@@ -32,24 +32,43 @@ export async function POST(request: NextRequest) {
       },
       select: {
         id: true,
-        liquidationId: true
+        liquidationId: true,
+        liquidation: {
+          select: { status: true }
+        }
       }
     })
 
-    // Filter out reservations that can't be deleted (those with liquidation)
-    const deletableIds = reservations
-      .filter(r => !r.liquidationId)
-      .map(r => r.id)
+    // Only block deletion if liquidation is ISSUED or PAID (locked)
+    // DRAFT liquidations allow reservation deletion (unlink first)
+    const deletableIds: string[] = []
+    const lockedIds: string[] = []
+
+    for (const r of reservations) {
+      if (r.liquidationId && r.liquidation && ['SENT', 'PAID'].includes(r.liquidation.status)) {
+        lockedIds.push(r.id)
+      } else {
+        deletableIds.push(r.id)
+      }
+    }
 
     const skipped = ids.length - deletableIds.length
 
     if (deletableIds.length === 0) {
       return NextResponse.json({
+        error: lockedIds.length > 0
+          ? `No se pueden eliminar: ${lockedIds.length} reservas están en una liquidación emitida o pagada`
+          : 'No hay reservas que se puedan eliminar',
         deleted: 0,
-        skipped,
-        message: 'No hay reservas que se puedan eliminar'
-      })
+        skipped
+      }, { status: 400 })
     }
+
+    // Unlink from DRAFT liquidations before deleting
+    await prisma.reservation.updateMany({
+      where: { id: { in: deletableIds }, liquidationId: { not: null } },
+      data: { liquidationId: null }
+    })
 
     // Delete the reservations
     const result = await prisma.reservation.deleteMany({

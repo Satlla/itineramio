@@ -533,6 +533,9 @@ export default function ReservasPage() {
         setShowBulkDeleteConfirm(false)
         setSelectedIds(new Set())
         fetchReservations()
+        if (data.skipped > 0) {
+          alert(`${data.deleted} reservas eliminadas. ${data.skipped} no se pudieron eliminar porque están en una liquidación emitida o pagada.`)
+        }
       } else {
         alert(data.error || t('common.errors.deleteReservations') || 'Error al eliminar las reservas')
       }

@@ -216,12 +216,20 @@ export async function DELETE(
       )
     }
 
-    // Only block if in a PAID liquidation
-    if (existing.liquidation?.status === 'PAID') {
+    // Only block if in a SENT or PAID liquidation
+    if (existing.liquidation && ['SENT', 'PAID'].includes(existing.liquidation.status)) {
       return NextResponse.json(
-        { error: 'No se puede eliminar una reserva en una liquidación pagada' },
+        { error: 'No se puede eliminar una reserva en una liquidación emitida o pagada' },
         { status: 400 }
       )
+    }
+
+    // Unlink from DRAFT liquidation before deleting
+    if (existing.liquidationId) {
+      await prisma.reservation.update({
+        where: { id },
+        data: { liquidationId: null }
+      })
     }
 
     await prisma.reservation.deleteMany({
