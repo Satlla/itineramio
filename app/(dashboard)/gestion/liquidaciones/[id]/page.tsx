@@ -161,6 +161,9 @@ export default function LiquidacionDetailPage() {
   const [showOwnerInfo, setShowOwnerInfo] = useState(false)
   const [sendingToOwner, setSendingToOwner] = useState(false)
   const [sentToOwner, setSentToOwner] = useState(false)
+  const [showSendModal, setShowSendModal] = useState(false)
+  const [sendEmail, setSendEmail] = useState('')
+  const [sendMessage, setSendMessage] = useState('')
 
   useEffect(() => {
     if (params.id) {
@@ -327,16 +330,39 @@ export default function LiquidacionDetailPage() {
     }
   }
 
-  const handleSendLiquidationToOwner = async () => {
+  const openSendModal = () => {
     if (!liquidation) return
+    const ownerName = liquidation.owner.name.split(' ')[0]
+    const monthName = MONTHS[liquidation.month - 1]
+    setSendEmail(liquidation.owner.email || '')
+    setSendMessage(`Hola ${ownerName},\n\nTe envío la liquidación de ${monthName} ${liquidation.year}.\n\nSi tienes alguna duda, no dudes en contactarme.\n\nUn saludo`)
+    setShowSendModal(true)
+  }
+
+  const handleSendLiquidationToOwner = async () => {
+    if (!liquidation || !sendEmail) return
     try {
       setSendingToOwner(true)
+
+      // Save email to owner if it was empty or changed
+      if (sendEmail !== liquidation.owner.email) {
+        await fetch(`/api/gestion/owners/${liquidation.owner.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ email: sendEmail })
+        })
+      }
+
       const response = await fetch(`/api/gestion/liquidations/${params.id}/send`, {
         method: 'POST',
-        credentials: 'include'
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email: sendEmail, message: sendMessage })
       })
       if (response.ok) {
         setSentToOwner(true)
+        setShowSendModal(false)
         setLiquidation(prev => prev ? { ...prev, status: 'SENT' } : prev)
       } else {
         const data = await response.json()
@@ -648,15 +674,10 @@ export default function LiquidacionDetailPage() {
 
               {canSend && (
                 <Button
-                  onClick={handleSendLiquidationToOwner}
-                  disabled={sendingToOwner}
-                  className="bg-violet-600 hover:bg-violet-700 text-white"
+                  onClick={openSendModal}
+                  className="bg-gray-900 hover:bg-black text-white"
                 >
-                  {sendingToOwner ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Send className="w-4 h-4 mr-2" />
-                  )}
+                  <Send className="w-4 h-4 mr-2" />
                   Enviar al propietario
                 </Button>
               )}
@@ -1234,6 +1255,61 @@ export default function LiquidacionDetailPage() {
         </div>
       )}
 
+      {/* Modal envío liquidación */}
+      {showSendModal && liquidation && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Enviar liquidación al propietario</h3>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email del propietario</label>
+                <input
+                  type="email"
+                  value={sendEmail}
+                  onChange={(e) => setSendEmail(e.target.value)}
+                  placeholder="email@propietario.com"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
+                />
+                {!liquidation.owner.email && sendEmail && (
+                  <p className="text-xs text-gray-500 mt-1">Se guardará este email en el perfil del propietario</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Mensaje</label>
+                <textarea
+                  value={sendMessage}
+                  onChange={(e) => setSendMessage(e.target.value)}
+                  rows={5}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none"
+                />
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-xs text-gray-500">Se adjuntará un enlace al portal del propietario donde podrá ver y descargar la liquidación de {MONTHS[liquidation.month - 1]} {liquidation.year}.</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowSendModal(false)}
+                disabled={sendingToOwner}
+                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSendLiquidationToOwner}
+                disabled={sendingToOwner || !sendEmail}
+                className="flex-1 px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-black disabled:opacity-50"
+              >
+                {sendingToOwner ? 'Enviando...' : 'Enviar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

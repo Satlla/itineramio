@@ -41,14 +41,19 @@ export async function POST(
       return NextResponse.json({ error: 'Liquidación no encontrada' }, { status: 404 })
     }
 
-    if (liquidation.status !== 'DRAFT') {
+    if (liquidation.status !== 'DRAFT' && liquidation.status !== 'SENT') {
       return NextResponse.json(
-        { error: 'Solo se pueden enviar liquidaciones en estado DRAFT' },
+        { error: 'Solo se pueden enviar liquidaciones en estado borrador o enviado' },
         { status: 400 }
       )
     }
 
-    if (!liquidation.owner.email) {
+    // Accept email from request body (allows sending even if owner has no email configured)
+    let body: { email?: string; message?: string } = {}
+    try { body = await request.json() } catch { /* no body is ok for backwards compat */ }
+
+    const recipientEmail = body.email || liquidation.owner.email
+    if (!recipientEmail) {
       return NextResponse.json(
         { error: 'El propietario no tiene email configurado' },
         { status: 400 }
@@ -89,7 +94,7 @@ export async function POST(
       .format(Number(liquidation.totalAmount))
 
     await sendEmail({
-      to: liquidation.owner.email,
+      to: recipientEmail,
       subject: `Liquidación de ${monthName} ${liquidation.year} lista para revisar`,
       html: emailTemplates.liquidationSentToOwner({
         ownerName,
@@ -97,11 +102,12 @@ export async function POST(
         monthName,
         year: liquidation.year,
         totalAmount,
-        portalUrl
+        portalUrl,
+        customMessage: body.message || undefined
       })
     })
 
-    return NextResponse.json({ success: true, portalUrl, sentTo: liquidation.owner.email })
+    return NextResponse.json({ success: true, portalUrl, sentTo: recipientEmail })
   } catch (error) {
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }

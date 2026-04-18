@@ -154,7 +154,11 @@ export default function LiquidacionesPage() {
     window.open(`/api/gestion/liquidations/${id}/pdf`, '_blank')
   }
 
+  const [confirmPaidId, setConfirmPaidId] = useState<string | null>(null)
+  const [markingPaid, setMarkingPaid] = useState(false)
+
   const handleMarkPaid = async (id: string) => {
+    setMarkingPaid(true)
     try {
       const response = await fetch(`/api/gestion/liquidations/${id}`, {
         method: 'PUT',
@@ -164,9 +168,12 @@ export default function LiquidacionesPage() {
       })
 
       if (response.ok) {
+        setConfirmPaidId(null)
         fetchLiquidations()
       }
     } catch (error) {
+    } finally {
+      setMarkingPaid(false)
     }
   }
 
@@ -428,7 +435,7 @@ export default function LiquidacionesPage() {
                                     onClick={(e) => {
                                       e.preventDefault()
                                       e.stopPropagation()
-                                      handleMarkPaid(liquidation.id)
+                                      setConfirmPaidId(liquidation.id)
                                     }}
                                     className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                                     title={t('settlements.actions.markAsPaid')}
@@ -470,6 +477,34 @@ export default function LiquidacionesPage() {
       </main>
 
       <DashboardFooter />
+
+      {/* Modal confirmación marcar como pagada */}
+      {confirmPaidId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-sm w-full p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">¿Marcar como pagada?</h3>
+            <p className="text-sm text-gray-600 mb-6">
+              Esta acción marcará la liquidación como pagada. Si necesitas emitir factura, hazlo antes de marcar como pagada.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmPaidId(null)}
+                disabled={markingPaid}
+                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => handleMarkPaid(confirmPaidId)}
+                disabled={markingPaid}
+                className="flex-1 px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-black"
+              >
+                {markingPaid ? 'Marcando...' : 'Confirmar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
