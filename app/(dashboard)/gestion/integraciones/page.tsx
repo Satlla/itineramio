@@ -595,7 +595,7 @@ export default function IntegracionesPage() {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-6 flex justify-center items-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-gray-600" />
       </div>
     )
   }
@@ -680,11 +680,11 @@ export default function IntegracionesPage() {
 
           {/* Summary Card */}
           {detectionSummary && detectionSummary.totalEmails > 0 ? (
-            <Card className="border-2 border-violet-200 bg-gradient-to-br from-violet-50 to-white">
+            <Card className="border-2 border-gray-300 bg-gray-50">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-violet-100 rounded-lg">
-                    <Sparkles className="w-6 h-6 text-violet-600" />
+                  <div className="p-2 bg-gray-100 rounded-lg">
+                    <Sparkles className="w-6 h-6 text-gray-600" />
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-gray-900">
@@ -714,10 +714,10 @@ export default function IntegracionesPage() {
 
                   <div className="bg-white rounded-lg p-4 border">
                     <div className="flex items-center gap-2 mb-1">
-                      <AlertCircle className="w-4 h-4 text-orange-500" />
+                      <AlertCircle className="w-4 h-4 text-gray-500" />
                       <span className="text-sm text-gray-600">{t('integrations.summary.needsConfig')}</span>
                     </div>
-                    <p className="text-2xl font-bold text-orange-600">
+                    <p className="text-2xl font-bold text-gray-600">
                       {t('integrations.summary.needsConfigCount', { count: needsReviewProperties.length })}
                     </p>
                     <p className="text-sm text-gray-500">{t('integrations.summary.needsConfigReservations', { count: detectionSummary.needsReviewEmails })}</p>
@@ -735,7 +735,7 @@ export default function IntegracionesPage() {
                 {/* CTA */}
                 <Button
                   onClick={startReview}
-                  className="w-full bg-violet-600 hover:bg-violet-700 text-white py-3 text-lg"
+                  className="w-full bg-gray-900 hover:bg-black text-white py-3 text-lg"
                 >
                   {needsReviewProperties.length > 0 ? (
                     <>{t('integrations.summary.buttonReview')}</>
@@ -748,7 +748,7 @@ export default function IntegracionesPage() {
                 {/* Re-parse option */}
                 <button
                   onClick={handleReparse}
-                  className="w-full mt-3 text-sm text-gray-500 hover:text-violet-600"
+                  className="w-full mt-3 text-sm text-gray-500 hover:text-gray-600"
                 >
                   {t('integrations.summary.reparse')}
                 </button>
@@ -776,7 +776,7 @@ export default function IntegracionesPage() {
             {/* Progress bar */}
             <div className="bg-gray-100 h-1">
               <div
-                className="bg-violet-600 h-1 transition-all duration-300"
+                className="bg-gray-900 h-1 transition-all duration-300"
                 style={{ width: `${((currentWizardIndex + 1) / newProperties.length) * 100}%` }}
               />
             </div>
@@ -792,7 +792,7 @@ export default function IntegracionesPage() {
                     {newProperties[currentWizardIndex].displayName}
                   </h2>
                 </div>
-                <Badge className="bg-violet-100 text-violet-700">
+                <Badge className="bg-gray-100 text-gray-700">
                   {detectedProperties.find(d => d.name === newProperties[currentWizardIndex].emailPropertyName)?.emailCount || 0} {t('integrations.wizard.reservations')}
                 </Badge>
               </div>
@@ -812,7 +812,7 @@ export default function IntegracionesPage() {
                       value={newProperties[currentWizardIndex].propertyName}
                       onChange={(e) => updateCurrentProperty({ propertyName: e.target.value })}
                       placeholder={t('integrations.wizard.propertyNamePlaceholder')}
-                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-lg focus:border-violet-500 focus:ring-0"
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-lg focus:border-gray-500 focus:ring-0"
                       autoFocus
                     />
 
@@ -821,7 +821,7 @@ export default function IntegracionesPage() {
                       value={newProperties[currentWizardIndex].city}
                       onChange={(e) => updateCurrentProperty({ city: e.target.value })}
                       placeholder={t('integrations.wizard.cityPlaceholder')}
-                      className="w-full border border-gray-200 rounded-lg px-4 py-2 mt-3 focus:border-violet-500 focus:ring-0"
+                      className="w-full border border-gray-200 rounded-lg px-4 py-2 mt-3 focus:border-gray-500 focus:ring-0"
                     />
                   </div>
 
@@ -834,7 +834,7 @@ export default function IntegracionesPage() {
                           <button
                             key={p.id}
                             onClick={() => handleAssignExisting(p.configId!)}
-                            className="w-full text-left px-4 py-3 border rounded-lg hover:bg-violet-50 hover:border-violet-300 transition-colors flex items-center justify-between"
+                            className="w-full text-left px-4 py-3 border rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors flex items-center justify-between"
                           >
                             <div className="flex items-center gap-3">
                               <Building2 className="w-5 h-5 text-gray-400" />
@@ -863,7 +863,7 @@ export default function IntegracionesPage() {
                       onClick={() => updateCurrentProperty({ ownerId: '' })}
                       className={`w-full text-left px-4 py-3 border-2 rounded-xl transition-colors flex items-center gap-3 ${
                         !newProperties[currentWizardIndex].ownerId
-                          ? 'border-violet-500 bg-violet-50'
+                          ? 'border-gray-400 bg-gray-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -875,7 +875,7 @@ export default function IntegracionesPage() {
                         <p className="text-sm text-gray-500">{t('integrations.wizard.ownPropertyDescription')}</p>
                       </div>
                       {!newProperties[currentWizardIndex].ownerId && (
-                        <Check className="w-5 h-5 text-violet-600 ml-auto" />
+                        <Check className="w-5 h-5 text-gray-600 ml-auto" />
                       )}
                     </button>
 
@@ -885,15 +885,15 @@ export default function IntegracionesPage() {
                         onClick={() => updateCurrentProperty({ ownerId: owner.id })}
                         className={`w-full text-left px-4 py-3 border-2 rounded-xl transition-colors flex items-center gap-3 ${
                           newProperties[currentWizardIndex].ownerId === owner.id
-                            ? 'border-violet-500 bg-violet-50'
+                            ? 'border-gray-400 bg-gray-50'
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
-                        <div className="p-2 bg-violet-100 rounded-lg">
+                        <div className="p-2 bg-gray-100 rounded-lg">
                           {owner.type === 'EMPRESA' ? (
-                            <Building className="w-5 h-5 text-violet-600" />
+                            <Building className="w-5 h-5 text-gray-600" />
                           ) : (
-                            <User className="w-5 h-5 text-violet-600" />
+                            <User className="w-5 h-5 text-gray-600" />
                           )}
                         </div>
                         <div>
@@ -903,7 +903,7 @@ export default function IntegracionesPage() {
                           <p className="text-sm text-gray-500">{owner.nif || owner.cif || owner.email}</p>
                         </div>
                         {newProperties[currentWizardIndex].ownerId === owner.id && (
-                          <Check className="w-5 h-5 text-violet-600 ml-auto" />
+                          <Check className="w-5 h-5 text-gray-600 ml-auto" />
                         )}
                       </button>
                     ))}
@@ -912,7 +912,7 @@ export default function IntegracionesPage() {
                     {!showOwnerForm ? (
                       <button
                         onClick={() => setShowOwnerForm(true)}
-                        className="w-full text-left px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl hover:border-violet-400 hover:bg-violet-50 transition-colors flex items-center gap-3"
+                        className="w-full text-left px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors flex items-center gap-3"
                       >
                         <div className="p-2 bg-gray-50 rounded-lg">
                           <Plus className="w-5 h-5 text-gray-400" />
@@ -920,9 +920,9 @@ export default function IntegracionesPage() {
                         <span className="text-gray-600">{t('integrations.wizard.createOwner')}</span>
                       </button>
                     ) : (
-                      <div className="border-2 border-violet-200 rounded-xl p-4 bg-violet-50 space-y-3">
+                      <div className="border-2 border-gray-300 rounded-xl p-4 bg-gray-50 space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="font-medium text-violet-700">{t('integrations.wizard.newOwner')}</span>
+                          <span className="font-medium text-gray-700">{t('integrations.wizard.newOwner')}</span>
                           <button onClick={() => setShowOwnerForm(false)} className="text-gray-400 hover:text-gray-600">
                             <X className="w-4 h-4" />
                           </button>
@@ -932,7 +932,7 @@ export default function IntegracionesPage() {
                           <button
                             onClick={() => setNewOwner(prev => ({ ...prev, type: 'PERSONA_FISICA' }))}
                             className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium ${
-                              newOwner.type === 'PERSONA_FISICA' ? 'bg-violet-600 text-white' : 'bg-white border'
+                              newOwner.type === 'PERSONA_FISICA' ? 'bg-gray-900 text-white' : 'bg-white border'
                             }`}
                           >
                             {t('integrations.wizard.ownerTypePerson')}
@@ -940,7 +940,7 @@ export default function IntegracionesPage() {
                           <button
                             onClick={() => setNewOwner(prev => ({ ...prev, type: 'EMPRESA' }))}
                             className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium ${
-                              newOwner.type === 'EMPRESA' ? 'bg-violet-600 text-white' : 'bg-white border'
+                              newOwner.type === 'EMPRESA' ? 'bg-gray-900 text-white' : 'bg-white border'
                             }`}
                           >
                             {t('integrations.wizard.ownerTypeCompany')}
@@ -979,7 +979,7 @@ export default function IntegracionesPage() {
                             const id = await createOwner()
                             if (id) updateCurrentProperty({ ownerId: id })
                           }}
-                          className="w-full bg-violet-600 hover:bg-violet-700 text-white"
+                          className="w-full bg-gray-900 hover:bg-black text-white"
                           size="sm"
                         >
                           {t('integrations.wizard.createOwnerButton')}
@@ -1015,7 +1015,7 @@ export default function IntegracionesPage() {
                         }}
                         className={`py-4 px-3 border-2 rounded-xl text-center transition-colors ${
                           newProperties[currentWizardIndex].commissionPreset === preset
-                            ? 'border-violet-500 bg-violet-50'
+                            ? 'border-gray-400 bg-gray-50'
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
@@ -1054,7 +1054,7 @@ export default function IntegracionesPage() {
                   {/* Advanced options toggle */}
                   <button
                     onClick={() => updateCurrentProperty({ showAdvanced: !newProperties[currentWizardIndex].showAdvanced })}
-                    className="flex items-center gap-2 text-sm text-gray-500 hover:text-violet-600 mt-4"
+                    className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-600 mt-4"
                   >
                     <ChevronDown className={`w-4 h-4 transition-transform ${newProperties[currentWizardIndex].showAdvanced ? 'rotate-180' : ''}`} />
                     {t('integrations.wizard.advancedOptions')}
@@ -1124,7 +1124,7 @@ export default function IntegracionesPage() {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 {t('integrations.wizard.back')}
               </Button>
-              <Button onClick={handleWizardNext} className="bg-violet-600 hover:bg-violet-700 text-white">
+              <Button onClick={handleWizardNext} className="bg-gray-900 hover:bg-black text-white">
                 {wizardStep === 'commission' && currentWizardIndex === newProperties.length - 1 ? (
                   t('integrations.wizard.finish')
                 ) : (
@@ -1167,9 +1167,9 @@ export default function IntegracionesPage() {
               ))}
 
               {newProperties.filter(p => p.configured).map(prop => (
-                <div key={prop.emailPropertyName} className="flex items-center justify-between p-3 bg-violet-50 rounded-lg">
+                <div key={prop.emailPropertyName} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <Plus className="w-5 h-5 text-violet-600" />
+                    <Plus className="w-5 h-5 text-gray-600" />
                     <div>
                       <p className="font-medium text-gray-900">{prop.propertyName || prop.displayName}</p>
                       <p className="text-sm text-gray-500">
@@ -1179,7 +1179,7 @@ export default function IntegracionesPage() {
                       </p>
                     </div>
                   </div>
-                  <Badge className="bg-violet-100 text-violet-700">{t('integrations.confirmation.new')}</Badge>
+                  <Badge className="bg-gray-100 text-gray-700">{t('integrations.confirmation.new')}</Badge>
                 </div>
               ))}
             </div>
@@ -1224,19 +1224,19 @@ export default function IntegracionesPage() {
             <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('integrations.help.title')}</h2>
             <ol className="space-y-3 text-sm text-gray-600">
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center text-xs font-medium">1</span>
+                <span className="flex-shrink-0 w-6 h-6 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center text-xs font-medium">1</span>
                 <span>{t('integrations.help.step1')}</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center text-xs font-medium">2</span>
+                <span className="flex-shrink-0 w-6 h-6 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center text-xs font-medium">2</span>
                 <span>{t('integrations.help.step2')}</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center text-xs font-medium">3</span>
+                <span className="flex-shrink-0 w-6 h-6 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center text-xs font-medium">3</span>
                 <span>{t('integrations.help.step3')}</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center text-xs font-medium">4</span>
+                <span className="flex-shrink-0 w-6 h-6 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center text-xs font-medium">4</span>
                 <span>{t('integrations.help.step4')}</span>
               </li>
             </ol>

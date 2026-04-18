@@ -336,7 +336,7 @@ export default function ClientesPage() {
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-3">
-                <Users className="h-7 w-7 text-violet-600" />
+                <Users className="h-7 w-7 text-gray-600" />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">{t('owners.title')}</h1>
                   <p className="text-sm text-gray-600">
@@ -347,7 +347,7 @@ export default function ClientesPage() {
 
               <Button
                 onClick={() => { resetForm(); setShowModal(true) }}
-                className="bg-violet-600 hover:bg-violet-700"
+                className="bg-gray-900 hover:bg-black"
               >
                 <Plus className="w-4 h-4 mr-1" />
                 {t('owners.actions.new')}
@@ -371,7 +371,7 @@ export default function ClientesPage() {
                     placeholder={t('owners.search')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm"
                   />
                 </div>
               </div>
@@ -379,7 +379,7 @@ export default function ClientesPage() {
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
               >
                 <option value="all">{t('owners.filters.allTypes')}</option>
                 <option value="PERSONA_FISICA">{t('owners.filters.individual')}</option>
@@ -405,8 +405,8 @@ export default function ClientesPage() {
                   ) : (
                     <div className="max-w-md mx-auto">
                       <div className="text-center mb-6">
-                        <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <Users className="h-8 w-8 text-violet-600" />
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <Users className="h-8 w-8 text-gray-600" />
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">
                           {t('owners.emptyState.title')}
@@ -421,8 +421,8 @@ export default function ClientesPage() {
                         <p className="text-sm font-medium text-gray-700 mb-3">{t('owners.emptyState.flow.title')}</p>
                         <div className="space-y-2 text-sm text-gray-600">
                           <div className="flex items-center gap-2">
-                            <span className="w-5 h-5 bg-violet-600 text-white rounded-full flex items-center justify-center text-xs font-medium">1</span>
-                            <span>{t('owners.emptyState.flow.step1')} <span className="text-violet-600 font-medium">{t('owners.emptyState.flow.step1Current')}</span></span>
+                            <span className="w-5 h-5 bg-gray-900 text-white rounded-full flex items-center justify-center text-xs font-medium">1</span>
+                            <span>{t('owners.emptyState.flow.step1')} <span className="text-gray-600 font-medium">{t('owners.emptyState.flow.step1Current')}</span></span>
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="w-5 h-5 bg-gray-300 text-white rounded-full flex items-center justify-center text-xs font-medium">2</span>
@@ -442,7 +442,7 @@ export default function ClientesPage() {
                       <div className="text-center">
                         <Button
                           onClick={() => { resetForm(); setShowModal(true) }}
-                          className="bg-violet-600 hover:bg-violet-700"
+                          className="bg-gray-900 hover:bg-black"
                         >
                           <Plus className="w-4 h-4 mr-1" />
                           {t('owners.actions.create')}
@@ -460,12 +460,12 @@ export default function ClientesPage() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4 flex-1 min-w-0">
                           <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                            client.type === 'EMPRESA' ? 'bg-violet-100' : 'bg-blue-100'
+                            client.type === 'EMPRESA' ? 'bg-gray-100' : 'bg-gray-100'
                           }`}>
                             {client.type === 'EMPRESA' ? (
-                              <Briefcase className="w-6 h-6 text-violet-600" />
+                              <Briefcase className="w-6 h-6 text-gray-600" />
                             ) : (
-                              <User className="w-6 h-6 text-blue-600" />
+                              <User className="w-6 h-6 text-gray-600" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -506,19 +506,19 @@ export default function ClientesPage() {
                           <button
                             onClick={() => handleSendPortalLink(client.id)}
                             disabled={sendingLink === client.id}
-                            className={`p-2 transition-colors rounded-lg ${linkSent === client.id ? 'text-green-500 bg-green-50' : 'text-gray-400 hover:text-violet-600 hover:bg-violet-50'} disabled:opacity-50`}
+                            className={`p-2 transition-colors rounded-lg ${linkSent === client.id ? 'text-green-500 bg-green-50' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'} disabled:opacity-50`}
                             title="Enviar portal del propietario"
                           >
                             {linkSent === client.id
                               ? <CheckCircle className="w-4 h-4" />
                               : sendingLink === client.id
-                                ? <div className="w-4 h-4 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
+                                ? <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
                                 : <Send className="w-4 h-4" />
                             }
                           </button>
                           <button
                             onClick={() => handleEditClient(client)}
-                            className="p-2 text-gray-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
+                            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
                             title={t('owners.modal.edit')}
                           >
                             <Edit className="w-4 h-4" />
@@ -570,7 +570,7 @@ export default function ClientesPage() {
                     onClick={() => setNewClient({ ...newClient, type: 'PERSONA_FISICA' })}
                     className={`p-3 border rounded-lg flex items-center gap-2 transition-colors ${
                       newClient.type === 'PERSONA_FISICA'
-                        ? 'border-violet-500 bg-violet-50 text-violet-700'
+                        ? 'border-gray-400 bg-gray-50 text-gray-700'
                         : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
@@ -582,7 +582,7 @@ export default function ClientesPage() {
                     onClick={() => setNewClient({ ...newClient, type: 'EMPRESA' })}
                     className={`p-3 border rounded-lg flex items-center gap-2 transition-colors ${
                       newClient.type === 'EMPRESA'
-                        ? 'border-violet-500 bg-violet-50 text-violet-700'
+                        ? 'border-gray-400 bg-gray-50 text-gray-700'
                         : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
@@ -601,7 +601,7 @@ export default function ClientesPage() {
                       type="text"
                       value={newClient.firstName}
                       onChange={(e) => setNewClient({ ...newClient, firstName: e.target.value })}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.firstName ? 'border-red-300' : 'border-gray-300'}`}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 ${formErrors.firstName ? 'border-red-300' : 'border-gray-300'}`}
                       placeholder="Juan"
                     />
                   </div>
@@ -611,7 +611,7 @@ export default function ClientesPage() {
                       type="text"
                       value={newClient.lastName}
                       onChange={(e) => setNewClient({ ...newClient, lastName: e.target.value })}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.firstName ? 'border-red-300' : 'border-gray-300'}`}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 ${formErrors.firstName ? 'border-red-300' : 'border-gray-300'}`}
                       placeholder="García López"
                     />
                   </div>
@@ -624,7 +624,7 @@ export default function ClientesPage() {
                     type="text"
                     value={newClient.companyName}
                     onChange={(e) => setNewClient({ ...newClient, companyName: e.target.value })}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.companyName ? 'border-red-300' : 'border-gray-300'}`}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 ${formErrors.companyName ? 'border-red-300' : 'border-gray-300'}`}
                     placeholder="Mi Empresa S.L."
                   />
                   {formErrors.companyName && <p className="mt-1 text-xs text-red-500">{formErrors.companyName}</p>}
@@ -638,7 +638,7 @@ export default function ClientesPage() {
                   type="email"
                   value={newClient.email}
                   onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.email ? 'border-red-300' : 'border-gray-300'}`}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 ${formErrors.email ? 'border-red-300' : 'border-gray-300'}`}
                   placeholder="email@ejemplo.com"
                 />
                 {formErrors.email && <p className="mt-1 text-xs text-red-500">{formErrors.email}</p>}
@@ -652,7 +652,7 @@ export default function ClientesPage() {
                     type="text"
                     value={newClient.nif}
                     onChange={(e) => setNewClient({ ...newClient, nif: e.target.value.toUpperCase() })}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${newClient.nif && !isValidSpanishTaxId(newClient.nif) ? 'border-amber-400' : 'border-gray-300'}`}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 ${newClient.nif && !isValidSpanishTaxId(newClient.nif) ? 'border-amber-400' : 'border-gray-300'}`}
                     placeholder="12345678A"
                     maxLength={9}
                   />
@@ -669,7 +669,7 @@ export default function ClientesPage() {
                     type="text"
                     value={newClient.cif}
                     onChange={(e) => setNewClient({ ...newClient, cif: e.target.value.toUpperCase() })}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${newClient.cif && !isValidSpanishTaxId(newClient.cif) ? 'border-amber-400' : 'border-gray-300'}`}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 ${newClient.cif && !isValidSpanishTaxId(newClient.cif) ? 'border-amber-400' : 'border-gray-300'}`}
                     placeholder="A12345678"
                     maxLength={9}
                   />
@@ -688,7 +688,7 @@ export default function ClientesPage() {
                   type="tel"
                   value={newClient.phone}
                   onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
                   placeholder="+34 600 000 000"
                 />
               </div>
@@ -707,7 +707,7 @@ export default function ClientesPage() {
                   <select
                     value={newClient.retentionRate}
                     onChange={(e) => setNewClient({ ...newClient, retentionRate: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
                   >
                     <option value="">{t('owners.modal.retentionDefault')}</option>
                     <option value="0">0% - {t('owners.modal.retentionNone')}</option>
@@ -732,7 +732,7 @@ export default function ClientesPage() {
                     const formatted = value.replace(/(.{4})/g, '$1 ').trim()
                     setNewClient({ ...newClient, iban: formatted })
                   }}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 font-mono ${formErrors.iban ? 'border-red-300' : 'border-gray-300'}`}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 font-mono ${formErrors.iban ? 'border-red-300' : 'border-gray-300'}`}
                   placeholder="ES00 0000 0000 0000 0000 0000"
                   maxLength={29}
                 />
@@ -746,7 +746,7 @@ export default function ClientesPage() {
                   type="text"
                   value={newClient.address}
                   onChange={(e) => setNewClient({ ...newClient, address: e.target.value })}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.address ? 'border-red-300' : 'border-gray-300'}`}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 ${formErrors.address ? 'border-red-300' : 'border-gray-300'}`}
                   placeholder="Calle, número, piso..."
                 />
                 {formErrors.address && <p className="mt-1 text-xs text-red-500">{formErrors.address}</p>}
@@ -759,7 +759,7 @@ export default function ClientesPage() {
                     type="text"
                     value={newClient.city}
                     onChange={(e) => setNewClient({ ...newClient, city: e.target.value })}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.city ? 'border-red-300' : 'border-gray-300'}`}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 ${formErrors.city ? 'border-red-300' : 'border-gray-300'}`}
                     placeholder="Madrid"
                   />
                   {formErrors.city && <p className="mt-1 text-xs text-red-500">{formErrors.city}</p>}
@@ -770,7 +770,7 @@ export default function ClientesPage() {
                     type="text"
                     value={newClient.postalCode}
                     onChange={(e) => setNewClient({ ...newClient, postalCode: e.target.value })}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-violet-500 ${formErrors.postalCode ? 'border-red-300' : 'border-gray-300'}`}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 ${formErrors.postalCode ? 'border-red-300' : 'border-gray-300'}`}
                     placeholder="28001"
                     maxLength={10}
                   />
@@ -792,7 +792,7 @@ export default function ClientesPage() {
               <Button
                 onClick={handleSaveClient}
                 disabled={saving}
-                className="bg-violet-600 hover:bg-violet-700"
+                className="bg-gray-900 hover:bg-black"
               >
                 {saving ? t('owners.actions.saving') : editingClient ? t('owners.actions.saveChanges') : t('owners.actions.create')}
               </Button>

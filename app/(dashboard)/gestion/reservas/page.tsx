@@ -115,7 +115,7 @@ interface Reservation {
 const getPlatformConfig = (t: any): Record<string, { label: string; color: string; bgColor: string }> => ({
   AIRBNB: { label: t('reservations.platforms.AIRBNB'), color: 'text-[#FF5A5F]', bgColor: 'bg-red-50' },
   BOOKING: { label: t('reservations.platforms.BOOKING'), color: 'text-blue-600', bgColor: 'bg-blue-50' },
-  VRBO: { label: t('reservations.platforms.VRBO'), color: 'text-indigo-600', bgColor: 'bg-indigo-50' },
+  VRBO: { label: t('reservations.platforms.VRBO'), color: 'text-gray-600', bgColor: 'bg-gray-50' },
   DIRECT: { label: t('reservations.platforms.DIRECT'), color: 'text-green-600', bgColor: 'bg-green-50' },
   OTHER: { label: t('reservations.platforms.OTHER'), color: 'text-gray-600', bgColor: 'bg-gray-50' }
 })
@@ -124,7 +124,7 @@ const getStatusConfig = (t: any) => ({
   CONFIRMED: { label: t('reservations.status.confirmed'), color: 'bg-green-100 text-green-700', icon: CheckCircle },
   PENDING: { label: t('reservations.status.pending'), color: 'bg-amber-100 text-amber-700', icon: Clock },
   CANCELLED: { label: t('reservations.status.cancelled'), color: 'bg-red-100 text-red-700', icon: XCircle },
-  COMPLETED: { label: t('reservations.status.completed'), color: 'bg-violet-100 text-violet-700', icon: CheckCircle }
+  COMPLETED: { label: t('reservations.status.completed'), color: 'bg-gray-100 text-gray-700', icon: CheckCircle }
 })
 
 // Helper para obtener nombre e imagen de la propiedad/unidad
@@ -789,7 +789,7 @@ export default function ReservasPage() {
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
+                <div className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center shadow-lg">
                   <CalendarDays className="h-5 w-5 text-white" />
                 </div>
                 <div>
@@ -817,7 +817,7 @@ export default function ReservasPage() {
                   <button
                     onClick={() => setViewMode('list')}
                     aria-label="Ver como lista"
-                    className={`px-3 py-2 text-sm flex items-center gap-1.5 transition-colors ${viewMode === 'list' ? 'bg-violet-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+                    className={`px-3 py-2 text-sm flex items-center gap-1.5 transition-colors ${viewMode === 'list' ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
                   >
                     <List className="w-4 h-4" />
                     <span className="hidden sm:inline">Lista</span>
@@ -825,7 +825,7 @@ export default function ReservasPage() {
                   <button
                     onClick={() => setViewMode('calendar')}
                     aria-label="Ver como calendario"
-                    className={`px-3 py-2 text-sm flex items-center gap-1.5 transition-colors ${viewMode === 'calendar' ? 'bg-violet-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+                    className={`px-3 py-2 text-sm flex items-center gap-1.5 transition-colors ${viewMode === 'calendar' ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
                   >
                     <LayoutGrid className="w-4 h-4" />
                     <span className="hidden sm:inline">Calendario</span>
@@ -835,7 +835,7 @@ export default function ReservasPage() {
                 <Link href="/gestion/reservas/importar">
                   <Button
                     variant="outline"
-                    className="border-violet-200 text-violet-700 hover:bg-violet-50"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
                   >
                     <Upload className="w-4 h-4 mr-2" />
                     {t('reservations.actions.importCsv')}
@@ -843,7 +843,7 @@ export default function ReservasPage() {
                 </Link>
                 <Button
                   onClick={() => setShowNewModal(true)}
-                  className="bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800 shadow-lg shadow-violet-200"
+                  className="bg-gray-900 hover:bg-black shadow-lg shadow-gray-200"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   {t('reservations.actions.newReservation')}
@@ -866,8 +866,8 @@ export default function ReservasPage() {
                     <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">{t('reservations.stats.totalReservations')}</p>
                     <p className="text-2xl sm:text-3xl font-bold text-gray-900">{totals.count}</p>
                   </div>
-                  <div className="w-10 h-10 bg-violet-100 rounded-full flex items-center justify-center">
-                    <CalendarDays className="w-5 h-5 text-violet-600" />
+                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                    <CalendarDays className="w-5 h-5 text-gray-600" />
                   </div>
                 </div>
               </CardContent>
@@ -896,8 +896,8 @@ export default function ReservasPage() {
                     <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">{t('reservations.stats.nights')}</p>
                     <p className="text-2xl sm:text-3xl font-bold text-gray-900">{totals.nights}</p>
                   </div>
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Moon className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                    <Moon className="w-5 h-5 text-gray-600" />
                   </div>
                 </div>
               </CardContent>
@@ -936,7 +936,7 @@ export default function ReservasPage() {
                       placeholder={t('reservations.search')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all"
                     />
                   </div>
 
@@ -945,7 +945,7 @@ export default function ReservasPage() {
                     <select
                       value={selectedYear}
                       onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                      className="text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white"
+                      className="text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white"
                     >
                       {yearOptions.map(year => (
                         <option key={year} value={year}>{year}</option>
@@ -954,7 +954,7 @@ export default function ReservasPage() {
                     <select
                       value={selectedMonth || ''}
                       onChange={(e) => setSelectedMonth(e.target.value ? parseInt(e.target.value) : undefined)}
-                      className="text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white"
+                      className="text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white"
                     >
                       {monthOptions.map(m => (
                         <option key={m.value} value={m.value}>{m.label}</option>
@@ -967,7 +967,7 @@ export default function ReservasPage() {
                     <select
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
-                      className="text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white"
+                      className="text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white"
                     >
                       <option value="">{t('reservations.filters.allStatuses')}</option>
                       <option value="CONFIRMED">{t('reservations.status.confirmed')}</option>
@@ -977,7 +977,7 @@ export default function ReservasPage() {
                     <select
                       value={platformFilter}
                       onChange={(e) => setPlatformFilter(e.target.value)}
-                      className="text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white"
+                      className="text-sm border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-gray-500 bg-white"
                     >
                       <option value="">{t('reservations.filters.allPlatforms')}</option>
                       <option value="AIRBNB">{t('reservations.platforms.AIRBNB')}</option>
@@ -1023,12 +1023,12 @@ export default function ReservasPage() {
                     type="checkbox"
                     checked={selectedIds.size === selectableReservations.length && selectableReservations.length > 0}
                     onChange={toggleSelectAll}
-                    className="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                    className="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
                   />
                   {t('common.selectAll')} ({selectableReservations.length})
                 </label>
                 {selectedIds.size > 0 && (
-                  <span className="text-xs text-violet-600 font-medium">
+                  <span className="text-xs text-gray-600 font-medium">
                     {selectedIds.size} {t('common.selected')}
                   </span>
                 )}
@@ -1038,8 +1038,8 @@ export default function ReservasPage() {
             {filteredReservations.length === 0 ? (
               <Card className="border-0 shadow-md bg-white">
                 <CardContent className="p-12 text-center">
-                  <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CalendarDays className="h-8 w-8 text-violet-600" />
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CalendarDays className="h-8 w-8 text-gray-600" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('common.noReservations')}</h3>
                   <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">
@@ -1047,7 +1047,7 @@ export default function ReservasPage() {
                   </p>
                   <Button
                     onClick={() => setShowNewModal(true)}
-                    className="bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800"
+                    className="bg-gray-900 hover:bg-black"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     {t('reservations.actions.newReservation')}
@@ -1081,7 +1081,7 @@ export default function ReservasPage() {
                                 checked={selectedIds.has(reservation.id)}
                                 onChange={() => {}}
                                 onClick={(e) => toggleSelectReservation(reservation.id, e)}
-                                className="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500 cursor-pointer"
+                                className="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500 cursor-pointer"
                               />
                             </div>
                             {/* Property Image or Placeholder */}
@@ -1122,7 +1122,7 @@ export default function ReservasPage() {
                                   {statusConfig.label}
                                 </Badge>
                                 {reservation.liquidation && (
-                                  <Badge className="bg-violet-100 text-violet-700 text-xs">
+                                  <Badge className="bg-gray-100 text-gray-700 text-xs">
                                     <FileText className="w-3 h-3 mr-1" />
                                     Liquidada
                                   </Badge>
@@ -1195,7 +1195,7 @@ export default function ReservasPage() {
               {/* Modal Header */}
               <div className="flex items-center justify-between p-5 border-b border-gray-100">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center">
                     <Sparkles className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -1232,7 +1232,7 @@ export default function ReservasPage() {
                             setFormData({ ...formData, billingConfigId: value, billingUnitId: '' })
                           }
                         }}
-                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent appearance-none bg-white"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent appearance-none bg-white"
                         required
                       >
                         <option value="">{t('common.selectApartment')}</option>
@@ -1282,7 +1282,7 @@ export default function ReservasPage() {
                           onClick={() => setFormData({ ...formData, platform: key })}
                           className={`px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                             formData.platform === key
-                              ? `${config.bgColor} ${config.color} ring-2 ring-offset-1 ring-violet-500`
+                              ? `${config.bgColor} ${config.color} ring-2 ring-offset-1 ring-gray-500`
                               : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                           }`}
                         >
@@ -1304,7 +1304,7 @@ export default function ReservasPage() {
                         value={formData.guestName}
                         onChange={(e) => handleGuestNameChange(e.target.value)}
                         placeholder={t('common.guestFullNamePlaceholder')}
-                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                         required
                       />
                     </div>
@@ -1350,7 +1350,7 @@ export default function ReservasPage() {
                         value={formData.guestEmail}
                         onChange={(e) => handleGuestEmailChange(e.target.value)}
                         placeholder="email@ejemplo.com"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                       />
                     </div>
                   </div>
@@ -1367,7 +1367,7 @@ export default function ReservasPage() {
                           type="date"
                           value={formData.checkIn}
                           onChange={(e) => setFormData({ ...formData, checkIn: e.target.value })}
-                          className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                           required
                         />
                       </div>
@@ -1383,7 +1383,7 @@ export default function ReservasPage() {
                           value={formData.checkOut}
                           onChange={(e) => setFormData({ ...formData, checkOut: e.target.value })}
                           min={formData.checkIn}
-                          className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                           required
                         />
                       </div>
@@ -1392,13 +1392,13 @@ export default function ReservasPage() {
 
                   {/* Calculated nights display */}
                   {calculatedNights > 0 && (
-                    <div className="bg-violet-50 rounded-xl p-3 flex items-center justify-between">
-                      <span className="text-sm text-violet-700 font-medium flex items-center gap-2">
+                    <div className="bg-gray-50 rounded-xl p-3 flex items-center justify-between">
+                      <span className="text-sm text-gray-700 font-medium flex items-center gap-2">
                         <Moon className="w-4 h-4" />
                         {calculatedNights} {calculatedNights === 1 ? t('common.night') : t('common.nights')}
                       </span>
                       {pricePerNight && formData.hostEarnings && (
-                        <span className="text-sm text-violet-600">
+                        <span className="text-sm text-gray-600">
                           {pricePerNight}€/{t('common.perNight')}
                         </span>
                       )}
@@ -1419,7 +1419,7 @@ export default function ReservasPage() {
                           value={formData.hostEarnings}
                           onChange={(e) => setFormData({ ...formData, hostEarnings: e.target.value })}
                           placeholder="0.00"
-                          className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                           required
                         />
                       </div>
@@ -1437,7 +1437,7 @@ export default function ReservasPage() {
                           value={formData.cleaningFee}
                           onChange={(e) => setFormData({ ...formData, cleaningFee: e.target.value })}
                           placeholder={t('common.automatic')}
-                          className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                         />
                       </div>
                       <p className="mt-1 text-xs text-gray-500">{t('common.leaveEmptyForConfigured')}</p>
@@ -1454,7 +1454,7 @@ export default function ReservasPage() {
                       onChange={(e) => setFormData({ ...formData, internalNotes: e.target.value })}
                       placeholder={t('common.internalNotesPlaceholder')}
                       rows={2}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent resize-none"
                     />
                   </div>
                 </div>
@@ -1473,7 +1473,7 @@ export default function ReservasPage() {
                     </Button>
                     <Button
                       type="submit"
-                      className="flex-1 bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800"
+                      className="flex-1 bg-gray-900 hover:bg-black"
                       disabled={saving}
                     >
                       {saving ? (
@@ -1529,7 +1529,7 @@ export default function ReservasPage() {
                           className="w-12 h-12 rounded-xl object-cover"
                         />
                       ) : (
-                        <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center">
+                        <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center">
                           <Home className="w-6 h-6 text-white" />
                         </div>
                       )}
@@ -1562,7 +1562,7 @@ export default function ReservasPage() {
                       {STATUS_CONFIG[selectedReservation.status].label}
                     </Badge>
                     {selectedReservation.liquidation && (
-                      <Badge className="bg-violet-100 text-violet-700 text-sm px-3 py-1">
+                      <Badge className="bg-gray-100 text-gray-700 text-sm px-3 py-1">
                         <FileText className="w-3 h-3 mr-1" />
                         Liquidada
                       </Badge>
@@ -1577,8 +1577,8 @@ export default function ReservasPage() {
 
                   {/* Dates */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-violet-50 rounded-xl p-4">
-                      <p className="text-xs text-violet-600 mb-1">{t('common.checkIn')}</p>
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <p className="text-xs text-gray-600 mb-1">{t('common.checkIn')}</p>
                       <p className="font-semibold text-gray-900">
                         {new Date(selectedReservation.checkIn).toLocaleDateString('es-ES', {
                           weekday: 'short',
@@ -1588,8 +1588,8 @@ export default function ReservasPage() {
                         })}
                       </p>
                     </div>
-                    <div className="bg-violet-50 rounded-xl p-4">
-                      <p className="text-xs text-violet-600 mb-1">{t('common.checkOut')}</p>
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <p className="text-xs text-gray-600 mb-1">{t('common.checkOut')}</p>
                       <p className="font-semibold text-gray-900">
                         {new Date(selectedReservation.checkOut).toLocaleDateString('es-ES', {
                           weekday: 'short',
@@ -1603,8 +1603,8 @@ export default function ReservasPage() {
 
                   {/* Nights & Amount */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-blue-50 rounded-xl p-4">
-                      <p className="text-xs text-blue-600 mb-1">{t('common.nights')}</p>
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <p className="text-xs text-gray-600 mb-1">{t('common.nights')}</p>
                       <p className="text-2xl font-bold text-gray-900">{selectedReservation.nights}</p>
                     </div>
                     <div className="bg-green-50 rounded-xl p-4">
@@ -1623,7 +1623,7 @@ export default function ReservasPage() {
                       {selectedReservation.guestEmail && (
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Mail className="w-4 h-4" />
-                          <a href={`mailto:${selectedReservation.guestEmail}`} className="hover:text-violet-600">
+                          <a href={`mailto:${selectedReservation.guestEmail}`} className="hover:text-gray-600">
                             {selectedReservation.guestEmail}
                           </a>
                         </div>
@@ -1631,7 +1631,7 @@ export default function ReservasPage() {
                       {selectedReservation.guestPhone && (
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Phone className="w-4 h-4" />
-                          <a href={`tel:${selectedReservation.guestPhone}`} className="hover:text-violet-600">
+                          <a href={`tel:${selectedReservation.guestPhone}`} className="hover:text-gray-600">
                             {selectedReservation.guestPhone}
                           </a>
                         </div>
@@ -1689,7 +1689,7 @@ export default function ReservasPage() {
                           type="text"
                           value={formData.guestName}
                           onChange={(e) => setFormData({ ...formData, guestName: e.target.value })}
-                          className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                           required
                         />
                       </div>
@@ -1703,7 +1703,7 @@ export default function ReservasPage() {
                           type="email"
                           value={formData.guestEmail}
                           onChange={(e) => setFormData({ ...formData, guestEmail: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                         />
                       </div>
                       <div>
@@ -1712,7 +1712,7 @@ export default function ReservasPage() {
                           type="tel"
                           value={formData.guestPhone}
                           onChange={(e) => setFormData({ ...formData, guestPhone: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                         />
                       </div>
                     </div>
@@ -1725,7 +1725,7 @@ export default function ReservasPage() {
                           type="date"
                           value={formData.checkIn}
                           onChange={(e) => setFormData({ ...formData, checkIn: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                           required
                         />
                       </div>
@@ -1736,7 +1736,7 @@ export default function ReservasPage() {
                           value={formData.checkOut}
                           onChange={(e) => setFormData({ ...formData, checkOut: e.target.value })}
                           min={formData.checkIn}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                           required
                         />
                       </div>
@@ -1744,8 +1744,8 @@ export default function ReservasPage() {
 
                     {/* Calculated nights */}
                     {calculatedNights > 0 && (
-                      <div className="bg-violet-50 rounded-xl p-3 flex items-center justify-between">
-                        <span className="text-sm text-violet-700 font-medium flex items-center gap-2">
+                      <div className="bg-gray-50 rounded-xl p-3 flex items-center justify-between">
+                        <span className="text-sm text-gray-700 font-medium flex items-center gap-2">
                           <Moon className="w-4 h-4" />
                           {calculatedNights} {calculatedNights === 1 ? t('common.night') : t('common.nights')}
                         </span>
@@ -1762,7 +1762,7 @@ export default function ReservasPage() {
                           step="0.01"
                           value={formData.hostEarnings}
                           onChange={(e) => setFormData({ ...formData, hostEarnings: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                           required
                         />
                       </div>
@@ -1773,7 +1773,7 @@ export default function ReservasPage() {
                           step="0.01"
                           value={formData.cleaningFee}
                           onChange={(e) => setFormData({ ...formData, cleaningFee: e.target.value })}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                         />
                       </div>
                     </div>
@@ -1785,7 +1785,7 @@ export default function ReservasPage() {
                         value={formData.internalNotes}
                         onChange={(e) => setFormData({ ...formData, internalNotes: e.target.value })}
                         rows={2}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none"
                       />
                     </div>
                   </div>
@@ -1804,7 +1804,7 @@ export default function ReservasPage() {
                       </Button>
                       <Button
                         type="submit"
-                        className="flex-1 bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800"
+                        className="flex-1 bg-gray-900 hover:bg-black"
                         disabled={saving}
                       >
                         {saving ? (
@@ -2041,9 +2041,9 @@ export default function ReservasPage() {
                 ) : (
                   <>
                 {/* Instructions */}
-                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                  <h4 className="text-sm font-medium text-blue-800 mb-2">Formatos soportados</h4>
-                  <div className="text-sm text-blue-700 space-y-2">
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                  <h4 className="text-sm font-medium text-gray-800 mb-2">Formatos soportados</h4>
+                  <div className="text-sm text-gray-700 space-y-2">
                     <p><strong>{t('reservations.platforms.AIRBNB')}:</strong> {t('common.csvFromEarnings')}</p>
                     <p><strong>{t('reservations.platforms.BOOKING')}:</strong> {t('common.xlsFromExtranet')}</p>
                     <p><strong>{t('reservations.platforms.OTHER')}:</strong> {t('common.csvWithColumns')}</p>
@@ -2060,7 +2060,7 @@ export default function ReservasPage() {
                     className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
                       importFile
                         ? 'border-green-300 bg-green-50'
-                        : 'border-gray-200 hover:border-violet-300 hover:bg-violet-50'
+                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                     }`}
                   >
                     <input
@@ -2172,7 +2172,7 @@ export default function ReservasPage() {
                     <select
                       value={importPropertyId}
                       onChange={(e) => setImportPropertyId(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent appearance-none bg-white"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent appearance-none bg-white"
                     >
                       <option value="">Detectar automáticamente</option>
                       {properties.map(p => (
@@ -2291,7 +2291,7 @@ export default function ReservasPage() {
                         </button>
                         <a
                           href={`/gestion/facturacion/${importPropertyId}`}
-                          className="flex-1 px-4 py-2.5 bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-colors text-sm font-medium text-center"
+                          className="flex-1 px-4 py-2.5 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors text-sm font-medium text-center"
                         >
                           {t('common.viewInBilling')} →
                         </a>
@@ -2373,22 +2373,22 @@ export default function ReservasPage() {
               </div>
 
               <div className="space-y-3 mb-6">
-                <div className="bg-blue-50 rounded-xl p-3 flex items-start gap-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <FileText className="w-4 h-4 text-blue-600" />
+                <div className="bg-gray-50 rounded-xl p-3 flex items-start gap-3">
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-4 h-4 text-gray-600" />
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium text-blue-900">{t('common.addedToSettlements')}</p>
-                    <p className="text-blue-700">{t('common.canExportExcel')}</p>
+                    <p className="font-medium text-gray-900">{t('common.addedToSettlements')}</p>
+                    <p className="text-gray-700">{t('common.canExportExcel')}</p>
                   </div>
                 </div>
-                <div className="bg-violet-50 rounded-xl p-3 flex items-start gap-3">
-                  <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <FileText className="w-4 h-4 text-violet-600" />
+                <div className="bg-gray-50 rounded-xl p-3 flex items-start gap-3">
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-4 h-4 text-gray-600" />
                   </div>
                   <div className="text-sm">
-                    <p className="font-medium text-violet-900">{t('common.availableInBilling')}</p>
-                    <p className="text-violet-700">
+                    <p className="font-medium text-gray-900">{t('common.availableInBilling')}</p>
+                    <p className="text-gray-700">
                       {t('common.reservationAppearsIn')} <strong>{new Date(successInfo.checkIn).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}</strong>
                     </p>
                   </div>
@@ -2413,7 +2413,7 @@ export default function ReservasPage() {
                   {t('common.addAnother')}
                 </Button>
                 <Link href="/gestion/facturacion" className="flex-1">
-                  <Button className="w-full bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800">
+                  <Button className="w-full bg-gray-900 hover:bg-black">
                     Ir a Facturación
                   </Button>
                 </Link>

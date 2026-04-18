@@ -214,7 +214,7 @@ export default function PropertyFacturacionPage() {
                   )}
                   {property.owner ? (
                     <div className="flex items-center gap-1 mt-2">
-                      <User className="w-4 h-4 text-violet-500" />
+                      <User className="w-4 h-4 text-gray-500" />
                       <span className="text-sm text-gray-700">
                         {property.owner.name}
                       </span>
@@ -229,21 +229,21 @@ export default function PropertyFacturacionPage() {
               </div>
 
               {property.billingConfig && (
-                <div className="bg-violet-50 rounded-lg p-3 text-sm">
+                <div className="bg-gray-50 rounded-lg p-3 text-sm">
                   <div className="flex items-center gap-4">
                     <div>
                       <span className="text-gray-500">{t('billing.property.commission')}:</span>
-                      <span className="font-semibold text-violet-700 ml-1">
+                      <span className="font-semibold text-gray-700 ml-1">
                         {property.billingConfig.commissionValue}%
                       </span>
                     </div>
                     <div>
                       <span className="text-gray-500">{t('billing.property.cleaning')}:</span>
-                      <span className="font-semibold text-violet-700 ml-1">
+                      <span className="font-semibold text-gray-700 ml-1">
                         {Number(property.billingConfig.cleaningValue).toFixed(2).replace('.', ',')} €
                       </span>
                     </div>
-                    <Badge className={property.billingConfig.incomeReceiver === 'MANAGER' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}>
+                    <Badge className={property.billingConfig.incomeReceiver === 'MANAGER' ? 'bg-gray-100 text-gray-700' : 'bg-green-100 text-green-700'}>
                       {property.billingConfig.incomeReceiver === 'MANAGER' ? t('billing.property.managerCollects') : t('billing.property.ownerCollects')}
                     </Badge>
                   </div>
@@ -282,7 +282,7 @@ export default function PropertyFacturacionPage() {
                 <CardContent className="p-3 sm:p-4">
                   <div className="text-center">
                     <p className="text-xs sm:text-sm text-gray-600">{t('billing.card.occupancy')}</p>
-                    <p className="text-lg sm:text-2xl font-bold text-violet-600">
+                    <p className="text-lg sm:text-2xl font-bold text-gray-900">
                       {currentYearData.totals.occupancyRate.toFixed(0)}%
                     </p>
                   </div>
@@ -362,7 +362,7 @@ export default function PropertyFacturacionPage() {
                           <Link
                             key={month.month}
                             href={`/gestion/facturacion/${propertyId}/${year.year}/${month.month}${type ? `?type=${type}` : ''}`}
-                            className="block p-4 border-b border-gray-100 last:border-b-0 hover:bg-violet-50 transition-colors cursor-pointer"
+                            className="block p-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer"
                           >
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                               <div className="flex items-center gap-4">
@@ -402,7 +402,7 @@ export default function PropertyFacturacionPage() {
                                     )}
                                   </>
                                 ) : (month.reservations > 0 || month.expenses > 0) ? (
-                                  <Badge className="bg-violet-100 text-violet-700">
+                                  <Badge className="bg-gray-100 text-gray-700">
                                     {t('billing.month.pending')}
                                   </Badge>
                                 ) : (

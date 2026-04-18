@@ -397,7 +397,7 @@ export default function NuevaLiquidacionPage() {
             {t('newSettlement.backToSettlements')}
           </Link>
           <div className="flex items-center space-x-3">
-            <Receipt className="h-7 w-7 text-violet-600" />
+            <Receipt className="h-7 w-7 text-gray-600" />
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{t('newSettlement.title')}</h1>
               <p className="text-sm text-gray-600">
@@ -415,12 +415,12 @@ export default function NuevaLiquidacionPage() {
           {['select-owner', 'select-period', 'preview'].map((s, index) => (
             <React.Fragment key={s}>
               <div className={`flex items-center gap-2 ${
-                step === s ? 'text-violet-600' :
+                step === s ? 'text-gray-600' :
                 ['select-period', 'preview'].indexOf(step) > ['select-owner', 'select-period', 'preview'].indexOf(s)
                   ? 'text-green-600' : 'text-gray-400'
               }`}>
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  step === s ? 'bg-violet-100 text-violet-600' :
+                  step === s ? 'bg-gray-100 text-gray-600' :
                   ['select-period', 'preview'].indexOf(step) > ['select-owner', 'select-period', 'preview'].indexOf(s)
                     ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
                 }`}>
@@ -468,7 +468,7 @@ export default function NuevaLiquidacionPage() {
                     {t('newSettlement.noOwners.description')}
                   </p>
                   <Link href="/gestion/clientes">
-                    <Button className="bg-violet-600 hover:bg-violet-700">
+                    <Button className="bg-gray-900 hover:bg-black">
                       {t('newSettlement.noOwners.action')}
                     </Button>
                   </Link>
@@ -484,14 +484,14 @@ export default function NuevaLiquidacionPage() {
                   return (
                     <Card
                       key={owner.id}
-                      className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-transparent hover:border-l-violet-500"
+                      className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-transparent hover:border-l-gray-500"
                       onClick={() => handleSelectOwner(owner)}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-violet-100 rounded-full flex items-center justify-center">
-                              <User className="w-6 h-6 text-violet-600" />
+                            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                              <User className="w-6 h-6 text-gray-600" />
                             </div>
                             <div>
                               <p className="font-semibold text-gray-900">{getOwnerName(owner)}</p>
@@ -535,8 +535,8 @@ export default function NuevaLiquidacionPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-violet-100 rounded-full flex items-center justify-center">
-                      <User className="w-5 h-5 text-violet-600" />
+                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                      <User className="w-5 h-5 text-gray-600" />
                     </div>
                     <div>
                       <p className="font-medium text-gray-900">{getOwnerName(selectedOwner)}</p>
@@ -545,7 +545,7 @@ export default function NuevaLiquidacionPage() {
                   </div>
                   <button
                     onClick={() => setStep('select-owner')}
-                    className="text-sm text-violet-600 hover:text-violet-800"
+                    className="text-sm text-gray-600 hover:text-gray-800"
                   >
                     {t('newSettlement.periodSection.change')}
                   </button>
@@ -557,7 +557,7 @@ export default function NuevaLiquidacionPage() {
             <Card>
               <CardContent className="p-4">
                 <h3 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-violet-600" />
+                  <Calendar className="w-5 h-5 text-gray-600" />
                   {t('newSettlement.periodSection.title')}
                 </h3>
                 <div className="flex gap-4">
@@ -569,7 +569,7 @@ export default function NuevaLiquidacionPage() {
                         setSelectedMonth(parseInt(e.target.value))
                         setPreview(null)
                       }}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                     >
                       {MONTHS.map((month, index) => (
                         <option key={index} value={index + 1}>{month}</option>
@@ -584,7 +584,7 @@ export default function NuevaLiquidacionPage() {
                         setSelectedYear(parseInt(e.target.value))
                         setPreview(null)
                       }}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                     >
                       {yearOptions.map(year => (
                         <option key={year} value={year}>{year}</option>
@@ -600,7 +600,7 @@ export default function NuevaLiquidacionPage() {
               <Card>
                 <CardContent className="p-4">
                   <h3 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
-                    <Building2 className="w-5 h-5 text-violet-600" />
+                    <Building2 className="w-5 h-5 text-gray-600" />
                     {t('newSettlement.apartmentsSection.title')}
                   </h3>
 
@@ -614,7 +614,7 @@ export default function NuevaLiquidacionPage() {
                           onClick={() => handleSelectGroup(group.id)}
                           className={`p-4 border rounded-lg cursor-pointer transition-all ${
                             selectedMode === 'GROUP' && selectedGroupId === group.id
-                              ? 'border-violet-500 bg-violet-50'
+                              ? 'border-gray-900 bg-gray-50'
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
                         >
@@ -622,12 +622,12 @@ export default function NuevaLiquidacionPage() {
                             <div className="flex items-center gap-3">
                               <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                                 selectedMode === 'GROUP' && selectedGroupId === group.id
-                                  ? 'bg-violet-100'
+                                  ? 'bg-gray-100'
                                   : 'bg-gray-100'
                               }`}>
                                 <Layers className={`w-5 h-5 ${
                                   selectedMode === 'GROUP' && selectedGroupId === group.id
-                                    ? 'text-violet-600'
+                                    ? 'text-gray-600'
                                     : 'text-gray-500'
                                 }`} />
                               </div>
@@ -639,7 +639,7 @@ export default function NuevaLiquidacionPage() {
                               </div>
                             </div>
                             {selectedMode === 'GROUP' && selectedGroupId === group.id && (
-                              <Check className="w-5 h-5 text-violet-600" />
+                              <Check className="w-5 h-5 text-gray-600" />
                             )}
                           </div>
                           {/* Show units in group */}
@@ -665,7 +665,7 @@ export default function NuevaLiquidacionPage() {
                         {ownerIndividualUnits.length > 1 && (
                           <button
                             onClick={handleSelectIndividual}
-                            className="text-sm text-violet-600 hover:text-violet-800"
+                            className="text-sm text-gray-600 hover:text-gray-800"
                           >
                             {t('newSettlement.apartmentsSection.selectAll')}
                           </button>
@@ -682,19 +682,19 @@ export default function NuevaLiquidacionPage() {
                             }}
                             className={`p-3 border rounded-lg cursor-pointer transition-all ${
                               selectedMode === 'INDIVIDUAL' && selectedUnitIds.includes(unit.id)
-                                ? 'border-violet-500 bg-violet-50'
+                                ? 'border-gray-900 bg-gray-50'
                                 : 'border-gray-200 hover:border-gray-300'
                             }`}
                           >
                             <div className="flex items-center gap-3">
                               <div className={`w-8 h-8 rounded flex items-center justify-center ${
                                 selectedMode === 'INDIVIDUAL' && selectedUnitIds.includes(unit.id)
-                                  ? 'bg-violet-100'
+                                  ? 'bg-gray-100'
                                   : 'bg-gray-100'
                               }`}>
                                 <Home className={`w-4 h-4 ${
                                   selectedMode === 'INDIVIDUAL' && selectedUnitIds.includes(unit.id)
-                                    ? 'text-violet-600'
+                                    ? 'text-gray-600'
                                     : 'text-gray-500'
                                 }`} />
                               </div>
@@ -705,7 +705,7 @@ export default function NuevaLiquidacionPage() {
                                 )}
                               </div>
                               {selectedMode === 'INDIVIDUAL' && selectedUnitIds.includes(unit.id) && (
-                                <Check className="w-4 h-4 text-violet-600" />
+                                <Check className="w-4 h-4 text-gray-600" />
                               )}
                             </div>
                           </div>
@@ -729,7 +729,7 @@ export default function NuevaLiquidacionPage() {
               <Button
                 onClick={handlePreview}
                 disabled={loadingPreview || (selectedMode === 'GROUP' && !selectedGroupId) || (selectedMode === 'INDIVIDUAL' && selectedUnitIds.length === 0)}
-                className="bg-violet-600 hover:bg-violet-700"
+                className="bg-gray-900 hover:bg-black"
               >
                 {loadingPreview ? (
                   <>
@@ -754,10 +754,10 @@ export default function NuevaLiquidacionPage() {
             animate={{ opacity: 1 }}
             className="space-y-4"
           >
-            <Card className="bg-violet-50 border-violet-200 animate-pulse">
+            <Card className="bg-gray-50 border-gray-200 animate-pulse">
               <CardContent className="p-4">
-                <div className="h-6 bg-violet-200 rounded w-1/3 mb-2"></div>
-                <div className="h-4 bg-violet-100 rounded w-1/4"></div>
+                <div className="h-6 bg-gray-200 rounded w-1/3 mb-2"></div>
+                <div className="h-4 bg-gray-100 rounded w-1/4"></div>
               </CardContent>
             </Card>
             <Card className="animate-pulse">
@@ -785,33 +785,33 @@ export default function NuevaLiquidacionPage() {
             className="space-y-6"
           >
             {/* Summary Header */}
-            <Card className="bg-violet-50 border-violet-200">
+            <Card className="bg-gray-50 border-gray-200">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <p className="text-sm text-violet-600">{t('newSettlement.preview.settlementFor')}</p>
+                    <p className="text-sm text-gray-600">{t('newSettlement.preview.settlementFor')}</p>
                     <p className="font-semibold text-gray-900">
                       {selectedOwner ? getOwnerName(selectedOwner) : 'Cargando...'}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-violet-600">{t('newSettlement.preview.period')}</p>
+                    <p className="text-sm text-gray-600">{t('newSettlement.preview.period')}</p>
                     <p className="font-semibold text-gray-900">
                       {MONTHS[selectedMonth - 1]} {selectedYear}
                     </p>
                   </div>
                 </div>
                 {selectedMode === 'GROUP' && selectedGroup && (
-                  <div className="flex items-center gap-2 text-sm text-violet-700">
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
                     <Layers className="w-4 h-4" />
                     <span>{t('newSettlement.preview.group')}: {selectedGroup.name}</span>
-                    <Badge className="bg-violet-200 text-violet-800">
+                    <Badge className="bg-gray-200 text-gray-800">
                       {selectedGroup.unitsCount} {t('newSettlement.apartmentsSection.apartmentsPlural')}
                     </Badge>
                   </div>
                 )}
                 {selectedMode === 'INDIVIDUAL' && selectedUnitIds.length > 0 && (
-                  <div className="flex items-center gap-2 text-sm text-violet-700">
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
                     <Home className="w-4 h-4" />
                     <span>{selectedUnitIds.length} {t('newSettlement.preview.individualApartments')}</span>
                   </div>
@@ -857,11 +857,11 @@ export default function NuevaLiquidacionPage() {
                   ).map(([propertyName, propertyReservations]) => (
                     <div key={propertyName}>
                       {/* Property Header */}
-                      <div className="bg-violet-100 px-4 py-2 border-b border-violet-200">
+                      <div className="bg-gray-100 px-4 py-2 border-b border-gray-200">
                         <div className="flex items-center gap-2">
-                          <Home className="w-4 h-4 text-violet-600" />
-                          <span className="font-semibold text-violet-900">{propertyName}</span>
-                          <Badge className="bg-violet-200 text-violet-800 text-xs">
+                          <Home className="w-4 h-4 text-gray-600" />
+                          <span className="font-semibold text-gray-900">{propertyName}</span>
+                          <Badge className="bg-gray-200 text-gray-800 text-xs">
                             {propertyReservations.length} reservas
                           </Badge>
                         </div>
@@ -907,11 +907,11 @@ export default function NuevaLiquidacionPage() {
                               </tr>
                             ))}
                             {/* Subtotal row */}
-                            <tr className="bg-violet-50 border-t border-violet-200">
-                              <td colSpan={6} className="px-4 py-2 text-right font-medium text-violet-700">
+                            <tr className="bg-gray-50 border-t border-gray-200">
+                              <td colSpan={6} className="px-4 py-2 text-right font-medium text-gray-700">
                                 Subtotal {propertyName}:
                               </td>
-                              <td className="px-4 py-2 text-right font-bold text-violet-900">
+                              <td className="px-4 py-2 text-right font-bold text-gray-900">
                                 {formatCurrency(propertyReservations.reduce((sum, r) => sum + r.hostEarnings, 0))}
                               </td>
                             </tr>
@@ -922,7 +922,7 @@ export default function NuevaLiquidacionPage() {
                   ))}
 
                   {/* Grand Total */}
-                  <div className="bg-violet-600 px-4 py-3 flex justify-between items-center">
+                  <div className="bg-gray-900 px-4 py-3 flex justify-between items-center">
                     <span className="font-semibold text-white">
                       Total Ingresos ({preview.reservations.length} reservas)
                     </span>
@@ -941,7 +941,7 @@ export default function NuevaLiquidacionPage() {
                 <div className={`px-4 py-2 text-sm font-medium ${
                   preview.incomeReceiver === 'OWNER'
                     ? 'bg-amber-100 text-amber-800'
-                    : 'bg-blue-100 text-blue-800'
+                    : 'bg-gray-100 text-gray-800'
                 }`}>
                   {preview.incomeReceiver === 'OWNER'
                     ? '📥 El propietario recibe los ingresos de las plataformas'
@@ -964,7 +964,7 @@ export default function NuevaLiquidacionPage() {
                       <td className="px-4 py-3 text-gray-600">
                         Comisión de gestión
                         {preview.commission?.type === 'PERCENTAGE' && (
-                          <span className="ml-2 text-xs bg-violet-100 text-violet-700 px-2 py-0.5 rounded">
+                          <span className="ml-2 text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
                             {preview.commission.value}%
                           </span>
                         )}
@@ -1046,7 +1046,7 @@ export default function NuevaLiquidacionPage() {
               <Button
                 onClick={handleGenerate}
                 disabled={generating || preview.reservations.length === 0 || (!selectedOwner && !searchParams.get('ownerId'))}
-                className="bg-violet-600 hover:bg-violet-700"
+                className="bg-gray-900 hover:bg-black"
               >
                 {generating ? (
                   <>
@@ -1071,7 +1071,7 @@ export default function NuevaLiquidacionPage() {
             animate={{ opacity: 1 }}
             className="text-center py-12"
           >
-            <Loader2 className="w-12 h-12 text-violet-600 mx-auto mb-4 animate-spin" />
+            <Loader2 className="w-12 h-12 text-gray-600 mx-auto mb-4 animate-spin" />
             <p className="text-lg font-medium text-gray-900">{t('newSettlement.generatingState.title')}</p>
             <p className="text-sm text-gray-500 mt-2">{t('newSettlement.generatingState.description')}</p>
           </motion.div>

@@ -240,7 +240,7 @@ export default function SeriesConfigPage() {
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-3">
-                <Hash className="h-7 w-7 text-violet-600" />
+                <Hash className="h-7 w-7 text-gray-600" />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">{t('series.title')}</h1>
                   <p className="text-sm text-gray-600">
@@ -252,7 +252,7 @@ export default function SeriesConfigPage() {
               <Button
                 onClick={startCreating}
                 disabled={creating || editingId !== null}
-                className="bg-violet-600 hover:bg-violet-700"
+                className="bg-gray-900 hover:bg-black"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 {t('series.newSeries')}
@@ -309,7 +309,7 @@ export default function SeriesConfigPage() {
                         value={formData.name}
                         onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                         placeholder={t('series.form.namePlaceholder')}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                       />
                     </div>
                     <div>
@@ -322,7 +322,7 @@ export default function SeriesConfigPage() {
                         onChange={(e) => setFormData(prev => ({ ...prev, prefix: e.target.value.toUpperCase().slice(0, 3) }))}
                         placeholder={t('series.form.prefixPlaceholder')}
                         maxLength={3}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                       />
                     </div>
                     <div>
@@ -332,7 +332,7 @@ export default function SeriesConfigPage() {
                       <select
                         value={formData.type}
                         onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as 'STANDARD' | 'RECTIFYING' }))}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                       >
                         <option value="STANDARD">{t('series.form.standardInvoices')}</option>
                         <option value="RECTIFYING">{t('series.form.rectifyingInvoices')}</option>
@@ -344,7 +344,7 @@ export default function SeriesConfigPage() {
                           type="checkbox"
                           checked={formData.resetYearly}
                           onChange={(e) => setFormData(prev => ({ ...prev, resetYearly: e.target.checked }))}
-                          className="rounded text-violet-600 focus:ring-violet-500"
+                          className="rounded text-gray-600 focus:ring-gray-500"
                         />
                         <span className="text-sm text-gray-700">{t('series.form.resetYearly')}</span>
                       </label>
@@ -355,7 +355,7 @@ export default function SeriesConfigPage() {
                           type="checkbox"
                           checked={formData.isDefault}
                           onChange={(e) => setFormData(prev => ({ ...prev, isDefault: e.target.checked }))}
-                          className="rounded text-violet-600 focus:ring-violet-500"
+                          className="rounded text-gray-600 focus:ring-gray-500"
                         />
                         <span className="text-sm text-gray-700">{t('series.form.useAsDefault')}</span>
                       </label>
@@ -366,7 +366,7 @@ export default function SeriesConfigPage() {
                     <Button variant="outline" onClick={cancel} disabled={saving}>
                       {t('common.cancel')}
                     </Button>
-                    <Button onClick={handleCreate} disabled={saving} className="bg-violet-600 hover:bg-violet-700">
+                    <Button onClick={handleCreate} disabled={saving} className="bg-gray-900 hover:bg-black">
                       {saving ? t('series.actions.creating') : t('series.actions.create')}
                     </Button>
                   </div>
@@ -383,7 +383,7 @@ export default function SeriesConfigPage() {
             className="mb-6"
           >
             <div className="flex items-center gap-2 mb-4">
-              <FileText className="w-5 h-5 text-blue-600" />
+              <FileText className="w-5 h-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-900">{t('series.standardInvoices')}</h2>
             </div>
 
@@ -425,7 +425,7 @@ export default function SeriesConfigPage() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <div className="flex items-center gap-2 mb-4">
-              <RefreshCw className="w-5 h-5 text-orange-600" />
+              <RefreshCw className="w-5 h-5 text-gray-600" />
               <h2 className="text-lg font-semibold text-gray-900">{t('series.rectifyingInvoices')}</h2>
             </div>
 
@@ -464,10 +464,10 @@ export default function SeriesConfigPage() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mt-8"
           >
-            <Card className="bg-blue-50 border-blue-200">
+            <Card className="bg-gray-50 border-gray-300">
               <CardContent className="p-4">
-                <h3 className="font-medium text-blue-800 mb-2">{t('series.info.title')}</h3>
-                <ul className="text-sm text-blue-700 space-y-1">
+                <h3 className="font-medium text-gray-800 mb-2">{t('series.info.title')}</h3>
+                <ul className="text-sm text-gray-700 space-y-1">
                   <li>- {t('series.info.line1')}</li>
                   <li>- {t('series.info.line2')}</li>
                   <li>- {t('series.info.line3')}</li>
@@ -522,7 +522,7 @@ function SeriesCard({
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData((prev: any) => ({ ...prev, name: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
               </div>
               <div>
@@ -532,7 +532,7 @@ function SeriesCard({
                   min={0}
                   value={formData.currentNumber}
                   onChange={(e) => setFormData((prev: any) => ({ ...prev, currentNumber: parseInt(e.target.value) || 0 }))}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">{t('series.form.nextWillBe')} {formData.currentNumber + 1}</p>
               </div>
@@ -542,7 +542,7 @@ function SeriesCard({
                     type="checkbox"
                     checked={formData.isDefault}
                     onChange={(e) => setFormData((prev: any) => ({ ...prev, isDefault: e.target.checked }))}
-                    className="rounded text-violet-600 focus:ring-violet-500"
+                    className="rounded text-gray-600 focus:ring-gray-500"
                   />
                   <span className="text-sm text-gray-700">{t('series.form.defaultSeries')}</span>
                 </label>
@@ -552,7 +552,7 @@ function SeriesCard({
               <Button size="sm" variant="outline" onClick={onCancel} disabled={saving}>
                 {t('common.cancel')}
               </Button>
-              <Button size="sm" onClick={onSave} disabled={saving} className="bg-violet-600 hover:bg-violet-700">
+              <Button size="sm" onClick={onSave} disabled={saving} className="bg-gray-900 hover:bg-black">
                 {saving ? t('series.actions.saving') : t('series.actions.save')}
               </Button>
             </div>
@@ -576,7 +576,7 @@ function SeriesCard({
                 <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
                   <span>{t('series.card.year')}: {series.year}</span>
                   <span>{t('series.card.current')}: {series.currentNumber}</span>
-                  <span className="text-violet-600 font-medium">{t('series.card.next')}: {series.nextNumber}</span>
+                  <span className="text-gray-600 font-medium">{t('series.card.next')}: {series.nextNumber}</span>
                 </div>
               </div>
             </div>
@@ -593,7 +593,7 @@ function SeriesCard({
               )}
               <button
                 onClick={onEdit}
-                className="p-2 text-gray-400 hover:text-violet-600 transition-colors"
+                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
                 title={t('common.edit')}
               >
                 <Edit2 className="w-4 h-4" />

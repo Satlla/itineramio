@@ -163,8 +163,8 @@ export default function InvoiceDetailPage() {
   const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: string; icon: any }> = {
     DRAFT: { label: t('invoices.status.draft'), color: 'text-gray-700', bgColor: 'bg-gray-100', icon: Clock },
     PROFORMA: { label: t('invoices.status.proforma'), color: 'text-gray-700', bgColor: 'bg-gray-100', icon: Clock },
-    ISSUED: { label: t('invoices.status.issued'), color: 'text-blue-700', bgColor: 'bg-blue-100', icon: FileText },
-    SENT: { label: t('invoices.status.sent'), color: 'text-violet-700', bgColor: 'bg-violet-100', icon: Send },
+    ISSUED: { label: t('invoices.status.issued'), color: 'text-gray-700', bgColor: 'bg-gray-100', icon: FileText },
+    SENT: { label: t('invoices.status.sent'), color: 'text-gray-700', bgColor: 'bg-gray-100', icon: Send },
     PAID: { label: t('invoices.status.paid'), color: 'text-green-700', bgColor: 'bg-green-100', icon: CheckCircle },
     OVERDUE: { label: t('invoices.status.overdue'), color: 'text-red-700', bgColor: 'bg-red-100', icon: AlertCircle },
   }
@@ -651,14 +651,14 @@ export default function InvoiceDetailPage() {
               exit={{ scale: 0.95, opacity: 0 }}
               className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden"
             >
-              <div className="p-6 bg-violet-50 border-b border-violet-200">
+              <div className="p-6 bg-gray-50 border-b border-gray-200">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-violet-600" />
+                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-gray-600" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-violet-900">{t('invoices.modal.issueInvoice')}</h3>
-                    <p className="text-sm text-violet-700">{t('invoices.modal.willAssignFinalNumber')}</p>
+                    <h3 className="text-lg font-semibold text-gray-900">{t('invoices.modal.issueInvoice')}</h3>
+                    <p className="text-sm text-gray-700">{t('invoices.modal.willAssignFinalNumber')}</p>
                   </div>
                 </div>
               </div>
@@ -673,7 +673,7 @@ export default function InvoiceDetailPage() {
                       min="1"
                       value={customNumber}
                       onChange={(e) => setCustomNumber(parseInt(e.target.value) || 0)}
-                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-lg font-bold text-center text-violet-600 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-lg font-bold text-center text-gray-900 focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
@@ -704,7 +704,7 @@ export default function InvoiceDetailPage() {
                 <Button
                   onClick={handleIssue}
                   disabled={actionLoading === 'issue' || !!numberError}
-                  className="bg-violet-600 hover:bg-violet-700"
+                  className="bg-gray-900 hover:bg-black"
                 >
                   {actionLoading === 'issue' ? t('invoices.actions.issuing') : t('invoices.modal.issueInvoice')}
                 </Button>
@@ -729,14 +729,14 @@ export default function InvoiceDetailPage() {
               exit={{ scale: 0.95, opacity: 0 }}
               className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden"
             >
-              <div className="p-6 bg-blue-50 border-b border-blue-200">
+              <div className="p-6 bg-gray-50 border-b border-gray-200">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                    <Mail className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-gray-600" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-blue-900">{t('invoices.sendModal.title')}</h3>
-                    <p className="text-sm text-blue-700">{t('invoices.sendModal.subtitle')}</p>
+                    <h3 className="text-lg font-semibold text-gray-900">{t('invoices.sendModal.title')}</h3>
+                    <p className="text-sm text-gray-700">{t('invoices.sendModal.subtitle')}</p>
                   </div>
                 </div>
               </div>
@@ -779,7 +779,7 @@ export default function InvoiceDetailPage() {
                 <Button
                   onClick={handleSend}
                   disabled={actionLoading === 'send' || !sendEmail}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-gray-900 hover:bg-black"
                 >
                   <Send className="w-4 h-4 mr-2" />
                   {actionLoading === 'send' ? t('invoices.sendModal.sending') : t('invoices.actions.send')}
@@ -837,14 +837,14 @@ export default function InvoiceDetailPage() {
                     size="sm"
                     onClick={previewIssue}
                     disabled={actionLoading === 'issue' || invoice.items.length === 0}
-                    className="bg-violet-600 hover:bg-violet-700"
+                    className="bg-gray-900 hover:bg-black"
                   >
                     <FileText className="w-4 h-4 mr-1" />
                     {t('invoices.actions.issueShort')}
                   </Button>
                 )}
                 {canSend && (
-                  <Button size="sm" onClick={openSendModal} className="bg-blue-600 hover:bg-blue-700">
+                  <Button size="sm" onClick={openSendModal} className="bg-gray-900 hover:bg-black">
                     <Send className="w-4 h-4 mr-1" />
                     {t('invoices.actions.send')}
                   </Button>
@@ -1092,7 +1092,7 @@ export default function InvoiceDetailPage() {
                             onChange={(e) => setInvoice({ ...invoice, fullNumber: e.target.value || undefined })}
                             onBlur={(e) => saveInvoiceNumber(e.target.value)}
                             placeholder={t('invoices.detail.numberPlaceholder')}
-                            className="text-xl font-bold text-gray-900 text-right border-b border-gray-300 focus:border-violet-500 outline-none w-32 bg-transparent"
+                            className="text-xl font-bold text-gray-900 text-right border-b border-gray-300 focus:border-gray-500 outline-none w-32 bg-transparent"
                           />
                           <p className="text-xs text-gray-500 mt-1">{t('invoices.detail.autoNumber')}</p>
                         </div>
@@ -1193,7 +1193,7 @@ export default function InvoiceDetailPage() {
                         )}
                         <div className="flex justify-between text-lg pt-2 border-t border-gray-300">
                           <span className="font-semibold">{t('invoices.table.total')}</span>
-                          <span className="font-bold text-violet-600">{formatCurrency(totals.total)}</span>
+                          <span className="font-bold text-gray-900">{formatCurrency(totals.total)}</span>
                         </div>
                       </div>
                     </div>
@@ -1436,7 +1436,7 @@ export default function InvoiceDetailPage() {
                       type="button"
                       onClick={() => setRectifyType('SUBSTITUTION')}
                       className={`p-4 rounded-lg border-2 text-left transition-colors ${
-                        rectifyType === 'SUBSTITUTION' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 hover:border-gray-300'
+                        rectifyType === 'SUBSTITUTION' ? 'border-gray-900 bg-gray-50' : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
                       <p className="font-medium text-gray-900">{t('invoices.rectifyModal.substitution')}</p>
@@ -1446,7 +1446,7 @@ export default function InvoiceDetailPage() {
                       type="button"
                       onClick={() => setRectifyType('DIFFERENCE')}
                       className={`p-4 rounded-lg border-2 text-left transition-colors ${
-                        rectifyType === 'DIFFERENCE' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 hover:border-gray-300'
+                        rectifyType === 'DIFFERENCE' ? 'border-gray-900 bg-gray-50' : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
                       <p className="font-medium text-gray-900">{t('invoices.rectifyModal.difference')}</p>

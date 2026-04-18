@@ -351,7 +351,7 @@ export default function GastosPage() {
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-3">
-                <Receipt className="h-7 w-7 text-violet-600" />
+                <Receipt className="h-7 w-7 text-gray-600" />
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">{t('expenses.title')}</h1>
                   <p className="text-sm text-gray-600">
@@ -362,7 +362,7 @@ export default function GastosPage() {
 
               <Button
                 onClick={() => { resetForm(); setShowModal(true) }}
-                className="bg-violet-600 hover:bg-violet-700"
+                className="bg-gray-900 hover:bg-black"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 {t('expenses.actions.newExpense')}
@@ -401,7 +401,7 @@ export default function GastosPage() {
               <CardContent className="p-3 sm:p-4">
                 <div className="text-center">
                   <p className="text-xs sm:text-sm text-gray-600">{t('expenses.stats.expenseCount')}</p>
-                  <p className="text-lg sm:text-2xl font-bold text-violet-600">
+                  <p className="text-lg sm:text-2xl font-bold text-gray-600">
                     {totals.count}
                   </p>
                 </div>
@@ -426,13 +426,13 @@ export default function GastosPage() {
                       placeholder={t('expenses.search')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                     />
                   </div>
                   <select
                     value={selectedProperty}
                     onChange={(e) => setSelectedProperty(e.target.value)}
-                    className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                   >
                     <option value="">{t('expenses.filters.allProperties')}</option>
                     {properties.map(p => (
@@ -444,7 +444,7 @@ export default function GastosPage() {
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                   >
                     <option value="">{t('expenses.filters.allCategories')}</option>
                     {EXPENSE_CATEGORIES.map(c => (
@@ -454,7 +454,7 @@ export default function GastosPage() {
                   <select
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
-                    className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                   >
                     <option value="">{t('expenses.filters.allYear')}</option>
                     {monthOptions.map(m => (
@@ -544,7 +544,7 @@ export default function GastosPage() {
                               <div className="flex items-center gap-1">
                                 <button
                                   onClick={() => handleEdit(expense)}
-                                  className="p-2 text-gray-400 hover:text-violet-600 transition-colors"
+                                  className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
                                 >
                                   <Edit2 className="w-4 h-4" />
                                 </button>
@@ -616,7 +616,7 @@ export default function GastosPage() {
                       }
                       setFormError(null)
                     }}
-                    className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500 ${
+                    className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500 ${
                       !formData.propertyId && !formData.billingUnitId && formError ? 'border-red-300' : 'border-gray-300'
                     }`}
                   >
@@ -659,7 +659,7 @@ export default function GastosPage() {
                       required
                       value={formData.date}
                       onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                     />
                   </div>
                   <div>
@@ -670,7 +670,7 @@ export default function GastosPage() {
                       required
                       value={formData.category}
                       onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                     >
                       {EXPENSE_CATEGORIES.map(c => (
                         <option key={c.value} value={c.value}>{t(`expenses.categories.${c.key}`)}</option>
@@ -689,7 +689,7 @@ export default function GastosPage() {
                     value={formData.concept}
                     onChange={(e) => setFormData(prev => ({ ...prev, concept: e.target.value }))}
                     placeholder={t('expenses.modal.conceptPlaceholder')}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                   />
                 </div>
 
@@ -753,7 +753,7 @@ export default function GastosPage() {
                       value={formData.supplierName}
                       onChange={(e) => setFormData(prev => ({ ...prev, supplierName: e.target.value }))}
                       placeholder={t('expenses.modal.supplierPlaceholder')}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                     />
                   </div>
                   <div>
@@ -765,7 +765,7 @@ export default function GastosPage() {
                       value={formData.invoiceNumber}
                       onChange={(e) => setFormData(prev => ({ ...prev, invoiceNumber: e.target.value }))}
                       placeholder={t('expenses.modal.invoiceNumberPlaceholder')}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                     />
                   </div>
                 </div>
@@ -776,7 +776,7 @@ export default function GastosPage() {
                     id="chargeToOwner"
                     checked={formData.chargeToOwner}
                     onChange={(e) => setFormData(prev => ({ ...prev, chargeToOwner: e.target.checked }))}
-                    className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                    className="rounded border-gray-300 text-gray-600 focus:ring-gray-500"
                   />
                   <label htmlFor="chargeToOwner" className="text-sm text-gray-700">
                     {t('expenses.modal.chargeToOwner')}
@@ -795,7 +795,7 @@ export default function GastosPage() {
                   <Button
                     type="submit"
                     disabled={saving}
-                    className="flex-1 bg-violet-600 hover:bg-violet-700"
+                    className="flex-1 bg-gray-900 hover:bg-black"
                   >
                     {saving ? t('expenses.actions.saving') : editingExpense ? t('expenses.actions.update') : t('expenses.actions.createExpense')}
                   </Button>
@@ -898,8 +898,8 @@ export default function GastosPage() {
                 }} />
               </div>
 
-              <div className="bg-violet-50 rounded-xl p-4 mb-6">
-                <p className="text-sm text-violet-800" dangerouslySetInnerHTML={{
+              <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                <p className="text-sm text-gray-800" dangerouslySetInnerHTML={{
                   __html: t('expenses.successModal.nextStep', {
                     propertyName: successInfo.propertyName,
                     month: new Date(successInfo.date).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })

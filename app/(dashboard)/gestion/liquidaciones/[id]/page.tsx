@@ -583,13 +583,13 @@ export default function LiquidacionDetailPage() {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2">
-                <BarChart3 className="w-4 h-4 text-blue-600" />
+                <BarChart3 className="w-4 h-4 text-gray-600" />
                 <span className="text-xs font-medium text-gray-500 uppercase">{t('settlementDetail.kpi.occupancy')}</span>
               </div>
               <div className="text-2xl font-bold text-gray-900">{stats.occupancyRate}%</div>
               <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="bg-blue-600 h-2 rounded-full transition-all"
+                  className="bg-gray-600 h-2 rounded-full transition-all"
                   style={{ width: `${Math.min(stats.occupancyRate, 100)}%` }}
                 />
               </div>
@@ -729,7 +729,7 @@ export default function LiquidacionDetailPage() {
                   variant="outline"
                   onClick={handleRecalculate}
                   disabled={recalculating}
-                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
                   {recalculating ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -857,7 +857,7 @@ export default function LiquidacionDetailPage() {
                           <Home className="w-4 h-4 text-gray-500" />
                           <span className="font-medium text-gray-900">{group.property}</span>
                         </div>
-                        <Badge className="bg-blue-100 text-blue-700">
+                        <Badge className="bg-gray-100 text-gray-700">
                           {group.reservations.length} {t('settlements.card.reservations')}
                         </Badge>
                         <span className="text-sm text-gray-600">
@@ -887,7 +887,7 @@ export default function LiquidacionDetailPage() {
                             {liquidation.totals.totalCleaning > 0 && (
                               <th className="text-right py-2.5 px-3 font-semibold text-gray-700 whitespace-nowrap">{t('settlementDetail.reservations.tableHeaders.cleaning')}</th>
                             )}
-                            <th className="text-right py-2.5 px-3 font-semibold text-gray-700 whitespace-nowrap bg-blue-50">{t('settlementDetail.breakdown.netPrice')}</th>
+                            <th className="text-right py-2.5 px-3 font-semibold text-gray-700 whitespace-nowrap bg-gray-50">{t('settlementDetail.breakdown.netPrice')}</th>
                             <th className="text-right py-2.5 px-3 font-semibold text-gray-700 whitespace-nowrap">{t('settlementDetail.reservations.tableHeaders.commission', { rate: stats.commissionValue })}%</th>
                             <th className="text-right py-2.5 px-3 font-semibold text-green-700 whitespace-nowrap bg-green-50">{t('settlementDetail.reservations.tableHeaders.netOwner')}</th>
                           </tr>
@@ -896,7 +896,7 @@ export default function LiquidacionDetailPage() {
                           {group.reservations.map((res, i) => {
                             const netPrice = res.hostEarnings - res.cleaningAmount
                             return (
-                              <tr key={res.id} className={`border-b border-gray-100 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-blue-50/30 transition-colors`}>
+                              <tr key={res.id} className={`border-b border-gray-100 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-gray-50/30 transition-colors`}>
                                 <td className="py-2 px-3">
                                   <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full ${
                                     res.platform === 'AIRBNB' ? 'bg-rose-100 text-rose-700' :
@@ -919,7 +919,7 @@ export default function LiquidacionDetailPage() {
                                 {liquidation.totals.totalCleaning > 0 && (
                                   <td className="py-2 px-3 text-right text-red-600 tabular-nums">-{formatCurrency(res.cleaningAmount)}</td>
                                 )}
-                                <td className="py-2 px-3 text-right font-medium tabular-nums bg-blue-50/50">{formatCurrency(netPrice)}</td>
+                                <td className="py-2 px-3 text-right font-medium tabular-nums bg-gray-50/50">{formatCurrency(netPrice)}</td>
                                 <td className="py-2 px-3 text-right text-red-600 tabular-nums">-{formatCurrency(res.commissionAmount)}</td>
                                 <td className="py-2 px-3 text-right font-semibold text-green-700 tabular-nums bg-green-50/50">{formatCurrency(res.netToOwner)}</td>
                               </tr>
@@ -936,7 +936,7 @@ export default function LiquidacionDetailPage() {
                             {liquidation.totals.totalCleaning > 0 && (
                               <td className="py-2.5 px-3 text-right text-red-600 tabular-nums">-{formatCurrency(group.subtotalCleaning)}</td>
                             )}
-                            <td className="py-2.5 px-3 text-right tabular-nums bg-blue-50">{formatCurrency(group.subtotalNetPrice)}</td>
+                            <td className="py-2.5 px-3 text-right tabular-nums bg-gray-50">{formatCurrency(group.subtotalNetPrice)}</td>
                             <td className="py-2.5 px-3 text-right text-red-600 tabular-nums">-{formatCurrency(group.subtotalCommission)}</td>
                             <td className="py-2.5 px-3 text-right text-green-700 tabular-nums bg-green-50">{formatCurrency(group.subtotalNet)}</td>
                           </tr>
@@ -1109,7 +1109,7 @@ export default function LiquidacionDetailPage() {
                         </thead>
                         <tbody>
                           {group.expenses.map((exp, i) => (
-                            <tr key={exp.id} className={`border-b border-gray-100 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-blue-50/30 transition-colors`}>
+                            <tr key={exp.id} className={`border-b border-gray-100 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-gray-50/30 transition-colors`}>
                               <td className="py-2 px-3 text-gray-600">
                                 {new Date(exp.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })}
                               </td>

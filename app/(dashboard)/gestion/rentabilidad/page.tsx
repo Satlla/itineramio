@@ -171,7 +171,7 @@ export default function RentabilidadPage() {
               <select
                 value={year}
                 onChange={(e) => setYear(parseInt(e.target.value))}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
               >
                 {[2024, 2025, 2026].map(y => (
                   <option key={y} value={y}>{y}</option>
@@ -215,12 +215,12 @@ export default function RentabilidadPage() {
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="p-2 bg-violet-100 rounded-lg">
-                      <TrendingUp className="w-4 h-4 text-violet-600" />
+                    <div className="p-2 bg-gray-100 rounded-lg">
+                      <TrendingUp className="w-4 h-4 text-gray-600" />
                     </div>
                   </div>
                   <p className="text-xs text-gray-500">{t('profitability.stats.yourCommission', { year })}</p>
-                  <p className="text-xl font-bold text-violet-600">
+                  <p className="text-xl font-bold text-gray-600">
                     {formatCurrency(stats.yearlyCommission)}
                   </p>
                 </CardContent>
@@ -229,12 +229,12 @@ export default function RentabilidadPage() {
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Users className="w-4 h-4 text-blue-600" />
+                    <div className="p-2 bg-gray-100 rounded-lg">
+                      <Users className="w-4 h-4 text-gray-600" />
                     </div>
                   </div>
                   <p className="text-xs text-gray-500">{t('profitability.stats.owners', { year })}</p>
-                  <p className="text-xl font-bold text-blue-600">
+                  <p className="text-xl font-bold text-gray-600">
                     {formatCurrency(stats.yearlyOwnerAmount)}
                   </p>
                 </CardContent>
@@ -271,8 +271,8 @@ export default function RentabilidadPage() {
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="p-2 bg-orange-100 rounded-lg">
-                      <Home className="w-4 h-4 text-orange-600" />
+                    <div className="p-2 bg-gray-100 rounded-lg">
+                      <Home className="w-4 h-4 text-gray-600" />
                     </div>
                   </div>
                   <p className="text-xs text-gray-500">{t('profitability.stats.properties')}</p>
@@ -298,7 +298,7 @@ export default function RentabilidadPage() {
                     <h3 className="text-lg font-semibold text-gray-900">
                       {monthNames[currentMonth]} {year}
                     </h3>
-                    <Badge className="bg-violet-100 text-violet-700">
+                    <Badge className="bg-gray-100 text-gray-700">
                       {t('profitability.thisMonth.avgCommission')}: {stats.avgCommission}%
                     </Badge>
                   </div>
@@ -312,13 +312,13 @@ export default function RentabilidadPage() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 mb-1">{t('profitability.thisMonth.yourCommission')}</p>
-                      <p className="text-2xl font-bold text-violet-600">
+                      <p className="text-2xl font-bold text-gray-600">
                         {formatCurrency(stats.monthlyCommission)}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 mb-1">{t('profitability.thisMonth.owners')}</p>
-                      <p className="text-2xl font-bold text-blue-600">
+                      <p className="text-2xl font-bold text-gray-600">
                         {formatCurrency(stats.monthlyOwnerAmount)}
                       </p>
                     </div>
@@ -380,10 +380,10 @@ export default function RentabilidadPage() {
                             <td className="text-right py-3 px-2 font-medium">
                               {formatCurrency(p.hostEarnings)}
                             </td>
-                            <td className="text-right py-3 px-2 font-medium text-violet-600">
+                            <td className="text-right py-3 px-2 font-medium text-gray-600">
                               {formatCurrency(p.managerAmount)}
                             </td>
-                            <td className="text-right py-3 px-2 font-medium text-blue-600">
+                            <td className="text-right py-3 px-2 font-medium text-gray-600">
                               {formatCurrency(p.ownerAmount)}
                             </td>
                             <td className="text-right py-3 px-2">
@@ -400,7 +400,7 @@ export default function RentabilidadPage() {
                             <td className="py-3 px-2">
                               <Link
                                 href={`/gestion/propiedades/${p.property.id}/calendario`}
-                                className="text-violet-600 hover:text-violet-800"
+                                className="text-gray-600 hover:text-gray-800"
                               >
                                 <ChevronRight className="w-4 h-4" />
                               </Link>
@@ -416,10 +416,10 @@ export default function RentabilidadPage() {
                           <td className="text-right py-3 px-2">
                             {formatCurrency(profitability.totals.hostEarnings)}
                           </td>
-                          <td className="text-right py-3 px-2 text-violet-600">
+                          <td className="text-right py-3 px-2 text-gray-600">
                             {formatCurrency(profitability.totals.managerAmount)}
                           </td>
-                          <td className="text-right py-3 px-2 text-blue-600">
+                          <td className="text-right py-3 px-2 text-gray-600">
                             {formatCurrency(profitability.totals.ownerAmount)}
                           </td>
                           <td className="text-right py-3 px-2">

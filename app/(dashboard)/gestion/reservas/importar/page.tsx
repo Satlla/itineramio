@@ -819,7 +819,7 @@ export default function ImportarReservasPage() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-4">
-                <Building2 className="h-5 w-5 text-violet-600" />
+                <Building2 className="h-5 w-5 text-gray-600" />
                 <h2 className="text-lg font-semibold">
                   {useSmartImport ? t('importReservations.propertySection.titleSmartImport') : t('importReservations.propertySection.title')}
                   {useSmartImport && <span className="text-sm font-normal text-gray-500 ml-2">{t('importReservations.propertySection.optional')}</span>}
@@ -837,7 +837,7 @@ export default function ImportarReservasPage() {
                   value={selectedPropertyId}
                   onChange={(e) => setSelectedPropertyId(e.target.value)}
                   disabled={loadingProperties}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 pr-10 appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 pr-10 appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                 >
                   <option value="">{t('importReservations.propertySection.selectProperty')}</option>
                   {properties.map((property) => (
@@ -934,7 +934,7 @@ export default function ImportarReservasPage() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-2 mb-4">
-                <FileSpreadsheet className="h-5 w-5 text-violet-600" />
+                <FileSpreadsheet className="h-5 w-5 text-gray-600" />
                 <h2 className="text-lg font-semibold">{t('importReservations.fileSection.title')}</h2>
               </div>
               <p className="text-sm text-gray-600 mb-4">
@@ -948,15 +948,15 @@ export default function ImportarReservasPage() {
                     border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
                     transition-colors
                     ${isDragActive
-                      ? 'border-violet-500 bg-violet-50'
-                      : 'border-gray-300 hover:border-violet-400'
+                      ? 'border-gray-900 bg-gray-50'
+                      : 'border-gray-300 hover:border-gray-400'
                     }
                   `}
                 >
                   <input {...getInputProps()} />
                   <Upload className="h-10 w-10 mx-auto mb-4 text-gray-400" />
                   {isDragActive ? (
-                    <p className="text-violet-600 font-medium">{t('importReservations.fileSection.dropHere')}</p>
+                    <p className="text-gray-600 font-medium">{t('importReservations.fileSection.dropHere')}</p>
                   ) : (
                     <>
                       <p className="font-medium text-gray-700">
@@ -1024,7 +1024,7 @@ export default function ImportarReservasPage() {
                   )}
                   {/* Template suggestion banner */}
                   {suggestedTemplate && !showColumnMapper && !universalMapping && (
-                    <div className="flex items-center justify-between px-3 py-2 rounded-lg text-sm bg-violet-50 text-violet-700 border border-violet-200">
+                    <div className="flex items-center justify-between px-3 py-2 rounded-lg text-sm bg-gray-50 text-gray-700 border border-gray-200">
                       <div className="flex items-center gap-2">
                         <Sparkles className="h-4 w-4" />
                         <span>Plantilla detectada: <strong>{suggestedTemplate.name}</strong></span>
@@ -1032,7 +1032,7 @@ export default function ImportarReservasPage() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={handleApplySuggestedTemplate}
-                          className="text-xs font-medium bg-violet-600 text-white px-3 py-1 rounded hover:bg-violet-700"
+                          className="text-xs font-medium bg-gray-900 text-white px-3 py-1 rounded hover:bg-black"
                         >
                           Usar plantilla
                         </button>
@@ -1079,7 +1079,7 @@ export default function ImportarReservasPage() {
                     type="checkbox"
                     checked={skipDuplicates}
                     onChange={(e) => setSkipDuplicates(e.target.checked)}
-                    className="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                    className="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
                   />
                   <span className="text-sm text-gray-700">{t('importReservations.fileSection.skipDuplicates')}</span>
                 </label>
@@ -1108,7 +1108,7 @@ export default function ImportarReservasPage() {
             <Card>
               <CardContent className="py-8">
                 <div className="flex items-center justify-center gap-3">
-                  <Loader2 className="h-5 w-5 animate-spin text-violet-600" />
+                  <Loader2 className="h-5 w-5 animate-spin text-gray-600" />
                   <span className="text-gray-600">{t('importReservations.analyzing')}</span>
                 </div>
               </CardContent>
@@ -1174,7 +1174,7 @@ export default function ImportarReservasPage() {
                   <div className="mt-4">
                     <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-violet-600 transition-all duration-300"
+                        className="h-full bg-gray-900 transition-all duration-300"
                         style={{ width: `${importProgress}%` }}
                       />
                     </div>
@@ -1229,13 +1229,13 @@ export default function ImportarReservasPage() {
 
                 {/* Smart import mode toggle (when multiple listings detected) */}
                 {smartImportInfo && previewAnalysis.listingsFound.length > 1 && (
-                  <div className="mb-6 p-4 bg-violet-50 border border-violet-200 rounded-lg">
+                  <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-sm font-medium text-violet-900">
+                        <h3 className="text-sm font-medium text-gray-900">
                           {t('importReservations.analysis.smartImport.title')}
                         </h3>
-                        <p className="text-xs text-violet-700 mt-1">
+                        <p className="text-xs text-gray-700 mt-1">
                           {t('importReservations.analysis.smartImport.multipleListingsDetected', { count: previewAnalysis.listingsFound.length })}
                           {useSmartImport
                             ? ' ' + t('importReservations.analysis.smartImport.assignEach')
@@ -1249,7 +1249,7 @@ export default function ImportarReservasPage() {
                           onChange={(e) => setUseSmartImport(e.target.checked)}
                           className="sr-only peer"
                         />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
                       </label>
                     </div>
                   </div>
@@ -1268,19 +1268,19 @@ export default function ImportarReservasPage() {
 
                     {/* Option to skip unmapped listings */}
                     {!canConfirmSmartImport && mappedReservationsCount > 0 && (
-                      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
                         <label className="flex items-start gap-3 cursor-pointer">
                           <input
                             type="checkbox"
                             checked={skipUnmappedListings}
                             onChange={(e) => setSkipUnmappedListings(e.target.checked)}
-                            className="mt-1 w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                            className="mt-1 w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-500"
                           />
                           <div>
-                            <span className="font-medium text-blue-900">
+                            <span className="font-medium text-gray-900">
                               {t('importReservations.analysis.import', { count: mappedReservationsCount })}
                             </span>
-                            <p className="text-sm text-blue-700 mt-1">
+                            <p className="text-sm text-gray-700 mt-1">
                               {t('importReservations.analysis.import', { count: mappedReservationsCount })}
                             </p>
                           </div>
@@ -1298,7 +1298,7 @@ export default function ImportarReservasPage() {
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {previewAnalysis.listingsFound.map((listing, i) => (
-                        <Badge key={i} className="bg-violet-100 text-violet-800 text-xs">
+                        <Badge key={i} className="bg-gray-100 text-gray-800 text-xs">
                           {listing.name} ({listing.count})
                         </Badge>
                       ))}
@@ -1399,7 +1399,7 @@ export default function ImportarReservasPage() {
                         ? (!canConfirmSmartImport && (!skipUnmappedListings || mappedReservationsCount === 0))
                         : !selectedPropertyId)
                     }
-                    className="bg-violet-600 hover:bg-violet-700 text-white"
+                    className="bg-gray-900 hover:bg-black text-white"
                   >
                     {isImporting ? (
                       <>
@@ -1435,7 +1435,7 @@ export default function ImportarReservasPage() {
                   <div className="mt-4">
                     <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-violet-600 transition-all duration-300"
+                        className="h-full bg-gray-900 transition-all duration-300"
                         style={{ width: `${importProgress}%` }}
                       />
                     </div>
@@ -1545,13 +1545,13 @@ export default function ImportarReservasPage() {
 
                 {/* Aliases saved */}
                 {importResult.aliasesSaved && importResult.aliasesSaved.length > 0 && (
-                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-sm text-blue-800 font-medium mb-2">
+                  <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <p className="text-sm text-gray-800 font-medium mb-2">
                       {t('importReservations.result.aliasesSaved.title')}:
                     </p>
                     <div className="space-y-1">
                       {importResult.aliasesSaved.map((a: { billingUnitId: string; billingUnitName: string; alias: string }, i: number) => (
-                        <div key={i} className="text-xs text-blue-700">
+                        <div key={i} className="text-xs text-gray-700">
                           "{a.alias}" → {a.billingUnitName}
                         </div>
                       ))}
@@ -1565,7 +1565,7 @@ export default function ImportarReservasPage() {
                     <p className="text-sm text-gray-600 mb-2">{t('importReservations.result.listingsImported')}:</p>
                     <div className="flex flex-wrap gap-1">
                       {importResult.listingsFound.map((listing: string, i: number) => (
-                        <Badge key={i} className="bg-violet-100 text-violet-800 text-xs">
+                        <Badge key={i} className="bg-gray-100 text-gray-800 text-xs">
                           {listing}
                         </Badge>
                       ))}
@@ -1628,7 +1628,7 @@ export default function ImportarReservasPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <Save className="h-5 w-5 text-violet-600" />
+                  <Save className="h-5 w-5 text-gray-600" />
                   <h2 className="text-lg font-semibold">Plantillas guardadas</h2>
                 </div>
                 <div className="space-y-2">
@@ -1638,7 +1638,7 @@ export default function ImportarReservasPage() {
                       className="flex items-center justify-between p-3 border border-gray-200 rounded-lg text-sm"
                     >
                       <div className="flex items-center gap-2 min-w-0">
-                        <FileText className="h-4 w-4 text-violet-500 flex-shrink-0" />
+                        <FileText className="h-4 w-4 text-gray-500 flex-shrink-0" />
                         <span className="font-medium truncate">{template.name}</span>
                       </div>
                       <button
@@ -1717,7 +1717,7 @@ export default function ImportarReservasPage() {
               <h2 className="text-lg font-semibold mb-4">{t('importReservations.help.title')}</h2>
 
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-blue-700 mb-2">{t('importReservations.help.booking.title')}</h3>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">{t('importReservations.help.booking.title')}</h3>
                 <ol className="text-sm text-gray-600 space-y-1 list-decimal list-inside">
                   <li>{t('importReservations.help.booking.step1')}</li>
                   <li>{t('importReservations.help.booking.step2')}</li>

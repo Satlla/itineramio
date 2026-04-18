@@ -140,13 +140,13 @@ export default function CheckInsHoyPage() {
       <div className="max-w-lg mx-auto px-4 py-5 space-y-6 pb-24">
         {loading ? (
           <div className="py-16 text-center">
-            <div className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-8 h-8 border-2 border-gray-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-sm text-gray-400">Consultando calendarios…</p>
           </div>
         ) : error ? (
           <div className="py-12 text-center">
             <p className="text-sm text-red-500 mb-3">{error}</p>
-            <button onClick={fetchData} className="text-sm text-violet-600 underline">Reintentar</button>
+            <button onClick={fetchData} className="text-sm text-gray-600 underline">Reintentar</button>
           </div>
         ) : (
           <>

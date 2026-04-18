@@ -71,8 +71,8 @@ function PropertyRow({
           {prop.profileImage ? (
             <Image src={prop.profileImage} alt="" width={40} height={40} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-violet-400" />
+            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-gray-400" />
             </div>
           )}
         </div>
@@ -94,7 +94,7 @@ function PropertyRow({
 
         <div className="flex items-center gap-2 flex-shrink-0">
           {status.state === 'saved' && <Check className="w-4 h-4 text-emerald-500" />}
-          {status.state === 'saving' && <Loader2 className="w-4 h-4 text-violet-500 animate-spin" />}
+          {status.state === 'saving' && <Loader2 className="w-4 h-4 text-gray-500 animate-spin" />}
           {status.state === 'error' && <AlertCircle className="w-4 h-4 text-red-500" />}
           {expanded ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
         </div>
@@ -156,7 +156,7 @@ function PropertyRow({
             <button
               onClick={handleSave}
               disabled={status.state === 'saving' || !isDirty}
-              className="w-full py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+              className="w-full py-2.5 bg-gray-900 hover:bg-black text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
             >
               {status.state === 'saving' ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Guardando…</>
@@ -250,7 +250,7 @@ export default function ConfigurarCalendarioPage() {
 
       <div className="max-w-lg mx-auto px-4 py-5 pb-24 space-y-3">
         {/* Instructions */}
-        <div className="bg-violet-50 border border-violet-100 rounded-2xl p-4 text-xs text-violet-700 leading-relaxed">
+        <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 text-xs text-gray-700 leading-relaxed">
           <p className="font-semibold mb-1">¿Cómo obtener la URL de iCal?</p>
           <p><span className="font-medium">Airbnb:</span> Anuncios → tu anuncio → Disponibilidad → Sincronizar → Exportar calendario (.ics)</p>
           <p className="mt-1"><span className="font-medium">Booking:</span> Extranet → Propiedades → Calendario → Exportar iCal</p>
@@ -258,7 +258,7 @@ export default function ConfigurarCalendarioPage() {
 
         {loading ? (
           <div className="py-12 text-center">
-            <div className="w-7 h-7 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-7 h-7 border-2 border-gray-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-sm text-gray-400">Cargando propiedades…</p>
           </div>
         ) : (

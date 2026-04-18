@@ -475,7 +475,7 @@ export default function NuevaFacturaPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
       </div>
     )
   }
@@ -495,7 +495,7 @@ export default function NuevaFacturaPage() {
             <button
               onClick={handleSubmit}
               disabled={saving || !selectedOwner}
-              className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 sm:gap-2 font-medium text-sm sm:text-base flex-shrink-0"
+              className="px-3 sm:px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 sm:gap-2 font-medium text-sm sm:text-base flex-shrink-0"
             >
               <Save className="w-4 h-4" />
               <span className="hidden sm:inline">{saving ? t('invoices.new.saving') : t('invoices.actions.saveDraft')}</span>
@@ -606,7 +606,7 @@ export default function NuevaFacturaPage() {
                         {/* Botón crear contacto siempre visible */}
                         <button
                           onClick={openCreateOwnerModal}
-                          className="w-full px-4 py-3 text-left hover:bg-blue-50 border-b border-gray-200 flex items-center gap-2 text-blue-600"
+                          className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-200 flex items-center gap-2 text-gray-700"
                         >
                           <UserPlus className="w-4 h-4" />
                           <span className="font-medium">
@@ -653,7 +653,7 @@ export default function NuevaFacturaPage() {
                     className={`w-full border rounded-lg px-3 py-2.5 text-sm bg-white ${
                       invoiceNumberDuplicate
                         ? 'border-red-400 focus:ring-red-500 focus:border-red-500'
-                        : 'border-gray-200 focus:ring-blue-500 focus:border-blue-500'
+                        : 'border-gray-200 focus:ring-gray-500 focus:border-gray-500'
                     }`}
                   />
                   {checkingDuplicate && (
@@ -680,7 +680,7 @@ export default function NuevaFacturaPage() {
                         setInvoiceNumber(`${series_.prefix}${shortYear}${String(nextNum).padStart(4, '0')}`)
                       }
                     }}
-                    className="mt-1 text-xs text-blue-600 hover:underline"
+                    className="mt-1 text-xs text-gray-600 hover:underline"
                   >
                     {t('invoices.new.useAutoNumber')}
                   </button>
@@ -766,7 +766,7 @@ export default function NuevaFacturaPage() {
                             onChange={(e) => updateItemBase(item.id, parseFloat(e.target.value) || 0)}
                             placeholder="100,00"
                             className={`w-20 text-right border rounded px-2 py-1 text-sm ${
-                              item.lastEdited === 'base' ? 'border-blue-300 bg-blue-50' : 'border-gray-200'
+                              item.lastEdited === 'base' ? 'border-gray-400 bg-gray-50' : 'border-gray-200'
                             }`}
                           />
                           <span className="ml-1 text-gray-400 text-sm">€</span>
@@ -808,7 +808,7 @@ export default function NuevaFacturaPage() {
                             onChange={(e) => updateItemTotal(item.id, parseFloat(e.target.value) || 0)}
                             placeholder="106,00"
                             className={`w-20 text-right border rounded px-2 py-1 text-sm font-medium ${
-                              item.lastEdited === 'total' ? 'border-blue-300 bg-blue-50' : 'border-gray-200'
+                              item.lastEdited === 'total' ? 'border-gray-400 bg-gray-50' : 'border-gray-200'
                             }`}
                           />
                           <span className="ml-1 text-gray-400 text-sm">€</span>
@@ -841,7 +841,7 @@ export default function NuevaFacturaPage() {
             {/* Añadir línea */}
             <button
               onClick={addItem}
-              className="mt-4 w-full py-2 border-2 border-dashed border-gray-200 rounded-lg text-gray-400 hover:border-blue-300 hover:text-blue-600 transition-colors flex items-center justify-center gap-2 text-sm"
+              className="mt-4 w-full py-2 border-2 border-dashed border-gray-200 rounded-lg text-gray-400 hover:border-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center gap-2 text-sm"
             >
               <Plus className="w-4 h-4" />
               {t('invoices.table.addLine')}
@@ -870,7 +870,7 @@ export default function NuevaFacturaPage() {
 
                 <div className="flex justify-between py-3 text-lg font-bold border-t-2 border-gray-900 mt-2">
                   <span>{t('invoices.table.totalToPay')}</span>
-                  <span className="text-blue-600">{formatCurrency(grandTotal)}</span>
+                  <span className="text-gray-900">{formatCurrency(grandTotal)}</span>
                 </div>
 
                 {hasRetentions && (
@@ -918,14 +918,14 @@ export default function NuevaFacturaPage() {
                         type="text"
                         value={newOwner.firstName}
                         onChange={(e) => setNewOwner(prev => ({ ...prev, firstName: e.target.value }))}
-                        className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
                         placeholder={t('invoices.contactModal.firstName')}
                       />
                       <input
                         type="text"
                         value={newOwner.lastName}
                         onChange={(e) => setNewOwner(prev => ({ ...prev, lastName: e.target.value }))}
-                        className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
                         placeholder={t('invoices.contactModal.lastName')}
                       />
                     </div>
@@ -934,7 +934,7 @@ export default function NuevaFacturaPage() {
                       type="text"
                       value={newOwner.companyName}
                       onChange={(e) => setNewOwner(prev => ({ ...prev, companyName: e.target.value }))}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
                       placeholder={t('invoices.contactModal.companyName')}
                     />
                   )}
@@ -948,7 +948,7 @@ export default function NuevaFacturaPage() {
                       ...prev,
                       [prev.type === 'PERSONA_FISICA' ? 'nif' : 'cif']: e.target.value.toUpperCase()
                     }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
                     placeholder={newOwner.type === 'PERSONA_FISICA' ? '12345678A' : 'B12345678'}
                   />
                 </div>
@@ -960,7 +960,7 @@ export default function NuevaFacturaPage() {
                       onClick={() => setNewOwner(prev => ({ ...prev, type: 'EMPRESA' }))}
                       className={`px-3 py-2 text-sm font-medium rounded-l-lg border ${
                         newOwner.type === 'EMPRESA'
-                          ? 'bg-blue-500 text-white border-blue-500'
+                          ? 'bg-gray-900 text-white border-gray-900'
                           : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                       }`}
                     >
@@ -971,7 +971,7 @@ export default function NuevaFacturaPage() {
                       onClick={() => setNewOwner(prev => ({ ...prev, type: 'PERSONA_FISICA' }))}
                       className={`px-3 py-2 text-sm font-medium rounded-r-lg border-t border-r border-b ${
                         newOwner.type === 'PERSONA_FISICA'
-                          ? 'bg-blue-500 text-white border-blue-500'
+                          ? 'bg-gray-900 text-white border-gray-900'
                           : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                       }`}
                     >
@@ -987,7 +987,7 @@ export default function NuevaFacturaPage() {
                   onClick={() => setOwnerTab('basico')}
                   className={`pb-2 text-sm font-medium border-b-2 ${
                     ownerTab === 'basico'
-                      ? 'text-blue-600 border-blue-600'
+                      ? 'text-gray-900 border-gray-900'
                       : 'text-gray-500 border-transparent hover:text-gray-700'
                   }`}
                 >
@@ -997,7 +997,7 @@ export default function NuevaFacturaPage() {
                   onClick={() => setOwnerTab('cuentas')}
                   className={`pb-2 text-sm font-medium border-b-2 ${
                     ownerTab === 'cuentas'
-                      ? 'text-blue-600 border-blue-600'
+                      ? 'text-gray-900 border-gray-900'
                       : 'text-gray-500 border-transparent hover:text-gray-700'
                   }`}
                 >
@@ -1113,7 +1113,7 @@ export default function NuevaFacturaPage() {
               <button
                 onClick={handleCreateOwner}
                 disabled={creatingOwner || (newOwner.type === 'PERSONA_FISICA' ? !newOwner.firstName : !newOwner.companyName) || !newOwner.email || !newOwner.address || !newOwner.city || !newOwner.postalCode}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {creatingOwner ? t('invoices.new.creating') : t('invoices.new.createContact')}
               </button>

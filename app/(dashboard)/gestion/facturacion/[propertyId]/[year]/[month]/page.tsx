@@ -149,8 +149,8 @@ export default function MonthInvoicePage() {
 
   const STATUS_CONFIG: Record<string, { label: string; color: string; bgColor: string; icon: any }> = {
     DRAFT: { label: t('common.status.draft'), color: 'text-gray-600', bgColor: 'bg-gray-100', icon: Edit3 },
-    PROFORMA: { label: t('invoices.status.proforma'), color: 'text-blue-600', bgColor: 'bg-blue-100', icon: FileText },
-    ISSUED: { label: t('common.status.issued'), color: 'text-violet-600', bgColor: 'bg-violet-100', icon: CheckCircle },
+    PROFORMA: { label: t('invoices.status.proforma'), color: 'text-gray-700', bgColor: 'bg-gray-100', icon: FileText },
+    ISSUED: { label: t('common.status.issued'), color: 'text-gray-700', bgColor: 'bg-gray-100', icon: CheckCircle },
     SENT: { label: t('common.status.sent'), color: 'text-amber-600', bgColor: 'bg-amber-100', icon: Mail },
     PAID: { label: t('common.status.paid'), color: 'text-green-600', bgColor: 'bg-green-100', icon: Check },
     CANCELLED: { label: t('common.status.cancelled'), color: 'text-red-600', bgColor: 'bg-red-100', icon: XCircle }
@@ -833,7 +833,7 @@ export default function MonthInvoicePage() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-500 text-sm">Contacto</span>
-                        <Link href="/gestion/clientes" className="text-sm text-blue-600 hover:underline">
+                        <Link href="/gestion/clientes" className="text-sm text-gray-700 hover:underline">
                           {ownerName}
                         </Link>
                       </div>
@@ -860,7 +860,7 @@ export default function MonthInvoicePage() {
                           <button
                             onClick={() => updateStatus('PAID')}
                             disabled={actionLoading === 'PAID'}
-                            className="text-sm text-blue-600 hover:underline"
+                            className="text-sm text-gray-700 hover:underline"
                           >
                             {actionLoading === 'PAID' ? 'Registrando...' : 'Añadir pago'}
                           </button>
@@ -889,7 +889,7 @@ export default function MonthInvoicePage() {
                         {invoice.status === 'DRAFT' && (
                           <button
                             onClick={() => setShowPreview(false)}
-                            className="text-sm text-blue-600 hover:underline"
+                            className="text-sm text-gray-700 hover:underline"
                           >
                             Editar
                           </button>
@@ -910,7 +910,7 @@ export default function MonthInvoicePage() {
                     <div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-700 font-medium">Método de pago</span>
-                        <button className="text-sm text-blue-600 hover:underline">Cambiar</button>
+                        <button className="text-sm text-gray-700 hover:underline">Cambiar</button>
                       </div>
                       {enabledPaymentMethods.length > 0 && (
                         <div className="mt-2 text-sm text-gray-600">
@@ -941,7 +941,7 @@ export default function MonthInvoicePage() {
                           className={`text-sm hover:underline ${
                             invoice.status === 'DRAFT' || !invoice.owner.email
                               ? 'text-gray-400 cursor-not-allowed'
-                              : 'text-blue-600'
+                              : 'text-gray-700'
                           }`}
                         >
                           {actionLoading === 'email' ? 'Enviando...' : 'Enviar vía email'}
@@ -1007,7 +1007,7 @@ export default function MonthInvoicePage() {
                     <Button
                       onClick={confirmIssueInvoice}
                       disabled={actionLoading === 'issue' || invoice.items.length === 0 || invoice.total <= 0}
-                      className="w-full bg-violet-600 hover:bg-violet-700"
+                      className="w-full bg-gray-900 hover:bg-black"
                     >
                       <CheckCircle className="w-4 h-4 mr-2" />
                       {actionLoading === 'issue' ? 'Emitiendo...' : 'Emitir factura'}
@@ -1020,7 +1020,7 @@ export default function MonthInvoicePage() {
                     <Button
                       onClick={openSendModal}
                       disabled={actionLoading === 'loadingEmail'}
-                      className="w-full bg-blue-600 hover:bg-blue-700"
+                      className="w-full bg-gray-900 hover:bg-black"
                     >
                       <Mail className="w-4 h-4 mr-2" />
                       {actionLoading === 'loadingEmail' ? t('billing.month.loadingEmail') : t('billing.month.sendByEmail')}
@@ -1104,7 +1104,7 @@ export default function MonthInvoicePage() {
                   value={emailForm.email}
                   onChange={(e) => setEmailForm({ ...emailForm, email: e.target.value })}
                   placeholder="email@ejemplo.com"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                 />
               </div>
 
@@ -1116,7 +1116,7 @@ export default function MonthInvoicePage() {
                   type="text"
                   value={emailForm.subject}
                   onChange={(e) => setEmailForm({ ...emailForm, subject: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                 />
               </div>
 
@@ -1128,7 +1128,7 @@ export default function MonthInvoicePage() {
                   value={emailForm.message}
                   onChange={(e) => setEmailForm({ ...emailForm, message: e.target.value })}
                   rows={6}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent resize-none"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   El cliente recibirá un enlace para ver y descargar la factura
@@ -1147,7 +1147,7 @@ export default function MonthInvoicePage() {
               <Button
                 onClick={sendEmail}
                 disabled={actionLoading === 'email' || !emailForm.email}
-                className="bg-violet-600 hover:bg-violet-700"
+                className="bg-gray-900 hover:bg-black"
               >
                 <Mail className="w-4 h-4 mr-2" />
                 {actionLoading === 'email' ? 'Enviando...' : 'Enviar factura'}
@@ -1306,12 +1306,12 @@ export default function MonthInvoicePage() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header with warning icon */}
-            <div className="p-6 bg-violet-50 border-b border-violet-200">
+            <div className="p-6 bg-gray-50 border-b border-gray-200">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5 text-violet-600" />
+                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-gray-600" />
                 </div>
-                <h3 className="text-lg font-semibold text-violet-900">Emitir factura</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Emitir factura</h3>
               </div>
             </div>
 
@@ -1355,7 +1355,7 @@ export default function MonthInvoicePage() {
               <Button
                 onClick={issueInvoice}
                 disabled={actionLoading === 'issue'}
-                className="bg-violet-600 hover:bg-violet-700"
+                className="bg-gray-900 hover:bg-black"
               >
                 <CheckCircle className="w-4 h-4 mr-2" />
                 {actionLoading === 'issue' ? 'Emitiendo...' : 'Sí, emitir factura'}
@@ -1503,7 +1503,7 @@ export default function MonthInvoicePage() {
                       size="sm"
                       onClick={() => saveInvoice(true)}
                       disabled={saving}
-                      className="bg-violet-600 hover:bg-violet-700"
+                      className="bg-gray-900 hover:bg-black"
                     >
                       <Save className="w-4 h-4 mr-1" />
                       {saving ? 'Guardando...' : 'Guardar y revisar'}
@@ -1614,7 +1614,7 @@ export default function MonthInvoicePage() {
                             value={invoice.fullNumber || ''}
                             onChange={(e) => setInvoice({ ...invoice, fullNumber: e.target.value || undefined })}
                             placeholder="Ej: F260001"
-                            className="text-xl font-bold text-gray-900 text-right border-b border-gray-300 focus:border-violet-500 outline-none w-32 bg-transparent"
+                            className="text-xl font-bold text-gray-900 text-right border-b border-gray-300 focus:border-gray-500 outline-none w-32 bg-transparent"
                           />
                           <p className="text-xs text-gray-500 mt-1">Vacío = automático</p>
                         </div>
@@ -1655,7 +1655,7 @@ export default function MonthInvoicePage() {
                     {(!invoice.owner.address || !invoice.owner.city) && (
                       <Link
                         href="/gestion/clientes"
-                        className="text-xs text-violet-600 hover:underline mt-2 inline-block"
+                        className="text-xs text-gray-600 hover:underline mt-2 inline-block"
                       >
                         Completar datos del propietario
                       </Link>
@@ -1679,7 +1679,7 @@ export default function MonthInvoicePage() {
                             disabled={actionLoading === 'regenerate'}
                             className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                               detailLevel === 'DETAILED'
-                                ? 'bg-violet-600 text-white'
+                                ? 'bg-gray-900 text-white'
                                 : 'text-gray-600 hover:bg-gray-100'
                             }`}
                           >
@@ -1690,7 +1690,7 @@ export default function MonthInvoicePage() {
                             disabled={actionLoading === 'regenerate'}
                             className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                               detailLevel === 'SUMMARY'
-                                ? 'bg-violet-600 text-white'
+                                ? 'bg-gray-900 text-white'
                                 : 'text-gray-600 hover:bg-gray-100'
                             }`}
                           >
@@ -1739,7 +1739,7 @@ export default function MonthInvoicePage() {
                               type="text"
                               value={item.concept}
                               onChange={(e) => updateItem(item.id, { concept: e.target.value })}
-                              className="w-full text-sm font-medium text-gray-900 border border-gray-200 rounded px-2 py-1 focus:ring-1 focus:ring-violet-500"
+                              className="w-full text-sm font-medium text-gray-900 border border-gray-200 rounded px-2 py-1 focus:ring-1 focus:ring-gray-500"
                             />
                           ) : (
                             <span className="font-medium text-gray-900">{item.concept}</span>
@@ -1764,11 +1764,11 @@ export default function MonthInvoicePage() {
                                 setEditingCell(null)
                               }}
                               onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
-                              className="w-full text-sm border border-gray-200 rounded px-2 py-1 text-right focus:ring-1 focus:ring-violet-500"
+                              className="w-full text-sm border border-gray-200 rounded px-2 py-1 text-right focus:ring-1 focus:ring-gray-500"
                             />
                           ) : (
                             <span
-                              className={`text-sm ${isEditable ? 'cursor-pointer hover:text-violet-600' : ''}`}
+                              className={`text-sm ${isEditable ? 'cursor-pointer hover:text-gray-600' : ''}`}
                               onClick={() => isEditable && setEditingCell(`${item.id}-price`)}
                             >
                               {formatCurrency(item.unitPrice)}
@@ -1791,7 +1791,7 @@ export default function MonthInvoicePage() {
                                 const val = parseInt(e.target.value) || 1
                                 updateItem(item.id, { quantity: val })
                               }}
-                              className="w-full text-sm border border-gray-200 rounded px-1 py-1 text-center focus:ring-1 focus:ring-violet-500"
+                              className="w-full text-sm border border-gray-200 rounded px-1 py-1 text-center focus:ring-1 focus:ring-gray-500"
                             />
                           ) : (
                             <span className="text-sm">{item.quantity}</span>
@@ -1813,7 +1813,7 @@ export default function MonthInvoicePage() {
                                 const val = parseInt(e.target.value) || 21
                                 updateItem(item.id, { vatRate: val })
                               }}
-                              className="w-full text-sm border border-gray-200 rounded px-1 py-1 text-center focus:ring-1 focus:ring-violet-500"
+                              className="w-full text-sm border border-gray-200 rounded px-1 py-1 text-center focus:ring-1 focus:ring-gray-500"
                             />
                           ) : (
                             <span className="text-sm text-gray-600">{item.vatRate}%</span>
@@ -1835,7 +1835,7 @@ export default function MonthInvoicePage() {
                                 const val = parseFloat(e.target.value) || 0
                                 updateItem(item.id, { retentionRate: Math.round(val * 100) / 100 })
                               }}
-                              className="w-full text-sm border border-gray-200 rounded px-1 py-1 text-center focus:ring-1 focus:ring-violet-500"
+                              className="w-full text-sm border border-gray-200 rounded px-1 py-1 text-center focus:ring-1 focus:ring-gray-500"
                             />
                           ) : (
                             <span className={`text-sm ${item.retentionRate > 0 ? 'text-red-600' : 'text-gray-400'}`}>
@@ -1951,7 +1951,7 @@ export default function MonthInvoicePage() {
                       ) : (
                         <button
                           onClick={() => setShowAddItem(true)}
-                          className="flex items-center gap-2 text-sm text-violet-600 hover:text-violet-700 font-medium"
+                          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-700 font-medium"
                         >
                           <Plus className="w-4 h-4" />
                           Añadir línea
@@ -1981,7 +1981,7 @@ export default function MonthInvoicePage() {
                       )}
                       <div className="flex justify-between text-lg pt-2 border-t border-gray-300">
                         <span className="font-semibold">Total</span>
-                        <span className="font-bold text-violet-600">{formatCurrency(totals.total)}</span>
+                        <span className="font-bold text-gray-600">{formatCurrency(totals.total)}</span>
                       </div>
                     </div>
                   </div>
@@ -1989,26 +1989,26 @@ export default function MonthInvoicePage() {
 
                 {/* Payment Methods */}
                 {managerConfig && (managerConfig.iban || managerConfig.bizumPhone || managerConfig.paypalEmail) && (
-                  <div className="px-6 py-4 border-t border-gray-200 bg-blue-50">
-                    <h4 className="text-xs uppercase tracking-wider text-blue-800 mb-2 font-medium">Métodos de pago</h4>
+                  <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    <h4 className="text-xs uppercase tracking-wider text-gray-700 mb-2 font-medium">Métodos de pago</h4>
                     <div className="flex flex-wrap gap-4 text-sm">
                       {managerConfig.iban && (
                         <div className="flex items-center gap-2">
-                          <span className="text-blue-700">IBAN:</span>
-                          <span className="font-mono text-blue-900">{managerConfig.iban.replace(/(.{4})/g, '$1 ').trim()}</span>
-                          {managerConfig.bankName && <span className="text-blue-600">({managerConfig.bankName})</span>}
+                          <span className="text-gray-600">IBAN:</span>
+                          <span className="font-mono text-gray-900">{managerConfig.iban.replace(/(.{4})/g, '$1 ').trim()}</span>
+                          {managerConfig.bankName && <span className="text-gray-500">({managerConfig.bankName})</span>}
                         </div>
                       )}
                       {managerConfig.bizumPhone && (
                         <div className="flex items-center gap-2">
-                          <span className="text-blue-700">Bizum:</span>
-                          <span className="font-medium text-blue-900">{managerConfig.bizumPhone}</span>
+                          <span className="text-gray-600">Bizum:</span>
+                          <span className="font-medium text-gray-900">{managerConfig.bizumPhone}</span>
                         </div>
                       )}
                       {managerConfig.paypalEmail && (
                         <div className="flex items-center gap-2">
-                          <span className="text-blue-700">PayPal:</span>
-                          <span className="font-medium text-blue-900">{managerConfig.paypalEmail}</span>
+                          <span className="text-gray-600">PayPal:</span>
+                          <span className="font-medium text-gray-900">{managerConfig.paypalEmail}</span>
                         </div>
                       )}
                     </div>
@@ -2025,7 +2025,7 @@ export default function MonthInvoicePage() {
                       value={invoice.notes || ''}
                       onChange={(e) => setInvoice({ ...invoice, notes: e.target.value })}
                       rows={2}
-                      className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                      className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                       placeholder="Notas adicionales para la factura..."
                     />
                   </div>

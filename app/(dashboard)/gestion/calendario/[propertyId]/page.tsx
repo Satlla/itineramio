@@ -226,7 +226,7 @@ export default function PropertyCalendarPage() {
         {/* Calendar grid */}
         {loading ? (
           <div className="py-10 text-center">
-            <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" />
+            <div className="w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full animate-spin mx-auto" />
           </div>
         ) : (
           <>
@@ -278,7 +278,7 @@ export default function PropertyCalendarPage() {
                       )}
                       <span className={`text-xs font-medium z-10 relative ${
                         isToday
-                          ? 'w-6 h-6 bg-violet-600 text-white rounded-full flex items-center justify-center text-[11px]'
+                          ? 'w-6 h-6 bg-gray-900 text-white rounded-full flex items-center justify-center text-[11px]'
                           : col ? 'text-gray-800' : 'text-gray-600'
                       }`}>
                         {day}
@@ -354,7 +354,7 @@ export default function PropertyCalendarPage() {
                   value={icalConfig.airbnb}
                   onChange={e => setIcalConfig(c => ({ ...c, airbnb: e.target.value }))}
                   placeholder="https://www.airbnb.com/calendar/ical/..."
-                  className="w-full text-xs px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-300 bg-gray-50"
+                  className="w-full text-xs px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300 bg-gray-50"
                 />
                 <p className="text-[11px] text-gray-400 mt-1">
                   Airbnb → Anuncios → Gestión de disponibilidad → Exportar calendario
@@ -372,7 +372,7 @@ export default function PropertyCalendarPage() {
                   value={icalConfig.booking}
                   onChange={e => setIcalConfig(c => ({ ...c, booking: e.target.value }))}
                   placeholder="https://admin.booking.com/hotel/hoteladmin/ical.html?..."
-                  className="w-full text-xs px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-300 bg-gray-50"
+                  className="w-full text-xs px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300 bg-gray-50"
                 />
                 <p className="text-[11px] text-gray-400 mt-1">
                   Booking → Extranet → Calendario → Exportar
@@ -390,7 +390,7 @@ export default function PropertyCalendarPage() {
                   value={icalConfig.vrbo}
                   onChange={e => setIcalConfig(c => ({ ...c, vrbo: e.target.value }))}
                   placeholder="https://www.vrbo.com/calendar/..."
-                  className="w-full text-xs px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-300 bg-gray-50"
+                  className="w-full text-xs px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300 bg-gray-50"
                 />
               </div>
             </div>
@@ -404,7 +404,7 @@ export default function PropertyCalendarPage() {
             <button
               onClick={saveConfig}
               disabled={savingConfig}
-              className="w-full mt-5 py-3 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full mt-5 py-3 bg-gray-900 hover:bg-black text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {savingConfig ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

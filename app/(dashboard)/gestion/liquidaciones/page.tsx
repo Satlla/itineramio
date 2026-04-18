@@ -70,7 +70,7 @@ interface Totals {
 
 const STATUS_CONFIG = {
   DRAFT: { key: 'status.draft', color: 'bg-gray-100 text-gray-700', icon: Clock },
-  GENERATED: { key: 'status.generated', color: 'bg-blue-100 text-blue-700', icon: FileText },
+  GENERATED: { key: 'status.generated', color: 'bg-gray-100 text-gray-700', icon: FileText },
   SENT: { key: 'status.sent', color: 'bg-gray-100 text-gray-700', icon: Send },
   PAID: { key: 'status.paid', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
   CANCELLED: { key: 'status.cancelled', color: 'bg-red-100 text-red-700', icon: XCircle }

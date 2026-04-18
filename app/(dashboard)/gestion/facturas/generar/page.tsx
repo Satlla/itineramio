@@ -204,7 +204,7 @@ function GenerarFacturaContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
       </div>
     )
   }
@@ -255,8 +255,8 @@ function GenerarFacturaContent() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <User className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <User className="w-5 h-5 text-gray-600" />
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">{t('invoices.generate.billTo')}</p>
@@ -303,7 +303,7 @@ function GenerarFacturaContent() {
                           <span className="text-sm font-medium">{r.nights}</span>
                         </td>
                         <td className="px-6 py-3 text-right">
-                          <span className="text-sm font-medium text-blue-600">{formatCurrency(r.managerAmount)}</span>
+                          <span className="text-sm font-medium text-gray-900">{formatCurrency(r.managerAmount)}</span>
                         </td>
                       </tr>
                     ))}
@@ -316,7 +316,7 @@ function GenerarFacturaContent() {
                       <td className="px-6 py-3 text-center font-bold text-gray-900">
                         {totals.nights}
                       </td>
-                      <td className="px-6 py-3 text-right font-bold text-blue-600">
+                      <td className="px-6 py-3 text-right font-bold text-gray-900">
                         {formatCurrency(totals.managerAmount)}
                       </td>
                     </tr>
@@ -341,7 +341,7 @@ function GenerarFacturaContent() {
                       onClick={() => setInvoiceDetailLevel('DETAILED')}
                       className={`p-4 rounded-lg border-2 text-left transition-colors ${
                         invoiceDetailLevel === 'DETAILED'
-                          ? 'border-blue-500 bg-blue-50'
+                          ? 'border-gray-900 bg-gray-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -355,7 +355,7 @@ function GenerarFacturaContent() {
                       onClick={() => setInvoiceDetailLevel('SUMMARY')}
                       className={`p-4 rounded-lg border-2 text-left transition-colors ${
                         invoiceDetailLevel === 'SUMMARY'
-                          ? 'border-blue-500 bg-blue-50'
+                          ? 'border-gray-900 bg-gray-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -438,7 +438,7 @@ function GenerarFacturaContent() {
                 )}
                 <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
                   <span>{t('invoices.table.total')}</span>
-                  <span className="text-blue-600">{formatCurrency(totalInvoice)}</span>
+                  <span className="text-gray-900">{formatCurrency(totalInvoice)}</span>
                 </div>
               </div>
             </div>
@@ -454,7 +454,7 @@ function GenerarFacturaContent() {
               <button
                 onClick={handleSubmit}
                 disabled={creating || !billingConfig?.owner}
-                className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+                className="flex items-center gap-2 px-6 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-black disabled:opacity-50"
               >
                 <FileText className="w-4 h-4" />
                 {creating ? t('invoices.generate.creating') : t('invoices.generate.createDraft')}
@@ -471,7 +471,7 @@ export default function GenerarFacturaPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
       </div>
     }>
       <GenerarFacturaContent />

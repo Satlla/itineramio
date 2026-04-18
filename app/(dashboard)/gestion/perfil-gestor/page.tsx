@@ -406,7 +406,7 @@ export default function PerfilGestorPage() {
             className="mb-6"
           >
             <div className="flex items-center space-x-3">
-              <Building2 className="h-7 w-7 text-violet-600" />
+              <Building2 className="h-7 w-7 text-gray-600" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">{t('companyProfile.pageTitle')}</h1>
                 <p className="text-sm text-gray-600">
@@ -449,7 +449,7 @@ export default function PerfilGestorPage() {
               <Card>
                 <CardContent className="p-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Image className="w-5 h-5 text-violet-600" />
+                    <Image className="w-5 h-5 text-gray-600" />
                     {t('companyProfile.logo.title')}
                   </h2>
 
@@ -512,7 +512,7 @@ export default function PerfilGestorPage() {
               <Card>
                 <CardContent className="p-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-violet-600" />
+                    <FileText className="w-5 h-5 text-gray-600" />
                     {t('companyProfile.taxData.title')}
                   </h2>
 
@@ -527,7 +527,7 @@ export default function PerfilGestorPage() {
                         value={config.businessName}
                         onChange={(e) => setConfig(prev => ({ ...prev, businessName: e.target.value }))}
                         placeholder={t('companyProfile.taxData.businessNamePlaceholder')}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                       />
                     </div>
 
@@ -543,7 +543,7 @@ export default function PerfilGestorPage() {
                           value={config.nif}
                           onChange={(e) => setConfig(prev => ({ ...prev, nif: e.target.value.toUpperCase() }))}
                           placeholder={t('companyProfile.taxData.nifPlaceholder')}
-                          className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                          className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                         />
                       </div>
                     </div>
@@ -558,7 +558,7 @@ export default function PerfilGestorPage() {
                           type="text"
                           value={config.country}
                           onChange={(e) => setConfig(prev => ({ ...prev, country: e.target.value }))}
-                          className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                          className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                         />
                       </div>
                     </div>
@@ -575,7 +575,7 @@ export default function PerfilGestorPage() {
                           value={config.address}
                           onChange={(e) => setConfig(prev => ({ ...prev, address: e.target.value }))}
                           placeholder={t('companyProfile.taxData.addressPlaceholder')}
-                          className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                          className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                         />
                       </div>
                     </div>
@@ -590,7 +590,7 @@ export default function PerfilGestorPage() {
                         value={config.city}
                         onChange={(e) => setConfig(prev => ({ ...prev, city: e.target.value }))}
                         placeholder={t('companyProfile.taxData.cityPlaceholder')}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                       />
                     </div>
 
@@ -604,7 +604,7 @@ export default function PerfilGestorPage() {
                         value={config.postalCode}
                         onChange={(e) => setConfig(prev => ({ ...prev, postalCode: e.target.value }))}
                         placeholder={t('companyProfile.taxData.postalCodePlaceholder')}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                       />
                     </div>
                   </div>
@@ -622,7 +622,7 @@ export default function PerfilGestorPage() {
               <Card>
                 <CardContent className="p-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Mail className="w-5 h-5 text-violet-600" />
+                    <Mail className="w-5 h-5 text-gray-600" />
                     {t('companyProfile.contact.title')}
                   </h2>
 
@@ -638,7 +638,7 @@ export default function PerfilGestorPage() {
                           value={config.email}
                           onChange={(e) => setConfig(prev => ({ ...prev, email: e.target.value }))}
                           placeholder={t('companyProfile.contact.emailPlaceholder')}
-                          className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                          className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                         />
                       </div>
                     </div>
@@ -654,7 +654,7 @@ export default function PerfilGestorPage() {
                           value={config.phone}
                           onChange={(e) => setConfig(prev => ({ ...prev, phone: e.target.value }))}
                           placeholder={t('companyProfile.contact.phonePlaceholder')}
-                          className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                          className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                         />
                       </div>
                     </div>
@@ -673,7 +673,7 @@ export default function PerfilGestorPage() {
               <Card>
                 <CardContent className="p-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-violet-600" />
+                    <FileText className="w-5 h-5 text-gray-600" />
                     {t('companyProfile.footerNotes.title')}
                   </h2>
 
@@ -686,7 +686,7 @@ export default function PerfilGestorPage() {
                       onChange={(e) => setConfig(prev => ({ ...prev, footerNotes: e.target.value }))}
                       placeholder={t('companyProfile.footerNotes.placeholder')}
                       rows={3}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                     />
                   </div>
                 </CardContent>
@@ -703,7 +703,7 @@ export default function PerfilGestorPage() {
               <Card>
                 <CardContent className="p-6">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <CreditCard className="w-5 h-5 text-violet-600" />
+                    <CreditCard className="w-5 h-5 text-gray-600" />
                     {t('companyProfile.paymentMethods.title')}
                   </h2>
                   <p className="text-sm text-gray-600 mb-4">
@@ -715,8 +715,8 @@ export default function PerfilGestorPage() {
                     <div className="p-4 border border-gray-200 rounded-lg">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-blue-100 rounded-lg">
-                            <Landmark className="w-5 h-5 text-blue-600" />
+                          <div className="p-2 bg-gray-100 rounded-lg">
+                            <Landmark className="w-5 h-5 text-gray-600" />
                           </div>
                           <div>
                             <span className="font-medium text-gray-900">{t('companyProfile.paymentMethods.transfer')}</span>
@@ -735,7 +735,7 @@ export default function PerfilGestorPage() {
                             }}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
                         </label>
                       </div>
                       {config.paymentMethods?.find(m => m.type === 'TRANSFER')?.enabled && (
@@ -749,7 +749,7 @@ export default function PerfilGestorPage() {
                               value={config.bankName || ''}
                               onChange={(e) => setConfig(prev => ({ ...prev, bankName: e.target.value }))}
                               placeholder={t('companyProfile.paymentMethods.bankPlaceholder')}
-                              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                             />
                           </div>
                           <div>
@@ -779,7 +779,7 @@ export default function PerfilGestorPage() {
                                     ? 'border-red-300 focus:ring-red-500'
                                     : ibanValid
                                       ? 'border-green-300 focus:ring-green-500'
-                                      : 'border-gray-300 focus:ring-violet-500'
+                                      : 'border-gray-300 focus:ring-gray-500'
                                 }`}
                               />
                               {config.iban && config.iban.length > 4 && (
@@ -808,7 +808,7 @@ export default function PerfilGestorPage() {
                               value={config.bic || ''}
                               onChange={(e) => setConfig(prev => ({ ...prev, bic: e.target.value.toUpperCase() }))}
                               placeholder={t('companyProfile.paymentMethods.bicPlaceholder')}
-                              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-violet-500"
+                              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-gray-500"
                             />
                           </div>
                         </div>
@@ -839,7 +839,7 @@ export default function PerfilGestorPage() {
                             }}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
                         </label>
                       </div>
                       {config.paymentMethods?.find(m => m.type === 'BIZUM')?.enabled && (
@@ -854,7 +854,7 @@ export default function PerfilGestorPage() {
                               value={config.bizumPhone || ''}
                               onChange={(e) => setConfig(prev => ({ ...prev, bizumPhone: e.target.value }))}
                               placeholder={t('companyProfile.paymentMethods.bizumPhonePlaceholder')}
-                              className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                              className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                             />
                           </div>
                         </div>
@@ -865,8 +865,8 @@ export default function PerfilGestorPage() {
                     <div className="p-4 border border-gray-200 rounded-lg">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-indigo-100 rounded-lg">
-                            <svg className="w-5 h-5 text-indigo-600" viewBox="0 0 24 24" fill="currentColor">
+                          <div className="p-2 bg-gray-100 rounded-lg">
+                            <svg className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="currentColor">
                               <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.771.771 0 0 1 .76-.654h6.724c2.231 0 3.89.453 4.923 1.345.98.847 1.378 2.076 1.185 3.654-.017.14-.04.282-.065.427a6.02 6.02 0 0 1-.175.82c-.618 2.317-2.386 3.796-5.364 4.164l-1.185.146a.77.77 0 0 0-.657.643l-.653 3.907a.641.641 0 0 1-.633.539H7.076z"/>
                             </svg>
                           </div>
@@ -887,7 +887,7 @@ export default function PerfilGestorPage() {
                             }}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
                         </label>
                       </div>
                       {config.paymentMethods?.find(m => m.type === 'PAYPAL')?.enabled && (
@@ -902,7 +902,7 @@ export default function PerfilGestorPage() {
                               value={config.paypalEmail || ''}
                               onChange={(e) => setConfig(prev => ({ ...prev, paypalEmail: e.target.value }))}
                               placeholder={t('companyProfile.paymentMethods.paypalEmailPlaceholder')}
-                              className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                              className="w-full pl-10 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                             />
                           </div>
                         </div>
@@ -933,7 +933,7 @@ export default function PerfilGestorPage() {
                             }}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
                         </label>
                       </div>
                     </div>
@@ -942,8 +942,8 @@ export default function PerfilGestorPage() {
                     <div className="p-4 border border-gray-200 rounded-lg">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-purple-100 rounded-lg">
-                            <CreditCard className="w-5 h-5 text-purple-600" />
+                          <div className="p-2 bg-gray-100 rounded-lg">
+                            <CreditCard className="w-5 h-5 text-gray-600" />
                           </div>
                           <div>
                             <span className="font-medium text-gray-900">{t('companyProfile.paymentMethods.card')}</span>
@@ -962,7 +962,7 @@ export default function PerfilGestorPage() {
                             }}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
                         </label>
                       </div>
                     </div>
@@ -976,7 +976,7 @@ export default function PerfilGestorPage() {
                         <select
                           value={config.defaultPaymentMethod || ''}
                           onChange={(e) => setConfig(prev => ({ ...prev, defaultPaymentMethod: e.target.value }))}
-                          className="w-full max-w-xs border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                          className="w-full max-w-xs border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                         >
                           <option value="">{t('companyProfile.paymentMethods.selectDefault')}</option>
                           {config.paymentMethods?.filter(m => m.enabled).map(m => (
@@ -1002,7 +1002,7 @@ export default function PerfilGestorPage() {
               <Button
                 type="submit"
                 disabled={saving}
-                className="bg-violet-600 hover:bg-violet-700"
+                className="bg-gray-900 hover:bg-black"
               >
                 <Save className="w-4 h-4 mr-2" />
                 {saving ? t('companyProfile.saving') : t('companyProfile.saveChanges')}
@@ -1021,7 +1021,7 @@ export default function PerfilGestorPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <Hash className="w-5 h-5 text-violet-600" />
+                    <Hash className="w-5 h-5 text-gray-600" />
                     <h2 className="text-lg font-semibold text-gray-900">{t('companyProfile.invoiceSeries.title')}</h2>
                   </div>
                   <Button
@@ -1041,7 +1041,7 @@ export default function PerfilGestorPage() {
 
                 {/* New Series Form */}
                 {showNewSeriesForm && (
-                  <div className="mb-6 p-4 border border-violet-200 rounded-lg bg-violet-50">
+                  <div className="mb-6 p-4 border border-gray-300 rounded-lg bg-gray-50">
                     <h3 className="text-sm font-medium text-gray-900 mb-3">{t('companyProfile.invoiceSeries.newSeries')}</h3>
                     <div className="grid sm:grid-cols-4 gap-3">
                       <div>
@@ -1051,7 +1051,7 @@ export default function PerfilGestorPage() {
                           value={newSeries.name}
                           onChange={(e) => setNewSeries(prev => ({ ...prev, name: e.target.value }))}
                           placeholder={t('companyProfile.invoiceSeries.namePlaceholder')}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                         />
                       </div>
                       <div>
@@ -1062,7 +1062,7 @@ export default function PerfilGestorPage() {
                           onChange={(e) => setNewSeries(prev => ({ ...prev, prefix: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) }))}
                           placeholder={t('companyProfile.invoiceSeries.prefixPlaceholder')}
                           maxLength={6}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-violet-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-gray-500"
                         />
                       </div>
                       <div>
@@ -1070,14 +1070,14 @@ export default function PerfilGestorPage() {
                         <select
                           value={newSeries.type}
                           onChange={(e) => setNewSeries(prev => ({ ...prev, type: e.target.value }))}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500"
                         >
                           <option value="STANDARD">{t('companyProfile.invoiceSeries.standard')}</option>
                           <option value="RECTIFYING">{t('companyProfile.invoiceSeries.rectifying')}</option>
                         </select>
                       </div>
                       <div className="flex items-end gap-2">
-                        <Button type="button" onClick={handleCreateSeries} size="sm" className="bg-violet-600 hover:bg-violet-700">
+                        <Button type="button" onClick={handleCreateSeries} size="sm" className="bg-gray-900 hover:bg-black">
                           {t('companyProfile.invoiceSeries.create')}
                         </Button>
                         <Button type="button" variant="outline" size="sm" onClick={() => setShowNewSeriesForm(false)}>
@@ -1091,7 +1091,7 @@ export default function PerfilGestorPage() {
                           type="checkbox"
                           checked={newSeries.resetYearly}
                           onChange={(e) => setNewSeries(prev => ({ ...prev, resetYearly: e.target.checked }))}
-                          className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                          className="rounded border-gray-300 text-gray-600 focus:ring-gray-500"
                         />
                         {t('companyProfile.invoiceSeries.resetYearly')}
                       </label>
@@ -1100,14 +1100,14 @@ export default function PerfilGestorPage() {
                           type="checkbox"
                           checked={newSeries.isDefault}
                           onChange={(e) => setNewSeries(prev => ({ ...prev, isDefault: e.target.checked }))}
-                          className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                          className="rounded border-gray-300 text-gray-600 focus:ring-gray-500"
                         />
                         {t('companyProfile.invoiceSeries.defaultSeries')}
                       </label>
                     </div>
                     {newSeries.prefix && (
                       <p className="text-xs text-gray-500 mt-2">
-                        {t('companyProfile.invoiceSeries.preview')} <span className="font-mono font-medium text-violet-600">{newSeries.prefix}0001</span>
+                        {t('companyProfile.invoiceSeries.preview')} <span className="font-mono font-medium text-gray-600">{newSeries.prefix}0001</span>
                       </p>
                     )}
                   </div>
@@ -1150,7 +1150,7 @@ export default function PerfilGestorPage() {
                               <span className="font-mono text-gray-600">{s.prefix}</span>
                             </td>
                             <td className="py-3 px-2">
-                              <span className="font-mono font-medium text-violet-600">{s.nextNumber}</span>
+                              <span className="font-mono font-medium text-gray-600">{s.nextNumber}</span>
                             </td>
                             <td className="py-3 px-2 text-center">
                               {editingSeriesId === s.id ? (
@@ -1160,7 +1160,7 @@ export default function PerfilGestorPage() {
                                     value={editingNumber}
                                     onChange={(e) => setEditingNumber(e.target.value)}
                                     min="0"
-                                    className="w-20 border border-gray-300 rounded px-2 py-1 text-sm text-center font-mono focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                    className="w-20 border border-gray-300 rounded px-2 py-1 text-sm text-center font-mono focus:outline-none focus:ring-2 focus:ring-gray-500"
                                     autoFocus
                                     onKeyDown={(e) => {
                                       if (e.key === 'Enter') handleUpdateSeriesNumber(s.id)
@@ -1186,7 +1186,7 @@ export default function PerfilGestorPage() {
                                 <button
                                   type="button"
                                   onClick={() => { setEditingSeriesId(s.id); setEditingNumber(String(s.currentNumber)) }}
-                                  className="inline-flex items-center gap-1 font-mono text-gray-600 hover:text-violet-600"
+                                  className="inline-flex items-center gap-1 font-mono text-gray-600 hover:text-gray-600"
                                   title={t('companyProfile.invoiceSeries.editCurrentNumber')}
                                 >
                                   {s.currentNumber}
@@ -1197,7 +1197,7 @@ export default function PerfilGestorPage() {
                             <td className="py-3 px-2">
                               <div className="flex items-center justify-center gap-2">
                                 {s.isDefault && (
-                                  <Badge className="bg-violet-100 text-violet-700 border-0 text-xs">
+                                  <Badge className="bg-gray-100 text-gray-700 border-0 text-xs">
                                     <Star className="w-3 h-3 mr-1" />
                                     {t('companyProfile.invoiceSeries.default')}
                                   </Badge>
@@ -1218,7 +1218,7 @@ export default function PerfilGestorPage() {
                                   <button
                                     type="button"
                                     onClick={() => handleToggleDefault(s.id, s.isDefault)}
-                                    className="p-1.5 text-gray-400 hover:text-violet-600 rounded transition-colors"
+                                    className="p-1.5 text-gray-400 hover:text-gray-600 rounded transition-colors"
                                     title={t('companyProfile.invoiceSeries.setAsDefault')}
                                   >
                                     <Star className="w-4 h-4" />
@@ -1271,10 +1271,10 @@ export default function PerfilGestorPage() {
                 </div>
 
                 {/* Info banner */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 mb-6">
                   <div className="flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <div className="text-sm text-blue-800">
+                    <AlertCircle className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-gray-800">
                       <p className="font-medium mb-1">Obligatorio desde 2027</p>
                       <p>Sociedades: 1 enero 2027 · Autónomos: 1 julio 2027. Activar VeriFactu añade hash SHA-256, QR tributario y el texto &quot;VERI*FACTU&quot; a tus facturas emitidas.</p>
                     </div>
@@ -1393,9 +1393,9 @@ export default function PerfilGestorPage() {
                   )}
 
                   {/* VeriFactu Disclaimer */}
-                  <div className="flex items-start gap-2 px-3 py-2 mt-4 bg-blue-50 border border-blue-100 rounded-lg">
-                    <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-xs text-blue-600">
+                  <div className="flex items-start gap-2 px-3 py-2 mt-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <Info className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-gray-600">
                       {tLegal('disclaimers.verifactu.short')}
                     </p>
                   </div>

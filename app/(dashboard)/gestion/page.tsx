@@ -106,28 +106,28 @@ export default function GestionDashboardPage() {
       icon: <Building2 className="w-6 h-6" />,
       title: t('dashboard.quickAccess.billing.title'),
       description: t('dashboard.quickAccess.billing.description'),
-      color: 'bg-violet-100 text-violet-600'
+      color: 'bg-gray-100 text-gray-600'
     },
     {
       href: '/gestion/facturas',
       icon: <FileText className="w-6 h-6" />,
       title: t('dashboard.quickAccess.allInvoices.title'),
       description: t('dashboard.quickAccess.allInvoices.description'),
-      color: 'bg-blue-100 text-blue-600'
+      color: 'bg-gray-100 text-gray-600'
     },
     {
       href: '/gestion/clientes',
       icon: <Users className="w-6 h-6" />,
       title: t('dashboard.quickAccess.owners.title'),
       description: t('dashboard.quickAccess.owners.description'),
-      color: 'bg-green-100 text-green-600'
+      color: 'bg-gray-100 text-gray-600'
     },
     {
       href: '/gestion/apartamentos',
       icon: <Building2 className="w-6 h-6" />,
       title: t('dashboard.quickAccess.apartments.title'),
       description: t('dashboard.quickAccess.apartments.description'),
-      color: 'bg-orange-100 text-orange-600'
+      color: 'bg-gray-100 text-gray-600'
     }
   ]
 
@@ -144,7 +144,7 @@ export default function GestionDashboardPage() {
             className="mb-6"
           >
             <div className="flex items-center space-x-3">
-              <LayoutDashboard className="h-7 w-7 text-violet-600" />
+              <LayoutDashboard className="h-7 w-7 text-gray-600" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
                   {t('dashboard.title')}
@@ -183,7 +183,7 @@ export default function GestionDashboardPage() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-gray-500 capitalize">{currentMonth}</span>
-                    <Calendar className="w-4 h-4 text-violet-500" />
+                    <Calendar className="w-4 h-4 text-gray-500" />
                   </div>
                   <p className="text-2xl font-bold text-gray-900">
                     {formatCurrency(stats.monthlyIncome)}
@@ -198,7 +198,7 @@ export default function GestionDashboardPage() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-gray-500">{t('dashboard.stats.properties')}</span>
-                    <Building2 className="w-4 h-4 text-blue-500" />
+                    <Building2 className="w-4 h-4 text-gray-500" />
                   </div>
                   <p className="text-2xl font-bold text-gray-900">
                     {stats.totalProperties}
@@ -213,13 +213,13 @@ export default function GestionDashboardPage() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-gray-500">{t('dashboard.stats.invoices')}</span>
-                    <FileText className="w-4 h-4 text-orange-500" />
+                    <FileText className="w-4 h-4 text-gray-500" />
                   </div>
                   <p className="text-2xl font-bold text-gray-900">
                     {stats.totalInvoices}
                   </p>
                   {stats.pendingInvoices > 0 && (
-                    <p className="text-xs text-orange-600 mt-1">
+                    <p className="text-xs text-gray-600 mt-1">
                       {stats.pendingInvoices} {t('dashboard.stats.pending')}
                     </p>
                   )}
@@ -266,24 +266,24 @@ export default function GestionDashboardPage() {
 
                 {pendingActions.draftInvoices > 0 && (
                   <Link href="/gestion/facturas?status=DRAFT">
-                    <Card className="hover:shadow-md transition-all cursor-pointer border-blue-200 bg-blue-50">
+                    <Card className="hover:shadow-md transition-all cursor-pointer border-gray-300 bg-gray-50">
                       <CardContent className="p-4">
                         <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                            <FileEdit className="w-5 h-5 text-blue-600" />
+                          <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                            <FileEdit className="w-5 h-5 text-gray-600" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-2xl font-bold text-blue-700">
+                            <p className="text-2xl font-bold text-gray-700">
                               {pendingActions.draftInvoices}
                             </p>
-                            <p className="text-sm font-medium text-blue-800">
+                            <p className="text-sm font-medium text-gray-800">
                               {t('dashboard.pendingActions.draftInvoices')}
                             </p>
-                            <p className="text-xs text-blue-600 mt-1">
+                            <p className="text-xs text-gray-600 mt-1">
                               {t('dashboard.pendingActions.pendingIssue')}
                             </p>
                           </div>
-                          <ChevronRight className="w-5 h-5 text-blue-400" />
+                          <ChevronRight className="w-5 h-5 text-gray-400" />
                         </div>
                       </CardContent>
                     </Card>
@@ -292,24 +292,24 @@ export default function GestionDashboardPage() {
 
                 {pendingActions.unpaidInvoices > 0 && (
                   <Link href="/gestion/facturas?status=SENT">
-                    <Card className="hover:shadow-md transition-all cursor-pointer border-violet-200 bg-violet-50">
+                    <Card className="hover:shadow-md transition-all cursor-pointer border-gray-300 bg-gray-50">
                       <CardContent className="p-4">
                         <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
-                            <CreditCard className="w-5 h-5 text-violet-600" />
+                          <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                            <CreditCard className="w-5 h-5 text-gray-600" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-2xl font-bold text-violet-700">
+                            <p className="text-2xl font-bold text-gray-700">
                               {pendingActions.unpaidInvoices}
                             </p>
-                            <p className="text-sm font-medium text-violet-800">
+                            <p className="text-sm font-medium text-gray-800">
                               {t('dashboard.pendingActions.unpaidInvoices')}
                             </p>
-                            <p className="text-xs text-violet-600 mt-1">
+                            <p className="text-xs text-gray-600 mt-1">
                               {t('dashboard.pendingActions.pendingPayment')}
                             </p>
                           </div>
-                          <ChevronRight className="w-5 h-5 text-violet-400" />
+                          <ChevronRight className="w-5 h-5 text-gray-400" />
                         </div>
                       </CardContent>
                     </Card>
@@ -378,7 +378,7 @@ export default function GestionDashboardPage() {
                           href={step.href}
                           className={`flex items-start gap-3 p-3 rounded-lg transition-colors ${
                             isNext
-                              ? 'bg-violet-50 border border-violet-200 hover:bg-violet-100'
+                              ? 'bg-gray-50 border border-gray-300 hover:bg-gray-100'
                               : step.completed
                               ? 'opacity-60'
                               : 'hover:bg-gray-50'
@@ -388,7 +388,7 @@ export default function GestionDashboardPage() {
                             step.completed
                               ? 'bg-green-100 text-green-600'
                               : isNext
-                              ? 'bg-violet-600 text-white'
+                              ? 'bg-gray-900 text-white'
                               : 'bg-gray-100 text-gray-500'
                           }`}>
                             {step.completed ? (
@@ -404,7 +404,7 @@ export default function GestionDashboardPage() {
                             <p className="text-sm text-gray-500">{step.description}</p>
                           </div>
                           {isNext && (
-                            <div className="flex items-center gap-1 text-violet-600 text-sm font-medium">
+                            <div className="flex items-center gap-1 text-gray-600 text-sm font-medium">
                               <span>{t('dashboard.onboarding.next')}</span>
                               <ChevronRight className="w-4 h-4" />
                             </div>
