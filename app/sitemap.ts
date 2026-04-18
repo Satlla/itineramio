@@ -348,6 +348,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     'como-hacer-check-in-automatico-airbnb',
     'como-conseguir-superhost-airbnb',
     'como-crear-manual-bienvenida-apartamento',
+    'fiscalidad-alquiler-turistico',
   ].map(slug => ({
     url: `${baseUrl}/guia/${slug}`,
     lastModified: new Date(),
