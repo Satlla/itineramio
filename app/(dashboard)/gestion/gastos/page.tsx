@@ -191,8 +191,20 @@ export default function GastosPage() {
         credentials: 'include',
         body: JSON.stringify({
           ...formData,
-          amount: parseFloat(formData.amount) || 0,
-          vatAmount: parseFloat(formData.vatAmount) || 0
+          // amount field now contains total (IVA included), vatAmount is the % rate
+          // Backend expects: amount = base (without IVA), vatAmount = IVA in euros
+          amount: (() => {
+            const total = parseFloat(formData.amount) || 0
+            const vatPct = parseFloat(formData.vatAmount) || 0
+            return vatPct > 0 ? Math.round(total / (1 + vatPct / 100) * 100) / 100 : total
+          })(),
+          vatAmount: (() => {
+            const total = parseFloat(formData.amount) || 0
+            const vatPct = parseFloat(formData.vatAmount) || 0
+            if (vatPct <= 0) return 0
+            const base = Math.round(total / (1 + vatPct / 100) * 100) / 100
+            return Math.round((total - base) * 100) / 100
+          })()
         })
       })
 
@@ -260,8 +272,11 @@ export default function GastosPage() {
       date: expense.date.split('T')[0],
       concept: expense.concept,
       category: expense.category,
-      amount: expense.amount.toString(),
-      vatAmount: expense.vatAmount.toString(),
+      // Convert base+vatEuros back to total+vatPct for the form
+      amount: (expense.amount + expense.vatAmount).toString(),
+      vatAmount: expense.vatAmount > 0
+        ? Math.round(expense.vatAmount / expense.amount * 100).toString()
+        : '0',
       chargeToOwner: expense.chargeToOwner,
       supplierName: expense.supplierName || '',
       invoiceNumber: expense.invoiceNumber || ''
@@ -678,10 +693,10 @@ export default function GastosPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {t('expenses.modal.amount')} *
+                      Importe total (IVA incluido) *
                     </label>
                     <input
                       type="number"
@@ -689,24 +704,42 @@ export default function GastosPage() {
                       step="0.01"
                       min="0"
                       value={formData.amount}
-                      onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
-                      placeholder="0.00"
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      onChange={(e) => {
+                        const total = parseFloat(e.target.value) || 0
+                        const vatPct = parseFloat(formData.vatAmount) || 0
+                        const base = vatPct > 0 ? Math.round(total / (1 + vatPct / 100) * 100) / 100 : total
+                        const vatEuros = Math.round((total - base) * 100) / 100
+                        setFormData(prev => ({ ...prev, amount: e.target.value, _vatEuros: vatEuros.toString() }))
+                      }}
+                      placeholder="60.00"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {t('expenses.modal.vat')}
+                      IVA (%)
                     </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
+                    <select
                       value={formData.vatAmount}
-                      onChange={(e) => setFormData(prev => ({ ...prev, vatAmount: e.target.value }))}
-                      placeholder="0.00"
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
-                    />
+                      onChange={(e) => {
+                        const vatPct = parseFloat(e.target.value) || 0
+                        const total = parseFloat(formData.amount) || 0
+                        const base = vatPct > 0 ? Math.round(total / (1 + vatPct / 100) * 100) / 100 : total
+                        const vatEuros = Math.round((total - base) * 100) / 100
+                        setFormData(prev => ({ ...prev, vatAmount: e.target.value, _vatEuros: vatEuros.toString() }))
+                      }}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    >
+                      <option value="0">0%</option>
+                      <option value="4">4%</option>
+                      <option value="10">10%</option>
+                      <option value="21">21%</option>
+                    </select>
+                    {parseFloat(formData.amount) > 0 && parseFloat(formData.vatAmount) > 0 && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Base: {(parseFloat(formData.amount) / (1 + parseFloat(formData.vatAmount) / 100)).toFixed(2)}€ + IVA: {(parseFloat(formData.amount) - parseFloat(formData.amount) / (1 + parseFloat(formData.vatAmount) / 100)).toFixed(2)}€
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -882,9 +915,9 @@ export default function GastosPage() {
                 >
                   {t('expenses.successModal.addAnother')}
                 </Button>
-                <Link href="/gestion/facturacion" className="flex-1">
-                  <Button className="w-full bg-gradient-to-r from-violet-600 to-violet-700 hover:from-violet-700 hover:to-violet-800">
-                    {t('expenses.successModal.goToBilling')}
+                <Link href="/gestion/liquidaciones" className="flex-1">
+                  <Button className="w-full bg-gray-900 hover:bg-black">
+                    Ir a Liquidaciones
                   </Button>
                 </Link>
               </div>
