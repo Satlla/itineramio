@@ -158,6 +158,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Validar rango de comisión
+    const commissionVal = parseFloat(String(commissionValue ?? 0))
+    if (commissionVal < 0 || commissionVal > 100) {
+      return NextResponse.json({ error: 'La comisión debe estar entre 0% y 100%' }, { status: 400 })
+    }
+
     const billingUnit = await prisma.billingUnit.create({
       data: {
         userId,

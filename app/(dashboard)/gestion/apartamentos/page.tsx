@@ -665,6 +665,7 @@ function UnitCard({
                 <div>
                   <p className="text-gray-500">{t('apartments.form.commission')}</p>
                   <p className="font-medium">{unit.commissionValue}% + {unit.commissionVat}% {t('apartments.form.vat')}</p>
+                  {unit.groupId && <p className="text-xs text-gray-500">La configuración del grupo tiene prioridad sobre la de este apartamento.</p>}
                 </div>
                 <div>
                   <p className="text-gray-500">{t('apartments.form.cleaning')}</p>
@@ -1018,6 +1019,8 @@ function NewUnitModal({
                       />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">%</span>
                     </div>
+                    {parseFloat(form.commissionValue) > 50 && <p className="text-xs text-amber-600 mt-1">Comisión muy alta ({form.commissionValue}%). Lo habitual es 10-30%.</p>}
+                    {parseFloat(form.commissionValue) < 0 && <p className="text-xs text-amber-600 mt-1">La comisión no puede ser negativa.</p>}
                   </div>
                   <span className="text-gray-400">+</span>
                   <div className="w-24">
@@ -1271,6 +1274,8 @@ function NewGroupModal({
               onChange={e => setForm(f => ({ ...f, commissionValue: e.target.value }))}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             />
+            {parseFloat(form.commissionValue) > 50 && <p className="text-xs text-amber-600 mt-1">Comisión muy alta ({form.commissionValue}%). Lo habitual es 10-30%.</p>}
+            {parseFloat(form.commissionValue) < 0 && <p className="text-xs text-amber-600 mt-1">La comisión no puede ser negativa.</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.cleaningEuros')}</label>
@@ -1598,6 +1603,8 @@ function EditUnitModal({
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">%</span>
                 </div>
+                {parseFloat(form.commissionValue) > 50 && <p className="text-xs text-amber-600 mt-1">Comisión muy alta ({form.commissionValue}%). Lo habitual es 10-30%.</p>}
+                {parseFloat(form.commissionValue) < 0 && <p className="text-xs text-amber-600 mt-1">La comisión no puede ser negativa.</p>}
               </div>
               <span className="text-gray-400">+</span>
               <div className="w-24">
@@ -1833,6 +1840,8 @@ function EditGroupModal({
               onChange={e => setForm(f => ({ ...f, commissionValue: e.target.value }))}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             />
+            {parseFloat(form.commissionValue) > 50 && <p className="text-xs text-amber-600 mt-1">Comisión muy alta ({form.commissionValue}%). Lo habitual es 10-30%.</p>}
+            {parseFloat(form.commissionValue) < 0 && <p className="text-xs text-amber-600 mt-1">La comisión no puede ser negativa.</p>}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('apartments.form.cleaningEuros')}</label>

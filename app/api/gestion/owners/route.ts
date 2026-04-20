@@ -122,6 +122,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validar rango de retención
+    if (retentionRate !== undefined && retentionRate !== null) {
+      const rate = parseFloat(String(retentionRate))
+      if (isNaN(rate) || rate < 0 || rate > 25) {
+        return NextResponse.json({ error: 'La retención debe estar entre 0% y 25%' }, { status: 400 })
+      }
+    }
+
     const owner = await prisma.propertyOwner.create({
       data: {
         userId,
