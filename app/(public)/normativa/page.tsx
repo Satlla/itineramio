@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ItineramioLogo } from '@/components/ui/ItineramioLogo'
 
 const comunidades = [
   {

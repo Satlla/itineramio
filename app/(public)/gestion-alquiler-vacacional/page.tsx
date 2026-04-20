@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ItineramioLogo } from '@/components/ui/ItineramioLogo'
 import {
   FileText,
   Calculator,
@@ -94,7 +95,7 @@ export default function GestionAlquilerVacacionalPage() {
       {/* Navigation */}
       <nav className="border-b border-gray-100">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-xl font-semibold text-gray-900">Itineramio</Link>
+          <Link href="/" className="flex items-center gap-2"><ItineramioLogo size="md" showText /></Link>
           <Link href="/register" className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-800">Prueba gratis</Link>
         </div>
       </nav>
@@ -332,7 +333,7 @@ export default function GestionAlquilerVacacionalPage() {
       <footer className="border-t border-gray-100 bg-gray-50">
         <div className="mx-auto max-w-6xl px-6 py-12">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <Link href="/" className="text-lg font-semibold text-gray-900">Itineramio</Link>
+            <Link href="/" className="flex items-center gap-2"><ItineramioLogo size="sm" showText /></Link>
             <div className="flex gap-6 text-sm text-gray-500">
               <Link href="/blog" className="hover:text-gray-900 transition-colors">Blog</Link>
               <Link href="/normativa" className="hover:text-gray-900 transition-colors">Normativa</Link>

@@ -76,6 +76,7 @@ Allow: /legal/
 Allow: /normativa/
 Allow: /guia/
 Allow: /funcionalidades
+Allow: /gestion-alquiler-vacacional
 
 # Sitemap location
 Sitemap: https://www.itineramio.com/sitemap.xml

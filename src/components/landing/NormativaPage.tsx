@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ItineramioLogo } from '@/components/ui/ItineramioLogo'
 
 interface NormativaData {
   ccaa: string
@@ -47,8 +48,8 @@ export default function NormativaPage({ data }: { data: NormativaData }) {
       {/* Navigation */}
       <nav className="border-b border-gray-100">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-xl font-semibold text-gray-900">
-            Itineramio
+          <Link href="/" className="flex items-center gap-2">
+            <ItineramioLogo size="md" showText />
           </Link>
           <Link
             href="/register"
@@ -289,8 +290,8 @@ export default function NormativaPage({ data }: { data: NormativaData }) {
       <footer className="border-t border-gray-100 bg-gray-50">
         <div className="mx-auto max-w-6xl px-6 py-12">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <Link href="/" className="text-lg font-semibold text-gray-900">
-              Itineramio
+            <Link href="/" className="flex items-center gap-2">
+              <ItineramioLogo size="sm" showText />
             </Link>
             <div className="flex gap-6 text-sm text-gray-500">
               <Link href="/blog" className="hover:text-gray-900 transition-colors">Blog</Link>

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ItineramioLogo } from '@/components/ui/ItineramioLogo'
 
 interface CityData {
   city: string
@@ -46,7 +47,7 @@ export default function CityLandingPage({ data }: { data: CityData }) {
     '@type': 'LocalBusiness',
     name: `Itineramio ${data.city}`,
     description: `Software de manuales digitales para apartamentos turisticos en ${data.city}, ${data.region}.`,
-    url: `https://www.itineramio.com/${data.city.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`,
+    url: `https://www.itineramio.com/${data.city.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-')}`,
     areaServed: {
       '@type': 'City',
       name: data.city,
@@ -73,8 +74,8 @@ export default function CityLandingPage({ data }: { data: CityData }) {
       {/* Navigation */}
       <nav className="border-b border-gray-100">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-xl font-semibold text-gray-900">
-            Itineramio
+          <Link href="/" className="flex items-center gap-2">
+            <ItineramioLogo size="md" showText />
           </Link>
           <Link
             href="/register"
@@ -336,8 +337,8 @@ export default function CityLandingPage({ data }: { data: CityData }) {
       <footer className="border-t border-gray-100 bg-gray-50">
         <div className="mx-auto max-w-6xl px-6 py-12">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <Link href="/" className="text-lg font-semibold text-gray-900">
-              Itineramio
+            <Link href="/" className="flex items-center gap-2">
+              <ItineramioLogo size="sm" showText />
             </Link>
             <div className="flex gap-6 text-sm text-gray-500">
               <Link href="/blog" className="hover:text-gray-900 transition-colors">Blog</Link>
