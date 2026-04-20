@@ -1092,7 +1092,7 @@ export default function Landing2() {
       {/* ── FOOTER ── */}
       <footer className="border-t border-black/[0.06] py-14 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-10 mb-12">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-10 mb-12">
             <div className="col-span-2 sm:col-span-1">
               <Link href="/" className="flex items-center gap-2 mb-5">
                 <img src="/isotipo-gradient.svg" alt="Itineramio" width={24} height={14} className="object-contain"/>
@@ -1102,16 +1102,25 @@ export default function Landing2() {
             </div>
             {[
               { title:'Producto', links:[
-                { label:'Funcionalidades', href:'/funcionalidades' },
+                { label:'Manuales digitales', href:'/funcionalidades' },
+                { label:'Gestión y facturación', href:'/gestion-alquiler-vacacional' },
                 { label:'Precios',         href:'/#pricing' },
                 { label:'Demo',            href:'/demo' },
-                { label:'Integraciones',   href:'/funcionalidades#integraciones' },
+                { label:'Comparativas',    href:'/comparar' },
               ]},
               { title:'Recursos', links:[
                 { label:'Blog',           href:'/blog' },
-                { label:'Guía de inicio', href:'/bienvenido' },
+                { label:'Guías prácticas', href:'/guia/fiscalidad-alquiler-turistico' },
+                { label:'Normativa por CCAA', href:'/normativa' },
                 { label:'FAQ',            href:'/faq' },
                 { label:'Contacto',       href:'mailto:hola@itineramio.com' },
+              ]},
+              { title:'Ciudades', links:[
+                { label:'Madrid',     href:'/madrid' },
+                { label:'Barcelona',  href:'/barcelona' },
+                { label:'Valencia',   href:'/valencia' },
+                { label:'Málaga',     href:'/malaga' },
+                { label:'Marbella',   href:'/marbella' },
               ]},
               { title:'Legal', links:[
                 { label:'Privacidad', href:'/legal/privacy' },

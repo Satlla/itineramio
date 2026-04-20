@@ -293,9 +293,11 @@ export default function NormativaPage({ data }: { data: NormativaData }) {
             <Link href="/" className="flex items-center gap-2">
               <ItineramioLogo size="sm" showText />
             </Link>
-            <div className="flex gap-6 text-sm text-gray-500">
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-500">
               <Link href="/blog" className="hover:text-gray-900 transition-colors">Blog</Link>
               <Link href="/normativa" className="hover:text-gray-900 transition-colors">Normativa</Link>
+              <Link href="/comparar" className="hover:text-gray-900 transition-colors">Comparativas</Link>
+              <Link href="/gestion-alquiler-vacacional" className="hover:text-gray-900 transition-colors">Facturacion</Link>
               <Link href="/faq" className="hover:text-gray-900 transition-colors">FAQ</Link>
               <Link href="/legal/privacy" className="hover:text-gray-900 transition-colors">Privacidad</Link>
             </div>
