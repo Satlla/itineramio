@@ -88,9 +88,7 @@ export const metadata: Metadata = {
     canonical: 'https://www.itineramio.com',
     languages: {
       'es-ES': 'https://www.itineramio.com',
-      'es': 'https://www.itineramio.com',
-      'en': 'https://www.itineramio.com',
-      'fr': 'https://www.itineramio.com',
+      'x-default': 'https://www.itineramio.com',
     },
   },
   openGraph: {
@@ -127,9 +125,7 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  verification: {
-    google: 'your-google-verification-code', // TODO: Replace with actual code from Google Search Console
-  },
+  // verification: { google: 'REPLACE_WITH_REAL_CODE' }, // TODO: Add real Google Search Console verification code
   category: 'Software',
   appleWebApp: {
     capable: true,
@@ -217,8 +213,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Itineramio" />
         <meta name="format-detection" content="telephone=no" />
 
-        {/* iOS Splash Screens */}
-        <link rel="apple-touch-startup-image" href="/splash-screen.png" />
+        {/* iOS Splash Screens - TODO: create splash-screen.png if needed */}
 
         {/* Disable double-tap zoom on iOS */}
         <meta name="msapplication-tap-highlight" content="no" />
