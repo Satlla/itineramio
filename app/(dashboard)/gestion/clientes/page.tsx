@@ -136,7 +136,9 @@ export default function ClientesPage() {
       }
     }
 
-    if (newClient.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newClient.email)) {
+    if (!newClient.email.trim()) {
+      errors.email = 'El email es obligatorio para enviar liquidaciones y facturas'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newClient.email)) {
       errors.email = t('owners.validation.emailInvalid')
     }
 

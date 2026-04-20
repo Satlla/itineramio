@@ -554,6 +554,14 @@ export async function POST(request: NextRequest) {
       totalExpenses = totalExpenses.plus(new Decimal(expense.vatAmount || 0))
     }
 
+    // Validar que la liquidación no esté vacía
+    if (reservations.length === 0 && expenses.length === 0) {
+      return NextResponse.json(
+        { error: 'No hay reservas ni gastos para este periodo. No se puede generar una liquidación vacía.' },
+        { status: 400 }
+      )
+    }
+
     // Retención IRPF: no se incluye en la liquidación (solo en factura fiscal)
     const totalRetention = new Decimal(0)
 

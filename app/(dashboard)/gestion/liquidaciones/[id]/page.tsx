@@ -241,6 +241,7 @@ export default function LiquidacionDetailPage() {
   }
 
   const handleRecalculate = async () => {
+    if (!confirm('¿Recalcular la liquidación? Los ajustes manuales se perderán.')) return
     try {
       setRecalculating(true)
       const response = await fetch(`/api/gestion/liquidations/${params.id}/recalculate`, {
