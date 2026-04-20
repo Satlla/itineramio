@@ -62,12 +62,16 @@ function SortablePropertyCard({
   handlePropertyAction,
   handleToggleProperty,
   isProcessing,
+  onShowAnalytics,
+  hasAnalytics,
   t
 }: {
   property: Property
   handlePropertyAction: (action: string, propertyId: string) => void
   handleToggleProperty: (propertyId: string) => void
   isProcessing?: boolean
+  onShowAnalytics?: (propertyId: string) => void
+  hasAnalytics?: boolean
   t: (key: string) => string
 }) {
   const {
@@ -133,7 +137,22 @@ function SortablePropertyCard({
             </div>
           </div>
 
-          <DropdownMenu.Root>
+          <div className="flex items-center gap-1">
+            {hasAnalytics && onShowAnalytics && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 text-violet-600 hover:bg-violet-50"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onShowAnalytics(property.id)
+                }}
+                title={t('groups.detail.viewsAnalysis')}
+              >
+                <BarChart3 className="h-4 w-4" />
+              </Button>
+            )}
+            <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                 <MoreHorizontal className="h-4 w-4" />
@@ -203,6 +222,7 @@ function SortablePropertyCard({
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
           </DropdownMenu.Root>
+          </div>
         </div>
 
         <div className="space-y-2 mb-4">
@@ -263,6 +283,110 @@ function SortablePropertyCard({
   )
 }
 
+function PropertyAnalyticsModal({
+  data,
+  onClose,
+  t
+}: {
+  data: {
+    propertyId: string
+    propertyName: string
+    propertyViews: number
+    totalZoneViews: number
+    zones: Array<{ id: string; name: any; views: number; timeSpent: number }>
+  }
+  onClose: () => void
+  t: (key: string, opts?: any) => string
+}) {
+  const total = data.propertyViews + data.totalZoneViews
+  const topZones = (data.zones || [])
+    .filter(z => z.views > 0)
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 6)
+  const totalTimeSpent = data.zones.reduce((sum, z) => sum + (z.timeSpent || 0), 0)
+
+  return (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[200] p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[85vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-5 border-b border-gray-100 flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <BarChart3 className="w-4 h-4 text-violet-600" />
+              <h3 className="font-semibold text-gray-900">{data.propertyName}</h3>
+            </div>
+            <p className="text-xs text-gray-500">{t('groups.detail.viewsAnalysis')}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 p-1 -mr-1 -mt-1"
+            aria-label="Cerrar"
+          >
+            <span className="text-xl leading-none">×</span>
+          </button>
+        </div>
+
+        <div className="p-5 space-y-4">
+          <div className="grid grid-cols-3 gap-2">
+            <div className="text-center p-2 bg-blue-50 rounded-lg">
+              <div className="text-lg font-bold text-blue-600">{data.propertyViews}</div>
+              <div className="text-[11px] text-blue-600 leading-tight">{t('groups.detail.profileViews')}</div>
+            </div>
+            <div className="text-center p-2 bg-green-50 rounded-lg">
+              <div className="text-lg font-bold text-green-600">{data.totalZoneViews}</div>
+              <div className="text-[11px] text-green-600 leading-tight">{t('groups.detail.zoneViews')}</div>
+            </div>
+            <div className="text-center p-2 bg-violet-50 rounded-lg">
+              <div className="text-lg font-bold text-violet-600">{total}</div>
+              <div className="text-[11px] text-violet-600 leading-tight">{t('common.total')}</div>
+            </div>
+          </div>
+
+          {totalTimeSpent > 0 && (
+            <div className="text-xs text-gray-500 text-center">
+              {t('groups.detail.totalTime')}: <span className="font-semibold text-gray-700">{Math.round(totalTimeSpent / 60)}m</span>
+            </div>
+          )}
+
+          {topZones.length > 0 ? (
+            <div>
+              <div className="text-xs font-medium text-gray-700 mb-2">{t('groups.detail.mostVisitedZones')}</div>
+              <div className="space-y-1.5">
+                {topZones.map(z => {
+                  const zoneName = typeof z.name === 'object'
+                    ? (z.name?.es || z.name?.en || z.name?.fr || 'Zona')
+                    : z.name
+                  return (
+                    <div key={z.id} className="flex items-center justify-between text-sm py-1 border-b border-gray-50 last:border-0">
+                      <span className="text-gray-700 truncate mr-2">{zoneName}</span>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <span className="font-medium text-gray-900">{z.views}</span>
+                        {z.timeSpent > 0 && (
+                          <span className="text-xs text-gray-400">({Math.round(z.timeSpent / 60)}m)</span>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-gray-500 text-center py-2">Sin visitas a zonas todavía.</p>
+          )}
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
 interface Property {
   id: string
   name: string
@@ -312,6 +436,7 @@ export default function PropertySetDetailPage() {
   const [loading, setLoading] = useState(true)
   const [viewsData, setViewsData] = useState<any>(null)
   const [loadingViews, setLoadingViews] = useState(false)
+  const [analyticsPropertyId, setAnalyticsPropertyId] = useState<string | null>(null)
 
   // Duplicate property modal states
   const [duplicateModalOpen, setDuplicateModalOpen] = useState(false)
@@ -993,96 +1118,41 @@ export default function PropertySetDetailPage() {
             >
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center text-lg">
-                    <BarChart3 className="w-5 h-5 mr-2 text-violet-600" />
-                    {t('groups.detail.viewsAnalysis')}
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center text-lg">
+                      <BarChart3 className="w-5 h-5 mr-2 text-violet-600" />
+                      {t('groups.detail.viewsAnalysis')}
+                    </CardTitle>
+                    <Link href={`/properties/groups/${propertySetId}/analytics`}>
+                      <Button variant="outline" size="sm" className="text-violet-600 border-violet-200 hover:bg-violet-50">
+                        Ver analíticas completas
+                        <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                      </Button>
+                    </Link>
+                  </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div className="text-center p-4 bg-blue-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">
-                        {viewsData.summary.totalPropertyViews}
-                      </div>
-                      <div className="text-sm text-blue-600">{t('groups.detail.profileViews')}</div>
+                <CardContent className="py-3">
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+                    <div className="flex items-center gap-1.5">
+                      <Eye className="w-4 h-4 text-blue-600" />
+                      <span className="font-semibold text-gray-900">{viewsData.summary.totalPropertyViews}</span>
+                      <span className="text-gray-500">{t('groups.detail.profileViews')}</span>
                     </div>
-                    <div className="text-center p-4 bg-green-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">
-                        {viewsData.summary.totalZoneViews}
-                      </div>
-                      <div className="text-sm text-green-600">{t('groups.detail.zoneViews')}</div>
+                    <div className="flex items-center gap-1.5">
+                      <BarChart3 className="w-4 h-4 text-green-600" />
+                      <span className="font-semibold text-gray-900">{viewsData.summary.totalZoneViews}</span>
+                      <span className="text-gray-500">{t('groups.detail.zoneViews')}</span>
                     </div>
-                    <div className="text-center p-4 bg-purple-50 rounded-lg">
-                      <div className="text-2xl font-bold text-purple-600">
-                        {viewsData.summary.totalUniqueVisitors}
-                      </div>
-                      <div className="text-sm text-purple-600">{t('groups.detail.uniqueVisitors')}</div>
+                    <div className="flex items-center gap-1.5">
+                      <Users className="w-4 h-4 text-purple-600" />
+                      <span className="font-semibold text-gray-900">{viewsData.summary.totalUniqueVisitors}</span>
+                      <span className="text-gray-500">{t('groups.detail.uniqueVisitors')}</span>
                     </div>
-                    <div className="text-center p-4 bg-orange-50 rounded-lg">
-                      <div className="text-2xl font-bold text-orange-600">
-                        {Math.round(viewsData.summary.totalTimeSpent / 60)}m
-                      </div>
-                      <div className="text-sm text-orange-600">{t('groups.detail.totalTime')}</div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-semibold text-gray-900">{Math.round(viewsData.summary.totalTimeSpent / 60)}m</span>
+                      <span className="text-gray-500">{t('groups.detail.totalTime')}</span>
                     </div>
                   </div>
-
-                  {/* Property breakdown */}
-                  {viewsData.detailedViews && viewsData.detailedViews.length > 0 && (
-                    <div className="space-y-4">
-                      <h4 className="font-semibold text-gray-900 mb-3">{t('groups.detail.propertyBreakdown')}</h4>
-                      {viewsData.detailedViews
-                        .sort((a: any, b: any) => (b.propertyViews + b.totalZoneViews) - (a.propertyViews + a.totalZoneViews))
-                        .map((property: any) => (
-                          <div key={property.propertyId} className="border border-gray-200 rounded-lg p-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <div>
-                                <h5 className="font-medium text-gray-900">{property.propertyName}</h5>
-                                <p className="text-sm text-gray-600">
-                                  {t('groups.detail.profileViewsCount', { count: property.propertyViews })} • {t('groups.detail.zoneViewsCount', { count: property.totalZoneViews })}
-                                </p>
-                              </div>
-                              <div className="text-right">
-                                <div className="text-lg font-bold text-violet-600">
-                                  {property.propertyViews + property.totalZoneViews}
-                                </div>
-                                <div className="text-xs text-gray-500">{t('common.total')}</div>
-                              </div>
-                            </div>
-
-                            {/* Zone breakdown */}
-                            {property.zones && property.zones.length > 0 && (
-                              <div className="mt-3 pt-3 border-t border-gray-100">
-                                <div className="text-sm text-gray-600 mb-2">{t('groups.detail.mostVisitedZones')}</div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                  {property.zones
-                                    .filter((zone: any) => zone.views > 0)
-                                    .sort((a: any, b: any) => b.views - a.views)
-                                    .slice(0, 4)
-                                    .map((zone: any) => (
-                                      <div key={zone.id} className="flex items-center justify-between text-sm">
-                                        <span className="text-gray-700 truncate mr-2">
-                                          {typeof zone.name === 'object' ?
-                                            (zone.name.es || zone.name.en || zone.name.fr || 'Zona') :
-                                            zone.name
-                                          }
-                                        </span>
-                                        <div className="flex items-center space-x-2">
-                                          <span className="font-medium text-gray-900">{zone.views}</span>
-                                          {zone.timeSpent > 0 && (
-                                            <span className="text-xs text-gray-500">
-                                              ({Math.round(zone.timeSpent / 60)}m)
-                                            </span>
-                                          )}
-                                        </div>
-                                      </div>
-                                    ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             </motion.div>
@@ -1134,6 +1204,8 @@ export default function PropertySetDetailPage() {
                           handlePropertyAction={handlePropertyAction}
                           handleToggleProperty={handleToggleProperty}
                           isProcessing={processingPropertyId === property.id}
+                          onShowAnalytics={setAnalyticsPropertyId}
+                          hasAnalytics={!!viewsData?.detailedViews?.length}
                           t={t}
                         />
                       ))}
@@ -1165,6 +1237,19 @@ export default function PropertySetDetailPage() {
       </main>
 
       <DashboardFooter />
+
+      {/* Property Analytics Modal */}
+      {analyticsPropertyId && viewsData?.detailedViews && (() => {
+        const data = viewsData.detailedViews.find((d: any) => d.propertyId === analyticsPropertyId)
+        if (!data) return null
+        return (
+          <PropertyAnalyticsModal
+            data={data}
+            onClose={() => setAnalyticsPropertyId(null)}
+            t={t}
+          />
+        )
+      })()}
 
       {/* Add Property Modal */}
       {addPropertyModalOpen && (
