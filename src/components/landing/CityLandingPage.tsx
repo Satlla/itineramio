@@ -42,21 +42,33 @@ export default function CityLandingPage({ data }: { data: CityData }) {
     })),
   }
 
-  const localBusinessSchema = {
+  const citySlug = data.city.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-')
+
+  const serviceSchema = {
     '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
+    '@type': 'Service',
     name: `Itineramio ${data.city}`,
     description: `Software de manuales digitales para apartamentos turisticos en ${data.city}, ${data.region}.`,
-    url: `https://www.itineramio.com/${data.city.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-')}`,
+    url: `https://www.itineramio.com/${citySlug}`,
+    serviceType: 'Software de gestion de alojamientos turisticos',
     areaServed: {
       '@type': 'City',
       name: data.city,
     },
-    parentOrganization: {
+    provider: {
       '@type': 'Organization',
       name: 'Itineramio',
       url: 'https://www.itineramio.com',
     },
+  }
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://www.itineramio.com' },
+      { '@type': 'ListItem', position: 2, name: data.city, item: `https://www.itineramio.com/${citySlug}` },
+    ],
   }
 
   return (
@@ -68,7 +80,11 @@ export default function CityLandingPage({ data }: { data: CityData }) {
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
       {/* Navigation */}

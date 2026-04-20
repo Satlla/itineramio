@@ -18,6 +18,7 @@ const howToSchema = {
   '@type': 'HowTo',
   name: 'Como crear un manual de bienvenida para tu apartamento turistico',
   description: 'Tutorial completo para crear un manual de bienvenida profesional: que incluir, formato ideal y herramientas.',
+  totalTime: 'PT15M',
   step: [
     { '@type': 'HowToStep', position: 1, name: 'Define las secciones esenciales', text: 'Check-in, WiFi, electrodomesticos, normas, check-out, recomendaciones y emergencias.' },
     { '@type': 'HowToStep', position: 2, name: 'Organiza por zonas del apartamento', text: 'Entrada, cocina, bano, dormitorio, zona comun. El huesped busca por donde esta, no por tema.' },

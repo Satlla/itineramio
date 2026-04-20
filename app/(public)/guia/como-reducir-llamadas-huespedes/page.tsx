@@ -19,6 +19,7 @@ const howToSchema = {
   '@type': 'HowTo',
   name: 'Como reducir llamadas y mensajes repetitivos de huespedes',
   description: 'Guia paso a paso para eliminar las preguntas repetitivas de tus huespedes en alquileres vacacionales y ganar horas libres cada semana.',
+  totalTime: 'PT15M',
   step: [
     {
       '@type': 'HowToStep',

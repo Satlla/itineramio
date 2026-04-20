@@ -18,6 +18,7 @@ const howToSchema = {
   '@type': 'HowTo',
   name: 'Como hacer check-in automatico en Airbnb',
   description: 'Guia completa para configurar el self check-in en tu apartamento turistico: lockbox, cerraduras inteligentes, apps y codigos.',
+  totalTime: 'PT15M',
   step: [
     { '@type': 'HowToStep', position: 1, name: 'Elige tu metodo de acceso', text: 'Lockbox (cajetin con codigo), cerradura inteligente (Nuki, Yale, August) o codigo en cerradura electronica.' },
     { '@type': 'HowToStep', position: 2, name: 'Instala el sistema', text: 'Coloca la lockbox o cerradura inteligente siguiendo las instrucciones del fabricante.' },

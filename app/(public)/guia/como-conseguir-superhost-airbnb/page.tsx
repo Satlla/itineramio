@@ -17,6 +17,7 @@ const howToSchema = {
   '@type': 'HowTo',
   name: 'Como conseguir Superhost en Airbnb',
   description: 'Requisitos y estrategias practicas para obtener y mantener el badge Superhost en Airbnb en 2026.',
+  totalTime: 'PT15M',
   step: [
     { '@type': 'HowToStep', position: 1, name: 'Cumple los 4 requisitos basicos', text: 'Valoracion de 4.8+, tasa de respuesta 90%+, 0 cancelaciones y minimo 10 estancias o 100 noches al ano.' },
     { '@type': 'HowToStep', position: 2, name: 'Optimiza la experiencia de llegada', text: 'El check-in es el momento critico. Un huesped que llega sin problemas pone 5 estrellas. Uno que se pierde pone 4.' },
@@ -27,10 +28,14 @@ const howToSchema = {
 }
 
 const requirements = [
-  { icon: Star, name: 'Valoracion media de 4.8+', description: 'Sobre 5 estrellas, calculada en los ultimos 365 dias', critical: true },
-  { icon: MessageSquare, name: 'Tasa de respuesta del 90%+', description: 'Responder al menos el 90% de los mensajes nuevos', critical: true },
-  { icon: Target, name: '0 cancelaciones por tu parte', description: 'No puedes cancelar ninguna reserva confirmada', critical: true },
-  { icon: TrendingUp, name: '10+ estancias o 100+ noches', description: 'Minimo de actividad en los ultimos 12 meses', critical: false },
+  { icon: Star, name: 'Valoracion media de 4.8+', description: 'Sobre 5 estrellas, calculada en los ultimos 365 dias',
+  totalTime: 'PT15M', critical: true },
+  { icon: MessageSquare, name: 'Tasa de respuesta del 90%+', description: 'Responder al menos el 90% de los mensajes nuevos',
+  totalTime: 'PT15M', critical: true },
+  { icon: Target, name: '0 cancelaciones por tu parte', description: 'No puedes cancelar ninguna reserva confirmada',
+  totalTime: 'PT15M', critical: true },
+  { icon: TrendingUp, name: '10+ estancias o 100+ noches', description: 'Minimo de actividad en los ultimos 12 meses',
+  totalTime: 'PT15M', critical: false },
 ]
 
 export default function SuperhostPage() {

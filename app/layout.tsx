@@ -38,7 +38,10 @@ const satisfy = Satisfy({
 })
 
 export const metadata: Metadata = {
-  title: 'Manual Digital Apartamentos Turísticos | Software Gestión Airbnb | Itineramio',
+  title: {
+    template: '%s | Itineramio',
+    default: 'Manual Digital Apartamentos Turísticos | Software Gestión Airbnb | Itineramio',
+  },
   description: 'Crea manuales digitales para apartamentos turísticos en minutos. Software de gestión para Airbnb y alquiler vacacional: QR codes, check-in automático, comunicación con huéspedes. Prueba gratis 15 días.',
   keywords: [
     // Primary keywords (high volume, high intent)
@@ -165,11 +168,7 @@ export default function RootLayout({
       priceCurrency: 'EUR',
       description: 'Prueba gratis 15 días, luego desde €9/mes',
     },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      ratingCount: '127',
-    },
+    // aggregateRating removed — no real reviews yet. Add when real ratings exist.
     publisher: {
       '@type': 'Organization',
       name: 'Itineramio',

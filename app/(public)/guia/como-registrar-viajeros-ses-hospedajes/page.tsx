@@ -18,6 +18,7 @@ const howToSchema = {
   '@type': 'HowTo',
   name: 'Como registrar viajeros en SES.Hospedajes',
   description: 'Tutorial paso a paso para cumplir con la obligacion de registro de viajeros mediante la plataforma SES.Hospedajes del Ministerio del Interior.',
+  totalTime: 'PT15M',
   step: [
     { '@type': 'HowToStep', position: 1, name: 'Accede a la plataforma SES.Hospedajes', text: 'Entra en la web oficial de SES.Hospedajes del Ministerio del Interior con tu certificado digital o Cl@ve.' },
     { '@type': 'HowToStep', position: 2, name: 'Da de alta tu establecimiento', text: 'Registra tu vivienda turistica con los datos del inmueble y tu numero de registro autonomico.' },
