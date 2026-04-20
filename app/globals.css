@@ -41,16 +41,21 @@ body {
 }
 
 /* Para cuando JS añade la clase .pwa-standalone al html */
-html.pwa-standalone::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: max(env(safe-area-inset-top, 0px), 47px);
-  background-color: #f9fafb;
-  z-index: 9999;
-  pointer-events: none;
+/* Solo en móviles (iOS): tapa el área del status bar superpuesto al contenido.
+   En desktop macOS la PWA ya tiene barra de título nativa, así que la cortina
+   estaría tapando el navbar (z-index 9999 > z-index 100 del navbar). */
+@media (max-width: 767px) {
+  html.pwa-standalone::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: max(env(safe-area-inset-top, 0px), 47px);
+    background-color: #f9fafb;
+    z-index: 9999;
+    pointer-events: none;
+  }
 }
 
 /* Also support CSS media query for display-mode */
