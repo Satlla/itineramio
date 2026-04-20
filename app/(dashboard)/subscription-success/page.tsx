@@ -115,7 +115,7 @@ export default function SubscriptionSuccessPage() {
   // If Stripe payment, show different UI
   if (isStripePayment) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 flex items-center justify-center p-4" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
         <div className="max-w-2xl w-full">
           <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
             {/* Header */}
@@ -205,7 +205,7 @@ export default function SubscriptionSuccessPage() {
 
   // Manual payment UI (Bizum, Transfer)
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 flex items-center justify-center p-4" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
         {/* Success Card */}
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">

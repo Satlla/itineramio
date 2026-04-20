@@ -126,7 +126,7 @@ export default function PropertySettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-gray-600 border-t-transparent rounded-full" />
       </div>
     )
@@ -134,7 +134,7 @@ export default function PropertySettingsPage() {
 
   if (!property) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <p className="text-gray-500">{error || 'Propiedad no encontrada'}</p>
       </div>
     )
@@ -143,7 +143,6 @@ export default function PropertySettingsPage() {
   return (
     <div
       className="min-h-screen bg-gray-50 pb-20"
-      style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}
     >
       <div className="max-w-3xl mx-auto px-4 py-6">
         {/* Header */}

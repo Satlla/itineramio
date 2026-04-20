@@ -85,8 +85,12 @@ body {
   padding-top: env(safe-area-inset-top, 0px);
 }
 
-.pwa-standalone .pwa-fixed-top {
-  padding-top: max(env(safe-area-inset-top, 0px), 47px);
+/* Solo móviles: reservar 47px mínimos para el status bar iOS.
+   En desktop PWA la barra de título del sistema ya ocupa ese espacio. */
+@media (max-width: 767px) {
+  .pwa-standalone .pwa-fixed-top {
+    padding-top: max(env(safe-area-inset-top, 0px), 47px);
+  }
 }
 
 /* For the main navbar position when trial bar is NOT visible */
@@ -207,8 +211,11 @@ body {
   padding-top: env(safe-area-inset-top, 0px);
 }
 
-.pwa-standalone .pwa-sticky-header {
-  padding-top: max(env(safe-area-inset-top, 0px), 47px);
+/* Solo móviles: padding extra para el status bar iOS. Desktop PWA no lo necesita. */
+@media (max-width: 767px) {
+  .pwa-standalone .pwa-sticky-header {
+    padding-top: max(env(safe-area-inset-top, 0px), 47px);
+  }
 }
 
 /* For quiz viewer main content (96px header height) */
@@ -216,8 +223,10 @@ body {
   padding-top: calc(96px + env(safe-area-inset-top, 0px));
 }
 
-.pwa-standalone .pwa-quiz-content {
-  padding-top: calc(96px + max(env(safe-area-inset-top, 0px), 47px));
+@media (max-width: 767px) {
+  .pwa-standalone .pwa-quiz-content {
+    padding-top: calc(96px + max(env(safe-area-inset-top, 0px), 47px));
+  }
 }
 
 /* Prevent horizontal scroll on mobile */

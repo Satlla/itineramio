@@ -88,7 +88,7 @@ export default function ModulesPage() {
   return (
     <div
       className="min-h-screen bg-gray-950 relative overflow-hidden"
-      style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}
+     
     >
       {/* ─── Background effects ─── */}
       <div className="absolute inset-0 pointer-events-none">

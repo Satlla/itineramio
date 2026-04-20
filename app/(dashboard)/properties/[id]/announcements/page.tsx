@@ -614,7 +614,7 @@ export default function PropertyAnnouncementsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
+    <div className="min-h-screen bg-white">
       <OnboardingInfoModal
         storageKey="onboarding_announcements_visited"
         icon={Megaphone}

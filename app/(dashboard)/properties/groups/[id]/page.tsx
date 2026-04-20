@@ -960,7 +960,7 @@ export default function PropertySetDetailPage() {
 
   if (!propertySet) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ paddingTop: 'calc(4rem + env(safe-area-inset-top, 0px))' }}>
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('groups.setNotFound')}</h2>
           <p className="text-gray-600 mb-4">{t('groups.setNotFoundDesc')}</p>
