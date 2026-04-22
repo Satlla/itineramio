@@ -3,22 +3,54 @@
 import React from 'react'
 import { ShieldCheck, ExternalLink, CheckCircle } from 'lucide-react'
 
+type Language = 'es' | 'en' | 'fr'
+
 interface GuestRegistrationGateProps {
   propertyId: string
   propertyName: string
   config: { required: boolean; url: string; message?: string }
   onComplete: () => void
+  language?: Language
 }
 
-const DEFAULT_MESSAGE = `De acuerdo con las normas del alojamiento estamos obligados a realizar a todos los huéspedes mayores de 14 años el registro obligatorio en autoridades.
+const TRANSLATIONS: Record<Language, {
+  title: string
+  defaultMessage: string
+  openButton: string
+  doneButton: string
+}> = {
+  es: {
+    title: 'Registro obligatorio',
+    defaultMessage: `De acuerdo con las normas del alojamiento estamos obligados a realizar a todos los huéspedes mayores de 14 años el registro obligatorio en autoridades.
 
-A continuación tienes el enlace de la app Partee para dar de alta a todos los huéspedes que van a hospedarse durante tu estancia.`
+A continuación tienes el enlace de la app Partee para dar de alta a todos los huéspedes que van a hospedarse durante tu estancia.`,
+    openButton: 'Abrir Partee',
+    doneButton: 'Ya me he registrado — Acceder al manual'
+  },
+  en: {
+    title: 'Mandatory registration',
+    defaultMessage: `In accordance with accommodation regulations, we are required to register all guests over 14 years old with the authorities.
+
+Below you'll find the link to the Partee app to register all guests staying with you during your stay.`,
+    openButton: 'Open Partee',
+    doneButton: 'I have already registered — Access the manual'
+  },
+  fr: {
+    title: 'Enregistrement obligatoire',
+    defaultMessage: `Conformément aux règles de l'hébergement, nous sommes tenus d'enregistrer auprès des autorités tous les hôtes de plus de 14 ans.
+
+Ci-dessous, vous trouverez le lien vers l'application Partee pour enregistrer tous les hôtes qui séjourneront avec vous pendant votre séjour.`,
+    openButton: 'Ouvrir Partee',
+    doneButton: 'Je me suis déjà enregistré — Accéder au manuel'
+  }
+}
 
 export function GuestRegistrationGate({
   propertyId,
   propertyName,
   config,
   onComplete,
+  language = 'es',
 }: GuestRegistrationGateProps) {
   const handleComplete = () => {
     try {
@@ -27,7 +59,8 @@ export function GuestRegistrationGate({
     onComplete()
   }
 
-  const message = config.message?.trim() || DEFAULT_MESSAGE
+  const tr = TRANSLATIONS[language] || TRANSLATIONS.es
+  const message = config.message?.trim() || tr.defaultMessage
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
@@ -43,7 +76,7 @@ export function GuestRegistrationGate({
               <ShieldCheck className="w-9 h-9 text-white" />
             </div>
           </div>
-          <h2 className="text-xl font-bold mb-1">Registro obligatorio</h2>
+          <h2 className="text-xl font-bold mb-1">{tr.title}</h2>
           <p className="text-blue-100 text-sm">{propertyName}</p>
         </div>
 
@@ -63,7 +96,7 @@ export function GuestRegistrationGate({
             className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm"
           >
             <ExternalLink className="w-4 h-4" />
-            Abrir Partee
+            {tr.openButton}
           </a>
 
           <button
@@ -71,7 +104,7 @@ export function GuestRegistrationGate({
             className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-colors text-sm"
           >
             <CheckCircle className="w-4 h-4 text-green-600" />
-            Ya me he registrado — Acceder al manual
+            {tr.doneButton}
           </button>
         </div>
       </div>

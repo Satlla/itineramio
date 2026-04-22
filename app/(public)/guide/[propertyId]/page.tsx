@@ -1164,9 +1164,10 @@ export default function PropertyGuidePage() {
       {showRegGate && property.guestRegistration?.required && property.guestRegistration?.url && (
         <GuestRegistrationGate
           propertyId={property.id}
-          propertyName={typeof property.name === 'string' ? property.name : property.name?.es || ''}
+          propertyName={getText(property.name, language, '')}
           config={property.guestRegistration as { required: boolean; url: string; message?: string }}
           onComplete={() => setShowRegGate(false)}
+          language={language as 'es' | 'en' | 'fr'}
         />
       )}
 
