@@ -295,22 +295,25 @@ export async function DELETE(
     }
     const userId = authResult.userId
 
-    // Soft-delete: set deletedAt instead of deleting
-    const result = await prisma.$executeRaw`
-      UPDATE properties SET "deletedAt" = NOW()
-      WHERE id = ${id} AND "hostId" = ${userId} AND "deletedAt" IS NULL
-    `
+    // Hard-delete: verificar ownership y borrar permanentemente.
+    // Las relaciones con onDelete: Cascade se borran automáticamente.
+    const property = await prisma.property.findFirst({
+      where: { id, hostId: userId, deletedAt: null },
+      select: { id: true }
+    })
 
-    if (result === 0) {
+    if (!property) {
       return NextResponse.json({
         success: false,
         error: 'Propiedad no encontrada o no autorizada'
       }, { status: 404 })
     }
 
+    await prisma.property.delete({ where: { id } })
+
     return NextResponse.json({
       success: true,
-      message: 'Propiedad movida a la papelera'
+      message: 'Propiedad eliminada permanentemente'
     })
 
   } catch (error) {

@@ -2735,15 +2735,15 @@ function PropertiesPageContent() {
               {/* Modal Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-100 flex-shrink-0">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
-                    <Trash2 className="w-6 h-6 text-amber-600" />
+                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                    <Trash2 className="w-6 h-6 text-red-600" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
-                      Mover a la papelera
+                      Eliminar propiedad
                     </h3>
                     <p className="text-sm text-gray-600">
-                      Podrás restaurarla después
+                      Esta acción no se puede deshacer
                     </p>
                   </div>
                 </div>
@@ -2788,15 +2788,15 @@ function PropertiesPageContent() {
                 </div>
 
                 {/* Warning Message */}
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
                   <div className="flex items-start space-x-3">
-                    <Trash2 className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <Trash2 className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <h5 className="font-medium text-amber-800 mb-1">
-                        La propiedad se moverá a la papelera
+                      <h5 className="font-medium text-red-800 mb-1">
+                        Se eliminará permanentemente
                       </h5>
-                      <p className="text-sm text-amber-700 leading-relaxed">
-                        Podrás restaurarla en cualquier momento desde la pestaña "Papelera". Todas las zonas, pasos y datos se conservarán intactos.
+                      <p className="text-sm text-red-700 leading-relaxed">
+                        Se borrarán de forma irreversible la propiedad, todas sus zonas, pasos, vídeos subidos, conversaciones del chatbot, evaluaciones y datos asociados. <strong>No podrás recuperarla.</strong>
                       </p>
                     </div>
                   </div>
@@ -2816,18 +2816,18 @@ function PropertiesPageContent() {
                   </Button>
                   <Button
                     onClick={() => confirmDeleteProperty()}
-                    className="bg-amber-600 hover:bg-amber-700 text-white"
+                    className="bg-red-600 hover:bg-red-700 text-white"
                     disabled={isDeleting}
                   >
                     {isDeleting ? (
                       <>
                         <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                        Moviendo...
+                        Eliminando...
                       </>
                     ) : (
                       <>
                         <Trash2 className="w-4 h-4 mr-2" />
-                        Mover a la papelera
+                        Eliminar permanentemente
                       </>
                     )}
                   </Button>

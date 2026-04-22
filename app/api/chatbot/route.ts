@@ -1126,12 +1126,14 @@ const QUERY_EXPANSIONS: Record<string, string[]> = {
 
   // ── BASURA / RECICLAJE ───────────────────────────────────────────────────
   basura:         ['basura', 'reciclaje', 'residuos', 'contenedor', 'cubo', 'trash', 'recycling'],
-  reciclaje:      ['basura', 'reciclaje', 'residuos', 'contenedor'],
-  reciclar:       ['basura', 'reciclaje', 'residuos', 'contenedor'],
-  residuos:       ['basura', 'reciclaje', 'contenedor'],
-  contenedor:     ['basura', 'reciclaje', 'residuos', 'cubo'],
-  trash:          ['basura', 'reciclaje', 'residuos', 'contenedor'],
-  recycling:      ['reciclaje', 'basura', 'residuos'],
+  reciclaje:      ['basura', 'reciclaje', 'residuos', 'contenedor', 'recycling', 'trash'],
+  reciclar:       ['basura', 'reciclaje', 'residuos', 'contenedor', 'recycling', 'trash'],
+  residuos:       ['basura', 'reciclaje', 'contenedor', 'recycling', 'trash'],
+  contenedor:     ['basura', 'reciclaje', 'residuos', 'cubo', 'recycling', 'trash'],
+  trash:          ['basura', 'reciclaje', 'residuos', 'contenedor', 'recycling', 'garbage', 'waste'],
+  garbage:        ['basura', 'reciclaje', 'residuos', 'contenedor', 'recycling', 'trash', 'waste'],
+  waste:          ['basura', 'reciclaje', 'residuos', 'recycling', 'trash', 'garbage'],
+  recycling:      ['reciclaje', 'basura', 'residuos', 'trash', 'garbage', 'waste'],
 
   // ── RESTAURANTES / COMIDA ────────────────────────────────────────────────
   comer:          ['restaurante', 'restaurant', 'comida', 'cenar', 'food', 'tapas', 'bar', 'gastronomia'],
