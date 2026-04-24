@@ -84,3 +84,38 @@ Gap = keywords donde el competidor posiciona y nosotros no.
 Archivo fuente: /Users/alejandrosatlla/Downloads/keywords_gap for smoobu.com.csv
 Total keywords en gap: 248
 Keywords relevantes filtradas: ~50
+
+---
+
+## Touch Stay — Keywords relevantes para Itineramio
+
+Fuente: Ubersuggest gap export, 24 abril 2026.
+
+### Victoria rápida: "Nombres para casas vacacionales"
+
+Touch Stay posiciona #2-#4 para TODAS estas variantes con un solo artículo en español.
+SD bajísimo (14-25). Fácil de superar con un post más completo.
+
+| Keyword | Vol | SD | Touch Stay Pos |
+|---|---|---|---|
+| nombres para casas | 210 | 25 | #2 |
+| nombre para casas | 210 | 33 | #2 |
+| nombre para una casa | 170 | 32 | #2 |
+| nombres de casas | 170 | 30 | #4 |
+| nombres chulos de casas | 140 | 17 | #2 |
+| nombres para casas familiares | 110 | 17 | #4 |
+| nombres de villas originales | 110 | 15 | #2 |
+| nombres para casas de campo | 110 | 18 | #9 |
+| nombres para fincas | 110 | 14 | #6 |
+| nombres de fincas | 110 | 18 | #7 |
+| nombre de villas | 110 | 18 | #4 |
+| nombres de villas | 110 | 16 | #6 |
+
+**Volumen total del cluster: ~1.800 búsquedas/mes**
+
+### Acción recomendada
+Crear `/blog/nombres-casas-vacacionales` con 200+ nombres organizados por categoría (rústicas, modernas, playa, montaña, villas, fincas). Post largo, visual, compartible. SD <25 = ganable en 4-6 semanas.
+
+### Datos fuente
+Archivo: /Users/alejandrosatlla/Downloads/keywords_gap for touchstay.com.csv
+Total keywords en gap: 44 (mayormente en inglés, solo 21 relevantes en español)
