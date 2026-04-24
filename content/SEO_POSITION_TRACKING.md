@@ -83,3 +83,37 @@ Documento vivo. Actualizar cada vez que se revisen posiciones.
 - Verificar si los blog posts de fiscalidad están indexados
 - Comprobar posiciones de las keywords "pendientes"
 - Exportar nuevo gap si se añade Touch Stay como competidor
+
+---
+
+## Backlinks (24 abril 2026)
+
+### Estado actual
+- **Domain Authority: 1** (mínimo posible)
+- **Backlinks totales: 20** (todos nofollow)
+- **Dominios de referencia: 9** (todos spam/directorios automáticos)
+- **Backlinks de calidad: 0**
+
+### Comparativa con competidores
+| | Itineramio | Smoobu | Touch Stay |
+|---|---|---|---|
+| DA | 1 | ~50+ | ~40+ |
+| Backlinks | 20 | 357.646 | 39.173 |
+| Dominios ref | 9 | Miles | Miles |
+
+### Plan de backlinks
+**Semana 1:**
+- Facebook Page de Itineramio → enlace a web
+- Google Business Profile
+- Product Hunt launch
+- Capterra / G2 / AlternativeTo listing
+
+**Mes 1-2:**
+- Guest posts en blogs de turismo/hosts
+- HARO / Connectively (responder preguntas periodistas)
+- Foros de hosts (comunidades Airbnb España)
+
+**Objetivo:** DA 10+ en 3 meses, DA 20+ en 6 meses.
+
+### Fuente
+Archivo: /Users/alejandrosatlla/Downloads/backlinks-(general)-24-04-2026.pdf
