@@ -36,6 +36,12 @@
     },
     "app/api/gestion/reservations/import-csv/route.ts": {
       "maxDuration": 60
+    },
+    "app/api/admin/blog/generate-ai/route.ts": {
+      "maxDuration": 120
+    },
+    "app/api/cron/generate-daily/route.ts": {
+      "maxDuration": 120
     }
   },
   "crons": [
@@ -74,6 +80,22 @@
     {
       "path": "/api/cron/send-reactivation-emails",
       "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/publish-scheduled",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/generate-daily",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/seed-engagement",
+      "schedule": "0 */4 * * *"
+    },
+    {
+      "path": "/api/cron/verifactu-status",
+      "schedule": "0 * * * *"
     }
   ],
   "headers": [
