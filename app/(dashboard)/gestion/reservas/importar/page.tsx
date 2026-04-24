@@ -1788,29 +1788,17 @@ export default function ImportarReservasPage() {
               </p>
             </div>
 
-            <div className="space-y-3 mb-6">
-              <div className="bg-gray-50 rounded-xl p-3 flex items-start gap-3">
-                <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-4 h-4 text-gray-600" />
-                </div>
-                <div className="text-sm">
-                  <p className="font-medium text-gray-900">Siguiente paso: Generar liquidación</p>
-                  <p className="text-gray-600">Revisa el desglose y envíalo al propietario</p>
-                </div>
-              </div>
-            </div>
-
             <div className="flex gap-3">
               <Button
                 variant="outline"
                 onClick={() => setShowSuccessModal(false)}
                 className="flex-1"
               >
-                Cerrar
+                Seguir importando
               </Button>
-              <Link href="/gestion/liquidaciones/nueva" className="flex-1">
+              <Link href="/gestion/liquidaciones" className="flex-1">
                 <Button className="w-full bg-gray-900 hover:bg-black">
-                  Generar liquidación
+                  Ir a liquidaciones
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
