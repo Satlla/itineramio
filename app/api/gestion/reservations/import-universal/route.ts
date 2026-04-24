@@ -190,15 +190,16 @@ export async function POST(request: NextRequest) {
           billingConfig
         )
 
-        // Map platform string to enum
+        // Map platform — use per-row column if mapped, otherwise config
         const platformMap: Record<string, 'AIRBNB' | 'BOOKING' | 'VRBO' | 'DIRECT' | 'OTHER'> = {
-          'AIRBNB': 'AIRBNB',
-          'BOOKING': 'BOOKING',
-          'VRBO': 'VRBO',
-          'DIRECT': 'DIRECT',
+          'AIRBNB': 'AIRBNB', 'airbnb': 'AIRBNB', 'Airbnb': 'AIRBNB',
+          'BOOKING': 'BOOKING', 'booking': 'BOOKING', 'Booking': 'BOOKING', 'Booking.com': 'BOOKING',
+          'VRBO': 'VRBO', 'vrbo': 'VRBO', 'Vrbo': 'VRBO',
+          'DIRECT': 'DIRECT', 'direct': 'DIRECT', 'Directo': 'DIRECT', 'directo': 'DIRECT',
           'OTHER': 'OTHER'
         }
-        const platform = platformMap[config.platform] || 'OTHER'
+        const rowPlatform = mapping.platform !== undefined ? (row[mapping.platform] || '').trim() : ''
+        const platform = platformMap[rowPlatform] || platformMap[config.platform] || 'OTHER'
 
         // Create reservation
         const createData = {

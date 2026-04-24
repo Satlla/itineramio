@@ -47,6 +47,7 @@ const OPTIONAL_FIELDS: FieldOption[] = [
   { key: 'cleaningFee', label: 'Limpieza', color: 'bg-cyan-500', required: false },
   { key: 'commission', label: 'Comisión', color: 'bg-rose-500', required: false },
   { key: 'status', label: 'Estado', color: 'bg-amber-500', required: false },
+  { key: 'platform', label: 'Plataforma', color: 'bg-gray-400', required: false },
 ]
 
 export function SimpleColumnMapper({
@@ -217,11 +218,12 @@ export function SimpleColumnMapper({
     if (template.mapping.cleaningFee !== undefined) newAssignments.cleaningFee = template.mapping.cleaningFee
     if (template.mapping.commission !== undefined) newAssignments.commission = template.mapping.commission
     if (template.mapping.status !== undefined) newAssignments.status = template.mapping.status
+    if (template.mapping.platform !== undefined) newAssignments.platform = template.mapping.platform
 
     // Show optional if any optional fields are mapped
     if (newAssignments.confirmationCode != null || newAssignments.nights != null ||
         newAssignments.cleaningFee != null || newAssignments.commission != null ||
-        newAssignments.status != null) {
+        newAssignments.status != null || newAssignments.platform != null) {
       setShowOptional(true)
     }
 
@@ -242,6 +244,7 @@ export function SimpleColumnMapper({
     if (assignments.cleaningFee != null) mapping.cleaningFee = assignments.cleaningFee
     if (assignments.commission != null) mapping.commission = assignments.commission
     if (assignments.status != null) mapping.status = assignments.status
+    if (assignments.platform != null) mapping.platform = assignments.platform
     return mapping
   }
 

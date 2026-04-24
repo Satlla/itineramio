@@ -14,6 +14,7 @@ export interface ColumnMapping {
   cleaningFee?: number
   commission?: number
   status?: number
+  platform?: number
 }
 
 // Import configuration
