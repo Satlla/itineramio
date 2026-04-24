@@ -1,6 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifactiGetStatus, mapVerifactiStatus } from '@/lib/verifactu'
+import { sendEmail } from '@/lib/email-improved'
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://itineramio.com'
+
+function buildRejectionEmail(opts: {
+  invoiceNumber: string
+  newStatus: 'REJECTED' | 'ERROR'
+  errorCode?: string | null
+  errorMessage?: string | null
+  invoiceUrl: string
+}): { subject: string; html: string } {
+  const isRejected = opts.newStatus === 'REJECTED'
+  const subject = isRejected
+    ? `❌ AEAT ha rechazado tu factura ${opts.invoiceNumber}`
+    : `⚠️ Error registrando tu factura ${opts.invoiceNumber} en AEAT`
+
+  const html = `<!doctype html>
+<html lang="es">
+<body style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;background:#f5f5f5;padding:20px;color:#222;">
+  <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e5e5e5;">
+    <div style="background:${isRejected ? '#dc2626' : '#d97706'};padding:24px;color:#fff;">
+      <h1 style="margin:0;font-size:18px;">${isRejected ? 'Factura rechazada por AEAT' : 'Error al registrar en AEAT'}</h1>
+      <p style="margin:6px 0 0;font-size:14px;opacity:0.9;">Factura ${opts.invoiceNumber}</p>
+    </div>
+    <div style="padding:24px;">
+      <p style="margin:0 0 16px;font-size:14px;line-height:1.5;">
+        ${isRejected
+          ? 'La AEAT ha rechazado el registro VeriFactu de esta factura. Es necesario corregirla y reenviarla.'
+          : 'Se produjo un error al intentar registrar la factura en AEAT. Puedes reintentar el envío.'}
+      </p>
+      ${opts.errorMessage ? `
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px;margin:16px 0;">
+        <p style="margin:0 0 4px;font-size:12px;color:#7f1d1d;font-weight:600;">Motivo${opts.errorCode ? ` (código ${opts.errorCode})` : ''}:</p>
+        <p style="margin:0;font-size:13px;color:#7f1d1d;">${opts.errorMessage}</p>
+      </div>` : ''}
+      <a href="${opts.invoiceUrl}" style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:500;margin-top:8px;">Ver factura</a>
+      <p style="margin:24px 0 0;font-size:12px;color:#666;line-height:1.5;">
+        Recordatorio: las facturas con VeriFactu activo deben quedar registradas en AEAT.
+        Si el problema persiste, contacta con tu gestor o con soporte.
+      </p>
+    </div>
+  </div>
+</body>
+</html>`
+
+  return { subject, html }
+}
 
 /**
  * Cron job para actualizar estados de facturas VeriFactu pendientes.
@@ -103,6 +150,28 @@ export async function GET(request: NextRequest) {
       }, { timeout: 10000 })
 
       updated++
+
+      // Notificar al usuario si AEAT rechazó o hubo error
+      if (newStatus === 'REJECTED' || newStatus === 'ERROR') {
+        try {
+          const user = await prisma.user.findUnique({
+            where: { id: invoice.userId },
+            select: { email: true, name: true },
+          })
+          if (user?.email) {
+            const { subject, html } = buildRejectionEmail({
+              invoiceNumber: invoice.fullNumber || invoice.id,
+              newStatus,
+              errorCode: result.data.error_code,
+              errorMessage: result.data.error_message,
+              invoiceUrl: `${APP_URL}/gestion/facturas/${invoice.id}`,
+            })
+            await sendEmail({ to: user.email, subject, html })
+          }
+        } catch {
+          // Falla silenciosa: el cron no debe romperse por un email
+        }
+      }
     }
 
     return NextResponse.json({

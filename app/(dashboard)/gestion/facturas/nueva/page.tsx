@@ -87,6 +87,7 @@ export default function NuevaFacturaPage() {
   const [checkingDuplicate, setCheckingDuplicate] = useState(false)
   const [issueDate, setIssueDate] = useState(new Date().toISOString().split('T')[0])
   const [dueDate, setDueDate] = useState('')
+  const [invoiceType, setInvoiceType] = useState<'F1' | 'F2'>('F1')
   const [items, setItems] = useState<InvoiceItem[]>([
     { id: '1', concept: '', description: '', quantity: 1, unitPrice: 0, netTotal: 0, vatRate: 21, retentionRate: 0, lastEdited: 'base' }
   ])
@@ -445,6 +446,18 @@ export default function NuevaFacturaPage() {
         retentionRate: item.retentionRate
       }))
 
+      // Validación: F1 (completa) requiere NIF/CIF del cliente
+      if (invoiceType === 'F1') {
+        const hasTaxId = selectedOwner.type === 'EMPRESA'
+          ? !!selectedOwner.cif
+          : !!selectedOwner.nif
+        if (!hasTaxId) {
+          setError('Tipo F1 (factura completa) requiere NIF/CIF del cliente. Edita el cliente o cambia a F2 (simplificada).')
+          setSaving(false)
+          return
+        }
+      }
+
       const response = await fetch('/api/gestion/invoices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -454,6 +467,7 @@ export default function NuevaFacturaPage() {
           seriesId: selectedSeriesId,
           issueDate,
           dueDate: dueDate || null,
+          invoiceType,
           items: apiItems
         })
       })
@@ -707,6 +721,40 @@ export default function NuevaFacturaPage() {
                   onChange={(e) => setDueDate(e.target.value)}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white"
                 />
+              </div>
+
+              {/* Tipo factura AEAT */}
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-2">Tipo de factura</label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setInvoiceType('F1')}
+                    className={`flex-1 px-3 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
+                      invoiceType === 'F1'
+                        ? 'bg-gray-900 text-white border-gray-900'
+                        : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    F1 · Completa
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInvoiceType('F2')}
+                    className={`flex-1 px-3 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
+                      invoiceType === 'F2'
+                        ? 'bg-gray-900 text-white border-gray-900'
+                        : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    F2 · Simplificada
+                  </button>
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  {invoiceType === 'F1'
+                    ? 'Requiere NIF/CIF del cliente.'
+                    : 'Sin NIF. Importe ≤ 400€ (3.000€ con IVA en algunos casos).'}
+                </p>
               </div>
             </div>
           </div>

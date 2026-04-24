@@ -24,6 +24,7 @@ import { useTranslation } from 'react-i18next'
 import { Button, Card, CardContent, Badge } from '../../../../src/components/ui'
 import { AnimatedLoadingSpinner } from '../../../../src/components/ui/AnimatedLoadingSpinner'
 import { DashboardFooter } from '../../../../src/components/layout/DashboardFooter'
+import { validateTaxId } from '../../../../src/lib/verifactu/nif-validation'
 
 interface Client {
   id: string
@@ -102,16 +103,17 @@ export default function ClientesPage() {
     return `${client.firstName || ''} ${client.lastName || ''}`.trim() || t('owners.title')
   }
 
-  const isValidSpanishTaxId = (value: string): boolean => {
-    if (!value) return true // empty is ok
-    const cleaned = value.replace(/[-\s.]/g, '').toUpperCase()
-    // NIF: 8 digits + letter
-    if (/^\d{8}[A-Z]$/.test(cleaned)) return true
-    // CIF: letter + 7 digits + letter/digit
-    if (/^[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]$/.test(cleaned)) return true
-    // NIE: X/Y/Z + 7 digits + letter
-    if (/^[XYZ]\d{7}[A-Z]$/.test(cleaned)) return true
-    return false
+  const isValidNif = (value: string): boolean => {
+    if (!value) return true // vacío es ok (campo opcional)
+    const result = validateTaxId(value)
+    // Solo aceptamos NIF/NIE para particulares
+    return result.valid && (result.type === 'NIF' || result.type === 'NIE')
+  }
+
+  const isValidCif = (value: string): boolean => {
+    if (!value) return true
+    const result = validateTaxId(value)
+    return result.valid && result.type === 'CIF'
   }
 
   const validateIBAN = (iban: string): boolean => {
@@ -156,6 +158,14 @@ export default function ClientesPage() {
 
     if (newClient.iban && !validateIBAN(newClient.iban)) {
       errors.iban = t('owners.validation.ibanInvalid')
+    }
+
+    // Validación NIF/CIF: si está rellenado debe ser válido (checksum)
+    if (newClient.type === 'PERSONA_FISICA' && newClient.nif && !isValidNif(newClient.nif)) {
+      errors.nif = 'NIF/NIE inválido. Verifica el dígito de control.'
+    }
+    if (newClient.type === 'EMPRESA' && newClient.cif && !isValidCif(newClient.cif)) {
+      errors.cif = 'CIF inválido. Verifica el dígito de control.'
     }
 
     setFormErrors(errors)
@@ -654,14 +664,17 @@ export default function ClientesPage() {
                     type="text"
                     value={newClient.nif}
                     onChange={(e) => setNewClient({ ...newClient, nif: e.target.value.toUpperCase() })}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 ${newClient.nif && !isValidSpanishTaxId(newClient.nif) ? 'border-amber-400' : 'border-gray-300'}`}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 ${(newClient.nif && !isValidNif(newClient.nif)) || formErrors.nif ? 'border-red-400' : 'border-gray-300'}`}
                     placeholder="12345678A"
                     maxLength={9}
                   />
-                  {newClient.nif && !isValidSpanishTaxId(newClient.nif) && (
-                    <p className="text-xs text-amber-600 mt-1">
-                      {"\u26A0"} El formato del NIF/CIF no parece v\u00E1lido. Verifique que es correcto.
+                  {newClient.nif && !isValidNif(newClient.nif) && (
+                    <p className="text-xs text-red-600 mt-1">
+                      NIF/NIE inválido. Verifica el dígito de control (necesario para VeriFactu).
                     </p>
+                  )}
+                  {formErrors.nif && !newClient.nif && (
+                    <p className="text-xs text-red-600 mt-1">{formErrors.nif}</p>
                   )}
                 </div>
               ) : (
@@ -671,14 +684,17 @@ export default function ClientesPage() {
                     type="text"
                     value={newClient.cif}
                     onChange={(e) => setNewClient({ ...newClient, cif: e.target.value.toUpperCase() })}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 ${newClient.cif && !isValidSpanishTaxId(newClient.cif) ? 'border-amber-400' : 'border-gray-300'}`}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 ${(newClient.cif && !isValidCif(newClient.cif)) || formErrors.cif ? 'border-red-400' : 'border-gray-300'}`}
                     placeholder="A12345678"
                     maxLength={9}
                   />
-                  {newClient.cif && !isValidSpanishTaxId(newClient.cif) && (
-                    <p className="text-xs text-amber-600 mt-1">
-                      {"\u26A0"} El formato del NIF/CIF no parece v\u00E1lido. Verifique que es correcto.
+                  {newClient.cif && !isValidCif(newClient.cif) && (
+                    <p className="text-xs text-red-600 mt-1">
+                      CIF inválido. Verifica el dígito de control (necesario para VeriFactu).
                     </p>
+                  )}
+                  {formErrors.cif && !newClient.cif && (
+                    <p className="text-xs text-red-600 mt-1">{formErrors.cif}</p>
                   )}
                 </div>
               )}

@@ -370,11 +370,32 @@ export async function POST(
       }
 
       // Resolve AEAT invoice type
-      const invoiceType = resolveAEATInvoiceType({
-        isRectifying: invoice.isRectifying,
-        rectifyingType: invoice.rectifyingType,
-        total: Number(invoice.total),
-      })
+      // Si la factura ya tiene un invoiceType asignado por el usuario (F1/F2) y no es
+      // rectificativa, lo respetamos. Las rectificativas siempre se resuelven automáticamente.
+      const invoiceType = invoice.isRectifying
+        ? resolveAEATInvoiceType({
+            isRectifying: invoice.isRectifying,
+            rectifyingType: invoice.rectifyingType,
+            total: Number(invoice.total),
+          })
+        : (invoice.invoiceType ?? resolveAEATInvoiceType({
+            isRectifying: invoice.isRectifying,
+            rectifyingType: invoice.rectifyingType,
+            total: Number(invoice.total),
+          }))
+
+      // F1 (factura completa) requiere NIF/CIF del cliente. F2 (simplificada) no.
+      if (invoiceType === 'F1') {
+        const clientHasNif = invoice.owner?.type === 'EMPRESA'
+          ? !!invoice.owner?.cif
+          : !!invoice.owner?.nif
+        if (!clientHasNif) {
+          return NextResponse.json(
+            { error: 'Factura tipo F1 (completa) requiere NIF/CIF del cliente. Edita el cliente para añadirlo o emite como F2 (simplificada).' },
+            { status: 400 }
+          )
+        }
+      }
 
       // Get previous record from the last issued invoice in the same series
       // We need the full identification for Encadenamiento per AEAT XSD

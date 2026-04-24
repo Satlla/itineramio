@@ -161,8 +161,12 @@ export async function POST(request: NextRequest) {
       items,
       paymentMethodUsed,
       applyRetention,
-      retentionRate: inputRetentionRate
+      retentionRate: inputRetentionRate,
+      invoiceType
     } = body
+
+    // Validate AEAT invoice type if provided (only F1/F2 from UI; rectificativas se resuelven en issue)
+    const validInvoiceType = invoiceType === 'F1' || invoiceType === 'F2' ? invoiceType : null
 
     // Validate required fields
     if (!ownerId) {
@@ -280,6 +284,7 @@ export async function POST(request: NextRequest) {
         isLocked: false,
         paymentMethodUsed: paymentMethodUsed || null,
         notes: notes || null,
+        ...(validInvoiceType ? { invoiceType: validInvoiceType } : {}),
         items: {
           create: processedItems
         }
