@@ -402,8 +402,16 @@ export default function ImportarReservasPage() {
     let validRows = 0
     const newDetails: Array<{ code: string; guestName: string; checkIn: string; amount: number; listing: string }> = []
 
+    const previewHeaderKw = ['reserva', 'fecha', 'huésped', 'huesped', 'guest', 'nombre', 'plataforma', 'duración', 'limpieza', 'total', 'comisión', 'importe', 'noches']
+    const previewSummaryKw = ['% comisión', '% comision', 'total facturación', 'total facturacion', 'total gestión', 'total limpieza', 'total a pagar', 'noches reservadas', '% ocupación', 'p/m noche']
     for (let i = 0; i < rawRows.length; i++) {
       const row = rawRows[i]
+      // Skip header and summary rows
+      const firstCell = (row[0] || '').trim().toLowerCase()
+      if (previewHeaderKw.includes(firstCell)) continue
+      if (previewSummaryKw.some(kw => firstCell.includes(kw))) continue
+      if (row.every(cell => !cell || !cell.trim())) continue
+
       const guestName = row[mapping.guestName] || ''
       const checkIn = mapping.dateRange !== undefined ? (row[mapping.dateRange] || '') : (row[mapping.checkIn] || '')
       const checkOut = mapping.dateRange !== undefined ? (row[mapping.dateRange] || '') : (row[mapping.checkOut] || '')
@@ -551,15 +559,23 @@ export default function ImportarReservasPage() {
     setImportResult(null)
     setMessage(null)
 
-    // Filter out empty rows and header-like rows before sending
+    // Filter out empty rows, header-like rows, and summary rows before sending
+    const headerKeywords = ['reserva', 'fecha', 'huésped', 'huesped', 'guest', 'booking', 'nombre', 'plataforma', 'duración', 'duracion', 'limpieza', 'total', 'comisión', 'comision', 'importe', 'precio', 'noches']
+    const summaryKeywords = ['% comisión', '% comision', 'total facturación', 'total facturacion', 'total gestión', 'total gestion', 'total limpieza', 'total a pagar', 'noches reservadas', '% ocupación', '% ocupacion', 'p/m noche']
     const filteredRows = rawRows.filter(row => {
       // Skip rows where all cells are empty
       if (row.every(cell => !cell || !cell.trim())) return false
-      // Skip rows that look like headers (contain header text in mapped columns)
+      // Skip rows that look like headers
       if (rawHeaders.length > 0) {
         const nonEmptyCells = row.filter(cell => cell && cell.trim())
         if (nonEmptyCells.length > 0 && nonEmptyCells.every(cell => rawHeaders.includes(cell.trim()))) return false
       }
+      // Skip rows where first cell matches common header keywords
+      const firstCell = (row[0] || '').trim().toLowerCase()
+      if (headerKeywords.includes(firstCell)) return false
+      // Skip summary/total rows at the bottom
+      if (summaryKeywords.some(kw => firstCell.includes(kw))) return false
+      // Skip rows with no numeric importe (amount column likely has text like "Total" or "%")
       return true
     })
 
