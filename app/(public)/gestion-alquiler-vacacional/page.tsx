@@ -291,7 +291,7 @@ export default function GestionAlquilerVacacionalPage() {
             <Link href="/register" className="inline-flex items-center justify-center rounded-lg bg-white px-8 py-3.5 text-base font-medium text-gray-900 transition-colors hover:bg-gray-100">
               Empezar gratis <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
-            <Link href="/pricing" className="inline-flex items-center justify-center rounded-lg border border-gray-600 px-8 py-3.5 text-base font-medium text-gray-300 transition-colors hover:bg-gray-800">
+            <Link href="/#pricing" className="inline-flex items-center justify-center rounded-lg border border-gray-600 px-8 py-3.5 text-base font-medium text-gray-300 transition-colors hover:bg-gray-800">
               Ver precios
             </Link>
           </div>
