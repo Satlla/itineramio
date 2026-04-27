@@ -3332,6 +3332,14 @@ export default function PropertyZonesPage() {
               exit={{ scale: 0.9, opacity: 0 }}
               className="bg-white rounded-lg p-6 w-full max-w-md"
             >
+              <div className="flex justify-end mb-2">
+                <button
+                  onClick={() => { setShowCreateForm(false); setEditingZone(null) }}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
               <div className="text-center mb-6">
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full mb-3">
                   <Plus className="w-6 h-6 text-gray-600" />
