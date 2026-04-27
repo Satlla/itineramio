@@ -16,6 +16,9 @@ import { sendEmail, emailTemplates } from '../../../../src/lib/email'
 const CRON_SECRET = process.env.CRON_SECRET
 
 export async function GET(request: NextRequest) {
+  // TEMPORALMENTE DESACTIVADO — emails de demo-followup pausados
+  return NextResponse.json({ message: 'Demo followup emails temporarily disabled' })
+
   // Verificar autorización
   if (!CRON_SECRET) {
     return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
