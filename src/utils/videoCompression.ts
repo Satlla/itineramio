@@ -122,11 +122,13 @@ export async function compressVideo(
         }
         
         recorder.onstop = () => {
-          const blob = new Blob(chunks, { type: mimeType })
+          // Strip "codecs=" so the served Content-Type doesn't hide the audio track
+          const containerMimeType = mimeType.split(';')[0]
+          const blob = new Blob(chunks, { type: containerMimeType })
           const compressedFile = new File(
             [blob],
             file.name.replace(/\.[^/.]+$/, `_compressed.${fileExtension}`),
-            { type: mimeType }
+            { type: containerMimeType }
           )
           
           const compressedSizeMB = compressedFile.size / (1024 * 1024)
