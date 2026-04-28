@@ -651,10 +651,8 @@ export default function Step2Media({
                                 ref={(el) => { videoRefs.current[item.id] = el }}
                                 src={item.url}
                                 className={`w-full h-full ${isPortrait ? 'object-contain' : 'object-cover'}`}
-                                muted
                                 playsInline
                                 preload="metadata"
-                                loop
                                 onLoadedMetadata={(e) => {
                                   const v = e.currentTarget
                                   if (v.videoHeight > v.videoWidth) {
