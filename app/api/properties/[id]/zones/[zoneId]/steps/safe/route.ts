@@ -154,8 +154,10 @@ export async function PUT(
       try {
         translatedStepsList = await translateSteps(steps)
       } catch (e) {
-        // Translation skipped
+        console.error('[translate] steps translation failed:', e)
       }
+    } else {
+      console.warn('[translate] steps translation skipped — rate limit hit', { userId, zoneId })
     }
 
     // Set RLS config (ignore if fails)

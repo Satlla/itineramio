@@ -178,7 +178,7 @@ export const gestionWriteRateLimiter = createRateLimiter({ maxRequests: 30, wind
 export const gestionImportRateLimiter = createRateLimiter({ maxRequests: 5, windowMs: 60 * 60 * 1000 })
 export const gestionLiquidationRateLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60 * 60 * 1000 })
 export const gestionPdfRateLimiter = createRateLimiter({ maxRequests: 20, windowMs: 60 * 60 * 1000 })
-export const translationRateLimiter = createRateLimiter({ maxRequests: 30, windowMs: 60 * 60 * 1000 })
+export const translationRateLimiter = createRateLimiter({ maxRequests: 200, windowMs: 60 * 60 * 1000 })
 export const publicApiRateLimiter = createRateLimiter({ maxRequests: 60, windowMs: 60 * 1000 })
 export const webhookRateLimiter = createRateLimiter({ maxRequests: 30, windowMs: 60 * 1000 })
 

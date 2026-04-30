@@ -76,6 +76,7 @@ export async function translateFields(fields: TranslatableField[], options?: { f
 
     return result
   } catch (error) {
+    console.error('[translate] translateFields failed:', error)
     return fields
   }
 }

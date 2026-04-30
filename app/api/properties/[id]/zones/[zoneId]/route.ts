@@ -214,17 +214,26 @@ export async function PUT(
       delete updateData.iconId
     }
 
-    // Auto-translate zone name from Spanish to EN/FR
-    if (updateData.name && typeof updateData.name === 'object' && updateData.name.es) {
+    // Auto-translate zone name + description from Spanish to EN/FR
+    const nameNeedsTranslation = updateData.name && typeof updateData.name === 'object' && updateData.name.es
+    const descNeedsTranslation = updateData.description && typeof updateData.description === 'object' && updateData.description.es
+    if (nameNeedsTranslation || descNeedsTranslation) {
       const rateLimitKey = getRateLimitKey(request, userId, 'translation')
       const rateLimitResult = translationRateLimiter(rateLimitKey)
       if (rateLimitResult.allowed) {
         try {
-          const [translatedName] = await translateFields([updateData.name])
-          updateData.name = translatedName
+          const fieldsToTranslate = []
+          if (nameNeedsTranslation) fieldsToTranslate.push(updateData.name)
+          if (descNeedsTranslation) fieldsToTranslate.push(updateData.description)
+          const translated = await translateFields(fieldsToTranslate)
+          let idx = 0
+          if (nameNeedsTranslation) updateData.name = translated[idx++]
+          if (descNeedsTranslation) updateData.description = translated[idx++]
         } catch (e) {
-          // Translation skipped
+          console.error('[translate] zone update translation failed:', e)
         }
+      } else {
+        console.warn('[translate] zone update translation skipped — rate limit hit', { userId, zoneId })
       }
     }
 

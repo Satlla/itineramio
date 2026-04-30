@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { prisma } from '../../../../../../src/lib/prisma'
 import jwt from 'jsonwebtoken'
 import { generateSlug, generateUniqueSlug } from '../../../../../../src/lib/slug-utils'
+import { translateFields } from '../../../../../../src/lib/translate'
+import { translationRateLimiter, getRateLimitKey } from '../../../../../../src/lib/rate-limit'
 
 // Step schema for pre-filled content templates
 const stepSchema = z.object({
@@ -109,24 +111,54 @@ export async function POST(
     
     // Get existing slugs for uniqueness check
     const existingSlugs = await prisma.zone.findMany({
-      where: { 
+      where: {
         propertyId,
         slug: { not: null }
       },
       select: { slug: true }
     }).then(results => results.map(r => r.slug).filter(Boolean) as string[])
-    
-    
+
+
+    // Normalize names and descriptions to multilingual objects { es, en?, fr? }
+    const normalizedZones = validatedData.zones.map(z => ({
+      ...z,
+      name: typeof z.name === 'string' ? { es: z.name } : z.name,
+      description: typeof z.description === 'string'
+        ? { es: z.description }
+        : (z.description || { es: '' }),
+    }))
+
+    // Auto-translate zone names + descriptions from Spanish to EN/FR (single batched call)
+    const rateLimitKey = getRateLimitKey(request, userId, 'translation')
+    const rateLimitResult = translationRateLimiter(rateLimitKey)
+    if (rateLimitResult.allowed) {
+      try {
+        const half = normalizedZones.length
+        const allFields = [
+          ...normalizedZones.map(z => z.name as { es?: string; en?: string; fr?: string }),
+          ...normalizedZones.map(z => z.description as { es?: string; en?: string; fr?: string }),
+        ]
+        const translated = await translateFields(allFields)
+        normalizedZones.forEach((z, i) => {
+          z.name = translated[i] as any
+          z.description = translated[half + i] as any
+        })
+      } catch (e) {
+        console.error('[translate] batch zones translation failed:', e)
+      }
+    } else {
+      console.warn('[translate] batch zones translation skipped — rate limit hit', { userId, propertyId, count: normalizedZones.length })
+    }
+
+
     // Prepare zones data with unique slugs
-    const zonesData = validatedData.zones.map((zoneData, index) => {
+    const zonesData = normalizedZones.map((zoneData, index) => {
       const timestamp = Date.now() + index // Ensure unique timestamps
       const random1 = Math.random().toString(36).substr(2, 12)
       const random2 = Math.random().toString(36).substr(2, 12)
 
       // Get the name string for slug generation
-      const nameForSlug = typeof zoneData.name === 'string'
-        ? zoneData.name
-        : (zoneData.name as any).es || (zoneData.name as any).en || ''
+      const nameForSlug = (zoneData.name as any).es || (zoneData.name as any).en || ''
       const baseSlug = generateSlug(nameForSlug)
       const uniqueSlug = generateUniqueSlug(baseSlug, existingSlugs)
       existingSlugs.push(uniqueSlug) // Add to list to ensure next zones are also unique
@@ -134,9 +166,9 @@ export async function POST(
       return {
         zoneData: {
           propertyId: propertyId,
-          name: typeof zoneData.name === 'string' ? { es: zoneData.name } : zoneData.name,
+          name: zoneData.name,
           slug: uniqueSlug,
-          description: typeof zoneData.description === 'string' ? { es: zoneData.description || '' } : (zoneData.description || { es: '' }),
+          description: zoneData.description,
           icon: zoneData.icon,
           color: zoneData.color,
           status: zoneData.status,

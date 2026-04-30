@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
       zoneId,
       zoneName,
       propertyName,
-      language = 'es',
+      language: uiLanguage = 'es',
       conversationHistory = [],
       sessionId
     } = await request.json();
@@ -128,6 +128,11 @@ export async function POST(request: NextRequest) {
     if (typeof message !== 'string' || message.length > 600) {
       return NextResponse.json({ error: 'Invalid message' }, { status: 400 });
     }
+
+    // Detect guest language from the message itself, falling back to the UI hint
+    // for short or ambiguous messages. The UI default is 'es', so without this an
+    // English-speaking guest gets Spanish answers despite the prompt rule.
+    let language = detectMessageLanguage(message, uiLanguage);
 
     // Get property from cache (avoids DB hit on every message)
     const property = await getCachedProperty(propertyId);
@@ -1672,6 +1677,35 @@ async function getLearnedContext(propertyId: string): Promise<string> {
 // ========================================
 // HELPER FUNCTIONS
 // ========================================
+
+// Detects es/en/fr from the guest's message. Returns the fallback (UI hint)
+// for short messages (<10 chars) or when the signal is weak — those cases
+// are too ambiguous to override the host's UI default safely.
+function detectMessageLanguage(message: string, fallback: string): string {
+  const text = (message || '').toLowerCase().trim();
+  if (text.length < 10) return fallback;
+
+  // Strong character/contraction signals — high confidence, return immediately
+  if (/[ñ¿¡]/.test(text)) return 'es';
+  if (/ç/.test(text) || /\b(qu'|c'est|d'|n'est|s'il|j'ai|j'aime|jusqu')/.test(text)) return 'fr';
+
+  const esRegex = /\b(qué|cómo|dónde|cuándo|cuánto|gracias|hola|sí|también|está|puedo|quiero|necesito|tengo|hay|para|con|sobre|cuál|cuáles|baño|cocina|tiene|donde|como|cuando|cual|pregunta|contraseña|llave|llaves|buenos|buenas|días|noches)\b/g;
+  const enRegex = /\b(what|where|when|how|why|who|the|please|thanks|thank|hello|hey|could|would|should|does|did|have|has|need|want|wifi|password|bathroom|kitchen|i'm|don't|can't|won't|isn't|aren't|haven't|that's|it's|there's|where's|what's|how's)\b/g;
+  const frRegex = /\b(quoi|où|quand|comment|pourquoi|qui|merci|bonjour|salut|est-ce|salle|cuisine|clé|clés|nous|vous|elles|avec|sans|pouvez|voudrais|besoin)\b/g;
+
+  const esHits = (text.match(esRegex) || []).length;
+  const enHits = (text.match(enRegex) || []).length;
+  const frHits = (text.match(frRegex) || []).length;
+
+  const max = Math.max(esHits, enHits, frHits);
+  if (max < 2) return fallback;
+
+  if (enHits === max && enHits > esHits && enHits > frHits) return 'en';
+  if (frHits === max && frHits > esHits && frHits > enHits) return 'fr';
+  if (esHits === max && esHits > enHits && esHits > frHits) return 'es';
+
+  return fallback;
+}
 
 function getLocalizedText(value: any, language: string): string {
   if (typeof value === 'string') return value;
