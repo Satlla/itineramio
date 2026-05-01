@@ -588,15 +588,22 @@ La capability matrix se consulta en runtime, no se hardcodea. El onboarding del 
 ## 7. Reglas de migración y seguridad (no negociables)
 
 1. **Aditivo only**: nunca borrar/modificar columnas existentes en producción. Solo añadir.
-2. **Feature flag por propiedad**: `Property.alexaiEnabled = false` por defecto. Nada se activa sin opt-in explícito.
-3. **Shadow mode antes de auto**: AlexAI empieza en `SUGGEST` siempre. Nunca arranca en auto en propiedades de cliente externo.
-4. **Beta con propiedades propias primero**: las 4 de Alejandro durante 2-4 semanas antes de tocar cliente externo.
-5. **Beds24 read-only las primeras 2 semanas**: sync entrante validado antes de activar `POST /bookings/messages`.
-6. **Endpoints versionados**: nuevo trabajo bajo `/api/alexai/*` o `/api/v2/*`. Endpoints existentes intactos.
-7. **Backups antes de cada migration prod**: snapshot Neon point-in-time. Rollback documentado por PR.
-8. **Co-host: bloqueo hard**, no warning. `consentConfirmed = false` → sync pausado en BD, no por UI.
-9. **Observabilidad día uno**: log estructurado con `tenantUserId` de cada interacción AI (prompt, respuesta, confianza, edición), métricas de aceptación de drafts, alertas de tasa de descarte.
-10. **Aislamiento multi-tenant**: con `scope=MASTER`, todos los queries filtran por `tenantUserId` siempre vía `withTenant()` helper. Tests específicos de isolation antes de merge.
+2. **Whitelist global por email durante Beta** (decisión 2026-05-02): **TODO lo nuevo** (AlexAI, Beds24, iCal sync, workflows, UI, endpoints, crons) gateado por env var `ALEXAI_BETA_USERS`. Inicialmente solo `alejandrosatlla@gmail.com`. Otros usuarios de Itineramio NO ven menús, NO acceden a endpoints, NO disparan crons nuevos. Helper `isAlexAIBetaUser(email)` en `src/lib/feature-flags.ts` (nuevo en PR2) aplicado en 3 capas:
+   - **APIs nuevas** (`/api/alexai/*`, `/api/beds24/*`, `/api/ical/*`, etc.): devuelven `404 Not found` si email no está en whitelist.
+   - **UI nueva** (componentes, menús, settings): `if (!isAlexAIBetaUser(user.email)) return null`.
+   - **Crons / workflows nuevos**: filtran `user.email IN ALEXAI_BETA_USERS` antes de procesar.
+
+   Quitar email de la whitelist o expandirla a producción requiere **PR explícito con revisión**, no es accidente.
+
+3. **Feature flag por propiedad**: `Property.alexaiEnabled = false` por defecto. Nada se activa sin opt-in explícito (defensa en profundidad sobre la whitelist).
+4. **Shadow mode antes de auto**: AlexAI empieza en `SUGGEST` siempre. Nunca arranca en auto en propiedades de cliente externo.
+5. **Beta con propiedades propias primero**: las 4 de Alejandro durante 2-4 semanas antes de tocar cliente externo.
+6. **Beds24 read-only las primeras 2 semanas**: sync entrante validado antes de activar `POST /bookings/messages`.
+7. **Endpoints versionados**: nuevo trabajo bajo `/api/alexai/*` o `/api/v2/*`. Endpoints existentes intactos.
+8. **Backups antes de cada migration prod**: snapshot Neon point-in-time. Rollback documentado por PR.
+9. **Co-host: bloqueo hard**, no warning. `consentConfirmed = false` → sync pausado en BD, no por UI.
+10. **Observabilidad día uno**: log estructurado con `tenantUserId` de cada interacción AI (prompt, respuesta, confianza, edición), métricas de aceptación de drafts, alertas de tasa de descarte.
+11. **Aislamiento multi-tenant**: con `scope=MASTER`, todos los queries filtran por `tenantUserId` siempre vía `withTenant()` helper. Tests específicos de isolation antes de merge.
 
 ### 7.1 — Restricciones operativas del repo (de `CLAUDE.md`)
 

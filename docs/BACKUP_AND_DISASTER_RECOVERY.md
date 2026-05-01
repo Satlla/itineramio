@@ -213,6 +213,7 @@ Variables críticas (de CLAUDE.md):
 - `DEMO_CAMPAIGN_START`
 
 **Próximas variables a añadir (Fase 1+)**:
+- `ALEXAI_BETA_USERS` (whitelist emails Beta — inicial: `alejandrosatlla@gmail.com`. **CRÍTICA**: gobierna acceso a TODO lo nuevo. Si esta var se pierde o queda vacía, la Beta se cierra; si se expande mal, otros usuarios ven cosas que no deben.)
 - `HOST_CREDENTIALS_ENCRYPTION_KEY` (cifrado refresh tokens externos)
 - `BEDS24_MASTER_REFRESH_TOKEN` (cuando se genere)
 - `WHATSAPP_360DIALOG_API_KEY` (cuando llegue Fase 2)
