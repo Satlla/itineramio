@@ -503,9 +503,215 @@ Estimación: 4-6h adicionales para cerrar el report definitivo.
 
 ---
 
-## 9. Estado de la auditoría
+## 9. Hallazgos del bloque 3 (segundo round — OAuth, encryption, Verifactu, multilang)
 
-✅ **Hecho**: estructura, métricas, modelos clave, auth, middleware, crons principales, SES doc, ai-setup orchestrator, chatbot core (parcial), feature-flags existing.
-⏳ **Pendiente**: chatbot prompt building completo, integraciones gestion, OAuth patterns Gmail/Meta, billing modules, Verifactu actual.
+### 9.1 — QUERY_EXPANSIONS cubre 6+ idiomas (no solo ES/EN/FR)
 
-Suficiente para arrancar PR1 con confianza. El segundo round es nice-to-have, no bloqueante.
+`chatbot-utils.ts` líneas 240-433: tiene expansiones en español, inglés, francés, **alemán** (eingang/schlüssel/wlan/küche/heizung/notfall...), **italiano** (entrata/chiave/cucina/riscaldamento/emergenza...), **portugués** (chave/cozinha/aquecimento/emergencia...), **neerlandés** (sleutel/keuken/verwarming/noodgeval...). ~600 keywords totales.
+
+**Implicación**: AlexAI multi-idioma tiene base sólida desde día uno. Detectar idioma del huésped + match con QUERY_EXPANSIONS funciona. PR1 (pgvector) refuerza casos donde keywords no cubren.
+
+### 9.2 — Patrón OAuth Gmail es modelo a copiar para Beds24
+
+`src/lib/gmail/client.ts` tiene EXACTAMENTE el patrón que necesita el `Beds24MasterAdapter`:
+
+```typescript
+// CSRF state token con HMAC + timestamp + 10min TTL
+generateStateToken(userId: string): string
+verifyStateToken(state: string): string | null
+
+// OAuth2 client con localhost detection
+getOAuth2Client(requestUrl?: string)
+```
+
+Endpoints de gmail (10 totales):
+- `/auth` — inicia OAuth flow
+- `/callback` — recibe code de Google, intercambia por tokens
+- `/sync` — sync manual
+- `/process` + `/process-all` — procesa emails recibidos
+- `/detect-properties` — match emails ↔ properties con confidence scoring
+- `/link-property` — vincula propiedad detectada
+- `/reparse` — reprocesa emails
+- `/debug`
+
+**Cuando llegue PR6 (Beds24MasterAdapter)**: replicar este patrón con cambios mínimos. Endpoints equivalentes:
+- `/api/integrations/beds24/auth` — pega invite code
+- `/api/integrations/beds24/callback` — intercambia por refresh token
+- `/api/integrations/beds24/sync` — sync manual
+- `/api/integrations/beds24/detect-properties` — detecta propiedades en sub-cuentas
+- `/api/integrations/beds24/link-property` — mapea Beds24 propertyId ↔ Itineramio Property
+- `/api/integrations/beds24/disconnect`
+
+**Ahorra 1-2 días en PR6** porque el patrón está validado en producción.
+
+### 9.3 — Encryption pattern ya implementado (no necesitamos reinventar)
+
+`src/lib/gmail/encryption.ts` tiene:
+- AES-256-GCM
+- Key derivada de `JWT_SECRET` con `scrypt` + salt fijo `'gmail-tokens-salt'`
+- Concatenación IV + authTag + ciphertext en hex
+- `isEncrypted(data)` helper
+
+**Implicación**: el `HOST_CREDENTIALS_ENCRYPTION_KEY` propuesto en V3 puede ser:
+- Opción A (más simple): reusar mismo `JWT_SECRET` con salt distinto (`'beds24-tokens-salt'`).
+- Opción B (mejor separación): nueva env var `HOST_CREDENTIALS_ENCRYPTION_KEY` para tokens externos, evitar dependencia con auth.
+
+Recomendación: **Opción B** para que rotar la key de auth no rompa los tokens externos guardados.
+
+### 9.4 — Verifactu YA está en producción con tests
+
+`src/lib/verifactu/` tiene módulos serios. Tests en `__tests__/lib/verifactu/`:
+- `hash.test.ts` — hashing de payloads
+- `invoice-types.test.ts` — tipos de factura (F1/F2/etc.)
+- `qr.test.ts` — generación de QR para facturas Verifactu
+- `xml.test.ts` — generación de XML AEAT
+
+`/api/cron/verifactu-status/route.ts` (cada hora):
+- Consulta AEAT estado de facturas PENDING/SUBMITTED
+- Mapea respuesta a status (REJECTED/ERROR/...)
+- Manda email rich HTML al host cuando se rechaza
+
+**Implicación crítica**: la integración con AEAT Verifactu **YA FUNCIONA** en Itineramio. Cuando llegue Fase 4c (gestión económica + facturación AEAT-compliant), **el módulo Verifactu existe**. Lo único que añadimos es facturación a propietarios (cliente Itineramio factura al propietario tercero) que se conecta al módulo Verifactu existente.
+
+**Esto reduce Fase 4c de 6-8 semanas a probablemente 4-5 semanas**.
+
+### 9.5 — Modelos GmailIntegration / MetaIntegration NO son template para `ExternalIntegration`
+
+`GmailIntegration` y `MetaIntegration` están diseñados específicamente:
+- `userId @unique` (un solo Gmail/Meta por user)
+- Campos específicos del proveedor (adAccountId, pageId, etc.)
+
+**Para AlexAI/Beds24/Hostaway/etc.**, el modelo `ExternalIntegration` propuesto en V3 es la abstracción correcta:
+- `scope: MASTER | PER_USER` no aplica a Gmail/Meta.
+- `capabilities Json` flexible.
+- Multiple integraciones por user posible (un user con Beds24 master + Hostaway propio).
+
+PR3 crea `ExternalIntegration` nuevo. NO unificamos con Gmail/Meta existentes.
+
+### 9.6 — `gestion/integraciones/page.tsx` es UI de Gmail import
+
+La página actual de "Integraciones" en gestión:
+- Conectar Gmail
+- Detectar propiedades en emails recibidos con confidence score
+- Auto-match emails ↔ propiedades
+- Importar reservas desde emails (parser ya hace email scraping)
+
+**Esto ES la versión 1 de "import de reservas"** vía email scraping (sin API). Es trabajo no-trivial que ya funciona.
+
+**Implicación**: cuando AlexAI active Beds24 (Fase 2), la nueva integración aparece en esta misma página `gestion/integraciones`. Para clientes que NO quieren AlexAI, sigue funcionando el Gmail import.
+
+**Diseño UI sugerido**: la página `gestion/integraciones` se convierte en "Integraciones" tab con:
+- Sección "Sincronización de reservas" (Gmail import + Beds24 si aplica + Hostaway si aplica + iCal si aplica).
+- Sección "AlexAI" (whatsapp host, configuración modos, etc.) — solo visible para usuarios en `ALEXAI_BETA_USERS`.
+
+### 9.7 — `gestion/lib/` tiene `calculations.ts` y `validation.ts`
+
+Lógica de cálculos económicos del módulo gestión ya separada en lib. Para Fase 4c (liquidaciones automáticas), usar estas utils.
+
+### 9.8 — `billing/upgradeService.ts`
+
+Solo módulo en `billing/`. Probablemente lógica de upgrade entre planes Stripe. Investigar cuando llegue Fase 4c.
+
+### 9.9 — `Public API v1 — PMS Integrations` con modelo `ApiKey`
+
+Visto en schema: hay una sección dedicada a API pública con modelo `ApiKey`. Sugiere que Itineramio expone API a terceros. Investigar:
+- ¿Quién consume esta API?
+- ¿Hay endpoints públicos `/api/v1/*`?
+- ¿Es base para hacer Itineramio una plataforma (M-pendiente del V3)?
+
+**Acción para informe siguiente**: leer modelo `ApiKey` completo y ver endpoints `/api/v1/`.
+
+---
+
+## 10. Resumen ejecutivo del audit completo
+
+### Lo que YA EXISTE y aprovecharemos al 100%
+
+| Pieza | Estado | Implicación AlexAI |
+|---|---|---|
+| Chatbot core (802 líneas, 600 keywords) | Producción | Base sobre la que construir |
+| QUERY_EXPANSIONS multi-idioma (6+ idiomas) | Producción | AlexAI multi-idioma desde día 1 |
+| `feature-flags.ts` | Existe | Extender para `isAlexAIBetaUser` |
+| OAuth pattern Gmail (10 endpoints) | Producción | Replicar para Beds24 (-1-2 días) |
+| Encryption AES-256-GCM | Producción | Reusar para `HOST_CREDENTIALS_ENCRYPTION_KEY` |
+| Verifactu AEAT con tests | Producción | Fase 4c reducida 2-3 semanas |
+| `chatbot-insights` cron | Producción | Mejora M2 ya parcial |
+| `guest-followup` cron | Producción | PR11 reusa patrón |
+| `generator.ts` ai-setup | Producción | Mejora M3 reducida |
+| `ical-parser.ts` | Existe | SKU iCal-only opcional |
+| `Reservation` con managerAmount/ownerAmount | Producción | Multi-tenant + co-host built-in |
+| `PropertyExternalMapping` | Existe | Extender, no recrear |
+| `gestion/` (13 sub-módulos) | Producción | Fase 4c MUCHO más simple |
+| Doc SES.HOSPEDAJES exhaustiva | Existe | Fase 3 acelerada |
+| `middleware.ts` multi-panel | Producción | Robustez multi-tenant base |
+
+### Lo que cambia explícitamente
+
+- ⚠️ `calendar-sync` cron está **stub desactivado**. Reactivar al llegar Beds24.
+- ⚠️ Auth helper se llama **`getAuthUser`**, no `getUser`. **Corregido en CLAUDE.md y brief V3**.
+- ⚠️ Métricas reales: 522 endpoints, 18 crons, 130 modelos, 3 console.logs.
+- ⚠️ NO hay primitivas de aislamiento explícitas → PR-MT más caro (2-2.5 sem).
+- ⚠️ `chatbot-quality-auditor.ts` (en wip) probablemente solapa con `chatbot-insights`. Decidir antes de mergear.
+
+### Estimación final Fase 1+1.5
+
+| PR | Días reales tras audit |
+|---|---|
+| PR1 pgvector | 3-4 días |
+| PR2 interface adapter | 3-4 días |
+| PR3 schema completo | 2-3 días |
+| PR4 Anthropic singleton | 2-3 días |
+| PR5 rename @@map | 1 día |
+| PR-MT tenant isolation | 12-13 días (2-2.5 sem) |
+| **Total Fase 1+1.5** | **~24-28 días** = ~5-6 semanas calendario |
+
+### Estimación revisada Fase 2 (con base existente)
+
+| PR | Días antes audit | Días tras audit |
+|---|---|---|
+| PR6 Beds24MasterAdapter | 8-12 días | **6-9 días** (-1-2 por OAuth pattern) |
+| PR7 Backfill + webhooks | 7-10 días | 7-10 días (igual) |
+| PR8 WhatsAppHostAdapter | 10-15 días | 10-15 días (incluye Meta wait) |
+| PR9 Pipeline AlexAI | 10-14 días | **8-12 días** (-2 por chatbot infra) |
+| PR10 Send mode | 5-7 días | 5-7 días |
+| PR11 Workflows | 6-9 días | **4-6 días** (-2 por guest-followup pattern) |
+| **Total Fase 2** | 46-67 días | **40-59 días** = 8-12 sem |
+
+Más buffer + tenant isolation distribuido: **Fase 2 honesta: 12-15 semanas** (antes 15-20).
+
+### Estimación revisada Fase 3
+
+| PR | Antes | Tras audit |
+|---|---|---|
+| PR12 SES.HOSPEDAJES | 2 sem | **1.5-2 sem** (doc exhaustiva) |
+| PR13 tasa turística | 1 sem | 1 sem |
+| PR14 dashboard financiero | 1 sem | **0.5-1 sem** (gestion existe) |
+| PR15 reviews automatizadas | 1 sem | 1 sem |
+| PR16 huéspedes repetidores | 0.5 sem | 0.5 sem |
+| **Total Fase 3** | 4-6 sem | **3.5-5 sem** |
+
+### Estimación revisada Fase 4c (la más reducida)
+
+**Antes**: 6-8 semanas asumiendo construir módulo de facturación.
+**Tras audit**: **3-4 semanas**. Razón: módulo `gestion/` ya tiene reservas, facturación, clientes, liquidaciones. Verifactu AEAT ya está en producción. Solo añadimos: liquidación a propietario tercero + factura propietario AEAT-compliant + email automático mensual.
+
+---
+
+## 11. Estado final de la auditoría
+
+✅ **Auditoría completa primer + segundo round.**
+
+**Confianza en estimaciones**: alta. Los plazos son honestos basados en lo que existe.
+
+**Principales sorpresas (positivas)**:
+- Repo mucho más maduro de lo que CLAUDE.md sugería.
+- 3-4 piezas críticas (Verifactu, OAuth pattern, generator, gestion) ya en producción.
+- Total de fases 1-4c **reducido en 4-5 semanas** vs estimación V3 original.
+
+**Principales sorpresas (negativas)**:
+- Documentación interna desactualizada (CLAUDE.md métricas y getAuthUser).
+- NO hay primitivas de aislamiento → PR-MT más caro.
+- `calendar-sync` cron está stub desactivado.
+- Posible solapamiento `chatbot-quality-auditor` (wip) con `chatbot-insights` (producción).
+
+**Lo siguiente**: arrancar PR1 (pgvector + ZoneEmbedding) con base sólida.
