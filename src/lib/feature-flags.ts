@@ -51,3 +51,51 @@ export const isFeatureEnabled = (flag: keyof typeof FEATURE_FLAGS): boolean => {
 export const logFeatureFlags = (): void => {
   // No-op: console logging removed
 }
+
+// ─── AlexAI / Beds24 Beta whitelist ─────────────────────────────────────────
+
+/**
+ * Whitelist de emails autorizados para acceder a funcionalidades nuevas
+ * (AlexAI, Beds24, integraciones externas, crons nuevos, UI nueva).
+ *
+ * Configuración via env var `ALEXAI_BETA_USERS` (comma-separated).
+ * Vacío o sin definir → nadie ve las nuevas funcionalidades (modo producción seguro).
+ *
+ * Reglas (decisión D15, brief V3 sección 7):
+ * - APIs nuevas (`/api/alexai/*`, `/api/beds24/*`, etc.): devolver 404 si email no whitelisted.
+ * - UI nueva: `if (!isAlexAIBetaUser(user.email)) return null`.
+ * - Crons / workflows: filtrar `user.email IN whitelist` antes de procesar.
+ *
+ * Quitar email de la whitelist o expandirla requiere PR explícito con revisión.
+ */
+function getAlexAIBetaUsers(): Set<string> {
+  const raw = process.env.ALEXAI_BETA_USERS ?? ''
+  return new Set(
+    raw
+      .split(',')
+      .map(e => e.trim().toLowerCase())
+      .filter(Boolean)
+  )
+}
+
+/**
+ * ¿Este email tiene acceso a la Beta de AlexAI/Beds24/integraciones?
+ *
+ * @param email — email del usuario autenticado
+ * @returns true si el email está en `ALEXAI_BETA_USERS`, false en cualquier otro caso
+ *          (incluyendo email vacío/undefined, o env var no configurada)
+ *
+ * @example
+ * // En API route:
+ * const user = await getAuthUser(req)
+ * if (!user || !isAlexAIBetaUser(user.email)) {
+ *   return new NextResponse(null, { status: 404 })
+ * }
+ *
+ * // En componente UI:
+ * if (!isAlexAIBetaUser(user.email)) return null
+ */
+export function isAlexAIBetaUser(email: string | null | undefined): boolean {
+  if (!email) return false
+  return getAlexAIBetaUsers().has(email.trim().toLowerCase())
+}
