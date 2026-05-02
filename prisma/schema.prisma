@@ -1,30 +1,32 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [vector]
 }
 
 model User {
-  id                      String                 @id @default(cuid())
-  email                   String                 @unique
+  id                      String                      @id @default(cuid())
+  email                   String                      @unique
   name                    String
   phone                   String?
   password                String?
   emailVerified           DateTime?
   phoneVerified           DateTime?
-  preferredLanguage       String                 @default("es")
-  timezone                String                 @default("Europe/Madrid")
-  role                    String                 @default("HOST")
-  status                  String                 @default("PENDING")
+  preferredLanguage       String                      @default("es")
+  timezone                String                      @default("Europe/Madrid")
+  role                    String                      @default("HOST")
+  status                  String                      @default("PENDING")
   subscription            String?
   trialStartedAt          DateTime?
   trialEndsAt             DateTime?
-  createdAt               DateTime               @default(now())
-  updatedAt               DateTime               @updatedAt
+  createdAt               DateTime                    @default(now())
+  updatedAt               DateTime                    @updatedAt
   lastLoginAt             DateTime?
   avatar                  String?
   companyName             String?
@@ -33,34 +35,34 @@ model User {
   billingCountry          String?
   billingPostalCode       String?
   vatNumber               String?
-  referralCode            String?                @unique
+  referralCode            String?                     @unique
   referredBy              String?
-  affiliateCommission     Decimal                @default(0)
+  affiliateCommission     Decimal                     @default(0)
   createdBy               String?
-  isActive                Boolean                @default(true)
-  isAdmin                 Boolean                @default(false)
+  isActive                Boolean                     @default(true)
+  isAdmin                 Boolean                     @default(false)
   notes                   String?
-  notificationPreferences Json?                  @default("{}")
+  notificationPreferences Json?                       @default("{}")
   onboardingCompletedAt   DateTime?
   academyEnrolledAt       DateTime?
-  academyPoints           Int                    @default(0)
-  academyStreak           Int                    @default(0)
+  academyPoints           Int                         @default(0)
+  academyStreak           Int                         @default(0)
   lastAcademyActivityAt   DateTime?
-  username                String?                @unique
+  username                String?                     @unique
   academyProgress         AcademyProgress[]
   quizAttempts            QuizAttempt[]
-  referralTransactions    AffiliateTransaction[] @relation("AffiliateReferred")
-  referredUsers           AffiliateTransaction[] @relation("AffiliateReferrer")
+  referralTransactions    AffiliateTransaction[]      @relation("AffiliateReferred")
+  referredUsers           AffiliateTransaction[]      @relation("AffiliateReferrer")
   billingInfo             BillingInfo?
   billingUnitGroups       BillingUnitGroup[]
   billingUnits            BillingUnit[]
   callLogs                CallLog[]
   clientInvoices          ClientInvoice[]
-  couponUses              CouponUse[]            @relation("UserCouponUses")
+  couponUses              CouponUse[]                 @relation("UserCouponUses")
   journeyStages           CustomerJourneyStage[]
   emailChangeTokens       EmailChangeToken[]
   emailEvents             EmailEvent[]
-  assignedErrorReports    ErrorReport[]          @relation("ErrorReportAssignee")
+  assignedErrorReports    ErrorReport[]               @relation("ErrorReportAssignee")
   faqSubmissions          FaqSubmission[]
   gmailIntegration        GmailIntegration?
   guests                  Guest[]
@@ -76,22 +78,22 @@ model User {
   propertyExpenses        PropertyExpense[]
   propertyOwners          PropertyOwner[]
   propertySets            PropertySet[]
-  propertyViews           PropertyView[]         @relation("HostPropertyViews")
+  propertyViews           PropertyView[]              @relation("HostPropertyViews")
   reservationImports      ReservationImport[]
   reservationPayments     ReservationPayment[]
   managedReservations     Reservation[]
-  subscriptionRequests    SubscriptionRequest[]  @relation("UserSubscriptionRequests")
-  trackingEvents          TrackingEvent[]        @relation("UserTrackingEvents")
+  subscriptionRequests    SubscriptionRequest[]       @relation("UserSubscriptionRequests")
+  trackingEvents          TrackingEvent[]             @relation("UserTrackingEvents")
   achievements            UserAchievement[]
   inspirationState        UserInspirationState?
   invoiceConfig           UserInvoiceConfig?
   modules                 UserModule[]
   userNotes               UserNote[]
   subscriptions           UserSubscription[]
-  creator                 User?                  @relation("UserCreatedBy", fields: [createdBy], references: [id])
-  createdUsers            User[]                 @relation("UserCreatedBy")
-  moderatedComments       ZoneComment[]          @relation("CommentModerator")
-  zoneViews               ZoneView[]             @relation("HostZoneViews")
+  creator                 User?                       @relation("UserCreatedBy", fields: [createdBy], references: [id])
+  createdUsers            User[]                      @relation("UserCreatedBy")
+  moderatedComments       ZoneComment[]               @relation("CommentModerator")
+  zoneViews               ZoneView[]                  @relation("HostZoneViews")
   apiKeys                 ApiKey[]
   supportTickets          SupportTicket[]
   productUpdateReads      ProductUpdateRead[]
@@ -190,7 +192,7 @@ model PropertySet {
 }
 
 model Property {
-  id                      String                 @id @default(cuid())
+  id                      String                      @id @default(cuid())
   hostId                  String
   organizationId          String?
   buildingId              String?
@@ -207,50 +209,50 @@ model Property {
   bathrooms               Int
   maxGuests               Int
   squareMeters            Int?
-  defaultLanguages        Json                   @default("[\"es\", \"en\"]")
-  isPublished             Boolean                @default(false)
+  defaultLanguages        Json                        @default("[\"es\", \"en\"]")
+  isPublished             Boolean                     @default(false)
   profileImage            String?
   hostContactName         String
   hostContactPhone        String
   hostContactEmail        String
-  hostContactLanguage     String                 @default("es")
+  hostContactLanguage     String                      @default("es")
   hostContactPhoto        String?
-  status                  String                 @default("DRAFT")
+  status                  String                      @default("DRAFT")
   trialStartsAt           DateTime?
   trialEndsAt             DateTime?
-  trialNotified24h        Boolean                @default(false)
-  trialNotified6h         Boolean                @default(false)
-  trialNotified1h         Boolean                @default(false)
+  trialNotified24h        Boolean                     @default(false)
+  trialNotified6h         Boolean                     @default(false)
+  trialNotified1h         Boolean                     @default(false)
   subscriptionEndsAt      DateTime?
   lastPaymentDate         DateTime?
-  createdAt               DateTime               @default(now())
-  updatedAt               DateTime               @updatedAt
+  createdAt               DateTime                    @default(now())
+  updatedAt               DateTime                    @updatedAt
   deletedAt               DateTime?
   publishedAt             DateTime?
-  slug                    String?                @unique
-  propertyCode            String?                @unique
+  slug                    String?                     @unique
+  propertyCode            String?                     @unique
   descriptionTranslations Json?
   nameTranslations        Json?
   intelligence            Json?
   amenities               Json?
-  trialNotified3d         Boolean                @default(false)
-  isDemoPreview           Boolean                @default(false)
+  trialNotified3d         Boolean                     @default(false)
+  isDemoPreview           Boolean                     @default(false)
   demoExpiresAt           DateTime?
   demoLeadId              String?
   announcements           Announcement[]
   chatbotConversations    ChatbotConversation[]
   clientInvoices          ClientInvoice[]
-  buildings               buildings?             @relation(fields: [buildingId], references: [id])
-  host                    User                   @relation(fields: [hostId], references: [id], onDelete: Cascade)
-  organizations           organizations?         @relation(fields: [organizationId], references: [id])
-  propertySet             PropertySet?           @relation(fields: [propertySetId], references: [id])
+  buildings               buildings?                  @relation(fields: [buildingId], references: [id])
+  host                    User                        @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  organizations           organizations?              @relation(fields: [organizationId], references: [id])
+  propertySet             PropertySet?                @relation(fields: [propertySetId], references: [id])
   analytics               PropertyAnalytics?
   billingConfig           PropertyBillingConfig?
   propertyRatings         PropertyRating[]
   propertyViews           PropertyView[]
   reviews                 Review[]
   trackingEvents          TrackingEvent[]
-  zoneViews               ZoneView[]             @relation("PropertyZoneViews")
+  zoneViews               ZoneView[]                  @relation("PropertyZoneViews")
   zones                   Zone[]
   guidebookDeliveries     GuidebookDelivery[]
   externalMappings        PropertyExternalMapping[]
@@ -263,31 +265,31 @@ model Property {
 }
 
 model Zone {
-  id                  String          @id @default(cuid())
-  propertyId          String?
-  organizationId      String?
-  buildingId          String?
-  name                Json
-  description         Json?
-  icon                String
-  color               String?
-  qrCode              String          @unique
-  accessCode          String          @unique
-  whatsappEnabled     Boolean         @default(true)
-  errorReportsEnabled Boolean         @default(true)
-  commentsEnabled     Boolean         @default(true)
-  ratingsEnabled      Boolean         @default(true)
-  status              String          @default("DRAFT")
-  isPublished         Boolean         @default(false)
-  viewCount           Int             @default(0)
-  lastViewedAt        DateTime?
-  avgRating           Float           @default(0)
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
-  publishedAt         DateTime?
-  slug                String?
-  order                  Int                      @default(0)
-  type                   String                   @default("STANDARD")
+  id                     String           @id @default(cuid())
+  propertyId             String?
+  organizationId         String?
+  buildingId             String?
+  name                   Json
+  description            Json?
+  icon                   String
+  color                  String?
+  qrCode                 String           @unique
+  accessCode             String           @unique
+  whatsappEnabled        Boolean          @default(true)
+  errorReportsEnabled    Boolean          @default(true)
+  commentsEnabled        Boolean          @default(true)
+  ratingsEnabled         Boolean          @default(true)
+  status                 String           @default("DRAFT")
+  isPublished            Boolean          @default(false)
+  viewCount              Int              @default(0)
+  lastViewedAt           DateTime?
+  avgRating              Float            @default(0)
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  publishedAt            DateTime?
+  slug                   String?
+  order                  Int              @default(0)
+  type                   String           @default("STANDARD")
   recommendationCategory String?
   errorReports           ErrorReport[]
   recommendations        Recommendation[]
@@ -297,16 +299,53 @@ model Zone {
   analytics              ZoneAnalytics?
   comments               ZoneComment[]
   ratings                ZoneRating[]
-  zoneViews              ZoneView[]               @relation("ZoneViews")
-  buildings              buildings?               @relation(fields: [buildingId], references: [id], onDelete: Cascade)
-  organizations          organizations?           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  property               Property?                @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  zoneViews              ZoneView[]       @relation("ZoneViews")
+  buildings              buildings?       @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  organizations          organizations?   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  property               Property?        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  embedding              ZoneEmbedding?
 
   @@unique([propertyId, slug])
   @@index([propertyId, status])
   @@index([qrCode])
   @@index([slug])
   @@map("zones")
+}
+
+/// Stores semantic embedding of a zone's full text content (name + description + steps).
+/// Used by AlexAI as complementary semantic search (cosine similarity) on top of the
+/// existing keyword-based zone ranking in chatbot-utils.ts.
+/// Generated only for zones owned by users in `ALEXAI_BETA_USERS` whitelist.
+model ZoneEmbedding {
+  id     String @id @default(cuid())
+  zoneId String @unique
+  zone   Zone   @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  /// Forward-looking: enables tenant-scoped queries when AlexAI scope=MASTER lands.
+  /// For now, mirrors Property.hostId of the parent Zone for consistency.
+  tenantUserId String
+
+  /// SHA256 of the source text used to generate the embedding.
+  /// Lets us detect content changes and regenerate only when needed.
+  contentHash String
+
+  /// 1536-dim vector for OpenAI text-embedding-3-small.
+  /// Switch to 3072 if we move to text-embedding-3-large in the future.
+  embedding Unsupported("vector(1536)")
+
+  /// Model identifier used to generate this embedding (e.g. "text-embedding-3-small").
+  /// Allows safe migration when we change provider.
+  model String @default("text-embedding-3-small")
+
+  /// Source text fingerprint for debugging — first 200 chars of input text.
+  sourcePreview String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantUserId])
+  @@index([model])
+  @@map("zone_embeddings")
 }
 
 model Step {
@@ -813,16 +852,16 @@ model ZoneView {
 }
 
 model Admin {
-  id           String             @id @default(cuid())
-  email        String             @unique
-  name         String
-  password     String
-  role         String             @default("ADMIN")
-  isActive     Boolean            @default(true)
-  lastLoginAt  DateTime?
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-  permissions  Json               @default("[]")
+  id              String             @id @default(cuid())
+  email           String             @unique
+  name            String
+  password        String
+  role            String             @default("ADMIN")
+  isActive        Boolean            @default(true)
+  lastLoginAt     DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  permissions     Json               @default("[]")
   activityLogs    AdminActivityLog[]
   auditLogs       AdminAuditLog[]
   callLogs        CallLog[]
@@ -2496,12 +2535,12 @@ model Liquidation {
   totalAmount        Decimal
   status             LiquidationStatus @default(DRAFT)
   pdfUrl             String?
-  invoiceId          String?           // Link to the generated invoice
-  invoiceNumber      String?           // Cached for quick reference
+  invoiceId          String? // Link to the generated invoice
+  invoiceNumber      String? // Cached for quick reference
   invoiceDate        DateTime?
   invoiceSeries      String?
   notes              String?
-  incomeReceiver     String?           // OWNER or MANAGER — resolved from billing config if null
+  incomeReceiver     String? // OWNER or MANAGER — resolved from billing config if null
   paidAt             DateTime?
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
@@ -2578,63 +2617,63 @@ model InvoiceSeries {
 }
 
 model ClientInvoice {
-  id                 String               @id @default(cuid())
-  userId             String
-  seriesId           String
-  number             Int?
-  fullNumber         String?
-  issueDate          DateTime
-  dueDate            DateTime?
-  subtotal           Decimal
-  totalVat           Decimal
-  total              Decimal
-  status             ClientInvoiceStatus  @default(DRAFT)
-  isRectifying       Boolean              @default(false)
-  rectifiesId        String?
-  rectifyingReason   String?
-  pdfUrl             String?
-  notes              String?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  ownerId            String
-  isLocked           Boolean              @default(false)
-  issuedAt           DateTime?
-  originalTotal      Decimal?
-  paymentMethodUsed  String?
-  rectifyingType     RectifyingType?
-  retentionAmount    Decimal              @default(0)
-  retentionRate      Decimal              @default(0)
-  periodMonth        Int?
-  periodYear         Int?
-  propertyId         String?
-  emailBody          String?
-  emailSubject       String?
-  publicToken        String?              @unique
-  sentAt             DateTime?
-  sentTo             String?
-  billingUnitId      String?
-  billingUnitGroupId String?
+  id                    String                @id @default(cuid())
+  userId                String
+  seriesId              String
+  number                Int?
+  fullNumber            String?
+  issueDate             DateTime
+  dueDate               DateTime?
+  subtotal              Decimal
+  totalVat              Decimal
+  total                 Decimal
+  status                ClientInvoiceStatus   @default(DRAFT)
+  isRectifying          Boolean               @default(false)
+  rectifiesId           String?
+  rectifyingReason      String?
+  pdfUrl                String?
+  notes                 String?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  ownerId               String
+  isLocked              Boolean               @default(false)
+  issuedAt              DateTime?
+  originalTotal         Decimal?
+  paymentMethodUsed     String?
+  rectifyingType        RectifyingType?
+  retentionAmount       Decimal               @default(0)
+  retentionRate         Decimal               @default(0)
+  periodMonth           Int?
+  periodYear            Int?
+  propertyId            String?
+  emailBody             String?
+  emailSubject          String?
+  publicToken           String?               @unique
+  sentAt                DateTime?
+  sentTo                String?
+  billingUnitId         String?
+  billingUnitGroupId    String?
   // VeriFactu fields
-  verifactuHash          String?
-  verifactuPreviousHash  String?
-  verifactuStatus        VerifactuStatus?
-  verifactuTimestamp     DateTime?
-  invoiceType            AEATInvoiceType?
-  taxRegimeKey           String?              @default("01")
-  qrCode                 String?
-  items              ClientInvoiceItem[]
-  auditLogs          InvoiceAuditLog[]
-  verifactuSubmissions VerifactuSubmission[]
-  billingUnitGroup   BillingUnitGroup?    @relation(fields: [billingUnitGroupId], references: [id])
-  billingUnit        BillingUnit?         @relation(fields: [billingUnitId], references: [id])
-  owner              PropertyOwner        @relation(fields: [ownerId], references: [id])
-  property           Property?            @relation(fields: [propertyId], references: [id])
-  rectifies          ClientInvoice?       @relation("InvoiceRectification", fields: [rectifiesId], references: [id])
-  rectifiedBy        ClientInvoice[]      @relation("InvoiceRectification")
-  series             InvoiceSeries        @relation(fields: [seriesId], references: [id])
-  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  payments           ReservationPayment[]
-  liquidations       Liquidation[]
+  verifactuHash         String?
+  verifactuPreviousHash String?
+  verifactuStatus       VerifactuStatus?
+  verifactuTimestamp    DateTime?
+  invoiceType           AEATInvoiceType?
+  taxRegimeKey          String?               @default("01")
+  qrCode                String?
+  items                 ClientInvoiceItem[]
+  auditLogs             InvoiceAuditLog[]
+  verifactuSubmissions  VerifactuSubmission[]
+  billingUnitGroup      BillingUnitGroup?     @relation(fields: [billingUnitGroupId], references: [id])
+  billingUnit           BillingUnit?          @relation(fields: [billingUnitId], references: [id])
+  owner                 PropertyOwner         @relation(fields: [ownerId], references: [id])
+  property              Property?             @relation(fields: [propertyId], references: [id])
+  rectifies             ClientInvoice?        @relation("InvoiceRectification", fields: [rectifiesId], references: [id])
+  rectifiedBy           ClientInvoice[]       @relation("InvoiceRectification")
+  series                InvoiceSeries         @relation(fields: [seriesId], references: [id])
+  user                  User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments              ReservationPayment[]
+  liquidations          Liquidation[]
 
   @@unique([seriesId, number])
   @@index([userId])
@@ -2941,10 +2980,10 @@ enum ExpenseCategory {
 }
 
 enum LiquidationStatus {
-  DRAFT      // Can edit, recalculate
-  SENT       // Sent to owner for review
-  PAID       // Marked as paid (without formal invoice)
-  CANCELLED  // Cancelled
+  DRAFT // Can edit, recalculate
+  SENT // Sent to owner for review
+  PAID // Marked as paid (without formal invoice)
+  CANCELLED // Cancelled
   // Note: Liquidation locks automatically when linked invoice is ISSUED
 }
 
@@ -2971,21 +3010,21 @@ model Place {
   id              String           @id @default(cuid())
   placeId         String?          @unique
   osmId           String?          @unique
-  source          String           // "GOOGLE" | "OSM"
+  source          String // "GOOGLE" | "OSM"
   name            String
   address         String
   phone           String?
   website         String?
   instagramUrl    String?
   photoUrl        String?
-  photoUrls       Json?            // Array of photo URLs from Google (up to 5)
+  photoUrls       Json? // Array of photo URLs from Google (up to 5)
   rating          Float?
   priceLevel      Int?
   types           Json?
-  openingHours    Json?            // Google weekday_text array: ["lunes: 09:00–21:00", ...]
+  openingHours    Json? // Google weekday_text array: ["lunes: 09:00–21:00", ...]
   latitude        Float
   longitude       Float
-  businessStatus  String?          // "OPERATIONAL" | "CLOSED_TEMPORARILY" | "CLOSED_PERMANENTLY"
+  businessStatus  String? // "OPERATIONAL" | "CLOSED_TEMPORARILY" | "CLOSED_PERMANENTLY"
   lastFetchedAt   DateTime
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -3021,22 +3060,22 @@ model DirectionsCache {
 }
 
 model Recommendation {
-  id                      String    @id @default(cuid())
+  id                      String   @id @default(cuid())
   zoneId                  String
-  zone                    Zone      @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  zone                    Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
   placeId                 String?
-  place                   Place?    @relation(fields: [placeId], references: [id])
+  place                   Place?   @relation(fields: [placeId], references: [id])
   description             String?
   descriptionTranslations Json?
   highlight               String?
   externalUrl             String?
   tags                    Json?
-  source                  String    @default("AUTO_NEARBY")
+  source                  String   @default("AUTO_NEARBY")
   distanceMeters          Int?
   walkMinutes             Int?
-  order                   Int       @default(0)
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
+  order                   Int      @default(0)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 
   @@unique([zoneId, placeId])
   @@index([zoneId, order])
@@ -3048,23 +3087,23 @@ model Recommendation {
 // ============================================
 
 model CityGuide {
-  id              String                   @id @default(cuid())
+  id              String   @id @default(cuid())
   title           String
   description     String?
   city            String
-  country         String                   @default("ES")
+  country         String   @default("ES")
   coverImage      String?
   authorId        String
-  author          User                     @relation(fields: [authorId], references: [id])
-  status          String                   @default("DRAFT") // DRAFT | PUBLISHED | VERIFIED | SUSPENDED
-  version         Int                      @default(1)
-  subscriberCount Int                      @default(0)
-  createdAt       DateTime                 @default(now())
-  updatedAt       DateTime                 @updatedAt
+  author          User     @relation(fields: [authorId], references: [id])
+  status          String   @default("DRAFT") // DRAFT | PUBLISHED | VERIFIED | SUSPENDED
+  version         Int      @default(1)
+  subscriberCount Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  places          CityGuidePlace[]
-  subscriptions   PropertyGuideSubscription[]
-  updates         CityGuideUpdate[]
+  places        CityGuidePlace[]
+  subscriptions PropertyGuideSubscription[]
+  updates       CityGuideUpdate[]
 
   @@index([city, status])
   @@index([authorId])
@@ -3077,11 +3116,11 @@ model CityGuidePlace {
   guide          CityGuide @relation(fields: [guideId], references: [id], onDelete: Cascade)
   placeId        String
   place          Place     @relation(fields: [placeId], references: [id])
-  category       String    // 'restaurant' | 'cafe' | 'museum' etc.
+  category       String // 'restaurant' | 'cafe' | 'museum' etc.
   description    String?
-  highlight      String?   // Campo genérico: "qué no perderse", "qué pedir", "mejor zona"...
-  externalUrl    String?   // Link útil: reservar, entradas, web oficial...
-  tags           Json?     // String[] — etiquetas específicas por categoría
+  highlight      String? // Campo genérico: "qué no perderse", "qué pedir", "mejor zona"...
+  externalUrl    String? // Link útil: reservar, entradas, web oficial...
+  tags           Json? // String[] — etiquetas específicas por categoría
   addedInVersion Int       @default(1)
   order          Int       @default(0)
   createdAt      DateTime  @default(now())
@@ -3092,19 +3131,19 @@ model CityGuidePlace {
 }
 
 model PropertyGuideSubscription {
-  id               String    @id @default(cuid())
-  guideId          String
-  guide            CityGuide @relation(fields: [guideId], references: [id], onDelete: Cascade)
-  propertyId       String
-  property         Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  userId           String
-  user             User      @relation("GuideSubscriptions", fields: [userId], references: [id])
-  status           String    @default("ACTIVE") // ACTIVE | UNSUBSCRIBED
-  lastSeenVersion  Int       @default(1)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  guideId         String
+  guide           CityGuide @relation(fields: [guideId], references: [id], onDelete: Cascade)
+  propertyId      String
+  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User      @relation("GuideSubscriptions", fields: [userId], references: [id])
+  status          String    @default("ACTIVE") // ACTIVE | UNSUBSCRIBED
+  lastSeenVersion Int       @default(1)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  notifications    GuideUpdateNotification[]
+  notifications GuideUpdateNotification[]
 
   @@unique([guideId, propertyId])
   @@index([propertyId, status])
@@ -3116,7 +3155,7 @@ model CityGuideUpdate {
   guideId       String
   guide         CityGuide @relation(fields: [guideId], references: [id], onDelete: Cascade)
   version       Int
-  addedPlaceIds Json      // string[]
+  addedPlaceIds Json // string[]
   summary       String?
   createdAt     DateTime  @default(now())
 
@@ -3133,7 +3172,7 @@ model GuideUpdateNotification {
   updateId       String
   update         CityGuideUpdate           @relation(fields: [updateId], references: [id], onDelete: Cascade)
   status         String                    @default("PENDING") // PENDING | ACCEPTED | PARTIAL | DECLINED
-  acceptedIds    Json?                     // string[] of accepted placeIds
+  acceptedIds    Json? // string[] of accepted placeIds
   createdAt      DateTime                  @default(now())
   updatedAt      DateTime                  @updatedAt
 
@@ -3160,20 +3199,20 @@ enum VerifactuStatus {
 }
 
 enum AEATInvoiceType {
-  F1  // Factura completa
-  F2  // Factura simplificada
-  F3  // Factura emitida en sustitución de facturas simplificadas
-  R1  // Rectificativa por art. 80.1, 80.2 y 80.6 LIVA
-  R2  // Rectificativa por art. 80.3 LIVA
-  R3  // Rectificativa por art. 80.4 LIVA
-  R4  // Rectificativa otros
-  R5  // Rectificativa en facturas simplificadas
+  F1 // Factura completa
+  F2 // Factura simplificada
+  F3 // Factura emitida en sustitución de facturas simplificadas
+  R1 // Rectificativa por art. 80.1, 80.2 y 80.6 LIVA
+  R2 // Rectificativa por art. 80.3 LIVA
+  R3 // Rectificativa por art. 80.4 LIVA
+  R4 // Rectificativa otros
+  R5 // Rectificativa en facturas simplificadas
 }
 
 model InvoiceAuditLog {
   id           String        @id @default(cuid())
   invoiceId    String
-  action       String        // CREATED, ISSUED, HASH_GENERATED, QR_GENERATED, VERIFACTU_SUBMITTED, STATUS_CHANGED, etc.
+  action       String // CREATED, ISSUED, HASH_GENERATED, QR_GENERATED, VERIFACTU_SUBMITTED, STATUS_CHANGED, etc.
   previousData Json?
   newData      Json?
   userId       String
@@ -3186,16 +3225,16 @@ model InvoiceAuditLog {
 }
 
 model VerifactuSubmission {
-  id          String        @id @default(cuid())
-  invoiceId   String
-  xmlPayload  String
-  response    String?
-  status      VerifactuStatus @default(PENDING)
-  errorCode   String?
+  id           String          @id @default(cuid())
+  invoiceId    String
+  xmlPayload   String
+  response     String?
+  status       VerifactuStatus @default(PENDING)
+  errorCode    String?
   errorMessage String?
-  submittedAt DateTime      @default(now())
-  respondedAt DateTime?
-  invoice     ClientInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  submittedAt  DateTime        @default(now())
+  respondedAt  DateTime?
+  invoice      ClientInvoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@index([invoiceId])
   @@index([status])
@@ -3333,21 +3372,21 @@ enum UpdateTag {
 }
 
 model SupportTicket {
-  id            String         @id @default(cuid())
+  id            String          @id @default(cuid())
   userId        String?
   email         String?
   subject       String
-  status        TicketStatus   @default(OPEN)
-  priority      TicketPriority @default(MEDIUM)
-  aiEnabled     Boolean        @default(true)
+  status        TicketStatus    @default(OPEN)
+  priority      TicketPriority  @default(MEDIUM)
+  aiEnabled     Boolean         @default(true)
   assignedTo    String?
   lastMessageAt DateTime?
-  metadata      Json?          @default("{}")
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  metadata      Json?           @default("{}")
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
   messages      TicketMessage[]
-  user          User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
-  assignedAdmin Admin?         @relation("AssignedTickets", fields: [assignedTo], references: [id], onDelete: SetNull)
+  user          User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  assignedAdmin Admin?          @relation("AssignedTickets", fields: [assignedTo], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([status])
@@ -3435,9 +3474,9 @@ model ProductUpdateRead {
 
 model FrequentQuestion {
   id                    String   @id @default(cuid())
-  question              String   // The original question text
-  category              String   // Auto-detected or manual category
-  answer                Json?    // Manual answer {es, en, fr} - optional, for curated FAQs
+  question              String // The original question text
+  category              String // Auto-detected or manual category
+  answer                Json? // Manual answer {es, en, fr} - optional, for curated FAQs
   frequency             Int      @default(1) // How many times this topic was asked
   isAutoDetected        Boolean  @default(true)
   includeInWelcomeEmail Boolean  @default(false)
@@ -3455,8 +3494,8 @@ model FrequentQuestion {
 model MetaIntegration {
   id             String    @id @default(cuid())
   userId         String    @unique
-  accessToken    String    // encrypted
-  adAccountId    String    // e.g. "act_123456789"
+  accessToken    String // encrypted
+  adAccountId    String // e.g. "act_123456789"
   adAccountName  String?
   pageId         String?
   pageName       String?
@@ -3472,14 +3511,14 @@ model MetaIntegration {
 
 model UgcLead {
   id        String   @id @default(cuid())
-  platform  String   // "reddit" | "youtube"
+  platform  String // "reddit" | "youtube"
   postId    String   @unique // ID nativo de la plataforma
   author    String
   title     String?
   content   String?  @db.Text
   url       String
   subreddit String?
-  score     Int?     // upvotes / likes
+  score     Int? // upvotes / likes
   comments  Int?
   savedAt   DateTime @default(now())
   notes     String?  @db.Text
