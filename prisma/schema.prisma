@@ -101,6 +101,11 @@ model User {
   guideSubscriptions      PropertyGuideSubscription[] @relation("GuideSubscriptions")
   metaIntegration         MetaIntegration?
 
+  // ─── AlexAI / external integrations (PR3) ──────────────────────────────
+  externalIntegrations          ExternalIntegration[]
+  tenantPropertyMappings        PropertyExternalMapping[] @relation("TenantPropertyMappings")
+  hostNotificationChannels      HostNotificationChannel[]
+
   @@map("users")
 }
 
@@ -239,6 +244,11 @@ model Property {
   isDemoPreview           Boolean                     @default(false)
   demoExpiresAt           DateTime?
   demoLeadId              String?
+  // ─── AlexAI feature flag por propiedad (PR3) ───────────────────────────
+  // Defensa en profundidad sobre la whitelist global ALEXAI_BETA_USERS.
+  // false por defecto — opt-in explícito requerido para activar AlexAI.
+  alexaiEnabled           Boolean                     @default(false)
+  aiAssistantConfig       AiAssistantConfig?
   announcements           Announcement[]
   chatbotConversations    ChatbotConversation[]
   clientInvoices          ClientInvoice[]
@@ -2426,6 +2436,37 @@ model Reservation {
   importBatchId        String?
   sourceListingName    String?
   billingUnitId        String?
+
+  // ─── PR3: extensión para adapter pattern + AlexAI ──────────────────────
+  // Coexiste con `platform` (legacy enum) — no lo reemplaza. Cualquier sync
+  // nuevo via adapter (Beds24/Hostaway/etc.) rellena estos campos; las
+  // reservas históricas siguen funcionando con los campos legacy.
+  externalIntegrationId   String?
+  externalIntegration     ExternalIntegration?    @relation(fields: [externalIntegrationId], references: [id], onDelete: SetNull)
+  externalBookingId       String?
+  channel                 ReservationChannel?
+  channelMetadata         Json?
+
+  // Económica adicional (compatible con campos legacy)
+  tourismTax              Decimal?
+  netToHostV2             Decimal?  // independiente de hostEarnings legacy
+
+  paymentStatus           PaymentStatus?
+
+  // Token para guidebook público / portal del huésped
+  publicToken             String?                 @unique
+
+  // Compliance España (Modelo 184/179, Registro Viajeros AEAT/SES)
+  registroViajerosStatus  RegistroViajerosStatus  @default(PENDING)
+  registroViajerosSentAt  DateTime?
+  registroViajerosFileUrl String?
+
+  // Marketing / repeat guests
+  isRepeatGuest           Boolean                 @default(false)
+  previousReservationId   String?
+  previousReservation     Reservation?            @relation("RepeatGuestChain", fields: [previousReservationId], references: [id])
+  subsequentReservations  Reservation[]           @relation("RepeatGuestChain")
+
   payments             ReservationPayment[]
   billingConfig        PropertyBillingConfig? @relation(fields: [billingConfigId], references: [id])
   billingUnit          BillingUnit?           @relation(fields: [billingUnitId], references: [id])
@@ -2454,7 +2495,35 @@ model Reservation {
   @@index([userId, billingConfigId])
   @@index([userId, status, checkOut])
   @@index([userId, platform, checkIn])
+  // ─── PR3 indices para queries del adapter pattern ──────────────────────
+  @@index([externalIntegrationId, externalBookingId])
+  @@index([channel])
+  @@index([registroViajerosStatus])
   @@map("reservations")
+}
+
+enum ReservationChannel {
+  AIRBNB
+  BOOKING
+  EXPEDIA
+  VRBO
+  DIRECT
+  WHATSAPP_DIRECT
+  OTHER
+}
+
+enum PaymentStatus {
+  PAID
+  PARTIAL
+  PENDING
+  REFUNDED
+}
+
+enum RegistroViajerosStatus {
+  NOT_REQUIRED
+  PENDING
+  SENT
+  ERROR
 }
 
 model ReservationPayment {
@@ -3318,11 +3387,44 @@ model PropertyExternalMapping {
   externalName String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  property     Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  // ─── PR3: extensión para adapter pattern AlexAI/Beds24 ─────────────────
+  // Todos nullable para que filas legacy (sin estos datos) sigan válidas.
+  externalIntegrationId  String?
+  externalIntegration    ExternalIntegration?  @relation(fields: [externalIntegrationId], references: [id], onDelete: SetNull)
+
+  /// Tenant scope para integraciones MASTER (Beds24): qué usuario de Itineramio
+  /// posee esta propiedad concreta dentro del master account.
+  tenantUserId           String?
+  tenantUser             User?                 @relation("TenantPropertyMappings", fields: [tenantUserId], references: [id], onDelete: SetNull)
+
+  externalRoomId         String?
+  externalSubAccountId   String?
+
+  /// Owner / Primary co-host / Co-host. Si != OWNER && consentConfirmed=false,
+  /// el adapter bloquea sync a nivel BD (regla operativa V3 sec 3.2).
+  hostRole               ExternalPropertyRole?
+  consentConfirmed       Boolean              @default(false)
+  consentMetadata        Json?
+
+  syncEnabled            Boolean              @default(true)
+  lastSyncAt             DateTime?
+
+  property               Property             @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@unique([propertyId, platform])
   @@unique([platform, externalId])
+  @@unique([externalIntegrationId, externalId])
+  @@index([tenantUserId])
   @@map("property_external_mappings")
+}
+
+/// Owner = dueño legal. Primary co-host = gestiona varias propiedades.
+/// Co-host = co-gestor puntual. Solo OWNER puede sincronizar sin consent extra.
+enum ExternalPropertyRole {
+  OWNER
+  PRIMARY_CO_HOST
+  CO_HOST
 }
 
 // ============================================
@@ -3527,4 +3629,196 @@ model UgcLead {
   @@index([platform])
   @@index([status])
   @@map("ugc_leads")
+}
+
+// ============================================
+// PR3 — AlexAI / Beds24 schema (modelos nuevos)
+// ============================================
+//
+// Diseñado en brief V3 sec 3. Aditivo only — ningún campo o tabla existente
+// se modifica. Cero código de uso aún (eso vendrá en PR4-PR-MT y Fase 2).
+//
+// Whitelist global ALEXAI_BETA_USERS sigue activa: APIs/UI nuevas que toquen
+// estos modelos deben gatear con isAlexAIBetaUser(user.email) (PR2).
+
+/// Conexión externa (Beds24, Hostaway, Hospitable, Avantio, Lodgify, etc.).
+/// scope=MASTER para Beds24 multi-tenant (sub-cuentas dentro del master de
+/// Itineramio). scope=PER_USER para PMS que el cliente paga directamente.
+model ExternalIntegration {
+  id                    String                       @id @default(cuid())
+
+  scope                 ExternalIntegrationScope
+  ownerUserId           String?
+  owner                 User?                        @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+
+  provider              ExternalProvider
+
+  /// Cifrado con env var HOST_CREDENTIALS_ENCRYPTION_KEY (D17). NUNCA en plano.
+  encryptedCredentials  String                       @db.Text
+  /// Capabilities flags por adapter (ver src/lib/integrations/capabilities.ts).
+  capabilities          Json?
+
+  status                IntegrationStatus            @default(ACTIVE)
+  lastSyncAt            DateTime?
+  webhookSecret         String?
+
+  externalAccountId     String?
+
+  createdAt             DateTime                     @default(now())
+  updatedAt             DateTime                     @updatedAt
+
+  mappings              PropertyExternalMapping[]
+  reservations          Reservation[]
+  rawMessages           RawExternalMessage[]
+
+  @@unique([scope, ownerUserId, provider])
+  @@index([provider])
+  @@index([status])
+  @@map("external_integrations")
+}
+
+enum ExternalIntegrationScope {
+  MASTER
+  PER_USER
+}
+
+enum ExternalProvider {
+  BEDS24
+  HOSTAWAY
+  HOSPITABLE
+  AVANTIO
+  AVIRATO
+  ICNEA
+  LODGIFY
+  SMOOBU
+  GUESTY
+  SUITECLERK
+  WUBOOK
+}
+
+enum IntegrationStatus {
+  ACTIVE
+  ERROR_AUTH
+  ERROR_SYNC
+  PAUSED
+  DISCONNECTED
+}
+
+/// Configuración de AlexAI por propiedad. Defensa en profundidad sobre
+/// Property.alexaiEnabled — esta tabla solo se crea si se opta in explícitamente.
+/// Empezamos siempre en SUGGEST (shadow mode antes de auto), regla V3 sec 7 punto 4.
+model AiAssistantConfig {
+  id                     String    @id @default(cuid())
+
+  propertyId             String    @unique
+  property               Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  enabled                Boolean   @default(false)
+  mode                   AiMode    @default(SUGGEST)
+
+  /// Categorías que pueden auto-responderse en mode AUTO_SELECTIVE.
+  /// Strings libres por ahora (ej: "wifi", "checkin", "horarios").
+  autoCategories         String[]  @default([])
+
+  scheduleEnabled        Boolean   @default(false)
+  scheduleAutoFrom       String?
+  scheduleAutoTo         String?
+
+  toneInstructions       String?
+  languages              String[]  @default(["es", "en"])
+
+  /// Keywords que SIEMPRE escalan a humano, incluso en AUTO_FULL.
+  alwaysEscalateKeywords String[]  @default(["queja", "complaint", "fuga", "leak", "emergency", "policía", "cancelar", "refund"])
+
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  @@map("ai_assistant_configs")
+}
+
+enum AiMode {
+  OFF
+  SUGGEST
+  AUTO_SELECTIVE
+  AUTO_FULL
+  HYBRID_SCHEDULE
+}
+
+/// Canal de notificación del host (WhatsApp Business, email, SMS).
+/// Permite mandar drafts/alertas al canal preferido. lastInboundFromHostAt
+/// se usa para verificar ventana de WhatsApp 24h.
+model HostNotificationChannel {
+  id                    String           @id @default(cuid())
+
+  userId                String
+  user                  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type                  HostChannelType
+  identifier            String
+
+  verified              Boolean          @default(false)
+  verifiedAt            DateTime?
+
+  lastInboundFromHostAt DateTime?
+
+  preferences           Json?
+
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  @@unique([userId, type, identifier])
+  @@index([userId, type])
+  @@map("host_notification_channels")
+}
+
+enum HostChannelType {
+  WHATSAPP
+  EMAIL
+  SMS
+}
+
+/// Buffer de mensajes externos crudos (Beds24 webhook, Airbnb messaging API).
+/// Se procesan asíncronamente para crear GuestMessage normalizados (PR5).
+/// Si el procesado falla, el raw queda persistido para reintentar.
+model RawExternalMessage {
+  id                    String                @id @default(cuid())
+
+  externalIntegrationId String
+  externalIntegration   ExternalIntegration   @relation(fields: [externalIntegrationId], references: [id], onDelete: Cascade)
+
+  externalBookingId     String?
+  externalMessageId     String                @unique
+
+  channel               ConversationChannel
+  direction             MessageDirection
+
+  body                  String                @db.Text
+  rawPayload            Json
+
+  processed             Boolean               @default(false)
+  processedAt           DateTime?
+  processingError       String?               @db.Text
+
+  receivedAt            DateTime              @default(now())
+
+  @@index([processed, receivedAt])
+  @@index([externalIntegrationId, receivedAt])
+  @@map("raw_external_messages")
+}
+
+/// Pre-creados aquí porque RawExternalMessage los necesita ya. PR5 los reutilizará
+/// al renombrar ChatbotConversation → GuestConversation y crear GuestMessage.
+enum ConversationChannel {
+  WEB
+  WHATSAPP_DIRECT
+  OTA_AIRBNB
+  OTA_BOOKING
+  OTA_EXPEDIA
+  OTA_VRBO
+  VOICE
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
 }
