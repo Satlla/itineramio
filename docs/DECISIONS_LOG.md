@@ -98,6 +98,42 @@
 **Hallazgo**: CLAUDE.md decía 1.495 console.logs / 460 endpoints / 128 modelos / 176 tests. Realidad: 3 console.logs (legítimos) / 525 endpoints / 131 modelos / 15 archivos test.
 **Implicación**: la deuda técnica es menor de lo que asumíamos. Estimación 12-16 semanas ligeramente optimizable. Auditoría rápida del repo antes de PR2 recomendada.
 
+## D15 — Whitelist global por email durante Beta (`ALEXAI_BETA_USERS`)
+**Fecha**: 2026-05-02
+**Decisión**: TODO lo nuevo (AlexAI, Beds24, iCal, workflows, UI, endpoints, crons) gateado por env var `ALEXAI_BETA_USERS`. Inicialmente: `alejandrosatlla@gmail.com`. Otros usuarios de Itineramio NO ven nada nuevo.
+**Por qué**: probar en producción real sin riesgo a base de usuarios existente. Doble seguridad sobre `Property.alexaiEnabled = false`.
+**Implementación**: helper `isAlexAIBetaUser(email)` en `src/lib/feature-flags.ts` (PR2). Aplicado en 3 capas: APIs (404), UI (return null), crons (filter user.email).
+
+## D16 — SKU "iCal-only" descartado
+**Fecha**: 2026-05-02
+**Decisión**: NO se ofrece SKU "Itineramio Solo iCal".
+**Por qué**: iCal sin datos fiables no sirve. Si no se trae con plataforma (Beds24/Hostaway/etc), no se ofrece. Mantenemos foco en los dos SKUs principales (Standalone + Connect).
+**Implicación**: simplifica posicionamiento. `ical-parser.ts` existente queda como herramienta interna para casos puntuales, no como SKU comercial.
+
+## D17 — Encryption tokens externos: env var separada `HOST_CREDENTIALS_ENCRYPTION_KEY`
+**Fecha**: 2026-05-02
+**Decisión**: NO reusar `JWT_SECRET`. Crear env var nueva dedicada para cifrado de credenciales externas.
+**Por qué**: separación de responsabilidades. Rotar `JWT_SECRET` (incidente de seguridad auth) no debe romper tokens Beds24/WhatsApp/etc cifrados.
+**Implementación**: `HOST_CREDENTIALS_ENCRYPTION_KEY` en Vercel + `.env.local`. Helper en `src/lib/crypto/host-credentials.ts` (PR3) replicando patrón de `src/lib/gmail/encryption.ts` (AES-256-GCM con scrypt KDF).
+
+## D18 — Chatbot existente NO se toca (producción funciona bien)
+**Fecha**: 2026-05-02
+**Decisión**: el chatbot web actual (`/api/chatbot/route.ts` + `chatbot-utils.ts`) **no se modifica**. Funciona bien en producción.
+**Por qué**: regla "no la líes". El chatbot atiende usuarios reales hoy. AlexAI se construye **al lado**, no encima del chatbot existente.
+**Implicación operativa**:
+- AlexAI vive en endpoints nuevos (`/api/alexai/*`).
+- pgvector (PR1) AÑADE capa semántica complementaria. NO modifica `chatbot-utils.ts`.
+- `chatbot-quality-auditor.ts` (en rama wip) queda en wip indefinidamente. NO se mergea a main si solapa con `chatbot-insights` cron de producción.
+
+## D19 — Calendar sync solo con datos de plataformas reales (no iCal genérico)
+**Fecha**: 2026-05-02
+**Decisión**: el cron `calendar-sync` (actualmente stub desactivado) se reactiva SOLO cuando haya datos fiables de plataformas (Beds24 API, Hostaway, etc.). NO con iCal genérico.
+**Por qué**: consistente con D16. Datos no fiables = decisiones erróneas. Calendario unificado tiene sentido solo con sync de plataforma.
+**Implementación**:
+- Renombrar `calendar-sync` → `external-calendar-sync` (en PR6).
+- Activar solo desde Fase 2 PR6 con datos Beds24.
+- Si llega Hostaway adapter (Fase 4b), suma datos también desde ahí.
+
 ---
 
 ## Decisiones pendientes de tomar
