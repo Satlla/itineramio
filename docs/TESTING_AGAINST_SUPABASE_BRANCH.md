@@ -1,8 +1,18 @@
 # Testing PRs contra branches Supabase (procedimiento canónico)
 
 **Mantenedor:** equipo Itineramio
-**Vigente desde:** 2026-05-02
+**Vigente desde:** 2026-05-02 (revisado 2026-05-02 tras validación de PR1)
 **Aplica a:** PR1, PR2, PR-MT, PR3-PR5 y todos los PRs futuros que requieran probar contra una BD con datos reales sin tocar producción.
+
+## Cambios respecto a la versión inicial
+
+Tras validar PR1 (pgvector), se identificaron 5 problemas que impedían que el script funcionara automáticamente. El script `scripts/supabase-branch-test.sh` ya está corregido. Resumen de cambios:
+
+1. **Polling de status**: usa `preview_project_status` (no `status`, que es estado de migration deployment).
+2. **Password de la branch**: la CLI mascara la password con `******`. El script usa la **Management API REST** (`GET https://api.supabase.com/v1/branches/{id}`) que devuelve `db_pass` real con el access token.
+3. **Pooler host dinámico**: se obtiene de `GET /v1/projects/{ref}/config/database/pooler` (no asume `aws-0-eu-north-1` — varía por cuenta).
+4. **`DIRECT_URL` usa session pooler**: la direct connection (`db.X.supabase.co:5432`) es **IPv6-only** sin IPv4 add-on. El script construye `DIRECT_URL` apuntando al puerto 5432 del **pooler host** (IPv4-compatible).
+5. **Migrations en branch sin data**: la branch viene con schema parcial pero `_prisma_migrations` vacío. El script marca todas las migraciones existentes como `applied` con `prisma migrate resolve` (excepto la última, que es la del PR a probar) y solo entonces hace `migrate deploy`.
 
 ---
 
@@ -54,14 +64,16 @@ Producción está en Supabase Pro ($25/mes). El plan Pro incluye **branching nat
 Lo que hace, en orden:
 1. Login en Supabase con tu access token.
 2. Crea branch `pr1-pgvector-test`.
-3. Espera hasta `ACTIVE_HEALTHY` (~1-2 min).
-4. Obtiene la connection string.
-5. **Backup automático de `.env`** a `.env.backup-<timestamp>`.
-6. Sustituye `DATABASE_URL` y `DIRECT_URL` en `.env` por los de la branch.
-7. Aplica migrations Prisma (`prisma migrate deploy`) — solo en la branch.
-8. Ejecuta el comando de test contra la branch.
-9. **Trap EXIT** restaura `.env` desde el backup, ocurra lo que ocurra (incluso si el test rompe, Ctrl+C, o error).
-10. Borra la branch para no pagar por instancia inactiva.
+3. Resuelve `branch_id` y `branch_project_ref` desde `branches list`.
+4. Espera hasta `preview_project_status == ACTIVE_HEALTHY` (~30-60 seg).
+5. Obtiene `db_pass` real via Management API REST (la CLI lo mascara).
+6. Obtiene host del pooler via Management API REST.
+7. **Backup automático de `.env`** a `.env.backup-<timestamp>`.
+8. Sustituye en `.env`: `DATABASE_URL` → transaction pooler (puerto 6543), `DIRECT_URL` → session pooler (puerto 5432 del pooler host, IPv4-compatible).
+9. Marca migraciones antiguas como `applied` con `prisma migrate resolve --applied`, luego ejecuta `prisma migrate deploy` que solo aplica la migration nueva del PR.
+10. Ejecuta el comando de test contra la branch.
+11. **Trap EXIT** restaura `.env` desde el backup, ocurra lo que ocurra (incluso si el test rompe, Ctrl+C, o error).
+12. Borra la branch para no pagar por instancia inactiva.
 
 ### Caso 2 — Crear branch sin tests automáticos
 

@@ -3,32 +3,38 @@
 # scripts/supabase-branch-test.sh
 #
 # Crea un branch Supabase para probar migrations / código sin tocar producción,
-# espera a que la branch esté ACTIVE_HEALTHY, sustituye DATABASE_URL/DIRECT_URL
-# en .env temporalmente, y al final restaura .env y borra la branch.
-#
-# El test concreto se pasa como comando al script. Ejemplo:
-#
-#   ./scripts/supabase-branch-test.sh \
-#     --branch-name pr1-pgvector-test \
-#     --apply-migration \
-#     --test-cmd "npx tsx scripts/test-embeddings.ts <propertyId>"
+# espera a que esté ACTIVE_HEALTHY, parchea DATABASE_URL/DIRECT_URL en .env
+# con las connection strings de la branch (pooler), opcionalmente aplica
+# migrations Prisma y un comando de test, y al final restaura .env y borra
+# la branch.
 #
 # REQUIERE en .env:
 #   - SUPABASE_ACCESS_TOKEN (Personal Access Token de Supabase)
-#   - DATABASE_URL, DIRECT_URL (los actuales de producción)
+#   - DATABASE_URL, DIRECT_URL (los actuales de producción — se usan como backup)
 #
 # DISEÑO:
-#   - Trap EXIT para garantizar restore de .env aunque algo falle.
-#   - --keep-branch para inspeccionar manualmente sin borrar.
-#   - --no-cleanup para dejar el branch (útil debugging).
+#   - Trap EXIT garantiza restore de .env aunque algo falle.
+#   - --keep-branch para inspección manual sin borrar.
+#   - --no-cleanup para dejar branch (útil debugging).
+#   - Usa Management API REST (api.supabase.com) para datos que la CLI mascara
+#     (password de la branch, host del pooler).
+#   - Usa Session pooler (puerto 5432 del pooler) como DIRECT_URL — la direct
+#     connection nativa (db.X.supabase.co:5432) es IPv6-only sin IPv4 add-on.
+#   - Marca migraciones existentes como `applied` antes de `migrate deploy`
+#     porque la branch viene con schema parcial pero `_prisma_migrations` vacío.
 #
-# AUTORÍA: parte de la infra de testing repetible para PR1, PR2, PR-MT, etc.
+# EJEMPLO:
+#   ./scripts/supabase-branch-test.sh \
+#     --branch-name pr2-adapter-test \
+#     --apply-migration \
+#     --test-cmd "npx tsx scripts/test-adapter.ts"
 
 set -euo pipefail
 
 # ─── Defaults ───────────────────────────────────────────────────────────────
 
 PROJECT_REF="${SUPABASE_PROJECT_REF:-scgbdfltemsthgwianbl}"
+SUPABASE_API="https://api.supabase.com"
 BRANCH_NAME=""
 APPLY_MIGRATION=0
 TEST_CMD=""
@@ -37,17 +43,19 @@ NO_CLEANUP=0
 ENV_FILE=".env"
 TS=$(date +%Y%m%d-%H%M%S)
 ENV_BACKUP=".env.backup-${TS}"
+WAIT_INTERVAL=8
+WAIT_MAX_TRIES=30
 
 # ─── Args ───────────────────────────────────────────────────────────────────
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --branch-name)    BRANCH_NAME="$2"; shift 2 ;;
+    --branch-name)     BRANCH_NAME="$2"; shift 2 ;;
     --apply-migration) APPLY_MIGRATION=1; shift ;;
-    --test-cmd)       TEST_CMD="$2"; shift 2 ;;
-    --keep-branch)    KEEP_BRANCH=1; shift ;;
-    --no-cleanup)     NO_CLEANUP=1; shift ;;
-    --project-ref)    PROJECT_REF="$2"; shift 2 ;;
+    --test-cmd)        TEST_CMD="$2"; shift 2 ;;
+    --keep-branch)     KEEP_BRANCH=1; shift ;;
+    --no-cleanup)      NO_CLEANUP=1; shift ;;
+    --project-ref)     PROJECT_REF="$2"; shift 2 ;;
     -h|--help)
       sed -n '2,30p' "$0"
       exit 0
@@ -78,6 +86,23 @@ if ! command -v supabase &>/dev/null; then
   exit 1
 fi
 
+if ! command -v curl &>/dev/null; then
+  echo "ERROR: curl no instalado." >&2
+  exit 1
+fi
+
+if ! command -v python3 &>/dev/null; then
+  echo "ERROR: python3 no instalado." >&2
+  exit 1
+fi
+
+# ─── Helpers ────────────────────────────────────────────────────────────────
+
+api_get() {
+  local path="$1"
+  curl -sS -f -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" "$SUPABASE_API$path"
+}
+
 # ─── Cleanup trap ───────────────────────────────────────────────────────────
 
 CLEANUP_DONE=0
@@ -88,18 +113,16 @@ cleanup() {
   echo
   echo "[CLEANUP] (exit code $ec)"
 
-  # Restore .env always
   if [[ -f "$ENV_BACKUP" ]]; then
-    echo "[CLEANUP] Restoring .env from $ENV_BACKUP"
+    echo "[CLEANUP] Restoring $ENV_FILE from $ENV_BACKUP"
     cp "$ENV_BACKUP" "$ENV_FILE"
     rm "$ENV_BACKUP"
   fi
 
-  # Delete branch unless asked to keep
   if [[ "$NO_CLEANUP" -eq 0 && "$KEEP_BRANCH" -eq 0 ]]; then
-    if [[ -n "${BRANCH_REF:-}" ]]; then
-      echo "[CLEANUP] Deleting Supabase branch $BRANCH_REF"
-      supabase branches delete "$BRANCH_REF" --project-ref "$PROJECT_REF" --yes 2>/dev/null || true
+    if [[ -n "${BRANCH_NAME:-}" ]]; then
+      echo "[CLEANUP] Deleting Supabase branch $BRANCH_NAME"
+      supabase branches delete "$BRANCH_NAME" --project-ref "$PROJECT_REF" --yes 2>/dev/null || true
     fi
   else
     echo "[CLEANUP] Branch kept (--keep-branch o --no-cleanup)"
@@ -117,32 +140,48 @@ set -a
 source "$ENV_FILE"
 set +a
 
-# ─── Login Supabase CLI ─────────────────────────────────────────────────────
+# ─── 1. Login Supabase CLI ──────────────────────────────────────────────────
 
-echo "[1/8] Login Supabase CLI..."
-echo "$SUPABASE_ACCESS_TOKEN" | supabase login --token "$SUPABASE_ACCESS_TOKEN" 2>&1 | tail -2
+echo "[1/9] Login Supabase CLI..."
+supabase login --token "$SUPABASE_ACCESS_TOKEN" 2>&1 | tail -1
 
-# ─── Crear branch ───────────────────────────────────────────────────────────
+# ─── 2. Crear branch ────────────────────────────────────────────────────────
 
-echo "[2/8] Creating branch '$BRANCH_NAME' on project $PROJECT_REF..."
-supabase branches create "$BRANCH_NAME" --project-ref "$PROJECT_REF"
+echo "[2/9] Creating branch '$BRANCH_NAME' on project $PROJECT_REF..."
+supabase branches create "$BRANCH_NAME" --project-ref "$PROJECT_REF" 2>&1 | tail -3
 
-echo "[3/8] Resolving branch ref..."
-BRANCH_REF=$(supabase branches list --project-ref "$PROJECT_REF" --output json \
-  | python3 -c "import sys, json; data=json.load(sys.stdin); branches=data if isinstance(data, list) else [data]; print([b['id'] for b in branches if b.get('name')=='$BRANCH_NAME'][0])")
-echo "    branch ref: $BRANCH_REF"
+# ─── 3. Resolver branch_id y branch_project_ref ─────────────────────────────
 
-# ─── Esperar ACTIVE_HEALTHY ─────────────────────────────────────────────────
+echo "[3/9] Resolving branch metadata..."
+BRANCH_META=$(supabase branches list --project-ref "$PROJECT_REF" --output json \
+  | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+b = [x for x in (data if isinstance(data, list) else [data]) if x.get('name') == '$BRANCH_NAME'][0]
+print(b['id'], b['project_ref'])
+")
+BRANCH_ID=$(echo "$BRANCH_META" | awk '{print $1}')
+BRANCH_PROJECT_REF=$(echo "$BRANCH_META" | awk '{print $2}')
+echo "    branch_id          : $BRANCH_ID"
+echo "    branch_project_ref : $BRANCH_PROJECT_REF"
 
-echo "[4/8] Waiting for branch to become ACTIVE_HEALTHY (typical 1-2 min)..."
-for i in {1..30}; do
-  STATUS=$(supabase branches get "$BRANCH_REF" --project-ref "$PROJECT_REF" --output json \
-    | python3 -c "import sys, json; print(json.load(sys.stdin).get('status','UNKNOWN'))" 2>/dev/null || echo "UNKNOWN")
-  echo "    [$i] status: $STATUS"
+# ─── 4. Esperar a ACTIVE_HEALTHY ────────────────────────────────────────────
+
+echo "[4/9] Waiting for branch to become ACTIVE_HEALTHY..."
+STATUS="UNKNOWN"
+for i in $(seq 1 $WAIT_MAX_TRIES); do
+  STATUS=$(supabase branches list --project-ref "$PROJECT_REF" --output json 2>/dev/null \
+    | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+b = [x for x in (data if isinstance(data, list) else [data]) if x.get('name') == '$BRANCH_NAME'][0]
+print(b.get('preview_project_status', 'UNKNOWN'))
+" 2>/dev/null || echo "UNKNOWN")
+  echo "    [$i/$WAIT_MAX_TRIES] preview_project_status: $STATUS"
   if [[ "$STATUS" == "ACTIVE_HEALTHY" ]]; then
     break
   fi
-  sleep 10
+  sleep $WAIT_INTERVAL
 done
 
 if [[ "$STATUS" != "ACTIVE_HEALTHY" ]]; then
@@ -150,63 +189,95 @@ if [[ "$STATUS" != "ACTIVE_HEALTHY" ]]; then
   exit 1
 fi
 
-# ─── Obtener connection strings ─────────────────────────────────────────────
+# ─── 5. Obtener db_pass real (Management API REST) ──────────────────────────
 
-echo "[5/8] Fetching branch connection strings..."
-BRANCH_DETAILS=$(supabase branches get "$BRANCH_REF" --project-ref "$PROJECT_REF" --output json)
-BRANCH_DB_URL=$(echo "$BRANCH_DETAILS" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('postgres_url') or d.get('database',{}).get('url') or '')")
-
-if [[ -z "$BRANCH_DB_URL" ]]; then
-  echo "ERROR: could not extract postgres_url from branch details" >&2
-  echo "Raw response:" >&2
-  echo "$BRANCH_DETAILS" | head -50 >&2
+echo "[5/9] Fetching branch credentials via Management API..."
+BRANCH_DETAIL=$(api_get "/v1/branches/$BRANCH_ID")
+DB_PASS=$(echo "$BRANCH_DETAIL" | python3 -c "import sys, json; print(json.load(sys.stdin)['db_pass'])")
+if [[ -z "$DB_PASS" ]]; then
+  echo "ERROR: could not extract db_pass from branch detail" >&2
   exit 1
 fi
+echo "    db_pass: ****** (length ${#DB_PASS})"
 
-echo "    branch DATABASE_URL obtained (length ${#BRANCH_DB_URL})"
+# ─── 6. Obtener pooler host (Management API REST) ──────────────────────────
 
-# Pooled vs direct: Supabase typically returns direct. Build pooled by replacing port 5432 → 6543 if needed.
-POOLED_URL="${BRANCH_DB_URL/:5432/:6543}"
-if [[ "$POOLED_URL" == "$BRANCH_DB_URL" ]]; then
-  POOLED_URL="$BRANCH_DB_URL"
-fi
+echo "[6/9] Fetching pooler config..."
+POOLER_CONFIG=$(api_get "/v1/projects/$BRANCH_PROJECT_REF/config/database/pooler")
+POOLER_HOST=$(echo "$POOLER_CONFIG" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+arr = data if isinstance(data, list) else [data]
+print(arr[0]['db_host'])
+")
+POOLER_USER=$(echo "$POOLER_CONFIG" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+arr = data if isinstance(data, list) else [data]
+print(arr[0]['db_user'])
+")
+echo "    pooler_host: $POOLER_HOST"
+echo "    pooler_user: $POOLER_USER"
 
-# ─── Backup .env ────────────────────────────────────────────────────────────
+# Transaction pooler (DATABASE_URL) — port 6543, transaction mode
+TX_URL="postgresql://${POOLER_USER}:${DB_PASS}@${POOLER_HOST}:6543/postgres?pgbouncer=true&connection_limit=1"
+# Session pooler (DIRECT_URL) — port 5432 on pooler, IPv4-compatible.
+# We avoid db.X.supabase.co:5432 because it's IPv6-only without IPv4 add-on.
+SESS_URL="postgresql://${POOLER_USER}:${DB_PASS}@${POOLER_HOST}:5432/postgres"
 
-echo "[6/8] Backup .env to $ENV_BACKUP"
+# ─── 7. Backup .env y parchear ──────────────────────────────────────────────
+
+echo "[7/9] Backup .env and patch DATABASE_URL/DIRECT_URL..."
 cp "$ENV_FILE" "$ENV_BACKUP"
 
-# ─── Sustituir DATABASE_URL/DIRECT_URL ──────────────────────────────────────
-
-echo "[7/8] Patching .env with branch URLs..."
-python3 - <<PYEOF
-import re, os
-path = os.environ.get('ENV_FILE', '.env')
+ENV_FILE="$ENV_FILE" TX_URL="$TX_URL" SESS_URL="$SESS_URL" python3 - <<'PYEOF'
+import os, re
+path = os.environ['ENV_FILE']
+tx = os.environ['TX_URL']
+sess = os.environ['SESS_URL']
 with open(path) as f:
     content = f.read()
-new_db = os.environ['POOLED_URL']
-new_dir = os.environ['BRANCH_DB_URL']
-content = re.sub(r'^DATABASE_URL=.*$', f'DATABASE_URL="{new_db}"', content, flags=re.MULTILINE)
-content = re.sub(r'^DIRECT_URL=.*$', f'DIRECT_URL="{new_dir}"', content, flags=re.MULTILINE)
+content = re.sub(r'^DATABASE_URL=.*$', f'DATABASE_URL="{tx}"',  content, flags=re.MULTILINE)
+content = re.sub(r'^DIRECT_URL=.*$',   f'DIRECT_URL="{sess}"', content, flags=re.MULTILINE)
 with open(path, 'w') as f:
     f.write(content)
-print("    .env patched")
 PYEOF
+echo "    .env patched (DATABASE_URL → tx pooler, DIRECT_URL → session pooler)"
 
-# ─── Apply migration if requested ───────────────────────────────────────────
+# ─── 8. Aplicar migrations Prisma (si solicitado) ───────────────────────────
 
 if [[ "$APPLY_MIGRATION" -eq 1 ]]; then
-  echo "[8/8] Applying Prisma migrations against branch..."
+  echo "[8/9] Applying Prisma migrations against branch..."
   set -a; source "$ENV_FILE"; set +a
-  npx prisma migrate deploy
-  npx prisma generate
+
+  # La branch viene con el schema de producción ya aplicado, pero la tabla
+  # `_prisma_migrations` está vacía. `migrate deploy` por sí solo intentaría
+  # re-aplicar todas desde cero y chocaría con "type already exists".
+  #
+  # Solución: marcamos todas las migrations existentes como `applied` EXCEPTO
+  # la última (que es la del PR a probar). Luego `migrate deploy` solo aplica
+  # la última, que es lo que queremos validar.
+  LATEST_MIG=$(ls -1 prisma/migrations/ | sort | tail -1)
+  echo "    Latest migration (PR under test): $LATEST_MIG"
+  echo "    Marking older migrations as applied (idempotent)..."
+  for mig_dir in prisma/migrations/*/; do
+    mig_name=$(basename "$mig_dir")
+    if [[ "$mig_name" == "$LATEST_MIG" ]]; then
+      continue
+    fi
+    npx prisma migrate resolve --applied "$mig_name" 2>&1 | tail -1
+  done
+
+  echo "    Applying $LATEST_MIG via migrate deploy..."
+  npx prisma migrate deploy 2>&1 | tail -10
+  npx prisma generate 2>&1 | tail -3
 fi
 
-# ─── Test command ───────────────────────────────────────────────────────────
+# ─── 9. Test command ────────────────────────────────────────────────────────
 
 if [[ -n "$TEST_CMD" ]]; then
   echo
-  echo "─── Running test command ──────────────────────────────────────────"
+  echo "─── [9/9] Running test command ────────────────────────────────────"
   echo "$ $TEST_CMD"
   echo
   set -a; source "$ENV_FILE"; set +a
@@ -214,4 +285,4 @@ if [[ -n "$TEST_CMD" ]]; then
 fi
 
 echo
-echo "─── Branch test complete. .env will restore on exit. ───────────────"
+echo "─── Branch test complete. .env will restore on exit. ──────────────"
