@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, BookOpen, X, Play, Users, Star } from 'lucide-react'
+import { Sparkles, BookOpen, X, Play, Users, Star, Home } from 'lucide-react'
 import { Button } from './Button'
 import { essentialTemplates } from '../../data/essentialTemplates'
 
@@ -19,7 +19,6 @@ export function WelcomeTemplatesModal({
   onAccept,
   userName = 'Usuario'
 }: WelcomeTemplatesModalProps) {
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -27,79 +26,89 @@ export function WelcomeTemplatesModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50"
           onClick={onClose}
         >
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
+            initial={{ scale: 0.96, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-3 sm:p-4 md:p-6 lg:p-8 max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
+            exit={{ scale: 0.96, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+            className="bg-white rounded-2xl p-5 sm:p-7 md:p-8 max-w-3xl w-full max-h-[92vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
+            style={{ boxShadow: '0 24px 64px rgba(0,0,0,0.12)' }}
           >
-            {/* Header */}
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-violet-100 to-blue-100 rounded-full mb-6">
-                <Sparkles className="w-10 h-10 text-violet-600" />
+            <div className="text-center mb-7 sm:mb-8">
+              <div
+                className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-5"
+                style={{ backgroundColor: '#f0efed' }}
+              >
+                <Sparkles className="w-7 h-7" style={{ color: '#7c3aed' }} />
               </div>
-              <h1 className="text-base sm:text-lg md:text-xl sm:text-lg sm:text-base sm:text-lg md:text-xl md:text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                🎉 ¡Bienvenido a Itineramio, {userName}!
+              <h1
+                className="text-2xl sm:text-3xl font-semibold mb-3 tracking-tight"
+                style={{ color: '#111' }}
+              >
+                Bienvenido a Itineramio, {userName}
               </h1>
-              <p className="text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed">
-                Hemos preparado un <span className="font-semibold text-violet-600">manual básico profesional</span> con las zonas más importantes para que veas cómo funciona la plataforma.
+              <p className="text-base leading-relaxed max-w-xl mx-auto" style={{ color: '#555' }}>
+                Hemos preparado un manual básico con las zonas más importantes para que veas cómo
+                funciona la plataforma.
               </p>
             </div>
 
-            {/* Features highlights */}
-            <div className="grid md:grid-cols-3 gap-3 sm:p-4 md:p-6 mb-8">
-              <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <Play className="w-6 h-6 text-blue-600" />
+            <div className="grid sm:grid-cols-3 gap-3 sm:gap-4 mb-7 sm:mb-8">
+              {[
+                { icon: Play, title: 'Videos reales', desc: 'Ejemplos profesionales para inspirarte' },
+                { icon: BookOpen, title: 'Contenido completo', desc: 'Textos, imágenes y estructuras listas' },
+                { icon: Users, title: '100% personalizable', desc: 'Edita o adapta todo a tu apartamento' }
+              ].map(({ icon: Icon, title, desc }) => (
+                <div
+                  key={title}
+                  className="text-center p-5 rounded-2xl"
+                  style={{ backgroundColor: '#f5f3f0' }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-3"
+                    style={{ backgroundColor: 'rgba(0,0,0,0.04)' }}
+                  >
+                    <Icon className="w-5 h-5" style={{ color: '#555' }} />
+                  </div>
+                  <h3 className="font-semibold mb-1.5 text-sm" style={{ color: '#111' }}>{title}</h3>
+                  <p className="text-xs leading-relaxed" style={{ color: '#555' }}>{desc}</p>
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Videos reales</h3>
-                <p className="text-sm text-gray-600">Ejemplos con videos profesionales para inspirarte</p>
-              </div>
-              
-              <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <BookOpen className="w-6 h-6 text-green-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Contenido completo</h3>
-                <p className="text-sm text-gray-600">Textos, imágenes y estructuras ya preparadas</p>
-              </div>
-              
-              <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <Users className="w-6 h-6 text-purple-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">100% personalizable</h3>
-                <p className="text-sm text-gray-600">Edita, elimina o adapta todo a tu apartamento</p>
-              </div>
+              ))}
             </div>
 
-            {/* Templates preview */}
-            <div className="mb-8">
-              <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-4 text-center">
-                📋 Tu manual incluye {essentialTemplates.length} zonas esenciales:
-              </h3>
-              
-              <div className="grid md:grid-cols-3 gap-3">
+            <div className="mb-7 sm:mb-8">
+              <p
+                className="text-[11px] uppercase tracking-[0.18em] font-medium mb-4 text-center"
+                style={{ color: '#aaa' }}
+              >
+                Tu manual incluye {essentialTemplates.length} zonas esenciales
+              </p>
+
+              <div className="grid sm:grid-cols-3 gap-2.5 sm:gap-3">
                 {essentialTemplates.map((template, index) => (
                   <motion.div
                     key={template.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                    transition={{ delay: index * 0.04 }}
+                    className="flex items-center gap-3 p-3 rounded-xl border"
+                    style={{ backgroundColor: '#fff', borderColor: 'rgba(0,0,0,0.06)' }}
                   >
-                    <div className="w-8 h-8 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm">🏠</span>
+                    <div
+                      className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: '#f0efed' }}
+                    >
+                      <Home className="w-4 h-4" style={{ color: '#555' }} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm text-gray-900 truncate">
+                      <p className="font-medium text-sm truncate" style={{ color: '#111' }}>
                         {template.name}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs truncate" style={{ color: '#aaa' }}>
                         {template.steps.length} paso{template.steps.length !== 1 ? 's' : ''}
                       </p>
                     </div>
@@ -108,60 +117,67 @@ export function WelcomeTemplatesModal({
               </div>
             </div>
 
-            {/* Benefits */}
-            <div className="bg-gradient-to-br from-violet-50 to-blue-50 border border-violet-200 rounded-xl p-3 sm:p-4 md:p-6 mb-8">
+            <div
+              className="rounded-2xl p-5 sm:p-6 mb-7 sm:mb-8"
+              style={{ backgroundColor: '#f5f3f0' }}
+            >
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Star className="w-5 h-5 text-violet-600" />
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ backgroundColor: 'rgba(0,0,0,0.04)' }}
+                >
+                  <Star className="w-4 h-4" style={{ color: '#555' }} />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-violet-900 mb-2">✨ ¿Por qué te ayudará este manual?</h4>
-                  <ul className="space-y-2 text-sm text-violet-800">
-                    <li className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-violet-400 rounded-full"></span>
-                      <span>Ahorra tiempo: no empiezas desde cero</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-violet-400 rounded-full"></span>
-                      <span>Ve ejemplos reales de contenido profesional</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-violet-400 rounded-full"></span>
-                      <span>Aprende qué información incluir en cada zona</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-violet-400 rounded-full"></span>
-                      <span>Adapta todo a tu apartamento específico</span>
-                    </li>
+                  <h4 className="font-semibold mb-2.5 text-sm" style={{ color: '#111' }}>
+                    Por qué te ayudará este manual
+                  </h4>
+                  <ul className="space-y-1.5 text-sm" style={{ color: '#555' }}>
+                    {[
+                      'Ahorra tiempo: no empiezas desde cero',
+                      'Ve ejemplos reales de contenido profesional',
+                      'Aprende qué información incluir en cada zona',
+                      'Adapta todo a tu apartamento específico'
+                    ].map((line) => (
+                      <li key={line} className="flex items-center gap-2">
+                        <span
+                          className="w-1 h-1 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: '#7c3aed' }}
+                        />
+                        <span>{line}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>
             </div>
 
-            {/* Call to action */}
             <div className="text-center">
-              <p className="text-gray-600 mb-6">
-                <span className="font-medium">¡Es solo el punto de partida!</span> Siéntete libre de editar, eliminar, adaptar todo a tu apartamento y crear nuevas zonas personalizadas.
+              <p className="mb-6 text-sm" style={{ color: '#555' }}>
+                Es solo el punto de partida. Siéntete libre de editar, eliminar y adaptar todo a tu
+                apartamento.
               </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button
                   onClick={onAccept}
-                  className="bg-violet-600 hover:bg-violet-700 text-white font-semibold px-3 sm:px-4 md:px-3 sm:px-4 md:px-6 lg:px-8 py-3 text-lg"
+                  className="font-semibold px-7 py-3 text-base rounded-full text-white"
+                  style={{ backgroundColor: '#7c3aed' }}
                 >
-                  🚀 ¡Perfecto! Ver mi manual
+                  Ver mi manual
                 </Button>
                 <Button
                   variant="outline"
                   onClick={onClose}
-                  className="px-3 sm:px-4 md:px-3 sm:px-4 md:px-6 lg:px-8 py-3 text-lg border-gray-300"
+                  className="px-7 py-3 text-base rounded-full"
+                  style={{ borderColor: 'rgba(0,0,0,0.1)', color: '#555' }}
                 >
                   Empezar desde cero
                 </Button>
               </div>
-              
-              <p className="text-xs text-gray-500 mt-4">
-                💡 Podrás modificar o eliminar cualquier zona en cualquier momento
+
+              <p className="text-xs mt-4" style={{ color: '#aaa' }}>
+                Podrás modificar o eliminar cualquier zona en cualquier momento.
               </p>
             </div>
           </motion.div>

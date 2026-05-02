@@ -183,7 +183,7 @@ export function SideMenu({ isOpen, onClose, notificationCount = 0, user }: SideM
 
               {/* User Info */}
               <div className="flex items-center space-x-3 sm:space-x-4 p-3 sm:p-4 bg-gray-50 rounded-xl mb-4 sm:mb-6">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium flex-shrink-0">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-medium flex-shrink-0" style={{ backgroundColor: '#f0efed', color: '#555' }}>
                   {user?.avatar ? (
                     <img
                       src={user.avatar}
