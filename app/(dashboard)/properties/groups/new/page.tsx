@@ -296,29 +296,25 @@ function NewPropertySetPageContent() {
   const selectableProperties = availableProperties
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <Link href="/properties/groups">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                {t('common.back')}
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                {isEditing ? t('groups.editTitle') : t('groups.newTitle')}
-              </h1>
-              <p className="text-gray-600 mt-1">
-                {isEditing
-                  ? t('groups.editSubtitle')
-                  : t('groups.newSubtitle')
-                }
-              </p>
-            </div>
-          </div>
+        <div className="mb-6 sm:mb-8">
+          <Link href="/properties/groups" className="inline-block mb-3">
+            <Button variant="ghost" size="sm" className="rounded-full -ml-2" style={{ color: '#555' }}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              {t('common.back')}
+            </Button>
+          </Link>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight" style={{ color: '#111' }}>
+            {isEditing ? t('groups.editTitle') : t('groups.newTitle')}
+          </h1>
+          <p className="mt-1.5 text-sm sm:text-base" style={{ color: '#555' }}>
+            {isEditing
+              ? t('groups.editSubtitle')
+              : t('groups.newSubtitle')
+            }
+          </p>
         </div>
 
         {/* Loading State */}
@@ -330,37 +326,52 @@ function NewPropertySetPageContent() {
         )}
 
         {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-center space-x-8">
-            {[1, 2, 3, 4].map((step) => (
-              <div
-                key={step}
-                className={`flex items-center ${step < 4 ? 'flex-1' : ''}`}
-              >
-                <div className={`
-                  w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
-                  ${currentStep >= step
-                    ? 'bg-violet-600 text-white'
-                    : 'bg-gray-200 text-gray-600'
-                  }
-                `}>
-                  {step}
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center justify-center gap-1.5 sm:gap-3">
+            {[1, 2, 3, 4].map((step) => {
+              const stepLabels: Record<number, string> = {
+                1: t('groups.steps.basicInfo'),
+                2: t('groups.steps.location'),
+                3: t('groups.steps.contact'),
+                4: t('groups.steps.properties')
+              }
+              const active = currentStep >= step
+              return (
+                <div
+                  key={step}
+                  className={`flex items-center ${step < 4 ? 'flex-1' : ''}`}
+                >
+                  <div
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium shrink-0 transition-colors"
+                    style={{
+                      backgroundColor: active ? '#7c3aed' : '#f0efed',
+                      color: active ? '#fff' : '#aaa'
+                    }}
+                  >
+                    {step}
+                  </div>
+                  <div
+                    className="ml-2 text-sm font-medium hidden sm:block whitespace-nowrap"
+                    style={{ color: active ? '#111' : '#aaa' }}
+                  >
+                    {stepLabels[step]}
+                  </div>
+                  {step < 4 && (
+                    <div
+                      className="flex-1 h-0.5 mx-2 sm:mx-3 rounded-full transition-colors"
+                      style={{ backgroundColor: currentStep > step ? '#7c3aed' : 'rgba(0,0,0,0.08)' }}
+                    />
+                  )}
                 </div>
-                <div className="ml-2 text-sm font-medium">
-                  {step === 1 && t('groups.steps.basicInfo')}
-                  {step === 2 && t('groups.steps.location')}
-                  {step === 3 && t('groups.steps.contact')}
-                  {step === 4 && t('groups.steps.properties')}
-                </div>
-                {step < 4 && (
-                  <div className={`
-                    flex-1 h-1 mx-4
-                    ${currentStep > step ? 'bg-violet-600' : 'bg-gray-200'}
-                  `} />
-                )}
-              </div>
-            ))}
+              )
+            })}
           </div>
+          <p className="text-center text-xs mt-3 sm:hidden font-medium" style={{ color: '#555' }}>
+            {currentStep === 1 && t('groups.steps.basicInfo')}
+            {currentStep === 2 && t('groups.steps.location')}
+            {currentStep === 3 && t('groups.steps.contact')}
+            {currentStep === 4 && t('groups.steps.properties')}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
@@ -371,8 +382,8 @@ function NewPropertySetPageContent() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <Card className="p-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              <Card className="p-5 sm:p-7 md:p-8">
+                <h2 className="text-lg sm:text-xl font-semibold mb-5 sm:mb-6 tracking-tight" style={{ color: '#111' }}>
                   {t('groups.steps.basicInfo')}
                 </h2>
 
@@ -415,7 +426,7 @@ function NewPropertySetPageContent() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       {t('groups.form.establishmentType')}
                     </label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
                       {propertySetTypes.map((type) => {
                         const IconComponent = type.icon
                         return (
@@ -423,14 +434,15 @@ function NewPropertySetPageContent() {
                             key={type.value}
                             type="button"
                             onClick={() => setValue('type', type.value as PropertySetType)}
-                            className={`p-4 border-2 rounded-lg transition-all ${
-                              watchedValues.type === type.value
-                                ? 'border-violet-500 bg-violet-50 text-violet-700'
-                                : 'border-gray-200 hover:border-violet-300'
-                            }`}
+                            className="p-3 sm:p-4 rounded-xl border transition-all text-center"
+                            style={{
+                              backgroundColor: watchedValues.type === type.value ? '#f5f3f0' : '#fff',
+                              borderColor: watchedValues.type === type.value ? '#7c3aed' : 'rgba(0,0,0,0.08)',
+                              color: watchedValues.type === type.value ? '#7c3aed' : '#555'
+                            }}
                           >
-                            <IconComponent className="w-6 h-6 mx-auto mb-2" />
-                            <span className="text-sm font-medium">{type.label}</span>
+                            <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1.5 sm:mb-2" />
+                            <span className="text-xs sm:text-sm font-medium block leading-tight">{type.label}</span>
                           </button>
                         )
                       })}
@@ -475,8 +487,8 @@ function NewPropertySetPageContent() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <Card className="p-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              <Card className="p-5 sm:p-7 md:p-8">
+                <h2 className="text-lg sm:text-xl font-semibold mb-5 sm:mb-6 tracking-tight" style={{ color: '#111' }}>
                   {t('groups.steps.location')}
                 </h2>
 
@@ -592,8 +604,8 @@ function NewPropertySetPageContent() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <Card className="p-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              <Card className="p-5 sm:p-7 md:p-8">
+                <h2 className="text-lg sm:text-xl font-semibold mb-5 sm:mb-6 tracking-tight" style={{ color: '#111' }}>
                   {t('groups.form.contactInfoTitle')}
                 </h2>
 
@@ -712,8 +724,8 @@ function NewPropertySetPageContent() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <Card className="p-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">
+              <Card className="p-5 sm:p-7 md:p-8">
+                <h2 className="text-lg sm:text-xl font-semibold mb-5 sm:mb-6 tracking-tight" style={{ color: '#111' }}>
                   {t('groups.form.selectProperties')}
                 </h2>
 
@@ -749,24 +761,24 @@ function NewPropertySetPageContent() {
                     {selectableProperties.map((property) => (
                       <div
                         key={property.id}
-                        className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                          selectedProperties.includes(property.id)
-                            ? 'border-violet-500 bg-violet-50'
-                            : 'border-gray-200 hover:border-violet-300'
-                        }`}
+                        className="p-4 rounded-xl border cursor-pointer transition-all"
+                        style={{
+                          backgroundColor: selectedProperties.includes(property.id) ? '#f5f3f0' : '#fff',
+                          borderColor: selectedProperties.includes(property.id) ? '#7c3aed' : 'rgba(0,0,0,0.08)'
+                        }}
                         onClick={() => handlePropertyToggle(property.id)}
                       >
-                        <div className="flex items-center space-x-4">
+                        <div className="flex items-center gap-3 sm:gap-4">
                           <div className="flex-shrink-0">
                             {property.profileImage ? (
                               <img
                                 src={property.profileImage}
                                 alt={property.name}
-                                className="w-12 h-12 rounded-lg object-cover"
+                                className="w-12 h-12 rounded-xl object-cover"
                               />
                             ) : (
-                              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
-                                <Building2 className="w-6 h-6 text-white" />
+                              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#f0efed' }}>
+                                <Building2 className="w-5 h-5" style={{ color: '#555' }} />
                               </div>
                             )}
                           </div>
