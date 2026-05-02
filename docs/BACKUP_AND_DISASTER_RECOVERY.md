@@ -127,44 +127,72 @@ git -C /Users/alejandrosatlla/Documents/itineramio push origin backup-pre-alexai
 
 ---
 
-## 2. Base de datos (Neon PostgreSQL)
+## 2. Base de datos (Supabase PostgreSQL)
 
 ### Lo que tienes
 
-Neon ofrece **point-in-time restore** automático.
+**Provider verificado 2026-05-02**: Supabase (host `aws-0-eu-north-1.pooler.supabase.com`).
+Anterior versión de este doc decía Supabase — incorrecto. Corregido.
 
-- **Plan típico Neon Free**: 7 días de retención
-- **Plan típico Neon Launch**: 14-30 días según tier
-- **Plan Scale**: hasta 30 días + branches
+Supabase ofrece distintos niveles de backup según plan:
+
+- **Free plan**: backups diarios automáticos retenidos 7 días. NO hay branching nativo.
+- **Pro plan ($25/mes)**: backups diarios 7 días + Point-In-Time Recovery (PITR) como add-on (~$100/mes para retención 7 días). **Branching nativo disponible**.
+- **Team / Enterprise**: PITR estándar + retenciones más largas.
 
 ### Cómo recuperar
 
-**Restore point-in-time:**
-1. Login en https://console.neon.tech
+**Restore desde backup diario (Free + Pro):**
+1. Login en https://supabase.com/dashboard
 2. Seleccionar tu proyecto Itineramio
-3. Tab **Restore** o **Branches**
-4. Elegir punto temporal (timestamp exacto antes del desastre)
-5. **Crear nueva branch** desde ese punto (no sobrescribir `main` directamente)
-6. Cambiar `DATABASE_URL` en Vercel temporalmente a la branch restaurada
-7. Verificar datos
-8. Si todo OK, promover branch restaurada a main
+3. Database → Backups
+4. Elegir un backup diario (últimos 7 días)
+5. **Restaurar a un nuevo proyecto** (no sobrescribir el actual sin querer)
+6. Validar datos
+7. Si todo OK, promover (cambiar `DATABASE_URL` en Vercel) — implica downtime corto
+
+**Restore Point-In-Time (solo Pro+ con PITR add-on):**
+1. Database → Backups → Point-In-Time
+2. Seleccionar timestamp exacto
+3. Restaurar a nuevo proyecto / branch
+4. Validar
+5. Cutover
+
+**Branching para test de migrations (solo Pro+):**
+1. Settings → Branching → Enable
+2. Create branch desde main
+3. Cambiar `DATABASE_URL` temporalmente a branch
+4. Probar migration
+5. Si OK, promover a main / replicar en producción
 
 **Antes de cualquier migration arriesgada:**
 
 ```bash
-# Idealmente: crear branch manual en Neon dashboard antes de migration
-# Si no, anotar timestamp exacto antes de correr la migration
+# Si tienes Pro+: crear branch manual en Supabase dashboard antes de migration.
+# Si tienes Free: anotar timestamp y aceptar que rollback requiere restore desde backup diario.
 date -u +"%Y-%m-%dT%H:%M:%SZ"  # → guardar este timestamp
 npx prisma migrate dev --name xxx
 ```
 
-Si la migration rompe algo, restauras a ese timestamp.
-
 ### Acción requerida (Alejandro)
 
-- **Verificar** plan actual de Neon y retención disponible.
-- **Considerar upgrade** si Beta crece (mayor retención = más seguridad).
-- **Cada Fase nueva**: crear branch manual en Neon dashboard como snapshot antes de cambios de schema grandes.
+- **Verificar plan actual** de Supabase en Settings → Billing.
+- **Si Free**: considerar upgrade a Pro ($25/mes) cuando Beta crezca para tener branching + PITR.
+- **Cada Fase nueva**: si tienes Pro, crear branch manual antes de cambios de schema grandes. Si Free, snapshot manual con `pg_dump` localmente o aceptar restore desde backup diario.
+
+### Alternativa: pg_dump manual (Free plan)
+
+Si no quieres pagar Pro y necesitas snapshot puntual antes de cambio crítico:
+
+```bash
+# Hace dump de todas las tablas (lento, varios GB potencialmente)
+pg_dump "$DATABASE_URL" > backup-pre-cambio-$(date +%Y%m%d-%H%M).sql
+
+# Restore (a otro Postgres, no producción directamente):
+psql "$NEW_DATABASE_URL" < backup-pre-cambio-XXX.sql
+```
+
+Útil pero NO escala. Solo para ocasiones críticas.
 
 ---
 
@@ -203,7 +231,7 @@ Tarda <1 minuto. Reversible.
 Las variables de entorno productivas están en **Vercel project settings**. Las locales en `.env.local` (no commiteado).
 
 Variables críticas (de CLAUDE.md):
-- `DATABASE_URL` + `DIRECT_URL` (Neon)
+- `DATABASE_URL` + `DIRECT_URL` (Supabase)
 - `JWT_SECRET`
 - `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET`
 - `RESEND_API_KEY`
@@ -229,7 +257,7 @@ Variables críticas (de CLAUDE.md):
 **Si Vercel pierde las variables (improbable):**
 - Tienes que regenerar de cada servicio:
   - `JWT_SECRET`: regenerar nuevo (todos los usuarios re-login obligatorio)
-  - `DATABASE_URL`: dashboard Neon
+  - `DATABASE_URL`: dashboard Supabase
   - `STRIPE_*`: dashboard Stripe
   - `RESEND_API_KEY`: dashboard Resend
   - `BEDS24_MASTER_REFRESH_TOKEN`: regenerar invite code en Beds24, intercambiar por nuevo refresh token
@@ -250,7 +278,7 @@ rm /Users/alejandrosatlla/.env.itineramio.backup-2026-05-01
 **Lista de verificación**:
 - [ ] `.env.local` copiado en password manager
 - [ ] Acceso 2FA recovery codes Vercel guardados
-- [ ] Acceso 2FA recovery codes Neon guardados
+- [ ] Acceso 2FA recovery codes Supabase guardados
 - [ ] Acceso 2FA recovery codes GitHub guardados
 - [ ] Acceso 2FA recovery codes Stripe guardados
 
@@ -329,7 +357,7 @@ Escenario: portátil robado, disco roto, robo en casa.
 ### Lo que sobrevive (cosas en cloud)
 
 - ✅ Código: GitHub.
-- ✅ Base de datos: Neon.
+- ✅ Base de datos: Supabase.
 - ✅ Deploys: Vercel.
 - ✅ Documentación arquitectónica: Notion.
 - ✅ Variables de entorno: Vercel + password manager.
@@ -368,7 +396,7 @@ npm run dev
 
 # 9. Login a servicios externos
 # - Vercel CLI: vercel login
-# - Neon: web only, login con cuenta
+# - Supabase: web only, login con cuenta
 # - Stripe: web only
 # - Notion: app y web
 ```
@@ -381,7 +409,7 @@ npm run dev
 
 Cada 3 meses, hacer un drill:
 1. Asume que pierdes acceso a tu Mac.
-2. Desde otro dispositivo, intenta loguearte a: GitHub, Vercel, Neon, Notion, password manager, Stripe.
+2. Desde otro dispositivo, intenta loguearte a: GitHub, Vercel, Supabase, Notion, password manager, Stripe.
 3. Si te falta algo (recovery code, 2FA backup, contraseña), corrégelo.
 4. Anota en este documento la fecha del último drill.
 
@@ -397,8 +425,8 @@ Marcar conforme se completa:
 - [ ] Push a remoto: `git push origin main` (después de decidir lo anterior).
 - [ ] Push del tag: `git push origin backup-pre-alexai-2026-05-01`.
 - [ ] Backup `.env.local` en password manager.
-- [ ] Verificar acceso 2FA + recovery codes: GitHub, Vercel, Neon, Stripe, Notion.
-- [ ] Verificar plan Neon (retención point-in-time disponible).
+- [ ] Verificar acceso 2FA + recovery codes: GitHub, Vercel, Supabase, Stripe, Notion.
+- [ ] Verificar plan Supabase (retención point-in-time disponible).
 - [ ] Configurar export mensual de Notion.
 
 ---

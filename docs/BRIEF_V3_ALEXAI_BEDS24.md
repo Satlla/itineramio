@@ -600,7 +600,7 @@ La capability matrix se consulta en runtime, no se hardcodea. El onboarding del 
 5. **Beta con propiedades propias primero**: las 4 de Alejandro durante 2-4 semanas antes de tocar cliente externo.
 6. **Beds24 read-only las primeras 2 semanas**: sync entrante validado antes de activar `POST /bookings/messages`.
 7. **Endpoints versionados**: nuevo trabajo bajo `/api/alexai/*` o `/api/v2/*`. Endpoints existentes intactos.
-8. **Backups antes de cada migration prod**: snapshot Neon point-in-time. Rollback documentado por PR.
+8. **Backups antes de cada migration prod**: branch Supabase (Pro plan tiene branching nativo) o `pg_dump` manual. Rollback documentado por PR.
 9. **Co-host: bloqueo hard**, no warning. `consentConfirmed = false` → sync pausado en BD, no por UI.
 10. **Observabilidad día uno**: log estructurado con `tenantUserId` de cada interacción AI (prompt, respuesta, confianza, edición), métricas de aceptación de drafts, alertas de tasa de descarte.
 11. **Aislamiento multi-tenant**: con `scope=MASTER`, todos los queries filtran por `tenantUserId` siempre vía `withTenant()` helper. Tests específicos de isolation antes de merge.

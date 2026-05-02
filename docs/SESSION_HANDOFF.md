@@ -33,7 +33,7 @@ Todos en `docs/` del repo:
 3. **`DECISIONS_LOG.md`** — D1-D19. Decisiones cerradas y por qué.
 4. **`RISKS_REGISTRY.md`** — 12 riesgos ordenados por severidad + mitigaciones.
 5. **`OPEN_QUESTIONS_AND_IMPROVEMENTS.md`** — 15 mejoras + 15 dudas pendientes.
-6. **`BACKUP_AND_DISASTER_RECOVERY.md`** — procedimientos de backup/restore. ⚠️ CONTIENE ERROR: dice Neon pero la BD real es Supabase. Corregir.
+6. **`BACKUP_AND_DISASTER_RECOVERY.md`** — procedimientos de backup/restore. Verificado 2026-05-02: BD producción está en Supabase Pro ($25/mes), provider corregido en el doc.
 7. **`BRIEF_V2_ALEXAI_BEDS24.md`** — histórico, sustituido por V3.
 
 Notion (bajo página DEVELOPMENT del workspace Itineramio):
@@ -77,7 +77,7 @@ https://github.com/Satlla/itineramio/pull/new/feature/pgvector-zone-embeddings
 
 1. Brief V3 con plan de fases, modelos, reglas.
 2. Risk registry, decisions log V1-V19, open questions.
-3. Disaster recovery doc (con error: dice Neon, es Supabase).
+3. Disaster recovery doc (provider: Supabase Pro $25/mes, con branching nativo y backups diarios 7d).
 4. Audit report del codebase (3 bloques).
 5. Corrección `getUser` → `getAuthUser` en CLAUDE.md y brief V3.
 6. Database de tareas en Notion + 36 tareas iniciales.
@@ -111,20 +111,22 @@ https://github.com/Satlla/itineramio/pull/new/feature/pgvector-zone-embeddings
 
 ### Tareas pendientes inmediatas (Alejandro)
 
-1. **Decisión sobre cómo probar PR1 end-to-end** (en curso):
-   - Tu BD real está en **Supabase** (no Neon como asumí inicialmente).
-   - Verificar plan Supabase (Free vs Pro) — Free no tiene branching nativo.
-   - Decidir entre opciones documentadas en este chat (ver punto 6).
+1. **Crear branch Supabase para probar PR1 end-to-end** (confirmado tiene Pro):
+   - Login en https://supabase.com/dashboard con la cuenta del proyecto Itineramio (project ref `scgbdfltemsthgwianbl`, eu-north-1).
+   - El usuario tiene OTRA cuenta llamada "Angelai" (FREE, eu-west-1, paused) que NO es Itineramio.
+   - Settings → Branches → Enable + Create branch `pr1-pgvector-test`.
+   - Copiar connection strings de la branch.
+   - Pegar temporalmente en `.env` (DATABASE_URL + DIRECT_URL).
+   - Avisar a Claude Code para arrancar migration + test.
 
 ### Tareas pendientes de Claude Code
 
-1. **Corregir docs que dicen "Neon"** y deben decir "Supabase":
-   - `docs/BACKUP_AND_DISASTER_RECOVERY.md` (sección 2 — Base de datos).
-   - `docs/CODEBASE_AUDIT_REPORT.md` (cualquier mención).
-2. **Esperar decisión Alejandro sobre Supabase plan + cómo probar PR1**.
-3. Si OK, ejecutar `npx prisma migrate deploy` contra branch/proyecto de test.
+1. ✅ Docs corregidos (Neon → Supabase, 2026-05-02).
+2. **Esperar branch Supabase del usuario** (Pro, branching nativo).
+3. Cuando llegue, ejecutar `npx prisma migrate deploy` contra la branch.
 4. Ejecutar `npx tsx scripts/test-embeddings.ts <propertyId>`.
-5. Si test OK, mergear PR1 a main.
+5. Reportar resultados (similitud %, errores).
+6. Si test OK, mergear PR1 a main + cerrar branch Supabase.
 
 ### Tareas que vienen después de PR1 mergeado
 
@@ -138,18 +140,22 @@ Después: Fase 2 — Beds24 master + WhatsApp + AlexAI multi-canal (12-15 semana
 
 ---
 
-## 6. Decisión pendiente del usuario en este momento
+## 6. Acción concreta del usuario (2026-05-02)
 
-**Pregunta abierta**: ¿Plan Supabase Free o Pro?
+**Confirmado**: Supabase Pro ($25/mes). Branching nativo disponible.
 
-Opciones de prueba PR1 según respuesta:
+**Pasos del usuario para crear branch PR1 test**:
+1. Login en Supabase con cuenta correcta (NO la "Angelai" FREE eu-west-1).
+2. Proyecto Itineramio (ref `scgbdfltemsthgwianbl`, eu-north-1).
+3. Settings → Branches → Create new branch `pr1-pgvector-test`.
+4. Copiar connection strings (Pooled + Direct).
+5. Pegar en `.env` reemplazando `DATABASE_URL` + `DIRECT_URL` temporalmente.
+6. Avisar a Claude Code.
 
-| Plan Supabase | Opción recomendada |
-|---|---|
-| Pro+ | Supabase Branching nativo. Crea branch en dashboard. Cambias DATABASE_URL temporalmente. Pruebas. |
-| Free | (a) NO probar end-to-end ahora, dejar PR1 mergeable con los 33 tests mocked. (b) Crear proyecto Supabase nuevo vacío + datos sintéticos. (c) Postgres local con Docker. |
-
-**Si opción (a) Free + no probar end-to-end ahora**: PR1 sigue siendo seguro mergeable. Test real cuando llegue PR9 que lo necesite, momento en que se decide pagar Supabase Pro o migrar a Neon.
+**Después del test**:
+- Restaurar `.env` con strings de producción.
+- Borrar branch Supabase (cleanup).
+- Mergear PR1 a main si test OK.
 
 ---
 
@@ -258,6 +264,7 @@ Restricciones del repo (de CLAUDE.md sección 7.1 del brief V3):
 
 ## 12. Documentos a corregir (deuda menor)
 
-1. `docs/BACKUP_AND_DISASTER_RECOVERY.md` — sección 2 dice "Neon", debe decir **"Supabase"**.
+1. ✅ `docs/BACKUP_AND_DISASTER_RECOVERY.md` — Neon → Supabase corregido 2026-05-02.
 2. `CLAUDE.md` — métricas desactualizadas (1.495 console.logs, 460 endpoints, 128 modelos, 6 crons → debe ser 3, 522, 131, 18). Pendiente de actualizar globalmente.
-3. `docs/CODEBASE_AUDIT_REPORT.md` — verificar si menciona Neon en algún punto.
+3. ✅ `docs/CODEBASE_AUDIT_REPORT.md` — sin menciones a Neon (solo audit técnico).
+4. ✅ `docs/BRIEF_V3_ALEXAI_BEDS24.md` — ajustada regla 8 (snapshot Neon → branch Supabase / pg_dump).
