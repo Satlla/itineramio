@@ -613,7 +613,7 @@ Aplicables a todo PR futuro:
 - **Sin `any` en TypeScript** — tipar correctamente.
 - **Sin `try/catch` vacíos** que silencien errores.
 - **Acceso a `process.env`** solo vía `src/lib/env-validation.ts`.
-- **Auth en API routes**: `getUser(req)` de `src/lib/auth.ts`.
+- **Auth en API routes**: `getAuthUser(request)` de `src/lib/auth.ts` (verificado 2026-05-02 — el helper se llama `getAuthUser`, no `getUser` como decía CLAUDE.md desactualizado). Alternativas: `requireAuth`, `requireAdmin`, `requireAuthOrAdmin`.
 - **Rate limiting en rutas nuevas**: `checkRateLimitAsync()` de `@/lib/rate-limit`.
 - **Tests obligatorios** para nuevas APIs críticas (auth, billing, gestión, AlexAI pipeline).
 - **Pre-commit**: `npm run check:quick` debe pasar sin errores.

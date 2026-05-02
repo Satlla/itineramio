@@ -82,15 +82,21 @@ npm run safe-push     # pre-push check + git push
 
 ### Autenticación en API routes
 ```typescript
-import { getUser } from '@/lib/auth'
+import { getAuthUser } from '@/lib/auth'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(req: NextRequest) {
-  const user = await getUser(req)
+  const user = await getAuthUser(req)
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   // ...
 }
 ```
+
+Helpers disponibles en `src/lib/auth.ts`:
+- `getAuthUser(request)` — retorna `JWTPayload | null` (no error si falta auth)
+- `requireAuth(request)` — retorna `JWTPayload | Response` (Response 401 si falta)
+- `requireAdmin(request)` — retorna `JWTPayload | Response` (Response 403 si no es admin)
+- `requireAuthOrAdmin(request)` — permite admin bypass con audit log
 
 ### Rate limiting (rutas nuevas)
 ```typescript
