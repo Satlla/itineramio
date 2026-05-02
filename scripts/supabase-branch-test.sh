@@ -257,7 +257,8 @@ if [[ "$APPLY_MIGRATION" -eq 1 ]]; then
   # Solución: marcamos todas las migrations existentes como `applied` EXCEPTO
   # la última (que es la del PR a probar). Luego `migrate deploy` solo aplica
   # la última, que es lo que queremos validar.
-  LATEST_MIG=$(ls -1 prisma/migrations/ | sort | tail -1)
+  # Solo directorios — excluye migration_lock.toml y otros archivos sueltos.
+  LATEST_MIG=$(find prisma/migrations -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort | tail -1)
   echo "    Latest migration (PR under test): $LATEST_MIG"
   echo "    Marking older migrations as applied (idempotent)..."
   for mig_dir in prisma/migrations/*/; do
