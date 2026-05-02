@@ -499,15 +499,39 @@ const MIN_MEDIA_SCORE = 8;
 function collectRelevantMedia(zones: any[], language: string, _userMessage: string): MediaItem[] {
   if (!zones.length) return [];
 
-  // Only show media from the TOP ranked zone (the one the AI uses to answer).
-  // If that zone has media, show it. If not, show nothing.
-  // NEVER show media from a different zone — that causes showing cafetera
-  // video when asking about secador, or ventilador when asking about plancha.
-  const topZone = zones.find(z => z.type !== 'RECOMMENDATIONS');
-  if (!topZone) return [];
+  // Top zone NORMALMENTE da la media. Pero si la zona #1 (la más relevante para
+  // contestar) NO tiene media, antes devolvíamos []. Eso ha causado que para
+  // "como entro?" se devuelva info de Check In pero sin video porque #1 era
+  // Registro de Viajeros (similar score, sin media).
+  //
+  // FIX: si la zona #1 no tiene media, caer al siguiente top-k SIEMPRE QUE
+  // su score sea (a) >= MIN_MEDIA_SCORE absoluto Y (b) >= 85% del top score.
+  // Doble threshold — el relativo asegura semántica cercana, el absoluto
+  // asegura match real (no caer a una zona casual con score 9).
+  const candidates = zones.filter(z => z.type !== 'RECOMMENDATIONS');
+  if (!candidates.length) return [];
 
-  const score = topZone._relevanceScore ?? 0;
-  if (score < MIN_MEDIA_SCORE) return []; // Only show media for strong matches (score >= 8)
+  const topScore = candidates[0]._relevanceScore ?? 0;
+  if (topScore < MIN_MEDIA_SCORE) return [];
+
+  const SCORE_FALLBACK_RATIO = 0.85;
+  const minAcceptableScore = Math.max(MIN_MEDIA_SCORE, topScore * SCORE_FALLBACK_RATIO);
+
+  let topZone: any = null;
+  for (const candidate of candidates) {
+    const candidateScore = candidate._relevanceScore ?? 0;
+    if (candidateScore < minAcceptableScore) break;
+    const hasMedia = (candidate.steps || []).some((step: any) => {
+      const content = step.content as any;
+      const stepType = (step.type || '').toUpperCase();
+      return content?.mediaUrl && (stepType === 'IMAGE' || stepType === 'VIDEO');
+    });
+    if (hasMedia) {
+      topZone = candidate;
+      break;
+    }
+  }
+  if (!topZone) return [];
 
   const items: MediaItem[] = [];
   let stepNumber = 0;
@@ -1418,7 +1442,14 @@ const QUERY_STOPWORDS_ROUTE = new Set([
 function rankZonesByRelevance(message: string, zones: any[], language: string): any[] {
   const normalize = (s: string) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-  const cleaned = normalize(message).replace(/['\u2018\u2019]/g, ' ');
+  const cleaned = normalize(message)
+    .replace(/['\u2018\u2019]/g, ' ')
+    // Strip ASCII/Spanish punctuation so "entro?" tokenizes as "entro" and matches
+    // expansions/synonyms registered without trailing punctuation. Sin esto, una
+    // pregunta como "como entro?" produce token "entro?" que no encuentra la
+    // expansi\u00f3n "entro" \u2192 keyword score 0 \u2192 activa fallback embeddings \u2192 posible
+    // que una zona no-Check-In rankee #1 sin media \u2192 video perdido.
+    .replace(/[?!,.;:\u00bf\u00a1()"]+/g, ' ');
   // Strip emojis and non-word characters so "😀😀" doesn't return all zones
   const textOnly = cleaned.replace(/[\p{Emoji}\p{So}]+/gu, ' ').trim();
   const rawWords = textOnly.split(/\s+/).filter(w => w.length >= 2 && !QUERY_STOPWORDS_ROUTE.has(w));
